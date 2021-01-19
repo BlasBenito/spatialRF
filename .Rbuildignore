@@ -2,3 +2,5 @@
 ^\.Rproj\.user$
 ^dev_history\.R$
 ^LICENSE\.md$
+^functions\.R$
+^example_data\.RData$
