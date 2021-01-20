@@ -3,15 +3,15 @@
 \docType{data}
 \name{distance_matrix}
 \alias{distance_matrix}
-\title{Matrix of distances among the World's Ecoregions.}
+\title{Matrix of distances among american ecoregions.}
 \format{
-A matrix with 662 rows and columns.
+A matrix with 227 rows and columns.
 }
 \usage{
 distance_matrix
 }
 \description{
-Distance matrix in km among the ecoregions described in the \link{plant_richness} dataset.
+Distance matrix in km among the ecoregions described in the \link{plant_richness_df} and \link{plant_richness_sf} dataset.
 distance_matrix
 }
 \keyword{datasets}

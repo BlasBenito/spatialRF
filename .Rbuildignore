@@ -4,3 +4,4 @@
 ^LICENSE\.md$
 ^functions\.R$
 ^example_data\.RData$
+^data/old$

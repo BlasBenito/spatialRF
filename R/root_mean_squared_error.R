@@ -1,0 +1,65 @@
+#' @title root_mean_squared_error
+#' @description computes the rmse or normalized rmse (nrmse) between two numeric vectors of the same length representing observations and model predictions.
+#' @param o numeric vector with observations, must have the same length as p.
+#' @param p numeric vector with predictions, must have the same length as o.
+#' @param normalization character, normalization method, Default: "rmse" (see Details).
+#' @return Named numeric vector with either one or 5 values, as selected by the user.
+#' @details The normalization methods go as follows:
+#' \itemize{
+#'   \item "rmse": rmse with no normalization.
+#'   \item "mean": rmse dividied by the mean of the observations (rmse/mean(o)).
+#'   \item "sd": rmse dividied by the standard deviation of the observations (rmse/sd(o)).
+#'   \item "maxmin": rmse divided by the range of the observations (rmse/(max(o) - min(o))).
+#'   \item "iq": rmse divided by the interquartile range of the observations (rmse/(quantile(o, 0.75) - quantile(o, 0.25)))
+#' }
+#' @examples
+#' \dontrun{
+#' if(interactive()){
+#'  out <- root_mean_squared_error(
+#'    o = runif(10),
+#'    p = runif(10)
+#'    )
+#'  }
+#' }
+#' @rdname root_mean_squared_error
+#' @importFrom stats na.omit quantile
+#' @export
+root_mean_squared_error <- function(o, p, normalization = c("rmse", "all", "mean", "sd", "maxmin", "iq")) {
+
+  if(!is.vector(o) | !is.vector(p) | length(o) != length(p)){
+    stop("o and p must be numeric vectors of the same length.")
+  }
+  normalization <- match.arg(normalization)
+
+  #computes rmse
+  squared_sums <- sum((o - p)^2)
+  mse <- squared_sums/length(o)
+  rmse <- round(sqrt(mse), 4)
+  names(rmse) <- "rmse"
+
+  #computes nrmse
+  if(normalization != "rmse"){
+
+    #computing nrmse
+    nrmse.sd <- rmse/sd(o)
+    nrmse.mean <- rmse/mean(o)
+    nrmse.maxmin <- rmse/ (max(o) - min(o))
+    nrmse.iq <- rmse/ (quantile(o, 0.75) - quantile(o, 0.25))
+
+    #building vector with nrmse values
+    rmse <- c(rmse, nrmse.iq, nrmse.maxmin, nrmse.mean, nrmse.sd)
+    names(rmse) <- c("rmse", "iq", "maxmin", "mean", "sd")
+
+    #removing infinites
+    rmse[!is.finite(rmse)] <- NA
+    rmse <- na.omit(rmse)
+
+    #if the user selects one particular option
+    if(normalization != "all"){
+      rmse <- rmse[names(rmse) == normalization]
+    }
+  }
+  rmse
+}
+
+

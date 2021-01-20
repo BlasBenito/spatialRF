@@ -1,4 +1,4 @@
-#' @title moran_multiscale
+#' @title moran_multithreshold
 #' @description Applies [moran] to different distance thresholds at the same time, and plots Moran's I value for each distance threshold.
 #' @param x numeric vector, generally a model residuals, Default: NULL
 #' @param distance.matrix distance matrix among the records represented in the numeric vector. The number of rows of this matrix must be equal to the length of x. Default: NULL
@@ -17,7 +17,7 @@
 #' if(interactive()){
 #'  data(distance_matrix)
 #'  data(plant_richness)
-#'  moran.out <- moran_multiscale(
+#'  moran.out <- moran_multithreshold(
 #'    x = plant_richness$richness_species_vascular,
 #'    distance.matrix = distance_matrix,
 #'    distance.thresholds = c(0, 100, 1000, 10000),
@@ -26,10 +26,10 @@
 #'  moran.out
 #'  }
 #' }
-#' @rdname multiscale_moran
+#' @rdname moran_multithreshold
 #' @export
 #' @importFrom ggplot2 ggplot aes geom_hline geom_point geom_line xlab ylab ggtitle
-moran_multiscale <- function(
+moran_multithreshold <- function(
   x = NULL,
   distance.matrix = NULL,
   distance.thresholds = NULL,
@@ -63,7 +63,7 @@ moran_multiscale <- function(
   out.df <- data.frame(
     distance.threshold = distance.thresholds,
     moran.i = NA,
-    moran.p = NA,
+    p.value = NA,
     interpretation = NA
   )
 
@@ -78,7 +78,7 @@ moran_multiscale <- function(
     )
 
     out.df[i, "moran.i"] <- moran.out["moran.i"]
-    out.df[i, "moran.p"] <- moran.out["p.value"]
+    out.df[i, "p.value"] <- moran.out["p.value"]
     out.df[i, "interpretation"] <- moran.out["interpretation"]
 
   }

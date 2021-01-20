@@ -12,9 +12,14 @@ License: GPL-3
 Depends: 
     R (>= 2.10)
 Imports: 
+    dplyr,
     ggplot2,
+    magrittr,
     stats,
+    tibble,
     utils
+Suggests: 
+    testthat
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)

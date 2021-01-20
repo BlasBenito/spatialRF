@@ -1,7 +1,7 @@
-#' Matrix of distances among the World's Ecoregions.
+#' Matrix of distances among american ecoregions.
 #'
-#' Distance matrix in km among the ecoregions described in the [plant_richness] dataset.
+#' Distance matrix in km among the ecoregions described in the [plant_richness_df] and [plant_richness_sf] dataset.
 #' distance_matrix
 #'
-#' @format A matrix with 662 rows and columns.
+#' @format A matrix with 227 rows and columns.
 "distance_matrix"
