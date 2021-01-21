@@ -111,6 +111,22 @@ usethis::use_r("auto_cor")
 sinew::makeOxygen(auto_cor)
 exampletestr::make_test_shell_fun("auto_cor", open = FALSE)
 
+usethis::use_r("statistical_mode")
+sinew::makeOxygen(statistical_mode)
+exampletestr::make_test_shell_fun("statistical_mode", open = FALSE)
+
+usethis::use_r("thinning")
+sinew::makeOxygen(thinning)
+exampletestr::make_test_shell_fun("thinning", open = FALSE)
+
+usethis::use_r("thinning_til_n")
+sinew::makeOxygen(thinning_til_n)
+exampletestr::make_test_shell_fun("thinning_til_n", open = FALSE)
+
+usethis::use_r("cluster_specification")
+sinew::makeOxygen(cluster_specification)
+exampletestr::make_test_shell_fun("cluster_specification", open = FALSE)
+
 
 
 

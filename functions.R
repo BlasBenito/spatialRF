@@ -561,7 +561,7 @@ rf_repeat <- function(data = NULL,
   } else {
 
     #preparing the cluster specification
-    cluster.spec <- cluster_spec(
+    cluster.spec <- cluster_specification(
       ips = cluster.ips,
       cores = cluster.cores,
       user = cluster.user
@@ -1001,7 +1001,7 @@ rf_evaluate <- function(
   } else {
 
     #preparing the cluster specification
-    cluster.spec <- cluster_spec(
+    cluster.spec <- cluster_specification(
       ips = cluster.ips,
       cores = cluster.cores,
       user = cluster.user
@@ -1262,58 +1262,6 @@ make_spatial_fold <- function(
 
 
 
-thinning_til_n <- function(xy, n = 30){
-
-  #initiating distances
-  xy.distances <- dist(xy)
-  min.distance <- distance.i <- min(xy.distances) / 2
-  rm(xy.distances)
-
-  #initiating xy.thin
-  xy.thin <- xy
-
-  while(nrow(xy.thin) > n){
-    distance.i <- distance.i + min.distance
-    xy.thin <- thinning(xy, distance = distance.i)
-  }
-
-  xy.thin
-
-}
-
-thinning = function(xy, distance){
-
-  #count rows
-  row.i <- 1
-
-  #repeats til thinning is done
-  repeat{
-
-    #target row
-    f <- xy[row.i, ]
-
-    #rectangle around the target row
-    ymax <- f$y + distance
-    ymin <- f$y - distance
-    xmax <- f$x + distance
-    xmin <- f$x - distance
-
-    #removes other coordinates within the rectangle
-    xy <- xy[!((xy$y <= ymax) & (xy$y >= ymin) & (xy$x <= xmax) & (xy$x >= xmin) & (xy$y != f$y | xy$x != f$x)), ]
-
-    #grows row.i
-    row.i <- row.i + 1
-
-    #if no more records to thin, break
-    if(row.i >= nrow(xy)){break}
-  }
-
-  xy
-
-}
-
-
-
 sf_points_to_xy <- function(x, names = c("x","y")) {
   stopifnot(inherits(x,"sf") && inherits(sf::st_geometry(x),"sfc_POINT"))
   ret <- do.call(rbind,sf::st_geometry(x))
@@ -1548,7 +1496,7 @@ select_spatial_predictors_sequential <- function(
   } else {
 
     #preparing the cluster specification
-    cluster.spec <- cluster_spec(
+    cluster.spec <- cluster_specification(
       ips = cluster.ips,
       cores = cluster.cores,
       user = cluster.user
@@ -1734,7 +1682,7 @@ rank_spatial_predictors <- function(
     } else {
 
       #preparing the cluster specification
-      cluster.spec <- cluster_spec(
+      cluster.spec <- cluster_specification(
         ips = cluster.ips,
         cores = cluster.cores,
         user = cluster.user
@@ -1887,50 +1835,6 @@ rank_spatial_predictors <- function(
 }
 
 
-#generates a cluster specification for the "spec" argument of the parallel::makeCluster() function
-#ips: vector of computer ips within the local network: c('10.42.0.1', '10.42.0.34', '10.42.0.104')
-#cores: vector of integers with the number of cores available on each computer, in the same order as ips: cores = c(7, 4, 4)
-#user: character, name of the user in the different computers. Only one user name allowed.
-#returns a list that can be used directly as input for the "spec" argument of makeCluster().
-cluster_spec <- function(
-  ips,
-  cores,
-  user
-){
-
-  #creating initial list
-  spec <- list()
-
-  for(i in 1:length(ips)){
-    spec[[i]] <- list()
-    spec[[i]]$host <- ips[i]
-    spec[[i]]$user <- user
-    spec[[i]]$ncore <- cores[i]
-  }
-
-  #generating nodes from the list of machines
-  spec <- lapply(
-    spec,
-    function(spec.i) rep(
-      list(
-        list(
-          host = spec.i$host,
-          user = spec.i$user)
-      ),
-      spec.i$ncore
-    )
-  )
-
-  #formating into a list of lists
-  spec <- unlist(
-    spec,
-    recursive = FALSE
-  )
-
-  return(spec)
-
-}
-
 
 pca_distance_matrix <- function(
   distance.matrix = NULL,
@@ -2005,15 +1909,6 @@ pca <- function(
 
   #returning output
   distance.matrix.pca.factors
-}
-
-
-
-statistical_mode <- function(x) {
-  x.unique <- unique(x)
-  x.unique[which.max(tabulate(match(x, x.unique)))]
-  x.unique <- unlist(x.unique[1])
-  return(x.unique)
 }
 
 repeat_rf <- function(
