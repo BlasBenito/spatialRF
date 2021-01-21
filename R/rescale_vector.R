@@ -1,0 +1,47 @@
+#' @title rescale_vector
+#' @description Helper function to rescale numeric vectors to a new range.
+#' @param x numeric vector, Default: NULL
+#' @param new.min new minimum value, Default: 0
+#' @param new.max new maximum value, Default: 100
+#' @param integer coerce the output to integer, Default: FALSE
+#' @return a numeric vector of the same length as x, but with its values rescaled between new.min and new.max.
+#' @examples
+#' \dontrun{
+#' if(interactive()){
+#'  out <- rescale_vector(
+#'    x = rnorm(100),
+#'    new.min = 0,
+#'    new.max = 100,
+#'    integer = TRUE
+#'    )
+#'    out
+#'  }
+#' }
+#' @rdname rescale_vector
+#' @export
+rescale_vector <- function(x = NULL,
+                           new.min = 0,
+                           new.max = 100,
+                           integer = FALSE){
+
+  if(is.null(x) | !is.vector(x) | !is.numeric(x)){
+    stop("x must be a numeric vector.")
+  }
+
+  #data extremes
+  old.min = min(x)
+  old.max = max(x)
+
+
+  #scaling
+  x = ((x - old.min) / (old.max - old.min)) * (new.max - new.min) + new.min
+
+
+  #to integer
+  if(integer == TRUE){
+    x = floor(x)
+  }
+
+  x
+
+}

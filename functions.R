@@ -1837,7 +1837,7 @@ rank_spatial_predictors <- function(
 
 
 pca_distance_matrix <- function(
-  distance.matrix = NULL,
+  x = NULL,
   distance.threshold = NULL
   ){
 
@@ -1853,14 +1853,14 @@ pca_distance_matrix <- function(
   for(distance.threshold.i in distance.threshold){
 
     #copy distance matrix
-    distance.matrix.i <- distance.matrix
+    x.i <- x
 
     #applying threshold to distance matrix
-    distance.matrix.i[distance.matrix.i <= distance.threshold.i] <- distance.threshold.i
+    x.i[x.i <= distance.threshold.i] <- distance.threshold.i
 
     #computing pca factors
     pca.factors.list[[as.character(distance.threshold.i)]] <- pca(
-      distance.matrix = distance.matrix.i,
+      x = x.i,
       colnames.prefix = paste0(
         "spatial_predictor_",
         distance.threshold.i
@@ -1887,28 +1887,22 @@ pca_distance_matrix <- function(
 
 
 pca <- function(
-  distance.matrix = NULL,
-  colnames.prefix = "pca_factor",
-  plot = TRUE
+  x = NULL,
+  colnames.prefix = "pca_factor"
   ){
 
   #removing columns with zero variance
-  distance.matrix <- distance.matrix[ , which(apply(distance.matrix, 2, var) != 0)]
+  x <- x[ , which(apply(x, 2, var) != 0)]
 
   #computing pca of distance matrix
-  distance.matrix.pca <- prcomp(distance.matrix, scale. = TRUE)
-
-  if(plot == TRUE){
-    p <- factoextra::fviz_eig(distance.matrix.pca)
-    print(p)
-  }
+  x.pca <- prcomp(x, scale. = TRUE)
 
   #getting pca factors
-  distance.matrix.pca.factors <- as.data.frame(distance.matrix.pca$x)
-  colnames(distance.matrix.pca.factors) <- paste(colnames.prefix, 1:ncol(distance.matrix.pca.factors), sep = "_")
+  x.pca.factors <- as.data.frame(x.pca$x)
+  colnames(x.pca.factors) <- paste(colnames.prefix, 1:ncol(x.pca.factors), sep = "_")
 
   #returning output
-  distance.matrix.pca.factors
+  x.pca.factors
 }
 
 repeat_rf <- function(
@@ -2163,36 +2157,6 @@ repeat_rf <- function(
 }
 
 
-
-
-#function to rescale vectors between given bounds
-rescale_vector <- function(x = rnorm(100),
-                          new.min = 0,
-                          new.max = 100,
-                          integer = FALSE){
-
-
-  #data extremes
-  old.min = min(x)
-  old.max = max(x)
-
-
-  #SCALING VECTOR
-  #----------------------
-
-  x = ((x - old.min) / (old.max - old.min)) * (new.max - new.min) + new.min
-
-
-  #FORCES VECTOR INTO INTEGER
-  #----------------------
-
-  if(integer == TRUE){
-    x = floor(x)
-  }
-
-  return(x)
-
-}
 
 
 

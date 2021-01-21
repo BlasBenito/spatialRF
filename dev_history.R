@@ -11,10 +11,7 @@ library(DependenciesGraphs)
 #TO CHECK
 ########################################
 # Document functions and dependencies
-attachment::att_to_description()
-devtools::document()
-# Check the package
-devtools::check()
+
 ########################################
 
 #create package
@@ -126,6 +123,14 @@ exampletestr::make_test_shell_fun("thinning_til_n", open = FALSE)
 usethis::use_r("cluster_specification")
 sinew::makeOxygen(cluster_specification)
 exampletestr::make_test_shell_fun("cluster_specification", open = FALSE)
+
+usethis::use_r("rescale_vector")
+sinew::makeOxygen(rescale_vector)
+exampletestr::make_test_shell_fun("rescale_vector", open = FALSE)
+
+usethis::use_r("pca")
+sinew::makeOxygen(pca)
+exampletestr::make_test_shell_fun("pca", open = FALSE)
 
 
 
