@@ -105,6 +105,10 @@ usethis::use_r("auto_vif")
 sinew::makeOxygen(auto_vif)
 exampletestr::make_test_shell_fun("auto_vif", open = FALSE)
 
+usethis::use_r("vif")
+sinew::makeOxygen(vif)
+exampletestr::make_test_shell_fun("vif", open = FALSE)
+
 usethis::use_r("auto_cor")
 sinew::makeOxygen(auto_cor)
 exampletestr::make_test_shell_fun("auto_cor", open = FALSE)
@@ -137,13 +141,29 @@ usethis::use_r("pca_distance_matrix")
 sinew::makeOxygen(pca_distance_matrix)
 exampletestr::make_test_shell_fun("pca_distance_matrix", open = FALSE)
 
+usethis::use_r("make_spatial_fold")
+sinew::makeOxygen(make_spatial_fold)
+exampletestr::make_test_shell_fun("make_spatial_fold", open = FALSE)
+
+usethis::use_r("make_spatial_folds")
+sinew::makeOxygen(make_spatial_folds)
+exampletestr::make_test_shell_fun("make_spatial_folds", open = FALSE)
+
+usethis::use_r("objects_size")
+sinew::makeOxygen(objects_size)
+exampletestr::make_test_shell_fun("objects_size", open = FALSE)
+
+
+usethis::use_r("rf")
+sinew::makeOxygen(rf)
+exampletestr::make_test_shell_fun("rf", open = FALSE)
 
 
 
 #to check function dependencies
 dep <- DependenciesGraphs::funDependencies(
   envir = environment(),
-  name.function = "rf"
+  name.function = "rf_repeat"
   )
 plot(dep)
 

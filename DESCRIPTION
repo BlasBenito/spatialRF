@@ -17,7 +17,11 @@ Imports:
     magrittr,
     stats,
     tibble,
-    utils
+    utils,
+    foreach,
+    doParallel,
+    ranger,
+    rlang
 Suggests: 
     testthat
 Encoding: UTF-8

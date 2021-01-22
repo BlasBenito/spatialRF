@@ -2,7 +2,7 @@
 #' @description Applies [moran] to different distance thresholds at the same time, and plots Moran's I value for each distance threshold.
 #' @param x numeric vector, generally a model residuals, Default: NULL
 #' @param distance.matrix distance matrix among the records represented in the numeric vector. The number of rows of this matrix must be equal to the length of x. Default: NULL
-#' @param distance.thresholds numeric vector, distances below each value in the distance matrix are set to 0, Default: NULL
+#' @param distance.thresholds numeric vector, distances below each value in the distance matrix are set to 0 for the computation of Moran's I. If NULL, it defaults to seq(0, max(distance.matrix), length.out = 4). Default: NULL
 #' @param plot boolean, plots Moran's I values for each distance threshold if TRUE, Default: TRUE
 #' @return a named list with the slots:
 #'  \describe{

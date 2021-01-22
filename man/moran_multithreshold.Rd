@@ -16,7 +16,7 @@ moran_multithreshold(
 
 \item{distance.matrix}{distance matrix among the records represented in the numeric vector. The number of rows of this matrix must be equal to the length of x. Default: NULL}
 
-\item{distance.thresholds}{numeric vector, distances below each value in the distance matrix are set to 0, Default: NULL}
+\item{distance.thresholds}{numeric vector, distances below each value in the distance matrix are set to 0 for the computation of Moran's I. If NULL, it defaults to seq(0, max(distance.matrix), length.out = 4). Default: NULL}
 
 \item{plot}{boolean, plots Moran's I values for each distance threshold if TRUE, Default: TRUE}
 }

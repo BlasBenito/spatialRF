@@ -3,7 +3,7 @@
 #' @param x matrix or data.frame
 #' @param center substract median (default:TRUE)
 #' @param scale scale by the median absolute deviation (mad())  (default:FALSE)
-#' @param preserveScale equalizes scales without changing them (default:TRUE)
+#' @param preserveScale equalizes scales without changing them (default:FALSE)
 #' @return a scaled matrix or dataframe
 #' @details Adapted from \link[quantable]{robustscale}.
 #' @examples
@@ -16,7 +16,7 @@ scale_robust <- function(
   x,
   center = TRUE,
   scale = TRUE,
-  preserveScale = TRUE
+  preserveScale = FALSE
   ){
 
   if(center == TRUE){

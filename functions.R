@@ -979,6 +979,27 @@ rf_evaluate <- function(
     xy.reference.records <- xy
   }
 
+
+  doParallel::registerDoParallel(cl = temp.cluster)
+  on.exit(parallel::stopCluster(cl = temp.cluster))
+
+  #computing distance step for spatial folds
+  distance.step <- min(dist(xy)) / 2
+
+  #generates spatial folds
+  ####################################
+  spatial.folds <- make_spatial_folds(
+    xy.selected = xy.reference.records,
+    xy = xy,
+    distance.step = distance.step,
+    training.fraction = training.fraction,
+    n.cores = parallel::detectCores() - 1
+  )
+
+  #setting importance = "none" in ranger.arguments
+  ranger.arguments$importance <- "none"
+  ranger.arguments$data <- NULL
+
   #prepare cluster
   #preparing cluster for stand alone machine
   if(is.null(cluster.ips) == TRUE){
@@ -1020,32 +1041,6 @@ rf_evaluate <- function(
     )
 
   }
-  doParallel::registerDoParallel(cl = temp.cluster)
-  on.exit(parallel::stopCluster(cl = temp.cluster))
-
-  #computing distance step for spatial folds
-  distance.step <- min(dist(xy)) / 2
-
-  #loop to generate spatial folds
-  ####################################
-  spatial.folds <- foreach::foreach(
-    i = 1:nrow(xy.reference.records)
-  ) %dopar% {
-
-    spatial.fold.i <- make_spatial_fold(
-      xy.i = xy.reference.records[i, ],
-      xy = xy,
-      distance.step = distance.step,
-      training.fraction = training.fraction
-    )
-
-    return(spatial.fold.i)
-
-  }
-
-  #setting importance = "none" in ranger.arguments
-  ranger.arguments$importance <- "none"
-  ranger.arguments$data <- NULL
 
 
   #loop to evaluate models
@@ -1196,69 +1191,6 @@ rf_evaluate <- function(
 #   return(p)
 #
 # }
-
-
-
-make_spatial_fold <- function(
-  xy.i,
-  xy,
-  distance.step = distance.step,
-  training.fraction = training.fraction
-){
-
-  #getting details of xy.i
-  xy.i.id <- xy.i[1, "id"]
-  xy.i.x <- xy.i[1, "x"]
-  xy.i.y <- xy.i[1, "y"]
-
-  #number of records to select
-  records.to.select <- floor(training.fraction * nrow(xy))
-
-  #generating first buffer
-  old.buffer.x.min <- xy.i.x - distance.step
-  old.buffer.x.max <- xy.i.x + distance.step
-  old.buffer.y.min <- xy.i.y - distance.step
-  old.buffer.y.max <- xy.i.y + distance.step
-
-  #select first batch of presences
-  records.selected <- xy[
-    xy$x >= old.buffer.x.min &
-      xy$x <= old.buffer.x.max &
-      xy$y >= old.buffer.y.min &
-      xy$y <= old.buffer.y.max, ]
-
-  #growing buffer
-  while(nrow(records.selected) < records.to.select){
-
-    #new buffer
-    new.buffer.x.min <- old.buffer.x.min - distance.step
-    new.buffer.x.max <- old.buffer.x.max + distance.step
-    new.buffer.y.min <- old.buffer.y.min - distance.step
-    new.buffer.y.max <- old.buffer.y.max + distance.step
-
-    #number of selected presences
-    records.selected <- xy[
-      xy$x >= new.buffer.x.min &
-        xy$x <= new.buffer.x.max &
-        xy$y >= new.buffer.y.min &
-        xy$y <= new.buffer.y.max, ]
-
-    #resetting old.buffer
-    old.buffer.x.min <- new.buffer.x.min
-    old.buffer.x.max <- new.buffer.x.max
-    old.buffer.y.min <- new.buffer.y.min
-    old.buffer.y.max <- new.buffer.y.max
-
-  }
-
-  #out list
-  out.list <- list()
-  out.list$training <- records.selected$id
-  out.list$testing <- setdiff(xy$id, records.selected$id)
-
-  out.list
-
-}
 
 
 
@@ -1840,25 +1772,6 @@ rank_spatial_predictors <- function(
 
 
 
-pca <- function(
-  x = NULL,
-  colnames.prefix = "pca_factor"
-  ){
-
-  #removing columns with zero variance
-  x <- x[ , which(apply(x, 2, var) != 0)]
-
-  #computing pca of distance matrix
-  x.pca <- prcomp(x, scale. = TRUE)
-
-  #getting pca factors
-  x.pca.factors <- as.data.frame(x.pca$x)
-  colnames(x.pca.factors) <- paste(colnames.prefix, 1:ncol(x.pca.factors), sep = "_")
-
-  #returning output
-  x.pca.factors
-}
-
 repeat_rf <- function(
   data = NULL,
   dependent.variable.name = NULL,
@@ -2114,377 +2027,6 @@ repeat_rf <- function(
 
 
 
-
-
-#rf model with:
-#pseudo R-squared (cor(observations, predictions))
-#dataframe with variable importance
-#Moran's I of the residuals
-rf <- function(
-  data = NULL,
-  dependent.variable.name = NULL,
-  predictor.variable.names = NULL,
-  seed = NULL,
-  distance.matrix = NULL,
-  distance.thresholds = NULL,
-  trees.per.variable = NULL,
-  scaled.importance = TRUE,
-  ranger.arguments = list(
-    formula = NULL,
-    mtry = NULL,
-    importance = "permutation",
-    write.forest = TRUE,
-    probability = FALSE,
-    min.node.size = NULL,
-    max.depth = NULL,
-    replace = TRUE,
-    case.weights = NULL,
-    class.weights = NULL,
-    splitrule = NULL,
-    num.random.splits = 1,
-    alpha = 0.5,
-    minprop = 0.1,
-    split.select.weights = NULL,
-    always.split.variables = NULL,
-    respect.unordered.factors = NULL,
-    scale.permutation.importance = TRUE,
-    local.importance = FALSE,
-    regularization.factor = 1,
-    regularization.usedepth = FALSE,
-    keep.inbag = FALSE,
-    inbag = NULL,
-    holdout = FALSE,
-    quantreg = FALSE,
-    oob.error = TRUE,
-    num.threads = parallel::detectCores() - 1,
-    save.memory = FALSE,
-    verbose = TRUE,
-    seed = NULL,
-    classification = NULL,
-    x = NULL,
-    y = NULL,
-    sample.fraction = 1
-  )
-){
-
-  #subsetting data
-  if(!is.null(data)){
-
-    if(!is.null(predictor.variable.names) & !is.null(dependent.variable.name)){
-
-      predictor.variable.names <- predictor.variable.names[predictor.variable.names %in% colnames(data)]
-      data <- data[, c(dependent.variable.name, predictor.variable.names)]
-
-    }
-
-    #removing NA
-    data <- na.omit(data)
-
-  }
-
-  #default model arguments
-  default.ranger.arguments <- list(
-    formula = NULL,
-    num.trees = 500,
-    trees.per.variable = NULL,
-    mtry = NULL,
-    mtry = NULL,
-    importance = "permutation",
-    write.forest = TRUE,
-    probability = FALSE,
-    min.node.size = NULL,
-    max.depth = NULL,
-    replace = TRUE,
-    case.weights = NULL,
-    class.weights = NULL,
-    splitrule = NULL,
-    num.random.splits = 1,
-    alpha = 0.5,
-    minprop = 0.1,
-    split.select.weights = NULL,
-    always.split.variables = NULL,
-    respect.unordered.factors = NULL,
-    scale.permutation.importance = TRUE,
-    local.importance = FALSE,
-    regularization.factor = 1,
-    regularization.usedepth = FALSE,
-    keep.inbag = FALSE,
-    inbag = NULL,
-    holdout = FALSE,
-    quantreg = FALSE,
-    oob.error = TRUE,
-    num.threads = parallel::detectCores() - 1,
-    save.memory = FALSE,
-    verbose = TRUE,
-    seed = NULL,
-    classification = NULL,
-    x = NULL,
-    y = NULL,
-    sample.fraction = 1
-  )
-  list2env(default.ranger.arguments, envir=environment())
-
-  #user arguments
-  list2env(ranger.arguments, envir=environment())
-
-  #setting up seed if available
-  if(!is.null(seed)){
-    set.seed(seed)
-  }
-
-  if(!is.null(trees.per.variable)){
-    num.trees <- trees.per.variable * (ncol(data) - 1)
-  }
-
-  #ranger model for r-squared and predictions
-  m <- ranger::ranger(
-    data = data,
-    dependent.variable.name = dependent.variable.name,
-    num.trees = num.trees,
-    mtry = mtry,
-    importance = importance,
-    write.forest = write.forest,
-    probability = probability,
-    min.node.size = min.node.size,
-    max.depth = max.depth,
-    replace = replace,
-    sample.fraction = sample.fraction,
-    case.weights = case.weights,
-    class.weights = class.weights,
-    splitrule = splitrule,
-    num.random.splits = num.random.splits,
-    alpha = alpha,
-    minprop = minprop,
-    split.select.weights = split.select.weights,
-    always.split.variables = always.split.variables,
-    respect.unordered.factors = respect.unordered.factors,
-    scale.permutation.importance = scale.permutation.importance,
-    local.importance = local.importance,
-    regularization.factor = regularization.factor,
-    regularization.usedepth = regularization.usedepth,
-    keep.inbag = keep.inbag,
-    inbag = inbag,
-    holdout = holdout,
-    quantreg = quantreg,
-    oob.error = oob.error,
-    num.threads = num.threads,
-    save.memory = save.memory,
-    verbose = verbose,
-    seed = seed,
-    classification = classification,
-    x = x,
-    y = y
-  )
-
-  #if scaled.importance is TRUE
-  if(scaled.importance == TRUE){
-
-    #applying robust scaling to the data
-    data.scaled <- scale_robust(
-      data = data
-    )
-
-    #if scaling fails, use regular scaling
-    if(sum(is.nan(data.scaled[, 1])) > 0 | sum(is.infinite(data.scaled[, 1])) > 0){
-      data.scaled <- as.data.frame(scale(data))
-    }
-
-    #ranger model for variable importance
-    m.scaled <- ranger::ranger(
-      data = data.scaled,
-      dependent.variable.name = dependent.variable.name,
-      num.trees = num.trees,
-      mtry = mtry,
-      importance = importance,
-      write.forest = write.forest,
-      probability = probability,
-      min.node.size = min.node.size,
-      max.depth = max.depth,
-      replace = replace,
-      sample.fraction = sample.fraction,
-      case.weights = case.weights,
-      class.weights = class.weights,
-      splitrule = splitrule,
-      num.random.splits = num.random.splits,
-      alpha = alpha,
-      minprop = minprop,
-      split.select.weights = split.select.weights,
-      always.split.variables = always.split.variables,
-      respect.unordered.factors = respect.unordered.factors,
-      scale.permutation.importance = FALSE,
-      local.importance = local.importance,
-      regularization.factor = regularization.factor,
-      regularization.usedepth = regularization.usedepth,
-      keep.inbag = keep.inbag,
-      inbag = inbag,
-      holdout = holdout,
-      quantreg = quantreg,
-      oob.error = oob.error,
-      num.threads = num.threads,
-      save.memory = save.memory,
-      verbose = verbose,
-      seed = seed,
-      classification = classification,
-      x = x,
-      y = y
-    )
-
-  } else {
-
-    m.scaled <- m
-
-  }
-
-  #adding model arguments
-  m$ranger.arguments <- list(
-    data = data,
-    dependent.variable.name = dependent.variable.name,
-    predictor.variable.names = predictor.variable.names,
-    num.trees = num.trees,
-    mtry = mtry,
-    importance = importance,
-    write.forest = write.forest,
-    probability = probability,
-    min.node.size = min.node.size,
-    max.depth = max.depth,
-    replace = replace,
-    sample.fraction = sample.fraction,
-    case.weights = case.weights,
-    class.weights = class.weights,
-    splitrule = splitrule,
-    num.random.splits = num.random.splits,
-    alpha = alpha,
-    minprop = minprop,
-    split.select.weights = split.select.weights,
-    always.split.variables = always.split.variables,
-    respect.unordered.factors = respect.unordered.factors,
-    scale.permutation.importance = scale.permutation.importance,
-    local.importance = local.importance,
-    regularization.factor = regularization.factor,
-    regularization.usedepth = regularization.usedepth,
-    keep.inbag = keep.inbag,
-    inbag = inbag,
-    holdout = holdout,
-    quantreg = quantreg,
-    oob.error = oob.error,
-    num.threads = num.threads,
-    save.memory = save.memory,
-    verbose = verbose,
-    seed = seed,
-    classification = classification
-  )
-
-  #importance dataframe
-  importance.vector <- m.scaled$variable.importance
-  m$variable.importance <- list()
-  m$variable.importance$vector <- importance.vector
-  m$variable.importance$df <- data.frame(
-    variable = names(m.scaled$variable.importance),
-    importance = m.scaled$variable.importance
-  ) %>%
-    tibble::remove_rownames() %>%
-    dplyr::arrange(desc(importance))
-
-  m$variable.importance$plot <- ggplot2::ggplot(data = m$variable.importance$df) +
-    ggplot2::aes(
-      x = importance,
-      y = reorder(
-        variable,
-        importance,
-        FUN = max
-      )
-    ) +
-    ggplot2::geom_point(size = 2) +
-    ggplot2::ylab("")
-
-  #getting residuals
-
-  #predicted data
-  predicted <- m$predictions
-
-  #getting observed data
-
-  #if data is provided
-  if(!is.null(data)){
-
-    #the user used a formula
-    if(!is.null(formula)){
-
-      #observed
-      observed <- data[, all.vars(formula)[1]]
-
-    }
-
-    #user gave dependent.variable.name
-    if(!is.null(dependent.variable.name)){
-
-      #observed
-      observed <- data[, dependent.variable.name]
-
-    }
-
-  }
-
-  if(!is.null(y) & !is.null(x)){
-
-    observed = y
-
-  }
-
-  m$pseudo.r.squared <- cor(
-    observed,
-    predicted
-  )
-
-  m$rmse <- root_mean_squared_error(
-    o = observed,
-    p = predicted,
-    type = NULL
-  )
-
-  m$nrmse <- root_mean_squared_error(
-    o = observed,
-    p = predicted,
-    type = "iq"
-  )
-
-  m$residuals <- observed - predicted
-
-
-  #compute moran I of residuals if distance.matrix is provided
-  if(!is.null(distance.matrix)){
-
-    m$spatial.correlation.residuals <- moran_multithreshold(
-      x = m$residuals,
-      distance.matrix = distance.matrix,
-      distance.thresholds = distance.thresholds,
-      plot = FALSE
-      )
-
-  }
-
-  #replacing variable importance with the scaled one
-  m$variable.importance.local <- m.scaled$variable.importance.local
-
-  return(m)
-
-}
-
-
-#computes vif of a dataframe
-vif <- function(x){
-  out <- x %>%
-    na.omit() %>%
-    as.matrix() %>%
-    cor() %>%
-    solve() %>%
-    diag() %>%
-    sort(decreasing = TRUE) %>%
-    as.data.frame() %>%
-    tibble::rownames_to_column(var = "variable")
-  colnames(out)[2] <- "vif"
-  return(out)
-}
 
 #' Correlation dendrogram to help reduce multicollinearity in a training dataset.
 #'
