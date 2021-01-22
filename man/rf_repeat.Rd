@@ -38,7 +38,7 @@ rf_repeat(
 
 \item{predictor.variable.names}{(required) character vector with the names of the predictive variables. Every element must be in the column names of 'data', Default: NULL}
 
-\item{distance.matrix}{(optional) a squared matrix with the distances among the records in 'data'. Notice that the rows of 'distance.matrix' and 'data' must be the same. If not provided, the computation of the Moran's I of the residuals is ommited. Default: NULL``}
+\item{distance.matrix}{(optional) a squared matrix with the distances among the records in 'data'. Notice that the rows of 'distance.matrix' and 'data' must be the same. If not provided, the computation of the Moran's I of the residuals is ommited. Default: NULL.}
 
 \item{distance.thresholds}{(optional) numeric vector, distances below each value in the distance matrix are set to 0 for the computation of Moran's I. If NULL, it defaults to seq(0, max(distance.matrix), length.out = 4). Default: NULL.}
 

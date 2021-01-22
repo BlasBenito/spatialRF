@@ -161,12 +161,16 @@ usethis::use_r("rf_repeat")
 sinew::makeOxygen(rf_repeat)
 exampletestr::make_test_shell_fun("rf_repeat", open = FALSE)
 
+usethis::use_r("rank_spatial_predictors")
+sinew::makeOxygen(rank_spatial_predictors)
+exampletestr::make_test_shell_fun("rank_spatial_predictors", open = FALSE)
+
 
 
 #to check function dependencies
 dep <- DependenciesGraphs::funDependencies(
   envir = environment(),
-  name.function = "rf_repeat"
+  name.function = "rf_spatial"
   )
 plot(dep)
 
