@@ -10,8 +10,9 @@ library(DependenciesGraphs)
 
 #TO CHECK
 ########################################
-# Document functions and dependencies
-
+attachment::att_from_description()
+devtools::document()
+devtools::check()
 ########################################
 
 #create package
@@ -131,6 +132,10 @@ exampletestr::make_test_shell_fun("rescale_vector", open = FALSE)
 usethis::use_r("pca")
 sinew::makeOxygen(pca)
 exampletestr::make_test_shell_fun("pca", open = FALSE)
+
+usethis::use_r("pca_distance_matrix")
+sinew::makeOxygen(pca_distance_matrix)
+exampletestr::make_test_shell_fun("pca_distance_matrix", open = FALSE)
 
 
 

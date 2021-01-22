@@ -150,8 +150,8 @@ rf_spatial <- function(
 
     #computing pca factors for pca methods
     spatial.predictors.df <- pca_distance_matrix(
-      distance.matrix = distance.matrix,
-      distance.threshold =  m.spatial.correlation.residuals$distance.threshold
+      x = distance.matrix,
+      distance.thresholds =  m.spatial.correlation.residuals$distance.threshold
     )
     if(verbose == TRUE){
       message("Using PCA factors of the distance matrix as spatial predictors")
@@ -1834,52 +1834,6 @@ rank_spatial_predictors <- function(
 
 }
 
-
-
-pca_distance_matrix <- function(
-  x = NULL,
-  distance.threshold = NULL
-  ){
-
-  #if distance.threshold is null, 0
-  if(is.null(distance.threshold)){
-    distance.threshold <- 0
-  }
-
-  #list to store pca factors
-  pca.factors.list <- list()
-
-  #iterating through distance thresholds
-  for(distance.threshold.i in distance.threshold){
-
-    #copy distance matrix
-    x.i <- x
-
-    #applying threshold to distance matrix
-    x.i[x.i <= distance.threshold.i] <- distance.threshold.i
-
-    #computing pca factors
-    pca.factors.list[[as.character(distance.threshold.i)]] <- pca(
-      x = x.i,
-      colnames.prefix = paste0(
-        "spatial_predictor_",
-        distance.threshold.i
-        ),
-      plot = FALSE
-    )
-
-  }
-
-  #removing names
-  names(pca.factors.list) <- NULL
-
-  #to data frame
-  pca.factors <- do.call("cbind", pca.factors.list)
-
-  #returning output
-  pca.factors
-
-}
 
 
 
