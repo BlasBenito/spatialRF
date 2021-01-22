@@ -445,6 +445,7 @@ rf_spatial <- function(
 
 }
 
+
 rf_repeat <- function(data = NULL,
                       dependent.variable.name = NULL,
                       predictor.variable.names = NULL,
@@ -887,7 +888,7 @@ rf_repeat <- function(data = NULL,
   )
 
   #gathering residuals
-  residuals <- as.data.frame(do.call("cbind",         lapply(
+  residuals <- as.data.frame(do.call("cbind", lapply(
     repeated.models,
     "[[",
     "residuals"
@@ -902,7 +903,7 @@ rf_repeat <- function(data = NULL,
 
   m.curves$residuals <- NULL
   m.curves$residuals$df <- residuals.mean
-  m.curves$residuals$df.long <- residuals
+  m.curves$residuals$df.wide <- residuals
   m.curves$residuals$stats <- summary(residuals.mean$residuals_mean)
 
   #gathering models

@@ -21,7 +21,9 @@ Imports:
     foreach,
     doParallel,
     ranger,
-    rlang
+    rlang,
+    tidyr,
+    tidyselect
 Suggests: 
     testthat
 Encoding: UTF-8

@@ -153,10 +153,13 @@ usethis::use_r("objects_size")
 sinew::makeOxygen(objects_size)
 exampletestr::make_test_shell_fun("objects_size", open = FALSE)
 
-
 usethis::use_r("rf")
 sinew::makeOxygen(rf)
 exampletestr::make_test_shell_fun("rf", open = FALSE)
+
+usethis::use_r("rf_repeat")
+sinew::makeOxygen(rf_repeat)
+exampletestr::make_test_shell_fun("rf_repeat", open = FALSE)
 
 
 
