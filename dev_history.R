@@ -165,6 +165,10 @@ usethis::use_r("rank_spatial_predictors")
 sinew::makeOxygen(rank_spatial_predictors)
 exampletestr::make_test_shell_fun("rank_spatial_predictors", open = FALSE)
 
+usethis::use_r("select_spatial_predictors_sequential")
+sinew::makeOxygen(select_spatial_predictors_sequential)
+exampletestr::make_test_shell_fun("select_spatial_predictors_sequential", open = FALSE)
+
 
 
 #to check function dependencies

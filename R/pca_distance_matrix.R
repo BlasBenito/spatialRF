@@ -55,6 +55,13 @@ pca_distance_matrix <- function(
   #to data frame
   pca.factors <- as.data.frame(do.call("cbind", pca.factors.list))
 
+  #finding spatial predictors with too many leading zeroes
+  pca.factors.filter <- round(apply(abs(pca.factors), 2, sum), 6)
+  pca.factors.filter <- pca.factors.filter[pca.factors.filter != 0]
+
+  #removing them
+  pca.factors <- pca.factors[, colnames(pca.factors) %in% names(pca.factors.filter)]
+
   #returning output
   pca.factors
 

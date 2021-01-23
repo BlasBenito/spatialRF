@@ -2,12 +2,11 @@ test_that("`rf()` works", {
   data("plant_richness_df")
   data("distance_matrix")
   out <- rf(
-    data = plant_richness_df, dependent.variable.name = "richness_species_vascular",
+    data = plant_richness_df,
+    dependent.variable.name = "richness_species_vascular",
     predictor.variable.names = colnames(plant_richness_df)[5:21],
-    distance.matrix = distance_matrix, distance.thresholds = c(
-      0,
-      100, 1000, 10000
-    )
+    distance.matrix = distance_matrix,
+    distance.thresholds = c(0,100, 1000, 10000)
   )
   expect_s3_class(out, "ranger")
   expect_s3_class(out$variable.importance$df, "data.frame")

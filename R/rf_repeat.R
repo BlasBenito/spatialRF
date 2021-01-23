@@ -5,26 +5,16 @@
 #' @param predictor.variable.names (required) character vector with the names of the predictive variables. Every element must be in the column names of 'data', Default: NULL
 #' @param distance.matrix (optional) a squared matrix with the distances among the records in 'data'. Notice that the rows of 'distance.matrix' and 'data' must be the same. If not provided, the computation of the Moran's I of the residuals is ommited. Default: NULL.
 #' @param distance.thresholds (optional) numeric vector, distances below each value in the distance matrix are set to 0 for the computation of Moran's I. If NULL, it defaults to seq(0, max(distance.matrix), length.out = 4). Default: NULL.
-#' @param repetitions integer, number of random forest models to fit. Default: 5
-#' @param keep.models boolean, if TRUE, the fitted models are returned in the "models" slot. Default: FALSE.
+#' @param ranger.arguments (optional) list with \link[ranger]{ranger} arguments. All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.
 #' @param trees.per.variable (optional) number of individual regression trees to fit per variable in 'predictor.variable.names'. This is an alternative way to define ranger's 'num.trees'. If NULL, 'num.trees' is 500. Default: NULL
 #' @param scaled.importance (optional) boolean. If TRUE, and 'importance = "permutation', the function scales 'data' with [scale_robust] and fits a new model to compute scaled variable importance scores. Default: TRUE
+#' @param repetitions integer, number of random forest models to fit. Default: 5
+#' @param keep.models boolean, if TRUE, the fitted models are returned in the "models" slot. Default: FALSE.
 #' @param n.cores number of cores to use to compute repetitions. If NULL, all cores but one are used, unless a cluster is used.
 #' @param cluster.ips character vector, IPs of the machines in the cluster. The first machine will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.
 #' @param cluster.cores numeric integer vector, number of cores on each machine.
 #' @param cluster.user character string, name of the user (should be the same throughout machines), Defaults to the current system user. Default: user name of the current session.
 #' @param cluster.port integer, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: 11000.
-#' @param ranger.arguments list with \link[ranger]{ranger} arguments. All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.  Default: list(formula = NULL, mtry = NULL, importance = "permutation",
-#'    write.forest = TRUE, probability = FALSE, min.node.size = NULL,
-#'    max.depth = NULL, replace = TRUE, case.weights = NULL, class.weights = NULL,
-#'    splitrule = NULL, num.random.splits = 1, alpha = 0.5, minprop = 0.1,
-#'    split.select.weights = NULL, always.split.variables = NULL,
-#'    respect.unordered.factors = NULL, scale.permutation.importance = TRUE,
-#'    local.importance = FALSE, regularization.factor = 1, regularization.usedepth = FALSE,
-#'    keep.inbag = FALSE, inbag = NULL, holdout = FALSE, quantreg = FALSE,
-#'    oob.error = TRUE, num.threads = parallel::detectCores() -
-#'        1, save.memory = FALSE, verbose = TRUE, seed = NULL,
-#'    classification = NULL, x = NULL, y = NULL, sample.fraction = 1)
 #' @return a ranger model with several new slots:
 #' \itemize{
 #'   \item{ranger.arguments}{stores the values of the arguments used to fit the ranger model}
@@ -82,50 +72,17 @@ rf_repeat <- function(data = NULL,
                       predictor.variable.names = NULL,
                       distance.matrix = NULL,
                       distance.thresholds = NULL,
-                      repetitions = 5,
-                      keep.models = FALSE,
+                      ranger.arguments = NULL,
                       trees.per.variable = NULL,
                       scaled.importance = TRUE,
+                      repetitions = 5,
+                      keep.models = FALSE,
                       n.cores = NULL,
                       cluster.ips = NULL,
                       cluster.cores = NULL,
                       cluster.user = Sys.info()[["user"]],
-                      cluster.port = 11000,
-                      ranger.arguments = list(
-                        formula = NULL,
-                        mtry = NULL,
-                        importance = "permutation",
-                        write.forest = TRUE,
-                        probability = FALSE,
-                        min.node.size = NULL,
-                        max.depth = NULL,
-                        replace = TRUE,
-                        case.weights = NULL,
-                        class.weights = NULL,
-                        splitrule = NULL,
-                        num.random.splits = 1,
-                        alpha = 0.5,
-                        minprop = 0.1,
-                        split.select.weights = NULL,
-                        always.split.variables = NULL,
-                        respect.unordered.factors = NULL,
-                        scale.permutation.importance = TRUE,
-                        local.importance = FALSE,
-                        regularization.factor = 1,
-                        regularization.usedepth = FALSE,
-                        keep.inbag = FALSE,
-                        inbag = NULL,
-                        holdout = FALSE,
-                        quantreg = FALSE,
-                        oob.error = TRUE,
-                        num.threads = parallel::detectCores() - 1,
-                        save.memory = FALSE,
-                        verbose = TRUE,
-                        classification = NULL,
-                        x = NULL,
-                        y = NULL,
-                        sample.fraction = 1
-                      )
+                      cluster.port = 11000
+
 ){
 
   #initializes local.importance
@@ -231,9 +188,9 @@ rf_repeat <- function(data = NULL,
       predictor.variable.names = predictor.variable.names,
       distance.matrix = distance.matrix,
       distance.thresholds = distance.thresholds,
+      ranger.arguments = ranger.arguments,
       trees.per.variable = trees.per.variable,
-      seed = i,
-      ranger.arguments = ranger.arguments
+      seed = i
     )
 
     #model on scaled data
@@ -243,10 +200,9 @@ rf_repeat <- function(data = NULL,
         data = data.scaled,
         dependent.variable.name = dependent.variable.name,
         predictor.variable.names = predictor.variable.names,
-        distance.matrix = NULL,
+        ranger.arguments = ranger.arguments,
         trees.per.variable = trees.per.variable,
-        seed = i,
-        ranger.arguments = ranger.arguments
+        seed = i
       )
 
     }
@@ -284,8 +240,8 @@ rf_repeat <- function(data = NULL,
     predictor.variable.names = predictor.variable.names,
     distance.matrix = distance.matrix,
     distance.thresholds = distance.thresholds,
-    trees.per.variable = trees.per.variable,
-    ranger.arguments = ranger.arguments
+    ranger.arguments = ranger.arguments,
+    trees.per.variable = trees.per.variable
   )
 
   #PARSING OUTPUT OF PARALLELIZED LOOP

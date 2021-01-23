@@ -1,14 +1,15 @@
 #' @title rank_spatial_predictors
 #' @description ranks spatial predictors generated from the PCA of a distance matrix (or columns of the distance matrix itself) by either their effect in reducing the Moran's I of the model residuals (ranking.method = "moran.i.reduction"), or by their own Moran's I (ranking.method = "mem"). In the former case, one model of the type `y ~ predictors + spatial_predictor_X` is fitted per spatial predictor (this is a computationally intensive function), and the Moran's I of its residuals is compared with the one of the model `y ~ predictors`, to finally order the spatial predictor from maximum to minimum Moran's I difference. In the latter case the spatial predictors are ordered by their Moran's I alone (this is the faster option). In both cases, the ranked spatial predictors undergo a multicollinearity filtering through [auto_cor] or [auto_vif], in order to reduce as much as possible the total number of spatial predictors to reduce computation time downstream. The purpose of this function is to provide criteria on how to include spatial predictors in a model. This function has been designed to be used internally by rf_spatial rather than by directly by a user.
-#' @param ranking.method string, one of "moran.i.reduction" and "mem". The former option ranks spatial predictors according how much each predictor reduces Moran's I of the model residuals.
-#' @param spatial.predictors.df data frame of spatial predictors, either a distance matrix, or the PCA factors of the distance matrix produced by [pca_distance_matrix].
 #' @param data (required) data frame with a response variable and a set of (preferably uncorrelated) predictors, Default: NULL
 #' @param dependent.variable.name (required) string with the name of the response variable. Must be in the column names of 'data', Default: NULL
 #' @param predictor.variable.names (required) character vector with the names of the predictive variables. Every element must be in the column names of 'data', Default: NULL
 #' @param reference.moran.i Moran's I of the residuals of a model fitted without spatial predictors. Default: 1.
 #' @param distance.matrix (optional) a squared matrix with the distances among the records in 'data'. Notice that the rows of 'distance.matrix' and 'data' must be the same. If not provided, the computation of the Moran's I of the residuals is ommited. Default: NULL.
 #' @param distance.thresholds (optional) numeric vector, distances below each value in the distance matrix are set to 0 for the computation of Moran's I. If NULL, it defaults to seq(0, max(distance.matrix), length.out = 4). Default: NULL.
-#' @param ranger.arguments list with \link[ranger]{ranger} arguments. See [rf] or [rf_repeat] for further details.
+#' @param ranger.arguments (optional) list with \link[ranger]{ranger} arguments. See [rf] or [rf_repeat] for further details.
+#' @param spatial.predictors.df data frame of spatial predictors, either a distance matrix, or the PCA factors of the distance matrix produced by [pca_distance_matrix].
+#' @param ranking.method string, one of "moran.i.reduction" and "mem". The former option ranks spatial predictors according how much each predictor reduces Moran's I of the model residuals.
+
 #' @param n.cores number of cores to use to compute repetitions. If NULL, all cores but one are used, unless a cluster is used.
 #' @param cluster.ips character vector, IPs of the machines in the cluster. The first machine will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.
 #' @param cluster.cores numeric integer vector, number of cores on each machine.
@@ -32,10 +33,10 @@
 #'
 #'  #ranking by the Moran's I of the spatial predictor
 #'  rank <- rank_spatial_predictors(
-#'    ranking.method = "mem",
-#'    spatial.predictors.df = spatial.predictors.df,
 #'    distance.matrix = distance_matrix[1:50, 1:50],
 #'    distance.thresholds = c(0, 100, 1000),
+#'    spatial.predictors.df = spatial.predictors.df,
+#'    ranking.method = "mem",
 #'    n.cores = 1,
 #'    multicollinearity.filter = "vif"
 #'  )
@@ -46,21 +47,21 @@
 #' @rdname rank_spatial_predictors
 #' @export
 rank_spatial_predictors <- function(
-  ranking.method = c("moran.i.reduction", "mem"),
-  spatial.predictors.df = NULL,
   data = NULL,
   dependent.variable.name = NULL,
   predictor.variable.names = NULL,
-  reference.moran.i = 1,
   distance.matrix = NULL,
   distance.thresholds = NULL,
   ranger.arguments = NULL,
+  spatial.predictors.df = NULL,
+  ranking.method = c("moran.i.reduction", "mem"),
+  reference.moran.i = 1,
+  multicollinearity.filter = c("vif", "cor", "none"),
   n.cores = NULL,
   cluster.ips = NULL,
   cluster.cores = NULL,
   cluster.user = NULL,
-  cluster.port = 11000,
-  multicollinearity.filter = c("vif", "cor", "none")
+  cluster.port = 11000
 ){
 
   #testing method argument
@@ -111,6 +112,11 @@ rank_spatial_predictors <- function(
   }
   doParallel::registerDoParallel(cl = temp.cluster)
   on.exit(parallel::stopCluster(cl = temp.cluster))
+
+  #add write.forest = FALSE to ranger.arguments
+  if(!is.null(ranger.arguments)){
+    ranger.arguments$write.forest = FALSE
+  }
 
   #3.2.3 PREPARING PARALLELIZED LOOP TO ITERATE THROUGH distance.matrix.pca
   spatial.predictors.i <- NULL

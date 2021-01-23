@@ -3,31 +3,21 @@
 #' @param data (required) data frame with a response variable and a set of (preferably uncorrelated) predictors, Default: NULL
 #' @param dependent.variable.name (required) string with the name of the response variable. Must be in the column names of 'data', Default: NULL
 #' @param predictor.variable.names (required) character vector with the names of the predictive variables. Every element must be in the column names of 'data', Default: NULL
-#' @param seed (optional) integer, random seed to facilitate reproducibility, Default: NULL
 #' @param distance.matrix (optional) a squared matrix with the distances among the records in 'data'. Notice that the rows of 'distance.matrix' and 'data' must be the same. If not provided, the computation of the Moran's I of the residuals is ommited. Default: NULL``
 #' @param distance.thresholds (optional) numeric vector, distances below each value in the distance matrix are set to 0 for the computation of Moran's I. If NULL, it defaults to seq(0, max(distance.matrix), length.out = 4). Default: NULL.
+#' @param ranger.arguments (optional) list with \link[ranger]{ranger} arguments. All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.
 #' @param trees.per.variable (optional) number of individual regression trees to fit per variable in 'predictor.variable.names'. This is an alternative way to define ranger's 'num.trees'. If NULL, 'num.trees' is 500. Default: NULL
 #' @param scaled.importance (optional) boolean. If TRUE, and 'importance = "permutation', the function scales 'data' with [scale_robust] and fits a new model to compute scaled variable importance scores. Default: TRUE
-#' @param ranger.arguments list with \link[ranger]{ranger} arguments. All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.  Default: list(formula = NULL, mtry = NULL, importance = "permutation",
-#'    write.forest = TRUE, probability = FALSE, min.node.size = NULL,
-#'    max.depth = NULL, replace = TRUE, case.weights = NULL, class.weights = NULL,
-#'    splitrule = NULL, num.random.splits = 1, alpha = 0.5, minprop = 0.1,
-#'    split.select.weights = NULL, always.split.variables = NULL,
-#'    respect.unordered.factors = NULL, scale.permutation.importance = TRUE,
-#'    local.importance = FALSE, regularization.factor = 1, regularization.usedepth = FALSE,
-#'    keep.inbag = FALSE, inbag = NULL, holdout = FALSE, quantreg = FALSE,
-#'    oob.error = TRUE, num.threads = parallel::detectCores() -
-#'        1, save.memory = FALSE, verbose = TRUE, seed = NULL,
-#'    classification = NULL, x = NULL, y = NULL, sample.fraction = 1)
+#' @param seed (optional) integer, random seed to facilitate reproducibility, Default: NULL
 #' @return a ranger model with several new slots:
 #' \itemize{
-#'   \item{ranger.arguments}{stores the values of the arguments used to fit the ranger model}
-#'   \item{variable.importance}{a list containing the vector of variable importance as originally returned by ranger (scaled or not depending on the value of 'scaled.importance'), a data frame with the predictors ordered by their importance, and a ggplot showing the importance values}
-#'   \item{pseudo.r.squared}{computed as the correlation between the observations and the predictions}
-#'   \item{rmse}{as computed by [root_mean_squared_error] with 'normalization = NULL'}
-#'   \item{nrmse}{as computed by [root_mean_squared_error] with 'normalization = "iq'}
-#'   \item{residuals}{computed as observations minus predictions}
-#'   \item{spatial.correlation.residuals}{the result of [moran_multithreshold]}
+#'   \item `ranger.arguments`: stores the values of the arguments used to fit the ranger model.
+#'   \item `variable.importance`: a list containing the vector of variable importance as originally returned by ranger (scaled or not depending on the value of 'scaled.importance'), a data frame with the predictors ordered by their importance, and a ggplot showing the importance values.
+#'   \item `pseudo.r.squared`: computed as the correlation between the observations and the predictions.
+#'   \item `rmse`: as computed by [root_mean_squared_error] with 'normalization = NULL'.
+#'   \item `nrmse`: as computed by [root_mean_squared_error] with 'normalization = "iq'.
+#'   \item `residuals`: computed as observations minus predictions.
+#'   \item `spatial.correlation.residuals`: the result of [moran_multithreshold].
 #' }
 #' @details Please read the help file of \link[ranger]{ranger} for further details.
 #' @examples
@@ -77,47 +67,26 @@ rf <- function(
   data = NULL,
   dependent.variable.name = NULL,
   predictor.variable.names = NULL,
-  seed = NULL,
   distance.matrix = NULL,
   distance.thresholds = NULL,
-  trees.per.variable = NULL,
-  scaled.importance = TRUE,
   ranger.arguments = list(
-    formula = NULL,
     mtry = NULL,
-    importance = "permutation",
-    write.forest = TRUE,
-    probability = FALSE,
     min.node.size = NULL,
     max.depth = NULL,
-    replace = TRUE,
-    case.weights = NULL,
-    class.weights = NULL,
-    splitrule = NULL,
-    num.random.splits = 1,
-    alpha = 0.5,
-    minprop = 0.1,
-    split.select.weights = NULL,
-    always.split.variables = NULL,
-    respect.unordered.factors = NULL,
+    importance = "permutation",
     scale.permutation.importance = TRUE,
     local.importance = FALSE,
-    regularization.factor = 1,
-    regularization.usedepth = FALSE,
-    keep.inbag = FALSE,
-    inbag = NULL,
-    holdout = FALSE,
-    quantreg = FALSE,
-    oob.error = TRUE,
+    write.forest = TRUE,
+    replace = TRUE,
+    sample.fraction = ifelse(replace, 1, 0.632),
+    case.weights = NULL,
     num.threads = parallel::detectCores() - 1,
     save.memory = FALSE,
-    verbose = TRUE,
-    seed = NULL,
-    classification = NULL,
-    x = NULL,
-    y = NULL,
-    sample.fraction = 1
-  )
+    verbose = TRUE
+  ),
+  trees.per.variable = NULL,
+  scaled.importance = TRUE,
+  seed = NULL
 ){
 
   #subsetting data
@@ -135,7 +104,7 @@ rf <- function(
 
   }
 
-  #default model arguments
+  #default arguments (needs to be here to avoid devtools::check() complaints)
   formula = NULL
   num.trees = 500
   trees.per.variable = NULL
@@ -147,6 +116,7 @@ rf <- function(
   min.node.size = NULL
   max.depth = NULL
   replace = TRUE
+  sample.fraction = ifelse(replace, 1, 0.632)
   case.weights = NULL
   class.weights = NULL
   splitrule = NULL
@@ -172,10 +142,11 @@ rf <- function(
   classification = NULL
   x = NULL
   y = NULL
-  sample.fraction = 1
 
   #user arguments
-  list2env(ranger.arguments, envir=environment())
+  if(!is.null(ranger.arguments)){
+    list2env(ranger.arguments, envir=environment())
+  }
 
   #setting up seed if available
   if(!is.null(seed)){

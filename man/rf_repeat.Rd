@@ -10,25 +10,16 @@ rf_repeat(
   predictor.variable.names = NULL,
   distance.matrix = NULL,
   distance.thresholds = NULL,
-  repetitions = 5,
-  keep.models = FALSE,
+  ranger.arguments = NULL,
   trees.per.variable = NULL,
   scaled.importance = TRUE,
+  repetitions = 5,
+  keep.models = FALSE,
   n.cores = NULL,
   cluster.ips = NULL,
   cluster.cores = NULL,
   cluster.user = Sys.info()[["user"]],
-  cluster.port = 11000,
-  ranger.arguments = list(formula = NULL, mtry = NULL, importance = "permutation",
-    write.forest = TRUE, probability = FALSE, min.node.size = NULL, max.depth = NULL,
-    replace = TRUE, case.weights = NULL, class.weights = NULL, splitrule = NULL,
-    num.random.splits = 1, alpha = 0.5, minprop = 0.1, split.select.weights = NULL,
-    always.split.variables = NULL, respect.unordered.factors = NULL,
-    scale.permutation.importance = TRUE, local.importance = FALSE, regularization.factor
-    = 1, regularization.usedepth = FALSE, keep.inbag = FALSE,      inbag = NULL, holdout
-    = FALSE, quantreg = FALSE, oob.error = TRUE, num.threads = parallel::detectCores() -
-    1, save.memory = FALSE, verbose = TRUE, classification = NULL, x = NULL, y = NULL,
-    sample.fraction = 1)
+  cluster.port = 11000
 )
 }
 \arguments{
@@ -42,13 +33,15 @@ rf_repeat(
 
 \item{distance.thresholds}{(optional) numeric vector, distances below each value in the distance matrix are set to 0 for the computation of Moran's I. If NULL, it defaults to seq(0, max(distance.matrix), length.out = 4). Default: NULL.}
 
-\item{repetitions}{integer, number of random forest models to fit. Default: 5}
-
-\item{keep.models}{boolean, if TRUE, the fitted models are returned in the "models" slot. Default: FALSE.}
+\item{ranger.arguments}{(optional) list with \link[ranger]{ranger} arguments. All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.}
 
 \item{trees.per.variable}{(optional) number of individual regression trees to fit per variable in 'predictor.variable.names'. This is an alternative way to define ranger's 'num.trees'. If NULL, 'num.trees' is 500. Default: NULL}
 
 \item{scaled.importance}{(optional) boolean. If TRUE, and 'importance = "permutation', the function scales 'data' with \link{scale_robust} and fits a new model to compute scaled variable importance scores. Default: TRUE}
+
+\item{repetitions}{integer, number of random forest models to fit. Default: 5}
+
+\item{keep.models}{boolean, if TRUE, the fitted models are returned in the "models" slot. Default: FALSE.}
 
 \item{n.cores}{number of cores to use to compute repetitions. If NULL, all cores but one are used, unless a cluster is used.}
 
@@ -59,18 +52,6 @@ rf_repeat(
 \item{cluster.user}{character string, name of the user (should be the same throughout machines), Defaults to the current system user. Default: user name of the current session.}
 
 \item{cluster.port}{integer, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: 11000.}
-
-\item{ranger.arguments}{list with \link[ranger]{ranger} arguments. All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.  Default: list(formula = NULL, mtry = NULL, importance = "permutation",
-write.forest = TRUE, probability = FALSE, min.node.size = NULL,
-max.depth = NULL, replace = TRUE, case.weights = NULL, class.weights = NULL,
-splitrule = NULL, num.random.splits = 1, alpha = 0.5, minprop = 0.1,
-split.select.weights = NULL, always.split.variables = NULL,
-respect.unordered.factors = NULL, scale.permutation.importance = TRUE,
-local.importance = FALSE, regularization.factor = 1, regularization.usedepth = FALSE,
-keep.inbag = FALSE, inbag = NULL, holdout = FALSE, quantreg = FALSE,
-oob.error = TRUE, num.threads = parallel::detectCores() -
-1, save.memory = FALSE, verbose = TRUE, seed = NULL,
-classification = NULL, x = NULL, y = NULL, sample.fraction = 1)}
 }
 \value{
 a ranger model with several new slots:
