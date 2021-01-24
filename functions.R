@@ -16,6 +16,7 @@ rf_spatial <- function(
     "moran.reduction.sequential", #pca factors added in order of effect
     "moran.reduction.optimized" #pca factors added maximizing their joint effect.
   ),
+  max.pca.factors = 1000,
   iterations = 1,
   trees.per.variable = NULL,
   cluster.ips = NULL,
@@ -151,7 +152,8 @@ rf_spatial <- function(
     #computing pca factors for pca methods
     spatial.predictors.df <- pca_distance_matrix(
       x = distance.matrix,
-      distance.thresholds =  m.spatial.correlation.residuals$distance.threshold
+      distance.thresholds =  m.spatial.correlation.residuals$distance.threshold,
+      max.pca.factors = max.pca.factors
     )
     if(verbose == TRUE){
       message("Using PCA factors of the distance matrix as spatial predictors")
@@ -198,15 +200,16 @@ rf_spatial <- function(
 
     #ranking spatial predictors
     ranking.spatial.predictors <- rank_spatial_predictors(
-      ranking.method = ranking.method,
-      spatial.predictors.df = spatial.predictors.df,
       data = data,
       dependent.variable.name = dependent.variable.name,
       predictor.variable.names = predictor.variable.names,
-      reference.moran.i = m.non.spatial$spatial.correlation.residuals$max.moran,
       distance.matrix = distance.matrix,
       distance.thresholds = distance.thresholds,
       ranger.arguments = ranger.arguments.fast,
+      spatial.predictors.df = spatial.predictors.df,
+      ranking.method = ranking.method,
+      reference.moran.i = m.non.spatial$spatial.correlation.residuals$max.moran,
+      n.cores = n.cores,
       cluster.ips = cluster.ips,
       cluster.cores = cluster.cores,
       cluster.user = cluster.user,
@@ -249,14 +252,16 @@ rf_spatial <- function(
     }
 
     spatial.predictors.selected <- select_spatial_predictors_optimized(
-      spatial.predictors.df = spatial.predictors.df,
-      spatial.predictors.rank = ranking.spatial.predictors,
+
       data = data,
       dependent.variable.name = dependent.variable.name,
       predictor.variable.names = predictor.variable.names,
       distance.matrix = distance.matrix,
       distance.thresholds = distance.thresholds,
       ranger.arguments = ranger.arguments.fast,
+      spatial.predictors.df = spatial.predictors.df,
+      spatial.predictors.ranking = ranking.spatial.predictors,
+      n.cores = n.cores,
       cluster.ips = NULL,
       cluster.cores = NULL,
       cluster.user = NULL,

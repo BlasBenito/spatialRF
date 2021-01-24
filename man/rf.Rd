@@ -37,7 +37,7 @@ rf(
 
 \item{scaled.importance}{(optional) boolean. If TRUE, and 'importance = "permutation', the function scales 'data' with \link{scale_robust} and fits a new model to compute scaled variable importance scores. Default: TRUE}
 
-\item{seed}{(optional) integer, random seed to facilitate reproducibility, Default: NULL}
+\item{seed}{(optional) integer, random seed to facilitate reproducibility. If set to a given number, the returned model is always the same. Default: NULL}
 }
 \value{
 a ranger model with several new slots:

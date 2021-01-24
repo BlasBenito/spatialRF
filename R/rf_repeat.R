@@ -143,9 +143,9 @@ rf_repeat <- function(data = NULL,
 
     #preparing the cluster specification
     cluster.spec <- cluster_specification(
-      ips = cluster.ips,
-      cores = cluster.cores,
-      user = cluster.user
+      cluster.ips = cluster.ips,
+      cluster.cores = cluster.cores,
+      cluster.user = cluster.user
     )
 
     #setting parallel port

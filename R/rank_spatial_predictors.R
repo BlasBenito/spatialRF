@@ -1,5 +1,5 @@
 #' @title rank_spatial_predictors
-#' @description ranks spatial predictors generated from the PCA of a distance matrix (or columns of the distance matrix itself) by either their effect in reducing the Moran's I of the model residuals (ranking.method = "moran.i.reduction"), or by their own Moran's I (ranking.method = "mem"). In the former case, one model of the type `y ~ predictors + spatial_predictor_X` is fitted per spatial predictor (this is a computationally intensive function), and the Moran's I of its residuals is compared with the one of the model `y ~ predictors`, to finally order the spatial predictor from maximum to minimum Moran's I difference. In the latter case the spatial predictors are ordered by their Moran's I alone (this is the faster option). In both cases, the ranked spatial predictors undergo a multicollinearity filtering through [auto_cor] or [auto_vif], in order to reduce as much as possible the total number of spatial predictors to reduce computation time downstream. The purpose of this function is to provide criteria on how to include spatial predictors in a model. This function has been designed to be used internally by rf_spatial rather than by directly by a user.
+#' @description ranks spatial predictors generated from the PCA of a distance matrix (or columns of the distance matrix itself) by either their effect in reducing the Moran's I of the model residuals (ranking.method = "moran.i.reduction"), or by their own Moran's I (ranking.method = "mem"). In the former case, one model of the type `y ~ predictors + spatial_predictor_X` is fitted per spatial predictor (this is a computationally intensive function), and the Moran's I of its residuals is compared with the one of the model `y ~ predictors`, to finally order the spatial predictor from maximum to minimum Moran's I difference. In the latter case the spatial predictors are ordered by their Moran's I alone (this is the faster option). In both cases, spatial predictors with no effect (no reduction of Moran's I  or Moran's I of the spatial predictor equal or lower than 0) are removed, while the remaining ones undergo a multicollinearity filtering through [auto_cor] or [auto_vif], in order to reduce as much as possible the total number of spatial predictors to reduce computation time downstream. The purpose of this function is to provide criteria on how to include spatial predictors in a model. This function has been designed to be used internally by rf_spatial rather than by directly by a user.
 #' @param data (required) data frame with a response variable and a set of (preferably uncorrelated) predictors, Default: NULL
 #' @param dependent.variable.name (required) string with the name of the response variable. Must be in the column names of 'data', Default: NULL
 #' @param predictor.variable.names (required) character vector with the names of the predictive variables. Every element must be in the column names of 'data', Default: NULL
@@ -92,9 +92,9 @@ rank_spatial_predictors <- function(
 
     #preparing the cluster specification
     cluster.spec <- cluster_specification(
-      ips = cluster.ips,
-      cores = cluster.cores,
-      user = cluster.user
+      cluster.ips = cluster.ips,
+      cluster.cores = cluster.cores,
+      cluster.user = cluster.user
     )
 
     #setting parallel port
@@ -209,7 +209,7 @@ rank_spatial_predictors <- function(
   #selected spatial.predictorss
   spatial.predictors.order.selected <- dplyr::filter(
     spatial.predictors.order,
-    ranking.criteria > 0.01
+    ranking.criteria > 0
   )
 
   #apply vif filtering if requested
@@ -235,7 +235,9 @@ rank_spatial_predictors <- function(
 
   #subset spatial.predictors.order
   if(multicollinearity.filter != "none"){
+
     spatial.predictors.order.selected <- spatial.predictors.order.selected[spatial.predictors.order.selected$spatial.predictors.name %in% multicollinearity.df$selected.variables, ]
+
   }
 
   #return output

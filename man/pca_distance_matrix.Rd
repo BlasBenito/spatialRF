@@ -4,12 +4,14 @@
 \alias{pca_distance_matrix}
 \title{pca_distance_matrix}
 \usage{
-pca_distance_matrix(x = NULL, distance.thresholds = 0)
+pca_distance_matrix(x = NULL, distance.thresholds = 0, max.pca.factors = 1000)
 }
 \arguments{
 \item{x}{numeric squared matrix with distances among records, Default: NULL}
 
 \item{distance.thresholds}{numeric vector with distance thresholds defining neighborhood in the distance matrix, Default: 0}
+
+\item{max.pca.factors}{maximum number of PCA factors to generate. Default: 1000}
 }
 \value{
 a data frame with the PCA factors of the thresholded matrix. The number of columns should be equal to ncol(x) * length(distance.thresholds), but notice that the function \link{pca} removes columns with variance 0, and therefore the final number of columns of the function output may vary. The columns are named "spatial_predictor_DISTANCE_COLUMN", where distance is the given distance threshold, and column is the column index of the given predictor.

@@ -14,7 +14,10 @@
 #' @param cluster.user character string, name of the user (should be the same throughout machines), Defaults to the current system user. Default: user name of the current session.
 #' @param cluster.port integer, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: 11000.
 #' @return a list with two slots: `optimization`, a data frame with the index of the spatial predictor added on each iteration, the spatial correlation of the model residuals, and the R-squared of the model, and `best.spatial.predictors`, that is a character vector with the names of the spatial predictors that minimize the Moran's I of the residuals and maximize the R-squared of the model.
+#' @details How does the algorithm work? If the function [rank_spatial_predictors] returns 10 spatial predictors (sp1 to sp10, ordered from best to worst), [select_spatial_predictors_sequential] is going to fit the models `y ~ predictors + sp1`, `y ~ predictors + sp1 + sp2`, until all spatial predictors are used in `y ~ predictors + sp1 ... sp10`. The model with lower Moran's I of the residuals and higher R-squared is selected, and its spatial predictors returned.
 #' @examples
+#' \dontrun{
+#' if(interactive()){
 #' data("distance_matrix")
 #' data("plant_richness_df")
 #'
@@ -41,7 +44,7 @@
 #' )
 
 #' #ranking spatial predictors by their Moran's I (faster option)
-#' spatial.predictors.ranked <- rank_spatial_predictors(
+#' spatial.predictors.ranking <- rank_spatial_predictors(
 #'   ranking.method = "mem",
 #'   spatial.predictors.df = spatial.predictors,
 #'   reference.moran.i = model$spatial.correlation.residuals$max.moran,
@@ -59,12 +62,14 @@
 #'   distance.matrix = distance.matrix,
 #'   distance.thresholds = distance.thresholds,
 #'   spatial.predictors.df = spatial.predictors,
-#'   spatial.predictors.ranking = spatial.predictors.ranked,
+#'   spatial.predictors.ranking = spatial.predictors.ranking,
 #'   n.cores = 1
 #' )
 #'
 #' selection$optimization
 #' selection$best.spatial.predictors
+#'  }
+#' }
 #' @rdname select_spatial_predictors_sequential
 #' @export
 select_spatial_predictors_sequential <- function(
@@ -110,9 +115,9 @@ select_spatial_predictors_sequential <- function(
 
     #preparing the cluster specification
     cluster.spec <- cluster_specification(
-      ips = cluster.ips,
-      cores = cluster.cores,
-      user = cluster.user
+      cluster.ips = cluster.ips,
+      cluster.cores = cluster.cores,
+      cluster.user = cluster.user
     )
 
     #setting parallel port

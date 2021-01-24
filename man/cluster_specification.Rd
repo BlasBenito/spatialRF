@@ -4,14 +4,18 @@
 \alias{cluster_specification}
 \title{cluster_specification}
 \usage{
-cluster_specification(ips = NULL, cores = NULL, user = Sys.info()[["user"]])
+cluster_specification(
+  cluster.ips = NULL,
+  cluster.cores = NULL,
+  cluster.user = Sys.info()[["user"]]
+)
 }
 \arguments{
-\item{ips}{character vector, IPs of the machines in the cluster. The first machine will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.}
+\item{cluster.ips}{character vector, IPs of the machines in the cluster. The first machine will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.}
 
-\item{cores}{numeric integer vector, number of cores on each machine.}
+\item{cluster.cores}{numeric integer vector, number of cores on each machine.}
 
-\item{user}{character string, name of the user (should be the same throughout machines), Defaults to the current system user.}
+\item{cluster.user}{character string, name of the user (should be the same throughout machines), Defaults to the current system user.}
 }
 \value{
 a list ready to be used as input for the "spec" argument of the function \link[parallel]{makeCluster}.
@@ -24,9 +28,9 @@ This function is used internally by several other functions of the package, but 
 }
 \examples{
  cluster.spec <- cluster_specification(
-   ips = c("10.0.1.40", "10.0.1.41"),
-   cores = c(6, 4),
-   user = Sys.info()[["user"]]
+   cluster.ips = c("10.0.1.40", "10.0.1.41"),
+   cluster.cores = c(6, 4),
+   cluster.user = Sys.info()[["user"]]
  )
  cluster.spec
 }

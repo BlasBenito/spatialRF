@@ -8,7 +8,7 @@
 #' @param ranger.arguments (optional) list with \link[ranger]{ranger} arguments. All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.
 #' @param trees.per.variable (optional) number of individual regression trees to fit per variable in 'predictor.variable.names'. This is an alternative way to define ranger's 'num.trees'. If NULL, 'num.trees' is 500. Default: NULL
 #' @param scaled.importance (optional) boolean. If TRUE, and 'importance = "permutation', the function scales 'data' with [scale_robust] and fits a new model to compute scaled variable importance scores. Default: TRUE
-#' @param seed (optional) integer, random seed to facilitate reproducibility, Default: NULL
+#' @param seed (optional) integer, random seed to facilitate reproducibility. If set to a given number, the returned model is always the same. Default: NULL
 #' @return a ranger model with several new slots:
 #' \itemize{
 #'   \item `ranger.arguments`: stores the values of the arguments used to fit the ranger model.
@@ -138,7 +138,6 @@ rf <- function(
   num.threads = parallel::detectCores() - 1
   save.memory = FALSE
   verbose = TRUE
-  seed = NULL
   classification = NULL
   x = NULL
   y = NULL
