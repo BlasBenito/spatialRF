@@ -6,7 +6,7 @@
 #' @param distance.matrix (optional) a squared matrix with the distances among the records in 'data'. Notice that the rows of 'distance.matrix' and 'data' must be the same. If not provided, the computation of the Moran's I of the residuals is ommited. Default: NULL.
 #' @param distance.thresholds (optional) numeric vector, distances below each value in the distance matrix are set to 0 for the computation of Moran's I. If NULL, it defaults to seq(0, max(distance.matrix), length.out = 4). Default: NULL.
 #' @param ranger.arguments list with \link[ranger]{ranger} arguments. See [rf] or [rf_repeat] for further details.
-#' @param spatial.predictors.df data frame of spatial predictors, either a distance matrix, or the PCA factors of the distance matrix produced by [pca_distance_matrix].
+#' @param spatial.predictors.df data frame of spatial predictors, either a distance matrix, or the PCA factors of the distance matrix produced by [pca_multithreshold].
 #' @param spatial.predictors.ranking ranking of predictors returned by [rank_spatial_predictors].
 #' @param n.cores number of cores to use to compute repetitions. If NULL, all cores but one are used, unless a cluster is used.
 #' @param cluster.ips character vector, IPs of the machines in the cluster. The first machine will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.
@@ -184,19 +184,52 @@ select_spatial_predictors_sequential <- function(
     out.df <- data.frame(
       spatial.predictor.index = spatial.predictors.i,
       moran.i = m.i$spatial.correlation.residuals$max.moran,
-      r.squared = m.i$r.squared,
-      sum = (1 - m.i$spatial.correlation.residuals$max.moran) + m.i$r.squared
+      r.squared = m.i$r.squared
     )
 
     return(out.df)
 
   }#end of parallelized loop
 
+  #OPTIMIZING Moran.s I, R-squared, and number of spatial predictors
+
+  #penalizing by number of variables (same weight as moran.i)
+  penalization.step <- max(optimization.df$moran.i)/nrow(optimization.df)
+  optimization.df$penalization.per.variable <- penalization.step * optimization.df$spatial.predictor.index
+
+  #computing "optimization"
+  optimization.df$optimization <- ((1 - optimization.df$moran.i) + optimization.df$r.squared) - optimization.df$penalization.per.variable
+
+  #smoothing optimization
+  smooth.optimization <- data.frame(
+    a = optimization.df$optimization,
+    b = c(
+      optimization.df$optimization[2:nrow(optimization.df)],
+      optimization.df$optimization[nrow(optimization.df)]
+    ),
+    c = c(
+      optimization.df$optimization[1],
+      optimization.df$optimization[1:(nrow(optimization.df)-1)]
+    ),
+    d = c(
+      optimization.df$optimization[3:nrow(optimization.df)],
+      optimization.df$optimization[nrow(optimization.df)],
+      optimization.df$optimization[nrow(optimization.df)]
+    ),
+    e = c(
+      optimization.df$optimization[1],
+      optimization.df$optimization[1],
+      optimization.df$optimization[1:(nrow(optimization.df)-2)]
+    )
+  )
+  optimization.df$optimization.smooth <- rowMeans(smooth.optimization)
+
   #arranging optimization df
+  optimization.smooth <- NULL
   optimization.df <- dplyr::arrange(
     optimization.df,
-    dplyr::desc(sum)
-  )
+    dplyr::desc(optimization.smooth)
+    )
 
   #get index of spatial predictor with optimized r-squared and moran.i
   optimized.index <- optimization.df[1, "spatial.predictor.index"]

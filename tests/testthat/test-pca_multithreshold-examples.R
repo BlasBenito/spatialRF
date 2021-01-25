@@ -1,6 +1,6 @@
-test_that("`pca_distance_matrix()` works", {
+test_that("`pca_multithreshold()` works", {
   data(distance_matrix)
-  out <- pca_distance_matrix(
+  out <- pca_multithreshold(
     x = distance_matrix,
     distance.thresholds = c(0, 1000)
     )

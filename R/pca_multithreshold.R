@@ -1,14 +1,14 @@
-#' @title pca_distance_matrix
+#' @title pca_multithreshold
 #' @description computes PCA factors of a distance matrix given a set of distance thresholds. This function allows to generate spatial predictors (Moran's Eigenvector Maps) from the same distance matrix thresholded at different neighborhood distances.
-#' @param x numeric squared matrix with distances among records, Default: NULL
-#' @param distance.thresholds numeric vector with distance thresholds defining neighborhood in the distance matrix, Default: 0
-#' @param max.pca.factors maximum number of PCA factors to generate. Default: 1000
-#' @return a data frame with the PCA factors of the thresholded matrix. The number of columns should be equal to ncol(x) * length(distance.thresholds), but notice that the function [pca] removes columns with variance 0, and therefore the final number of columns of the function output may vary. The columns are named "spatial_predictor_DISTANCE_COLUMN", where distance is the given distance threshold, and column is the column index of the given predictor.
+#' @param x (required) numeric squared matrix with distances among records, Default: NULL
+#' @param distance.thresholds (optional) numeric vector with distance thresholds defining neighborhood in the distance matrix, Default: 0
+#' @param max.spatial.predictors (optional) maximum number of spatial predictors to generate. Only useful when the distance matrix `x` is very large. Default: 1000
+#' @return a data frame with the PCA factors of the thresholded matrix. The number of columns should be equal to ncol(x) * length(distance.thresholds), but notice that the function [pca] removes columns with variance 0, and therefore the final number of columns of the function output may vary. The data frame columns are named "spatial_predictor_DISTANCE_COLUMN", where distance is the given distance threshold, and column is the column index of the given predictor.
 #' @details DETAILS
 #' @examples
 #' \dontrun{
 #' if(interactive()){
-#'  x <- pca_distance_matrix(
+#'  x <- pca_multithreshold(
 #'    x = distance_matrix,
 #'    distance.thresholds = c(0, 1000)
 #'    )
@@ -16,17 +16,13 @@
 #'  colnames(x)
 #'  }
 #' }
-#' @rdname pca_distance_matrix
+#' @rdname pca_multithreshold
 #' @export
-pca_distance_matrix <- function(
+pca_multithreshold <- function(
   x = NULL,
   distance.thresholds = 0,
-  max.pca.factors = 1000
+  max.spatial.predictors = 1000
 ){
-
-  if(!is.matrix(x) | ncol(x) != nrow(x)){
-    stop("x must be a squared matrix.")
-  }
 
   #list to store pca factors
   pca.factors.list <- list()
@@ -65,8 +61,8 @@ pca_distance_matrix <- function(
   pca.factors <- pca.factors[, colnames(pca.factors) %in% names(pca.factors.filter)]
 
   #applying max.pca.factors
-  if(ncol(pca.factors) > max.pca.factors){
-    pca.factors <- pca.factors[, 1:max.pca.factors]
+  if(ncol(pca.factors) > max.spatial.predictors){
+    pca.factors <- pca.factors[, 1:max.spatial.predictors]
   }
 
   #returning output

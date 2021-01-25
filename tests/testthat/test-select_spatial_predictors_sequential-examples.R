@@ -16,19 +16,19 @@ test_that("`select_spatial_predictors_sequential()` works", {
     distance.thresholds = distance.thresholds
   )
 
-  spatial.predictors <- pca_distance_matrix(
+  spatial.predictors <- pca_multithreshold(
     x = distance.matrix,
     distance.thresholds = distance.thresholds
   )
 
   spatial.predictors.ranked <- rank_spatial_predictors(
-    ranking.method = "mem",
+    ranking.method = "moran.i",
     spatial.predictors.df = spatial.predictors,
     reference.moran.i = model$spatial.correlation.residuals$max.moran,
     distance.matrix = distance.matrix,
     distance.thresholds = distance.thresholds,
     n.cores = 1,
-    multicollinearity.filter = "vif"
+    multicollinearity.filter = "none"
   )
 
   selection <- select_spatial_predictors_sequential(
@@ -45,6 +45,5 @@ test_that("`select_spatial_predictors_sequential()` works", {
   expect_type(selection, "list")
   expect_length(selection, 2)
   expect_named(selection, c("optimization", "best.spatial.predictors"))
-  expect_named(selection$optimization, c("spatial.predictor.index", "moran.i", "r.squared", "sum"))
   expect_equal(selection$optimization$spatial.predictor.index[1], length(selection$best.spatial.predictors))
 })

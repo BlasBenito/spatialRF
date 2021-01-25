@@ -1,11 +1,11 @@
 test_that("`rank_spatial_predictors()` works", {
   data("distance_matrix")
-  spatial.predictors.df <- pca_distance_matrix(
+  spatial.predictors.df <- pca_multithreshold(
     x = distance_matrix[1:50, 1:50],
     distance.thresholds = c(0, 100, 1000)
     )
   rank <- rank_spatial_predictors(
-    ranking.method = "mem",
+    ranking.method = "moran.i",
     spatial.predictors.df = spatial.predictors.df,
     distance.matrix = distance_matrix[1:50, 1:50],
     distance.thresholds = c(0, 100, 1000),

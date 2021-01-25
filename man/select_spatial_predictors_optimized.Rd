@@ -33,7 +33,7 @@ select_spatial_predictors_optimized(
 
 \item{ranger.arguments}{list with \link[ranger]{ranger} arguments. See \link{rf} or \link{rf_repeat} for further details.}
 
-\item{spatial.predictors.df}{data frame of spatial predictors, either a distance matrix, or the PCA factors of the distance matrix produced by \link{pca_distance_matrix}.}
+\item{spatial.predictors.df}{data frame of spatial predictors, either a distance matrix, or the PCA factors of the distance matrix produced by \link{pca_multithreshold}.}
 
 \item{spatial.predictors.ranking}{ranking of predictors returned by \link{rank_spatial_predictors}.}
 

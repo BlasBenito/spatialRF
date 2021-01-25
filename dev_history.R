@@ -20,6 +20,7 @@ usethis::create_package("/home/blas/Dropbox/GITHUB/R_packages/spatialRF")
 
 #ignore dev_history at build
 usethis::use_build_ignore("dev_history.R")
+usethis::use_build_ignore("informal_tests.R")
 
 #define license
 usethis::use_gpl3_license(name = "Blas M. Benito")
@@ -172,6 +173,33 @@ exampletestr::make_test_shell_fun("select_spatial_predictors_sequential", open =
 usethis::use_r("select_spatial_predictors_optimized")
 sinew::makeOxygen(select_spatial_predictors_optimized)
 exampletestr::make_test_shell_fun("select_spatial_predictors_optimized", open = FALSE)
+
+
+usethis::use_r("weights_from_distance_matrix")
+sinew::makeOxygen(weights_from_distance_matrix)
+exampletestr::make_test_shell_fun("weights_from_distance_matrix", open = FALSE)
+
+usethis::use_r("double_center_distance_matrix")
+sinew::makeOxygen(double_center_distance_matrix)
+exampletestr::make_test_shell_fun("double_center_distance_matrix", open = FALSE)
+
+usethis::use_r("mem")
+sinew::makeOxygen(mem)
+exampletestr::make_test_shell_fun("mem", open = FALSE)
+
+usethis::use_r("mem_multithreshold")
+sinew::makeOxygen(mem_multithreshold)
+exampletestr::make_test_shell_fun("mem_multithreshold", open = FALSE)
+
+#TODO: PCA factor based methods work quite poorly! give it a deep look to see what's happening.
+usethis::use_r("rf_spatial")
+sinew::makeOxygen(rf_spatial)
+exampletestr::make_test_shell_fun("rf_spatial", open = FALSE)
+
+#TODO
+usethis::use_r("rf_evaluate")
+sinew::makeOxygen(rf_evaluate)
+exampletestr::make_test_shell_fun("rf_evaluate", open = FALSE)
 
 
 

@@ -13,7 +13,7 @@ test_that("`select_spatial_predictors_optimized()` works", {
     distance.matrix = distance.matrix,
     distance.thresholds = distance.thresholds
   )
-  spatial.predictors <- pca_distance_matrix(
+  spatial.predictors <- pca_multithreshold(
     x = distance.matrix,
     distance.thresholds = distance.thresholds
   )
@@ -27,7 +27,7 @@ test_that("`select_spatial_predictors_optimized()` works", {
     distance.matrix = distance.matrix,
     distance.thresholds = distance.thresholds,
     n.cores = 1,
-    multicollinearity.filter = "vif"
+    multicollinearity.filter = "none"
   )
   selection <- select_spatial_predictors_optimized(
     data = data,

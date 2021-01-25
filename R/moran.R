@@ -2,7 +2,7 @@
 #' @description Computes the spatial correlation coefficient (Moran's I) of a vector given a distance matrix.
 #' @param x numeric vector, generally a model residuals, Default: NULL
 #' @param distance.matrix distance matrix among the records represented in the numeric vector. The number of rows of this matrix must be equal to the length of x. Default: NULL
-#' @param distance.threshold (optional) numeric, distances below this value in the distance matrix are set to 0., Default: NULL
+#' @param distance.threshold (optional) numeric, positive, in the range of values of `distance.matrix` distances below this value in the distance matrix are set to 0., Default: 0
 #' @return a list with three named slots:
 #'  \describe{
 #'  \item{moran.i}{Moran's I (spatial correlation) of x.}
@@ -31,7 +31,7 @@
 moran <- function(
   x = NULL,
   distance.matrix = NULL,
-  distance.threshold = NULL
+  distance.threshold = 0
 ){
 
   #check x and distance matrix
@@ -41,42 +41,30 @@ moran <- function(
   if(nrow(distance.matrix) != length(x)){
     stop("length(x) and nrow(distance.matrix) must be equal.")
   }
-  if(!is.null(distance.threshold) & !is.numeric(distance.threshold)){
-    stop("distance.threshold must be numeric.")
-  }
 
-  #thresholding distance matrix
-  if(!is.null(distance.threshold)){
-    distance.matrix[distance.matrix < distance.threshold] <- 0
-  }
-
-  #computing weights
-  weight <- 1/distance.matrix
-  weight[is.infinite(weight)] <- 1
-  diag(weight) <- 0
-
-  #normalizing weights
-  weight.rowsums <- rowSums(weight)
-  weight.rowsums[weight.rowsums == 0] <- 1
-  weight <- weight/weight.rowsums
+  #extracting weights from distance matrix
+  x.weights <- weights_from_distance_matrix(
+    x = distance.matrix,
+    distance.threshold = distance.threshold
+  )
 
   #computing expected Moran I
   n <- length(x)
   expected.moran <- round(-1/(n - 1), 4)
 
   #computing observed Moran I
-  s <- sum(weight)
+  s <- sum(x.weights)
   m <- mean(x)
   y <- x - m #centering x
-  cv <- sum(weight * y %o% y)
+  cv <- sum(x.weights * y %o% y)
   v <- sum(y^2)
   observed.moran <- (n/s) * (cv/v)
-  i.max <- (n/s) * (sd(rowSums(weight) * y)/sqrt(v/(n - 1)))
+  i.max <- (n/s) * (sd(rowSums(x.weights) * y)/sqrt(v/(n - 1)))
   observed.moran <- round(observed.moran/i.max, 4)
 
   #computing p-value
-  s1 <- 0.5 * sum((weight + t(weight))^2)
-  s2 <- sum((apply(weight, 1, sum) + apply(weight, 2, sum))^2)
+  s1 <- 0.5 * sum((x.weights + t(x.weights))^2)
+  s2 <- sum((apply(x.weights, 1, sum) + apply(x.weights, 2, sum))^2)
   s.sq <- s^2
   k <- (sum(y^4)/n) / (v/n)^2
   expected.standard.deviation <- sqrt(

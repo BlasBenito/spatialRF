@@ -4,14 +4,14 @@
 \alias{moran}
 \title{moran}
 \usage{
-moran(x = NULL, distance.matrix = NULL, distance.threshold = NULL)
+moran(x = NULL, distance.matrix = NULL, distance.threshold = 0)
 }
 \arguments{
 \item{x}{numeric vector, generally a model residuals, Default: NULL}
 
 \item{distance.matrix}{distance matrix among the records represented in the numeric vector. The number of rows of this matrix must be equal to the length of x. Default: NULL}
 
-\item{distance.threshold}{(optional) numeric, distances below this value in the distance matrix are set to 0., Default: NULL}
+\item{distance.threshold}{(optional) numeric, positive, in the range of values of \code{distance.matrix} distances below this value in the distance matrix are set to 0., Default: 0}
 }
 \value{
 a list with three named slots:
