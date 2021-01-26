@@ -26,8 +26,7 @@ test_that("`select_spatial_predictors_optimized()` works", {
     reference.moran.i = model$spatial.correlation.residuals$max.moran,
     distance.matrix = distance.matrix,
     distance.thresholds = distance.thresholds,
-    n.cores = 1,
-    multicollinearity.filter = "none"
+    n.cores = 1
   )
   selection <- select_spatial_predictors_optimized(
     data = data,
@@ -44,5 +43,5 @@ test_that("`select_spatial_predictors_optimized()` works", {
   expect_type(selection$best.spatial.predictors, "character")
   expect_length(selection, 2)
   expect_named(selection, c("optimization", "best.spatial.predictors"))
-  expect_named(selection$optimization, c("spatial.predictors.index", "spatial.predictors.name", "moran.i", "r.squared", "sum"))
+  expect_named(selection$optimization, c("spatial.predictor.name", "spatial.predictor.index", "moran.i", "p.value", "p.value.binary", "r.squared", "penalization.per.variable", "optimization", "selected"))
 })

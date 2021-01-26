@@ -8,6 +8,8 @@
 #' @param ranger.arguments list with \link[ranger]{ranger} arguments. See [rf] or [rf_repeat] for further details.
 #' @param spatial.predictors.df data frame of spatial predictors, either a distance matrix, or the PCA factors of the distance matrix produced by [pca_multithreshold].
 #' @param spatial.predictors.ranking ranking of predictors returned by [rank_spatial_predictors].
+#' @param weight.r.squared numeric between 0 and 1, weight of R-squared in the optimization index.
+#' @param weight.penalization.n.predictors numeric between 0 and 1, weight of the penalization for the number of spatial predictors added in the optimization index.
 #' @param n.cores number of cores to use to compute repetitions. If NULL, all cores but one are used, unless a cluster is used.
 #' @param cluster.ips character vector, IPs of the machines in the cluster. The first machine will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.
 #' @param cluster.cores numeric integer vector, number of cores on each machine.
@@ -50,8 +52,7 @@
 #'   reference.moran.i = model$spatial.correlation.residuals$max.moran,
 #'   distance.matrix = distance.matrix,
 #'   distance.thresholds = distance.thresholds,
-#'   n.cores = 1,
-#'   multicollinearity.filter = "vif"
+#'   n.cores = 1
 #' )
 #'
 #' #selecting the best subset of predictors
@@ -81,6 +82,8 @@ select_spatial_predictors_sequential <- function(
   ranger.arguments = NULL,
   spatial.predictors.df = NULL,
   spatial.predictors.ranking = NULL,
+  weight.r.squared = 0.75,
+  weight.penalization.n.predictors = 0.25,
   n.cores = NULL,
   cluster.ips = NULL,
   cluster.cores = NULL,
@@ -91,12 +94,24 @@ select_spatial_predictors_sequential <- function(
   #getting spatial.predictors.rank
   spatial.predictors.ranking <- spatial.predictors.ranking$ranking
 
+  #weights limits
+  if(weight.r.squared > 1){weight.r.squared <- 1}
+  if(weight.r.squared < 0){weight.r.squared <- 0}
+  if(weight.penalization.n.predictors > 1){weight.penalization.n.predictors <- 1}
+  if(weight.penalization.n.predictors < 0){weight.penalization.n.predictors <- 0}
+
   #preparing cluster for stand alone machine
   if(is.null(cluster.ips) == TRUE){
 
     #number of available cores
     if(is.null(n.cores)){
       n.cores <- parallel::detectCores() - 1
+    }
+    if(n.cores == 1){
+      if(is.null(ranger.arguments)){
+        ranger.arguments <- list()
+      }
+      ranger.arguments$num.threads <- 1
     }
     if(.Platform$OS.type == "windows"){
       temp.cluster <- parallel::makeCluster(
@@ -184,6 +199,7 @@ select_spatial_predictors_sequential <- function(
     out.df <- data.frame(
       spatial.predictor.index = spatial.predictors.i,
       moran.i = m.i$spatial.correlation.residuals$max.moran,
+      p.value = m.i$spatial.correlation.residuals$df[which.max(m.i$spatial.correlation.residuals$df$moran.i), "p.value"],
       r.squared = m.i$r.squared
     )
 
@@ -191,51 +207,34 @@ select_spatial_predictors_sequential <- function(
 
   }#end of parallelized loop
 
-  #OPTIMIZING Moran.s I, R-squared, and number of spatial predictors
-
-  #penalizing by number of variables (same weight as moran.i)
-  penalization.step <- max(optimization.df$moran.i)/nrow(optimization.df)
-  optimization.df$penalization.per.variable <- penalization.step * optimization.df$spatial.predictor.index
-
-  #computing "optimization"
-  optimization.df$optimization <- ((1 - optimization.df$moran.i) + optimization.df$r.squared) - optimization.df$penalization.per.variable
-
-  #smoothing optimization
-  smooth.optimization <- data.frame(
-    a = optimization.df$optimization,
-    b = c(
-      optimization.df$optimization[2:nrow(optimization.df)],
-      optimization.df$optimization[nrow(optimization.df)]
-    ),
-    c = c(
-      optimization.df$optimization[1],
-      optimization.df$optimization[1:(nrow(optimization.df)-1)]
-    ),
-    d = c(
-      optimization.df$optimization[3:nrow(optimization.df)],
-      optimization.df$optimization[nrow(optimization.df)],
-      optimization.df$optimization[nrow(optimization.df)]
-    ),
-    e = c(
-      optimization.df$optimization[1],
-      optimization.df$optimization[1],
-      optimization.df$optimization[1:(nrow(optimization.df)-2)]
-    )
+  #preparing optimization df
+  optimization.df <- data.frame(
+    spatial.predictor.name = spatial.predictors.ranking,
+    spatial.predictor.index = optimization.df$spatial.predictor.index,
+    moran.i = optimization.df$moran.i,
+    p.value = optimization.df$p.value,
+    p.value.binary = ifelse(optimization.df$p.value >= 0.05, 1, 0),
+    r.squared = optimization.df$r.squared,
+    penalization.per.variable = (1/nrow(optimization.df)) * optimization.df$spatial.predictor.index
   )
-  optimization.df$optimization.smooth <- rowMeans(smooth.optimization)
 
-  #arranging optimization df
-  optimization.smooth <- NULL
-  optimization.df <- dplyr::arrange(
-    optimization.df,
-    dplyr::desc(optimization.smooth)
+  #computing weighted optimization
+  optimization.df$optimization <- rescale_vector(
+    pmax(
+      rescale_vector(1 - optimization.df$moran.i),
+      optimization.df$p.value.binary
+      ) + (weight.r.squared * rescale_vector(optimization.df$r.squared)) - (weight.penalization.n.predictors * rescale_vector(optimization.df$penalization.per.variable))
     )
 
   #get index of spatial predictor with optimized r-squared and moran.i
-  optimized.index <- optimization.df[1, "spatial.predictor.index"]
+  optimized.index <- which.max(optimization.df$optimization)
 
   #prepare vector with best factor names
   best.spatial.predictors <- spatial.predictors.ranking[1:optimized.index]
+
+  #add column selected to optimization.df
+  optimization.df$selected <- FALSE
+  optimization.df[optimization.df$spatial.predictor.name %in% best.spatial.predictors, "selected"] <- TRUE
 
   #output list
   out.list <- list()

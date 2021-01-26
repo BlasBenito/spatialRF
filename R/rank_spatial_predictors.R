@@ -1,5 +1,5 @@
 #' @title rank_spatial_predictors
-#' @description ranks spatial predictors generated from the PCA of a distance matrix (or columns of the distance matrix itself) by either their effect in reducing the Moran's I of the model residuals (ranking.method = "moran.i.reduction"), or by their own Moran's I (ranking.method = "moran.i"). In the former case, one model of the type `y ~ predictors + spatial_predictor_X` is fitted per spatial predictor (this is a computationally intensive function), and the Moran's I of its residuals is compared with the one of the model `y ~ predictors`, to finally order the spatial predictor from maximum to minimum Moran's I difference. In the latter case the spatial predictors are ordered by their Moran's I alone (this is the faster option). In both cases, spatial predictors with no effect (no reduction of Moran's I  or Moran's I of the spatial predictor equal or lower than 0) are removed, while the remaining ones undergo a multicollinearity filtering through [auto_cor] or [auto_vif], in order to reduce as much as possible the total number of spatial predictors to reduce computation time downstream. The purpose of this function is to provide criteria on how to include spatial predictors in a model. This function has been designed to be used internally by rf_spatial rather than by directly by a user.
+#' @description ranks spatial predictors generated from the PCA of a distance matrix (or columns of the distance matrix itself) by either their effect in reducing the Moran's I of the model residuals (ranking.method = "moran.i.reduction"), or by their own Moran's I (ranking.method = "moran.i"). In the former case, one model of the type `y ~ predictors + spatial_predictor_X` is fitted per spatial predictor (this is a computationally intensive function), and the Moran's I of its residuals is compared with the one of the model `y ~ predictors`, to finally order the spatial predictor from maximum to minimum Moran's I difference. In the latter case the spatial predictors are ordered by their Moran's I alone (this is the faster option). In both cases, spatial predictors with no effect (no reduction of Moran's I  or Moran's I of the spatial predictor equal or lower than 0) are removed. The purpose of this function is to provide criteria on how to include spatial predictors in a model. This function has been designed to be used internally by rf_spatial rather than by directly by a user.
 #' @param data (required) data frame with a response variable and a set of (preferably uncorrelated) predictors, Default: NULL
 #' @param dependent.variable.name (required) string with the name of the response variable. Must be in the column names of 'data', Default: NULL
 #' @param predictor.variable.names (required) character vector with the names of the predictive variables. Every element must be in the column names of 'data', Default: NULL
@@ -15,11 +15,11 @@
 #' @param cluster.cores numeric integer vector, number of cores on each machine.
 #' @param cluster.user character string, name of the user (should be the same throughout machines), Defaults to the current system user. Default: user name of the current session.
 #' @param cluster.port integer, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: 11000.
-#' @param multicollinearity.filter method to reduce multicollinearity in the ranked spatial predictors, one of "vif" (triggers [auto_vif]), "cor" (triggers [auto_cor]), and "none" (does not apply a multicollinearity filter).
 #' @return a list with two slots:
 #' \itemize{
-#'  \item{ranking.criteria}{data frame with two different configurations depending on the ranking method. If ranking.method = "moran.i.reduction", the columns contain the name of the spatial predictor, the r-squared of the model, the Moran's I of the model residuals, the difference between this Moran's I and the Moran's I of the model fitted without spatial predictors (named `ranking.criteria`, and the interpretation of the Moran's I value. If ranking.method = "moran.i", only the name of the spatial predictor, it's Moran's I and the interpretation are available.}
-#'  \item{ranking}{ordered character vector with the names of the spatial predictors selected after the multicollinearity filtering (if applied)}
+#' \item{method}{string, name of the method used to rank the spatial predictors}
+#'  \item{criteria}{data frame with two different configurations depending on the ranking method. If ranking.method = "moran.i.reduction", the columns contain the name of the spatial predictor, the r-squared of the model, the Moran's I of the model residuals, the difference between this Moran's I and the Moran's I of the model fitted without spatial predictors (named `ranking.criteria`, and the interpretation of the Moran's I value. If ranking.method = "moran.i", only the name of the spatial predictor, it's Moran's I and the interpretation are available.}
+#'  \item{ranking}{ordered character vector with the names of the spatial predictors selected}
 #' }
 #' @examples
 #' \dontrun{
@@ -37,8 +37,7 @@
 #'    distance.thresholds = c(0, 100, 1000),
 #'    spatial.predictors.df = spatial.predictors.df,
 #'    ranking.method = "moran.i",
-#'    n.cores = 1,
-#'    multicollinearity.filter = "vif"
+#'    n.cores = 1
 #'  )
 #'  rank$ranking.criteria
 #'  rank$ranking
@@ -56,7 +55,6 @@ rank_spatial_predictors <- function(
   spatial.predictors.df = NULL,
   ranking.method = c("moran.i", "moran.i.reduction"),
   reference.moran.i = 1,
-  multicollinearity.filter = c("none", "vif", "cor"),
   n.cores = NULL,
   cluster.ips = NULL,
   cluster.cores = NULL,
@@ -66,7 +64,9 @@ rank_spatial_predictors <- function(
 
   #testing method argument
   ranking.method <- match.arg(ranking.method, ranking.method)
-  multicollinearity.filter <- match.arg(multicollinearity.filter, multicollinearity.filter)
+
+  #reference.moran.i
+  if(is.null(reference.moran.i)){reference.moran.i <- 1}
 
   #preparing cluster for stand alone machine
   if(is.null(cluster.ips) == TRUE){
@@ -74,6 +74,12 @@ rank_spatial_predictors <- function(
     #number of available cores
     if(is.null(n.cores)){
       n.cores <- parallel::detectCores() - 1
+    }
+    if(n.cores == 1){
+      if(is.null(ranger.arguments)){
+        ranger.arguments <- list()
+      }
+      ranger.arguments$num.threads <- 1
     }
     if(.Platform$OS.type == "windows"){
       temp.cluster <- parallel::makeCluster(
@@ -114,9 +120,12 @@ rank_spatial_predictors <- function(
   on.exit(parallel::stopCluster(cl = temp.cluster))
 
   #add write.forest = FALSE to ranger.arguments
-  if(!is.null(ranger.arguments)){
-    ranger.arguments$write.forest = FALSE
+  if(is.null(ranger.arguments)){
+    ranger.arguments <- list()
   }
+  ranger.arguments$write.forest <- FALSE
+  ranger.arguments$importance <- "none"
+  ranger.arguments$local.importance <- FALSE
 
   #3.2.3 PREPARING PARALLELIZED LOOP TO ITERATE THROUGH distance.matrix.pca
   spatial.predictors.i <- NULL
@@ -170,9 +179,9 @@ rank_spatial_predictors <- function(
       out.i <- data.frame(
         spatial.predictors.name = spatial.predictors.name.i,
         model.r.squared = m.i$r.squared,
-        model.moran.i = m.i$spatial.correlation.residuals$max.moran,
-        ranking.criteria = reference.moran.i - m.i$spatial.correlation.residuals$max.moran,
-        interpretation = m.i$spatial.correlation.residuals$df[which.max(m.i$spatial.correlation.residuals$df$moran.i), "interpretation"]
+        moran.i = m.i$spatial.correlation.residuals$max.moran,
+        p.value = m.i$spatial.correlation.residuals$df$p.value[1],
+        ranking.criteria = reference.moran.i - m.i$spatial.correlation.residuals$max.moran
       )
 
     }
@@ -190,8 +199,7 @@ rank_spatial_predictors <- function(
       #out.df
       out.i <- data.frame(
         spatial.predictors.name = spatial.predictors.name.i,
-        ranking.criteria = m.i$moran.i,
-        interpretation = m.i$interpretation
+        ranking.criteria = m.i$moran.i
       )
 
     }
@@ -203,46 +211,22 @@ rank_spatial_predictors <- function(
 
   #order dataframe
   ranking.criteria <- NULL
-  spatial.predictors.order <- spatial.predictors.order %>%
-    dplyr::arrange(dplyr::desc(ranking.criteria))
+  spatial.predictors.order <- dplyr::arrange(
+    spatial.predictors.order,
+    dplyr::desc(ranking.criteria)
+    )
 
   #selected spatial.predictorss
-  spatial.predictors.order.selected <- dplyr::filter(
-    spatial.predictors.order,
-    ranking.criteria > 0
-  )
-
-  #apply vif filtering if requested
-  if(multicollinearity.filter == "vif"){
-
-    multicollinearity.df <- auto_vif(
-      x = spatial.predictors.df[, spatial.predictors.order.selected$spatial.predictors.name],
-      preference.order = spatial.predictors.order.selected$spatial.predictors.name,
-      verbose = FALSE
-    )
-
-  }
-
-  if(multicollinearity.filter == "cor"){
-
-    multicollinearity.df <- auto_cor(
-      x = spatial.predictors.df[, spatial.predictors.order.selected$spatial.predictors.name],
-      preference.order = spatial.predictors.order.selected$spatial.predictors.name,
-      cor.threshold = 0.75
-    )
-
-  }
-
-  #subset spatial.predictors.order
-  if(multicollinearity.filter != "none"){
-
-    spatial.predictors.order.selected <- spatial.predictors.order.selected[spatial.predictors.order.selected$spatial.predictors.name %in% multicollinearity.df$selected.variables, ]
-
-  }
+  spatial.predictors.order.selected <- spatial.predictors.order
+  #   dplyr::filter(
+  #   spatial.predictors.order,
+  #   ranking.criteria > quantile(ranking.criteria, 0.1)
+  # )
 
   #return output
   out.list <- list()
-  out.list$ranking.criteria <- spatial.predictors.order
+  out.list$method <- ranking.method
+  out.list$criteria <- spatial.predictors.order
   out.list$ranking <- spatial.predictors.order.selected$spatial.predictors.name
 
   #returning output list

@@ -14,6 +14,8 @@
 #' @param ranger.arguments list with \link[ranger]{ranger} arguments. See [rf] or [rf_repeat] for further details.
 #' @param spatial.predictors.df data frame of spatial predictors, either a distance matrix, or the PCA factors of the distance matrix produced by [pca_multithreshold].
 #' @param spatial.predictors.ranking ranking of predictors returned by [rank_spatial_predictors].
+#' @param weight.r.squared numeric between 0 and 1, weight of R-squared in the optimization index.
+#' @param weight.penalization.n.predictors numeric between 0 and 1, weight of the penalization for the number of spatial predictors added in the optimization index.
 #' @param n.cores number of cores to use to compute repetitions. If NULL, all cores but one are used, unless a cluster is used.
 #' @param cluster.ips character vector, IPs of the machines in the cluster. The first machine will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.
 #' @param cluster.cores numeric integer vector, number of cores on each machine.
@@ -59,8 +61,7 @@
 #'   reference.moran.i = model$spatial.correlation.residuals$max.moran,
 #'   distance.matrix = distance.matrix,
 #'   distance.thresholds = distance.thresholds,
-#'   n.cores = 1,
-#'   multicollinearity.filter = "vif"
+#'   n.cores = 1
 #' )
 #'
 #' #selecting the best subset of predictors
@@ -90,6 +91,8 @@ select_spatial_predictors_optimized <- function(
   ranger.arguments = NULL,
   spatial.predictors.df = NULL,
   spatial.predictors.ranking = NULL,
+  weight.r.squared = 0.25,
+  weight.penalization.n.predictors = 0,
   n.cores = NULL,
   cluster.ips = NULL,
   cluster.cores = NULL,
@@ -98,8 +101,14 @@ select_spatial_predictors_optimized <- function(
 ){
 
   #initializing data for loop
-  spatial.predictors.rank.i <- spatial.predictors.ranking
+  spatial.predictors.ranking.i <- spatial.predictors.ranking
   spatial.predictors.candidates.i <- spatial.predictors.ranking$ranking
+
+  #weights limits
+  if(weight.r.squared > 1){weight.r.squared <- 1}
+  if(weight.r.squared < 0){weight.r.squared <- 0}
+  if(weight.penalization.n.predictors > 1){weight.penalization.n.predictors <- 1}
+  if(weight.penalization.n.predictors < 0){weight.penalization.n.predictors <- 0}
 
   #copy of data
   data.i <- data
@@ -109,8 +118,8 @@ select_spatial_predictors_optimized <- function(
   optimization.index <- vector()
   optimization.spatial.predictors.name <- vector()
   optimization.moran.i <- vector()
+  optimization.p.value <- vector()
   optimization.r.squared <- vector()
-  optimization.sum <- vector()
   i <- 0
 
   #setting up default number of cores
@@ -123,7 +132,7 @@ select_spatial_predictors_optimized <- function(
 
     i <- i + 1
 
-    #subset spatial.predictors
+    #subset and order spatial.predictors
     spatial.predictors.df.i <- spatial.predictors.df[, spatial.predictors.candidates.i, drop = FALSE]
 
     #add the first factor to data
@@ -144,10 +153,10 @@ select_spatial_predictors_optimized <- function(
     )
 
     #reference moran I
-    reference.moran.i <- spatial.predictors.rank.i$ranking.criteria[spatial.predictors.rank.i$ranking.criteria$spatial.predictors.name == spatial.predictors.candidates.i[1], "model.moran.i"]
+    reference.moran.i <- spatial.predictors.ranking.i$criteria[spatial.predictors.ranking.i$criteria$spatial.predictors.name == spatial.predictors.candidates.i[1], "moran.i"]
 
     #rank pca factors
-    spatial.predictors.rank.i <- rank_spatial_predictors(
+    spatial.predictors.ranking.i <- rank_spatial_predictors(
       data = data.i,
       dependent.variable.name = dependent.variable.name,
       predictor.variable.names = predictor.variable.names.i,
@@ -157,7 +166,6 @@ select_spatial_predictors_optimized <- function(
       spatial.predictors.df = spatial.predictors.df.i,
       ranking.method = "moran.i.reduction",
       reference.moran.i = reference.moran.i,
-      multicollinearity.filter = "none",
       n.cores = n.cores,
       cluster.ips = cluster.ips,
       cluster.cores = cluster.cores,
@@ -165,61 +173,59 @@ select_spatial_predictors_optimized <- function(
       cluster.port = cluster.port
     )
 
-    #redo pca.factors.candidates.i
-    spatial.predictors.candidates.i <- spatial.predictors.rank.i$ranking
+    #if ranking criteria stops being positive, break
+    if(spatial.predictors.ranking.i$criteria$ranking.criteria[1] <= 0){
+      break
+    }
+
+    #redo spatial.predictors.candidates.i
+    spatial.predictors.candidates.i <- spatial.predictors.ranking.i$ranking
 
     #gathering data for optimization df.
     if(length(spatial.predictors.candidates.i) > 0){
       optimization.index[i] <- i
-      optimization.spatial.predictors.name[i] <- spatial.predictors.rank.i$ranking[1]
-      optimization.moran.i[i] <- spatial.predictors.rank.i$ranking.criteria[1, "model.moran.i"]
-      optimization.r.squared[i] <- spatial.predictors.rank.i$ranking.criteria[1, "model.r.squared"]
-      optimization.sum <- (1 - optimization.moran.i[i]) + optimization.r.squared[i]
+      optimization.spatial.predictors.name[i] <- spatial.predictors.ranking.i$ranking[1]
+      optimization.moran.i[i] <- spatial.predictors.ranking.i$criteria[1, "moran.i"]
+      optimization.p.value[i] <- spatial.predictors.ranking.i$criteria[1, "p.value"]
+      optimization.r.squared[i] <- spatial.predictors.ranking.i$criteria[1, "model.r.squared"]
     }
-
-
 
   }#end of while loop
 
   #putting together the optimization data frame
   optimization.df <- data.frame(
-    spatial.predictors.index = optimization.index,
-    spatial.predictors.name = optimization.spatial.predictors.name,
+    spatial.predictor.name = optimization.spatial.predictors.name,
+    spatial.predictor.index = optimization.index,
     moran.i = optimization.moran.i,
+    p.value = optimization.p.value,
+    p.value.binary  = ifelse(optimization.p.value >= 0.05, 1, 0),
     r.squared = optimization.r.squared,
-    sum = (1 - optimization.moran.i) + optimization.r.squared
-  ) %>%
-    dplyr::arrange(dplyr::desc(sum))
+    penalization.per.variable = (1/length(optimization.moran.i)) * optimization.index
+  )
 
-  #get index pca factor with optimized r-squared and moran.i
-  optimized.index <- optimization.df[1, "spatial.predictors.index"]
+  #computing weighted optimization
+  optimization.df$optimization <- rescale_vector(
+    pmax(
+      rescale_vector(1 - optimization.df$moran.i),
+      optimization.df$p.value.binary
+      ) + (weight.r.squared * rescale_vector(optimization.df$r.squared)) - (weight.penalization.n.predictors * rescale_vector(optimization.df$penalization.per.variable))
+    )
+
+  #get index of spatial predictor with optimized r-squared and moran.i
+  optimized.index <- which.max(optimization.df$optimization)
+  # optimized.index <- which.min(optimization.df$moran.i)
 
   #prepare vector with best factor names
-  best.spatial.predictors <- optimization.df[optimization.df$spatial.predictors.index %in% 1:optimized.index, "spatial.predictors.name"]
+  best.spatial.predictors <- optimization.df$spatial.predictor.name[1:optimized.index]
+
+  #add column selected to optimization.df
+  optimization.df$selected <- FALSE
+  optimization.df[optimization.df$spatial.predictor.name %in% best.spatial.predictors, "selected"] <- TRUE
 
   #output list
   out.list <- list()
   out.list$optimization <- optimization.df
   out.list$best.spatial.predictors <- best.spatial.predictors
-
-  #plot
-  # x11()
-  # par(mfrow = c(2, 1))
-  # par(mar = c(1.5,4,2,2))
-  # plot(
-  #   optimization.df$spatial.predictors.index,
-  #   optimization.df$r.squared,
-  #   xlab = "",
-  #   ylab = "R-squared",
-  #   xaxt = 'n'
-  # )
-  # par(mar = c(4,4,0,2))
-  # plot(
-  #   optimization.df$spatial.predictors.index,
-  #   optimization.df$moran.i,
-  #   xlab = "PCA factors added",
-  #   ylab = "Moran's I"
-  # )
 
   #return output
   out.list

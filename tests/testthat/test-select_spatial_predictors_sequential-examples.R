@@ -27,8 +27,7 @@ test_that("`select_spatial_predictors_sequential()` works", {
     reference.moran.i = model$spatial.correlation.residuals$max.moran,
     distance.matrix = distance.matrix,
     distance.thresholds = distance.thresholds,
-    n.cores = 1,
-    multicollinearity.filter = "none"
+    n.cores = 1
   )
 
   selection <- select_spatial_predictors_sequential(
@@ -45,5 +44,5 @@ test_that("`select_spatial_predictors_sequential()` works", {
   expect_type(selection, "list")
   expect_length(selection, 2)
   expect_named(selection, c("optimization", "best.spatial.predictors"))
-  expect_equal(selection$optimization$spatial.predictor.index[1], length(selection$best.spatial.predictors))
+  expect_equal(sum(selection$optimization$selected), length(selection$best.spatial.predictors))
 })

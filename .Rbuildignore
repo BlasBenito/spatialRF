@@ -6,3 +6,4 @@
 ^example_data\.RData$
 ^data/old$
 ^informal_tests\.R$
+^optimization_sequential\.R$

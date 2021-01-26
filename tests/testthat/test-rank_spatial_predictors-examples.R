@@ -9,13 +9,12 @@ test_that("`rank_spatial_predictors()` works", {
     spatial.predictors.df = spatial.predictors.df,
     distance.matrix = distance_matrix[1:50, 1:50],
     distance.thresholds = c(0, 100, 1000),
-    n.cores = 1,
-    multicollinearity.filter = "vif"
+    n.cores = 1
   )
   expect_type(rank, "list")
-  expect_length(rank, 2)
-  expect_s3_class(rank$ranking.criteria, "data.frame")
-  expect_length(rank, 2)
-  expect_named(rank$ranking.criteria, c("spatial.predictors.name", "ranking.criteria", "interpretation"))
+  expect_named(rank, c("method", "criteria", "ranking"))
+  expect_length(rank, 3)
+  expect_s3_class(rank$criteria, "data.frame")
+  expect_named(rank$criteria, c("spatial.predictors.name", "ranking.criteria"))
 
 })

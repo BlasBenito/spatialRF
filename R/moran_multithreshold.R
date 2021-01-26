@@ -83,10 +83,16 @@ moran_multithreshold <- function(
 
   }
 
+  #adding binary p.value
+  out.df$p.value.binary <- "< 0.05"
+  out.df[out.df$p.value >= 0.05, "p.value.binary"] <- ">= 0.05"
+
+  p.value.binary <- NULL
   p <- ggplot2::ggplot(data = out.df) +
     ggplot2::aes(
       x = distance.threshold,
-      y = moran.i
+      y = moran.i,
+      size = p.value.binary
     ) +
     ggplot2::geom_hline(
       yintercept = 0,
@@ -94,14 +100,19 @@ moran_multithreshold <- function(
       size = 0.7,
       linetype = "dashed"
     ) +
-    ggplot2::geom_point(color = "red4") +
-    ggplot2::geom_line(color = "red4") +
+    ggplot2::geom_point(color = "#440154FF") +
+    ggplot2::geom_line(size = 1, color = "#440154FF") +
     ggplot2::xlab("Distance thresholds") +
     ggplot2::ylab("Moran's I of residuals") +
-    ggplot2::ggtitle("Multiscale Moran's I")
+    ggplot2::ggtitle("Multiscale Moran's I") +
+    ggplot2::theme(legend.position = "bottom") +
+    ggplot2::labs(size = "Moran's I p-value")
 
   #getting scale of max moran
   distance.threshold.max.moran <- out.df[which.max(out.df$moran.i), "distance.threshold"]
+
+  #removing binary column
+  out.df$p.value.binary <- NULL
 
   #preparing output list
   out.list <- list()
@@ -110,7 +121,7 @@ moran_multithreshold <- function(
   out.list$max.moran <- max(out.df$moran.i)
   out.list$max.moran.distance.threshold <- distance.threshold.max.moran
 
-  if(plot == TRUE){print(p)}
+  if(plot == TRUE){suppressMessages(print(p))}
 
   return(out.list)
 

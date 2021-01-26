@@ -126,6 +126,12 @@ rf_repeat <- function(data = NULL,
     if(is.null(n.cores)){
       n.cores <- parallel::detectCores() - 1
     }
+    if(n.cores == 1){
+      if(is.null(ranger.arguments)){
+        ranger.arguments <- list()
+      }
+      ranger.arguments$num.threads <- 1
+    }
     if(.Platform$OS.type == "windows"){
       temp.cluster <- parallel::makeCluster(
         n.cores,

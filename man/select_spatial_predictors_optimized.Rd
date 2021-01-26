@@ -13,6 +13,8 @@ select_spatial_predictors_optimized(
   ranger.arguments = NULL,
   spatial.predictors.df = NULL,
   spatial.predictors.ranking = NULL,
+  weight.r.squared = 0.25,
+  weight.penalization.n.predictors = 0,
   n.cores = NULL,
   cluster.ips = NULL,
   cluster.cores = NULL,
@@ -36,6 +38,10 @@ select_spatial_predictors_optimized(
 \item{spatial.predictors.df}{data frame of spatial predictors, either a distance matrix, or the PCA factors of the distance matrix produced by \link{pca_multithreshold}.}
 
 \item{spatial.predictors.ranking}{ranking of predictors returned by \link{rank_spatial_predictors}.}
+
+\item{weight.r.squared}{numeric between 0 and 1, weight of R-squared in the optimization index.}
+
+\item{weight.penalization.n.predictors}{numeric between 0 and 1, weight of the penalization for the number of spatial predictors added in the optimization index.}
 
 \item{n.cores}{number of cores to use to compute repetitions. If NULL, all cores but one are used, unless a cluster is used.}
 
@@ -100,8 +106,7 @@ spatial.predictors.ranking <- rank_spatial_predictors(
   reference.moran.i = model$spatial.correlation.residuals$max.moran,
   distance.matrix = distance.matrix,
   distance.thresholds = distance.thresholds,
-  n.cores = 1,
-  multicollinearity.filter = "vif"
+  n.cores = 1
 )
 
 #selecting the best subset of predictors

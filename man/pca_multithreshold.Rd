@@ -24,7 +24,7 @@ a data frame with the PCA factors of the thresholded matrix. The number of colum
 computes PCA factors of a distance matrix given a set of distance thresholds. This function allows to generate spatial predictors (Moran's Eigenvector Maps) from the same distance matrix thresholded at different neighborhood distances.
 }
 \details{
-DETAILS
+The distance matrix is converted into weights with \link{weights_from_distance_matrix} before computing the PCA. This produces more meaningful spatial predictors than using the distance matrix as is.
 }
 \examples{
 \dontrun{

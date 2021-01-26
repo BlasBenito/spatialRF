@@ -4,14 +4,14 @@
 \alias{rescale_vector}
 \title{rescale_vector}
 \usage{
-rescale_vector(x = NULL, new.min = 0, new.max = 100, integer = FALSE)
+rescale_vector(x = NULL, new.min = 0, new.max = 1, integer = FALSE)
 }
 \arguments{
 \item{x}{numeric vector, Default: NULL}
 
 \item{new.min}{new minimum value, Default: 0}
 
-\item{new.max}{new maximum value, Default: 100}
+\item{new.max}{new maximum value, Default: 1}
 
 \item{integer}{coerce the output to integer, Default: FALSE}
 }

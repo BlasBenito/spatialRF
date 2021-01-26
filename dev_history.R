@@ -82,6 +82,7 @@ usethis::use_r("distance_matrix")
 
 #loading functions from their original location
 usethis::use_build_ignore("functions.R")
+usethis::use_build_ignore("optimization_sequential.R")
 
 #adding functions
 
