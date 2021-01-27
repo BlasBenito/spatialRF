@@ -164,7 +164,7 @@ select_spatial_predictors_optimized <- function(
       distance.thresholds = distance.thresholds,
       ranger.arguments = ranger.arguments,
       spatial.predictors.df = spatial.predictors.df.i,
-      ranking.method = "moran.i.reduction",
+      ranking.method = "effect",
       reference.moran.i = reference.moran.i,
       n.cores = n.cores,
       cluster.ips = cluster.ips,

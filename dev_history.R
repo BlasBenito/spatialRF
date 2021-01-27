@@ -10,10 +10,13 @@ library(DependenciesGraphs)
 
 #TO CHECK
 ########################################
-attachment::att_from_description()
-devtools::document()
-devtools::check()
+
 ########################################
+
+devtools::load_all()
+
+
+devtools::install()
 
 #create package
 usethis::create_package("/home/blas/Dropbox/GITHUB/R_packages/spatialRF")
@@ -211,12 +214,13 @@ dep <- DependenciesGraphs::funDependencies(
   )
 plot(dep)
 
+
+
 #writing functions into the R folder
 
+setwd("R")
+files.sources = list.files()
+sapply(files.sources, source)
 
 
 
-devtools::load_all()
-
-
-devtools::install()

@@ -21,11 +21,11 @@ test_that("`select_spatial_predictors_optimized()` works", {
     data = data,
     dependent.variable.name = dependent.variable.name,
     predictor.variable.names = predictor.variable.names,
-    spatial.predictors.df = spatial.predictors,
-    ranking.method = "moran.i.reduction",
-    reference.moran.i = model$spatial.correlation.residuals$max.moran,
     distance.matrix = distance.matrix,
     distance.thresholds = distance.thresholds,
+    spatial.predictors.df = spatial.predictors,
+    ranking.method = "effect",
+    reference.moran.i = model$spatial.correlation.residuals$max.moran,
     n.cores = 1
   )
   selection <- select_spatial_predictors_optimized(

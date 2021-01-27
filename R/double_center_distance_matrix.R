@@ -1,5 +1,5 @@
 #' @title double_center_distance_matrix
-#' @description generates a double-centered matrix from a distance matrix and a distance threshold. This is a required step before the computation of Moran's Eigenvector Maps.
+#' @description generates a double-centered matrix from the weights of a distance matrix (see [weights_from_distance_matrix]) and a distance threshold. This is a required step before the computation of Moran's Eigenvector Maps.
 #' @param x distance matrix among the records represented in the numeric vector. The number of rows of this matrix must be equal to the length of x. Default: NULL, Default: NULL
 #' @param distance.threshold (optional) numeric, positive, in the range of values of `distance.matrix` distances below this value in the distance matrix are set to 0.  Default: 0
 #' @return A double-centered matrix of the same dimensions as `x`.

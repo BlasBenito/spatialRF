@@ -1,5 +1,5 @@
 #' @title rank_spatial_predictors
-#' @description ranks spatial predictors generated from the PCA of a distance matrix (or columns of the distance matrix itself) by either their effect in reducing the Moran's I of the model residuals (ranking.method = "moran.i.reduction"), or by their own Moran's I (ranking.method = "moran.i"). In the former case, one model of the type `y ~ predictors + spatial_predictor_X` is fitted per spatial predictor (this is a computationally intensive function), and the Moran's I of its residuals is compared with the one of the model `y ~ predictors`, to finally order the spatial predictor from maximum to minimum Moran's I difference. In the latter case the spatial predictors are ordered by their Moran's I alone (this is the faster option). In both cases, spatial predictors with no effect (no reduction of Moran's I  or Moran's I of the spatial predictor equal or lower than 0) are removed. The purpose of this function is to provide criteria on how to include spatial predictors in a model. This function has been designed to be used internally by rf_spatial rather than by directly by a user.
+#' @description ranks spatial predictors generated from the PCA of a distance matrix (or columns of the distance matrix itself) by either their effect in reducing the Moran's I of the model residuals (ranking.method = "effect"), or by their own Moran's I (ranking.method = "moran"). In the former case, one model of the type `y ~ predictors + spatial_predictor_X` is fitted per spatial predictor (this is a computationally intensive function), and the Moran's I of its residuals is compared with the one of the model `y ~ predictors`, to finally order the spatial predictor from maximum to minimum Moran's I difference. In the latter case the spatial predictors are ordered by their Moran's I alone (this is the faster option). In both cases, spatial predictors with no effect (no reduction of Moran's I  or Moran's I of the spatial predictor equal or lower than 0) are removed. The purpose of this function is to provide criteria on how to include spatial predictors in a model. This function has been designed to be used internally by rf_spatial rather than by directly by a user.
 #' @param data (required) data frame with a response variable and a set of (preferably uncorrelated) predictors, Default: NULL
 #' @param dependent.variable.name (required) string with the name of the response variable. Must be in the column names of 'data', Default: NULL
 #' @param predictor.variable.names (required) character vector with the names of the predictive variables. Every element must be in the column names of 'data', Default: NULL
@@ -8,8 +8,7 @@
 #' @param distance.thresholds (optional) numeric vector, distances below each value in the distance matrix are set to 0 for the computation of Moran's I. If NULL, it defaults to seq(0, max(distance.matrix), length.out = 4). Default: NULL.
 #' @param ranger.arguments (optional) list with \link[ranger]{ranger} arguments. See [rf] or [rf_repeat] for further details.
 #' @param spatial.predictors.df data frame of spatial predictors, either a distance matrix, or the PCA factors of the distance matrix produced by [pca_multithreshold].
-#' @param ranking.method string, one of "moran.i.reduction" and "moran.i". The former option ranks spatial predictors according how much each predictor reduces Moran's I of the model residuals.
-
+#' @param ranking.method string, one of "effect" and "effect". The former option ranks spatial predictors according how much each predictor reduces Moran's I of the model residuals.
 #' @param n.cores number of cores to use to compute repetitions. If NULL, all cores but one are used, unless a cluster is used.
 #' @param cluster.ips character vector, IPs of the machines in the cluster. The first machine will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.
 #' @param cluster.cores numeric integer vector, number of cores on each machine.
@@ -18,7 +17,7 @@
 #' @return a list with two slots:
 #' \itemize{
 #' \item{method}{string, name of the method used to rank the spatial predictors}
-#'  \item{criteria}{data frame with two different configurations depending on the ranking method. If ranking.method = "moran.i.reduction", the columns contain the name of the spatial predictor, the r-squared of the model, the Moran's I of the model residuals, the difference between this Moran's I and the Moran's I of the model fitted without spatial predictors (named `ranking.criteria`, and the interpretation of the Moran's I value. If ranking.method = "moran.i", only the name of the spatial predictor, it's Moran's I and the interpretation are available.}
+#'  \item{criteria}{data frame with two different configurations depending on the ranking method. If ranking.method = "effect", the columns contain the name of the spatial predictor, the r-squared of the model, the Moran's I of the model residuals, the difference between this Moran's I and the Moran's I of the model fitted without spatial predictors (named `ranking.criteria`, and the interpretation of the Moran's I value. If ranking.method = "effect", only the name of the spatial predictor, it's Moran's I and the interpretation are available.}
 #'  \item{ranking}{ordered character vector with the names of the spatial predictors selected}
 #' }
 #' @examples
@@ -36,7 +35,7 @@
 #'    distance.matrix = distance_matrix[1:50, 1:50],
 #'    distance.thresholds = c(0, 100, 1000),
 #'    spatial.predictors.df = spatial.predictors.df,
-#'    ranking.method = "moran.i",
+#'    ranking.method = "effect",
 #'    n.cores = 1
 #'  )
 #'  rank$ranking.criteria
@@ -53,7 +52,7 @@ rank_spatial_predictors <- function(
   distance.thresholds = NULL,
   ranger.arguments = NULL,
   spatial.predictors.df = NULL,
-  ranking.method = c("moran.i", "moran.i.reduction"),
+  ranking.method = c("effect", "moran"),
   reference.moran.i = 1,
   n.cores = NULL,
   cluster.ips = NULL,
@@ -63,7 +62,22 @@ rank_spatial_predictors <- function(
 ){
 
   #testing method argument
-  ranking.method <- match.arg(ranking.method, ranking.method)
+  ranking.method <- match.arg(
+    arg = ranking.method,
+    choices = c("effect", "moran"),
+    several.ok = FALSE
+    )
+
+  #add write.forest = FALSE to ranger.arguments
+  if(is.null(ranger.arguments)){
+    ranger.arguments <- list()
+  }
+  ranger.arguments$write.forest <- FALSE
+  ranger.arguments$importance <- "none"
+  ranger.arguments$local.importance <- FALSE
+  ranger.arguments$keep.inbag <- FALSE
+  ranger.arguments$write.forest <- FALSE
+  ranger.arguments$num.trees <- 500
 
   #reference.moran.i
   if(is.null(reference.moran.i)){reference.moran.i <- 1}
@@ -119,14 +133,6 @@ rank_spatial_predictors <- function(
   doParallel::registerDoParallel(cl = temp.cluster)
   on.exit(parallel::stopCluster(cl = temp.cluster))
 
-  #add write.forest = FALSE to ranger.arguments
-  if(is.null(ranger.arguments)){
-    ranger.arguments <- list()
-  }
-  ranger.arguments$write.forest <- FALSE
-  ranger.arguments$importance <- "none"
-  ranger.arguments$local.importance <- FALSE
-
   #3.2.3 PREPARING PARALLELIZED LOOP TO ITERATE THROUGH distance.matrix.pca
   spatial.predictors.i <- NULL
   spatial.predictors.order <- foreach::foreach(
@@ -151,7 +157,7 @@ rank_spatial_predictors <- function(
     spatial.predictors.name.i <- colnames(spatial.predictors.df)[spatial.predictors.i]
 
     #computing reduction in Moran's I
-    if(ranking.method == "moran.i.reduction"){
+    if(ranking.method == "effect"){
 
       #training data
       data.i <- data.frame(
@@ -187,7 +193,7 @@ rank_spatial_predictors <- function(
     }
 
     #computing Moran's I of the spatial predictors
-    if(ranking.method == "moran.i"){
+    if(ranking.method == "moran"){
 
       #moran's I of spatial predictor
       m.i <- moran(
@@ -216,18 +222,11 @@ rank_spatial_predictors <- function(
     dplyr::desc(ranking.criteria)
     )
 
-  #selected spatial.predictorss
-  spatial.predictors.order.selected <- spatial.predictors.order
-  #   dplyr::filter(
-  #   spatial.predictors.order,
-  #   ranking.criteria > quantile(ranking.criteria, 0.1)
-  # )
-
   #return output
   out.list <- list()
   out.list$method <- ranking.method
   out.list$criteria <- spatial.predictors.order
-  out.list$ranking <- spatial.predictors.order.selected$spatial.predictors.name
+  out.list$ranking <- spatial.predictors.order$spatial.predictors.name
 
   #returning output list
   out.list

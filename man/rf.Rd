@@ -13,8 +13,7 @@ rf(
   ranger.arguments = list(mtry = NULL, min.node.size = NULL, max.depth = NULL,
     importance = "permutation", scale.permutation.importance = TRUE, local.importance =
     FALSE, write.forest = TRUE, replace = TRUE, sample.fraction = ifelse(replace, 1,
-    0.632), case.weights = NULL, num.threads = parallel::detectCores() - 1, save.memory =
-    FALSE, verbose = TRUE),
+    0.632), case.weights = NULL, save.memory = FALSE, verbose = TRUE),
   trees.per.variable = NULL,
   scaled.importance = TRUE,
   seed = NULL

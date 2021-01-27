@@ -247,7 +247,8 @@ rf_repeat <- function(data = NULL,
     distance.matrix = distance.matrix,
     distance.thresholds = distance.thresholds,
     ranger.arguments = ranger.arguments,
-    trees.per.variable = trees.per.variable
+    trees.per.variable = trees.per.variable,
+    seed = 1 #seed of the first model fitted in the parallelized loop
   )
 
   #PARSING OUTPUT OF PARALLELIZED LOOP

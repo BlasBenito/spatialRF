@@ -12,7 +12,7 @@ rank_spatial_predictors(
   distance.thresholds = NULL,
   ranger.arguments = NULL,
   spatial.predictors.df = NULL,
-  ranking.method = c("moran.i", "moran.i.reduction"),
+  ranking.method = c("effect", "moran"),
   reference.moran.i = 1,
   n.cores = NULL,
   cluster.ips = NULL,
@@ -36,7 +36,7 @@ rank_spatial_predictors(
 
 \item{spatial.predictors.df}{data frame of spatial predictors, either a distance matrix, or the PCA factors of the distance matrix produced by \link{pca_multithreshold}.}
 
-\item{ranking.method}{string, one of "moran.i.reduction" and "moran.i". The former option ranks spatial predictors according how much each predictor reduces Moran's I of the model residuals.}
+\item{ranking.method}{string, one of "effect" and "effect". The former option ranks spatial predictors according how much each predictor reduces Moran's I of the model residuals.}
 
 \item{reference.moran.i}{Moran's I of the residuals of a model fitted without spatial predictors. Default: 1.}
 
@@ -54,12 +54,12 @@ rank_spatial_predictors(
 a list with two slots:
 \itemize{
 \item{method}{string, name of the method used to rank the spatial predictors}
-\item{criteria}{data frame with two different configurations depending on the ranking method. If ranking.method = "moran.i.reduction", the columns contain the name of the spatial predictor, the r-squared of the model, the Moran's I of the model residuals, the difference between this Moran's I and the Moran's I of the model fitted without spatial predictors (named \code{ranking.criteria}, and the interpretation of the Moran's I value. If ranking.method = "moran.i", only the name of the spatial predictor, it's Moran's I and the interpretation are available.}
+\item{criteria}{data frame with two different configurations depending on the ranking method. If ranking.method = "effect", the columns contain the name of the spatial predictor, the r-squared of the model, the Moran's I of the model residuals, the difference between this Moran's I and the Moran's I of the model fitted without spatial predictors (named \code{ranking.criteria}, and the interpretation of the Moran's I value. If ranking.method = "effect", only the name of the spatial predictor, it's Moran's I and the interpretation are available.}
 \item{ranking}{ordered character vector with the names of the spatial predictors selected}
 }
 }
 \description{
-ranks spatial predictors generated from the PCA of a distance matrix (or columns of the distance matrix itself) by either their effect in reducing the Moran's I of the model residuals (ranking.method = "moran.i.reduction"), or by their own Moran's I (ranking.method = "moran.i"). In the former case, one model of the type \code{y ~ predictors + spatial_predictor_X} is fitted per spatial predictor (this is a computationally intensive function), and the Moran's I of its residuals is compared with the one of the model \code{y ~ predictors}, to finally order the spatial predictor from maximum to minimum Moran's I difference. In the latter case the spatial predictors are ordered by their Moran's I alone (this is the faster option). In both cases, spatial predictors with no effect (no reduction of Moran's I  or Moran's I of the spatial predictor equal or lower than 0) are removed. The purpose of this function is to provide criteria on how to include spatial predictors in a model. This function has been designed to be used internally by rf_spatial rather than by directly by a user.
+ranks spatial predictors generated from the PCA of a distance matrix (or columns of the distance matrix itself) by either their effect in reducing the Moran's I of the model residuals (ranking.method = "effect"), or by their own Moran's I (ranking.method = "moran"). In the former case, one model of the type \code{y ~ predictors + spatial_predictor_X} is fitted per spatial predictor (this is a computationally intensive function), and the Moran's I of its residuals is compared with the one of the model \code{y ~ predictors}, to finally order the spatial predictor from maximum to minimum Moran's I difference. In the latter case the spatial predictors are ordered by their Moran's I alone (this is the faster option). In both cases, spatial predictors with no effect (no reduction of Moran's I  or Moran's I of the spatial predictor equal or lower than 0) are removed. The purpose of this function is to provide criteria on how to include spatial predictors in a model. This function has been designed to be used internally by rf_spatial rather than by directly by a user.
 }
 \examples{
 \dontrun{
@@ -76,7 +76,7 @@ if(interactive()){
    distance.matrix = distance_matrix[1:50, 1:50],
    distance.thresholds = c(0, 100, 1000),
    spatial.predictors.df = spatial.predictors.df,
-   ranking.method = "moran.i",
+   ranking.method = "effect",
    n.cores = 1
  )
  rank$ranking.criteria

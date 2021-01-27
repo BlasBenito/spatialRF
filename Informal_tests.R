@@ -96,7 +96,7 @@ data <- plant_richness_df
 dependent.variable.name <- "richness_species_vascular"
 predictor.variable.names <- colnames(plant_richness_df)[5:21]
 distance.matrix <- distance_matrix
-distance.thresholds <- c(0, 100, 1000)
+distance.thresholds <- c(0, 500, 1000)
 
 #hengl
 model <- rf_spatial(
@@ -108,6 +108,19 @@ model <- rf_spatial(
   method = "hengl"
 )
 length(model$selection.spatial.predictors$names)
+model$spatial.correlation.residuals$df
+
+model <- rf_spatial(
+  data = data,
+  dependent.variable.name = dependent.variable.name,
+  predictor.variable.names = predictor.variable.names,
+  distance.matrix = distance.matrix,
+  distance.thresholds = distance.thresholds,
+  method = "hengl",
+  repetitions = 10
+)
+length(model$selection.spatial.predictors$names)
+model$variable.importance$plot
 model$spatial.correlation.residuals$df
 
 #SEQUENTIAL METHODS

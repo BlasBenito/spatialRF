@@ -5,10 +5,10 @@ test_that("`rank_spatial_predictors()` works", {
     distance.thresholds = c(0, 100, 1000)
     )
   rank <- rank_spatial_predictors(
-    ranking.method = "moran.i",
-    spatial.predictors.df = spatial.predictors.df,
     distance.matrix = distance_matrix[1:50, 1:50],
     distance.thresholds = c(0, 100, 1000),
+    spatial.predictors.df = spatial.predictors.df,
+    ranking.method = "moran",
     n.cores = 1
   )
   expect_type(rank, "list")

@@ -80,7 +80,6 @@ rf <- function(
     replace = TRUE,
     sample.fraction = ifelse(replace, 1, 0.632),
     case.weights = NULL,
-    num.threads = parallel::detectCores() - 1,
     save.memory = FALSE,
     verbose = TRUE
   ),

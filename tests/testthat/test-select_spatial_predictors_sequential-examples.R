@@ -22,11 +22,11 @@ test_that("`select_spatial_predictors_sequential()` works", {
   )
 
   spatial.predictors.ranked <- rank_spatial_predictors(
-    ranking.method = "moran.i",
-    spatial.predictors.df = spatial.predictors,
-    reference.moran.i = model$spatial.correlation.residuals$max.moran,
     distance.matrix = distance.matrix,
     distance.thresholds = distance.thresholds,
+    spatial.predictors.df = spatial.predictors,
+    ranking.method = "moran",
+    reference.moran.i = model$spatial.correlation.residuals$max.moran,
     n.cores = 1
   )
 

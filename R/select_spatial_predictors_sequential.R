@@ -100,6 +100,17 @@ select_spatial_predictors_sequential <- function(
   if(weight.penalization.n.predictors > 1){weight.penalization.n.predictors <- 1}
   if(weight.penalization.n.predictors < 0){weight.penalization.n.predictors <- 0}
 
+  #preparing fast ranger arguments
+  if(is.null(ranger.arguments)){
+    ranger.arguments <- list()
+  }
+  ranger.arguments$write.forest <- FALSE
+  ranger.arguments$importance <- "none"
+  ranger.arguments$local.importance <- FALSE
+  ranger.arguments$keep.inbag <- FALSE
+  ranger.arguments$write.forest <- FALSE
+  ranger.arguments$num.trees <- 500
+
   #preparing cluster for stand alone machine
   if(is.null(cluster.ips) == TRUE){
 
