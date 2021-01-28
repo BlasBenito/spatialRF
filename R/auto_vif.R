@@ -64,6 +64,7 @@ auto_vif <- function(
       #selecting by max vif (variables not in preference.order)
       output.list.by.max.vif <- .select_by_max_vif(
         x = x[, !(colnames(x) %in% preference.order)],
+        vif.threshold = vif.threshold,
         verbose = verbose
       )
 
@@ -75,8 +76,9 @@ auto_vif <- function(
 
       #vif by preference again
       output.list <- .select_by_preference(
-        preference.order = selected.vars,
         x = x,
+        preference.order = selected.vars,
+        vif.threshold = vif.threshold,
         verbose = verbose
       )
 
@@ -218,3 +220,4 @@ auto_vif <- function(
   output.list
 
 }
+

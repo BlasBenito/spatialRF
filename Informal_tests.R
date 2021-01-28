@@ -1,3 +1,45 @@
+ranger.arguments <- list()
+ranger.arguments$data <- plant_richness_df
+ranger.arguments$dependent.variable.name <- "richness_species_vascular"
+ranger.arguments$predictor.variable.names <- colnames(plant_richness_df)[8:21]
+ranger.arguments$distance.matrix <- distance_matrix
+ranger.arguments$distance.thresholds <- c(0, 100, 1000)
+
+formula <- as.formula("richness_species_vascular ~ climate_hypervolume + climate_velocity_lgm_average + neighbors_count + neighbors_percent_shared_edge")
+
+model <- rf(
+  ranger.arguments =  ranger.arguments
+)
+
+ranger::treeInfo(object = model, tree = 1)
+
+
+#trying interfaces to data
+model <- rf(
+  data = plant_richness_df,
+  dependent.variable.name = "richness_species_vascular",
+  predictor.variable.names = colnames(plant_richness_df)[5:21]
+)
+ranger::treeInfo(object = model, tree = 1)
+
+
+model <- rf(
+  data = plant_richness_df,
+  ranger.arguments = list(formula = as.formula("richness_species_vascular ~ climate_hypervolume + climate_velocity_lgm_average + neighbors_count + neighbors_percent_shared_edge"
+)))
+ranger::treeInfo(object = model, tree = 1)
+
+model <- rf(
+  ranger.arguments = list(
+    y = plant_richness_df$richness_species_vascular,
+    x = plant_richness_df[, 5:21]
+    )
+  )
+
+
+
+
+###################################################################
 data("distance_matrix")
 data("plant_richness_df")
 
@@ -252,8 +294,52 @@ model$selection.spatial.predictors$df
 
 
 
+#USING OTHER MODELS AS INPUT
+#############################################
+data(plant_richness_df)
+data(distance.matrix)
+
+predictor.variable.names <- colnames(plant_richness_df)[8:21]
+
+#basic model
+rf.model <- rf(
+  data = plant_richness_df,
+  dependent.variable.name = "richness_species_vascular",
+  predictor.variable.names = colnames(plant_richness_df)[5:21],
+  distance.matrix = distance_matrix,
+  distance.thresholds = c(0, 1000, 2000)
+)
+rf.model$performance
+rf.model$variable.importance$plot
+
+#with repetitions
+rf.repeat <- rf_repeat(model = rf.model)
+rf.repeat$performance
+rf.repeat$variable.importance$plot
+rf.repeat$spatial.correlation.residuals$plot
+
+#spatial model
+rf.spatial <- rf_spatial(model = rf.model)
+rf.spatial$performance
+rf.spatial$variable.importance$plot
+rf.spatial$spatial.correlation.residuals$plot
+
+#from repeat
+rf.spatial.repeat <- rf_spatial(model = rf.repeat)
+rf.spatial.repeat$performance
+rf.spatial.repeat$variable.importance$plot
+rf.spatial.repeat$spatial.correlation.residuals$plot
 
 
+#PLOR AND PRINT METHODS
+rf.model <- rf(
+  data = plant_richness_df,
+  dependent.variable.name = "richness_species_vascular",
+  predictor.variable.names = colnames(plant_richness_df)[5:21],
+  distance.matrix = distance_matrix,
+  distance.thresholds = c(0, 1000, 2000)
+)
+print(rf.model)
 
-
+rf.spatial <- rf_spatial(model = rf.model)
 

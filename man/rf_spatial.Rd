@@ -5,6 +5,7 @@
 \title{rf_spatial}
 \usage{
 rf_spatial(
+  model = NULL,
   data = NULL,
   dependent.variable.name = NULL,
   predictor.variable.names = NULL,
@@ -15,10 +16,10 @@ rf_spatial(
   scaled.importance = TRUE,
   repetitions = 1,
   keep.models = FALSE,
-  method = c("hengl", "hengl.moran.sequential", "hengl.effect.sequential",
+  method = c("mem.moran.sequential", "mem.effect.sequential", "mem.effect.optimized",
+    "hengl", "hengl.moran.sequential", "hengl.effect.sequential",
     "hengl.effect.optimized", "pca.moran.sequential", "pca.effect.sequential",
-    "pca.effect.optimized", "mem.moran.sequential", "mem.effect.sequential",
-    "mem.effect.optimized"),
+    "pca.effect.optimized"),
   max.spatial.predictors = 1000,
   weight.r.squared = NULL,
   weight.penalization.n.predictors = NULL,
@@ -32,6 +33,8 @@ rf_spatial(
 )
 }
 \arguments{
+\item{model}{(optional) a model produced by \link{rf}. If used, the arguments \code{data}, \code{dependent.variable.name}, \code{predictor.variable.names}, \code{distance.matrix}, \code{distance.thresholds}, \code{ranger.arguments}, \code{trees.per.variable}, and \code{scaled.importance} are taken directly from the model definition. Default: NULL}
+
 \item{data}{(required) data frame with a response variable and a set of (preferably uncorrelated) predictors, Default: NULL}
 
 \item{dependent.variable.name}{(required) string with the name of the response variable. Must be in the column names of 'data', Default: NULL}
@@ -155,14 +158,41 @@ if(interactive()){
 
  #mem.moran.sequential
  model <- rf_spatial(
- data = data,
- dependent.variable.name = dependent.variable.name,
- predictor.variable.names = predictor.variable.names,
- distance.matrix = distance.matrix,
- distance.thresholds = distance.thresholds,
- method = "mem.moran.sequential",
- seed = 10
+   data = data,
+   dependent.variable.name = dependent.variable.name,
+   predictor.variable.names = predictor.variable.names,
+   distance.matrix = distance.matrix,
+   distance.thresholds = distance.thresholds,
+   method = "mem.moran.sequential",
+   seed = 10
  )
+
+ #fitting an rf_spatial model from an rf model
+ rf.model <- rf(
+   data = plant_richness_df,
+   dependent.variable.name = "richness_species_vascular",
+   predictor.variable.names = colnames(plant_richness_df)[5:21],
+   distance.matrix = distance_matrix,
+   distance.thresholds = c(0, 1000, 2000)
+ )
+ rf.model$spatial.correlation.residuals$plot
+
+ rf.spatial <- rf_spatial(model = rf.model)
+ rf.spatial$spatial.correlation.residuals$plot
+
+ #fitting an rf_spatial model from an rf_repeat model
+ rf.repeat <- rf_repat(
+   data = plant_richness_df,
+   dependent.variable.name = "richness_species_vascular",
+   predictor.variable.names = colnames(plant_richness_df)[5:21],
+   distance.matrix = distance_matrix,
+   distance.thresholds = c(0, 1000, 2000),
+   repetitions = 5
+ )
+ rf.repeat$spatial.correlation.residuals$plot
+
+ rf.spatial <- rf_spatial(model = rf.repeat)
+ rf.spatial$spatial.correlation.residuals$plot
  }
 }
 }

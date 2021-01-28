@@ -5,7 +5,7 @@
 #' @param predictor.variable.names (required) character vector with the names of the predictive variables. Every element must be in the column names of 'data', Default: NULL
 #' @param distance.matrix (optional) a squared matrix with the distances among the records in 'data'. Notice that the rows of 'distance.matrix' and 'data' must be the same. If not provided, the computation of the Moran's I of the residuals is ommited. Default: NULL``
 #' @param distance.thresholds (optional) numeric vector, distances below each value in the distance matrix are set to 0 for the computation of Moran's I. If NULL, it defaults to seq(0, max(distance.matrix), length.out = 4). Default: NULL.
-#' @param ranger.arguments (optional) list with \link[ranger]{ranger} arguments. All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.
+#' @param ranger.arguments (optional) list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.
 #' @param trees.per.variable (optional) number of individual regression trees to fit per variable in 'predictor.variable.names'. This is an alternative way to define ranger's 'num.trees'. If NULL, 'num.trees' is 500. Default: NULL
 #' @param scaled.importance (optional) boolean. If TRUE, and 'importance = "permutation', the function scales 'data' with [scale_robust] and fits a new model to compute scaled variable importance scores. Default: TRUE
 #' @param seed (optional) integer, random seed to facilitate reproducibility. If set to a given number, the returned model is always the same. Default: NULL
@@ -19,12 +19,13 @@
 #'   \item `residuals`: computed as observations minus predictions.
 #'   \item `spatial.correlation.residuals`: the result of [moran_multithreshold].
 #' }
-#' @details Please read the help file of \link[ranger]{ranger} for further details.
+#' @details Please read the help file of \link[ranger]{ranger} for further details. Notice that the `formula` interface of \link[ranger]{ranger} is supported through `ranger.arguments`, interactions are not allowed. If you need to consider interactions in your model, add them explicitly as new columns in `data` as in `data$x_y <- data$x * data$y`.
 #' @examples
 #' \dontrun{
 #' if(interactive()){
 #'  data("plant_richness_df")
 #'  data("distance_matrix")
+#'
 #'  out <- rf(
 #'    data = plant_richness_df,
 #'    dependent.variable.name = "richness_species_vascular",
@@ -53,6 +54,41 @@
 #'
 #'  #plot of the Moran's I of the residuals for different distance thresholds
 #'  out$spatial.correlation.residuals$plot
+#'
+#'  #alternative data input methods
+#'  ###############################
+#'
+#'  #ranger.arguments can contain ranger arguments and any other rf argument
+#'  my.arguments <- list()
+#'  my.arguments$data <- plant_richness_df
+#'  my.arguments$dependent.variable.name <- "richness_species_vascular"
+#'  my.arguments$predictor.variable.names <- colnames(plant_richness_df)[8:21]
+#'  my.arguments$distance.matrix <- distance_matrix
+#'  my.arguments$distance.thresholds <- c(0, 100, 1000)
+#'  out <- rf(ranger.arguments = my.arguments)
+#'
+#'  #the formula input method of ranger is supported (requires 'data')
+#'  #variable interactions are not supported by this interface
+#'  out <- rf(
+#'    data = plant_richness_df,
+#'    ranger.arguments = list(
+#'      formula = as.formula(
+#'      "richness_species_vascular ~
+#'      climate_hypervolume +
+#'      climate_velocity_lgm_average +
+#'      neighbors_count +
+#'      neighbors_percent_shared_edge"
+#'      )
+#'    )
+#'  )
+#'
+#'  #the x and y interface is also supported (the name of the response variable is converted to "y")
+#'  out <- rf(
+#'    ranger.arguments = list(
+#'      y = plant_richness_df$richness_species_vascular,
+#'      x = plant_richness_df[, 5:21]
+#'      )
+#'    )
 #'  }
 #' }
 #' @rdname rf
@@ -69,44 +105,15 @@ rf <- function(
   predictor.variable.names = NULL,
   distance.matrix = NULL,
   distance.thresholds = NULL,
-  ranger.arguments = list(
-    mtry = NULL,
-    min.node.size = NULL,
-    max.depth = NULL,
-    importance = "permutation",
-    scale.permutation.importance = TRUE,
-    local.importance = FALSE,
-    write.forest = TRUE,
-    replace = TRUE,
-    sample.fraction = ifelse(replace, 1, 0.632),
-    case.weights = NULL,
-    save.memory = FALSE,
-    verbose = TRUE
-  ),
+  ranger.arguments = NULL,
   trees.per.variable = NULL,
   scaled.importance = TRUE,
   seed = NULL
 ){
 
-  #subsetting data
-  if(!is.null(data)){
-
-    if(!is.null(predictor.variable.names) & !is.null(dependent.variable.name)){
-
-      predictor.variable.names <- predictor.variable.names[predictor.variable.names %in% colnames(data)]
-      data <- data[, c(dependent.variable.name, predictor.variable.names)]
-
-    }
-
-    #removing NA
-    data <- na.omit(data)
-
-  }
-
-  #default arguments (needs to be here to avoid devtools::check() complaints)
+  #default arguments
   formula = NULL
   num.trees = 500
-  trees.per.variable = NULL
   mtry = NULL
   mtry = NULL
   importance = "permutation"
@@ -141,8 +148,25 @@ rf <- function(
   x = NULL
   y = NULL
 
-  #user arguments
+  #user arguments (overwrites defaults)
   if(!is.null(ranger.arguments)){
+
+    #giving preference a data not in ranger arguments
+    if(!is.null(data)){
+      if("data" %in% names(ranger.arguments)){
+        ranger.arguments$data <- NULL
+      }
+    }
+    if(!is.null(dependent.variable.name)){
+      if("dependent.variable.name" %in% names(ranger.arguments)){
+        ranger.arguments$dependent.variable.name <- NULL
+      }
+    }
+    if(!is.null(predictor.variable.names)){
+      if("predictor.variable.names" %in% names(ranger.arguments)){
+        ranger.arguments$predictor.variable.names <- NULL
+      }
+    }
     list2env(ranger.arguments, envir=environment())
   }
 
@@ -151,12 +175,75 @@ rf <- function(
     set.seed(seed)
   }
 
+  #data input method
+
+  #if data is null
+  if(is.null(data)){
+
+    #x and y must be provided
+    if(is.null(x) & is.null(y)){
+      stop("arguments 'data' or 'x' and 'y' must be provided")
+    } else {
+
+      #generate data from x and y
+      data <- data.frame(y, x)
+      dependent.variable.name <- "y"
+      predictor.variable.names <- colnames(x)
+    }
+
+  } else {
+
+    #formula is provided
+    if(!is.null(formula)){
+
+      #subset data
+      data <- data[, all.vars(formula)]
+      predictor.variable.names <- all.vars(formula)[2:length(all.vars(formula))]
+      dependent.variable.name <- all.vars(formula)[1]
+
+    } else {
+
+
+      #dependent.variable.name is provided
+      if(!is.null(dependent.variable.name)){
+
+        if(!(dependent.variable.name %in% colnames(data))){
+          stop(paste0("The dependent.variable.name ", dependent.variable.name, " is not a column of data."))
+        }
+
+      }
+
+      #predictor.variable.names is provided
+      if(!is.null(predictor.variable.names)){
+
+        #checking if these are column names in data
+        if(sum(predictor.variable.names %in% colnames(data)) < length(predictor.variable.names)){
+          stop(paste0("The predictor.variable.names ", predictor.variable.names[!(predictor.variable.names %in% colnames(data))], " are missing from 'data'"))
+        }
+
+      }
+
+      #subset data
+      data <- na.omit(data[, c(dependent.variable.name, predictor.variable.names)])
+
+    }
+
+  }
+
+  #if not numeric, stop
+  if(!is.numeric(data[, dependent.variable.name])){
+    stop("The response variable must be numeric")
+  }
+
+
+  #setting trees.per.variable
   if(!is.null(trees.per.variable)){
-    num.trees <- trees.per.variable * (ncol(data) - 1)
+    num.trees <- trees.per.variable * length(predictor.variable.names)
   }
 
   #ranger model for r-squared and predictions
   m <- ranger::ranger(
+    formula = formula,
     data = data,
     dependent.variable.name = dependent.variable.name,
     num.trees = num.trees,
@@ -210,6 +297,7 @@ rf <- function(
 
     #ranger model for variable importance
     m.scaled <- ranger::ranger(
+      formula = formula,
       data = data.scaled,
       dependent.variable.name = dependent.variable.name,
       num.trees = num.trees,
@@ -256,12 +344,17 @@ rf <- function(
 
   #adding model arguments
   m$ranger.arguments <- list(
+    formula = formula,
     data = data,
     dependent.variable.name = dependent.variable.name,
     predictor.variable.names = predictor.variable.names,
+    distance.matrix = distance.matrix,
+    distance.thresholds = distance.thresholds,
     num.trees = num.trees,
+    trees.per.variable = trees.per.variable,
     mtry = mtry,
     importance = importance,
+    scaled.importance = scaled.importance,
     write.forest = write.forest,
     probability = probability,
     min.node.size = min.node.size,
@@ -304,17 +397,22 @@ rf <- function(
     tibble::remove_rownames() %>%
     dplyr::arrange(dplyr::desc(importance))
 
+  variable <- NULL
   m$variable.importance$plot <- ggplot2::ggplot(data = m$variable.importance$df) +
     ggplot2::aes(
       x = importance,
       y = reorder(
-        .data$variable,
-        .data$importance,
+        variable,
+        importance,
         FUN = max
-      )
+      ),
+      fill = importance
     ) +
-    ggplot2::geom_point(size = 2) +
-    ggplot2::ylab("")
+    ggplot2::geom_point(size = 4, shape = 21) +
+    ggplot2::scale_fill_viridis_c(direction = -1, alpha = 0.8) +
+    ggplot2::ylab("") +
+    ggplot2::xlab("Variable importance") +
+    ggplot2::theme(legend.position = "none")
 
   #getting residuals
 
@@ -322,51 +420,47 @@ rf <- function(
   predicted <- m$predictions
 
   #getting observed data
+  observed <- data[, dependent.variable.name]
 
-  #if data is provided
-  if(!is.null(data)){
+  # #performance
+  # m$pseudo.r.squared <- cor(
+  #   observed,
+  #   predicted
+  # )
+  #
+  # m$rmse <- root_mean_squared_error(
+  #   o = observed,
+  #   p = predicted,
+  #   normalization = NULL
+  # )
+  #
+  # m$nrmse <- root_mean_squared_error(
+  #   o = observed,
+  #   p = predicted,
+  #   normalization = "iq"
+  # )
 
-    #the user used a formula
-    if(!is.null(formula)){
-
-      #observed
-      observed <- data[, all.vars(formula)[1]]
-
-    }
-
-    #user gave dependent.variable.name
-    if(!is.null(dependent.variable.name)){
-
-      #observed
-      observed <- data[, dependent.variable.name]
-
-    }
-
-  }
-
-  if(!is.null(y) & !is.null(x)){
-
-    observed = y
-
-  }
-
-  m$pseudo.r.squared <- cor(
+  #performance slot
+  m$performance <- list()
+  m$performance$r.squared <- m$r.squared
+  m$performance$pseudo.r.squared <- cor(
     observed,
     predicted
   )
-
-  m$rmse <- root_mean_squared_error(
+  m$performance$rmse <- root_mean_squared_error(
     o = observed,
     p = predicted,
     normalization = NULL
   )
-
-  m$nrmse <- root_mean_squared_error(
+  names(m$performance$rmse) <- NULL
+  m$performance$nrmse <- root_mean_squared_error(
     o = observed,
     p = predicted,
     normalization = "iq"
   )
+  names(m$performance$nrmse) <- NULL
 
+  #residuals
   m$residuals <- observed - predicted
 
 
@@ -386,6 +480,9 @@ rf <- function(
   if(local.importance == TRUE){
     m$variable.importance.local <- m.scaled$variable.importance.local
   }
+
+  #adding rf class
+  class(m) <- c("ranger", "rf")
 
   #return model
   m

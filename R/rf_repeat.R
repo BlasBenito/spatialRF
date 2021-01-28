@@ -1,5 +1,6 @@
 #' @title rf_repeat
 #' @description Repeats a given random forest model several times in order to capture the effect of the stochasticity of the algorithm on importance scores and accuracy measures. The function is prepared to run on a cluster if the IPs, number of cores, and user name are provided (see [cluster_specification]).
+#' @param model (optional) a model produced by [rf]. If used, the arguments `data`, `dependent.variable.name`, `predictor.variable.names`, `distance.matrix`, `distance.thresholds`, `ranger.arguments`, `trees.per.variable`, and `scaled.importance` are taken directly from the model definition. Default: NULL
 #' @param data (required) data frame with a response variable and a set of (preferably uncorrelated) predictors, Default: NULL
 #' @param dependent.variable.name (required) string with the name of the response variable. Must be in the column names of 'data', Default: NULL
 #' @param predictor.variable.names (required) character vector with the names of the predictive variables. Every element must be in the column names of 'data', Default: NULL
@@ -8,7 +9,7 @@
 #' @param ranger.arguments (optional) list with \link[ranger]{ranger} arguments. All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.
 #' @param trees.per.variable (optional) number of individual regression trees to fit per variable in 'predictor.variable.names'. This is an alternative way to define ranger's 'num.trees'. If NULL, 'num.trees' is 500. Default: NULL
 #' @param scaled.importance (optional) boolean. If TRUE, and 'importance = "permutation', the function scales 'data' with [scale_robust] and fits a new model to compute scaled variable importance scores. Default: TRUE
-#' @param repetitions integer, number of random forest models to fit. Default: 5
+#' @param repetitions (required) integer, number of random forest models to fit. Default: 5
 #' @param keep.models boolean, if TRUE, the fitted models are returned in the "models" slot. Default: FALSE.
 #' @param n.cores number of cores to use to compute repetitions. If NULL, all cores but one are used, unless a cluster is used.
 #' @param cluster.ips character vector, IPs of the machines in the cluster. The first machine will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.
@@ -62,12 +63,28 @@
 #'
 #'  #plot of the Moran's I of the residuals for different distance thresholds
 #'  out$spatial.correlation.residuals$plot
+#'
+#'  #using a model as an input for rf_repeat()
+#'  rf.model <- rf(
+#'    data = plant_richness_df,
+#'    dependent.variable.name = "richness_species_vascular",
+#'    predictor.variable.names = colnames(plant_richness_df)[8:21],
+#'    distance.matrix = distance_matrix,
+#'    distance.thresholds = c(0, 1000, 2000)
+#'    )
+#'  rf.model$performance
+#'  rf.model$variable.importance$plot
+#'
+#'  rf.repeat <- rf_repeat(model = rf.model)
+#'  rf.repeat$performance
+#'  rf.repeat$variable.importance$plot
 #'  }
 #' }
 #' @importFrom tidyselect all_of
 #' @rdname rf_repeat
 #' @export
-rf_repeat <- function(data = NULL,
+rf_repeat <- function(model = NULL,
+                      data = NULL,
                       dependent.variable.name = NULL,
                       predictor.variable.names = NULL,
                       distance.matrix = NULL,
@@ -84,6 +101,32 @@ rf_repeat <- function(data = NULL,
                       cluster.port = 11000
 
 ){
+
+  #checking repetitions
+  if(!is.integer(repetitions)){
+    repetitions <- floor(repetitions)
+  }
+  if(repetitions < 5){
+    repetitions <- 5
+  }
+  if(repetitions > 30){
+    message("Large numbers of 'repetitions' may lead to long computation times.")
+  }
+
+  #getting arguments from model
+  if(!is.null(model)){
+    ranger.arguments <- NULL
+    data <- NULL
+    dependent.variable.name <- NULL
+    predictor.variable.names <- NULL
+    distance.matrix = NULL
+    distance.thresholds <- NULL
+    trees.per.variable <- NULL
+    scaled.importance <- TRUE
+    ranger.arguments <- model$ranger.arguments
+    list2env(ranger.arguments, envir=environment())
+    seed <- NULL
+  }
 
   #initializes local.importance
   if(is.null(ranger.arguments$local.importance)){
@@ -187,6 +230,8 @@ rf_repeat <- function(data = NULL,
     )
   ) %dopar% {
 
+    set.seed(i)
+
     #model on raw data
     m.i <- rf(
       data = data,
@@ -195,8 +240,7 @@ rf_repeat <- function(data = NULL,
       distance.matrix = distance.matrix,
       distance.thresholds = distance.thresholds,
       ranger.arguments = ranger.arguments,
-      trees.per.variable = trees.per.variable,
-      seed = i
+      trees.per.variable = trees.per.variable
     )
 
     #model on scaled data
@@ -207,8 +251,7 @@ rf_repeat <- function(data = NULL,
         dependent.variable.name = dependent.variable.name,
         predictor.variable.names = predictor.variable.names,
         ranger.arguments = ranger.arguments,
-        trees.per.variable = trees.per.variable,
-        seed = i
+        trees.per.variable = trees.per.variable
       )
 
     }
@@ -225,10 +268,10 @@ rf_repeat <- function(data = NULL,
       out$variable.importance <- m.i$variable.importance$vector
     }
     out$prediction.error <- m.i$prediction.error
-    out$r.squared <- m.i$r.squared
-    out$pseudo.r.squared <- m.i$pseudo.r.squared
-    out$rmse <- m.i$rmse
-    out$nrmse <- m.i$nrmse
+    out$r.squared <- m.i$performance$r.squared
+    out$pseudo.r.squared <- m.i$performance$pseudo.r.squared
+    out$rmse <- m.i$performance$rmse
+    out$nrmse <- m.i$performance$nrmse
     out$residuals <- m.i$residuals
     out$spatial.correlation.residuals <- m.i$spatial.correlation.residuals
     if(keep.models == TRUE){
@@ -336,16 +379,24 @@ rf_repeat <- function(data = NULL,
     as.data.frame()
 
   variable.importance.plot <- ggplot2::ggplot(data = variable.importance.df.long) +
-    ggplot2::aes(y = reorder(
-      variable,
-      importance,
-      FUN = max),
-      x = importance
+    ggplot2::aes(
+      x = importance,
+      y = reorder(
+        variable,
+        importance,
+        FUN = median
+      ),
+      fill = reorder(
+        variable,
+        importance,
+        FUN = median
+      )
     ) +
     ggplot2::geom_boxplot() +
+    ggplot2::scale_fill_viridis_d(direction = -1, alpha = 0.8) +
     ggplot2::ylab("") +
-    ggplot2::xlab("Importance score") +
-    ggplot2::ggtitle(paste("Response variable: ", dependent.variable.name, sep = ""))
+    ggplot2::xlab("Variable importance") +
+    ggplot2::theme(legend.position = "none")
 
   m.curves$variable.importance <- list()
   m.curves$variable.importance$df <- variable.importance.mean
@@ -363,7 +414,8 @@ rf_repeat <- function(data = NULL,
   )
 
   #gathering r.squared
-  m.curves$r.squared <- unlist(
+  m.curves$performance <- list()
+  m.curves$performance$r.squared <- unlist(
     lapply(
       repeated.models,
       "[[",
@@ -372,7 +424,7 @@ rf_repeat <- function(data = NULL,
   )
 
   #gathering pseudo R squared
-  m.curves$pseudo.r.squared <- unlist(
+  m.curves$performance$pseudo.r.squared <- unlist(
     lapply(
       repeated.models,
       "[[",
@@ -381,24 +433,24 @@ rf_repeat <- function(data = NULL,
   )
 
   #gathering rmse
-  m.curves$rmse <- unlist(
+  m.curves$performance$rmse <- unlist(
     lapply(
       repeated.models,
       "[[",
       "rmse"
     )
   )
-  names(m.curves$rmse) <- NULL
+  names(m.curves$performance$rmse) <- NULL
 
   #gathering nrmse
-  m.curves$nrmse <- unlist(
+  m.curves$performance$nrmse <- unlist(
     lapply(
       repeated.models,
       "[[",
       "nrmse"
     )
   )
-  names(m.curves$nrmse) <- NULL
+  names(m.curves$performance$nrmse) <- NULL
 
   #gathering spatial.correlation.residuals
   spatial.correlation.residuals.by.repetition <- do.call(
@@ -437,12 +489,19 @@ rf_repeat <- function(data = NULL,
       y = moran.i,
       group = repetition
     ) +
-    ggplot2::geom_point(alpha = 0.5) +
-    ggplot2::geom_line(alpha = 0.5) +
-    ggplot2::geom_hline(yintercept = 0, color = "red4") +
-    ggplot2::xlab("Distance threshold") +
-    ggplot2::ylab("Moran's I") +
-    ggplot2::ggtitle("Multiscale Moran's I")
+    ggplot2::geom_hline(
+      yintercept = 0,
+      col = "gray10",
+      size = 0.7,
+      linetype = "dashed"
+    ) +
+    ggplot2::geom_point(color = "#440154FF", alpha = 0.7) +
+    ggplot2::geom_line(size = 1, color = "#440154FF", alpha = 0.7) +
+    ggplot2::xlab("Distance thresholds") +
+    ggplot2::ylab("Moran's I of residuals") +
+    ggplot2::ggtitle("Moran's I of the residuals") +
+    ggplot2::theme(legend.position = "bottom") +
+    ggplot2::labs(color = "Model", size = "Moran's I p-value")
 
   m.curves$spatial.correlation.residuals$max.moran <-  mean(
     unlist(
@@ -473,7 +532,7 @@ rf_repeat <- function(data = NULL,
   )
 
   #gathering residuals
-  residuals <- as.data.frame(do.call("cbind",         lapply(
+  residuals <- as.data.frame(do.call("cbind", lapply(
     repeated.models,
     "[[",
     "residuals"
@@ -495,6 +554,13 @@ rf_repeat <- function(data = NULL,
   if(keep.models == TRUE){
     m.curves$models <- repeated.models
   }
+
+  #adding repetitions to ranger.arguments
+  m.curves$ranger.arguments$repetitions <- repetitions
+  m.curves$ranger.arguments$keep.models <- keep.models
+
+  #adding class to the model
+  class(m.curves) <- c("ranger", "rf_repeat")
 
   #return m.curves
   m.curves

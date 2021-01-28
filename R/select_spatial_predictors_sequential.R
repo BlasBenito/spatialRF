@@ -110,6 +110,10 @@ select_spatial_predictors_sequential <- function(
   ranger.arguments$keep.inbag <- FALSE
   ranger.arguments$write.forest <- FALSE
   ranger.arguments$num.trees <- 500
+  ranger.arguments$data <- NULL
+  ranger.arguments$formula <- NULL
+  ranger.arguments$dependent.variable.name <- NULL
+  ranger.arguments$predictor.variable.names <- NULL
 
   #preparing cluster for stand alone machine
   if(is.null(cluster.ips) == TRUE){

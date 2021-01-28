@@ -23,7 +23,8 @@ Imports:
     ranger,
     rlang,
     tidyr,
-    tidyselect
+    tidyselect,
+    huxtable
 Suggests: 
     testthat
 Encoding: UTF-8

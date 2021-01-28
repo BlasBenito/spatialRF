@@ -10,7 +10,9 @@ library(DependenciesGraphs)
 
 #TO CHECK
 ########################################
-
+attachment::att_from_description()
+devtools::document()
+devtools::check()
 ########################################
 
 devtools::load_all()

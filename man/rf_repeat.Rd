@@ -5,6 +5,7 @@
 \title{rf_repeat}
 \usage{
 rf_repeat(
+  model = NULL,
   data = NULL,
   dependent.variable.name = NULL,
   predictor.variable.names = NULL,
@@ -23,6 +24,8 @@ rf_repeat(
 )
 }
 \arguments{
+\item{model}{(optional) a model produced by \link{rf}. If used, the arguments \code{data}, \code{dependent.variable.name}, \code{predictor.variable.names}, \code{distance.matrix}, \code{distance.thresholds}, \code{ranger.arguments}, \code{trees.per.variable}, and \code{scaled.importance} are taken directly from the model definition. Default: NULL}
+
 \item{data}{(required) data frame with a response variable and a set of (preferably uncorrelated) predictors, Default: NULL}
 
 \item{dependent.variable.name}{(required) string with the name of the response variable. Must be in the column names of 'data', Default: NULL}
@@ -39,7 +42,7 @@ rf_repeat(
 
 \item{scaled.importance}{(optional) boolean. If TRUE, and 'importance = "permutation', the function scales 'data' with \link{scale_robust} and fits a new model to compute scaled variable importance scores. Default: TRUE}
 
-\item{repetitions}{integer, number of random forest models to fit. Default: 5}
+\item{repetitions}{(required) integer, number of random forest models to fit. Default: 5}
 
 \item{keep.models}{boolean, if TRUE, the fitted models are returned in the "models" slot. Default: FALSE.}
 
@@ -107,6 +110,21 @@ if(interactive()){
 
  #plot of the Moran's I of the residuals for different distance thresholds
  out$spatial.correlation.residuals$plot
+
+ #using a model as an input for rf_repeat()
+ rf.model <- rf(
+   data = plant_richness_df,
+   dependent.variable.name = "richness_species_vascular",
+   predictor.variable.names = colnames(plant_richness_df)[8:21],
+   distance.matrix = distance_matrix,
+   distance.thresholds = c(0, 1000, 2000)
+   )
+ rf.model$performance
+ rf.model$variable.importance$plot
+
+ rf.repeat <- rf_repeat(model = rf.model)
+ rf.repeat$performance
+ rf.repeat$variable.importance$plot
  }
 }
 }

@@ -20,11 +20,10 @@ test_that("`rf_spatial()` works", {
   expect_equal(inherits(m1, "ranger"), TRUE)
   expect_equal(inherits(m1$variable.importance$plot, "ggplot"), TRUE)
   expect_equal(inherits(m1$spatial.correlation.residuals$plot, "ggplot"), TRUE)
-  expect_equal(length(m1$rmse), 5)
-  expect_equal(length(m1$nrmse), 5)
-  expect_equal(length(m1$rmse), 5)
-  expect_equal(length(m1$r.squared), 5)
-  expect_equal(length(m1$pseudo.r.squared), 5)
+  expect_equal(length(m1$performance$rmse), 5)
+  expect_equal(length(m1$performance$nrmse), 5)
+  expect_equal(length(m1$performance$r.squared), 5)
+  expect_equal(length(m1$performance$pseudo.r.squared), 5)
   # m2 <- rf_spatial(
   #   data = data,
   #   dependent.variable.name = dependent.variable.name,

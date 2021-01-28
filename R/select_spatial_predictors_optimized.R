@@ -100,6 +100,21 @@ select_spatial_predictors_optimized <- function(
   cluster.port = 11000
 ){
 
+  #preparing fast ranger arguments
+  if(is.null(ranger.arguments)){
+    ranger.arguments <- list()
+  }
+  ranger.arguments$write.forest <- FALSE
+  ranger.arguments$importance <- "none"
+  ranger.arguments$local.importance <- FALSE
+  ranger.arguments$keep.inbag <- FALSE
+  ranger.arguments$write.forest <- FALSE
+  ranger.arguments$num.trees <- 500
+  ranger.arguments$data <- NULL
+  ranger.arguments$formula <- NULL
+  ranger.arguments$dependent.variable.name <- NULL
+  ranger.arguments$predictor.variable.names <- NULL
+
   #initializing data for loop
   spatial.predictors.ranking.i <- spatial.predictors.ranking
   spatial.predictors.candidates.i <- spatial.predictors.ranking$ranking
