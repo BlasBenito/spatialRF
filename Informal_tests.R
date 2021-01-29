@@ -299,39 +299,32 @@ model$selection.spatial.predictors$df
 data(plant_richness_df)
 data(distance.matrix)
 
-predictor.variable.names <- colnames(plant_richness_df)[8:21]
-
 #basic model
 rf.model <- rf(
   data = plant_richness_df,
   dependent.variable.name = "richness_species_vascular",
   predictor.variable.names = colnames(plant_richness_df)[5:21],
   distance.matrix = distance_matrix,
-  distance.thresholds = c(0, 1000, 2000)
+  distance.thresholds = c(0, 1000, 2000),
+  verbose = TRUE
 )
-rf.model$performance
-rf.model$variable.importance$plot
+
 
 #with repetitions
-rf.repeat <- rf_repeat(model = rf.model)
-rf.repeat$performance
-rf.repeat$variable.importance$plot
-rf.repeat$spatial.correlation.residuals$plot
+rf.repeat <- rf_repeat(model = rf.model, verbose = TRUE)
 
 #spatial model
-rf.spatial <- rf_spatial(model = rf.model)
-rf.spatial$performance
-rf.spatial$variable.importance$plot
-rf.spatial$spatial.correlation.residuals$plot
+rf.spatial <- rf_spatial(model = rf.model, verbose = TRUE)
+rf.spatial <- rf_spatial(model = rf.model, method = "mem.effect.optimized")
+rf.spatial <- rf_spatial(model = rf.model, method = "hengl")
 
 #from repeat
 rf.spatial.repeat <- rf_spatial(model = rf.repeat)
-rf.spatial.repeat$performance
-rf.spatial.repeat$variable.importance$plot
-rf.spatial.repeat$spatial.correlation.residuals$plot
+rf.spatial.repeat <- rf_spatial(model = rf.repeat, method = "hengl")
 
 
-#PLOR AND PRINT METHODS
+
+ #PLOR AND PRINT METHODS
 rf.model <- rf(
   data = plant_richness_df,
   dependent.variable.name = "richness_species_vascular",

@@ -1,10 +1,10 @@
 #' @title mem
 #' @description Computes the positive Moran's Eigenvector Maps of a distance matrix.
-#' @param x Numeric matrix or data frame, Default: NULL
-#' @param distance.threshold distance.thresholds numeric vector with distance thresholds defining neighborhood in the distance matrix, Default: 0
-#' @param colnames.prefix character, name prefix for the output columns. Default: 'mem'
-#' @return A data frame with positive Moran's Eigenvector Maps
-#' @details The function takes the distance matrix `x`, computes its weights and double-centers it with [double_center_distance_matrix], applies \link[base]{eigen}, and returns eigenvectors with positive normalized eigenvalues (eigenvalues/max(abs(eigenvalues)) > 0).
+#' @param x Numeric distance matrix or data frame. Default: `NULL`.
+#' @param distance.threshold Numeric vector with distance thresholds defining different neighborhood extents in the distance matrix, Default: 0
+#' @param colnames.prefix Character, name prefix for the output columns. Default: `"mem"`
+#' @return A data frame with positive Moran's Eigenvector Maps.
+#' @details The function takes the distance matrix *x*, computes its weights and double-centers it with [double_center_distance_matrix()], applies \link[base]{eigen}, and returns eigenvectors with positive normalized eigenvalues.
 #' @examples
 #' \dontrun{
 #' if(interactive()){

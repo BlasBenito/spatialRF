@@ -16,6 +16,7 @@ rf_repeat(
   scaled.importance = TRUE,
   repetitions = 5,
   keep.models = FALSE,
+  verbose = TRUE,
   n.cores = NULL,
   cluster.ips = NULL,
   cluster.cores = NULL,
@@ -46,6 +47,8 @@ rf_repeat(
 
 \item{keep.models}{boolean, if TRUE, the fitted models are returned in the "models" slot. Default: FALSE.}
 
+\item{verbose}{Boolean. If TRUE, messages and plots generated during the execution of the function are displayed, Default: TRUE}
+
 \item{n.cores}{number of cores to use to compute repetitions. If NULL, all cores but one are used, unless a cluster is used.}
 
 \item{cluster.ips}{character vector, IPs of the machines in the cluster. The first machine will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.}
@@ -60,8 +63,8 @@ rf_repeat(
 a ranger model with several new slots:
 \itemize{
 \item{ranger.arguments}{stores the values of the arguments used to fit the ranger model}
-\item{predictions}{a list with the predictions obtained on each repetition stored in a data frame named 'df.wide' and the average of the predictions in a data frame named 'df'}
-\item{variable.importance}{a list containing a data frame with the variable importance obtained on each iteration (df.wide), the mean importance of each predictor across repetitions (df), a long version of the df.wide data frame to facilitate plotting (df.long), and a boxplot showing the distribution of the importance scores across repetitions}
+\item{predictions}{a list with the predictions obtained on each repetition stored in a data frame named 'per.repetition' and the average of the predictions in a data frame named 'mean'}
+\item{variable.importance}{a list containing a data frame with the mean importance of each predictor across repetitions (df), the values obtained on eah repetition (df.long), and a boxplot showing the distribution of the importance scores across repetitions}
 \item{pseudo.r.squared}{pseudo R-squared values throughout repetitions}
 \item{rmse}{rmse obtained on each repetition}
 \item{nrmse}{normalizad rmse obtained on each repetition}
@@ -93,7 +96,10 @@ if(interactive()){
  class(out)
 
  #data frame with ordered variable importance
- out$variable.importance$df
+ out$variable.importance$per.variable
+
+ #per repetition
+ out$variable.importance$per.repetition
 
  #variable importance plot
  out$variable.importance$plot

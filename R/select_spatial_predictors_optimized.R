@@ -218,17 +218,14 @@ select_spatial_predictors_optimized <- function(
     penalization.per.variable = (1/length(optimization.moran.i)) * optimization.index
   )
 
-  #computing weighted optimization
-  optimization.df$optimization <- rescale_vector(
-    pmax(
-      rescale_vector(1 - optimization.df$moran.i),
-      optimization.df$p.value.binary
-      ) + (weight.r.squared * rescale_vector(optimization.df$r.squared)) - (weight.penalization.n.predictors * rescale_vector(optimization.df$penalization.per.variable))
-    )
+  optimization.df$optimization <- optimization_function(
+    x = optimization.df,
+    weight.r.squared = weight.r.squared,
+    weight.penalization.n.predictors = weight.penalization.n.predictors
+  )
 
   #get index of spatial predictor with optimized r-squared and moran.i
   optimized.index <- which.max(optimization.df$optimization)
-  # optimized.index <- which.min(optimization.df$moran.i)
 
   #prepare vector with best factor names
   best.spatial.predictors <- optimization.df$spatial.predictor.name[1:optimized.index]

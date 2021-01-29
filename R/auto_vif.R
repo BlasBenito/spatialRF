@@ -1,30 +1,32 @@
 #' @title auto_vif
+#'
 #' @description Selects variables within a training dataframe that are not linear combinations of other variables by using the variance inflation factor (VIF). This function has two modes of operation:
 #' \itemize{
-#' \item 1. When the argument \code{preference.order} is \code{NULL}, the function removes on on each iteration the variable with the highest VIF until all VIF values are lower than 10. This operation is performed by the hidden function \code{.select_by_max_vif}.
-#' \item 2. When \code{preference.order} is provided, the variables are selected by giving them priority according to their order in \code{preference.order}. If there are variables not in \code{preference.order}, these are selected as in option 1, and finally, all variables are put together and selected by giving priority to the ones in \code{preference.order}. This method preserves the variables desired by the user as much as possible.
+#' \item 1. When the argument *preference.order* is `NULL`, the function removes on each iteration the variable with the highest VIF until all VIF values are lower than *vif.threshold*.
+#' \item 2. When *preference.order* is provided, the variables are selected by giving them priority according to their order in *preference.order*. If there are variables not in *preference.order*, these are selected as in option 1. Once both groups of variables have been processed, all variables are put together and selected by giving priority to the ones in *preference.order*. This method preserves the variables desired by the user as much as possible.
 #' }
-#' @param x a data frame
-#' @param preference.order a character vector with columns names of x ordered by the user preference, Default: NULL
-#' @param vif.threshold numeric between 5 and 10 defining the selection threshold for the VIF analysis. Default: 5.
-#' @param verbose when TRUE, describes the function operations to the user.
-#' @return list with two slots:
+#' @param x A data frame with predictors. Default: `NULL`.
+#' @param preference.order a character vector with columns names of x ordered by the user preference, Default: `NULL`.
+#' @param vif.threshold Numeric between 2.5 and 10 defining the selection threshold for the VIF analysis. Higher numbers result in a more relaxed variable selection. Default: 5.
+#' @param verbose Logical. if `TRUE`, describes the function operations to the user.
+#' @return List with two slots:
 #' \itemize{
-#'   \item{vif}{data frame with the names of the selected variables and their respective VIF scores}
-#'   \item{selected.variables}{character vector with the names of the selected variables}
+#'   \item **vif**: Data frame with the names of the selected variables and their respective VIF scores.
+#'   \item **selected.variables**: Character vector with the names of the selected variables.
 #'  }
 #' @examples
 #' \dontrun{
 #' if(interactive()){
 #'  out <- auto_vif(x = plant_richness_df[, 5:20])
 #'  }
+#'  out$selected.variables
 #' }
 #' @rdname auto_vif
 #' @importFrom magrittr `%>%`
 #' @importFrom stats cor
 #' @export
 auto_vif <- function(
-  x,
+  x = NULL,
   preference.order = NULL,
   vif.threshold = 5,
   verbose = FALSE

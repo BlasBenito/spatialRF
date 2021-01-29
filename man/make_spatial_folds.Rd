@@ -5,26 +5,26 @@
 \title{make_spatial_folds}
 \usage{
 make_spatial_folds(
-  xy.selected,
-  xy,
+  xy.selected = NULL,
+  xy = NULL,
   distance.step = NULL,
   training.fraction = 0.6,
   n.cores = NULL
 )
 }
 \arguments{
-\item{xy.selected}{data frame with at least three columns: "x" (longitude), "y" (latitude), and "id" (integer, id of the record). Usually a subset of 'xy' obtained with \link{thinning} or \link{thinning_til_n} to avoid redundant spatial folds (happen when the origin points are too close to each other).}
+\item{xy.selected}{data frame with at least three columns: "x" (longitude), "y" (latitude), and "id" (integer, id of the record). Usually a subset of 'xy' obtained with \link{thinning} or \link{thinning_til_n} to avoid redundant spatial folds (happen when the origin points are too close to each other). Default: \code{NULL}.}
 
-\item{xy}{data frame with at least three columns: "x" (longitude), "y" (latitude), and "id" (integer, index of the record).}
+\item{xy}{data frame with at least three columns: "x" (longitude), "y" (latitude), and "id" (integer, index of the record). Default: \code{NULL}.}
 
-\item{distance.step}{numeric, distance the buffer around xy.i is grown on each iteration. If NULL, it defaults to the minimum distance between points in xy divided by 2. Default: NULL}
+\item{distance.step}{numeric, distance the buffer around xy.i is grown on each iteration. If NULL, it defaults to the minimum distance between points in xy divided by 2. Default: \code{NULL}.}
 
 \item{training.fraction}{numeric, fraction of the data to be included in the growing buffer as training data, Default: 0.6}
 
-\item{n.cores}{number of cores to use to generate spatial folds in parallel. Default: number of cores available in the machine minus one.}
+\item{n.cores}{number of cores to use to generate spatial folds in parallel. Default: \code{NULL}.}
 }
 \value{
-a list with as many slots as rows are in 'xy.selected'. Each slot has tow slots named "training" and "testing", with the former having the indices of the training records selected from xy, and the latter having the indices of the testing records.
+a list with as many slots as rows are in \emph{xy.selected}. Each slot has TWO slots named \strong{training} and \strong{testing}, with the former having the indices of the training records selected from xy, and the latter having the indices of the testing records.
 }
 \description{
 it applies \link{make_spatial_fold} to every record in a data frame 'xy.selected' (generally the result of applying \link{thinning} or \link{thinning_til_n} to 'xy') to generate as many spatially independent folds over the dataset 'xy' as rows are in ''xy.selected'.

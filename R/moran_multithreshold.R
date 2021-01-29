@@ -3,7 +3,7 @@
 #' @param x numeric vector, generally a model residuals, Default: NULL
 #' @param distance.matrix distance matrix among the records represented in the numeric vector. The number of rows of this matrix must be equal to the length of x. Default: NULL
 #' @param distance.thresholds numeric vector, distances below each value in the distance matrix are set to 0 for the computation of Moran's I. If NULL, it defaults to seq(0, max(distance.matrix), length.out = 4). Default: NULL
-#' @param plot boolean, plots Moran's I values for each distance threshold if TRUE, Default: TRUE
+#' @param verbose boolean, plots Moran's I values for each distance threshold if TRUE, Default: TRUE
 #' @return a named list with the slots:
 #'  \describe{
 #'  \item{df}{dataframe with the results of [moran] per distance threshold.}
@@ -28,13 +28,16 @@
 #' }
 #' @rdname moran_multithreshold
 #' @export
-#' @importFrom ggplot2 ggplot aes geom_hline geom_point geom_line xlab ylab ggtitle
 moran_multithreshold <- function(
   x = NULL,
   distance.matrix = NULL,
   distance.thresholds = NULL,
-  plot = TRUE
+  verbose = TRUE
 ){
+
+  #declaring variables to avoid check complaints
+  distance.threshold <- NULL
+  moran.i <- NULL
 
   #check x and distance matrix
   if(is.null(x) | !is.vector(x)){
@@ -83,50 +86,17 @@ moran_multithreshold <- function(
 
   }
 
-  #adding binary p.value
-  out.df$p.value.binary <- "< 0.05"
-  out.df[out.df$p.value >= 0.05, "p.value.binary"] <- ">= 0.05"
-
-  p.value.binary <- NULL
-  p <- ggplot2::ggplot(data = out.df) +
-    ggplot2::aes(
-      x = distance.threshold,
-      y = moran.i,
-      size = p.value.binary
-    ) +
-    ggplot2::geom_hline(
-      yintercept = 0,
-      col = "gray10",
-      size = 0.7,
-      linetype = "dashed"
-    ) +
-    ggplot2::geom_point(color = "#440154FF") +
-    ggplot2::geom_line(size = 1, color = "#440154FF") +
-    ggplot2::xlab("Distance thresholds") +
-    ggplot2::ylab("Moran's I of residuals") +
-    ggplot2::ggtitle("Multiscale Moran's I") +
-    ggplot2::theme(legend.position = "bottom") +
-    ggplot2::labs(size = "Moran's I p-value")
-
   #getting scale of max moran
   distance.threshold.max.moran <- out.df[which.max(out.df$moran.i), "distance.threshold"]
 
-  #removing binary column
-  out.df$p.value.binary <- NULL
 
   #preparing output list
   out.list <- list()
-  out.list$df <- out.df
-  out.list$plot <- p
+  out.list$per.distance <- out.df
+  out.list$plot <- plot_moran(x = out.df, verbose = verbose)
   out.list$max.moran <- max(out.df$moran.i)
   out.list$max.moran.distance.threshold <- distance.threshold.max.moran
 
-  if(plot == TRUE){suppressMessages(print(p))}
-
-  return(out.list)
+  out.list
 
 }
-
-
-#' @import utils
-utils::globalVariables(c("distance.threshold", "moran.i"))

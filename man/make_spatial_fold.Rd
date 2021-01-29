@@ -4,22 +4,27 @@
 \alias{make_spatial_fold}
 \title{make_spatial_fold}
 \usage{
-make_spatial_fold(xy.i, xy, distance.step = NULL, training.fraction = 0.6)
+make_spatial_fold(
+  xy.i = NULL,
+  xy = NULL,
+  distance.step = NULL,
+  training.fraction = 0.6
+)
 }
 \arguments{
-\item{xy.i}{one row data frame with at least three columns: "x" (longitude), "y" (latitude), and "id" (integer, id of the record). Can be a row of xy.}
+\item{xy.i}{One row data frame with at least three columns: "x" (longitude), "y" (latitude), and "id" (integer, id of the record). Can be a row of \emph{xy}. Default: \code{NULL}.}
 
-\item{xy}{data frame with at least three columns: "x" (longitude), "y" (latitude), and "id" (integer, index of the record).}
+\item{xy}{A data frame with at least three columns: "x" (longitude), "y" (latitude), and "id" (integer, index of the record). Default: \code{NULL}.}
 
-\item{distance.step}{numeric, distance the buffer around xy.i is grown on each iteration. If NULL, it defaults to the minimum distance between points in xy divided by 2. Default: NULL}
+\item{distance.step}{Numeric, distance the buffer around \emph{xy.i} is grown on each iteration. If \code{NULL}, it defaults to the minimum distance between points in \emph{xy} divided by 2. Default: \code{NULL}.}
 
-\item{training.fraction}{numeric, fraction of the data to be included in the growing buffer as training data, Default: 0.6}
+\item{training.fraction}{Numeric, fraction of the data to be included in the growing buffer as training data, Default: 0.6.}
 }
 \value{
-a list with two slots named "training" and "testing", with the former having the indices of the training records selected from xy, and the latter having the indices of the testing records.
+A list with two slots named \strong{training} and \strong{testing} with the former having the indices of the training records selected from \emph{xy}, and the latter having the indices of the testing records.
 }
 \description{
-uses the coordinates of a point xy.i to generate two spatially independent folds over the dataset xy. It grows a rectangular buffer iteratively from xy.i until a number of records defined by training.fraction is inside the buffer. The indices of these records are then stored as "training" in the output list. The indices of the remaining records outside of the buffer are stored as "testing". These training and testing records can be then used to evaluate a model on independent data.
+Uses the coordinates of a point \emph{xy.i} to generate two spatially independent folds over the dataset \emph{xy}. It does so by growing a rectangular buffer from \emph{xy.i} until a number of records defined by \emph{training.fraction} is inside the buffer. The indices of these records are then stored as "training" in the output list. The indices of the remaining records outside of the buffer are stored as "testing". These training and testing records can be then used to evaluate a model on independent data.
 }
 \examples{
 \dontrun{

@@ -7,20 +7,15 @@
 double_center_distance_matrix(x = NULL, distance.threshold = 0)
 }
 \arguments{
-\item{x}{distance matrix among the records represented in the numeric vector. The number of rows of this matrix must be equal to the length of x. Default: NULL, Default: NULL}
+\item{x}{Numeric distance matrix. Default: \code{NULL}.}
 
-\item{distance.threshold}{(optional) numeric, positive, in the range of values of \code{distance.matrix} distances below this value in the distance matrix are set to 0.  Default: 0}
+\item{distance.threshold}{Numeric, positive, in the range of values of \emph{x}. Distances below this value in the distance matrix are set to 0.  Default: 0.}
 }
 \value{
-A double-centered matrix of the same dimensions as \code{x}.
+A double-centered matrix of the same dimensions as \emph{x}.
 }
 \description{
-generates a double-centered matrix from the weights of a distance matrix (see \link{weights_from_distance_matrix}) and a distance threshold. This is a required step before the computation of Moran's Eigenvector Maps.
-}
-\details{
-Applies \link{weights_from_distance_matrix} to the distance matrix \code{x},
-
-ach element has subtracted fromit its corresponding row mean and column mean, and we add back the averageof all the elements.. Based on \link[ade4]{bicenter.wt} by Daniel Chessel.
+Generates a double-centered matrix from the weights of a distance matrix (see \code{\link[=weights_from_distance_matrix]{weights_from_distance_matrix()}}) and a distance threshold. This is a required step before the computation of Moran's Eigenvector Maps.
 }
 \examples{
 \dontrun{

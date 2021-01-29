@@ -8,7 +8,7 @@ moran_multithreshold(
   x = NULL,
   distance.matrix = NULL,
   distance.thresholds = NULL,
-  plot = TRUE
+  verbose = TRUE
 )
 }
 \arguments{
@@ -18,7 +18,7 @@ moran_multithreshold(
 
 \item{distance.thresholds}{numeric vector, distances below each value in the distance matrix are set to 0 for the computation of Moran's I. If NULL, it defaults to seq(0, max(distance.matrix), length.out = 4). Default: NULL}
 
-\item{plot}{boolean, plots Moran's I values for each distance threshold if TRUE, Default: TRUE}
+\item{verbose}{boolean, plots Moran's I values for each distance threshold if TRUE, Default: TRUE}
 }
 \value{
 a named list with the slots:

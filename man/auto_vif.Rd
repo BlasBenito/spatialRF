@@ -4,29 +4,29 @@
 \alias{auto_vif}
 \title{auto_vif}
 \usage{
-auto_vif(x, preference.order = NULL, vif.threshold = 5, verbose = FALSE)
+auto_vif(x = NULL, preference.order = NULL, vif.threshold = 5, verbose = FALSE)
 }
 \arguments{
-\item{x}{a data frame}
+\item{x}{A data frame with predictors. Default: \code{NULL}.}
 
-\item{preference.order}{a character vector with columns names of x ordered by the user preference, Default: NULL}
+\item{preference.order}{a character vector with columns names of x ordered by the user preference, Default: \code{NULL}.}
 
-\item{vif.threshold}{numeric between 5 and 10 defining the selection threshold for the VIF analysis. Default: 5.}
+\item{vif.threshold}{Numeric between 2.5 and 10 defining the selection threshold for the VIF analysis. Higher numbers result in a more relaxed variable selection. Default: 5.}
 
-\item{verbose}{when TRUE, describes the function operations to the user.}
+\item{verbose}{Logical. if \code{TRUE}, describes the function operations to the user.}
 }
 \value{
-list with two slots:
+List with two slots:
 \itemize{
-\item{vif}{data frame with the names of the selected variables and their respective VIF scores}
-\item{selected.variables}{character vector with the names of the selected variables}
+\item \strong{vif}: Data frame with the names of the selected variables and their respective VIF scores.
+\item \strong{selected.variables}: Character vector with the names of the selected variables.
 }
 }
 \description{
 Selects variables within a training dataframe that are not linear combinations of other variables by using the variance inflation factor (VIF). This function has two modes of operation:
 \itemize{
-\item 1. When the argument \code{preference.order} is \code{NULL}, the function removes on on each iteration the variable with the highest VIF until all VIF values are lower than 10. This operation is performed by the hidden function \code{.select_by_max_vif}.
-\item 2. When \code{preference.order} is provided, the variables are selected by giving them priority according to their order in \code{preference.order}. If there are variables not in \code{preference.order}, these are selected as in option 1, and finally, all variables are put together and selected by giving priority to the ones in \code{preference.order}. This method preserves the variables desired by the user as much as possible.
+\item 1. When the argument \emph{preference.order} is \code{NULL}, the function removes on each iteration the variable with the highest VIF until all VIF values are lower than \emph{vif.threshold}.
+\item 2. When \emph{preference.order} is provided, the variables are selected by giving them priority according to their order in \emph{preference.order}. If there are variables not in \emph{preference.order}, these are selected as in option 1. Once both groups of variables have been processed, all variables are put together and selected by giving priority to the ones in \emph{preference.order}. This method preserves the variables desired by the user as much as possible.
 }
 }
 \examples{
@@ -34,5 +34,6 @@ Selects variables within a training dataframe that are not linear combinations o
 if(interactive()){
  out <- auto_vif(x = plant_richness_df[, 5:20])
  }
+ out$selected.variables
 }
 }

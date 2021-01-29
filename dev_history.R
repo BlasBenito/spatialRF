@@ -202,6 +202,18 @@ usethis::use_r("rf_spatial")
 sinew::makeOxygen(rf_spatial)
 exampletestr::make_test_shell_fun("rf_spatial", open = FALSE)
 
+usethis::use_r("plot_optimization")
+sinew::makeOxygen(plot_optimization)
+exampletestr::make_test_shell_fun("plot_optimization", open = FALSE)
+
+sinew::makeOxygen(print_moran)
+sinew::makeOxygen(plot_moran)
+sinew::makeOxygen(optimization_function)
+sinew::makeOxygen(plot_importance)
+
+
+
+
 #TODO
 usethis::use_r("rf_evaluate")
 sinew::makeOxygen(rf_evaluate)

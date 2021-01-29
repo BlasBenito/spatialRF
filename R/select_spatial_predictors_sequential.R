@@ -207,14 +207,15 @@ select_spatial_predictors_sequential <- function(
       distance.matrix = distance.matrix,
       distance.thresholds = distance.thresholds,
       ranger.arguments = ranger.arguments,
-      seed = spatial.predictors.i
+      seed = spatial.predictors.i,
+      verbose = FALSE
     )
 
     #output.df
     out.df <- data.frame(
       spatial.predictor.index = spatial.predictors.i,
       moran.i = m.i$spatial.correlation.residuals$max.moran,
-      p.value = m.i$spatial.correlation.residuals$df[which.max(m.i$spatial.correlation.residuals$df$moran.i), "p.value"],
+      p.value = m.i$spatial.correlation.residuals$per.distance[which.max(m.i$spatial.correlation.residuals$per.distance$moran.i), "p.value"],
       r.squared = m.i$r.squared
     )
 
@@ -233,13 +234,11 @@ select_spatial_predictors_sequential <- function(
     penalization.per.variable = (1/nrow(optimization.df)) * optimization.df$spatial.predictor.index
   )
 
-  #computing weighted optimization
-  optimization.df$optimization <- rescale_vector(
-    pmax(
-      rescale_vector(1 - optimization.df$moran.i),
-      optimization.df$p.value.binary
-      ) + (weight.r.squared * rescale_vector(optimization.df$r.squared)) - (weight.penalization.n.predictors * rescale_vector(optimization.df$penalization.per.variable))
-    )
+  optimization.df$optimization <- optimization_function(
+    x = optimization.df,
+    weight.r.squared = weight.r.squared,
+    weight.penalization.n.predictors = weight.penalization.n.predictors
+  )
 
   #get index of spatial predictor with optimized r-squared and moran.i
   optimized.index <- which.max(optimization.df$optimization)

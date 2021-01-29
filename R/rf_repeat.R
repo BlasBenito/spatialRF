@@ -11,6 +11,7 @@
 #' @param scaled.importance (optional) boolean. If TRUE, and 'importance = "permutation', the function scales 'data' with [scale_robust] and fits a new model to compute scaled variable importance scores. Default: TRUE
 #' @param repetitions (required) integer, number of random forest models to fit. Default: 5
 #' @param keep.models boolean, if TRUE, the fitted models are returned in the "models" slot. Default: FALSE.
+#' @param verbose Boolean. If TRUE, messages and plots generated during the execution of the function are displayed, Default: TRUE
 #' @param n.cores number of cores to use to compute repetitions. If NULL, all cores but one are used, unless a cluster is used.
 #' @param cluster.ips character vector, IPs of the machines in the cluster. The first machine will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.
 #' @param cluster.cores numeric integer vector, number of cores on each machine.
@@ -19,8 +20,8 @@
 #' @return a ranger model with several new slots:
 #' \itemize{
 #'   \item{ranger.arguments}{stores the values of the arguments used to fit the ranger model}
-#'   \item{predictions}{a list with the predictions obtained on each repetition stored in a data frame named 'df.wide' and the average of the predictions in a data frame named 'df'}
-#'   \item{variable.importance}{a list containing a data frame with the variable importance obtained on each iteration (df.wide), the mean importance of each predictor across repetitions (df), a long version of the df.wide data frame to facilitate plotting (df.long), and a boxplot showing the distribution of the importance scores across repetitions}
+#'   \item{predictions}{a list with the predictions obtained on each repetition stored in a data frame named 'per.repetition' and the average of the predictions in a data frame named 'mean'}
+#'   \item{variable.importance}{a list containing a data frame with the mean importance of each predictor across repetitions (df), the values obtained on eah repetition (df.long), and a boxplot showing the distribution of the importance scores across repetitions}
 #'   \item{pseudo.r.squared}{pseudo R-squared values throughout repetitions}
 #'   \item{rmse}{rmse obtained on each repetition}
 #'   \item{nrmse}{normalizad rmse obtained on each repetition}
@@ -46,7 +47,10 @@
 #'  class(out)
 #'
 #'  #data frame with ordered variable importance
-#'  out$variable.importance$df
+#'  out$variable.importance$per.variable
+#'
+#'  #per repetition
+#'  out$variable.importance$per.repetition
 #'
 #'  #variable importance plot
 #'  out$variable.importance$plot
@@ -94,6 +98,7 @@ rf_repeat <- function(model = NULL,
                       scaled.importance = TRUE,
                       repetitions = 5,
                       keep.models = FALSE,
+                      verbose = TRUE,
                       n.cores = NULL,
                       cluster.ips = NULL,
                       cluster.cores = NULL,
@@ -101,6 +106,12 @@ rf_repeat <- function(model = NULL,
                       cluster.port = 11000
 
 ){
+
+  #declaring some variables
+  variable <- NULL
+  importance <- NULL
+  distance.threshold <- NULL
+  moran.i <- NULL
 
   #checking repetitions
   if(!is.integer(repetitions)){
@@ -240,7 +251,8 @@ rf_repeat <- function(model = NULL,
       distance.matrix = distance.matrix,
       distance.thresholds = distance.thresholds,
       ranger.arguments = ranger.arguments,
-      trees.per.variable = trees.per.variable
+      trees.per.variable = trees.per.variable,
+      verbose = FALSE
     )
 
     #model on scaled data
@@ -251,7 +263,8 @@ rf_repeat <- function(model = NULL,
         dependent.variable.name = dependent.variable.name,
         predictor.variable.names = predictor.variable.names,
         ranger.arguments = ranger.arguments,
-        trees.per.variable = trees.per.variable
+        trees.per.variable = trees.per.variable,
+        verbose = FALSE
       )
 
     }
@@ -263,9 +276,9 @@ rf_repeat <- function(model = NULL,
       out$variable.importance.local <- m.i.scaled$variable.importance.local
     }
     if(scaled.importance == TRUE){
-      out$variable.importance <- m.i.scaled$variable.importance$vector
+      out$variable.importance <- m.i.scaled$variable.importance$per.variable
     } else {
-      out$variable.importance <- m.i$variable.importance$vector
+      out$variable.importance <- m.i$variable.importance$per.variable
     }
     out$prediction.error <- m.i$prediction.error
     out$r.squared <- m.i$performance$r.squared
@@ -291,7 +304,8 @@ rf_repeat <- function(model = NULL,
     distance.thresholds = distance.thresholds,
     ranger.arguments = ranger.arguments,
     trees.per.variable = trees.per.variable,
-    seed = 1 #seed of the first model fitted in the parallelized loop
+    seed = 1,
+    verbose = FALSE
   )
 
   #PARSING OUTPUT OF PARALLELIZED LOOP
@@ -300,7 +314,7 @@ rf_repeat <- function(model = NULL,
   repetition.columns <- paste("repetition", 1:repetitions, sep = "_")
 
   #gathering predictions
-  predictions.by.repetition <- as.data.frame(
+  predictions.per.repetition <- as.data.frame(
     do.call(
       "cbind",
       lapply(
@@ -310,14 +324,14 @@ rf_repeat <- function(model = NULL,
       )
     )
   )
-  colnames(predictions.by.repetition) <- repetition.columns
+  colnames(predictions.per.repetition) <- repetition.columns
   predictions.mean <- data.frame(
-    prediction_mean = rowMeans(predictions.by.repetition),
-    standard_deviation = apply(predictions.by.repetition, 1, sd)
+    prediction_mean = rowMeans(predictions.per.repetition),
+    standard_deviation = apply(predictions.per.repetition, 1, sd)
   )
   m.curves$predictions <- NULL
-  m.curves$predictions$df.wide <- predictions.by.repetition
-  m.curves$predictions$df <- predictions.mean
+  m.curves$predictions$per.repetition <- predictions.per.repetition
+  m.curves$predictions$mean <- predictions.mean
 
   #gathering variable.importance.local
   if(local.importance == TRUE){
@@ -340,10 +354,10 @@ rf_repeat <- function(model = NULL,
   #gathering variable.importance
   m.curves$variable.importance <- NULL
 
-  #wide format
-  variable.importance.df.wide <- as.data.frame(
+  #per repetition
+  variable.importance.per.repetition <- as.data.frame(
     do.call(
-      "cbind",
+      "rbind",
       lapply(
         repeated.models,
         "[[",
@@ -351,58 +365,25 @@ rf_repeat <- function(model = NULL,
       )
     )
   )
-  colnames(variable.importance.df.wide) <- repetition.columns
-  variable.importance.df.wide <- data.frame(
-    variable = rownames(variable.importance.df.wide),
-    variable.importance.df.wide,
-    row.names = NULL
-  )
 
   #mean
-  importance <- NULL
-  variable <- NULL
-  variable.importance.mean <- data.frame(
-    variable = variable.importance.df.wide$variable,
-    importance = rowMeans(variable.importance.df.wide[, tidyselect::all_of(repetition.columns)]),
-    standard_deviation = apply(variable.importance.df.wide[, tidyselect::all_of(repetition.columns)], 1, sd),
-    row.names = NULL
-  ) %>%
+  variable.importance.per.variable <- variable.importance.per.repetition %>%
+    dplyr::group_by(variable) %>%
+    dplyr::summarise(importance = mean(importance)) %>%
     dplyr::arrange(dplyr::desc(importance)) %>%
     as.data.frame()
 
-  variable.importance.df.long <- tidyr::pivot_longer(
-    data = variable.importance.df.wide,
-    cols = tidyselect::all_of(repetition.columns),
-    names_to = "repetition",
-    values_to = "importance"
-  ) %>%
-    as.data.frame()
-
-  variable.importance.plot <- ggplot2::ggplot(data = variable.importance.df.long) +
-    ggplot2::aes(
-      x = importance,
-      y = reorder(
-        variable,
-        importance,
-        FUN = median
-      ),
-      fill = reorder(
-        variable,
-        importance,
-        FUN = median
-      )
-    ) +
-    ggplot2::geom_boxplot() +
-    ggplot2::scale_fill_viridis_d(direction = -1, alpha = 0.8) +
-    ggplot2::ylab("") +
-    ggplot2::xlab("Variable importance") +
-    ggplot2::theme(legend.position = "none")
-
   m.curves$variable.importance <- list()
-  m.curves$variable.importance$df <- variable.importance.mean
-  m.curves$variable.importance$df.wide <- variable.importance.df.wide
-  m.curves$variable.importance$df.long <- variable.importance.df.long
-  m.curves$variable.importance$plot <- variable.importance.plot
+  m.curves$variable.importance$per.variable <- variable.importance.per.variable
+  m.curves$variable.importance$per.repetition <- variable.importance.per.repetition
+  m.curves$variable.importance$plot <- plot_importance(
+    x = variable.importance.per.repetition,
+    verbose = verbose
+  )
+
+  if(verbose == TRUE){
+    suppressWarnings(print(m.curves$variable.importance$plot))
+  }
 
   #gathering prediction.error
   m.curves$prediction.error <- unlist(
@@ -422,6 +403,7 @@ rf_repeat <- function(model = NULL,
       "r.squared"
     )
   )
+  m.curves$performance$r.squared <- round(m.curves$performance$r.squared, 3)
 
   #gathering pseudo R squared
   m.curves$performance$pseudo.r.squared <- unlist(
@@ -453,7 +435,7 @@ rf_repeat <- function(model = NULL,
   names(m.curves$performance$nrmse) <- NULL
 
   #gathering spatial.correlation.residuals
-  spatial.correlation.residuals.by.repetition <- do.call(
+  spatial.correlation.residuals.per.repetition <- do.call(
     "rbind",
     lapply(
       lapply(
@@ -466,11 +448,11 @@ rf_repeat <- function(model = NULL,
     )
   ) %>%
     dplyr::arrange(distance.threshold)
-  spatial.correlation.residuals.by.repetition$repetition <- rep(1:repetitions, length(unique(spatial.correlation.residuals.by.repetition$distance.threshold)))
+  spatial.correlation.residuals.per.repetition$repetition <- rep(1:repetitions, length(unique(spatial.correlation.residuals.per.repetition$distance.threshold)))
 
   p.value <- NULL
   interpretation <- NULL
-  spatial.correlation.residuals.mean <- spatial.correlation.residuals.by.repetition %>%
+  spatial.correlation.residuals.mean <- spatial.correlation.residuals.per.repetition %>%
     dplyr::group_by(distance.threshold) %>%
     dplyr::summarise(
       moran.i = mean(moran.i),
@@ -481,27 +463,12 @@ rf_repeat <- function(model = NULL,
 
   repetition <- NULL
   m.curves$spatial.correlation.residuals <- list()
-  m.curves$spatial.correlation.residuals$df <- spatial.correlation.residuals.mean
-  m.curves$spatial.correlation.residuals$df.long <- spatial.correlation.residuals.by.repetition
-  m.curves$spatial.correlation.residuals$plot <- ggplot2::ggplot(data = spatial.correlation.residuals.by.repetition) +
-    ggplot2::aes(
-      x = distance.threshold,
-      y = moran.i,
-      group = repetition
-    ) +
-    ggplot2::geom_hline(
-      yintercept = 0,
-      col = "gray10",
-      size = 0.7,
-      linetype = "dashed"
-    ) +
-    ggplot2::geom_point(color = "#440154FF", alpha = 0.7) +
-    ggplot2::geom_line(size = 1, color = "#440154FF", alpha = 0.7) +
-    ggplot2::xlab("Distance thresholds") +
-    ggplot2::ylab("Moran's I of residuals") +
-    ggplot2::ggtitle("Moran's I of the residuals") +
-    ggplot2::theme(legend.position = "bottom") +
-    ggplot2::labs(color = "Model", size = "Moran's I p-value")
+  m.curves$spatial.correlation.residuals$per.distance <- spatial.correlation.residuals.mean
+  m.curves$spatial.correlation.residuals$per.repetition <- spatial.correlation.residuals.per.repetition
+  m.curves$spatial.correlation.residuals$plot <- plot_moran(
+    x = spatial.correlation.residuals.per.repetition,
+    verbose = verbose
+  )
 
   m.curves$spatial.correlation.residuals$max.moran <-  mean(
     unlist(
@@ -531,6 +498,16 @@ rf_repeat <- function(model = NULL,
     )
   )
 
+  print_moran(
+    x = spatial.correlation.residuals.mean,
+    caption = paste0(
+      "Average across ",
+      repetitions,
+      " repetitions."
+    ),
+    verbose = verbose
+  )
+
   #gathering residuals
   residuals <- as.data.frame(do.call("cbind", lapply(
     repeated.models,
@@ -546,8 +523,8 @@ rf_repeat <- function(model = NULL,
   )
 
   m.curves$residuals <- NULL
-  m.curves$residuals$df <- residuals.mean
-  m.curves$residuals$df.long <- residuals
+  m.curves$residuals$mean <- residuals.mean
+  m.curves$residuals$per.repetition <- residuals
   m.curves$residuals$stats <- summary(residuals.mean$residuals_mean)
 
   #gathering models

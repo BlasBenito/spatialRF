@@ -5,13 +5,13 @@
 \alias{distance_matrix}
 \title{Matrix of distances among american ecoregions.}
 \format{
-A matrix with 227 rows and columns.
+A numeric matrix with 227 rows and columns.
 }
 \usage{
 distance_matrix
 }
 \description{
-Distance matrix (in km) among the edges of the ecoregion polygons described in the \link{plant_richness_df} and \link{plant_richness_sf} datasets. The polygons themselves are not available as example data due to the data size limitations imposed by CRAN for R packages.
+Distance matrix (in km) among the edges of the ecoregion polygons described in the \strong{plant_richness_df} dataset. The polygons themselves are not available as example data due to the data size limitations imposed by CRAN for R packages.
 distance_matrix
 }
 \keyword{datasets}

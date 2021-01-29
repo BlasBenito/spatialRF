@@ -7,20 +7,20 @@
 mem(x = NULL, distance.threshold = 0, colnames.prefix = "mem")
 }
 \arguments{
-\item{x}{Numeric matrix or data frame, Default: NULL}
+\item{x}{Numeric distance matrix or data frame. Default: \code{NULL}.}
 
-\item{distance.threshold}{distance.thresholds numeric vector with distance thresholds defining neighborhood in the distance matrix, Default: 0}
+\item{distance.threshold}{Numeric vector with distance thresholds defining different neighborhood extents in the distance matrix, Default: 0}
 
-\item{colnames.prefix}{character, name prefix for the output columns. Default: 'mem'}
+\item{colnames.prefix}{Character, name prefix for the output columns. Default: \code{"mem"}}
 }
 \value{
-A data frame with positive Moran's Eigenvector Maps
+A data frame with positive Moran's Eigenvector Maps.
 }
 \description{
 Computes the positive Moran's Eigenvector Maps of a distance matrix.
 }
 \details{
-The function takes the distance matrix \code{x}, computes its weights and double-centers it with \link{double_center_distance_matrix}, applies \link[base]{eigen}, and returns eigenvectors with positive normalized eigenvalues (eigenvalues/max(abs(eigenvalues)) > 0).
+The function takes the distance matrix \emph{x}, computes its weights and double-centers it with \code{\link[=double_center_distance_matrix]{double_center_distance_matrix()}}, applies \link[base]{eigen}, and returns eigenvectors with positive normalized eigenvalues.
 }
 \examples{
 \dontrun{

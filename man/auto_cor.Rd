@@ -4,30 +4,31 @@
 \alias{auto_cor}
 \title{auto_cor}
 \usage{
-auto_cor(x, preference.order = NULL, cor.threshold = 0.75)
+auto_cor(x = NULL, preference.order = NULL, cor.threshold = 0.75)
 }
 \arguments{
-\item{x}{a data frame}
+\item{x}{A data frame with predictors. Default: \code{NULL}.}
 
-\item{preference.order}{character vector indicating the user's order of preference to keep variables. Default: NULL}
+\item{preference.order}{Character vector indicating the user's order of preference to keep variables. Default: \code{NULL}.}
 
-\item{cor.threshold}{Pearson correlation threshold, Default: 0.75}
+\item{cor.threshold}{Numeric between 0 and 1, maximum Pearson correlation between any pair of the selected variables. Default: 0.75}
 }
 \value{
-list with two slots:
+List with two slots:
 \itemize{
-\item{cor}{correlation matrix of the selected variables}
-\item{selected.variables}{character vector with the names of the selected variables.}
+\item \strong{cor}: Correlation matrix of the selected variables.
+\item \strong{selected.variables}: Character vector with the names of the selected variables.
 }
 }
 \description{
-Reduces the bivariate correlation in a data frame of variables.
+Reduces the bivariate correlation in a data frame of predictors
 }
 \examples{
 \dontrun{
 if(interactive()){
  data(plant_richness_df)
  out <- auto_cor(x = plant_richness_df[, 4:21])
+ out$selected.variables
  }
 }
 }

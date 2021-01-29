@@ -13,7 +13,8 @@ rf(
   ranger.arguments = NULL,
   trees.per.variable = NULL,
   scaled.importance = TRUE,
-  seed = NULL
+  seed = NULL,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -34,12 +35,14 @@ rf(
 \item{scaled.importance}{(optional) boolean. If TRUE, and 'importance = "permutation', the function scales 'data' with \link{scale_robust} and fits a new model to compute scaled variable importance scores. Default: TRUE}
 
 \item{seed}{(optional) integer, random seed to facilitate reproducibility. If set to a given number, the returned model is always the same. Default: NULL}
+
+\item{verbose}{Boolean. If TRUE, messages and plots generated during the execution of the function are displayed, Default: TRUE}
 }
 \value{
 a ranger model with several new slots:
 \itemize{
 \item \code{ranger.arguments}: stores the values of the arguments used to fit the ranger model.
-\item \code{variable.importance}: a list containing the vector of variable importance as originally returned by ranger (scaled or not depending on the value of 'scaled.importance'), a data frame with the predictors ordered by their importance, and a ggplot showing the importance values.
+\item \code{variable.importance}: a list containing a data frame with the predictors ordered by their importance, and a ggplot showing the importance values.
 \item \code{pseudo.r.squared}: computed as the correlation between the observations and the predictions.
 \item \code{rmse}: as computed by \link{root_mean_squared_error} with 'normalization = NULL'.
 \item \code{nrmse}: as computed by \link{root_mean_squared_error} with 'normalization = "iq'.
@@ -70,7 +73,7 @@ if(interactive()){
  class(out)
 
  #data frame with ordered variable importance
- out$variable.importance$df
+ out$variable.importance$per.variable
 
  #variable importance plot
  out$variable.importance$plot

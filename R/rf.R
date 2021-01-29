@@ -9,10 +9,11 @@
 #' @param trees.per.variable (optional) number of individual regression trees to fit per variable in 'predictor.variable.names'. This is an alternative way to define ranger's 'num.trees'. If NULL, 'num.trees' is 500. Default: NULL
 #' @param scaled.importance (optional) boolean. If TRUE, and 'importance = "permutation', the function scales 'data' with [scale_robust] and fits a new model to compute scaled variable importance scores. Default: TRUE
 #' @param seed (optional) integer, random seed to facilitate reproducibility. If set to a given number, the returned model is always the same. Default: NULL
+#' @param verbose Boolean. If TRUE, messages and plots generated during the execution of the function are displayed, Default: TRUE
 #' @return a ranger model with several new slots:
 #' \itemize{
 #'   \item `ranger.arguments`: stores the values of the arguments used to fit the ranger model.
-#'   \item `variable.importance`: a list containing the vector of variable importance as originally returned by ranger (scaled or not depending on the value of 'scaled.importance'), a data frame with the predictors ordered by their importance, and a ggplot showing the importance values.
+#'   \item `variable.importance`: a list containing a data frame with the predictors ordered by their importance, and a ggplot showing the importance values.
 #'   \item `pseudo.r.squared`: computed as the correlation between the observations and the predictions.
 #'   \item `rmse`: as computed by [root_mean_squared_error] with 'normalization = NULL'.
 #'   \item `nrmse`: as computed by [root_mean_squared_error] with 'normalization = "iq'.
@@ -37,7 +38,7 @@
 #'  class(out)
 #'
 #'  #data frame with ordered variable importance
-#'  out$variable.importance$df
+#'  out$variable.importance$per.variable
 #'
 #'  #variable importance plot
 #'  out$variable.importance$plot
@@ -96,7 +97,6 @@
 #' @importFrom parallel detectCores
 #' @importFrom tibble remove_rownames
 #' @importFrom dplyr arrange
-#' @importFrom ggplot2 ggplot aes geom_point ylab
 #' @importFrom stats formula reorder
 #' @importFrom rlang .data
 rf <- function(
@@ -108,7 +108,8 @@ rf <- function(
   ranger.arguments = NULL,
   trees.per.variable = NULL,
   scaled.importance = TRUE,
-  seed = NULL
+  seed = NULL,
+  verbose = TRUE
 ){
 
   #default arguments
@@ -143,7 +144,6 @@ rf <- function(
   oob.error = TRUE
   num.threads = parallel::detectCores() - 1
   save.memory = FALSE
-  verbose = TRUE
   classification = NULL
   x = NULL
   y = NULL
@@ -381,16 +381,13 @@ rf <- function(
     oob.error = oob.error,
     num.threads = num.threads,
     save.memory = save.memory,
-    verbose = verbose,
     seed = seed,
     classification = classification
   )
 
   #importance dataframe
-  importance.vector <- m.scaled$variable.importance
   m$variable.importance <- list()
-  m$variable.importance$vector <- importance.vector
-  m$variable.importance$df <- data.frame(
+  m$variable.importance$per.variable <- data.frame(
     variable = names(m.scaled$variable.importance),
     importance = m.scaled$variable.importance
   ) %>%
@@ -398,21 +395,10 @@ rf <- function(
     dplyr::arrange(dplyr::desc(importance))
 
   variable <- NULL
-  m$variable.importance$plot <- ggplot2::ggplot(data = m$variable.importance$df) +
-    ggplot2::aes(
-      x = importance,
-      y = reorder(
-        variable,
-        importance,
-        FUN = max
-      ),
-      fill = importance
-    ) +
-    ggplot2::geom_point(size = 4, shape = 21) +
-    ggplot2::scale_fill_viridis_c(direction = -1, alpha = 0.8) +
-    ggplot2::ylab("") +
-    ggplot2::xlab("Variable importance") +
-    ggplot2::theme(legend.position = "none")
+  m$variable.importance$plot <- plot_importance(
+    x = m$variable.importance$per.variable,
+    verbose = verbose
+  )
 
   #getting residuals
 
@@ -422,42 +408,24 @@ rf <- function(
   #getting observed data
   observed <- data[, dependent.variable.name]
 
-  # #performance
-  # m$pseudo.r.squared <- cor(
-  #   observed,
-  #   predicted
-  # )
-  #
-  # m$rmse <- root_mean_squared_error(
-  #   o = observed,
-  #   p = predicted,
-  #   normalization = NULL
-  # )
-  #
-  # m$nrmse <- root_mean_squared_error(
-  #   o = observed,
-  #   p = predicted,
-  #   normalization = "iq"
-  # )
-
   #performance slot
   m$performance <- list()
-  m$performance$r.squared <- m$r.squared
-  m$performance$pseudo.r.squared <- cor(
+  m$performance$r.squared <- round(m$r.squared, 3)
+  m$performance$pseudo.r.squared <- round(cor(
     observed,
     predicted
-  )
-  m$performance$rmse <- root_mean_squared_error(
+  ), 3)
+  m$performance$rmse <- round(root_mean_squared_error(
     o = observed,
     p = predicted,
     normalization = NULL
-  )
+  ), 3)
   names(m$performance$rmse) <- NULL
-  m$performance$nrmse <- root_mean_squared_error(
+  m$performance$nrmse <- round(root_mean_squared_error(
     o = observed,
     p = predicted,
     normalization = "iq"
-  )
+  ), 3)
   names(m$performance$nrmse) <- NULL
 
   #residuals
@@ -471,10 +439,16 @@ rf <- function(
       x = m$residuals,
       distance.matrix = distance.matrix,
       distance.thresholds = distance.thresholds,
-      plot = FALSE
+      verbose = verbose
     )
 
   }
+
+  #print autocorrelation results
+  print_moran(
+    x = m$spatial.correlation.residuals$per.distance,
+    verbose = verbose
+  )
 
   #replacing local variable importance with the scaled one
   if(local.importance == TRUE){

@@ -15,11 +15,11 @@
 #' @param max.spatial.predictors integer, maximum number of spatial predictors to generate. Useful when memory problems arise due to a large number of records in `data`, Default: 1000
 #' @param weight.r.squared numeric between 0 and 1, weight of R-squared in the selection of spatial components. See Details, Default: NULL
 #' @param weight.penalization.n.predictors numeric between 0 and 1, weight of the penalization imposed with the addition of an increasing number of spatial predictors into a model, Default: NULL
-#' @param verbose Boolean. If TRUE, messages and plots generated during the execution of the function are displayed, Default: TRUE
 #' @param scaled.importance (optional) boolean. If TRUE, and 'importance = "permutation', the function scales 'data' with [scale_robust] and fits a new model to compute scaled variable importance scores. Default: TRUE
 #' @param seed (optional) integer, random seed to facilitate reproducibility. If set to a given number, the returned model is always the same. Only relevant if `repetitions = 1`. Default: NULL
 #' @param repetitions integer, number of random forest models to fit. Default: 5
 #' @param keep.models boolean, if TRUE, the fitted models are returned in the "models" slot. Default: FALSE.
+#' @param verbose Boolean. If TRUE, messages and plots generated during the execution of the function are displayed, Default: TRUE
 #' @param n.cores number of cores to use to compute repetitions. If NULL, all cores but one are used, unless a cluster is used.
 #' @param cluster.ips character vector, IPs of the machines in the cluster. The first machine will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.
 #' @param cluster.cores numeric integer vector, number of cores on each machine.
@@ -40,7 +40,7 @@
 #' \itemize{
 #'   \item{ranger.arguments}{stores the values of the arguments used to fit the ranger model}
 #'   \item{predictions}{a list with the predictions obtained on each repetition stored in a data frame named 'df.wide' and the average of the predictions in a data frame named 'df'}
-#'   \item{variable.importance}{a list containing a data frame with the variable importance obtained on each iteration (df.wide), the mean importance of each predictor across repetitions (df), a long version of the df.wide data frame to facilitate plotting (df.long), and a boxplot showing the distribution of the importance scores across repetitions}
+#'   \item{variable.importance}{a list containing data frames with variable importance scores. These are `per.variable`, with the importance or average importance (if `repetitions > 1`) of each predictor, `per.repetition`, only if `repetitions > 1`, `spatial.predictors`, for plotting purposes, and `spatial.predictors.stats`, for printing purposes.}
 #'   \item{pseudo.r.squared}{pseudo R-squared values throughout repetitions}
 #'   \item{rmse}{rmse obtained on each repetition}
 #'   \item{nrmse}{normalizad rmse obtained on each repetition}
@@ -136,12 +136,8 @@
 #'  rf.spatial$spatial.correlation.residuals$plot
 #'  }
 #' }
-#' @seealso
-#'  \code{\link[dplyr]{arrange}},\code{\link[dplyr]{desc}},\code{\link[dplyr]{filter}}
-#'  \code{\link[ggplot2]{ggplot}},\code{\link[ggplot2]{aes}},\code{\link[ggplot2]{geom_point}},\code{\link[ggplot2]{scale_colour_viridis_d}},\code{\link[ggplot2]{geom_path}},\code{\link[ggplot2]{labs}},\code{\link[ggplot2]{geom_boxplot}},\code{\link[ggplot2]{geom_abline}},\code{\link[ggplot2]{scale_manual}},\code{\link[ggplot2]{theme}}
 #' @rdname rf_spatial
 #' @export
-#' @importFrom ggplot2 ggplot aes geom_point scale_color_viridis_c geom_path labs xlab ylab ggtitle geom_boxplot geom_hline geom_line scale_colour_manual theme
 rf_spatial <- function(
   model = NULL,
   data = NULL,
@@ -169,14 +165,19 @@ rf_spatial <- function(
   max.spatial.predictors = 1000,
   weight.r.squared = NULL,
   weight.penalization.n.predictors = NULL,
-  verbose = TRUE,
   seed = NULL,
+  verbose = TRUE,
   n.cores = NULL,
   cluster.ips = NULL,
   cluster.cores = NULL,
   cluster.user = NULL,
   cluster.port = 11000
 ){
+
+  #declaring variables
+  moran.i <- NULL
+  variable <- NULL
+
 
   #testing method argument
   method <- match.arg(
@@ -210,11 +211,9 @@ rf_spatial <- function(
     ranger.arguments <- model$ranger.arguments
     list2env(ranger.arguments, envir=environment())
     seed <- NULL
+    importance <- "permutation"
 
   }
-
-  #initializing "importance"
-  importance <- "permutation"
 
   #FITTING NON-SPATIAL MODEL
   #######################################################
@@ -229,7 +228,8 @@ rf_spatial <- function(
         distance.matrix = distance.matrix,
         distance.thresholds = distance.thresholds,
         ranger.arguments = ranger.arguments,
-        seed = seed
+        seed = seed,
+        verbose = FALSE
       )
 
     } else {
@@ -245,6 +245,7 @@ rf_spatial <- function(
         scaled.importance = scaled.importance,
         repetitions = repetitions,
         keep.models = keep.models,
+        verbose = FALSE,
         n.cores = n.cores,
         cluster.ips = cluster.ips,
         cluster.cores = cluster.cores,
@@ -258,7 +259,7 @@ rf_spatial <- function(
 
   #extracting autocorrelation of the residuals
   interpretation <- NULL
-  model.moran.i <- model$spatial.correlation.residuals$df %>%
+  model.moran.i <- model$spatial.correlation.residuals$per.distance %>%
     dplyr::arrange(dplyr::desc(moran.i)) %>%
     dplyr::filter(interpretation == "Positive spatial correlation")
 
@@ -336,7 +337,7 @@ rf_spatial <- function(
     )
 
     if(verbose == TRUE){
-      message("Using Moran's Eigenvector Maps of the double-centered distance weights as spatial predictors.")
+      message("Using Moran's Eigenvector Maps as spatial predictors.")
     }
 
   }
@@ -374,7 +375,7 @@ rf_spatial <- function(
   ){
     ranking.method <- "effect"
     if(verbose == TRUE){
-      message("Ranking spatial predictors by how much they reduce the Moran's I of the model residuals.")
+      message("Ranking spatial predictors by how much they reduce Moran's I of the model residuals.")
     }
   }
 
@@ -494,56 +495,6 @@ rf_spatial <- function(
 
   }
 
-  #preparing plot of selection criteria
-  if(exists("spatial.predictors.selection")){
-
-    #optimization plot
-    optimization <- NULL
-    r.squared <- NULL
-    spatial.predictor.index <- NULL
-    plot.df <- spatial.predictors.selection$optimization
-    selection.criteria.plot <- ggplot2::ggplot(data = plot.df) +
-      ggplot2::aes(
-        x = moran.i,
-        y = r.squared,
-        color = optimization,
-        size = spatial.predictor.index
-      ) +
-      ggplot2::geom_point() +
-      ggplot2::scale_color_viridis_c(direction = -1) +
-      ggplot2::geom_point(
-        data = plot.df[plot.df$selected, ],
-        aes(
-          x = moran.i,
-          y = r.squared),
-        colour="black",
-        size = 5,
-        shape = 1,
-        alpha = 0.3
-      ) +
-      ggplot2::geom_path(data = plot.df[plot.df$selected, ],
-                         aes(
-                           x = moran.i,
-                           y = r.squared
-                         ),
-                         size = 0.5,
-                         color = "black",
-                         alpha = 0.3
-      ) +
-      ggplot2::labs(
-        size = "Added spatial predictors",
-        color = "Weighted optimization index"
-      ) +
-      ggplot2::xlab("Moran's I of the model residuals") +
-      ggplot2::ylab("Model's R-squared") +
-      ggplot2::ggtitle("Selection of spatial predictors (selection path shown in gray)")
-
-    if(verbose == TRUE){
-      suppressMessages(print(selection.criteria.plot))
-    }
-
-  }
-
 
   #FITTING SPATIAL MODEL
   ######################
@@ -583,7 +534,8 @@ rf_spatial <- function(
       distance.matrix = distance.matrix,
       distance.thresholds = distance.thresholds,
       ranger.arguments = ranger.arguments,
-      seed = seed
+      seed = seed,
+      verbose = FALSE
     )
 
   } else {
@@ -599,6 +551,7 @@ rf_spatial <- function(
       scaled.importance = scaled.importance,
       repetitions = repetitions,
       keep.models = keep.models,
+      verbose = FALSE,
       n.cores = n.cores,
       cluster.ips = cluster.ips,
       cluster.cores = cluster.cores,
@@ -613,34 +566,46 @@ rf_spatial <- function(
 
   #MORAN'S I AFTER AND BEFORE
   if(inherits(model.spatial, "rf")){
-    after.df <- model.spatial$spatial.correlation.residuals$df
+    after.df <- model.spatial$spatial.correlation.residuals$per.distance
     after.df$model <- "Spatial"
-    before.df <- model$spatial.correlation.residuals$df
+    before.df <- model$spatial.correlation.residuals$per.distance
     before.df$model <- "Non-spatial"
     moran.i.plot.df <- rbind(before.df, after.df)
     model.spatial$spatial.correlation.residuals$df <- moran.i.plot.df
+
+    print_moran(
+      x = moran.i.plot.df,
+      caption = paste0("Moran's I of the spatial and non-spatial models."),
+      verbose = verbose
+    )
   }
 
   if(inherits(model.spatial, "rf_repeat")){
-    after.df <- model.spatial$spatial.correlation.residuals$df.long
+    after.df <- model.spatial$spatial.correlation.residuals$per.repetition
     after.df$model <- "Spatial"
-    before.df <- model$spatial.correlation.residuals$df.long
+    before.df <- model$spatial.correlation.residuals$per.repetition
     before.df$model <- "Non-spatial"
     moran.i.plot.df <- rbind(before.df, after.df)
-    model.spatial$spatial.correlation.residuals$df.long <- moran.i.plot.df
+    model.spatial$spatial.correlation.residuals$per.repetition <- moran.i.plot.df
+
+    print_moran(
+      x = moran.i.plot.df,
+      caption = paste0(
+        "Moran's I of the spatial and non-spatial models (averaged of ",
+        repetitions,
+        " repetitions)."),
+      verbose = verbose
+    )
   }
 
-  #setting p values as a factor
-  moran.i.plot.df$p.value.binary <- "< 0.05"
-  moran.i.plot.df[moran.i.plot.df$p.value >= 0.05, "p.value.binary"] <- ">= 0.05"
 
   #VARIABLE IMPORTANCE
   #complete df
   if(inherits(model.spatial, "rf")){
-    importance.df <- model.spatial$variable.importance$df
+    importance.df <- model.spatial$variable.importance$per.variable
   }
   if(inherits(model.spatial, "rf_repeat")){
-    importance.df <- model.spatial$variable.importance$df.long
+    importance.df <- model.spatial$variable.importance$per.repetition
   }
 
   #spatial predictors only
@@ -662,108 +627,12 @@ rf_spatial <- function(
     non.spatial.predictors.plot.df
   )
 
+  #moran's I plot
+  model.spatial$spatial.correlation.residuals$plot <- plot_moran(
+    x = moran.i.plot.df,
+    verbose = verbose
+  )
 
-  #PLOTS
-
-  #rf plots
-  if(inherits(model.spatial, "rf")){
-
-    #moran's I plot
-    p.value.binary <- NULL
-    model.spatial$spatial.correlation.residuals$plot <- ggplot2::ggplot(data = moran.i.plot.df) +
-      ggplot2::aes(
-        x = distance.threshold,
-        y = moran.i,
-        color = model,
-        size = p.value.binary
-      ) +
-      ggplot2::geom_hline(
-        yintercept = 0,
-        col = "gray10",
-        size = 0.7,
-        linetype = "dashed"
-      ) +
-      ggplot2::geom_point(alpha = 0.7) +
-      ggplot2::geom_line(size = 1, alpha = 0.7) +
-      ggplot2::scale_colour_manual(values = c("#440154FF", "#35B779FF")) +
-      ggplot2::xlab("Distance thresholds") +
-      ggplot2::ylab("Moran's I of residuals") +
-      ggplot2::ggtitle("Residuals' Moran's I of the spatial and non-spatial models") +
-      ggplot2::theme(legend.position = "bottom") +
-      ggplot2::labs(color = "Model", size = "Moran's I p-value")
-
-    #importance plot
-    variable <- NULL
-    importance.plot <- ggplot2::ggplot(data = importance.plot.df) +
-      ggplot2::aes(
-        x = importance,
-        y = reorder(
-          variable,
-          importance,
-          FUN = max
-        ),
-        fill = importance
-      ) +
-      ggplot2::geom_point(size = 4, shape = 21) +
-      ggplot2::scale_fill_viridis_c(direction = -1, alpha = 0.8) +
-      ggplot2::ylab("") +
-      ggplot2::xlab("Variable importance") +
-      ggplot2::theme(legend.position = "none")
-
-  }
-
-
-  #rf_repeat
-  if(inherits(model.spatial, "rf_repeat")){
-
-    #moran's I plot
-    p.value.binary <- NULL
-    repetition <- NULL
-    model.spatial$spatial.correlation.residuals$plot <- ggplot2::ggplot(data = moran.i.plot.df) +
-      ggplot2::aes(
-        x = distance.threshold,
-        y = moran.i,
-        color = model,
-        size = p.value.binary,
-        group = interaction(repetition, model)
-      ) +
-      ggplot2::geom_hline(
-        yintercept = 0,
-        col = "gray10",
-        size = 0.7,
-        linetype = "dashed"
-      ) +
-      ggplot2::geom_point(alpha = 0.7) +
-      ggplot2::geom_line(size = 1, alpha = 0.7) +
-      ggplot2::scale_colour_manual(values = c("#440154FF", "#35B779FF")) +
-      ggplot2::xlab("Distance thresholds") +
-      ggplot2::ylab("Moran's I of residuals") +
-      ggplot2::ggtitle("Residuals' Moran's I of the spatial and non-spatial models") +
-      ggplot2::theme(legend.position = "bottom") +
-      ggplot2::labs(color = "Model", size = "Moran's I p-value")
-
-    #importance plot
-    importance.plot <- ggplot2::ggplot(data = importance.plot.df) +
-      ggplot2::aes(
-        x = importance,
-        y = reorder(
-          variable,
-          importance,
-          FUN = median
-        ),
-        fill = reorder(
-          variable,
-          importance,
-          FUN = median
-        )
-      ) +
-      ggplot2::geom_boxplot() +
-      ggplot2::scale_fill_viridis_d(direction = -1, alpha = 0.8) +
-      ggplot2::ylab("") +
-      ggplot2::xlab("Variable importance") +
-      ggplot2::theme(legend.position = "none")
-
-  }
 
   #AGGREGATED DF OF spatial_predictor IMPORTANCE
   #min, max, median and mean of the spatial predictors
@@ -783,9 +652,11 @@ rf_spatial <- function(
   )
 
   if(inherits(model.spatial, "rf")){
-    importance.df <- rbind(non.spatial.predictors.plot.df, spatial.predictors.stats) %>%
+    importance.df <- rbind(
+      non.spatial.predictors.plot.df,
+      spatial.predictors.stats
+      ) %>%
       dplyr::arrange(dplyr::desc(importance))
-
   }
 
   if(inherits(model.spatial, "rf_spatial")){
@@ -798,30 +669,53 @@ rf_spatial <- function(
   }
 
   #adding it to the variable importance slot
-  model.spatial$variable.importance$df.aggregated <- importance.df
-  model.spatial$variable.importance$plot <- importance.plot
+  model.spatial$variable.importance$spatial.predictors <- importance.plot.df
+  model.spatial$variable.importance$spatial.predictor.stats <- importance.df
+  model.spatial$variable.importance$plot <- plot_importance(
+    x = importance.plot.df,
+    verbose = verbose
+  )
 
-  #printing Moran's I of residuals
-  if(verbose == TRUE){
-    suppressMessages(print(model.spatial$spatial.correlation.residuals$plot))
-    suppressMessages(print(importance.plot))
-  }
-
-  #accuracy comparison
+  #COMPARING SPATIAL AND NON-SPATIAL MODELS
   comparison.df <- data.frame(
-    r.squared = round(c(mean(model$performance$r.squared), mean(model.spatial$performance$r.squared)), 3),
-    rmse = round(c(mean(model$performance$rmse), mean(model.spatial$performance$rmse)), 3),
-    nrmse = round(c(mean(model$performance$nrmse), mean(model.spatial$performance$nrmse)), 3),
-    moran.i.residuals = round(c(
+    model = c("Non-spatial", "Spatial"),
+    r.squared = c(
+      mean(model$performance$r.squared),
+      mean(model.spatial$performance$r.squared)
+      ),
+    rmse = c(
+      mean(model$performance$rmse),
+      mean(model.spatial$performance$rmse)
+      ),
+    nrmse = c(
+      mean(model$performance$nrmse),
+      mean(model.spatial$performance$nrmse)
+      ),
+    max.moran.i = c(
       model$spatial.correlation.residuals$max.moran,
       model.spatial$spatial.correlation.residuals$max.moran
-    ), 3)
+    )
   )
-  rownames(comparison.df) <- c("Non-spatial model", "Spatial model")
 
   if(verbose == TRUE){
-    message("Model comparison")
-    print(comparison.df)
+    cat(" \n")
+    colnames(comparison.df) <- c("Model", "R squared", "RMSE", "NRMSE", "Max. Moran's I")
+    comparison.hux <-
+      huxtable::hux(comparison.df) %>%
+      huxtable::set_bold(row = 1, col = huxtable::everywhere, value = TRUE) %>%
+      huxtable::set_bold(col = 1, row = huxtable::everywhere, value = TRUE) %>%
+      huxtable::set_all_borders(TRUE)
+    huxtable::number_format(comparison.hux)[2:3, 2:5] <- 3
+    if(repetitions == 1){
+      huxtable::caption(comparison.hux) <- "Comparing spatial and non-spatial models"
+    } else {
+      huxtable::caption(comparison.hux) <- paste0(
+        "Comparing spatial and non-spatial models (average of ",
+        repetitions,
+        " repetitions."
+        )
+    }
+    huxtable::print_screen(comparison.hux, colnames = FALSE)
   }
 
   #adding data to the model
@@ -833,14 +727,17 @@ rf_spatial <- function(
   model.spatial$selection.spatial.predictors$names <- spatial.predictors.selected
   if(exists("spatial.predictors.selection")){
     model.spatial$selection.spatial.predictors$df <- spatial.predictors.selection$optimization
-    model.spatial$selection.spatial.predictors$plot <- selection.criteria.plot
+    model.spatial$selection.spatial.predictors$plot <- plot_optimization(
+      x = spatial.predictors.selection,
+      verbose = verbose
+    )
   }
 
   #adding class
   if(inherits(model.spatial, "rf_repeat")){
     class(model.spatial) <- c("ranger", "rf_spatial", "rf_repeat")
   } else {
-    class(model.spatial) <- c("ranger", "rf_spatial")
+    class(model.spatial) <- c("ranger", "rf_spatial", "rf")
   }
 
 

@@ -178,15 +178,16 @@ rank_spatial_predictors <- function(
         distance.matrix = distance.matrix,
         distance.thresholds = distance.thresholds,
         scaled.importance = FALSE,
-        ranger.arguments = ranger.arguments
+        ranger.arguments = ranger.arguments,
+        verbose = FALSE
       )
 
       #out.df
       out.i <- data.frame(
         spatial.predictors.name = spatial.predictors.name.i,
-        model.r.squared = m.i$r.squared,
+        model.r.squared = m.i$performance$r.squared,
         moran.i = m.i$spatial.correlation.residuals$max.moran,
-        p.value = m.i$spatial.correlation.residuals$df$p.value[1],
+        p.value = m.i$spatial.correlation.residuals$per.distance$p.value[1],
         ranking.criteria = reference.moran.i - m.i$spatial.correlation.residuals$max.moran
       )
 

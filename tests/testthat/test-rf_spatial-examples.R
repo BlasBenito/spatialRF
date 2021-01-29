@@ -14,7 +14,8 @@ test_that("`rf_spatial()` works", {
     distance.thresholds = distance.thresholds,
     method = "hengl",
     repetitions = 5,
-    n.cores = 1
+    n.cores = 1,
+    verbose = FALSE
   )
   m1$variable.importance$plot
   expect_equal(inherits(m1, "ranger"), TRUE)

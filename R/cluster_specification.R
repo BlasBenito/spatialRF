@@ -1,10 +1,10 @@
 #' @title cluster_specification
-#' @description specifies a cluster for \link[parallel]{makeCluster}
-#' @param cluster.ips character vector, IPs of the machines in the cluster. The first machine will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.
-#' @param cluster.cores numeric integer vector, number of cores on each machine.
-#' @param cluster.user character string, name of the user (should be the same throughout machines), Defaults to the current system user.
-#' @return a list ready to be used as input for the "spec" argument of the function \link[parallel]{makeCluster}.
-#' @details This function is used internally by several other functions of the package, but can be useful for a user using \link[foreach]{foreach} to parallelize loops in a cluster.
+#' @description Defines a cluster for \link[parallel]{makeCluster}.
+#' @param cluster.ips Character vector, IPs of the machines in the cluster. The first machine will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed. Default: `NULL`.
+#' @param cluster.cores Numeric integer vector, number of cores on each machine. Default: `NULL`.
+#' @param cluster.user Character string, name of the user (should be the same throughout machines), Defaults to the current system user.
+#' @return A list ready to be used as input for the *spec* argument of the function \link[parallel]{makeCluster}.
+#' @details This function is used internally by several other functions of the package, but can be useful for a user working with \link[foreach]{foreach} to parallelize loops in a cluster.
 #' @examples
 #'  cluster.spec <- cluster_specification(
 #'    cluster.ips = c("10.0.1.40", "10.0.1.41"),
