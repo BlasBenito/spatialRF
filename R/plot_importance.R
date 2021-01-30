@@ -1,12 +1,12 @@
 #' @title plot_importance
 #' @description plots variable importance scores of [rf], [rf_repeat], and [rf_spatial] models.
-#' @param x a model produced by [rf], [rf_repeat], or [rf_spatial], or a data frame with importance scores. Default: NULL
-#' @param verbose logical, if TRUE, the generated plot is printed. Default: TRUE
+#' @param x A model produced by [rf], [rf_repeat], or [rf_spatial], or a data frame with importance scores. Default: NULL
+#' @param verbose Logical, if TRUE, the generated plot is printed. Default: TRUE
 #' @return a ggplot
 #' @examples
 #' \dontrun{
 #' if(interactive()){
-#' #basic model
+#'
 #' data(plant_richness_df)
 #' data(distance.matrix)
 #' rf.model <- rf(
@@ -156,6 +156,6 @@ plot_importance <- function(x = NULL, verbose = TRUE){
     print(p)
   }
 
-  p
+  return(p)
 
 }

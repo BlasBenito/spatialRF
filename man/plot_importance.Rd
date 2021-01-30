@@ -7,9 +7,9 @@
 plot_importance(x = NULL, verbose = TRUE)
 }
 \arguments{
-\item{x}{a model produced by \link{rf}, \link{rf_repeat}, or \link{rf_spatial}, or a data frame with importance scores. Default: NULL}
+\item{x}{A model produced by \link{rf}, \link{rf_repeat}, or \link{rf_spatial}, or a data frame with importance scores. Default: NULL}
 
-\item{verbose}{logical, if TRUE, the generated plot is printed. Default: TRUE}
+\item{verbose}{Logical, if TRUE, the generated plot is printed. Default: TRUE}
 }
 \value{
 a ggplot
@@ -20,7 +20,7 @@ plots variable importance scores of \link{rf}, \link{rf_repeat}, and \link{rf_sp
 \examples{
 \dontrun{
 if(interactive()){
-#basic model
+
 data(plant_richness_df)
 data(distance.matrix)
 rf.model <- rf(

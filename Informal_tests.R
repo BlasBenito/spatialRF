@@ -315,12 +315,9 @@ rf.repeat <- rf_repeat(model = rf.model, verbose = TRUE)
 
 #spatial model
 rf.spatial <- rf_spatial(model = rf.model, verbose = TRUE)
-rf.spatial <- rf_spatial(model = rf.model, method = "mem.effect.optimized")
-rf.spatial <- rf_spatial(model = rf.model, method = "hengl")
 
 #from repeat
 rf.spatial.repeat <- rf_spatial(model = rf.repeat)
-rf.spatial.repeat <- rf_spatial(model = rf.repeat, method = "hengl")
 
 
 

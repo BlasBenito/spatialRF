@@ -1,6 +1,6 @@
 #' @title print_moran
 #' @description Prints spatial correlation tests.
-#' @param x a data frame resulting from [moran_multithreshold]. Default: NULL
+#' @param x A model produced by [rf()], [rf_repeat()], or [rf_spatial()], or a data frame resulting from [moran_multithreshold]. Default: NULL
 #' @param caption character, caption to attach to the output, Default: NULL
 #' @param verbose logical, if TRUE, the resulting table is printed into the console, Default: TRUE
 #' @return Prints a table in the console using the \link[huxtable]{huxtable} package.
@@ -9,7 +9,7 @@
 #' if(interactive()){
 #'  data(plant_richness_df)
 #'  data(distance.matrix)
-#'  #basic model
+#'
 #'  rf.model <- rf(
 #'    data = plant_richness_df,
 #'    dependent.variable.name = "richness_species_vascular",
@@ -19,7 +19,7 @@
 #'    verbose = FALSE
 #'  )
 #'
-#'  print_moran(x = rf.model$spatial.correlation.residuals$per.distance)
+#'  print_moran(rf.model)
 #'  }
 #' }
 #' @rdname print_moran
@@ -35,12 +35,13 @@ print_moran <- function(x, caption = NULL, verbose = TRUE){
   p.value <- NULL
   interpretation <- NULL
 
+  #if x is not a data frame
+  if(!is.data.frame(x)){
+      x <- x$spatial.correlation.residuals$per.distance
+  }
+
   #only builds table if verbose = TRUE
   if(verbose == TRUE){
-
-    if(!is.data.frame(x)){
-      stop("'x' must be a data frame.")
-    }
 
     #for models rf and rf_repeat
     if(!("model" %in% colnames(x))){
@@ -90,38 +91,38 @@ print_moran <- function(x, caption = NULL, verbose = TRUE){
 
     }
 
-    #for rf_spatial with rf_repeat
-    if("repetition" %in% colnames(x)){
-
-      #aggregate
-      x <- x %>%
-        dplyr::group_by(model, distance.threshold) %>%
-        dplyr::summarise(
-          moran.i = mean(moran.i),
-          p.value = mean(p.value),
-          interpretation = statistical_mode(interpretation)
-        ) %>%
-        dplyr::arrange(model, distance.threshold) %>%
-        as.data.frame()
-
-      #preparing the huxtable
-      x.hux <-
-        huxtable::hux(x) %>%
-        huxtable::set_bold(
-          row = 1,
-          col = huxtable::everywhere,
-          value = TRUE) %>%
-        huxtable::set_bold(
-          col = 1,
-          row = huxtable::everywhere,
-          value = TRUE
-          ) %>%
-        huxtable::set_all_borders(TRUE)
-      huxtable::number_format(x.hux)[2:nrow(x.hux), 3:4] <- 3
-      huxtable::number_format(x.hux)[2:nrow(x.hux), 2] <- 1
-
-
-    }
+    # #for rf_spatial with rf_repeat
+    # if("repetition" %in% colnames(x)){
+    #
+    #   #aggregate
+    #   x <- x %>%
+    #     dplyr::group_by(model, distance.threshold) %>%
+    #     dplyr::summarise(
+    #       moran.i = mean(moran.i),
+    #       p.value = mean(p.value),
+    #       interpretation = statistical_mode(interpretation)
+    #     ) %>%
+    #     dplyr::arrange(model, distance.threshold) %>%
+    #     as.data.frame()
+    #
+    #   #preparing the huxtable
+    #   x.hux <-
+    #     huxtable::hux(x) %>%
+    #     huxtable::set_bold(
+    #       row = 1,
+    #       col = huxtable::everywhere,
+    #       value = TRUE) %>%
+    #     huxtable::set_bold(
+    #       col = 1,
+    #       row = huxtable::everywhere,
+    #       value = TRUE
+    #       ) %>%
+    #     huxtable::set_all_borders(TRUE)
+    #   huxtable::number_format(x.hux)[2:nrow(x.hux), 3:4] <- 3
+    #   huxtable::number_format(x.hux)[2:nrow(x.hux), 2] <- 1
+    #
+    #
+    # }
 
     #add caption
     if(!is.null(caption)){

@@ -1,26 +1,65 @@
-#' @importFrom huxtable hux add_colnames set_bold set_all_borders number_format print_screen set_width number_format
+#' @title print
+#' @description Custom print method for models fitted with [rf()], [rf_repeat()], and [rf_spatial())].
+#' @param x A model fitted with [rf()], [rf_repeat()], and [rf_spatial())].
+#' @param ... Additional arguments for print methods.
+#' @return Prints model details to the standard output.
+#' @rdname print
 #' @export
+#' @importFrom huxtable hux add_colnames set_bold set_all_borders number_format print_screen set_width number_format
 print.ranger <- function(x, ...) {
 
-    cat("Random forest parameters\n")
-    cat("  - Type:                            ", x$treetype, "\n")
-    cat("  - Number of trees:                 ", x$num.trees, "\n")
-    cat("  - Sample size:                     ", x$num.samples, "\n")
-    cat("  - Number of independent variables: ", x$num.independent.variables, "\n")
-    cat("  - Mtry:                            ", x$mtry, "\n")
-    cat("  - Minimum node size:               ", x$min.node.size, "\n")
+  #standard error function
+  .se <- function(x){
+    x <- na.omit(x)
+    x<- round(sqrt(var(x)/length(x)), 3)
+    x
+    }
+
+  #getting model features
+
+    cat("Model type\n")
+    cat("  - Fitted with:                     ", class(x)[2], "()\n", sep="")
+    if(inherits(x, "rf_repeat")){
+    cat("  - Repetitions:                     ", x$ranger.arguments$repetitions, "\n", sep="")
+    }
+    if(inherits(x, "rf_spatial")){
+    cat("  - rf_spatial() method:             ", x$selection.spatial.predictors$method, "\n", sep="")
+    }
+    cat("  - Response variable:               ", x$ranger.arguments$dependent.variable.name, "\n", sep="")
 
     cat("\n")
+    cat("Random forest parameters\n")
+    cat("  - Type:                            ", x$treetype, "\n", sep="")
+    cat("  - Number of trees:                 ", x$num.trees, "\n", sep="")
+    cat("  - Sample size:                     ", x$num.samples, "\n", sep="")
+    cat("  - Number of predictors:            ", x$num.independent.variables, "\n", sep="")
+    cat("  - Mtry:                            ", x$mtry, "\n", sep="")
+    cat("  - Minimum node size:               ", x$min.node.size, "\n", sep="")
+
+    if(length(x$performance$r.squared) == 1){
+    cat("\n")
     cat("Model performance \n")
-    cat("  - R squared (OOB):                 ", x$r.squared, "\n")
-    cat("  - Pseudo R squared:                ", x$performance$pseudo.r.squared, "\n")
-    cat("  - RMSE:                            ", x$performance$rmse, "\n")
-    cat("  - Normalized RMSE:                 ", x$performance$nrmse, "\n")
+    cat("  - R squared (OOB):                 ", x$performance$r.squared, "\n", sep="")
+    cat("  - Pseudo R squared:                ", x$performance$pseudo.r.squared, "\n", sep="")
+    cat("  - RMSE:                            ", x$performance$rmse, "\n", sep="")
+    cat("  - Normalized RMSE:                 ", x$performance$nrmse, "\n", sep="")
+    } else {
+      cat("\n")
+      cat("Model performance (mean +/- standard error) \n")
+      cat("  - R squared (OOB):          ", mean(x$performance$r.squared), " +/- ", .se(x$performance$r.squared), "\n", sep="")
+      cat("  - Pseudo R squared:         ", mean(x$performance$pseudo.r.squared), " +/- ", .se(x$performance$pseudo.r.squared), "\n", sep="")
+      cat("  - RMSE:                     ", mean(x$performance$rmse), " +/- ", .se(x$performance$rmse), "\n", sep="")
+      cat("  - Normalized RMSE:          ", mean(x$performance$nrmse), " +/- ", .se(x$performance$nrmse), "\n", sep="")
+    }
 
     cat("\n")
     cat("Model residuals \n")
     cat("  - Stats: \n")
-    residuals.stats <- as.data.frame(t(summary(x$residuals)))[, 2:3]
+    if(length(x$performance$r.squared) == 1){
+      residuals.stats <- as.data.frame(t(summary(x$residuals)))[, 2:3]
+    } else {
+      residuals.stats <- as.data.frame(t(summary(x$residuals$mean$residuals_mean)))[, 2:3]
+    }
     rownames(residuals.stats) <- residuals.stats$Var2
     residuals.stats$Var2 <- NULL
     residuals.stats <- t(residuals.stats)
@@ -35,49 +74,14 @@ print.ranger <- function(x, ...) {
     huxtable::number_format(residuals.stats)[2, ] <- 2
     huxtable::print_screen(residuals.stats, colnames = FALSE)
 
-    # print(knitr::kable(residuals.stats))
     cat("\n")
     cat("  - Spatial autocorrelation: \n")
-    # print(knitr::kable(x$spatial.correlation.residuals$df))
-    spatial.correlation <- x$spatial.correlation.residuals$df
-    colnames(spatial.correlation) <- c("Distance", "Moran's I", "p-value", "Interpretation")
-    if(inherits(x, "rf_spatial")){
-      colnames(spatial.correlation) <- c("Distance", "Moran's I", "p-value", "Interpretation", "Model")
-    }
-    spatial.correlation <-
-      huxtable::hux(spatial.correlation) %>%
-      huxtable::set_bold(row = 1, col = huxtable::everywhere, value = TRUE) %>%
-      huxtable::set_all_borders(TRUE) %>%
-      huxtable::set_width(1)
-    huxtable::number_format(spatial.correlation)[, 1] <- NA
-    huxtable::number_format(spatial.correlation)[, 2] <- 2
-    huxtable::number_format(spatial.correlation)[, 3] <- 4
-      huxtable::print_screen(spatial.correlation, colnames = FALSE)
+    print_moran(x)
 
-      if("variable.importance" %in% names(x)){
-        cat("\n")
-        cat("Variable importance \n")
-        if(class(x$variable.importance) == "numeric"){
-          Importance <- NULL
-          variable.importance <- as.data.frame(x$variable.importance)
-          variable.importance <- data.frame(
-            Variable = rownames(variable.importance),
-            Importance = variable.importance[, 1]
-          ) %>%
-            dplyr::arrange(dplyr::desc(`Importance`))
+    cat("\n")
+    cat("Variable importance: \n")
+    print_importance(x)
 
-        }
-        if(class(x$variable.importance) == "list"){
-          variable.importance <- x$variable.importance$df
-          colnames(variable.importance) <- c("Variable", "Importance")
-        }
-        variable.importance <- huxtable::hux(variable.importance) %>%
-          huxtable::set_bold(row = 1, col = huxtable::everywhere, value = TRUE) %>%
-          huxtable::set_all_borders(TRUE) %>%
-          huxtable::set_width(1)
-        huxtable::number_format(variable.importance)[, 2] <- 3
-        huxtable::print_screen(variable.importance, colnames = FALSE)
-      }
 
 }
 

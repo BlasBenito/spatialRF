@@ -565,14 +565,14 @@ rf_spatial <- function(
   #################
 
   #MORAN'S I AFTER AND BEFORE
-  if(inherits(model.spatial, "rf")){
-    after.df <- model.spatial$spatial.correlation.residuals$per.distance
-    after.df$model <- "Spatial"
-    before.df <- model$spatial.correlation.residuals$per.distance
-    before.df$model <- "Non-spatial"
-    moran.i.plot.df <- rbind(before.df, after.df)
-    model.spatial$spatial.correlation.residuals$df <- moran.i.plot.df
+  after.df <- model.spatial$spatial.correlation.residuals$per.distance
+  after.df$model <- "Spatial"
+  before.df <- model$spatial.correlation.residuals$per.distance
+  before.df$model <- "Non-spatial"
+  moran.i.plot.df <- rbind(before.df, after.df)
+  model.spatial$spatial.correlation.residuals$per.distance <- moran.i.plot.df
 
+  if(inherits(model.spatial, "rf")){
     print_moran(
       x = moran.i.plot.df,
       caption = paste0("Moran's I of the spatial and non-spatial models."),
@@ -581,6 +581,7 @@ rf_spatial <- function(
   }
 
   if(inherits(model.spatial, "rf_repeat")){
+
     after.df <- model.spatial$spatial.correlation.residuals$per.repetition
     after.df$model <- "Spatial"
     before.df <- model$spatial.correlation.residuals$per.repetition
@@ -597,6 +598,12 @@ rf_spatial <- function(
       verbose = verbose
     )
   }
+
+  #moran's I plot
+  model.spatial$spatial.correlation.residuals$plot <- plot_moran(
+    x = moran.i.plot.df,
+    verbose = verbose
+  )
 
 
   #VARIABLE IMPORTANCE
@@ -627,12 +634,6 @@ rf_spatial <- function(
     non.spatial.predictors.plot.df
   )
 
-  #moran's I plot
-  model.spatial$spatial.correlation.residuals$plot <- plot_moran(
-    x = moran.i.plot.df,
-    verbose = verbose
-  )
-
 
   #AGGREGATED DF OF spatial_predictor IMPORTANCE
   #min, max, median and mean of the spatial predictors
@@ -659,7 +660,7 @@ rf_spatial <- function(
       dplyr::arrange(dplyr::desc(importance))
   }
 
-  if(inherits(model.spatial, "rf_spatial")){
+  if(inherits(model.spatial, "rf_repeat")){
     importance.df <- non.spatial.predictors.plot.df %>%
       dplyr::group_by(variable) %>%
       dplyr::summarise(importance = mean(importance)) %>%
@@ -726,9 +727,9 @@ rf_spatial <- function(
   model.spatial$selection.spatial.predictors$method <- method
   model.spatial$selection.spatial.predictors$names <- spatial.predictors.selected
   if(exists("spatial.predictors.selection")){
-    model.spatial$selection.spatial.predictors$df <- spatial.predictors.selection$optimization
+    model.spatial$selection.spatial.predictors$optimization <- spatial.predictors.selection$optimization
     model.spatial$selection.spatial.predictors$plot <- plot_optimization(
-      x = spatial.predictors.selection,
+      x = spatial.predictors.selection$optimization,
       verbose = verbose
     )
   }

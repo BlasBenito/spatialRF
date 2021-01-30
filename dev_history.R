@@ -207,9 +207,18 @@ sinew::makeOxygen(plot_optimization)
 exampletestr::make_test_shell_fun("plot_optimization", open = FALSE)
 
 sinew::makeOxygen(print_moran)
-sinew::makeOxygen(plot_moran)
 sinew::makeOxygen(optimization_function)
+
+
+sinew::makeOxygen(plot_moran)
 sinew::makeOxygen(plot_importance)
+sinew::makeOxygen(get_moran)
+exampletestr::make_test_shell_fun("plot_moran", open = FALSE)
+exampletestr::make_test_shell_fun("plot_importance", open = FALSE)
+exampletestr::make_test_shell_fun("get_importance", open = FALSE)
+exampletestr::make_test_shell_fun("get_moran", open = FALSE)
+
+sinew::makeOxygen(print)
 
 
 

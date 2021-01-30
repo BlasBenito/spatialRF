@@ -7,13 +7,16 @@
 plot_optimization(x, verbose = TRUE)
 }
 \arguments{
-\item{x}{an optimization data frame produced by \link{select_spatial_predictors_sequential} or \link{select_spatial_predictors_optimized}.}
+\item{x}{A model produced by \code{\link[=rf_spatial]{rf_spatial()}}, or an optimization data frame produced by \link{select_spatial_predictors_sequential} or \link{select_spatial_predictors_optimized}.}
 
 \item{verbose}{logical, if TRUE the plot is printed Default: TRUE}
 }
 \value{
-an optimization plot.
+An optimization ggplot.
 }
 \description{
 plots optimization data frames produced by \link{select_spatial_predictors_sequential} and \link{select_spatial_predictors_optimized}.
+}
+\details{
+If the method used to fit the \code{\link[=rf_spatial]{rf_spatial()}} is "hengl", the function returns nothing, as this method does not require optimization.
 }

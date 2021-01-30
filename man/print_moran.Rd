@@ -7,7 +7,7 @@
 print_moran(x, caption = NULL, verbose = TRUE)
 }
 \arguments{
-\item{x}{a data frame resulting from \link{moran_multithreshold}. Default: NULL}
+\item{x}{A model produced by \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}, or a data frame resulting from \link{moran_multithreshold}. Default: NULL}
 
 \item{caption}{character, caption to attach to the output, Default: NULL}
 
@@ -24,7 +24,7 @@ Prints spatial correlation tests.
 if(interactive()){
  data(plant_richness_df)
  data(distance.matrix)
- #basic model
+
  rf.model <- rf(
    data = plant_richness_df,
    dependent.variable.name = "richness_species_vascular",
@@ -34,7 +34,7 @@ if(interactive()){
    verbose = FALSE
  )
 
- print_moran(x = rf.model$spatial.correlation.residuals$per.distance)
+ print_moran(rf.model)
  }
 }
 }

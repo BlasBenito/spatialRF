@@ -1,6 +1,6 @@
 #' @title plot_moran
 #' @description Plots results of spatial autocorrelation tests for a variety of functions within the package.
-#' @param x a data frame resulting from [moran_multithreshold]. Default: NULL
+#' @param x A model produced by [rf()], [rf_repeat()], or [rf_spatial()], or a data frame resulting from [moran_multithreshold]. Default: NULL
 #' @param verbose logical, if TRUE, the resulting table is printed into the console, Default: TRUE
 #' @return a ggplot.
 #' @examples
@@ -8,7 +8,7 @@
 #' if(interactive()){
 #'  data(plant_richness_df)
 #'  data(distance.matrix)
-#'  #basic model
+#'
 #'  rf.model <- rf(
 #'    data = plant_richness_df,
 #'    dependent.variable.name = "richness_species_vascular",
@@ -18,7 +18,7 @@
 #'    verbose = FALSE
 #'  )
 #'
-#'  plot_moran(x = rf.model$spatial.correlation.residuals$per.distance)
+#'  plot_moran(x = rf.model)
 #'  }
 #' }
 #' @rdname plot_moran
@@ -34,8 +34,29 @@ plot_moran <- function(x, verbose = TRUE){
   repetition <- NULL
   model <- NULL
 
+
+  #if x is not a data frame
   if(!is.data.frame(x)){
-    stop("'x' must be a data frame.")
+
+    #importance from rf
+    if(inherits(x, "rf") & !inherits(x, "rf_spatial")){
+      x <- x$spatial.correlation.residuals$per.distance
+    }
+
+    #importance from rf_repeat
+    if(inherits(x, "rf_repeat") & !inherits(x, "rf_spatial")){
+      x <- x$spatial.correlation.residuals$per.repetition
+    }
+
+    #importance from rf_spatial and rf
+    if(inherits(x, "rf_spatial") & inherits(x, "rf")){
+      x <- x$spatial.correlation.residuals$per.distance
+    }
+
+    if(inherits(x, "rf_spatial") & inherits(x, "rf_repeat")){
+      x <- x$spatial.correlation.residuals$per.repetition
+    }
+
   }
 
   #adding binary p.value
@@ -175,6 +196,6 @@ plot_moran <- function(x, verbose = TRUE){
     suppressWarnings(print(p))
   }
 
-  p
+  return(p)
 
 }
