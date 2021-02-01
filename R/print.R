@@ -8,13 +8,6 @@
 #' @importFrom huxtable hux add_colnames set_bold set_all_borders number_format print_screen set_width number_format
 print.ranger <- function(x, ...) {
 
-  #standard error function
-  .se <- function(x){
-    x <- na.omit(x)
-    x<- round(sqrt(var(x)/length(x)), 3)
-    x
-    }
-
   #getting model features
 
     cat("Model type\n")
@@ -35,22 +28,9 @@ print.ranger <- function(x, ...) {
     cat("  - Number of predictors:            ", x$num.independent.variables, "\n", sep="")
     cat("  - Mtry:                            ", x$mtry, "\n", sep="")
     cat("  - Minimum node size:               ", x$min.node.size, "\n", sep="")
-
-    if(length(x$performance$r.squared) == 1){
     cat("\n")
-    cat("Model performance \n")
-    cat("  - R squared (OOB):                 ", x$performance$r.squared, "\n", sep="")
-    cat("  - Pseudo R squared:                ", x$performance$pseudo.r.squared, "\n", sep="")
-    cat("  - RMSE:                            ", x$performance$rmse, "\n", sep="")
-    cat("  - Normalized RMSE:                 ", x$performance$nrmse, "\n", sep="")
-    } else {
-      cat("\n")
-      cat("Model performance (mean +/- standard error) \n")
-      cat("  - R squared (OOB):          ", mean(x$performance$r.squared), " +/- ", .se(x$performance$r.squared), "\n", sep="")
-      cat("  - Pseudo R squared:         ", mean(x$performance$pseudo.r.squared), " +/- ", .se(x$performance$pseudo.r.squared), "\n", sep="")
-      cat("  - RMSE:                     ", mean(x$performance$rmse), " +/- ", .se(x$performance$rmse), "\n", sep="")
-      cat("  - Normalized RMSE:          ", mean(x$performance$nrmse), " +/- ", .se(x$performance$nrmse), "\n", sep="")
-    }
+
+    print_performance(x)
 
     cat("\n")
     cat("Model residuals \n")
@@ -77,6 +57,20 @@ print.ranger <- function(x, ...) {
     cat("\n")
     cat("  - Spatial autocorrelation: \n")
     print_moran(x)
+
+    if("performance.comparison" %in% names(x)){
+      cat("\n")
+      cat("Comparing performance (spatial vs. non-spatial model): \n")
+      comparison.df <- x$performance.comparison
+      colnames(comparison.df) <- c("Model", "R squared", "RMSE", "NRMSE", "Max. Moran's I")
+      comparison.hux <-
+        huxtable::hux(comparison.df) %>%
+        huxtable::set_bold(row = 1, col = huxtable::everywhere, value = TRUE) %>%
+        huxtable::set_bold(col = 1, row = huxtable::everywhere, value = TRUE) %>%
+        huxtable::set_all_borders(TRUE)
+      huxtable::number_format(comparison.hux)[2:3, 2:5] <- 3
+      huxtable::print_screen(comparison.hux, colnames = FALSE)
+    }
 
     cat("\n")
     cat("Variable importance: \n")

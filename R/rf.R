@@ -444,12 +444,6 @@ rf <- function(
 
   }
 
-  #print autocorrelation results
-  print_moran(
-    x = m$spatial.correlation.residuals$per.distance,
-    verbose = verbose
-  )
-
   #replacing local variable importance with the scaled one
   if(local.importance == TRUE){
     m$variable.importance.local <- m.scaled$variable.importance.local
@@ -457,6 +451,10 @@ rf <- function(
 
   #adding rf class
   class(m) <- c("ranger", "rf")
+
+  if(verbose == TRUE){
+    print(m)
+  }
 
   #return model
   m

@@ -498,16 +498,6 @@ rf_repeat <- function(model = NULL,
     )
   )
 
-  print_moran(
-    x = spatial.correlation.residuals.mean,
-    caption = paste0(
-      "Average across ",
-      repetitions,
-      " repetitions."
-    ),
-    verbose = verbose
-  )
-
   #gathering residuals
   residuals <- as.data.frame(do.call("cbind", lapply(
     repeated.models,
@@ -538,6 +528,11 @@ rf_repeat <- function(model = NULL,
 
   #adding class to the model
   class(m.curves) <- c("ranger", "rf_repeat")
+
+  #print model
+  if(verbose == TRUE){
+    print(m.curves)
+  }
 
   #return m.curves
   m.curves

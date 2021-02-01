@@ -572,14 +572,6 @@ rf_spatial <- function(
   moran.i.plot.df <- rbind(before.df, after.df)
   model.spatial$spatial.correlation.residuals$per.distance <- moran.i.plot.df
 
-  if(inherits(model.spatial, "rf")){
-    print_moran(
-      x = moran.i.plot.df,
-      caption = paste0("Moran's I of the spatial and non-spatial models."),
-      verbose = verbose
-    )
-  }
-
   if(inherits(model.spatial, "rf_repeat")){
 
     after.df <- model.spatial$spatial.correlation.residuals$per.repetition
@@ -739,6 +731,10 @@ rf_spatial <- function(
     class(model.spatial) <- c("ranger", "rf_spatial", "rf_repeat")
   } else {
     class(model.spatial) <- c("ranger", "rf_spatial", "rf")
+  }
+
+  if(verbose == TRUE){
+    print(model.spatial)
   }
 
 

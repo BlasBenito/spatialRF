@@ -218,6 +218,16 @@ exampletestr::make_test_shell_fun("plot_importance", open = FALSE)
 exampletestr::make_test_shell_fun("get_importance", open = FALSE)
 exampletestr::make_test_shell_fun("get_moran", open = FALSE)
 
+sinew::makeOxygen(get_performance)
+exampletestr::make_test_shell_fun("get_performance", open = FALSE)
+
+
+sinew::makeOxygen(print_performance)
+
+
+sinew::makeOxygen(standard_error)
+exampletestr::make_test_shell_fun("standard_error", open = FALSE)
+
 sinew::makeOxygen(print)
 
 

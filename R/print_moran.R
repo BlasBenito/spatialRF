@@ -91,39 +91,6 @@ print_moran <- function(x, caption = NULL, verbose = TRUE){
 
     }
 
-    # #for rf_spatial with rf_repeat
-    # if("repetition" %in% colnames(x)){
-    #
-    #   #aggregate
-    #   x <- x %>%
-    #     dplyr::group_by(model, distance.threshold) %>%
-    #     dplyr::summarise(
-    #       moran.i = mean(moran.i),
-    #       p.value = mean(p.value),
-    #       interpretation = statistical_mode(interpretation)
-    #     ) %>%
-    #     dplyr::arrange(model, distance.threshold) %>%
-    #     as.data.frame()
-    #
-    #   #preparing the huxtable
-    #   x.hux <-
-    #     huxtable::hux(x) %>%
-    #     huxtable::set_bold(
-    #       row = 1,
-    #       col = huxtable::everywhere,
-    #       value = TRUE) %>%
-    #     huxtable::set_bold(
-    #       col = 1,
-    #       row = huxtable::everywhere,
-    #       value = TRUE
-    #       ) %>%
-    #     huxtable::set_all_borders(TRUE)
-    #   huxtable::number_format(x.hux)[2:nrow(x.hux), 3:4] <- 3
-    #   huxtable::number_format(x.hux)[2:nrow(x.hux), 2] <- 1
-    #
-    #
-    # }
-
     #add caption
     if(!is.null(caption)){
       huxtable::caption(x.hux) <- caption
