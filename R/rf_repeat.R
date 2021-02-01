@@ -124,16 +124,18 @@ rf_repeat <- function(model = NULL,
     message("Large numbers of 'repetitions' may lead to long computation times.")
   }
 
-  #getting arguments from model
+  #getting arguments from model rather than ranger.arguments
   if(!is.null(model)){
-    ranger.arguments <- NULL
-    data <- NULL
-    dependent.variable.name <- NULL
-    predictor.variable.names <- NULL
-    distance.matrix = NULL
-    distance.thresholds <- NULL
-    trees.per.variable <- NULL
-    scaled.importance <- TRUE
+    if(!is.null(ranger.arguments)){
+      ranger.arguments <- NULL
+      data <- NULL
+      dependent.variable.name <- NULL
+      predictor.variable.names <- NULL
+      distance.matrix = NULL
+      distance.thresholds <- NULL
+      trees.per.variable <- NULL
+      scaled.importance <- TRUE
+    }
     ranger.arguments <- model$ranger.arguments
     list2env(ranger.arguments, envir=environment())
     seed <- NULL
