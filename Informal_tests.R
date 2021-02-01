@@ -1,3 +1,62 @@
+#BASIC MODELS TO TEST OTHER THINGIES
+#############################################
+data(plant_richness_df)
+data(distance.matrix)
+
+#basic model
+rf.model <- rf(
+  data = plant_richness_df,
+  dependent.variable.name = "richness_species_vascular",
+  predictor.variable.names = colnames(plant_richness_df)[5:21],
+  distance.matrix = distance_matrix,
+  distance.thresholds = c(0, 1000, 2000),
+  verbose = TRUE
+)
+
+
+#with repetitions
+rf.repeat <- rf_repeat(model = rf.model, verbose = TRUE)
+
+#spatial model
+rf.spatial <- rf_spatial(model = rf.model, verbose = TRUE)
+
+#from repeat
+rf.spatial.repeat <- rf_spatial(model = rf.repeat)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ranger.arguments <- list()
 ranger.arguments$data <- plant_richness_df
 ranger.arguments$dependent.variable.name <- "richness_species_vascular"
@@ -294,42 +353,4 @@ model$selection.spatial.predictors$df
 
 
 
-#USING OTHER MODELS AS INPUT
-#############################################
-data(plant_richness_df)
-data(distance.matrix)
-
-#basic model
-rf.model <- rf(
-  data = plant_richness_df,
-  dependent.variable.name = "richness_species_vascular",
-  predictor.variable.names = colnames(plant_richness_df)[5:21],
-  distance.matrix = distance_matrix,
-  distance.thresholds = c(0, 1000, 2000),
-  verbose = TRUE
-)
-
-
-#with repetitions
-rf.repeat <- rf_repeat(model = rf.model, verbose = TRUE)
-
-#spatial model
-rf.spatial <- rf_spatial(model = rf.model, verbose = TRUE)
-
-#from repeat
-rf.spatial.repeat <- rf_spatial(model = rf.repeat)
-
-
-
- #PLOR AND PRINT METHODS
-rf.model <- rf(
-  data = plant_richness_df,
-  dependent.variable.name = "richness_species_vascular",
-  predictor.variable.names = colnames(plant_richness_df)[5:21],
-  distance.matrix = distance_matrix,
-  distance.thresholds = c(0, 1000, 2000)
-)
-print(rf.model)
-
-rf.spatial <- rf_spatial(model = rf.model)
 
