@@ -50,6 +50,7 @@ usethis::use_github(
   protocol = "ssh"
 )
 
+usethis::use_data(plant_richness_sf, overwrite = TRUE)
 #generating example data
 # ecoregions_richness$ecoregion_name.1 <- NULL
 # usethis::use_data(plant_richness) #created from ecoregions$data and ecoregions$centroids in the project gbif_plantae
@@ -218,8 +219,11 @@ exampletestr::make_test_shell_fun("plot_importance", open = FALSE)
 exampletestr::make_test_shell_fun("get_importance", open = FALSE)
 exampletestr::make_test_shell_fun("get_moran", open = FALSE)
 
-sinew::makeOxygen(get_performance)
+sinew::makeOxygen(sf_points_to_xy)
 exampletestr::make_test_shell_fun("get_performance", open = FALSE)
+
+sinew::makeOxygen(get_performance)
+exampletestr::make_test_shell_fun("sf_points_to_xy", open = FALSE)
 
 
 sinew::makeOxygen(print_performance)

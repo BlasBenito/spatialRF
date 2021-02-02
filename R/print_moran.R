@@ -36,12 +36,9 @@ print_moran <- function(x, caption = NULL, verbose = TRUE){
   interpretation <- NULL
 
   #if x is not a data frame
-  if(!is.data.frame(x)){
+  if(inherits(x, "rf") | inherits(x, "rf_repeat") | inherits(x, "rf_spatial")){
       x <- x$spatial.correlation.residuals$per.distance
   }
-
-  #only builds table if verbose = TRUE
-  if(verbose == TRUE){
 
     #for models rf and rf_repeat
     if(!("model" %in% colnames(x))){
@@ -56,7 +53,7 @@ print_moran <- function(x, caption = NULL, verbose = TRUE){
           row = 1,
           col = huxtable::everywhere,
           value = TRUE
-          ) %>%
+        ) %>%
         huxtable::set_all_borders(TRUE)
       huxtable::number_format(x.hux)[2:nrow(x.hux), 2:3] <- 3
       huxtable::number_format(x.hux)[2:nrow(x.hux), 1] <- 1
@@ -79,12 +76,12 @@ print_moran <- function(x, caption = NULL, verbose = TRUE){
           row = 1,
           col = huxtable::everywhere,
           value = TRUE
-          ) %>%
+        ) %>%
         huxtable::set_bold(
           col = 1,
           row = huxtable::everywhere,
           value = TRUE
-          ) %>%
+        ) %>%
         huxtable::set_all_borders(TRUE)
       huxtable::number_format(x.hux)[2:nrow(x.hux), 3:4] <- 3
       huxtable::number_format(x.hux)[2:nrow(x.hux), 2] <- 1
@@ -99,7 +96,5 @@ print_moran <- function(x, caption = NULL, verbose = TRUE){
     #print to screen
     huxtable::print_screen(x.hux, colnames = FALSE)
 
-
-  }
 
 }

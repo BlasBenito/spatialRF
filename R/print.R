@@ -54,9 +54,11 @@ print.ranger <- function(x, ...) {
     huxtable::number_format(residuals.stats)[2, ] <- 2
     huxtable::print_screen(residuals.stats, colnames = FALSE)
 
-    cat("\n")
-    cat("  - Spatial autocorrelation: \n")
-    print_moran(x)
+    if("spatial.correlation.residuals" %in% names(x)){
+      cat("\n")
+      cat("  - Spatial autocorrelation: \n")
+      print_moran(x)
+    }
 
     if("performance.comparison" %in% names(x)){
       cat("\n")
@@ -72,9 +74,11 @@ print.ranger <- function(x, ...) {
       huxtable::print_screen(comparison.hux, colnames = FALSE)
     }
 
-    cat("\n")
-    cat("Variable importance: \n")
-    print_importance(x)
+    if("variable.importance" %in% names(x)){
+      cat("\n")
+      cat("Variable importance: \n")
+      print_importance(x)
+    }
 
 
 }

@@ -582,14 +582,6 @@ rf_spatial <- function(
     moran.i.plot.df <- rbind(before.df, after.df)
     model.spatial$spatial.correlation.residuals$per.repetition <- moran.i.plot.df
 
-    print_moran(
-      x = moran.i.plot.df,
-      caption = paste0(
-        "Moran's I of the spatial and non-spatial models (averaged of ",
-        repetitions,
-        " repetitions)."),
-      verbose = verbose
-    )
   }
 
   #moran's I plot

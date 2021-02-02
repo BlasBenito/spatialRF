@@ -1,8 +1,9 @@
 #' @title plot_importance
-#' @description plots variable importance scores of [rf], [rf_repeat], and [rf_spatial] models.
-#' @param x A model produced by [rf], [rf_repeat], or [rf_spatial], or a data frame with importance scores. Default: NULL
+#' @description plots variable importance scores of [rf()], [rf_repeat()], and [rf_spatial()] models.
+#' @param x A model produced by [rf()], [rf_repeat()], or [rf_spatial()], or a data frame with importance scores. Default: NULL
 #' @param verbose Logical, if TRUE, the generated plot is printed. Default: TRUE
 #' @return a ggplot
+#' @details For [rf_repeat()] models, the middle point of each boxplot represents the mean variable importance rather than the median. This is to keep consistency within the package, as every other aggregated measure of performance or importance is presented as a mean.
 #' @examples
 #' \dontrun{
 #' if(interactive()){
@@ -130,15 +131,15 @@ plot_importance <- function(x = NULL, verbose = TRUE){
             y = reorder(
               variable,
               importance,
-              FUN = median
+              FUN = mean
             ),
             fill = reorder(
               variable,
               importance,
-              FUN = median
+              FUN = mean
             )
           ) +
-          ggplot2::geom_boxplot() +
+          ggplot2::geom_boxplot(middle = mean(importance)) +
           ggplot2::scale_fill_viridis_d(direction = -1, alpha = 0.8) +
           ggplot2::ylab("") +
           ggplot2::xlab("Variable importance") +

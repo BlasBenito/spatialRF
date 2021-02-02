@@ -24,7 +24,18 @@ rf.spatial <- rf_spatial(model = rf.model, verbose = TRUE)
 rf.spatial.repeat <- rf_spatial(model = rf.repeat)
 
 
+#rf_evaluate arguments
+model <- rf.model
 
+#geo argument
+xy = plant_richness_df[, c("x", "y")]
+xy = plant_richness_sf
+
+
+
+plant_richness_geom <- plant_richness_sf[, "geom_centroids"]
+
+plant_richness_sf <- plant_richness_geom
 
 
 

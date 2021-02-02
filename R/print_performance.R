@@ -1,4 +1,4 @@
-#' @title print_performanc()
+#' @title print_performance
 #' @description Prints the performance slot of a model fitted with [rf()], [rf_repeat()], or [rf_spatial()].
 #' @param x Model fitted by [rf()], [rf_repeat()], or [rf_spatial()].
 #' @examples

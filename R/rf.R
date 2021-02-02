@@ -3,7 +3,7 @@
 #' @param data (required) data frame with a response variable and a set of (preferably uncorrelated) predictors, Default: NULL
 #' @param dependent.variable.name (required) string with the name of the response variable. Must be in the column names of 'data', Default: NULL
 #' @param predictor.variable.names (required) character vector with the names of the predictive variables. Every element must be in the column names of 'data', Default: NULL
-#' @param distance.matrix (optional) a squared matrix with the distances among the records in 'data'. Notice that the rows of 'distance.matrix' and 'data' must be the same. If not provided, the computation of the Moran's I of the residuals is ommited. Default: NULL``
+#' @param distance.matrix (optional) a squared matrix with the distances among the records in 'data'. Notice that the rows of 'distance.matrix' and 'data' must be the same. If not provided, the computation of the Moran's I of the residuals is omitted. Default: `NULL`.
 #' @param distance.thresholds (optional) numeric vector, distances below each value in the distance matrix are set to 0 for the computation of Moran's I. If NULL, it defaults to seq(0, max(distance.matrix), length.out = 4). Default: NULL.
 #' @param ranger.arguments (optional) list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.
 #' @param trees.per.variable (optional) number of individual regression trees to fit per variable in 'predictor.variable.names'. This is an alternative way to define ranger's 'num.trees'. If NULL, 'num.trees' is 500. Default: NULL
@@ -224,7 +224,7 @@ rf <- function(
       }
 
       #subset data
-      data <- na.omit(data[, c(dependent.variable.name, predictor.variable.names)])
+      data <- data[, c(dependent.variable.name, predictor.variable.names)]
 
     }
 
@@ -386,19 +386,21 @@ rf <- function(
   )
 
   #importance dataframe
-  m$variable.importance <- list()
-  m$variable.importance$per.variable <- data.frame(
-    variable = names(m.scaled$variable.importance),
-    importance = m.scaled$variable.importance
-  ) %>%
-    tibble::remove_rownames() %>%
-    dplyr::arrange(dplyr::desc(importance))
+  if(importance == "permutation"){
+    m$variable.importance <- list()
+    m$variable.importance$per.variable <- data.frame(
+      variable = names(m.scaled$variable.importance),
+      importance = m.scaled$variable.importance
+    ) %>%
+      tibble::remove_rownames() %>%
+      dplyr::arrange(dplyr::desc(importance))
 
-  variable <- NULL
-  m$variable.importance$plot <- plot_importance(
-    x = m$variable.importance$per.variable,
-    verbose = verbose
-  )
+    variable <- NULL
+    m$variable.importance$plot <- plot_importance(
+      x = m$variable.importance$per.variable,
+      verbose = verbose
+    )
+  }
 
   #getting residuals
 
