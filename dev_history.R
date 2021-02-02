@@ -242,6 +242,8 @@ usethis::use_r("rf_evaluate")
 sinew::makeOxygen(rf_evaluate)
 exampletestr::make_test_shell_fun("rf_evaluate", open = FALSE)
 
+sinew::makeOxygen(plot_evaluation)
+
 
 
 #to check function dependencies

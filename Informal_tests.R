@@ -31,11 +31,12 @@ model <- rf.model
 xy = plant_richness_df[, c("x", "y")]
 xy = plant_richness_sf
 
+#trying rf_evaluate
+x <- rf_evaluate(
+  model = rf.repeat,
+  xy = plant_richness_df[, c("x", "y")]
+)
 
-
-plant_richness_geom <- plant_richness_sf[, "geom_centroids"]
-
-plant_richness_sf <- plant_richness_geom
 
 
 

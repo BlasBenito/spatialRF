@@ -51,6 +51,8 @@ get_performance <- function(x){
     standard_deviation = round(x.sd, 3)
   )
 
+  rownames(out.df) <- NULL
+
   out.df
 
 }

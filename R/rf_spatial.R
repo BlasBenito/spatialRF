@@ -683,27 +683,6 @@ rf_spatial <- function(
     )
   )
 
-  if(verbose == TRUE){
-    cat(" \n")
-    colnames(comparison.df) <- c("Model", "R squared", "RMSE", "NRMSE", "Max. Moran's I")
-    comparison.hux <-
-      huxtable::hux(comparison.df) %>%
-      huxtable::set_bold(row = 1, col = huxtable::everywhere, value = TRUE) %>%
-      huxtable::set_bold(col = 1, row = huxtable::everywhere, value = TRUE) %>%
-      huxtable::set_all_borders(TRUE)
-    huxtable::number_format(comparison.hux)[2:3, 2:5] <- 3
-    if(repetitions == 1){
-      huxtable::caption(comparison.hux) <- "Comparing spatial and non-spatial models"
-    } else {
-      huxtable::caption(comparison.hux) <- paste0(
-        "Comparing spatial and non-spatial models (average of ",
-        repetitions,
-        " repetitions."
-        )
-    }
-    huxtable::print_screen(comparison.hux, colnames = FALSE)
-  }
-
   #adding data to the model
   model.spatial$performance.comparison <- comparison.df
 

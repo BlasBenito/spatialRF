@@ -37,10 +37,10 @@ print_performance <- function(x){
   } else {
     cat("\n")
     cat("Model performance (mean +/- standard error) \n")
-    cat("  - R squared (OOB):          ", mean(x$r.squared), " +/- ", standard_error(x$r.squared), "\n", sep="")
-    cat("  - Pseudo R squared:         ", mean(x$pseudo.r.squared), " +/- ", standard_error(x$pseudo.r.squared), "\n", sep="")
-    cat("  - RMSE:                     ", mean(x$rmse), " +/- ", standard_error(x$rmse), "\n", sep="")
-    cat("  - Normalized RMSE:          ", mean(x$nrmse), " +/- ", standard_error(x$nrmse), "\n", sep="")
+    cat("  - R squared (OOB):          ", round(mean(x$r.squared), 3), " +/- ", standard_error(x$r.squared), "\n", sep="")
+    cat("  - Pseudo R squared:         ", round(mean(x$pseudo.r.squared), 3), " +/- ", standard_error(x$pseudo.r.squared), "\n", sep="")
+    cat("  - RMSE:                     ", round(mean(x$rmse), 3), " +/- ", standard_error(x$rmse), "\n", sep="")
+    cat("  - Normalized RMSE:          ",round( mean(x$nrmse), 3), " +/- ", standard_error(x$nrmse), "\n", sep="")
   }
 
 

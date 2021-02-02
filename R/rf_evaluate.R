@@ -160,9 +160,9 @@ rf_evaluate <- function(
 
     #computing evaluation scores
     out.df <- data.frame(
-      reference.record.id = xy.reference.records[i, "id"],
-      reference.record.x = xy.reference.records[i, "x"],
-      reference.record.y = xy.reference.records[i, "y"],
+      fold.id = xy.reference.records[i, "id"],
+      fold.center.x = xy.reference.records[i, "x"],
+      fold.center.y = xy.reference.records[i, "y"],
       training.records = nrow(data.training),
       testing.records = nrow(data.testing),
       training.r.squared = m.training$performance$r.squared,
@@ -191,14 +191,72 @@ rf_evaluate <- function(
 
   }#end of parallelized loop
 
-  #prepare data for plotting and reporting
+  #preparing data frames for plotting and printing
+  #select columns with "training"
+  performance.training <- dplyr::select(evaluation.df, dplyr::contains("training"))
+  performance.training[, 1] <- NULL
+  performance.training$model <- "Training"
+
+  #select columns with "testing"
+  performance.testing <- dplyr::select(evaluation.df, dplyr::contains("testing"))
+  performance.testing[, 1] <- NULL
+  performance.testing$model <- "Testing"
+
+  #full model
+  performance.full <- data.frame(
+    r.squared = model$performance$r.squared,
+    pseudo.r.squared = model$performance$pseudo.r.squared,
+    rmse = model$performance$rmse,
+    nrmse = model$performance$nrmse,
+    model = "Full"
+  )
+
+  #set colnames
+  colnames(performance.training) <- colnames(performance.testing) <- colnames(performance.full) <- c(
+    "r.squared",
+    "pseudo.r.squared",
+    "rmse",
+    "nrmse",
+    "model"
+  )
+
+  #rbind
+  performance.df <- rbind(
+    performance.training,
+    performance.testing,
+    performance.full
+  )
+
+  #to long format
+  performance.df.long <- performance.df %>%
+    tidyr::pivot_longer(
+      cols = 1:4,
+      names_to = "performance.measure",
+      values_to = "performance.value"
+    ) %>%
+    as.data.frame()
+
+
+  performande.df.aggregated <- performance.df.long %>%
+    dplyr::group_by(model, performance.measure) %>%
+    dplyr::summarise(
+      performance.mean = round(mean(performance.value), 3),
+      performance.se = standard_error(performance.value),
+      performance.sd = round(sd(performance.value), 3)
+    ) %>%
+    as.data.frame()
 
   #add spatial folds to the model
   model$evaluation <- list()
   model$evaluation$spatial.folds <- spatial.folds
-  model$evaluation$df <- evaluation.df
+  model$evaluation$per.fold <- evaluation.df
+  model$evaluation$per.model <- performance.df
+  model$evaluation$aggregated <- performande.df.aggregated
 
-  #TODO evaluation plot
+  #TODO: plot_evaluation()
+  #TODO: print_evaluation()
+  #TODO: get_evaluation()
 
+  model
 
 }
