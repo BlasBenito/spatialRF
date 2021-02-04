@@ -236,18 +236,29 @@ rf_evaluate <- function(
     ) %>%
     as.data.frame()
 
-
+  #aggregating
   performande.df.aggregated <- performance.df.long %>%
     dplyr::group_by(model, performance.measure) %>%
     dplyr::summarise(
-      performance.mean = round(mean(performance.value), 3),
-      performance.se = standard_error(performance.value),
-      performance.sd = round(sd(performance.value), 3)
+      median = median(performance.value),
+      q1 = quantile(performance.value, 0.25),
+      q3 = quantile(performance.value, 0.75),
+      mean = mean(performance.value),
+      se = standard_error(performance.value),
+      sd = sd(performance.value),
+      min = min(performance.value),
+      max = max(performance.value)
     ) %>%
     as.data.frame()
 
+  #stats to NA if "Full" only once in performance.df
+  if(sum("Full" %in% performance.df$model) == 1){
+    performande.df.aggregated[performande.df.aggregated$model == "Full", c("median", "q1", "q3", "se", "sd", "min", "max")] <- NA
+  }
+
   #add spatial folds to the model
   model$evaluation <- list()
+  model$evaluation$training.fraction <- training.fraction
   model$evaluation$spatial.folds <- spatial.folds
   model$evaluation$per.fold <- evaluation.df
   model$evaluation$per.model <- performance.df
@@ -256,6 +267,8 @@ rf_evaluate <- function(
   #TODO: plot_evaluation()
   #TODO: print_evaluation()
   #TODO: get_evaluation()
+
+  class(model) <- c(class(model), "rf_evaluate")
 
   model
 

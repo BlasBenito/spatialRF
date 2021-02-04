@@ -32,28 +32,29 @@ xy = plant_richness_df[, c("x", "y")]
 xy = plant_richness_sf
 
 #trying rf_evaluate
-x <- rf_evaluate(
+rf.model <- rf_evaluate(
+  model = rf.model,
+  xy = plant_richness_df[, c("x", "y")]
+)
+plot_evaluation(rf.model)
+
+rf.repeat <- rf_evaluate(
   model = rf.repeat,
   xy = plant_richness_df[, c("x", "y")]
 )
+plot_evaluation(rf.repeat)
 
+rf.spatial <- rf_evaluate(
+  model = rf.spatial,
+  xy = plant_richness_df[, c("x", "y")]
+)
+plot_evaluation(rf.spatial)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+rf.spatial.repeat <- rf_evaluate(
+  model = rf.spatial.repeat,
+  xy = plant_richness_df[, c("x", "y")]
+)
+plot_evaluation(rf.spatial.repeat)
 
 
 

@@ -1,61 +1,80 @@
-#' @title plor_evaluation
+#' @title plot_evaluation
 #' @description Plots the results of an evaluation performed with [rf_evaluate()].
 #' @param x A model resulting from [rf_evaluate()]
 #' @param verbose logical, if TRUE the plot is printed, Default: TRUE
 #' @return A ggplot.
 #' @rdname plot_evaluation
 #' @export
-#' @importFrom ggplot2 ggplot facet_wrap geom_pointrange scale_color_viridis_d theme xlab ylab labs
+#' @importFrom ggplot2 ggplot facet_wrap theme xlab ylab labs
 plot_evaluation <- function(x, verbose = TRUE){
 
-
-  if(!("evaluation" %in% names(x))){
+  #stop if no evaluation slot
+  if(!inherits(x, "rf_evaluate")){
     stop("Object 'x' does not have an 'evaluation' slot.")
   }
 
-  evaluation.df <- x$evaluation$aggregated
 
-  evaluation.df$performance.measure <- factor(
-    evaluation.df$performance.measure,
-    levels = c("r.squared", "rmse","pseudo.r.squared","nrmse"),
-    labels=c("R squared", "RMSE", "pseudo R squared","NRMSE")
-  )
+  #function to fix labels
+  .pretty_labels <- function(x){
 
-  evaluation.df$model <- factor(
-    evaluation.df$model,
-    levels = c("Full", "Training","Testing"),
-    labels=c("Full", "Training","Testing")
-  )
+    x$performance.measure <- factor(
+      x$performance.measure,
+      levels = c("r.squared", "pseudo.r.squared", "rmse", "nrmse"),
+      labels = c("R squared", "pseudo R squared" , "RMSE","NRMSE")
+    )
 
-  p <- ggplot2::ggplot(data = evaluation.df) +
+    x$model <- factor(
+      x$model,
+      levels = rev(c("Full", "Training","Testing")),
+      labels = rev(c("Full", "Training","Testing"))
+    )
+
+    x
+
+  }
+
+  #evaluation df in long format
+  evaluation.df <- x$evaluation$per.model %>%
+    tidyr::pivot_longer(
+      cols = 1:4,
+      names_to = "performance.measure",
+      values_to = "performance.value"
+    ) %>%
+    as.data.frame() %>%
+    .pretty_labels()
+
+  #the plot
+  p <- suppressMessages(ggplot2::ggplot() +
+    ggplot2::geom_boxplot(
+      data = evaluation.df,
+      ggplot2::aes(
+        group = model,
+        y = model,
+        x = performance.value
+      ),
+      notch = TRUE,
+    ) +
     ggplot2::facet_wrap(
       "performance.measure",
       scales = "free",
-      drop = TRUE
+      drop = TRUE,
+      ncol = 1
     ) +
-    ggplot2::geom_pointrange(
-      aes(
-        y = performance.measure,
-        x = performance.mean,
-        xmin = performance.mean + performance.se,
-        xmax = performance.mean - performance.se,
-        color = model
-      ),
-      position=position_dodge(width=0.3)
-    ) +
-    ggplot2::scale_color_viridis_d(end = 0.8) +
-    ggplot2::theme(
-      legend.position = "bottom",
-      axis.text.y = element_blank()
-    ) +
+    ggplot2::theme_bw() +
+    ggplot2::theme(legend.position = "none") +
     ggplot2::xlab("") +
     ggplot2::ylab("") +
-    ggplot2::labs(color = "Model")
+    ggplot2::labs(color = "Model") +
+    ggplot2::ggtitle(
+      paste0(
+        "Evaluation results on ",
+        length(x$evaluation$spatial.folds),
+        " spatial folds."
+      )
+    ))
 
   if(verbose == TRUE){
-    print(p)
+    suppressMessages(print(p))
   }
-
-  return(p)
 
 }

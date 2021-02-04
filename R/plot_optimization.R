@@ -67,6 +67,4 @@ plot_optimization <- function(x, verbose = TRUE){
     suppressMessages(print(p))
   }
 
-  return(p)
-
 }
