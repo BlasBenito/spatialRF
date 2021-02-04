@@ -8,6 +8,9 @@
 #' @importFrom ggplot2 ggplot facet_wrap theme xlab ylab labs
 plot_evaluation <- function(x, verbose = TRUE){
 
+  #declaring variable because of check BS
+  performance.value <- NULL
+
   #stop if no evaluation slot
   if(!inherits(x, "rf_evaluate")){
     stop("Object 'x' does not have an 'evaluation' slot.")

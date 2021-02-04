@@ -1,15 +1,22 @@
-#' @param xy
+#' @export
 rf_evaluate <- function(
   model,
   xy = NULL,
   repetitions = 30,
   training.fraction = 0.6,
+  verbose = TRUE,
   n.cores = NULL,
   cluster.ips = NULL,
   cluster.cores = NULL,
   cluster.user = NULL,
   cluster.port = 11000
 ){
+
+  #declaring variables
+  i <- NULL
+  performance.measure <- NULL
+  performance.value <- NULL
+
 
   #getting data from the model
   data <- model$ranger.arguments$data
@@ -151,7 +158,7 @@ rf_evaluate <- function(
     )
 
     #predicting over data.testing
-    predicted <- predict(
+    predicted <- ranger::predict(
       object = m.training,
       data = data.testing,
       type = "response"
@@ -269,6 +276,10 @@ rf_evaluate <- function(
   #TODO: get_evaluation()
 
   class(model) <- c(class(model), "rf_evaluate")
+
+  if(verbose == TRUE){
+    print_evaluation(model)
+  }
 
   model
 

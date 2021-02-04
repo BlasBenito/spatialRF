@@ -2,7 +2,7 @@
 % Please edit documentation in R/print_performance.R
 \name{print_performance}
 \alias{print_performance}
-\title{print_performanc()}
+\title{print_performance}
 \usage{
 print_performance(x)
 }

@@ -139,7 +139,7 @@ plot_importance <- function(x = NULL, verbose = TRUE){
               FUN = mean
             )
           ) +
-          ggplot2::geom_boxplot(middle = mean(importance)) +
+          ggplot2::geom_boxplot() +
           ggplot2::scale_fill_viridis_d(direction = -1, alpha = 0.8) +
           ggplot2::ylab("") +
           ggplot2::xlab("Variable importance") +

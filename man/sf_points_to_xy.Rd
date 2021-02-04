@@ -2,7 +2,7 @@
 % Please edit documentation in R/sf_points_to_xy.R
 \name{sf_points_to_xy}
 \alias{sf_points_to_xy}
-\title{sf_points_to_xy()}
+\title{sf_points_to_xy}
 \usage{
 sf_points_to_xy(sf.points)
 }
@@ -16,6 +16,10 @@ A data frame with the point coordinates stored in the columns \emph{x} and \emph
 Transforms an \link[sf]{sf} data frame with points into a data frame with columns \emph{x} and \emph{y}.
 }
 \examples{
+\dontrun{
+if(interactive()){
  data(plant_richness_sf)
  xy <- sf_points_to_xy(plant_richness_sf)
+ }
+}
 }

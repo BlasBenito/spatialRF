@@ -87,23 +87,24 @@
 #' @importFrom tidyselect all_of
 #' @rdname rf_repeat
 #' @export
-rf_repeat <- function(model = NULL,
-                      data = NULL,
-                      dependent.variable.name = NULL,
-                      predictor.variable.names = NULL,
-                      distance.matrix = NULL,
-                      distance.thresholds = NULL,
-                      ranger.arguments = NULL,
-                      trees.per.variable = NULL,
-                      scaled.importance = TRUE,
-                      repetitions = 5,
-                      keep.models = FALSE,
-                      verbose = TRUE,
-                      n.cores = NULL,
-                      cluster.ips = NULL,
-                      cluster.cores = NULL,
-                      cluster.user = Sys.info()[["user"]],
-                      cluster.port = 11000
+rf_repeat <- function(
+  model = NULL,
+  data = NULL,
+  dependent.variable.name = NULL,
+  predictor.variable.names = NULL,
+  distance.matrix = NULL,
+  distance.thresholds = NULL,
+  ranger.arguments = NULL,
+  trees.per.variable = NULL,
+  scaled.importance = TRUE,
+  repetitions = 5,
+  keep.models = FALSE,
+  verbose = TRUE,
+  n.cores = NULL,
+  cluster.ips = NULL,
+  cluster.cores = NULL,
+  cluster.user = Sys.info()[["user"]],
+  cluster.port = 11000
 
 ){
 
@@ -481,7 +482,7 @@ rf_repeat <- function(model = NULL,
           "spatial.correlation.residuals"
         ),
         "[[",
-        3
+        2
       )
     )
   )
@@ -495,7 +496,7 @@ rf_repeat <- function(model = NULL,
           "spatial.correlation.residuals"
         ),
         "[[",
-        4
+        3
       )
     )
   )

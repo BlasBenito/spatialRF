@@ -7,7 +7,7 @@
 plot_importance(x = NULL, verbose = TRUE)
 }
 \arguments{
-\item{x}{A model produced by \link{rf}, \link{rf_repeat}, or \link{rf_spatial}, or a data frame with importance scores. Default: NULL}
+\item{x}{A model produced by \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}, or a data frame with importance scores. Default: NULL}
 
 \item{verbose}{Logical, if TRUE, the generated plot is printed. Default: TRUE}
 }
@@ -15,7 +15,10 @@ plot_importance(x = NULL, verbose = TRUE)
 a ggplot
 }
 \description{
-plots variable importance scores of \link{rf}, \link{rf_repeat}, and \link{rf_spatial} models.
+plots variable importance scores of \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, and \code{\link[=rf_spatial]{rf_spatial()}} models.
+}
+\details{
+For \code{\link[=rf_repeat]{rf_repeat()}} models, the middle point of each boxplot represents the mean variable importance rather than the median. This is to keep consistency within the package, as every other aggregated measure of performance or importance is presented as a mean.
 }
 \examples{
 \dontrun{

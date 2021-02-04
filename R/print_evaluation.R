@@ -16,6 +16,8 @@ print_evaluation <- function(x){
     measure = "r.squared"
     ){
 
+    performance.measure <- NULL
+
     x <- x %>%
       dplyr::filter(
         performance.measure == measure
@@ -39,7 +41,9 @@ print_evaluation <- function(x){
         `Standard deviation` = sd,
         minimum = min,
         maximum = max
-      ) %>%
+      )
+
+      x <- x[c(1, 3, 2), ] %>%
       huxtable::hux() %>%
       huxtable::set_bold(
         row = 1,

@@ -178,7 +178,6 @@ rf_spatial <- function(
   moran.i <- NULL
   variable <- NULL
 
-
   #testing method argument
   method <- match.arg(
     arg = method,
@@ -197,7 +196,6 @@ rf_spatial <- function(
     several.ok = FALSE
   )
 
-  #getting arguments from model
   #getting arguments from model rather than ranger.arguments
   if(!is.null(model)){
     if(!is.null(ranger.arguments)){
@@ -450,7 +448,7 @@ rf_spatial <- function(
       cluster.port = cluster.port
     )
 
-    #broadcast spatial.predictors.selected
+    #broadcast spatial.predictors.selected downstream
     spatial.predictors.selected <- spatial.predictors.selection$best.spatial.predictors
 
   }
@@ -560,7 +558,7 @@ rf_spatial <- function(
       cluster.port = cluster.port
     )
 
-    }
+  }
 
   #PREPARING PLOTTING DATAFRAMES
   #################
@@ -638,20 +636,24 @@ rf_spatial <- function(
   )
 
   if(inherits(model.spatial, "rf")){
+
     importance.df <- rbind(
       non.spatial.predictors.plot.df,
       spatial.predictors.stats
       ) %>%
       dplyr::arrange(dplyr::desc(importance))
+
   }
 
   if(inherits(model.spatial, "rf_repeat")){
+
     importance.df <- non.spatial.predictors.plot.df %>%
       dplyr::group_by(variable) %>%
       dplyr::summarise(importance = mean(importance)) %>%
       as.data.frame() %>%
       rbind(spatial.predictors.stats) %>%
       dplyr::arrange(dplyr::desc(importance))
+
   }
 
   #adding it to the variable importance slot
