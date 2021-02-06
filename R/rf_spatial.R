@@ -582,13 +582,6 @@ rf_spatial <- function(
 
   }
 
-  #moran's I plot
-  model.spatial$spatial.correlation.residuals$plot <- plot_moran(
-    x = moran.i.plot.df,
-    verbose = verbose
-  )
-
-
   #VARIABLE IMPORTANCE
   #complete df
   if(inherits(model.spatial, "rf")){
@@ -659,10 +652,6 @@ rf_spatial <- function(
   #adding it to the variable importance slot
   model.spatial$variable.importance$spatial.predictors <- importance.plot.df
   model.spatial$variable.importance$spatial.predictor.stats <- importance.df
-  model.spatial$variable.importance$plot <- plot_importance(
-    x = importance.plot.df,
-    verbose = verbose
-  )
 
   #COMPARING SPATIAL AND NON-SPATIAL MODELS
   comparison.df <- data.frame(
@@ -710,6 +699,19 @@ rf_spatial <- function(
   if(verbose == TRUE){
     print(model.spatial)
   }
+
+  #moran's I plot
+  model.spatial$spatial.correlation.residuals$plot <- plot_moran(
+    x = model.spatial,
+    verbose = verbose
+  )
+
+
+  #adding importance
+  model.spatial$variable.importance$plot <- plot_importance(
+    x = model.spatial,
+    verbose = verbose
+  )
 
 
   #return output

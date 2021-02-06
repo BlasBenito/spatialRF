@@ -10,7 +10,5 @@ test_that("`moran_multithreshold()` works", {
   expect_type(moran.out, "list")
   expect_s3_class(moran.out$per.distance, "data.frame")
   expect_named(moran.out$per.distance, c("distance.threshold", "moran.i", "p.value", "interpretation"))
-  expect_s3_class(moran.out$plot, "ggplot")
   expect_length(moran.out, 4)
-  expect_named(moran.out, c("per.distance", "plot", "max.moran", "max.moran.distance.threshold"))
 })

@@ -6,7 +6,7 @@ test_that("`rf_spatial()` works", {
   predictor.variable.names <- colnames(plant_richness_df)[5:21]
   distance.matrix <- distance_matrix
   distance.thresholds <- c(0, 500, 1000)
-  m1 <- rf_spatial(
+  out <- rf_spatial(
     data = data,
     dependent.variable.name = dependent.variable.name,
     predictor.variable.names = predictor.variable.names,
@@ -17,30 +17,11 @@ test_that("`rf_spatial()` works", {
     n.cores = 1,
     verbose = FALSE
   )
-  m1$variable.importance$plot
-  expect_equal(inherits(m1, "ranger"), TRUE)
-  expect_equal(inherits(m1$variable.importance$plot, "ggplot"), TRUE)
-  expect_equal(inherits(m1$spatial.correlation.residuals$plot, "ggplot"), TRUE)
-  expect_equal(length(m1$performance$rmse), 5)
-  expect_equal(length(m1$performance$nrmse), 5)
-  expect_equal(length(m1$performance$r.squared), 5)
-  expect_equal(length(m1$performance$pseudo.r.squared), 5)
-  # m2 <- rf_spatial(
-  #   data = data,
-  #   dependent.variable.name = dependent.variable.name,
-  #   predictor.variable.names = predictor.variable.names,
-  #   distance.matrix = distance.matrix,
-  #   distance.thresholds = distance.thresholds,
-  #   method = "mem.moran.sequential",
-  #   n.cores = 1
-  # )
-  # expect_equal(inherits(m2, "ranger"), TRUE)
-  # expect_equal(inherits(m2$variable.importance$plot, "ggplot"), TRUE)
-  # expect_equal(inherits(m2$spatial.correlation.residuals$plot, "ggplot"), TRUE)
-  # expect_equal(inherits(m2$selection.spatial.predictors$plot, "ggplot"), TRUE)
-  # expect_equal(length(m2$rmse), 1)
-  # expect_equal(length(m2$nrmse), 1)
-  # expect_equal(length(m2$rmse), 1)
-  # expect_equal(length(m2$r.squared), 1)
-  # expect_equal(length(m2$pseudo.r.squared), 1)
+  expect_equal(inherits(out, "ranger"), TRUE)
+  expect_equal(inherits(out$variable.importance$plot, "ggplot"), TRUE)
+  expect_equal(inherits(out$spatial.correlation.residuals$plot, "ggplot"), TRUE)
+  expect_equal(length(out$performance$rmse), 5)
+  expect_equal(length(out$performance$nrmse), 5)
+  expect_equal(length(out$performance$r.squared), 5)
+  expect_equal(length(out$performance$pseudo.r.squared), 5)
 })

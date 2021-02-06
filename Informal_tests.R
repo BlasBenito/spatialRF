@@ -1,7 +1,7 @@
 #BASIC MODELS TO TEST OTHER THINGIES
 #############################################
 data(plant_richness_df)
-data(distance.matrix)
+data(distance_matrix)
 
 #basic model
 rf.model <- rf(
@@ -10,11 +10,11 @@ rf.model <- rf(
   predictor.variable.names = colnames(plant_richness_df)[5:21],
   distance.matrix = distance_matrix,
   distance.thresholds = c(0, 1000, 2000),
-  verbose = TRUE
+  verbose = FALSE
 )
 
 #with repetitions
-rf.repeat <- rf_repeat(model = rf.model, verbose = TRUE)
+rf.repeat <- rf_repeat(model = rf.model, verbose = FALSE)
 
 #spatial model
 rf.spatial <- rf_spatial(model = rf.model, verbose = TRUE)
@@ -25,7 +25,8 @@ rf.spatial.repeat <- rf_spatial(model = rf.repeat, verbose = FALSE)
 #trying rf_evaluate
 rf.model <- rf_evaluate(
   model = rf.model,
-  xy = plant_richness_df[, c("x", "y")]
+  xy = plant_richness_df[, c("x", "y")],
+  verbose = FALSE
 )
 plot_evaluation(rf.model)
 

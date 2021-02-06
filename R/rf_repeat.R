@@ -451,7 +451,10 @@ rf_repeat <- function(
     )
   ) %>%
     dplyr::arrange(distance.threshold)
-  spatial.correlation.residuals.per.repetition$repetition <- rep(1:repetitions, length(unique(spatial.correlation.residuals.per.repetition$distance.threshold)))
+  spatial.correlation.residuals.per.repetition$repetition <- rep(
+    1:repetitions,
+    length(unique(spatial.correlation.residuals.per.repetition$distance.threshold))
+    )
 
   p.value <- NULL
   interpretation <- NULL
@@ -482,7 +485,7 @@ rf_repeat <- function(
           "spatial.correlation.residuals"
         ),
         "[[",
-        2
+        3
       )
     )
   )
@@ -496,7 +499,7 @@ rf_repeat <- function(
           "spatial.correlation.residuals"
         ),
         "[[",
-        3
+        4
       )
     )
   )

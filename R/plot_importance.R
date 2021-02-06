@@ -151,10 +151,10 @@ plot_importance <- function(x = NULL, verbose = TRUE){
 
   }
 
-
-
   if(verbose == TRUE){
     suppressMessages(print(p))
   }
+
+  p
 
 }

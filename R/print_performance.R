@@ -4,8 +4,6 @@
 #' @examples
 #' \dontrun{
 #' if(interactive()){
-#' \dontrun{
-#' if(interactive()){
 #'  data(plant_richness_df)
 #'  data(distance.matrix)
 #'
