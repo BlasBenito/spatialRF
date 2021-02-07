@@ -20,7 +20,7 @@ devtools::load_all()
 
 devtools::install()
 
-#create package
+1#create package
 usethis::create_package("/home/blas/Dropbox/GITHUB/R_packages/spatialRF")
 
 #ignore dev_history at build
@@ -245,11 +245,14 @@ exampletestr::make_test_shell_fun("rf_evaluate", open = FALSE)
 
 sinew::makeOxygen(plot_evaluation)
 
+sinew::makeOxygen(suggest_interactions)
+exampletestr::make_test_shell_fun("suggest_interactions", open = FALSE)
+
 
 
 #to check function dependencies
 dep <- DependenciesGraphs::funDependencies(
-  envir = environment(),
+  'package:spatialRF',
   name.function = "rf_spatial"
   )
 plot(dep)

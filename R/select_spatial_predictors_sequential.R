@@ -116,6 +116,10 @@ select_spatial_predictors_sequential <- function(
   ranger.arguments$predictor.variable.names <- NULL
 
   #preparing cluster for stand alone machine
+  if(is.null(cluster.port)){
+    cluster.port <- Sys.getenv("R_PARALLEL_PORT")
+  }
+
   if(is.null(cluster.ips) == TRUE){
 
     #number of available cores
@@ -169,18 +173,18 @@ select_spatial_predictors_sequential <- function(
   spatial.predictors.i <- NULL
   optimization.df <- foreach::foreach(
     spatial.predictors.i = 1:length(spatial.predictors.ranking),
-    .combine = "rbind",
-    .packages = c(
-      "ranger",
-      "magrittr"
-    ),
-    .export = c(
-      "root_mean_squared_error",
-      "rescale_vector",
-      "moran_multithreshold",
-      "moran",
-      "scale_robust"
-    )
+    .combine = "rbind"#,
+    # .packages = c(
+    #   "ranger",
+    #   "magrittr"
+    # ),
+    # .export = c(
+    #   "root_mean_squared_error",
+    #   "rescale_vector",
+    #   "moran_multithreshold",
+    #   "moran",
+    #   "scale_robust"
+    # )
   ) %dopar% {
 
     #pca factor names

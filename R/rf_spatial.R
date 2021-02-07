@@ -198,18 +198,14 @@ rf_spatial <- function(
 
   #getting arguments from model rather than ranger.arguments
   if(!is.null(model)){
-    if(!is.null(ranger.arguments)){
-      ranger.arguments <- NULL
-      data <- NULL
-      dependent.variable.name <- NULL
-      predictor.variable.names <- NULL
-      distance.matrix = NULL
-      distance.thresholds <- NULL
-      trees.per.variable <- NULL
-      scaled.importance <- TRUE
-    }
     ranger.arguments <- model$ranger.arguments
-    list2env(ranger.arguments, envir=environment())
+    data <- ranger.arguments$data
+    dependent.variable.name <- ranger.arguments$dependent.variable.name
+    predictor.variable.names <- ranger.arguments$predictor.variable.names
+    distance.matrix = ranger.arguments$distance.matrix
+    distance.thresholds <- ranger.arguments$distance.thresholds
+    trees.per.variable <- ranger.arguments$trees.per.variable
+    scaled.importance <- ranger.arguments$scaled.importance
     seed <- NULL
     importance <- "permutation"
   }

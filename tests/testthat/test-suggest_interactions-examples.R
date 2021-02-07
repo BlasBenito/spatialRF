@@ -1,4 +1,4 @@
-test_that("`get_performance()` works", {
+test_that("`suggest_interactions()` works", {
   data(plant_richness_df)
   data(distance_matrix)
   rf.model <- rf(
@@ -9,9 +9,8 @@ test_that("`get_performance()` works", {
       1000, 2000
     ), verbose = FALSE
   )
-  x <- get_performance(rf.model)
-  expect_s3_class(x, "data.frame")
-  expect_equal(nrow(x), 4)
-  expect_equal(ncol(x), 4)
-  expect_named(x, c("metric", "mean", "standard_error", "standard_deviation"))
+  interactions <- suggest_interactions(model = rf.model, n.cores = 1)
+  expect_type(interactions, "list")
+  expect_s3_class(interactions$selected, "data.frame")
+  expect_s3_class(interactions$df, "data.frame")
 })

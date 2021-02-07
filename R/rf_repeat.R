@@ -1,6 +1,6 @@
 #' @title rf_repeat
 #' @description Repeats a given random forest model several times in order to capture the effect of the stochasticity of the algorithm on importance scores and accuracy measures. The function is prepared to run on a cluster if the IPs, number of cores, and user name are provided (see [cluster_specification]).
-#' @param model (optional) a model produced by [rf]. If used, the arguments `data`, `dependent.variable.name`, `predictor.variable.names`, `distance.matrix`, `distance.thresholds`, `ranger.arguments`, `trees.per.variable`, and `scaled.importance` are taken directly from the model definition. Default: NULL
+#' @param model (optional) a model produced by [rf]. If used, the arguments `data`, `dependent.variable.name`, `predictor.variable.names`, `distance.matrix`, `distance.thresholds`, `ranger.arguments`, `trees.per.variable`, and `scaled.importance` are taken directly from the model definition. Default: `NULL`
 #' @param data (required) data frame with a response variable and a set of (preferably uncorrelated) predictors, Default: NULL
 #' @param dependent.variable.name (required) string with the name of the response variable. Must be in the column names of 'data', Default: NULL
 #' @param predictor.variable.names (required) character vector with the names of the predictive variables. Every element must be in the column names of 'data', Default: NULL
@@ -105,7 +105,6 @@ rf_repeat <- function(
   cluster.cores = NULL,
   cluster.user = Sys.info()[["user"]],
   cluster.port = 11000
-
 ){
 
   #declaring some variables
@@ -127,19 +126,16 @@ rf_repeat <- function(
 
   #getting arguments from model rather than ranger.arguments
   if(!is.null(model)){
-    if(!is.null(ranger.arguments)){
-      ranger.arguments <- NULL
-      data <- NULL
-      dependent.variable.name <- NULL
-      predictor.variable.names <- NULL
-      distance.matrix = NULL
-      distance.thresholds <- NULL
-      trees.per.variable <- NULL
-      scaled.importance <- TRUE
-    }
-    ranger.arguments <- model$ranger.arguments
-    list2env(ranger.arguments, envir=environment())
-    seed <- NULL
+      ranger.arguments <- model$ranger.arguments
+      data <- ranger.arguments$data
+      dependent.variable.name <- ranger.arguments$dependent.variable.name
+      predictor.variable.names <- ranger.arguments$predictor.variable.names
+      distance.matrix = ranger.arguments$distance.matrix
+      distance.thresholds <- ranger.arguments$distance.thresholds
+      trees.per.variable <- ranger.arguments$trees.per.variable
+      scaled.importance <- ranger.arguments$scaled.importance
+      seed <- NULL
+      importance <- "permutation"
   }
 
   #initializes local.importance
@@ -175,6 +171,9 @@ rf_repeat <- function(
   }
 
   #INITIALIZING CLUSTER
+  if(is.null(cluster.port)){
+    cluster.port <- Sys.getenv("R_PARALLEL_PORT")
+  }
 
   #preparing cluster for stand alone machine
   if(is.null(cluster.ips) == TRUE){
@@ -230,18 +229,18 @@ rf_repeat <- function(
   #PARALLELIZED LOOP
   i <- NULL
   repeated.models <- foreach::foreach(
-    i = 1:repetitions,
-    .packages = c(
-      "ranger",
-      "magrittr"
-    ),
-    .export = c(
-      "rescale_vector",
-      "root_mean_squared_error",
-      "rescale_vector",
-      "moran_multithreshold",
-      "moran"
-    )
+    i = 1:repetitions#,
+    # .packages = c(
+    #   "ranger",
+    #   "magrittr"
+    # ),
+    # .export = c(
+    #   "rescale_vector",
+    #   "root_mean_squared_error",
+    #   "rescale_vector",
+    #   "moran_multithreshold",
+    #   "moran"
+    # )
   ) %dopar% {
 
     set.seed(i)

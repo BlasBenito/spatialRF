@@ -14,7 +14,7 @@ rf.model <- rf(
 )
 
 #with repetitions
-rf.repeat <- rf_repeat(model = rf.model, verbose = FALSE)
+rf.repeat <- rf_repeat(model = rf.model, verbose = FALSE, n.cores = 1)
 
 #spatial model
 rf.spatial <- rf_spatial(model = rf.model, verbose = TRUE)
@@ -49,11 +49,14 @@ rf.spatial.repeat <- rf_evaluate(
 plot_evaluation(rf.spatial.repeat)
 
 
+#DETECTING INTERACTIONS
+model <- rf.model
+n.cores <- NULL
+cluster.ips <- NULL
+importance.threshold = NULL
 
-
-
-
-
-
+rf.interaction <- rf_interactions(model = rf.model)
+x <- rf.interaction$selected
+rf.interaction$df
 
 

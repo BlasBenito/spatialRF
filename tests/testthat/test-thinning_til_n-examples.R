@@ -1,5 +1,5 @@
 test_that("`thinning_til_n()` works", {
-  data(plant_richness)
+  data(plant_richness_df)
   plant_richness.thin <- thinning_til_n(
     x = plant_richness_df,
     n = 100
