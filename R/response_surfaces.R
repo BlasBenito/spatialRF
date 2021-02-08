@@ -1,4 +1,4 @@
-#' @title response_surface
+#' @title response_surfaces
 #' @description Plots response surfaces for a given pair of predictors from an [rf()], [rf_repeat()], or an [rf_spatial()] model.
 #' @param model A model fitted with [rf()], [rf_repeat()], or [rf_spatial()].
 #' @param a Character string, name of a model predictor. If `NULL`, the most important variable in `model` is selected. Default: `NULL`.
@@ -7,7 +7,7 @@
 #' @param grid.resolution Integer between 20 and 500. Resolution of the plotted surface Default: 100
 #' @param point.size.range Numeric vector of length 2 with the range of point sizes used by \link[ggplot2]{geom_point}, Default: c(0.5, 2.5)
 #' @return A list with slots named after the selected `quantiles` with a ggplot.
-#' @details All variables that are not `a` or `b` are set to the values of their respective quantiles to plot the response surfaces. The output list can be plotted all at once with `patchwork::wrap_plots(p)` or `cowplot::plot_grid(plotlist = p)`, or one by one by extracting each plot with print(p[[1]]).
+#' @details All variables that are not `a` or `b` are set to the values of their respective quantiles to plot the response surfaces. The output list can be plotted all at once with `patchwork::wrap_plots(p)` or `cowplot::plot_grid(plotlist = p)`, or one by one by extracting each plot from the list.
 #' @examples
 #' \dontrun{
 #' if(interactive()){
@@ -20,15 +20,15 @@
  #'  verbose = FALSE
 #')
 #'
-#'p <- response_surface(model = m)
+#'p <- response_surfaces(model = m)
 #'  }
 #' }
-#' @rdname response_surface
+#' @rdname response_surfaces
 #' @export
 #' @importFrom ggplot2 ggplot geom_tile aes_string theme_bw geom_point scale_size_continuous labs ggtitle
 #' @importFrom viridis scale_fill_viridis
 #' @importFrom patchwork wrap_plots
-response_surface <- function(
+response_surfaces <- function(
   model = NULL,
   a = NULL,
   b = NULL,
@@ -50,12 +50,19 @@ response_surface <- function(
 
   data <- model$ranger.arguments$data
 
+  #response variable and predictors
+  response.variable <- model$ranger.arguments$dependent.variable.name
+  predictors <- model$ranger.arguments$predictor.variable.names
+  if(inherits(model, "rf_spatial")){
+    predictors <- predictors[!(predictors %in% model$selection.spatial.predictors$names)]
+  }
+
   #default values for a and b
   if(is.null(a)){
-    a <- model$variable.importance$per.variable$variable[1]
+    a <- model$variable.importance$per.variable[model$variable.importance$per.variable$variable %in% predictors, "variable"][1]
   }
   if(is.null(b)){
-    b <- model$variable.importance$per.variable$variable[2]
+    b <- model$variable.importance$per.variable[model$variable.importance$per.variable$variable %in% predictors, "variable"][2]
   }
 
   if(!(a %in% colnames(data))){
@@ -66,8 +73,7 @@ response_surface <- function(
   }
 
   #names of the other variables
-  other.variables <- setdiff(colnames(data), c(a, b))
-  response.variable <- model$ranger.arguments$dependent.variable.name
+  other.variables <- setdiff(model$ranger.arguments$predictor.variable.names, c(a, b))
 
   #generating grid
   ab.grid <- expand.grid(
@@ -132,7 +138,8 @@ response_surface <- function(
         fill = "Predicted",
         size = "Observed"
       ) +
-      ggplot2::ggtitle(paste0("Quantile ", quantile.i))
+      ggplot2::ggtitle(paste0("Quantile ", quantile.i)) +
+      ggplot2::guides(size = ggplot2::guide_legend(reverse = TRUE))
 
   }
 

@@ -80,6 +80,26 @@ rf.interaction$df
 
 
 #RESPONSE SURFACES
-p <- response_surface(
+p <- response_surfaces(
   model = rf.model
   )
+
+p <- response_curves(
+  model = rf.model
+)
+
+p <- response_surfaces(
+  model = rf.repeat
+)
+
+p <- response_curves(
+  model = rf.repeat
+)
+
+p <- response_surfaces(
+  model = rf.spatial
+)
+
+p <- response_curves(
+  model = rf.spatial
+)
