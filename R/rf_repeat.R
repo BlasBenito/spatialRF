@@ -145,7 +145,7 @@ rf_repeat <- function(
     local.importance <- ranger.arguments$local.importance
   }
 
-  #initializes local.importance
+  #initializes trees.per.variable
   if(!is.null(ranger.arguments$trees.per.variable)){
     trees.per.variable <- ranger.arguments$trees.per.variable
   }
@@ -437,71 +437,75 @@ rf_repeat <- function(
   names(m.curves$performance$nrmse) <- NULL
 
   #gathering spatial.correlation.residuals
-  spatial.correlation.residuals.per.repetition <- do.call(
-    "rbind",
-    lapply(
-      lapply(
-        repeated.models,
-        "[[",
-        "spatial.correlation.residuals"
-      ),
-      "[[",
-      1
-    )
-  ) %>%
-    dplyr::arrange(distance.threshold)
-  spatial.correlation.residuals.per.repetition$repetition <- rep(
-    1:repetitions,
-    length(unique(spatial.correlation.residuals.per.repetition$distance.threshold))
-    )
+  if(!is.null(distance.matrix)){
 
-  p.value <- NULL
-  interpretation <- NULL
-  spatial.correlation.residuals.mean <- spatial.correlation.residuals.per.repetition %>%
-    dplyr::group_by(distance.threshold) %>%
-    dplyr::summarise(
-      moran.i = mean(moran.i),
-      p.value = mean(p.value),
-      interpretation = statistical_mode(interpretation)
+    spatial.correlation.residuals.per.repetition <- do.call(
+      "rbind",
+      lapply(
+        lapply(
+          repeated.models,
+          "[[",
+          "spatial.correlation.residuals"
+        ),
+        "[[",
+        1
+      )
     ) %>%
-    as.data.frame()
+      dplyr::arrange(distance.threshold)
+    spatial.correlation.residuals.per.repetition$repetition <- rep(
+      1:repetitions,
+      length(unique(spatial.correlation.residuals.per.repetition$distance.threshold))
+      )
 
-  repetition <- NULL
-  m.curves$spatial.correlation.residuals <- list()
-  m.curves$spatial.correlation.residuals$per.distance <- spatial.correlation.residuals.mean
-  m.curves$spatial.correlation.residuals$per.repetition <- spatial.correlation.residuals.per.repetition
-  m.curves$spatial.correlation.residuals$plot <- plot_moran(
-    x = spatial.correlation.residuals.per.repetition,
-    verbose = verbose
-  )
+    p.value <- NULL
+    interpretation <- NULL
+    spatial.correlation.residuals.mean <- spatial.correlation.residuals.per.repetition %>%
+      dplyr::group_by(distance.threshold) %>%
+      dplyr::summarise(
+        moran.i = mean(moran.i),
+        p.value = mean(p.value),
+        interpretation = statistical_mode(interpretation)
+      ) %>%
+      as.data.frame()
 
-  m.curves$spatial.correlation.residuals$max.moran <-  mean(
-    unlist(
-      lapply(
+    repetition <- NULL
+    m.curves$spatial.correlation.residuals <- list()
+    m.curves$spatial.correlation.residuals$per.distance <- spatial.correlation.residuals.mean
+    m.curves$spatial.correlation.residuals$per.repetition <- spatial.correlation.residuals.per.repetition
+    m.curves$spatial.correlation.residuals$plot <- plot_moran(
+      x = spatial.correlation.residuals.per.repetition,
+      verbose = verbose
+    )
+
+    m.curves$spatial.correlation.residuals$max.moran <-  mean(
+      unlist(
         lapply(
-          repeated.models,
+          lapply(
+            repeated.models,
+            "[[",
+            "spatial.correlation.residuals"
+          ),
           "[[",
-          "spatial.correlation.residuals"
-        ),
-        "[[",
-        3
+          3
+        )
       )
     )
-  )
 
-  m.curves$spatial.correlation.residuals$max.moran.distance.threshold <- statistical_mode(
-    unlist(
-      lapply(
+    m.curves$spatial.correlation.residuals$max.moran.distance.threshold <- statistical_mode(
+      unlist(
         lapply(
-          repeated.models,
+          lapply(
+            repeated.models,
+            "[[",
+            "spatial.correlation.residuals"
+          ),
           "[[",
-          "spatial.correlation.residuals"
-        ),
-        "[[",
-        4
+          4
+        )
       )
     )
-  )
+
+  }
 
   #gathering residuals
   residuals <- as.data.frame(do.call("cbind", lapply(

@@ -6,7 +6,14 @@
 \usage{
 suggest_interactions(
   model = NULL,
+  data = NULL,
+  dependent.variable.name = NULL,
+  predictor.variable.names = NULL,
+  ranger.arguments = NULL,
+  trees.per.variable = NULL,
   importance.threshold = NULL,
+  repetitions = 5,
+  verbose = TRUE,
   n.cores = NULL,
   cluster.ips = NULL,
   cluster.cores = NULL,
@@ -17,7 +24,21 @@ suggest_interactions(
 \arguments{
 \item{model}{(optional) a model produced by \link{rf}. If used, the arguments \code{data}, \code{dependent.variable.name}, \code{predictor.variable.names}, \code{distance.matrix}, \code{distance.thresholds}, \code{ranger.arguments}, \code{trees.per.variable}, and \code{scaled.importance} are taken directly from the model definition. Default: \code{NULL}}
 
+\item{data}{(required) data frame with a response variable and a set of (preferably uncorrelated) predictors, Default: NULL}
+
+\item{dependent.variable.name}{(required) string with the name of the response variable. Must be in the column names of 'data', Default: NULL}
+
+\item{predictor.variable.names}{(required) character vector with the names of the predictive variables. Every element must be in the column names of 'data', Default: NULL}
+
+\item{ranger.arguments}{(optional) list with \link[ranger]{ranger} arguments. All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.}
+
+\item{trees.per.variable}{(optional) number of individual regression trees to fit per variable in 'predictor.variable.names'. This is an alternative way to define ranger's 'num.trees'. If NULL, 'num.trees' is 500. Default: NULL}
+
 \item{importance.threshold}{Value of variable importance from \code{model} used as threshold to select variables to generate candidate interactions. Default: Median of the variable importance in \code{model}.}
+
+\item{repetitions}{(required) integer, number of random forest models to fit. Default: 5}
+
+\item{verbose}{Boolean. If TRUE, messages and plots generated during the execution of the function are displayed, Default: TRUE}
 
 \item{n.cores}{number of cores to use to compute repetitions. If NULL, all cores but one are used, unless a cluster is used.}
 
@@ -30,32 +51,26 @@ suggest_interactions(
 \item{cluster.port}{integer, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: 11000.}
 }
 \value{
-A list with two slots: \emph{selected}, with the names and the R squared improvement produced by each variable interaction; \emph{df}, data frame with the interactions computed from the data in \code{model$ranger.arguments} after scaling it with \code{\link[=scale_robust]{scale_robust()}}. Variable interactions are computed as \code{x * y} on the scaled data.
+A list with two slots: \emph{screening}, with the complete screening results; \emph{selected}, with the names and the R squared improvement produced by each variable interaction; \emph{columns}, data frame with the interactions computed from the data in \code{model$ranger.arguments} after scaling it with \code{\link[=scale_robust]{scale_robust()}}. Variable interactions are computed as \code{a * b} on the scaled data.
 }
 \description{
-Takes a model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}} to find variable interactions improving the R squared of the model.
-}
-\details{
-This function suggests variable interactions that could improve a model by adding them one at a time to the original \code{model} and assessing their contribution to the model's R squared. Only interactions with a positive contribution are suggested. We advise the users not to use variable interactions blindly. Most likely, only one or a few of the suggested interactions may make sense from a domain expertise standpoint.
+Suggests candidate variable interactions by selecting the variables above a given importance threshold (argument \code{importance.threshold}) from a model and combining them in pairs through multiplication (\code{a * b}). For each variable interaction, a model including all the predictors plus the interaction is fitted, and it's R squared is compared with the R squared of a model fitted only with the original variables. This model with the original variables can either be provided through the argument \code{model}, or fitted with \code{\link[=rf_repeat]{rf_repeat()}} by providing the arguments \code{data}, \code{dependent.variable.name}, and \code{predictor.variable.names}. We advise the users not to use variable interactions blindly. Most likely, only one or a few of the suggested interactions may make sense from a domain expertise standpoint.
 }
 \examples{
 \dontrun{
 if(interactive()){
  data(plant_richness_df)
-data(distance_matrix)
 
-rf.model <- rf(
- data = plant_richness_df,
-  dependent.variable.name = "richness_species_vascular",
-  predictor.variable.names = colnames(plant_richness_df)[5:21],
-  distance.matrix = distance_matrix,
-  distance.thresholds = c(0, 1000, 2000),
-  verbose = FALSE
-)
+ interactions <- suggest_interactions(
+   data = plant_richness_df,
+   dependent.variable.name = "richness_species_vascular",
+   predictor.variable.names = colnames(plant_richness_df)[5:21],
+   verbose = TRUE
+ )
 
-interactions <- suggest_interactions(model = rf.model)
-interactions$selected
-interactions$df
+ interactions$screening
+ interactions$selected
+ interactions$columns
  }
 }
 }

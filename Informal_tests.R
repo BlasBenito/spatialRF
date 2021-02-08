@@ -10,8 +10,21 @@ rf.model <- rf(
   predictor.variable.names = colnames(plant_richness_df)[5:21],
   distance.matrix = distance_matrix,
   distance.thresholds = c(0, 1000, 2000),
+  seed = 50,
   verbose = FALSE
 )
+rf.model$performance
+rf.model$variable.importance$per.variable
+
+
+rf.model <- rf_repeat(
+  data = plant_richness_df,
+  dependent.variable.name = "richness_species_vascular",
+  predictor.variable.names = colnames(plant_richness_df)[5:21],
+  verbose = FALSE
+)
+rf.model$performance
+rf.model$variable.importance$per.variable
 
 #with repetitions
 rf.repeat <- rf_repeat(model = rf.model, verbose = FALSE, n.cores = 1)
@@ -50,13 +63,23 @@ plot_evaluation(rf.spatial.repeat)
 
 
 #DETECTING INTERACTIONS
-model <- rf.model
-n.cores <- NULL
-cluster.ips <- NULL
-importance.threshold = NULL
+ranger.arguments <- NULL
+#basic model
+rf.interaction <- suggest_interactions(
+  data = plant_richness_df,
+  dependent.variable.name = "richness_species_vascular",
+  predictor.variable.names = colnames(plant_richness_df)[5:21],
+  verbose = TRUE
+)
 
-rf.interaction <- rf_interactions(model = rf.model)
+rf.interaction$selected
+
+rf.interaction <- suggest_interactions(model = rf.model)
 x <- rf.interaction$selected
 rf.interaction$df
 
 
+#RESPONSE SURFACES
+p <- response_surface(
+  model = rf.model
+  )

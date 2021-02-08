@@ -11,6 +11,7 @@ test_that("`suggest_interactions()` works", {
   )
   interactions <- suggest_interactions(model = rf.model, n.cores = 1)
   expect_type(interactions, "list")
+  expect_s3_class(interactions$screening, "data.frame")
   expect_s3_class(interactions$selected, "data.frame")
-  expect_s3_class(interactions$df, "data.frame")
+  expect_s3_class(interactions$columns, "data.frame")
 })

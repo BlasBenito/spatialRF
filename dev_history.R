@@ -207,6 +207,9 @@ usethis::use_r("plot_optimization")
 sinew::makeOxygen(plot_optimization)
 exampletestr::make_test_shell_fun("plot_optimization", open = FALSE)
 
+sinew::makeOxygen(response_surface)
+exampletestr::make_test_shell_fun("response_surface", open = FALSE)
+
 sinew::makeOxygen(print_moran)
 sinew::makeOxygen(optimization_function)
 
@@ -253,7 +256,7 @@ exampletestr::make_test_shell_fun("suggest_interactions", open = FALSE)
 #to check function dependencies
 dep <- DependenciesGraphs::funDependencies(
   'package:spatialRF',
-  name.function = "rf_spatial"
+  "rf"
   )
 plot(dep)
 

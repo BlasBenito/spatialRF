@@ -25,7 +25,9 @@ Imports:
     tidyr,
     tidyselect,
     huxtable,
-    sf
+    sf,
+    patchwork,
+    viridis
 Suggests: 
     testthat
 Encoding: UTF-8
