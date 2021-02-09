@@ -9,7 +9,10 @@ test_that("`suggest_interactions()` works", {
       1000, 2000
     ), verbose = FALSE
   )
-  interactions <- suggest_interactions(model = rf.model, n.cores = 1)
+  interactions <- suggest_interactions(
+    model = rf.model,
+    n.cores = 1, verbose = FALSE
+    )
   expect_type(interactions, "list")
   expect_s3_class(interactions$screening, "data.frame")
   expect_s3_class(interactions$selected, "data.frame")

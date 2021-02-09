@@ -237,7 +237,10 @@ exampletestr::make_test_shell_fun("standard_error", open = FALSE)
 
 sinew::makeOxygen(print)
 
-
+exampletestr::make_test_shell_fun("get_spatial_predictors", open = FALSE)
+exampletestr::make_test_shell_fun("get_evaluation", open = FALSE)
+exampletestr::make_test_shell_fun("get_residuals", open = FALSE)
+exampletestr::make_test_shell_fun("get_predictions", open = FALSE)
 
 
 
@@ -251,7 +254,7 @@ sinew::makeOxygen(plot_evaluation)
 sinew::makeOxygen(suggest_interactions)
 exampletestr::make_test_shell_fun("suggest_interactions", open = FALSE)
 
-
+exampletestr::make_test_shell_fun("rf_tuning", open = FALSE)
 
 #to check function dependencies
 dep <- DependenciesGraphs::funDependencies(

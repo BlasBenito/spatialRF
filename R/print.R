@@ -38,7 +38,7 @@ print.ranger <- function(x, ...) {
     if(length(x$performance$r.squared) == 1){
       residuals.stats <- as.data.frame(t(summary(x$residuals)))[, 2:3]
     } else {
-      residuals.stats <- as.data.frame(t(summary(x$residuals$mean$residuals_mean)))[, 2:3]
+      residuals.stats <- as.data.frame(t(summary(x$residuals$mean$mean)))[, 2:3]
     }
     rownames(residuals.stats) <- residuals.stats$Var2
     residuals.stats$Var2 <- NULL

@@ -4,7 +4,7 @@
 #' @return A data frame with moran test results produced by [moran_multithreshold()].
 #' @examples
 #'  data(plant_richness_df)
-#'  data(distance.matrix)
+#'  data(distance_matrix)
 #'
 #'  rf.model <- rf(
 #'    data = plant_richness_df,

@@ -4,7 +4,7 @@
 \alias{scale_robust}
 \title{scale_robust}
 \usage{
-scale_robust(x, center = TRUE, scale = TRUE, preserveScale = FALSE)
+scale_robust(x, center = TRUE, scale = TRUE)
 }
 \arguments{
 \item{x}{matrix or data.frame}
@@ -12,8 +12,6 @@ scale_robust(x, center = TRUE, scale = TRUE, preserveScale = FALSE)
 \item{center}{substract median (default:TRUE)}
 
 \item{scale}{scale by the median absolute deviation (mad())  (default:FALSE)}
-
-\item{preserveScale}{equalizes scales without changing them (default:FALSE)}
 }
 \value{
 a scaled matrix or dataframe

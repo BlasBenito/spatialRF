@@ -135,8 +135,15 @@ rf_repeat <- function(
       trees.per.variable <- ranger.arguments$trees.per.variable
       scaled.importance <- ranger.arguments$scaled.importance
       seed <- NULL
-      importance <- "permutation"
+      importance <- ranger.arguments$importance
+  } else {
+    importance <- "permutation"
   }
+
+  #getting arguments from ranger.arguments
+  if(!is.null(ranger.arguments)){
+    list2env(ranger.arguments, envir=environment())
+    }
 
   #initializes local.importance
   if(is.null(ranger.arguments$local.importance)){
@@ -226,24 +233,13 @@ rf_repeat <- function(
   doParallel::registerDoParallel(cl = temp.cluster)
   on.exit(parallel::stopCluster(cl = temp.cluster))
 
+  ranger.arguments$seed <- NULL
+
   #PARALLELIZED LOOP
   i <- NULL
   repeated.models <- foreach::foreach(
-    i = 1:repetitions#,
-    # .packages = c(
-    #   "ranger",
-    #   "magrittr"
-    # ),
-    # .export = c(
-    #   "rescale_vector",
-    #   "root_mean_squared_error",
-    #   "rescale_vector",
-    #   "moran_multithreshold",
-    #   "moran"
-    # )
+    i = 1:repetitions
   ) %dopar% {
-
-    set.seed(i)
 
     #model on raw data
     m.i <- rf(
@@ -254,6 +250,7 @@ rf_repeat <- function(
       distance.thresholds = distance.thresholds,
       ranger.arguments = ranger.arguments,
       trees.per.variable = trees.per.variable,
+      seed = i,
       verbose = FALSE
     )
 
@@ -266,6 +263,7 @@ rf_repeat <- function(
         predictor.variable.names = predictor.variable.names,
         ranger.arguments = ranger.arguments,
         trees.per.variable = trees.per.variable,
+        seed = i,
         verbose = FALSE
       )
 
@@ -328,7 +326,7 @@ rf_repeat <- function(
   )
   colnames(predictions.per.repetition) <- repetition.columns
   predictions.mean <- data.frame(
-    prediction_mean = rowMeans(predictions.per.repetition),
+    mean = rowMeans(predictions.per.repetition),
     standard_deviation = apply(predictions.per.repetition, 1, sd)
   )
   m.curves$predictions <- NULL
@@ -353,38 +351,42 @@ rf_repeat <- function(
   }
 
 
-  #gathering variable.importance
-  m.curves$variable.importance <- NULL
+  if(importance != "none"){
 
-  #per repetition
-  variable.importance.per.repetition <- as.data.frame(
-    do.call(
-      "rbind",
-      lapply(
-        repeated.models,
-        "[[",
-        "variable.importance"
+    #gathering variable.importance
+    m.curves$variable.importance <- NULL
+
+    #per repetition
+    variable.importance.per.repetition <- as.data.frame(
+      do.call(
+        "rbind",
+        lapply(
+          repeated.models,
+          "[[",
+          "variable.importance"
+        )
       )
     )
-  )
 
-  #mean
-  variable.importance.per.variable <- variable.importance.per.repetition %>%
-    dplyr::group_by(variable) %>%
-    dplyr::summarise(importance = mean(importance)) %>%
-    dplyr::arrange(dplyr::desc(importance)) %>%
-    as.data.frame()
+    #mean
+    variable.importance.per.variable <- variable.importance.per.repetition %>%
+      dplyr::group_by(variable) %>%
+      dplyr::summarise(importance = mean(importance)) %>%
+      dplyr::arrange(dplyr::desc(importance)) %>%
+      as.data.frame()
 
-  m.curves$variable.importance <- list()
-  m.curves$variable.importance$per.variable <- variable.importance.per.variable
-  m.curves$variable.importance$per.repetition <- variable.importance.per.repetition
-  m.curves$variable.importance$plot <- plot_importance(
-    x = variable.importance.per.repetition,
-    verbose = verbose
-  )
+    m.curves$variable.importance <- list()
+    m.curves$variable.importance$per.variable <- variable.importance.per.variable
+    m.curves$variable.importance$per.repetition <- variable.importance.per.repetition
+    m.curves$variable.importance$plot <- plot_importance(
+      x = variable.importance.per.repetition,
+      verbose = verbose
+    )
 
-  if(verbose == TRUE){
-    suppressWarnings(print(m.curves$variable.importance$plot))
+    if(verbose == TRUE){
+      suppressWarnings(print(m.curves$variable.importance$plot))
+    }
+
   }
 
   #gathering prediction.error
@@ -516,7 +518,7 @@ rf_repeat <- function(
   colnames(residuals) <- repetition.columns
 
   residuals.mean <- data.frame(
-    residuals_mean = rowMeans(residuals),
+    mean = rowMeans(residuals),
     standard_deviation = apply(residuals, 1, sd),
     row.names = NULL
   )
@@ -524,7 +526,7 @@ rf_repeat <- function(
   m.curves$residuals <- NULL
   m.curves$residuals$mean <- residuals.mean
   m.curves$residuals$per.repetition <- residuals
-  m.curves$residuals$stats <- summary(residuals.mean$residuals_mean)
+  m.curves$residuals$stats <- summary(residuals.mean$mean)
 
   #gathering models
   if(keep.models == TRUE){

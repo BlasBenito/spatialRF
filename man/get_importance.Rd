@@ -20,7 +20,7 @@ Gets variable importance scores from \link{rf}, \link{rf_repeat}, and \link{rf_s
 if(interactive()){
 
 data(plant_richness_df)
-data(distance.matrix)
+data(distance_matrix)
 rf.model <- rf(
   data = plant_richness_df,
   dependent.variable.name = "richness_species_vascular",

@@ -30,7 +30,7 @@ A list with slots named after the selected \code{variables} with one ggplot each
 Plots response surfaces for a given pair of predictors from an \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or an \code{\link[=rf_spatial]{rf_spatial()}} model.
 }
 \details{
-All variables that are not plotted are set to the values of their respective quantiles to plot the response surfaces. The output list can be plotted all at once with \code{patchwork::wrap_plots(p)} or \code{cowplot::plot_grid(plotlist = p)}, or one by one by extracting each plot with print(p[\link{1}]).
+All variables that are not plotted are set to the values of their respective quantiles to plot the response surfaces. The output list can be plotted all at once with \code{patchwork::wrap_plots(p)} or \code{cowplot::plot_grid(plotlist = p)}, or one by one by extracting each plot from the list.
 }
 \examples{
 \dontrun{

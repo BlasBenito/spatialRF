@@ -1,17 +1,12 @@
 test_that("`rf_spatial()` works", {
-  data("distance_matrix")
-  data("plant_richness_df")
-  data <- plant_richness_df
-  dependent.variable.name <- "richness_species_vascular"
-  predictor.variable.names <- colnames(plant_richness_df)[5:21]
-  distance.matrix <- distance_matrix
-  distance.thresholds <- c(0, 500, 1000)
+  data(distance_matrix)
+  data(plant_richness_df)
   out <- rf_spatial(
-    data = data,
-    dependent.variable.name = dependent.variable.name,
-    predictor.variable.names = predictor.variable.names,
-    distance.matrix = distance.matrix,
-    distance.thresholds = distance.thresholds,
+    data = plant_richness_df,
+    dependent.variable.name = "richness_species_vascular",
+    predictor.variable.names = colnames(plant_richness_df)[5:21],
+    distance.matrix = distance_matrix,
+    distance.thresholds = c(0, 500, 1000),
     method = "hengl",
     repetitions = 5,
     n.cores = 1,

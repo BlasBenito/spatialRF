@@ -10,8 +10,34 @@ get_evaluation(x)
 \item{x}{A model resulting from \code{\link[=rf_evaluate]{rf_evaluate()}}}
 }
 \value{
-A data frame.
+A data frame with evaluation scores.
 }
 \description{
 Returns an evaluation performed with \code{\link[=rf_evaluate]{rf_evaluate()}} as a data frame.
+}
+\examples{
+\dontrun{
+if(interactive()){
+
+data(plant_richness_df)
+data(distance_matrix)
+
+rf.model <- rf(
+  data = plant_richness_df,
+  dependent.variable.name = "richness_species_vascular",
+  predictor.variable.names = colnames(plant_richness_df)[5:21],
+  distance.matrix = distance_matrix,
+  distance.thresholds = c(0, 1000, 2000),
+  verbose = FALSE
+)
+
+rf.model <- rf_evaluate(
+  model = rf.model,
+  xy = plant_richness_df[, c("x", "y")],
+  verbose = FALSE
+)
+
+x <- get_evaluation(x = rf.model)
+ }
+}
 }

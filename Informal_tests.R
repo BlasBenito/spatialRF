@@ -13,21 +13,13 @@ rf.model <- rf(
   seed = 50,
   verbose = FALSE
 )
-rf.model$performance
-rf.model$variable.importance$per.variable
+print_performance(rf.model)
+print_importance(rf.model)
 
 
-rf.model <- rf_repeat(
-  data = plant_richness_df,
-  dependent.variable.name = "richness_species_vascular",
-  predictor.variable.names = colnames(plant_richness_df)[5:21],
-  verbose = FALSE
-)
-rf.model$performance
-rf.model$variable.importance$per.variable
 
 #with repetitions
-rf.repeat <- rf_repeat(model = rf.model, verbose = FALSE, n.cores = 1)
+rf.repeat <- rf_repeat(model = rf.model, verbose = TRUE)
 
 #spatial model
 rf.spatial <- rf_spatial(model = rf.model, verbose = TRUE)
@@ -42,6 +34,7 @@ rf.model <- rf_evaluate(
   verbose = FALSE
 )
 plot_evaluation(rf.model)
+get_evaluation(rf.model)
 
 rf.repeat <- rf_evaluate(
   model = rf.repeat,
@@ -102,4 +95,29 @@ p <- response_surfaces(
 
 p <- response_curves(
   model = rf.spatial
+)
+
+
+#rf_tuning
+###############
+data(plant_richness_df)
+data(distance_matrix)
+
+#oob method
+tuning <- rf_tuning(
+  data = plant_richness_df,
+  dependent.variable.name = "richness_species_vascular",
+  predictor.variable.names = colnames(plant_richness_df)[5:21],
+  tuning.method = "oob",
+  verbose = TRUE
+)
+
+#spatial.cv
+tuning <- rf_tuning(
+  data = plant_richness_df,
+  dependent.variable.name = "richness_species_vascular",
+  predictor.variable.names = colnames(plant_richness_df)[5:21],
+  tuning.method = "spatial.cv",
+  xy = plant_richness_df[, c("x", "y")],
+  verbose = TRUE
 )

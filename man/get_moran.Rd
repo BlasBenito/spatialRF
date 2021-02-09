@@ -17,7 +17,7 @@ Returns the Moran's I test of a model produced by \code{\link[=rf]{rf()}}, \code
 }
 \examples{
  data(plant_richness_df)
- data(distance.matrix)
+ data(distance_matrix)
 
  rf.model <- rf(
    data = plant_richness_df,

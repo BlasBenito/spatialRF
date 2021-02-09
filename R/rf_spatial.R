@@ -202,12 +202,17 @@ rf_spatial <- function(
     data <- ranger.arguments$data
     dependent.variable.name <- ranger.arguments$dependent.variable.name
     predictor.variable.names <- ranger.arguments$predictor.variable.names
-    distance.matrix = ranger.arguments$distance.matrix
+    distance.matrix <- ranger.arguments$distance.matrix
     distance.thresholds <- ranger.arguments$distance.thresholds
     trees.per.variable <- ranger.arguments$trees.per.variable
     scaled.importance <- ranger.arguments$scaled.importance
     seed <- NULL
     importance <- "permutation"
+  }
+
+  #stopping if no distance matrix
+  if(is.null(distance.matrix)){
+    stop("The distance matrix is missing.")
   }
 
   #FITTING NON-SPATIAL MODEL
@@ -438,6 +443,7 @@ rf_spatial <- function(
       spatial.predictors.ranking = spatial.predictors.ranking,
       weight.r.squared = weight.r.squared,
       weight.penalization.n.predictors = weight.penalization.n.predictors,
+      n.cores = n.cores,
       cluster.ips = cluster.ips,
       cluster.cores = cluster.cores,
       cluster.user = cluster.user,

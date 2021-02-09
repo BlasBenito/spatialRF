@@ -3,7 +3,7 @@
 #' @param model Model to evaluate, produced by [rf()], [rf_repeat()], or [rf_spatial()].
 #' @param xy Data frame or matrix with two columns containing coordinates and named "x" and "y", or an sf file with geometry class `sfc_POINT` (see [plant_richness_sf]). If `NULL`, the function will throw an error. Default: `NULL`
 #' @param repetitions Integer, must be lower than the total number of rows available in the model's data. Default: 30
-#' @param training.fraction Proportion between 0.2 and 0.8 indicating the number of records to be used in model training. Default: 0.6
+#' @param training.fraction Proportion between 0.5 and 0.9 indicating the number of records to be used in model training. Default: 0.6
 #' @param verbose Boolean. If TRUE, messages and plots generated during the execution of the function are displayed, Default: TRUE
 #' @param n.cores number of cores to use to compute repetitions. If NULL, all cores but one are used, unless a cluster is used.
 #' @param cluster.ips character vector, IPs of the machines in the cluster. The first machine will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.
@@ -20,6 +20,8 @@
 #' }
 #' @details The evaluation algorithm works as follows: the number of `repetitions` and the input dataset (stored in `model$ranger.arguments$data`) are used as inputs for the function [thinning_til_n()], that applies [thinning()] to the input data until as many cases as `repetitions` are left, and as separated as possible. Each of these remaining records will be used as a "fold center". From that point, the fold grows, until a number of points equal (or close) to `training.fraction` is reached. The indices of the records within the grown spatial fold are stored as "training" in the output list, and the remaining ones as "testing". Then, for each spatial fold, a "training model" is fitted using the cases corresponding with the training indices, and predicted over the cases corresponding with the testing indices. The model predictions on the "unseen" data are compared with the observations, and the performance measures computed.
 #' @examples
+#' \dontrun{
+#' if(interactive()){
 #' data(plant_richness_df)
 #' data(distance_matrix)
 #'
@@ -41,6 +43,8 @@
 #' plot_evaluation(rf.model)
 #' print_evaluation(rf.model)
 #' x <- get_evaluation(rf.model)
+#'  }
+#' }
 #' @rdname rf_evaluate
 #' @export
 #' @importFrom parallel detectCores makeCluster stopCluster
@@ -50,7 +54,7 @@
 #' @importFrom dplyr select contains group_by summarise
 #' @importFrom tidyr pivot_longer
 rf_evaluate <- function(
-  model,
+  model = NULL,
   xy = NULL,
   repetitions = 30,
   training.fraction = 0.6,
@@ -64,8 +68,8 @@ rf_evaluate <- function(
 
   #declaring variables
   i <- NULL
-  performance.measure <- NULL
-  performance.value <- NULL
+  metric <- NULL
+  value <- NULL
 
   #checking repetitions
   repetitions <- floor(repetitions)
@@ -73,11 +77,13 @@ rf_evaluate <- function(
     stop("Argument 'repetitions' must be an integer equal or larger than 5")
   }
 
-  #checking training fraction
-  if(training.fraction < 0.2){
-    message(" ")
+  #training fraction limits
+  if(training.fraction < 0.5){
+    training.fraction <- 0.5
   }
-
+  if(training.fraction > 0.9){
+    training.fraction <- 0.9
+  }
 
   #getting data from the model
   data <- model$ranger.arguments$data
@@ -93,7 +99,7 @@ rf_evaluate <- function(
     if(inherits(xy, "sf")){
       xy <- sf_points_to_xy(xy)
     }
-    if(sum(colnames(xy) == c("x", "y")) < 2){
+    if(sum(c("x", "y") %in% colnames(xy)) < 2){
       stop("The column names of 'xy' must be 'x' and 'y'.")
     }
   }
@@ -261,12 +267,18 @@ rf_evaluate <- function(
 
   #preparing data frames for plotting and printing
   #select columns with "training"
-  performance.training <- dplyr::select(evaluation.df, dplyr::contains("training"))
+  performance.training <- dplyr::select(
+    evaluation.df,
+    dplyr::contains("training")
+    )
   performance.training[, 1] <- NULL
   performance.training$model <- "Training"
 
   #select columns with "testing"
-  performance.testing <- dplyr::select(evaluation.df, dplyr::contains("testing"))
+  performance.testing <- dplyr::select(
+    evaluation.df,
+    dplyr::contains("testing")
+    )
   performance.testing[, 1] <- NULL
   performance.testing$model <- "Testing"
 
@@ -299,24 +311,25 @@ rf_evaluate <- function(
   performance.df.long <- performance.df %>%
     tidyr::pivot_longer(
       cols = 1:4,
-      names_to = "performance.measure",
-      values_to = "performance.value"
+      names_to = "metric",
+      values_to = "value"
     ) %>%
     as.data.frame()
 
   #aggregating
   performande.df.aggregated <- performance.df.long %>%
-    dplyr::group_by(model, performance.measure) %>%
+    dplyr::group_by(model, metric) %>%
     dplyr::summarise(
-      median = median(performance.value),
-      q1 = quantile(performance.value, 0.25),
-      q3 = quantile(performance.value, 0.75),
-      mean = mean(performance.value),
-      se = standard_error(performance.value),
-      sd = sd(performance.value),
-      min = min(performance.value),
-      max = max(performance.value)
+      median = median(value),
+      q1 = quantile(value, 0.25),
+      q3 = quantile(value, 0.75),
+      mean = mean(value),
+      se = standard_error(value),
+      sd = sd(value),
+      min = min(value),
+      max = max(value)
     ) %>%
+    dplyr::ungroup() %>%
     as.data.frame()
 
   #stats to NA if "Full" only once in performance.df

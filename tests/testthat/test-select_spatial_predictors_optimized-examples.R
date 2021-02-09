@@ -11,7 +11,8 @@ test_that("`select_spatial_predictors_optimized()` works", {
     dependent.variable.name = dependent.variable.name,
     predictor.variable.names = predictor.variable.names,
     distance.matrix = distance.matrix,
-    distance.thresholds = distance.thresholds
+    distance.thresholds = distance.thresholds,
+    verbose = FALSE
   )
   spatial.predictors <- pca_multithreshold(
     x = distance.matrix,
