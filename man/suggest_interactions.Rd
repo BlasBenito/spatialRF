@@ -2,7 +2,7 @@
 % Please edit documentation in R/suggest_interactions.R
 \name{suggest_interactions}
 \alias{suggest_interactions}
-\title{suggest_interactions}
+\title{Suggest variable interactions for random forest models}
 \usage{
 suggest_interactions(
   model = NULL,
@@ -22,39 +22,43 @@ suggest_interactions(
 )
 }
 \arguments{
-\item{model}{(optional) a model produced by \link{rf}. If used, the arguments \code{data}, \code{dependent.variable.name}, \code{predictor.variable.names}, \code{distance.matrix}, \code{distance.thresholds}, \code{ranger.arguments}, \code{trees.per.variable}, and \code{scaled.importance} are taken directly from the model definition. Default: \code{NULL}}
+\item{model}{A model fitted with \code{\link[=rf]{rf()}}. If used, the arguments \code{data}, \code{dependent.variable.name}, \code{predictor.variable.names}, \code{distance.matrix}, \code{distance.thresholds}, \code{ranger.arguments}, \code{trees.per.variable}, and \code{scaled.importance} are taken directly from the model definition. Default: \code{NULL}}
 
-\item{data}{(required) data frame with a response variable and a set of (preferably uncorrelated) predictors, Default: NULL}
+\item{data}{Data frame with a response variable and a set of predictors. Default: \code{NULL}}
 
-\item{dependent.variable.name}{(required) string with the name of the response variable. Must be in the column names of 'data', Default: NULL}
+\item{dependent.variable.name}{Character string with the name of the response variable. Must be in the column names of \code{data}. Default: \code{NULL}}
 
-\item{predictor.variable.names}{(required) character vector with the names of the predictive variables. Every element must be in the column names of 'data', Default: NULL}
+\item{predictor.variable.names}{Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. Default: \code{NULL}}
 
-\item{ranger.arguments}{(optional) list with \link[ranger]{ranger} arguments. All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.}
+\item{ranger.arguments}{Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.}
 
-\item{trees.per.variable}{(optional) number of individual regression trees to fit per variable in 'predictor.variable.names'. This is an alternative way to define ranger's 'num.trees'. If NULL, 'num.trees' is 500. Default: NULL}
+\item{trees.per.variable}{Number of individual regression trees to fit per variable in \code{predictor.variable.names}. This is an alternative way to define ranger's \code{num.trees}. If \code{NULL}, \code{num.trees} is 500. Default: \code{NULL}}
 
 \item{importance.threshold}{Value of variable importance from \code{model} used as threshold to select variables to generate candidate interactions. Default: Median of the variable importance in \code{model}.}
 
-\item{repetitions}{(required) integer, number of random forest models to fit. Default: 5}
+\item{repetitions}{Integer, number of random forest models to fit in order to assess the importance of the interaction. Default: \code{5}}
 
-\item{verbose}{Boolean. If TRUE, messages and plots generated during the execution of the function are displayed, Default: TRUE}
+\item{verbose}{Logical If \code{TRUE}, messages and plots generated during the execution of the function are displayed, Default: \code{TRUE}}
 
-\item{n.cores}{number of cores to use to compute repetitions. If NULL, all cores but one are used, unless a cluster is used.}
+\item{n.cores}{Integer, number of cores to use during computations. If \code{NULL}, all cores but one are used, unless a cluster is used. Default = \code{NULL}}
 
-\item{cluster.ips}{character vector, IPs of the machines in the cluster. The first machine will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.}
+\item{cluster.ips}{Character vector with the IPs of the machines in a cluster. The machine with the first IP will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.}
 
-\item{cluster.cores}{numeric integer vector, number of cores on each machine.}
+\item{cluster.cores}{Numeric integer vector, number of cores to use on each machine.}
 
-\item{cluster.user}{character string, name of the user (should be the same throughout machines), Defaults to the current system user. Default: user name of the current session.}
+\item{cluster.user}{Character string, name of the user (should be the same throughout machines). Defaults to the current system user.}
 
-\item{cluster.port}{integer, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: 11000.}
+\item{cluster.port}{Integer, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: \code{11000}}
 }
 \value{
-A list with two slots: \emph{screening}, with the complete screening results; \emph{selected}, with the names and the R squared improvement produced by each variable interaction; \emph{columns}, data frame with the interactions computed from the data in \code{model$ranger.arguments} after scaling it with \code{\link[=scale_robust]{scale_robust()}}. Variable interactions are computed as \code{a * b} on the scaled data.
+A list with two slots: \code{screening}, with the complete screening results; \code{selected}, with the names and the R squared improvement produced by each variable interaction; \code{columns}, data frame with the interactions computed from the data in \code{model$ranger.arguments} after scaling it with \code{\link[=scale_robust]{scale_robust()}}. Variable interactions are computed as \code{a * b} on the scaled data.
 }
 \description{
-Suggests candidate variable interactions by selecting the variables above a given importance threshold (argument \code{importance.threshold}) from a model and combining them in pairs through multiplication (\code{a * b}). For each variable interaction, a model including all the predictors plus the interaction is fitted, and it's R squared is compared with the R squared of a model fitted only with the original variables. This model with the original variables can either be provided through the argument \code{model}, or fitted with \code{\link[=rf_repeat]{rf_repeat()}} by providing the arguments \code{data}, \code{dependent.variable.name}, and \code{predictor.variable.names}. We advise the users not to use variable interactions blindly. Most likely, only one or a few of the suggested interactions may make sense from a domain expertise standpoint.
+Suggests candidate variable interactions by selecting the variables above a given importance threshold (given by the argument \code{importance.threshold}) from a model and combining them in pairs through multiplication (\code{a * b}).
+
+For each variable interaction, a model including all the predictors plus the interaction is fitted, and it's R squared is compared with the R squared of a model fitted without any interactions. This model without interactions can either be provided through the argument \code{model}, or fitted with \code{\link[=rf_repeat]{rf_repeat()}} by providing the arguments \code{data}, \code{dependent.variable.name}, and \code{predictor.variable.names}.
+
+I advise the users not to use variable interactions blindly. Most likely, only one or a few of the suggested interactions may make sense from a domain expertise standpoint.
 }
 \examples{
 \dontrun{
@@ -71,6 +75,7 @@ if(interactive()){
  interactions$screening
  interactions$selected
  interactions$columns
- }
+
+}
 }
 }

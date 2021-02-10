@@ -1,29 +1,30 @@
-#' @title moran
-#' @description Computes the spatial correlation coefficient (Moran's I) of a vector given a distance matrix.
-#' @param x numeric vector, generally a model residuals, Default: NULL
-#' @param distance.matrix distance matrix among the records represented in the numeric vector. The number of rows of this matrix must be equal to the length of x. Default: NULL
-#' @param distance.threshold (optional) numeric, positive, in the range of values of `distance.matrix` distances below this value in the distance matrix are set to 0., Default: 0
-#' @return a list with three named slots:
-#'  \describe{
-#'  \item{moran.i}{Moran's I (spatial correlation) of x.}
-#'  \item{p.value}{p-value of the Moran's I estimate.}
-#'  \item{interpretation}{interpretation of the Moran's I value according to the p-value. One of "Positive spatial correlation", "Negative spatial correlation", and "No spatial correlation".}
+#' @title Moran's I test on a numeric vector
+#' @description Computes the spatial correlation coefficient (Moran's I) of a vector given a distance matrix, and a distance threshold used to define neihgborhood.
+#' @param x Numeric vector, generally model residuals, Default: `NULL`
+#' @param distance.matrix Distance matrix among cases in `x`. The number of rows of this matrix must be equal to the length of `x`. Default: `NULL`
+#' @param distance.threshold numeric value in the range of values available in `distance.matrix`. Distances below such threshold are set to 0. Default: `0`
+#' @return A list with three named slots:
+#'  \itemize{
+#'    \item `moran.i`: Moran's I of `x`.
+#'    \item `p.value`: P-value of the Moran's I estimate.
+#'    \item `interpretation`: Interpretation of the Moran's I value according to the p-value. One of "Positive spatial correlation", "Negative spatial correlation", and "No spatial correlation".
 #'  }
-#'
-#' @details This function is based on \link[ape]{Moran.I}.
-#'
-#'
+#' @details Based on the \link[ape]{Moran.I} function of the `ape` package.
+#' @seealso [moran_multithreshold()]
 #' @examples
 #' \dontrun{
 #' if(interactive()){
+#'
 #'  data(distance_matrix)
 #'  data(plant_richness)
+#'
 #'  moran.out <- moran(
 #'    x = plant_richness$richness_species_vascular,
 #'    distance.matrix = distance_matrix
 #'    )
 #'  moran.out
-#'  }
+#'
+#' }
 #' }
 #' @rdname moran
 #' @importFrom stats pnorm sd

@@ -1,25 +1,27 @@
-#' @title root_mean_squared_error
-#' @description computes the rmse or normalized rmse (nrmse) between two numeric vectors of the same length representing observations and model predictions.
-#' @param o numeric vector with observations, must have the same length as p.
-#' @param p numeric vector with predictions, must have the same length as o.
+#' @title RMSE and normalized RMSE
+#' @description Computes the rmse or normalized rmse (nrmse) between two numeric vectors of the same length representing observations and model predictions.
+#' @param o Numeric vector with observations, must have the same length as `p`.
+#' @param p Numeric vector with predictions, must have the same length as `o`.
 #' @param normalization character, normalization method, Default: "rmse" (see Details).
 #' @return Named numeric vector with either one or 5 values, as selected by the user.
 #' @details The normalization methods go as follows:
 #' \itemize{
-#'   \item "rmse": rmse with no normalization.
-#'   \item "mean": rmse dividied by the mean of the observations (rmse/mean(o)).
-#'   \item "sd": rmse dividied by the standard deviation of the observations (rmse/sd(o)).
-#'   \item "maxmin": rmse divided by the range of the observations (rmse/(max(o) - min(o))).
-#'   \item "iq": rmse divided by the interquartile range of the observations (rmse/(quantile(o, 0.75) - quantile(o, 0.25)))
+#'   \item `"rmse"`: RMSE with no normalization.
+#'   \item `"mean"`: RMSE dividied by the mean of the observations (rmse/mean(o)).
+#'   \item `"sd"`: RMSE dividied by the standard deviation of the observations (rmse/sd(o)).
+#'   \item `"maxmin"`: RMSE divided by the range of the observations (rmse/(max(o) - min(o))).
+#'   \item "`iq"`: RMSE divided by the interquartile range of the observations (rmse/(quantile(o, 0.75) - quantile(o, 0.25)))
 #' }
 #' @examples
 #' \dontrun{
 #' if(interactive()){
+#'
 #'  out <- root_mean_squared_error(
 #'    o = runif(10),
 #'    p = runif(10)
 #'    )
-#'  }
+#'
+#' }
 #' }
 #' @rdname root_mean_squared_error
 #' @importFrom stats na.omit quantile

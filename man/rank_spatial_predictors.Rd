@@ -2,7 +2,7 @@
 % Please edit documentation in R/rank_spatial_predictors.R
 \name{rank_spatial_predictors}
 \alias{rank_spatial_predictors}
-\title{rank_spatial_predictors}
+\title{Ranks spatial predictors}
 \usage{
 rank_spatial_predictors(
   data = NULL,
@@ -22,44 +22,54 @@ rank_spatial_predictors(
 )
 }
 \arguments{
-\item{data}{(required) data frame with a response variable and a set of (preferably uncorrelated) predictors, Default: NULL}
+\item{data}{Data frame with a response variable and a set of predictors. Default: \code{NULL}}
 
-\item{dependent.variable.name}{(required) string with the name of the response variable. Must be in the column names of 'data', Default: NULL}
+\item{dependent.variable.name}{Character string with the name of the response variable. Must be in the column names of \code{data}. Default: \code{NULL}}
 
-\item{predictor.variable.names}{(required) character vector with the names of the predictive variables. Every element must be in the column names of 'data', Default: NULL}
+\item{predictor.variable.names}{Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. Default: \code{NULL}}
 
-\item{distance.matrix}{(optional) a squared matrix with the distances among the records in 'data'. Notice that the rows of 'distance.matrix' and 'data' must be the same. If not provided, the computation of the Moran's I of the residuals is ommited. Default: NULL.}
+\item{distance.matrix}{Squared matrix with the distances among the records in \code{data}. The number of rows of \code{distance.matrix} and \code{data} must be the same. If not provided, the computation of the Moran's I of the residuals is omitted. Default: \code{NULL}}
 
-\item{distance.thresholds}{(optional) numeric vector, distances below each value in the distance matrix are set to 0 for the computation of Moran's I. If NULL, it defaults to seq(0, max(distance.matrix), length.out = 4). Default: NULL.}
+\item{distance.thresholds}{Numeric vector with neighborhood distances. All distances in the distance matrix below each value in \code{dustance.thresholds} are set to 0 for the computation of Moran's I. If \code{NULL}, it defaults to seq(0, max(distance.matrix), length.out = 4). Default: \code{NULL}}
 
-\item{ranger.arguments}{(optional) list with \link[ranger]{ranger} arguments. See \link{rf} or \link{rf_repeat} for further details.}
+\item{ranger.arguments}{List with \link[ranger]{ranger} arguments. See \link{rf} or \link{rf_repeat} for further details.}
 
-\item{spatial.predictors.df}{data frame of spatial predictors, either a distance matrix, or the PCA factors of the distance matrix produced by \link{pca_multithreshold}.}
+\item{spatial.predictors.df}{Data frame of spatial predictors produced by \code{\link[=mem_multithreshold]{mem_multithreshold()}} or \code{\link[=pca_multithreshold]{pca_multithreshold()}}.}
 
-\item{ranking.method}{string, one of "effect" and "effect". The former option ranks spatial predictors according how much each predictor reduces Moran's I of the model residuals.}
+\item{ranking.method}{Character, method used by to rank spatial predictors. The method "effect" ranks spatial predictors according how much each predictor reduces Moran's I of the model residuals, while the method "moran" ranks them by their own Moran's I.}
 
-\item{reference.moran.i}{Moran's I of the residuals of a model fitted without spatial predictors. Default: 1.}
+\item{reference.moran.i}{Moran's I of the residuals of the model without spatial predictors. Default: \code{1}}
 
-\item{n.cores}{number of cores to use to compute repetitions. If NULL, all cores but one are used, unless a cluster is used.}
+\item{n.cores}{Integer, number of cores to use during computations. If \code{NULL}, all cores but one are used, unless a cluster is used. Default = \code{NULL}}
 
-\item{cluster.ips}{character vector, IPs of the machines in the cluster. The first machine will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.}
+\item{cluster.ips}{Character vector with the IPs of the machines in a cluster. The machine with the first IP will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.}
 
-\item{cluster.cores}{numeric integer vector, number of cores on each machine.}
+\item{cluster.cores}{Numeric integer vector, number of cores to use on each machine.}
 
-\item{cluster.user}{character string, name of the user (should be the same throughout machines), Defaults to the current system user. Default: user name of the current session.}
+\item{cluster.user}{Character string, name of the user (should be the same throughout machines). Defaults to the current system user.}
 
-\item{cluster.port}{integer, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: 11000.}
+\item{cluster.port}{Integer, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: \code{11000}}
 }
 \value{
-a list with two slots:
+A list with three slots:
 \itemize{
-\item{method}{string, name of the method used to rank the spatial predictors}
-\item{criteria}{data frame with two different configurations depending on the ranking method. If ranking.method = "effect", the columns contain the name of the spatial predictor, the r-squared of the model, the Moran's I of the model residuals, the difference between this Moran's I and the Moran's I of the model fitted without spatial predictors (named \code{ranking.criteria}, and the interpretation of the Moran's I value. If ranking.method = "effect", only the name of the spatial predictor, it's Moran's I and the interpretation are available.}
-\item{ranking}{ordered character vector with the names of the spatial predictors selected}
+\item \code{method}: Character, name of the method used to rank the spatial predictors.
+\item \code{criteria}: Data frame with two different configurations depending on the ranking method. If \code{ranking.method = "effect"}, the columns contain the names of the spatial predictors, the r-squared of the model, the Moran's I of the model residuals, the difference between the Moran's I of the model including the given sptial predictor, and the Moran's I of the model fitted without spatial predictors, and the interpretation of the Moran's I value. If \code{ranking.method = "moran"}, only the name of the spatial predictor and it's Moran's I are in the output data frame.
+\item \code{ranking}: Ordered character vector with the names of the spatial predictors selected.
 }
 }
 \description{
-ranks spatial predictors generated from the PCA of a distance matrix (or columns of the distance matrix itself) by either their effect in reducing the Moran's I of the model residuals (ranking.method = "effect"), or by their own Moran's I (ranking.method = "moran"). In the former case, one model of the type \code{y ~ predictors + spatial_predictor_X} is fitted per spatial predictor (this is a computationally intensive function), and the Moran's I of its residuals is compared with the one of the model \code{y ~ predictors}, to finally order the spatial predictor from maximum to minimum Moran's I difference. In the latter case the spatial predictors are ordered by their Moran's I alone (this is the faster option). In both cases, spatial predictors with no effect (no reduction of Moran's I  or Moran's I of the spatial predictor equal or lower than 0) are removed. The purpose of this function is to provide criteria on how to include spatial predictors in a model. This function has been designed to be used internally by rf_spatial rather than by directly by a user.
+Ranks spatial predictors generated by \code{\link[=mem_multithreshold]{mem_multithreshold()}} or \code{\link[=pca_multithreshold]{pca_multithreshold()}} by their effect in reducing the Moran's I of the model residuals (\code{ranking.method = "effect"}), or by their own Moran's I (\code{ranking.method = "moran"}).
+
+In the former case, one model of the type \code{y ~ predictors + spatial_predictor_X} is fitted per spatial predictor, and the Moran's I of the model residuals residuals is compared with the one of the model without spatial predictors (\code{y ~ predictors}), to finally rank the spatial predictor from maximum to minimum difference in Moran's I.
+
+In the latter case, the spatial predictors are ordered by their Moran's I alone (this is the faster option).
+
+In both cases, spatial predictors with no effect (no reduction of Moran's I  or Moran's I of the spatial predictor equal or lower than 0) are removed.
+
+The purpose of this function is to provide criteria on how to include spatial predictors in a model that is later used by \code{\link[=select_spatial_predictors_optimized]{select_spatial_predictors_optimized()}} or \code{\link[=select_spatial_predictors_sequential]{select_spatial_predictors_sequential()}}.
+
+This function has been designed to be used internally by \code{\link[=rf_spatial]{rf_spatial()}} rather than by directly by a user.
 }
 \examples{
 \dontrun{

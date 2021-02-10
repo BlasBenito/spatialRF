@@ -2,16 +2,19 @@
 % Please edit documentation in R/print_evaluation.R
 \name{print_evaluation}
 \alias{print_evaluation}
-\title{print_evaluation}
+\title{Prints cross-validation results}
 \usage{
 print_evaluation(x)
 }
 \arguments{
-\item{x}{A model resulting from \code{\link[=rf_evaluate]{rf_evaluate()}}}
+\item{x}{A model resulting from \code{\link[=rf_evaluate]{rf_evaluate()}}.}
 }
 \value{
-A huxtable printed to the standard output.
+A table printed to the standard output.
 }
 \description{
-Prints the results of an evaluation performed with \code{\link[=rf_evaluate]{rf_evaluate()}}.
+Prints the results of an spatial cross-validation performed with \code{\link[=rf_evaluate]{rf_evaluate()}}.
+}
+\seealso{
+\code{\link[=plot_evaluation]{plot_evaluation()}}, \code{\link[=get_evaluation]{get_evaluation()}}
 }

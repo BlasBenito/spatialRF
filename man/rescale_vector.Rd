@@ -2,28 +2,29 @@
 % Please edit documentation in R/rescale_vector.R
 \name{rescale_vector}
 \alias{rescale_vector}
-\title{rescale_vector}
+\title{Rescales a numeric vector into a new range}
 \usage{
 rescale_vector(x = NULL, new.min = 0, new.max = 1, integer = FALSE)
 }
 \arguments{
-\item{x}{numeric vector, Default: NULL}
+\item{x}{Numeric vector. Default: \code{NULL}}
 
-\item{new.min}{new minimum value, Default: 0}
+\item{new.min}{New minimum value. Default: \code{0}}
 
-\item{new.max}{new maximum value, Default: 1}
+\item{new.max}{New maximum value. Default: \code{1}}
 
-\item{integer}{coerce the output to integer, Default: FALSE}
+\item{integer}{Logical, if \code{TRUE}, coerces the output to integer. Default: \code{FALSE}}
 }
 \value{
-a numeric vector of the same length as x, but with its values rescaled between new.min and new.max.
+A numeric vector of the same length as x, but with its values rescaled between \code{new.min} and \code{new.max.}
 }
 \description{
-Helper function to rescale numeric vectors to a new range.
+Rescales a numeric vector to a new range.
 }
 \examples{
 \dontrun{
 if(interactive()){
+
  out <- rescale_vector(
    x = rnorm(100),
    new.min = 0,
@@ -31,6 +32,7 @@ if(interactive()){
    integer = TRUE
    )
    out
- }
+
+}
 }
 }

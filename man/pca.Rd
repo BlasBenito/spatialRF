@@ -2,7 +2,7 @@
 % Please edit documentation in R/pca.R
 \name{pca}
 \alias{pca}
-\title{pca}
+\title{Principal Components Analysis}
 \usage{
 pca(x = NULL, colnames.prefix = "pca_factor")
 }
@@ -12,20 +12,26 @@ pca(x = NULL, colnames.prefix = "pca_factor")
 \item{colnames.prefix}{character, name prefix for the output columns, Default: 'pca_factor'}
 }
 \value{
-a data frame with the PCA factors of x.
+A data frame with the PCA factors of \code{x}.
 }
 \description{
 Extracts all factors of a principal component analysis of a matrix or data frame. Just a convenient wrapper for \link{prcomp}.
 }
 \details{
-columns in x with zero variance are removed before computing the PCA.
+Columns in \code{x} with zero variance are removed before computing the PCA.
 }
 \examples{
 \dontrun{
 if(interactive()){
+
  data(distance_matrix)
+
  out <- pca(x = distance_matrix)
  out
- }
+
 }
+}
+}
+\seealso{
+\code{\link[=pca_multithreshold]{pca_multithreshold()}}
 }

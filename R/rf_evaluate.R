@@ -1,27 +1,28 @@
-#' @title rf_evaluate
-#' @description Evaluates model performance on independent spatial folds.
-#' @param model Model to evaluate, produced by [rf()], [rf_repeat()], or [rf_spatial()].
+#' @title Evaluates random forest models with spatial cross-validation
+#' @description Evaluates the performance of random forest on unseen data over independent spatial folds.
+#' @param model Model fitted with [rf()], [rf_repeat()], or [rf_spatial()].
 #' @param xy Data frame or matrix with two columns containing coordinates and named "x" and "y", or an sf file with geometry class `sfc_POINT` (see [plant_richness_sf]). If `NULL`, the function will throw an error. Default: `NULL`
-#' @param repetitions Integer, must be lower than the total number of rows available in the model's data. Default: 30
-#' @param training.fraction Proportion between 0.5 and 0.9 indicating the number of records to be used in model training. Default: 0.6
-#' @param verbose Boolean. If TRUE, messages and plots generated during the execution of the function are displayed, Default: TRUE
-#' @param n.cores number of cores to use to compute repetitions. If NULL, all cores but one are used, unless a cluster is used.
-#' @param cluster.ips character vector, IPs of the machines in the cluster. The first machine will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.
-#' @param cluster.cores numeric integer vector, number of cores on each machine.
-#' @param cluster.user character string, name of the user (should be the same throughout machines), Defaults to the current system user. Default: user name of the current session.
-#' @param cluster.port integer, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: 11000.
-#' @return A model of the class "rf_evaluate" with a new slot named "evaluation", with the following slots:
+#' @param repetitions Integer, must be lower than the total number of rows available in the model's data. Default: `30`
+#' @param training.fraction Proportion between 0.5 and 0.9 indicating the number of records to be used in model training. Default: `0.6`
+#' @param verbose Logical. If `TRUE`, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
+#' @param n.cores Integer, number of cores to use during computations. If `NULL`, all cores but one are used, unless a cluster is used. Default = `NULL`
+#' @param cluster.ips Character vector with the IPs of the machines in a cluster. The machine with the first IP will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.
+#' @param cluster.cores Numeric integer vector, number of cores to use on each machine.
+#' @param cluster.user Character string, name of the user (should be the same throughout machines). Defaults to the current system user.
+#' @param cluster.port Integer, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: `11000`
+#' @return A model of the class "rf_evaluate" with a new slot named "evaluation", that is a list with the following slots:
 #' \itemize{
-#'   \item *training.fraction*: value of the argument `training.fraction`.
-#'   \item *spatial.folds*: result of applying [make_spatial_folds()] on the data coordinates. It is a list with as many slots as `repetitions` are indicated by the user. Each slot has two slots named "training" and "testing", each one having the indices of the cases used on the training and testing models.
-#'   \item *per.fold*: data frame with the evaluation results per spatial fold (or repetition). It contains the ID of each fold, it's central coordinates, the number of training and testing cases, and the training and testing performance measures: R squared, pseudo R squared (cor(observed, predicted)), rmse, and normalized rmse.
-#'   \item *per.model*: same data as above, but organized per fold and model ("Training", "Testing", and "Full").
-#'   \item *aggregated*: same data, but aggregated by model and performance measure.
+#'   \item `training.fraction`: Value of the argument `training.fraction`.
+#'   \item `spatial.folds`: Result of applying [make_spatial_folds()] on the data coordinates. It is a list with as many slots as `repetitions` are indicated by the user. Each slot has two slots named "training" and "testing", each one having the indices of the cases used on the training and testing models.
+#'   \item `per.fold`: Data frame with the evaluation results per spatial fold (or repetition). It contains the ID of each fold, it's central coordinates, the number of training and testing cases, and the training and testing performance measures: R squared, pseudo R squared (cor(observed, predicted)), rmse, and normalized rmse.
+#'   \item `per.model`: Same data as above, but organized per fold and model ("Training", "Testing", and "Full").
+#'   \item `aggregated`: Same data, but aggregated by model and performance measure.
 #' }
-#' @details The evaluation algorithm works as follows: the number of `repetitions` and the input dataset (stored in `model$ranger.arguments$data`) are used as inputs for the function [thinning_til_n()], that applies [thinning()] to the input data until as many cases as `repetitions` are left, and as separated as possible. Each of these remaining records will be used as a "fold center". From that point, the fold grows, until a number of points equal (or close) to `training.fraction` is reached. The indices of the records within the grown spatial fold are stored as "training" in the output list, and the remaining ones as "testing". Then, for each spatial fold, a "training model" is fitted using the cases corresponding with the training indices, and predicted over the cases corresponding with the testing indices. The model predictions on the "unseen" data are compared with the observations, and the performance measures computed.
+#' @details The evaluation algorithm works as follows: the number of `repetitions` and the input dataset (stored in `model$ranger.arguments$data`) are used as inputs for the function [thinning_til_n()], that applies [thinning()] to the input data until as many cases as `repetitions` are left, and as separated as possible. Each of these remaining records will be used as a "fold center". From that point, the fold grows, until a number of points equal (or close) to `training.fraction` is reached. The indices of the records within the grown spatial fold are stored as "training" in the output list, and the remaining ones as "testing". Then, for each spatial fold, a "training model" is fitted using the cases corresponding with the training indices, and predicted over the cases corresponding with the testing indices. The model predictions on the "unseen" data are compared with the observations, and the performance measures (R squared, pseudo R squared, RMSE and NRMSE) computed.
 #' @examples
 #' \dontrun{
 #' if(interactive()){
+#'
 #' data(plant_richness_df)
 #' data(distance_matrix)
 #'
@@ -43,7 +44,8 @@
 #' plot_evaluation(rf.model)
 #' print_evaluation(rf.model)
 #' x <- get_evaluation(rf.model)
-#'  }
+#'
+#' }
 #' }
 #' @rdname rf_evaluate
 #' @export

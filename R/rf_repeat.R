@@ -1,39 +1,38 @@
-#' @title rf_repeat
-#' @description Repeats a given random forest model several times in order to capture the effect of the stochasticity of the algorithm on importance scores and accuracy measures. The function is prepared to run on a cluster if the IPs, number of cores, and user name are provided (see [cluster_specification]).
-#' @param model (optional) a model produced by [rf]. If used, the arguments `data`, `dependent.variable.name`, `predictor.variable.names`, `distance.matrix`, `distance.thresholds`, `ranger.arguments`, `trees.per.variable`, and `scaled.importance` are taken directly from the model definition. Default: `NULL`
-#' @param data (required) data frame with a response variable and a set of (preferably uncorrelated) predictors, Default: NULL
-#' @param dependent.variable.name (required) string with the name of the response variable. Must be in the column names of 'data', Default: NULL
-#' @param predictor.variable.names (required) character vector with the names of the predictive variables. Every element must be in the column names of 'data', Default: NULL
-#' @param distance.matrix (optional) a squared matrix with the distances among the records in 'data'. Notice that the rows of 'distance.matrix' and 'data' must be the same. If not provided, the computation of the Moran's I of the residuals is ommited. Default: NULL.
-#' @param distance.thresholds (optional) numeric vector, distances below each value in the distance matrix are set to 0 for the computation of Moran's I. If NULL, it defaults to seq(0, max(distance.matrix), length.out = 4). Default: NULL.
-#' @param ranger.arguments (optional) list with \link[ranger]{ranger} arguments. All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.
-#' @param trees.per.variable (optional) number of individual regression trees to fit per variable in 'predictor.variable.names'. This is an alternative way to define ranger's 'num.trees'. If NULL, 'num.trees' is 500. Default: NULL
-#' @param scaled.importance (optional) boolean. If TRUE, and 'importance = "permutation', the function scales 'data' with [scale_robust] and fits a new model to compute scaled variable importance scores. Default: TRUE
-#' @param repetitions (required) integer, number of random forest models to fit. Default: 5
-#' @param keep.models boolean, if TRUE, the fitted models are returned in the "models" slot. Default: FALSE.
-#' @param verbose Boolean. If TRUE, messages and plots generated during the execution of the function are displayed, Default: TRUE
-#' @param n.cores number of cores to use to compute repetitions. If NULL, all cores but one are used, unless a cluster is used.
-#' @param cluster.ips character vector, IPs of the machines in the cluster. The first machine will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.
-#' @param cluster.cores numeric integer vector, number of cores on each machine.
-#' @param cluster.user character string, name of the user (should be the same throughout machines), Defaults to the current system user. Default: user name of the current session.
-#' @param cluster.port integer, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: 11000.
-#' @return a ranger model with several new slots:
+#' @title Fits several random forest models on the same data
+#' @description Fits several random forest models on the same data in order to capture the effect of the algorithm's stochasticity on the importance scores and performance measures. The function is prepared to run on a cluster if the IPs, number of cores, and user name are provided (see [cluster_specification]).
+#' @param model A model fitted with [rf]. If provided, the arguments `data`, `dependent.variable.name`, `predictor.variable.names`, `distance.matrix`, `distance.thresholds`, `ranger.arguments`, `trees.per.variable`, and `scaled.importance` are taken directly from the model definition (stored in `model$ranger.arguments`). Default: `NULL`
+#' @param data Data frame with a response variable and a set of predictors. Default: `NULL`
+#' @param dependent.variable.name Character string with the name of the response variable. Must be in the column names of `data`. Default: `NULL`
+#' @param predictor.variable.names Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Default: `NULL`
+#' @param distance.matrix Squared matrix with the distances among the records in `data`. The number of rows of `distance.matrix` and `data` must be the same. If not provided, the computation of the Moran's I of the residuals is omitted. Default: `NULL`
+#' @param distance.thresholds Numeric vector with neighborhood distances. All distances in the distance matrix below each value in `dustance.thresholds` are set to 0 for the computation of Moran's I. If `NULL`, it defaults to seq(0, max(distance.matrix), length.out = 4). Default: `NULL`
+#' @param ranger.arguments Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.
+#' @param trees.per.variable Number of individual regression trees to fit per variable in `predictor.variable.names`. This is an alternative way to define ranger's `num.trees`. If `NULL`, `num.trees` is 500. Default: `NULL`
+#' @param scaled.importance Logical. If `TRUE`, and 'importance = "permutation', the function scales 'data' with [scale_robust()] and fits a new model to compute scaled variable importance scores. Default: `TRUE`
+#' @param repetitions Integer, number of random forest models to fit. Default: `5`
+#' @param keep.models Logical, if `TRUE`, the fitted models are returned in the `models` slot. Default: `FALSE`.
+#' @param verbose Logical If `TRUE`, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
+#' @param n.cores Integer, number of cores to use during computations. If `NULL`, all cores but one are used, unless a cluster is used. Default = `NULL`
+#' @param cluster.ips Character vector with the IPs of the machines in a cluster. The machine with the first IP will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.
+#' @param cluster.cores Numeric integer vector, number of cores to use on each machine.
+#' @param cluster.user Character string, name of the user (should be the same throughout machines). Defaults to the current system user.
+#' @param cluster.port Integer, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: `11000`
+#' @return A ranger model with several new slots:
 #' \itemize{
-#'   \item{ranger.arguments}{stores the values of the arguments used to fit the ranger model}
-#'   \item{predictions}{a list with the predictions obtained on each repetition stored in a data frame named 'per.repetition' and the average of the predictions in a data frame named 'mean'}
-#'   \item{variable.importance}{a list containing a data frame with the mean importance of each predictor across repetitions (df), the values obtained on eah repetition (df.long), and a boxplot showing the distribution of the importance scores across repetitions}
-#'   \item{pseudo.r.squared}{pseudo R-squared values throughout repetitions}
-#'   \item{rmse}{rmse obtained on each repetition}
-#'   \item{nrmse}{normalizad rmse obtained on each repetition}
-#'   \item{residuals}{the residuals obtained on each repetition (df.wide), their mean (df) and their stats (stats)}
-#'   \item{spatial.correlation.residuals}{the result of [moran_multithreshold] applied to the results of each repetition (df.long), the mean of Moran's I across repetitions (df), and a plot with the results of every repetition (plot)}
+#'   \item `ranger.arguments`: Stores the values of the arguments used to fit the ranger model.
+#'   \item `variable.importance`: A list containing a data frame with the predictors ordered by their importance, and a ggplot showing the importance values.
+#'   \item `performance`: out-of-bag performance scores: R squared, pseudo R squared, RMSE, and normalized RMSE (NRMSE).
+#'   \item `pseudo.r.squared`: computed as the correlation between the observations and the predictions.
+#'   \item `residuals`: computed as observations minus predictions.
+#'   \item `spatial.correlation.residuals`: the result of [moran_multithreshold()] applied to the model results.
 #' }
-#' @details Please read the help file of [rf] and \link[ranger]{ranger} for further details.
 #' @examples
 #' \dontrun{
 #' if(interactive()){
-#'  data("plant_richness_df")
-#'  data("distance_matrix")
+#'
+#'  data(plant_richness_df)
+#'  data(distance_matrix)
+#'
 #'  out <- rf_repeat(
 #'    data = plant_richness_df,
 #'    dependent.variable.name = "richness_species_vascular",
@@ -82,7 +81,8 @@
 #'  rf.repeat <- rf_repeat(model = rf.model)
 #'  rf.repeat$performance
 #'  rf.repeat$variable.importance$plot
-#'  }
+#'
+#' }
 #' }
 #' @importFrom tidyselect all_of
 #' @rdname rf_repeat
@@ -140,10 +140,27 @@ rf_repeat <- function(
     importance <- "permutation"
   }
 
-  #getting arguments from ranger.arguments
+  #user arguments (overwrites defaults)
   if(!is.null(ranger.arguments)){
-    list2env(ranger.arguments, envir=environment())
+
+    #giving preference a data not in ranger arguments
+    if(!is.null(data)){
+      if("data" %in% names(ranger.arguments)){
+        ranger.arguments$data <- NULL
+      }
     }
+    if(!is.null(dependent.variable.name)){
+      if("dependent.variable.name" %in% names(ranger.arguments)){
+        ranger.arguments$dependent.variable.name <- NULL
+      }
+    }
+    if(!is.null(predictor.variable.names)){
+      if("predictor.variable.names" %in% names(ranger.arguments)){
+        ranger.arguments$predictor.variable.names <- NULL
+      }
+    }
+    list2env(ranger.arguments, envir=environment())
+  }
 
   #initializes local.importance
   if(is.null(ranger.arguments$local.importance)){
@@ -538,7 +555,7 @@ rf_repeat <- function(
   m.curves$ranger.arguments$keep.models <- keep.models
 
   #adding class to the model
-  class(m.curves) <- c("ranger", "rf_repeat")
+  class(m.curves) <- c("ranger", "rf", "rf_repeat")
 
   #print model
   if(verbose == TRUE){

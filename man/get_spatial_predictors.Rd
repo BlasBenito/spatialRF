@@ -2,12 +2,12 @@
 % Please edit documentation in R/get_spatial_predictors.R
 \name{get_spatial_predictors}
 \alias{get_spatial_predictors}
-\title{get_spatial_predictors}
+\title{Gets the spatial predictors of a spatial model}
 \usage{
 get_spatial_predictors(x)
 }
 \arguments{
-\item{x}{A model fitted with \code{\link[=rf_spatial]{rf_spatial()}}. Default: NULL}
+\item{x}{A model fitted with \code{\link[=rf_spatial]{rf_spatial()}}.}
 }
 \value{
 A data frame with the spatial predictors included in the model.
@@ -18,19 +18,22 @@ Returns spatial predictors from a model fitted with \code{\link[=rf_spatial]{rf_
 \examples{
 \dontrun{
 if(interactive()){
+
  data(distance_matrix)
  data(plant_richness_df)
- #mem.moran.sequential
+
+
  model <- rf_spatial(
-   data = data,
+   data = plant_richness_df,
    dependent.variable.name = "richness_species_vascular",
-   predictor.variable.names = olnames(plant_richness_df)[5:21],
+   predictor.variable.names = colnames(plant_richness_df)[5:21],
    distance.matrix = distance_matrix,
    distance.thresholds = c(0, 500, 1000),
    method = "mem.moran.sequential"
  )
 
 spatial.predictors <- get_spatial_predictors(x = model)
- }
+head(spatial.predictors)
+}
 }
 }

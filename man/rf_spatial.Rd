@@ -2,7 +2,7 @@
 % Please edit documentation in R/rf_spatial.R
 \name{rf_spatial}
 \alias{rf_spatial}
-\title{rf_spatial}
+\title{Fits spatial random forest models}
 \usage{
 rf_spatial(
   model = NULL,
@@ -33,111 +33,109 @@ rf_spatial(
 )
 }
 \arguments{
-\item{model}{(optional) a model produced by \link{rf}. If used, the arguments \code{data}, \code{dependent.variable.name}, \code{predictor.variable.names}, \code{distance.matrix}, \code{distance.thresholds}, \code{ranger.arguments}, \code{trees.per.variable}, and \code{scaled.importance} are taken directly from the model definition. Default: NULL}
+\item{model}{A model produced by \code{\link[=rf]{rf()}} or \code{\link[=rf_repeat]{rf_repeat()}}. If used, the arguments \code{data}, \code{dependent.variable.name}, \code{predictor.variable.names}, \code{distance.matrix}, \code{distance.thresholds}, \code{ranger.arguments}, \code{trees.per.variable}, and \code{scaled.importance} are taken directly from the model definition. Default: NULL}
 
-\item{data}{(required) data frame with a response variable and a set of (preferably uncorrelated) predictors, Default: NULL}
+\item{data}{Data frame with a response variable and a set of predictors. Default: \code{NULL}}
 
-\item{dependent.variable.name}{(required) string with the name of the response variable. Must be in the column names of 'data', Default: NULL}
+\item{dependent.variable.name}{Character string with the name of the response variable. Must be in the column names of \code{data}. Default: \code{NULL}}
 
-\item{predictor.variable.names}{(required) character vector with the names of the predictive variables. Every element must be in the column names of 'data', Default: NULL}
+\item{predictor.variable.names}{Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. Default: \code{NULL}}
 
-\item{distance.matrix}{(optional) a squared matrix with the distances among the records in 'data'. Notice that the rows of 'distance.matrix' and 'data' must be the same. If not provided, the computation of the Moran's I of the residuals is ommited. Default: NULL.}
+\item{distance.matrix}{Squared matrix with the distances among the records in \code{data}. The number of rows of \code{distance.matrix} and \code{data} must be the same. If not provided, the computation of the Moran's I of the residuals is omitted. Default: \code{NULL}}
 
-\item{distance.thresholds}{(optional) numeric vector, distances below each value in the distance matrix are set to 0 for the computation of Moran's I. If NULL, it defaults to seq(0, max(distance.matrix), length.out = 4). Default: NULL.}
+\item{distance.thresholds}{Numeric vector with neighborhood distances. All distances in the distance matrix below each value in \code{dustance.thresholds} are set to 0 for the computation of Moran's I. If \code{NULL}, it defaults to seq(0, max(distance.matrix), length.out = 4). Default: \code{NULL}}
 
-\item{ranger.arguments}{(optional) list with \link[ranger]{ranger} arguments. All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.}
+\item{ranger.arguments}{Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.}
 
-\item{trees.per.variable}{(optional) integer, number of individual regression trees to fit per variable in 'predictor.variable.names'. This is an alternative way to define ranger's 'num.trees'. If NULL, 'num.trees' is 500. Notice that for large numbers of spatial predictors using a high number of \code{trees.per.variable} can get computationally costly. Default: NULL}
+\item{trees.per.variable}{Number of individual regression trees to fit per variable in \code{predictor.variable.names}. This is an alternative way to define ranger's \code{num.trees}. If \code{NULL}, \code{num.trees} is 500. Default: \code{NULL}}
 
-\item{scaled.importance}{(optional) boolean. If TRUE, and 'importance = "permutation', the function scales 'data' with \link{scale_robust} and fits a new model to compute scaled variable importance scores. Default: TRUE}
+\item{scaled.importance}{Logical. If \code{TRUE}, and 'importance = "permutation', the function scales 'data' with \code{\link[=scale_robust]{scale_robust()}} and fits a new model to compute scaled variable importance scores. Default: \code{TRUE}}
 
-\item{repetitions}{integer, number of random forest models to fit. Default: 5}
+\item{repetitions}{Integer, number of repetitions. If 1, \code{\link[=rf]{rf()}} is used to fit the non-spatial and spatial models. If higher than one, \code{\link[=rf_repeat]{rf_repeat()}} is used instead. Notice that using more than one repetition can get computationally costly if the selected method generated a large number of spatial predictors, as it is the case of the "hengl" method. Default: \code{1}}
 
-\item{keep.models}{boolean, if TRUE, the fitted models are returned in the "models" slot. Default: FALSE.}
+\item{keep.models}{Logical. If \code{TRUE}, the fitted models are returned in the "models" slot. If \code{repetitions} is very high and \code{method} is "hengl",
+setting \code{keep.models} to \code{TRUE} may cause memory issues. Default: \code{FALSE}}
 
-\item{method}{method to build, rank, and select spatial predictors. One of: "hengl", "hengl.moran.sequential", "hengl.effect.sequential", "hengl.effect.optimized", "pca.moran.sequential", "pca.effect.sequential", "pca.effect.optimized", "mem.moran.sequential", "mem.effect.sequential", "mem.effect.optimized". See details.}
+\item{method}{Character, method to build, rank, and select spatial predictors. One of:
+\itemize{
+\item "hengl"
+\item "hengl.moran.sequential"  (experimental)
+\item "hengl.effect.sequential" (experimental)
+\item "hengl.effect.optimized"  (experimental)
+\item "pca.moran.sequential"    (experimental)
+\item "pca.effect.sequential"   (experimental)
+\item "pca.effect.optimized"    (experimental)
+\item "mem.moran.sequential"
+\item "mem.effect.sequential"
+\item "mem.effect.optimized"    (experimental)
+}
 
-\item{max.spatial.predictors}{integer, maximum number of spatial predictors to generate. Useful when memory problems arise due to a large number of records in \code{data}, Default: 1000}
+See \strong{Details}.}
 
-\item{weight.r.squared}{numeric between 0 and 1, weight of R-squared in the selection of spatial components. See Details, Default: NULL}
+\item{max.spatial.predictors}{Integer, maximum number of spatial predictors to generate. Useful when memory problems arise due to a large number of spatial predictors, Default: \code{1000}}
 
-\item{weight.penalization.n.predictors}{numeric between 0 and 1, weight of the penalization imposed with the addition of an increasing number of spatial predictors into a model, Default: NULL}
+\item{weight.r.squared}{Numeric between 0 and 1, weight of R-squared in the selection of spatial components. See Details, Default: \code{NULL}}
 
-\item{seed}{(optional) integer, random seed to facilitate reproducibility. If set to a given number, the returned model is always the same. Only relevant if \code{repetitions = 1}. Default: NULL}
+\item{weight.penalization.n.predictors}{Numeric between 0 and 1, weight of the penalization for adding an increasing number of spatial predictors during selection. Default: \code{1000}}
 
-\item{verbose}{Boolean. If TRUE, messages and plots generated during the execution of the function are displayed, Default: TRUE}
+\item{seed}{Integer, random seed to facilitate reproducibility. If set to a given number, the returned model is always the same. Only relevant if \code{repetitions = 1}. Default: \code{NULL}}
 
-\item{n.cores}{number of cores to use to compute repetitions. If NULL, all cores but one are used, unless a cluster is used.}
+\item{verbose}{Logical. If TRUE, messages and plots generated during the execution of the function are displayed, Default: \code{TRUE}}
 
-\item{cluster.ips}{character vector, IPs of the machines in the cluster. The first machine will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.}
+\item{n.cores}{Integer, number of cores to use during computations. If \code{NULL}, all cores but one are used, unless a cluster is used. Default = \code{NULL}}
 
-\item{cluster.cores}{numeric integer vector, number of cores on each machine.}
+\item{cluster.ips}{Character vector with the IPs of the machines in a cluster. The machine with the first IP will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.}
 
-\item{cluster.user}{character string, name of the user (should be the same throughout machines), Defaults to the current system user. Default: user name of the current session.}
+\item{cluster.cores}{Numeric integer vector, number of cores to use on each machine.}
 
-\item{cluster.port}{integer, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: 11000.}
+\item{cluster.user}{Character string, name of the user (should be the same throughout machines). Defaults to the current system user.}
+
+\item{cluster.port}{Integer, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: \code{11000}}
 }
 \value{
-A ranger model with several new slots.
-If \code{iterations = 1}, the slots generated by \link{rf} are returned:
+A ranger model with several new slots:
 \itemize{
-\item \code{ranger.arguments}: stores the values of the arguments used to fit the ranger model.
-\item \code{variable.importance}: a list containing the vector of variable importance as originally returned by ranger (scaled or not depending on the value of 'scaled.importance'), a data frame with the predictors ordered by their importance, and a ggplot showing the importance values.
-\item \code{pseudo.r.squared}: computed as the correlation between the observations and the predictions.
-\item \code{rmse}: as computed by \link{root_mean_squared_error} with 'normalization = NULL'.
-\item \code{nrmse}: as computed by \link{root_mean_squared_error} with 'normalization = "iq'.
-\item \code{residuals}: computed as observations minus predictions.
-\item \code{spatial.correlation.residuals}: the result of \link{moran_multithreshold}.
-}
-If \code{iterations > 1}, the slots generated by \link{rf_repeat} are returned:
+\item \code{ranger.arguments}: Values of the arguments used to fit the ranger model.
+\item \code{variable.importance}: A list containing the vector of variable importance as originally returned by ranger (scaled or not depending on the value of 'scaled.importance'), a data frame with the predictors ordered by their importance, and a ggplot showing the importance values.
+\item \code{performance}: With the out-of-bag R squared, pseudo R squared, RMSE and NRMSE of the model.
+\item \code{spatial.correlation.residuals}: Result of \code{\link[=moran_multithreshold]{moran_multithreshold()}} applied in the model residuals.
+\item \code{performance.comparison}:  A data frame with the R-squared, rmse, nrmse, and Moran's I of the residuals of the non-spatial and the spatial model.
+\item \code{selection.spatial.predictors}: A list with four slots:
 \itemize{
-\item{ranger.arguments}{stores the values of the arguments used to fit the ranger model}
-\item{predictions}{a list with the predictions obtained on each repetition stored in a data frame named 'df.wide' and the average of the predictions in a data frame named 'df'}
-\item{variable.importance}{a list containing data frames with variable importance scores. These are \code{per.variable}, with the importance or average importance (if \code{repetitions > 1}) of each predictor, \code{per.repetition}, only if \code{repetitions > 1}, \code{spatial.predictors}, for plotting purposes, and \code{spatial.predictors.stats}, for printing purposes.}
-\item{pseudo.r.squared}{pseudo R-squared values throughout repetitions}
-\item{rmse}{rmse obtained on each repetition}
-\item{nrmse}{normalizad rmse obtained on each repetition}
-\item{residuals}{the residuals obtained on each repetition (df.wide), their mean (df) and their stats (stats)}
-\item{spatial.correlation.residuals}{the result of \link{moran_multithreshold} applied to the results of each repetition (df.long), the mean of Moran's I across repetitions (df), and a plot with the results of every repetition (plot)}
-}
-And in any case, two new slots are generated by \link{rf_spatial} if the original model needs spatial predictors to remove the spatial correlation of the residuals:
-\itemize{
-\item performance.comparison:  A data frame with the R-squared, rmse, nrmse, and Moran's I of the residuals of the non-spatial and the spatial model.
-\item selection.spatial.predictors: a list with four slots:
-\itemize{
-\item method string, method used to generate, rank, and select spatial predictors.
-\item names character vector with the names of the selected spatial predictors. Not returned if the method is "hengl".
-\item df criteria used to select the spatial predictors. Not returned if the method is "hengl".
-\item plot plot of the criteria used to select the spatial predictors. Not returned if the method is "hengl".
+\item \code{method}: Character, method used to generate, rank, and select spatial predictors.
+\item \code{names}: Character vector with the names of the selected spatial predictors. Not returned if the method is "hengl".
+\item \code{optimization}: Criteria used to select the spatial predictors. Not returned if the method is "hengl".
+\item \code{plot}: Plot of the criteria used to select the spatial predictors. Not returned if the method is "hengl".
 }
 }
 }
 \description{
-Fits spatial random forest models using different methods to generate, rank, and select spatial predictors. The end goal is to provide the model with information about the spatial structure of the data in order to minimize the spatial correlation of the residuals. See Details for a description of the methods.
+Fits spatial random forest models using different methods to generate, rank, and select spatial predictors. The end goal is to provide the model with information about the spatial structure of the data in order to minimize the spatial correlation (Moran's I) of the model residuals.
 }
 \details{
 The function uses three different methods to generate spatial predictors ("hengl", "pca", and "mem"), two methods to rank them in order to define in what order they are introduced in the model ("effect" and "moran), and two methods to select the spatial predictors that minimize the spatial correlation of the model residuals ("sequential" and "optimized"). All method names but "hengl" (that uses the complete distance matrix as predictors in the spatial model) are named by combining a method to generate the spatial predictors, a method to rank them, and a method to select them, separated by a point. Examples are "mem.moran.sequential" or "mem.effect.optimized". All combinations are not possible, since the ranking method "moran" cannot be used with the selection method "optimized" (because the logics behind them are very different, see below).
 Methods to generate spatial predictors:
 \itemize{
-\item hengl: named after Tomislav Hengl and the paper \href{https://peerj.com/articles/5518/}{Hengl et al. (2018)}, where the authors propose to use the distance matrix among records as a set of covariates in spatial random forest models (RFsp method). In this function, all methods starting with "hengl" use either the complete distance matrix, or select columns of the distance matrix.
-\item mem: generates Moran's Eigenvector Maps, that is, the eigenvectors of the double-centered weights of the distance matrix. The method is described in \href{https://www.sciencedirect.com/science/article/abs/pii/S0304380006000925}{Dray, Legendre and Peres-Neto (2006)} and \href{https://royalsocietypublishing.org/doi/10.1098/rspb.2013.2728}{Legendre and Gauthier (2014)}.
-\item pca: computes spatial predictors from the principal component analysis of a weighted distance matrix (see \link{weights_from_distance_matrix}). This method to generate spatial predictors is the one with the least performance in the preliminary trials of this function.
+\item \code{"hengl"}: named after Tomislav Hengl and the paper \href{https://peerj.com/articles/5518/}{Hengl et al. (2018)}, where the authors propose to use the distance matrix among records as predictors in spatial random forest models (RFsp method). In this function, all methods starting with "hengl" use either the complete distance matrix, or select columns of the distance matrix as spatial predictors.
+\item \code{"mem"}: Generates Moran's Eigenvector Maps, that is, the eigenvectors of the double-centered weights of the distance matrix. The method is described in \href{https://www.sciencedirect.com/science/article/abs/pii/S0304380006000925}{Dray, Legendre and Peres-Neto (2006)} and \href{https://royalsocietypublishing.org/doi/10.1098/rspb.2013.2728}{Legendre and Gauthier (2014)}.
+\item \code{"pca"}: Computes spatial predictors from the principal component analysis of a weighted distance matrix (see \code{\link[=weights_from_distance_matrix]{weights_from_distance_matrix()}}). This is an experimental method, use with caution.
 }
-Methods to rank spatial predictors (see \link{rank_spatial_predictors}):
+Methods to rank spatial predictors (see \code{\link[=rank_spatial_predictors]{rank_spatial_predictors()}}):
 \itemize{
-\item moran: Computes the Moran's I of each spatial predictor, selects the ones with positive values, and ranks them from higher to lower Moran's I.
-\item effect: If a given non-spatial random forest model is defined as \code{y = p1 + ... + pn}, being \code{p1 + ... + pn} the set of predictors, for every spatial predictor generated (\code{spX}) a spatial model \code{y = p1 + ... + pn + spX} is fitted, and the Moran's I of its residuals is computed. The spatial predictors are then ranked by how much they help to reduce spatial autocorrelation between the non-spatial and the spatial model.
+\item \code{"moran"}: Computes the Moran's I of each spatial predictor, selects the ones with positive values, and ranks them from higher to lower Moran's I.
+\item \code{"effect"}: If a given non-spatial random forest model is defined as \code{y = p1 + ... + pn}, being \code{p1 + ... + pn} the set of predictors, for every spatial predictor generated (\code{spX}) a spatial model \code{y = p1 + ... + pn + spX} is fitted, and the Moran's I of its residuals is computed. The spatial predictors are then ranked by how much they help to reduce spatial autocorrelation between the non-spatial and the spatial model.
 }
 Methods to select spatial predictors:
 \itemize{
-\item sequential (see \link{select_spatial_predictors_sequential}): The spatial predictors are added one by one in the order they were ranked, and once all spatial predictors are introduced, the best first n predictors are selected. This method is similar to the one employed in the MEM methodology (Moran's Eigenvector Maps) described in \href{https://www.sciencedirect.com/science/article/abs/pii/S0304380006000925}{Dray, Legendre and Peres-Neto (2006)} and \href{https://royalsocietypublishing.org/doi/10.1098/rspb.2013.2728}{Legendre and Gauthier (2014)}. This method generally introduces tens of predictors into the model.
-\item optimized (see \link{select_spatial_predictors_optimized}): This method tries to find the smallest combination of spatial predictors that reduce the spatial correlation of the model's residuals the most. The algorithm goes as follows: 1. The first ranked spatial predictor is introduced into the model; 2. the remaining predictors are ranked again using the "effect" method, using the model in 1. as reference. The first spatial predictor in the resulting ranking is then introduced into the model, and the steps 1. and 2. are repeated until spatial predictors stop having an effect in reducing the Moran's I of the model residuals. This method takes longer to compute, but generates smaller sets of spatial predictors.
+\item \code{"sequential"} (see \code{\link[=select_spatial_predictors_sequential]{select_spatial_predictors_sequential()}}): The spatial predictors are added one by one in the order they were ranked, and once all spatial predictors are introduced, the best first n predictors are selected. This method is similar to the one employed in the MEM methodology (Moran's Eigenvector Maps) described in \href{https://www.sciencedirect.com/science/article/abs/pii/S0304380006000925}{Dray, Legendre and Peres-Neto (2006)} and \href{https://royalsocietypublishing.org/doi/10.1098/rspb.2013.2728}{Legendre and Gauthier (2014)}. This method generally introduces tens of predictors into the model, but usually offers good results.
+\item \code{"optimized"} (see \code{\link[=select_spatial_predictors_optimized]{select_spatial_predictors_optimized()}}): This method tries to find the smallest combination of spatial predictors that reduce the spatial correlation of the model's residuals the most. The algorithm goes as follows: 1. The first ranked spatial predictor is introduced into the model; 2. the remaining predictors are ranked again using the "effect" method, using the model in 1. as reference. The first spatial predictor in the resulting ranking is then introduced into the model, and the steps 1. and 2. are repeated until spatial predictors stop having an effect in reducing the Moran's I of the model residuals. This method takes longer to compute, but generates smaller sets of spatial predictors. This is an experimental method, use with caution.
 }
-Once a selection procedure is comlete, an algorithm is used to select the best subset of spatial predictors: for each new predictor introduced, the Moran's I of the residuals, it's p-value, a binary version of the p-value (0 if < 0.05 and 1 if >= 0.05), the R-squared of the model, and a penalization linear with the number of spatial predictors introduced is computed as \verb{(1 / total spatial predictors) * introduced spatial predictors} are recorded, and rescaled between 0 and 1. The optimization criteria is computed as \verb{max(1 - Moran's I, p-value binary) + (weight.r.squared * R-squared) - (weight.penalization.n.predictors * penalization)}. The predictors from the first one to the one with the highest optimization criteria then selected as the best ones in reducing the spatial correlation of the model residuals, and used along with \code{data} to fit the final spatial model that is then returned by the function.
+Once ranking procedure is completed, an algorithm is used to select the minimal subset of spatial predictors that reduce the most the Moran's I of the residuals: for each new spatial predictor introduced in the model, the Moran's I of the residuals, it's p-value, a binary version of the p-value (0 if < 0.05 and 1 if >= 0.05), the R-squared of the model, and a penalization linear with the number of spatial predictors introduced (computed as \verb{(1 / total spatial predictors) * introduced spatial predictors}) are rescaled between 0 and 1. Then, the optimization criteria is computed as \verb{max(1 - Moran's I, p-value binary) + (weight.r.squared * R-squared) - (weight.penalization.n.predictors * penalization)}. The predictors from the first one to the one with the highest optimization criteria are then selected as the best ones in reducing the spatial correlation of the model residuals, and used along with \code{data} to fit the final spatial model.
 }
 \examples{
 \dontrun{
 if(interactive()){
+
  data("distance_matrix")
  data("plant_richness_df")
  data <- plant_richness_df
@@ -193,6 +191,10 @@ if(interactive()){
 
  rf.spatial <- rf_spatial(model = rf.repeat)
  rf.spatial$spatial.correlation.residuals$plot
- }
+
 }
+}
+}
+\seealso{
+\code{\link[=rank_spatial_predictors]{rank_spatial_predictors()}}, \code{\link[=select_spatial_predictors_sequential]{select_spatial_predictors_sequential()}}, \code{\link[=select_spatial_predictors_optimized]{select_spatial_predictors_optimized()}}
 }

@@ -1,35 +1,39 @@
-#' @title response_curves
-#' @description Plots response surfaces for a given pair of predictors from an [rf()], [rf_repeat()], or an [rf_spatial()] model.
+#' @title Plots the response curves of a random forest model
+#' @description Plots the response curves of models fitted with [rf()], [rf_repeat()], or  [rf_spatial()].
 #' @param model A model fitted with [rf()], [rf_repeat()], or [rf_spatial()].
 #' @param variables Character vector, names of predictors to plot. If `NULL`, the most important variables (importance higher than the median) in `model` are selected. Default: `NULL`.
-#' @param quantiles Numeric vector with values between 0 and 1, argument *probs* of \link[stats]{quantile}. Quantiles to set the other variables to. Default: c(0.1, 0.5, 0.9)
-#' @param grid.resolution Integer between 20 and 500. Resolution of the plotted curve Default: 100.
-#' @param show.data Logical, if TRUE, the observed data is plotted along with the response curves. Default. FALSE
-#' @return A list with slots named after the selected `variables` with one ggplot each.
-#' @details All variables that are not plotted are set to the values of their respective quantiles to plot the response surfaces. The output list can be plotted all at once with `patchwork::wrap_plots(p)` or `cowplot::plot_grid(plotlist = p)`, or one by one by extracting each plot from the list.
+#' @param quantiles Numeric vector with values between 0 and 1, argument `probs` of \link[stats]{quantile}. Quantiles to set the other variables to. Default: `c(0.1, 0.5, 0.9)`
+#' @param grid.resolution Integer between 20 and 500. Resolution of the plotted curve Default: `100`
+#' @param show.data Logical, if `TRUE`, the observed data is plotted along with the response curves. Default. `FALSE`
+#' @param verbose Logical, if TRUE the plot is printed. Default: `TRUE`
+#' @return A list with slots named after the selected `variables`, with one ggplot each.
+#' @details All variables that are not plotted in a particular response curve are set to the values of their respective quantiles, and the response curve for each one of these quantiles is shown in the plot. The output list can be plotted all at once with `patchwork::wrap_plots(p)` or `cowplot::plot_grid(plotlist = p)`, or one by one by extracting each plot from the list.
+#' @seealso [plot_response_surfaces()]
 #' @examples
 #' \dontrun{
 #' if(interactive()){
 #'data(plant_richness_df)
 #'
-#'m <- rf(
+#'out <- rf(
 #'  data = plant_richness_df,
 #'  dependent.variable.name = "richness_species_vascular",
 #'  predictor.variable.names = colnames(plant_richness_df)[5:21],
  #'  verbose = FALSE
 #')
 #'
-#'p <- response_curves(model = m)
-#'  }
+#'p <- plot_response_curves(model = out)
+#'
 #' }
-#' @rdname response_curves
+#' }
+#' @rdname plot_response_curves
 #' @export
-response_curves <- function(
+plot_response_curves <- function(
   model = NULL,
   variables = NULL,
   quantiles = c(0.1, 0.5, 0.9),
   grid.resolution = 100,
-  show.data = FALSE
+  show.data = FALSE,
+  verbose = TRUE
   ){
 
   if(is.null(model)){
@@ -168,7 +172,11 @@ response_curves <- function(
 
   }#end of iterations through variables
 
-  print(patchwork::wrap_plots(variables.plots))
+  variables.plots <- patchwork::wrap_plots(variables.plots)
+
+  if(verbose == TRUE){
+    print(variables.plots)
+  }
 
   variables.plots
 

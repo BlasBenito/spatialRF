@@ -1,40 +1,45 @@
-#' @title response_surfaces
-#' @description Plots response surfaces for a given pair of predictors from an [rf()], [rf_repeat()], or an [rf_spatial()] model.
-#' @param model A model fitted with [rf()], [rf_repeat()], or [rf_spatial()].
-#' @param a Character string, name of a model predictor. If `NULL`, the most important variable in `model` is selected. Default: `NULL`.
-#' @param b Character string, name of a model predictor. If `NULL`, the second most important variable in `model` is selected. Default: `NULL`.
-#' @param quantiles Numeric vector between 0 and 1. Argument *probs* of the function \link[stats]{quantile}. Quantiles to set the other variables to. Default: c(0.1, 0.5, 0.9)
-#' @param grid.resolution Integer between 20 and 500. Resolution of the plotted surface Default: 100
-#' @param point.size.range Numeric vector of length 2 with the range of point sizes used by \link[ggplot2]{geom_point}, Default: c(0.5, 2.5)
-#' @return A list with slots named after the selected `quantiles` with a ggplot.
-#' @details All variables that are not `a` or `b` are set to the values of their respective quantiles to plot the response surfaces. The output list can be plotted all at once with `patchwork::wrap_plots(p)` or `cowplot::plot_grid(plotlist = p)`, or one by one by extracting each plot from the list.
+#' @title Plots the response surfaces of a random forest model
+#' @description Plots response surfaces for any given pair of predictors in a [rf()], [rf_repeat()], or [rf_spatial()] model.
+#' @param model A model fitted with [rf()], [rf_repeat()], or [rf_spatial()]. Default `NULL`
+#' @param a Character string, name of a model predictor. If `NULL`, the most important variable in `model` is selected. Default: `NULL`
+#' @param b Character string, name of a model predictor. If `NULL`, the second most important variable in `model` is selected. Default: `NULL`
+#' @param quantiles Numeric vector between 0 and 1. Argument `probs` of the function \link[stats]{quantile}. Quantiles to set the other variables to. Default: `c(0.1, 0.5, 0.9)`
+#' @param grid.resolution Integer between 20 and 500. Resolution of the plotted surface Default: `100`
+#' @param point.size.range Numeric vector of length 2 with the range of point sizes used by \link[ggplot2]{geom_point}, Default: `c(0.5, 2.5)`
+#' @param verbose Logical, if TRUE the plot is printed. Default: `TRUE`
+#' @return A list with slots named after the selected `quantiles`, each one with a ggplot.
+#' @details All variables that are not `a` or `b` in a response curve are set to the values of their respective quantiles to plot the response surfaces. The output list can be plotted all at once with `patchwork::wrap_plots(p)` or `cowplot::plot_grid(plotlist = p)`, or one by one by extracting each plot from the list.
+#' @seealso [plot_response_curves()]
 #' @examples
 #' \dontrun{
 #' if(interactive()){
+#'
 #'data(plant_richness_df)
 #'
-#'m <- rf(
+#'out <- rf(
 #'  data = plant_richness_df,
 #'  dependent.variable.name = "richness_species_vascular",
 #'  predictor.variable.names = colnames(plant_richness_df)[5:21],
  #'  verbose = FALSE
 #')
 #'
-#'p <- response_surfaces(model = m)
-#'  }
+#'p <- plot_response_surfaces(model = out)
+#'
 #' }
-#' @rdname response_surfaces
+#' }
+#' @rdname plot_response_surfaces
 #' @export
 #' @importFrom ggplot2 ggplot geom_tile aes_string theme_bw geom_point scale_size_continuous labs ggtitle
 #' @importFrom viridis scale_fill_viridis
 #' @importFrom patchwork wrap_plots
-response_surfaces <- function(
+plot_response_surfaces <- function(
   model = NULL,
   a = NULL,
   b = NULL,
   quantiles = c(0.10, 0.5, 0.90),
   grid.resolution = 100,
-  point.size.range = c(0.5, 2.5)
+  point.size.range = c(0.5, 2.5),
+  verbose = TRUE
   ){
 
   if(is.null(model)){
@@ -143,7 +148,11 @@ response_surfaces <- function(
 
   }
 
-  print(patchwork::wrap_plots(ab.grid.quantiles))
+  ab.grid.quantiles <- patchwork::wrap_plots(ab.grid.quantiles)
+
+  if(verbose == TRUE){
+    print(ab.grid.quantiles)
+  }
 
   ab.grid.quantiles
 

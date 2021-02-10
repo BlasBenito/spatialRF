@@ -2,17 +2,17 @@
 % Please edit documentation in R/double_center_distance_matrix.R
 \name{double_center_distance_matrix}
 \alias{double_center_distance_matrix}
-\title{double_center_distance_matrix}
+\title{Double centers a distance matrix}
 \usage{
 double_center_distance_matrix(x = NULL, distance.threshold = 0)
 }
 \arguments{
 \item{x}{Numeric distance matrix. Default: \code{NULL}.}
 
-\item{distance.threshold}{Numeric, positive, in the range of values of \emph{x}. Distances below this value in the distance matrix are set to 0.  Default: 0.}
+\item{distance.threshold}{Numeric, positive, in the range of values of \code{x}. Distances below this value in the distance matrix are set to 0.  Default: \code{0}.}
 }
 \value{
-A double-centered matrix of the same dimensions as \emph{x}.
+A double-centered matrix of the same dimensions as `x.
 }
 \description{
 Generates a double-centered matrix from the weights of a distance matrix (see \code{\link[=weights_from_distance_matrix]{weights_from_distance_matrix()}}) and a distance threshold. This is a required step before the computation of Moran's Eigenvector Maps.
@@ -20,11 +20,17 @@ Generates a double-centered matrix from the weights of a distance matrix (see \c
 \examples{
 \dontrun{
 if(interactive()){
+
  data(distance_matrix)
+
  x <- double_center_distance_matrix(
    x = distance_matrix
  )
  x
+
  }
 }
+}
+\seealso{
+\code{\link[=weights_from_distance_matrix]{weights_from_distance_matrix()}}, \code{\link[=mem]{mem()}}, \code{\link[=mem_multithreshold]{mem_multithreshold()}}
 }

@@ -2,26 +2,27 @@
 % Please edit documentation in R/print_moran.R
 \name{print_moran}
 \alias{print_moran}
-\title{print_moran}
+\title{Prints results of a Moran's I test}
 \usage{
 print_moran(x, caption = NULL, verbose = TRUE)
 }
 \arguments{
-\item{x}{A model produced by \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}, or a data frame resulting from \link{moran_multithreshold}. Default: NULL}
+\item{x}{A model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}.}
 
-\item{caption}{character, caption to attach to the output, Default: NULL}
+\item{caption}{Character, caption of the output table, Default: \code{NULL}}
 
-\item{verbose}{logical, if TRUE, the resulting table is printed into the console, Default: TRUE}
+\item{verbose}{Logical, if \code{TRUE}, the resulting table is printed into the console, Default: \code{TRUE}}
 }
 \value{
 Prints a table in the console using the \link[huxtable]{huxtable} package.
 }
 \description{
-Prints spatial correlation tests.
+Prints the results of a Moran's I test on the residuals of a model.
 }
 \examples{
 \dontrun{
 if(interactive()){
+
  data(plant_richness_df)
  data(distance.matrix)
 
@@ -35,6 +36,10 @@ if(interactive()){
  )
 
  print_moran(rf.model)
- }
+
 }
+}
+}
+\seealso{
+\code{\link[=moran]{moran()}}, \code{\link[=moran_multithreshold]{moran_multithreshold()}}, \code{\link[=get_moran]{get_moran()}}, \code{\link[=plot_moran]{plot_moran()}}
 }

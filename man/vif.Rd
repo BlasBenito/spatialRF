@@ -2,25 +2,30 @@
 % Please edit documentation in R/vif.R
 \name{vif}
 \alias{vif}
-\title{vif}
+\title{Variance Inflation Factor of a data frame}
 \usage{
 vif(x)
 }
 \arguments{
-\item{x}{data frame with numeric columns, typically with a set of predictors.}
+\item{x}{Data frame with numeric columns, typically containing a set of model predictors.}
 }
 \value{
-a data frame with two columns having the name of the variables in 'x' and their respective VIF values.
+A data frame with two columns having the name of the variables in 'x' and their respective VIF values.
 }
 \description{
-computes the variance inflation factor (VIF) of the colums in a data frame.
+Computes the variance inflation factor (VIF) of the colums in a data frame.
 }
 \examples{
 \dontrun{
 if(interactive()){
-data(plant_richness_df)
- out <- vif(plant_richness_df[, 5:21])
- out
- }
+
+ data(plant_richness_df)
+
+ vif(plant_richness_df[, 5:21])
+
 }
+}
+}
+\seealso{
+\code{\link[=auto_vif]{auto_vif()}}, \code{\link[=auto_cor]{auto_cor()}}
 }

@@ -2,27 +2,33 @@
 % Please edit documentation in R/scale_robust.R
 \name{scale_robust}
 \alias{scale_robust}
-\title{scale_robust}
+\title{Robust scaling of training data frames}
 \usage{
 scale_robust(x, center = TRUE, scale = TRUE)
 }
 \arguments{
-\item{x}{matrix or data.frame}
+\item{x}{Matrix or data.frame}
 
-\item{center}{substract median (default:TRUE)}
+\item{center}{Logical. If \code{TRUE}, substracts the median to center the data. Default: \code{TRUE}}
 
-\item{scale}{scale by the median absolute deviation (mad())  (default:FALSE)}
+\item{scale}{Logical. If \code{TRUE}, scales the data by the median absolute deviation. Default: \code{TRUE}}
 }
 \value{
 a scaled matrix or dataframe
 }
 \description{
-scales a matrix or a data frame by the median instead of the mean.
+Scales a matrix or a data frame by the median instead of the mean.
 }
 \details{
 Adapted from \link[quantable]{robustscale}.
 }
 \examples{
+\dontrun{
+if(interactive()){
+
 data(plant_richness_df)
 plant_richness_df.scaled <- scale_robust(x = plant_richness_df[, 5:10])
+
+}
+}
 }

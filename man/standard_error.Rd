@@ -2,7 +2,7 @@
 % Please edit documentation in R/standard_error.R
 \name{standard_error}
 \alias{standard_error}
-\title{standard_error()}
+\title{Standard error of the mean of a numeric vector}
 \usage{
 standard_error(x)
 }
@@ -13,7 +13,7 @@ standard_error(x)
 A numeric value.
 }
 \description{
-Computes the standard error of a numeric vector as \code{round(sqrt(var(x)/length(x)), 3)}
+Computes the standard error of the mean of a numeric vector as \code{round(sqrt(var(x)/length(x)), 3)}
 }
 \details{
 The function removes \code{NA} values before computing the standard error, and rounds the result to 3 decimal places.
@@ -21,7 +21,9 @@ The function removes \code{NA} values before computing the standard error, and r
 \examples{
 \dontrun{
 if(interactive()){
+
  standard_error(runif(10))
- }
+
+}
 }
 }

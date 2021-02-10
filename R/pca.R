@@ -1,16 +1,20 @@
-#' @title pca
+#' @title Principal Components Analysis
 #' @description Extracts all factors of a principal component analysis of a matrix or data frame. Just a convenient wrapper for [prcomp].
 #' @param x numeric matrix or data frame, Default: NULL
 #' @param colnames.prefix character, name prefix for the output columns, Default: 'pca_factor'
-#' @return a data frame with the PCA factors of x.
-#' @details columns in x with zero variance are removed before computing the PCA.
+#' @return A data frame with the PCA factors of `x`.
+#' @details Columns in `x` with zero variance are removed before computing the PCA.
+#' @seealso [pca_multithreshold()]
 #' @examples
 #' \dontrun{
 #' if(interactive()){
+#'
 #'  data(distance_matrix)
+#'
 #'  out <- pca(x = distance_matrix)
 #'  out
-#'  }
+#'
+#' }
 #' }
 #' @rdname pca
 #' @importFrom stats prcomp var

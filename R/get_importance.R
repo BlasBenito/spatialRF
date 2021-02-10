@@ -1,13 +1,15 @@
-#' @title get_importance
-#' @description Gets variable importance scores from [rf], [rf_repeat], and [rf_spatial] models.
-#' @param x A model produced by [rf], [rf_repeat], or [rf_spatial], or a data frame with importance scores. Default: NULL
-#' @return a data frame
+#' @title Gets importance data frame from a model
+#' @description Gets variable importance scores from [rf()], [rf_repeat()], and [rf_spatial()] models.
+#' @param x A model fitted with [rf()], [rf_repeat()], or [rf_spatial()]. Default: NULL
+#' @return A data frame with variable names and importance scores.
+#' @seealso [rf()], [rf_repeat()], [rf_spatial()], [plot_importance()], [print_importance()].
 #' @examples
 #' \dontrun{
 #' if(interactive()){
 #'
 #' data(plant_richness_df)
 #' data(distance_matrix)
+#'
 #' rf.model <- rf(
 #'   data = plant_richness_df,
 #'   dependent.variable.name = "richness_species_vascular",
@@ -16,8 +18,11 @@
 #'   distance.thresholds = c(0, 1000, 2000),
 #'   verbose = FALSE
 #' )
+#'
 #' x <- get_importance(x = rf.model)
-#'  }
+#' x
+#'
+#' }
 #' }
 #' @rdname get_importance
 #' @export

@@ -1,12 +1,14 @@
-#' @title print_moran
-#' @description Prints spatial correlation tests.
-#' @param x A model produced by [rf()], [rf_repeat()], or [rf_spatial()], or a data frame resulting from [moran_multithreshold]. Default: NULL
-#' @param caption character, caption to attach to the output, Default: NULL
-#' @param verbose logical, if TRUE, the resulting table is printed into the console, Default: TRUE
+#' @title Prints results of a Moran's I test
+#' @description Prints the results of a Moran's I test on the residuals of a model.
+#' @param x A model fitted with [rf()], [rf_repeat()], or [rf_spatial()].
+#' @param caption Character, caption of the output table, Default: `NULL`
+#' @param verbose Logical, if `TRUE`, the resulting table is printed into the console, Default: `TRUE`
 #' @return Prints a table in the console using the \link[huxtable]{huxtable} package.
+#' @seealso [moran()], [moran_multithreshold()], [get_moran()], [plot_moran()]
 #' @examples
 #' \dontrun{
 #' if(interactive()){
+#'
 #'  data(plant_richness_df)
 #'  data(distance.matrix)
 #'
@@ -20,7 +22,8 @@
 #'  )
 #'
 #'  print_moran(rf.model)
-#'  }
+#'
+#' }
 #' }
 #' @rdname print_moran
 #' @export

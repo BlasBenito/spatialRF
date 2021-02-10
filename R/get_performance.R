@@ -1,16 +1,18 @@
-#' @title get_performance()
-#' @description Returns the performance slot of an [rf()], [rf_repeat()], or [rf_spatial()] model.
-#' @param x Model fitted by [rf()], [rf_repeat()], or [rf_spatial()].
+#' @title Gets out-of-bag performance scores from a model
+#' @description Returns the performance slot of an [rf()], [rf_repeat()], or [rf_spatial()] model computed on the out-of-bag data.
+#' @param x Model fitted with [rf()], [rf_repeat()], or [rf_spatial()].
 #' @return A data frame with four columns:
 #' \itemize{
-#'   \item *metric* Name of the performance metric.
-#'   \item *mean* Value of the performance metric. Only really a mean if the model is fitted with [rf_repeat()].
-#'   \item *standard_error* Standard error of the mean, only if the model is fitted with [rf_repeat()], and `NA` otherwise.
-#'   \item *standard_deviation* Standard deviation of the mean, only if the model is fitted with [rf_repeat()], and `NA` otherwise.
+#'   \item `metric` Name of the performance metric.
+#'   \item `mean` Value of the performance metric. Truly a mean only if the model is fitted with [rf_repeat()].
+#'   \item `standard_error` Standard error of the mean, only if the model is fitted with [rf_repeat()], and `NA` otherwise.
+#'   \item `standard_deviation` Standard deviation of the mean, only if the model is fitted with [rf_repeat()], and `NA` otherwise.
 #' }
+#' @seealso [print_performance()]
 #' @examples
 #' \dontrun{
 #' if(interactive()){
+#'
 #'  data(plant_richness_df)
 #'  data(distance.matrix)
 #'
@@ -24,7 +26,9 @@
 #'  )
 #'
 #'  x <- get_performance(rf.model)
-#'  }
+#'  x
+#'
+#' }
 #' }
 #' @rdname get_performance
 #' @export

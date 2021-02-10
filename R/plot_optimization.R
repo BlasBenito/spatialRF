@@ -1,9 +1,10 @@
-#' @title plot_optimization
-#' @description plots optimization data frames produced by [select_spatial_predictors_sequential] and [select_spatial_predictors_optimized].
-#' @param x A model produced by [rf_spatial()], or an optimization data frame produced by [select_spatial_predictors_sequential] or [select_spatial_predictors_optimized].
+#' @title Optimization plot of a selection of spatial predictors
+#' @description Plots optimization data frames produced by [select_spatial_predictors_sequential()]
+#' and [select_spatial_predictors_optimized()].
+#' @param x A model produced by [rf_spatial()], or an optimization data frame produced by [select_spatial_predictors_sequential()] or [select_spatial_predictors_optimized()].
 #' @param verbose logical, if TRUE the plot is printed Default: TRUE
-#' @details If the method used to fit the [rf_spatial()] is "hengl", the function returns nothing, as this method does not require optimization.
-#' @return An optimization ggplot.
+#' @details If the method used to fit a model with [rf_spatial()] is "hengl", the function returns nothing, as this method does not require optimization.
+#' @return A ggplot.
 #' @rdname plot_optimization
 #' @export
 #' @importFrom ggplot2 ggplot aes geom_point scale_color_viridis_c geom_path geom_vline labs xlab ylab ggtitle

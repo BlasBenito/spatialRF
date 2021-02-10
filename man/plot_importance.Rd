@@ -2,23 +2,20 @@
 % Please edit documentation in R/plot_importance.R
 \name{plot_importance}
 \alias{plot_importance}
-\title{plot_importance}
+\title{Plots the variable importance of a model}
 \usage{
 plot_importance(x = NULL, verbose = TRUE)
 }
 \arguments{
-\item{x}{A model produced by \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}, or a data frame with importance scores. Default: NULL}
+\item{x}{A model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}. Default: \code{NULL}}
 
-\item{verbose}{Logical, if TRUE, the generated plot is printed. Default: TRUE}
+\item{verbose}{Logical, if \code{TRUE}, the plot is printed. Default: \code{TRUE}}
 }
 \value{
-a ggplot
+A ggplot.
 }
 \description{
-plots variable importance scores of \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, and \code{\link[=rf_spatial]{rf_spatial()}} models.
-}
-\details{
-For \code{\link[=rf_repeat]{rf_repeat()}} models, the middle point of each boxplot represents the mean variable importance rather than the median. This is to keep consistency within the package, as every other aggregated measure of performance or importance is presented as a mean.
+Plots variable importance scores of \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, and \code{\link[=rf_spatial]{rf_spatial()}} models.
 }
 \examples{
 \dontrun{
@@ -26,6 +23,7 @@ if(interactive()){
 
 data(plant_richness_df)
 data(distance.matrix)
+
 rf.model <- rf(
   data = plant_richness_df,
  dependent.variable.name = "richness_species_vascular",
@@ -34,7 +32,12 @@ rf.model <- rf(
  distance.thresholds = c(0, 1000, 2000),
  verbose = FALSE
 )
+
 plot_importance(x = rf.model)
- }
+
 }
+}
+}
+\seealso{
+\code{\link[=print_importance]{print_importance()}}, \code{\link[=get_importance]{get_importance()}}
 }

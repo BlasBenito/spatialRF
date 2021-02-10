@@ -1,30 +1,34 @@
-#' @title moran_multithreshold
-#' @description Applies [moran] to different distance thresholds at the same time, and plots Moran's I value for each distance threshold.
-#' @param x numeric vector, generally a model residuals, Default: NULL
-#' @param distance.matrix distance matrix among the records represented in the numeric vector. The number of rows of this matrix must be equal to the length of x. Default: NULL
-#' @param distance.thresholds numeric vector, distances below each value in the distance matrix are set to 0 for the computation of Moran's I. If NULL, it defaults to seq(0, max(distance.matrix), length.out = 4). Default: NULL
-#' @param verbose boolean, plots Moran's I values for each distance threshold if TRUE, Default: TRUE
+#' @title Moran's I test on a numeric vector for different neighborhoods
+#' @description Applies [moran()] to different distance thresholds at the same time.
+#' @param x Numeric vector, generally model residuals, Default: `NULL`
+#' @param distance.matrix Distance matrix among cases in `x`. The number of rows of this matrix must be equal to the length of `x`. Default: `NULL`
+#' @param distance.thresholds Numeric vector, distances below each value in the distance matrix are set to 0 (on separated copies of the distance matrix) for the computation of Moran's I. If `NULL`, it defaults to seq(0, max(distance.matrix), length.out = 4). Default: `NULL`
+#' @param verbose Logical, if `TRUE`, plots Moran's I values for each distance threshold. Default: `TRUE`
 #' @return a named list with the slots:
-#'  \describe{
-#'  \item{df}{dataframe with the results of [moran] per distance threshold.}
-#'  \item{plot}{a plot of Moran's I across distance thresholds.}
-#'  \item{max.moran}{maximum value of Moran's I across thresholds.}
-#'  \item{max.moran.distance.threshold}{distance threshold with the maximum Moran's I value.}
+#'  \itemize{
+#'  \item `df`: Data frame with the results of [moran] per distance threshold.
+#'  \item `plot`: A plot of Moran's I across distance thresholds.
+#'  \item `max.moran`: Maximum value of Moran's I across thresholds.
+#'  \item `max.moran.distance.threshold`: Distance threshold with the maximum Moran's I value.
 #'  }
-#' @details The idea behind this function comes from the uncertainty about what "neighborhood" means in ecological systems (1000km in geological time mean little, but 100m might be quite a long distance for a tree to disperse seeds over), and allows to explore spatial autocorrelation of model residuals for several minimum-distance criteria at once.
+#' @details The idea behind this function comes from the uncertainty about what "neighborhood" means in ecological systems (1000km in geological time means little, but 100m might be quite a long distance for a tree to disperse seeds over), and allows to explore spatial autocorrelation of model residuals for several minimum-distance criteria at once.
+#' @seealso [moran()]
 #' @examples
 #' \dontrun{
 #' if(interactive()){
+#'
 #'  data(distance_matrix)
 #'  data(plant_richness)
-#'  moran.out <- moran_multithreshold(
+#'
+#'  out <- moran_multithreshold(
 #'    x = plant_richness$richness_species_vascular,
 #'    distance.matrix = distance_matrix,
 #'    distance.thresholds = c(0, 100, 1000, 10000),
 #'    plot = TRUE
 #'    )
-#'  moran.out
-#'  }
+#'  out
+#'
+#' }
 #' }
 #' @rdname moran_multithreshold
 #' @export

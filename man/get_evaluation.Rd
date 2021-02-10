@@ -2,18 +2,24 @@
 % Please edit documentation in R/get_evaluation.R
 \name{get_evaluation}
 \alias{get_evaluation}
-\title{get_evaluation}
+\title{Gets performance data frame from a cross-validated model}
 \usage{
 get_evaluation(x)
 }
 \arguments{
-\item{x}{A model resulting from \code{\link[=rf_evaluate]{rf_evaluate()}}}
+\item{x}{A model fitted with \code{\link[=rf_evaluate]{rf_evaluate()}}.}
 }
 \value{
-A data frame with evaluation scores.
+A data frame with evaluation scores. The following columns are shown:
+\itemize{
+\item \code{model}: Identifies the given model. The values are "Full", (original model introduced into \code{\link[=rf_evaluate]{rf_evaluate()}}), "Training" (model trained on an independent training spatial fold), and "Testing" (predictive performance of the training model on an independent testing spatial fold). The performance values of the "Testing" model represent the model performance on unseen data, and hence its ability to generalize.
+\item \code{metric}: Four values representing different evaluation metrics, "rmse", "nrmse", "r.squared", and "pseudo.r.squared".
+\item \code{mean}, \code{sd}, \code{min}, and \code{max}: Average, standard deviation, minimum, and maximum of each metric across the evaluation (cross-validation) iterations.
+
+}
 }
 \description{
-Returns an evaluation performed with \code{\link[=rf_evaluate]{rf_evaluate()}} as a data frame.
+Returns performance metrics produced by \code{\link[=rf_evaluate]{rf_evaluate()}}.
 }
 \examples{
 \dontrun{
@@ -38,6 +44,11 @@ rf.model <- rf_evaluate(
 )
 
 x <- get_evaluation(x = rf.model)
- }
+x
+
 }
+}
+}
+\seealso{
+\code{\link[=rf_evaluate]{rf_evaluate()}}, \code{\link[=plot_evaluation]{plot_evaluation()}}, \code{\link[=print_evaluation]{print_evaluation()}}
 }

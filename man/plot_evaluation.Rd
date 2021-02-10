@@ -2,18 +2,49 @@
 % Please edit documentation in R/plot_evaluation.R
 \name{plot_evaluation}
 \alias{plot_evaluation}
-\title{plot_evaluation}
+\title{Plots the results of a spatial cross-validation}
 \usage{
 plot_evaluation(x, verbose = TRUE)
 }
 \arguments{
-\item{x}{A model resulting from \code{\link[=rf_evaluate]{rf_evaluate()}}}
+\item{x}{A model resulting from \code{\link[=rf_evaluate]{rf_evaluate()}}.}
 
-\item{verbose}{logical, if TRUE the plot is printed, Default: TRUE}
+\item{verbose}{Logical, if TRUE the plot is printed. Default: \code{TRUE}}
 }
 \value{
 A ggplot.
 }
 \description{
-Plots the results of an evaluation performed with \code{\link[=rf_evaluate]{rf_evaluate()}}.
+Plots the results of an spatial cross-validation performed with \code{\link[=rf_evaluate]{rf_evaluate()}}.
+}
+\examples{
+\dontrun{
+if(interactive()){
+
+data(plant_richness_df)
+data(distance_matrix)
+
+rf.model <- rf(
+  data = plant_richness_df,
+  dependent.variable.name = "richness_species_vascular",
+  predictor.variable.names = colnames(plant_richness_df)[5:21],
+  distance.matrix = distance_matrix,
+  distance.thresholds = c(0, 1000, 2000),
+  verbose = FALSE
+)
+
+rf.model <- rf_evaluate(
+  model = rf.model,
+  xy = plant_richness_df[, c("x", "y")],
+  n.cores = 1
+)
+
+plot_evaluation(rf.model)
+
+}
+}
+
+}
+\seealso{
+\code{\link[=rf_evaluate]{rf_evaluate()}}, \code{\link[=get_evaluation]{get_evaluation()}}, \code{\link[=print_evaluation]{print_evaluation()}}.
 }

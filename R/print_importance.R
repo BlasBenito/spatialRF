@@ -1,14 +1,16 @@
-#' @title print_importance
-#' @description prints variable importance scores from [rf], [rf_repeat], and [rf_spatial] models.
-#' @param x A model produced by [rf], [rf_repeat], or [rf_spatial], or a data frame with importance scores. Default: NULL
-#' @param verbose Logical, if TRUE, variable importance is returned. Default: TRUE
-#' @return a ggplot
+#' @title Prints variable importance
+#' @description Prints variable importance scores from [rf], [rf_repeat], and [rf_spatial] models.
+#' @param x A model fitted with [rf], [rf_repeat], or [rf_spatial].
+#' @param verbose Logical, if `TRUE`, variable importance is returned. Default: `TRUE`
+#' @return A table printed to the standard output.
+#' @seealso [plot_importance()], [get_importance()]
 #' @examples
 #' \dontrun{
 #' if(interactive()){
 #'
 #' data(plant_richness_df)
 #' data(distance.matrix)
+#'
 #' rf.model <- rf(
 #'   data = plant_richness_df,
 #'   dependent.variable.name = "richness_species_vascular",
@@ -17,12 +19,14 @@
 #'   distance.thresholds = c(0, 1000, 2000),
 #'   verbose = FALSE
 #' )
+#'
 #' print_importance(x = rf.model)
-#'  }
+#'
+#' }
 #' }
 #' @rdname print_importance
 #' @export
-print_importance <- function(x = NULL, verbose = TRUE){
+print_importance <- function(x, verbose = TRUE){
 
   #declaring variables
   importance <- NULL

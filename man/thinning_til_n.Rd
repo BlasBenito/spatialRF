@@ -2,26 +2,37 @@
 % Please edit documentation in R/thinning_til_n.R
 \name{thinning_til_n}
 \alias{thinning_til_n}
-\title{thinning_til_n}
+\title{Applies thinning to pairs of coordinates until reaching a given n}
 \usage{
 thinning_til_n(xy, n = 30)
 }
 \arguments{
-\item{xy}{a data frame with columns named "x" and "y" representing geographic coordinates.}
+\item{xy}{A data frame with columns named "x" and "y" representing geographic coordinates.}
 
-\item{n}{number of samples to obtain.}
+\item{n}{Integer, number of samples to obtain. Must be lower than \code{nrow(xy)}. Default: \code{30}}
 }
 \value{
-a data frame with the same columns as xy with a row number close to n.
+A data frame with the same columns as xy with a row number close to n.
 }
 \description{
 Resamples a set of points with x and y coordinates by increasing the distance step by step until a given sample size is obtained.
 }
 \examples{
+\dontrun{
+if(interactive()){
+
  data(plant_richness)
+
  plant_richness.thin <- thinning_til_n(
    x = plant_richness_df,
    n = 100
    )
+
  plant_richness.thin
+
+}
+}
+}
+\seealso{
+\code{\link[=thinning]{thinning()}}
 }

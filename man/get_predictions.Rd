@@ -2,18 +2,18 @@
 % Please edit documentation in R/get_predictions.R
 \name{get_predictions}
 \alias{get_predictions}
-\title{get_predictions}
+\title{Gets model predictions}
 \usage{
 get_predictions(x)
 }
 \arguments{
-\item{x}{A model produced by \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}. Default: NULL}
+\item{x}{A model produced by \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}.}
 }
 \value{
 A data frame with predictions, or mean and standard deviation of the predictions if the model was fitted with \code{\link[=rf_repeat]{rf_repeat()}}.
 }
 \description{
-Returns model predictions.
+Returns model predictions from a model fited with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}.
 }
 \examples{
 \dontrun{
@@ -29,6 +29,8 @@ rf.model <- rf(
 )
 
 x <- get_predictions(x = rf.model)
- }
+x
+
+}
 }
 }

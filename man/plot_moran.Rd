@@ -2,24 +2,25 @@
 % Please edit documentation in R/plot_moran.R
 \name{plot_moran}
 \alias{plot_moran}
-\title{plot_moran}
+\title{Plots a Moran's I test of model residuals}
 \usage{
 plot_moran(x, verbose = TRUE)
 }
 \arguments{
-\item{x}{A model produced by \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}, or a data frame resulting from \link{moran_multithreshold}. Default: NULL}
+\item{x}{A model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}. Default: \code{NULL}}
 
-\item{verbose}{logical, if TRUE, the resulting table is printed into the console, Default: TRUE}
+\item{verbose}{Logical, if \code{TRUE}, the resulting plot is printed, Default: \code{TRUE}}
 }
 \value{
-a ggplot.
+A ggplot.
 }
 \description{
-Plots results of spatial autocorrelation tests for a variety of functions within the package.
+Plots the results of spatial autocorrelation tests for a variety of functions within the package.
 }
 \examples{
 \dontrun{
 if(interactive()){
+
  data(plant_richness_df)
  data(distance.matrix)
 
@@ -33,6 +34,10 @@ if(interactive()){
  )
 
  plot_moran(x = rf.model)
- }
+
 }
+}
+}
+\seealso{
+\code{\link[=moran]{moran()}}, \code{\link[=moran_multithreshold]{moran_multithreshold()}}
 }

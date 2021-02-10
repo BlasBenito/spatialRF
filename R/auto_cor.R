@@ -1,21 +1,38 @@
-#' @title auto_cor
-#' @description Reduces the bivariate correlation in a data frame of predictors
-#' @param x A data frame with predictors. Default: `NULL`.
-#' @param preference.order Character vector indicating the user's order of preference to keep variables. Default: `NULL`.
-#' @param cor.threshold Numeric between 0 and 1, maximum Pearson correlation between any pair of the selected variables. Default: 0.75
-#' @return List with two slots:
+#' @title Multicollinearity reduction via Pearson correlation
+#' @description Computes the correlation matrix among a set of predictors, orders the correlation matrix according to a user-defined preference order, and removes variables one by one until the remaining ones are below a given Pearson correlation threshold.
+#' @param x A data frame with predictors, or the result of [auto_vif()] Default: `NULL`.
+#' @param preference.order Character vector indicating the user's order of preference to keep variables. Doesn't need to contain If not provided, variables in `x` are prioritised by their column order. Default: `NULL`.
+#' @param cor.threshold Numeric between 0 and 1, with recommended values between 0.5 and 0.9. Maximum Pearson correlation between any pair of the selected variables. Default: 0.75
+#' @return List with trhee slots:
 #' \itemize{
-#'   \item **cor**: Correlation matrix of the selected variables.
-#'   \item **selected.variables**: Character vector with the names of the selected variables.
+#'   \item `cor`: correlation matrix of the selected variables.
+#'   \item `selected.variables`: character vector with the names of the selected variables.
+#'   \item `selected.variables.df`: data frame with the selected variables.
 #' }
+#' @details Can be chained together with [auto_vif()] through pipes, see the examples below.
+#' @seealso [auto_vif()]
 #' @examples
 #' \dontrun{
 #' if(interactive()){
+#'
 #'  data(plant_richness_df)
+#'
+#'  #on a data frame
 #'  out <- auto_cor(x = plant_richness_df[, 4:21])
 #'  out$selected.variables
+#'
+#'  #on the result of auto_vif
+#'  out <- auto_vif(x = plant_richness_df[, 5:20])
+#'  out <- auto_cor(x = out)
+#'
+#'  #with pipes
+#'  out <- plant_richness_df[, 5:20] %>%
+#'  auto_vif(vif.threshold = 2.5) %>% #artificially low
+#'  auto_cor(cor.threshold = 0.4)     #artificially low
+#'
 #'  }
 #' }
+#' @seealso [auto_vif()]
 #' @rdname auto_cor
 #' @export
 auto_cor <- function(
@@ -24,8 +41,9 @@ auto_cor <- function(
   cor.threshold = 0.75
 ){
 
-  #removing na
-  x <- na.omit(x)
+  if(inherits(x, "auto_vif")){
+    x <- x$selected.variables.df
+  }
 
   #compute correlation matrix of x
   x.cor <- abs(cor(x))
@@ -33,30 +51,45 @@ auto_cor <- function(
   #diagonals to zero
   diag(x.cor) <- 0
 
-  #reorder by preference
+  #completing preference order
   if(!is.null(preference.order)){
+    if(length(preference.order) < ncol(x)){
+      not.in.preference.order <- colnames(x)[!(colnames(x) %in% preference.order)]
+      preference.order <- c(preference.order, not.in.preference.order)
+    }
     x.cor <- x.cor[preference.order, preference.order]
   }
 
-  #iterate through columns
-  i <- 1
-  while(i <= ncol(x.cor)){
 
-    #select variables with cor below cor.threshold
-    vars.to.keep <- names(which(x.cor[, i] <= cor.threshold))
+  #iterating through columns
+  for(i in ncol(x.cor):1){
 
-    #subsetting
-    x.cor <- x.cor[vars.to.keep, vars.to.keep]
+    #compute max
+    x.cor.max <- apply(x.cor, 2, FUN = max)
 
-    #adding 1 to the index
-    i <- i + 1
+    #remove i column if max > cor.threshold
+    if(x.cor.max[i] > cor.threshold){
+
+      #identify column name
+      variable.to.remove <- names(x.cor.max[i])
+
+      #remove it from x.cor
+      x.cor <- x.cor[
+        rownames(x.cor) != variable.to.remove,
+        rownames(x.cor) != variable.to.remove
+      ]
+    }
 
   }
 
   #return output
   output.list <- list()
-  output.list$cor <- x.cor
+  output.list$cor <- round(cor(x[, colnames(x.cor)]), 3)
   output.list$selected.variables <- colnames(x.cor)
+  output.list$selected.variables.df <- x[, colnames(x.cor)]
+
+  class(output.list) <- "auto_cor"
+
   output.list
 
 }

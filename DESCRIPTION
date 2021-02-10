@@ -1,13 +1,14 @@
 Package: spatialRF
-Title: What the Package Does (One Line, Title Case)
+Title: Easy Spatial Modeling with Random Forest and Moran's Eigenvector Maps
 Version: 0.0.0.9000
 Authors@R: 
-    person(given = "First",
-           family = "Last",
+    person(given = "Blas M.",
+           family = "Benito",
            role = c("aut", "cre"),
-           email = "first.last@example.com",
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
+           email = "blasbenito@gmail.com",
+           comment = c(ORCID = "0000-0001-5105-7232"))
+URL: https://github.com/BlasBenito/spatialRF
+Description: Facilitates fitting spatial regression with random forest by generating spatial predictors that allow the model to learn about the spatial structure of the training data in order to reduce the spatial correlation of the model residuals. Three methods to generate spatial predictors are provided in the package: 'Moran's Eigenvector Maps' and 'PCA factors of the distance matrix' (Dray, Legendre, and Peres-Neto 2006 <doi:10.1016/j.ecolmodel.2006.02.015>), and 'distance matrix columns as explanatory variables' (Hengl et al. <doi:10.7717/peerj.5518>). The package provides as well a large set of tools to identify variable interactions, assess spatial correlation, tune random forest hyperparameters, assess model performance on spatially independent data folds, and examine the resulting models via importance plots, and reponse curves and surfaces. Computationally intensive functions rely on the 'ranger'  package (Wright and Ziegler 2017 <doi:10.18637/jss.v077.i01>), and are designed to run in parallel in a single machine or a Beowulf cluster.
 License: GPL-3
 Depends: 
     R (>= 2.10)

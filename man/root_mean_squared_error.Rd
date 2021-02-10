@@ -2,7 +2,7 @@
 % Please edit documentation in R/root_mean_squared_error.R
 \name{root_mean_squared_error}
 \alias{root_mean_squared_error}
-\title{root_mean_squared_error}
+\title{RMSE and normalized RMSE}
 \usage{
 root_mean_squared_error(
   o,
@@ -11,9 +11,9 @@ root_mean_squared_error(
 )
 }
 \arguments{
-\item{o}{numeric vector with observations, must have the same length as p.}
+\item{o}{Numeric vector with observations, must have the same length as \code{p}.}
 
-\item{p}{numeric vector with predictions, must have the same length as o.}
+\item{p}{Numeric vector with predictions, must have the same length as \code{o}.}
 
 \item{normalization}{character, normalization method, Default: "rmse" (see Details).}
 }
@@ -21,25 +21,27 @@ root_mean_squared_error(
 Named numeric vector with either one or 5 values, as selected by the user.
 }
 \description{
-computes the rmse or normalized rmse (nrmse) between two numeric vectors of the same length representing observations and model predictions.
+Computes the rmse or normalized rmse (nrmse) between two numeric vectors of the same length representing observations and model predictions.
 }
 \details{
 The normalization methods go as follows:
 \itemize{
-\item "rmse": rmse with no normalization.
-\item "mean": rmse dividied by the mean of the observations (rmse/mean(o)).
-\item "sd": rmse dividied by the standard deviation of the observations (rmse/sd(o)).
-\item "maxmin": rmse divided by the range of the observations (rmse/(max(o) - min(o))).
-\item "iq": rmse divided by the interquartile range of the observations (rmse/(quantile(o, 0.75) - quantile(o, 0.25)))
+\item \code{"rmse"}: RMSE with no normalization.
+\item \code{"mean"}: RMSE dividied by the mean of the observations (rmse/mean(o)).
+\item \code{"sd"}: RMSE dividied by the standard deviation of the observations (rmse/sd(o)).
+\item \code{"maxmin"}: RMSE divided by the range of the observations (rmse/(max(o) - min(o))).
+\item "\verb{iq"}: RMSE divided by the interquartile range of the observations (rmse/(quantile(o, 0.75) - quantile(o, 0.25)))
 }
 }
 \examples{
 \dontrun{
 if(interactive()){
+
  out <- root_mean_squared_error(
    o = runif(10),
    p = runif(10)
    )
- }
+
+}
 }
 }

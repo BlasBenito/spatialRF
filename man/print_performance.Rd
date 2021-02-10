@@ -7,7 +7,7 @@
 print_performance(x)
 }
 \arguments{
-\item{x}{Model fitted by \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}.}
+\item{x}{Model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}.}
 }
 \description{
 Prints the performance slot of a model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}.
@@ -15,6 +15,7 @@ Prints the performance slot of a model fitted with \code{\link[=rf]{rf()}}, \cod
 \examples{
 \dontrun{
 if(interactive()){
+
  data(plant_richness_df)
  data(distance.matrix)
 
@@ -28,6 +29,10 @@ if(interactive()){
  )
 
  print_performance(rf.model)
- }
+
 }
+}
+}
+\seealso{
+\code{\link[=print_performance]{print_performance()}}, \code{\link[=get_performance]{get_performance()}}
 }

@@ -1,6 +1,6 @@
-#' @title get_residuals
-#' @description Returns model residuals
-#' @param x A model produced by [rf()], [rf_repeat()], or [rf_spatial()]. Default: NULL
+#' @title Gets model residuals
+#' @description Returns the residuals of models fitted with [rf()], [rf_repeat()], or [rf_spatial()].
+#' @param x A model fitted with [rf()], [rf_repeat()], or [rf_spatial()].
 #' @return A data frame with residuals, or mean and standard deviation of the residuals if the model was fitted with [rf_repeat()].
 #' @examples
 #' \dontrun{
@@ -16,7 +16,9 @@
 #' )
 #'
 #' x <- get_residuals(x = rf.model)
-#'  }
+#' x
+#'
+#' }
 #' }
 #' @rdname get_residuals
 #' @export

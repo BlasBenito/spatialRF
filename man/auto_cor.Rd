@@ -2,33 +2,55 @@
 % Please edit documentation in R/auto_cor.R
 \name{auto_cor}
 \alias{auto_cor}
-\title{auto_cor}
+\title{Multicollinearity reduction via Pearson correlation}
 \usage{
 auto_cor(x = NULL, preference.order = NULL, cor.threshold = 0.75)
 }
 \arguments{
-\item{x}{A data frame with predictors. Default: \code{NULL}.}
+\item{x}{A data frame with predictors, or the result of \code{\link[=auto_vif]{auto_vif()}} Default: \code{NULL}.}
 
-\item{preference.order}{Character vector indicating the user's order of preference to keep variables. Default: \code{NULL}.}
+\item{preference.order}{Character vector indicating the user's order of preference to keep variables. Doesn't need to contain If not provided, variables in \code{x} are prioritised by their column order. Default: \code{NULL}.}
 
-\item{cor.threshold}{Numeric between 0 and 1, maximum Pearson correlation between any pair of the selected variables. Default: 0.75}
+\item{cor.threshold}{Numeric between 0 and 1, with recommended values between 0.5 and 0.9. Maximum Pearson correlation between any pair of the selected variables. Default: 0.75}
 }
 \value{
-List with two slots:
+List with trhee slots:
 \itemize{
-\item \strong{cor}: Correlation matrix of the selected variables.
-\item \strong{selected.variables}: Character vector with the names of the selected variables.
+\item \code{cor}: correlation matrix of the selected variables.
+\item \code{selected.variables}: character vector with the names of the selected variables.
+\item \code{selected.variables.df}: data frame with the selected variables.
 }
 }
 \description{
-Reduces the bivariate correlation in a data frame of predictors
+Computes the correlation matrix among a set of predictors, orders the correlation matrix according to a user-defined preference order, and removes variables one by one until the remaining ones are below a given Pearson correlation threshold.
+}
+\details{
+Can be chained together with \code{\link[=auto_vif]{auto_vif()}} through pipes, see the examples below.
 }
 \examples{
 \dontrun{
 if(interactive()){
+
  data(plant_richness_df)
+
+ #on a data frame
  out <- auto_cor(x = plant_richness_df[, 4:21])
  out$selected.variables
+
+ #on the result of auto_vif
+ out <- auto_vif(x = plant_richness_df[, 5:20])
+ out <- auto_cor(x = out)
+
+ #with pipes
+ out <- plant_richness_df[, 5:20] \%>\%
+ auto_vif(vif.threshold = 2.5) \%>\% #artificially low
+ auto_cor(cor.threshold = 0.4)     #artificially low
+
  }
 }
+}
+\seealso{
+\code{\link[=auto_vif]{auto_vif()}}
+
+\code{\link[=auto_vif]{auto_vif()}}
 }

@@ -1,84 +1,80 @@
-#' @title rf_spatial
-#' @description Fits spatial random forest models using different methods to generate, rank, and select spatial predictors. The end goal is to provide the model with information about the spatial structure of the data in order to minimize the spatial correlation of the residuals. See Details for a description of the methods.
-#' @param model (optional) a model produced by [rf]. If used, the arguments `data`, `dependent.variable.name`, `predictor.variable.names`, `distance.matrix`, `distance.thresholds`, `ranger.arguments`, `trees.per.variable`, and `scaled.importance` are taken directly from the model definition. Default: NULL
-#' @param data (required) data frame with a response variable and a set of (preferably uncorrelated) predictors, Default: NULL
-#' @param dependent.variable.name (required) string with the name of the response variable. Must be in the column names of 'data', Default: NULL
-#' @param predictor.variable.names (required) character vector with the names of the predictive variables. Every element must be in the column names of 'data', Default: NULL
-#' @param distance.matrix (optional) a squared matrix with the distances among the records in 'data'. Notice that the rows of 'distance.matrix' and 'data' must be the same. If not provided, the computation of the Moran's I of the residuals is ommited. Default: NULL.
-#' @param distance.thresholds (optional) numeric vector, distances below each value in the distance matrix are set to 0 for the computation of Moran's I. If NULL, it defaults to seq(0, max(distance.matrix), length.out = 4). Default: NULL.
-#' @param ranger.arguments (optional) list with \link[ranger]{ranger} arguments. All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.
-#' @param trees.per.variable (optional) integer, number of individual regression trees to fit per variable in 'predictor.variable.names'. This is an alternative way to define ranger's 'num.trees'. If NULL, 'num.trees' is 500. Notice that for large numbers of spatial predictors using a high number of `trees.per.variable` can get computationally costly. Default: NULL
-#' @param scaled.importance (optional) boolean. If TRUE, and 'importance = "permutation', the function scales 'data' with [scale_robust] and fits a new model to compute scaled variable importance scores. Default: TRUE
-#' @param repetitions Integer, number of repetitions. If 1, [rf] is executed to fit the non-spatial and spatial models. If higher than one, [rf_repeat] is used instead. Notice that using more than one repetition can get computationally costly if the selected method generated a large number of spatial predictors, as it is the case of the "hengl" method. Default: 1
-#' @param keep.models boolean, if TRUE, the fitted models are returned in the "models" slot (it sets `write.forest = TRUE` in the \link[ranger]{ranger} settings). If `repetitions` is very high and `method` is "hengl" this may cause memory issues. Default: FALSE.
-#' @param method method to build, rank, and select spatial predictors. One of: "hengl", "hengl.moran.sequential", "hengl.effect.sequential", "hengl.effect.optimized", "pca.moran.sequential", "pca.effect.sequential", "pca.effect.optimized", "mem.moran.sequential", "mem.effect.sequential", "mem.effect.optimized". See details.
-#' @param max.spatial.predictors integer, maximum number of spatial predictors to generate. Useful when memory problems arise due to a large number of records in `data`, Default: 1000
-#' @param weight.r.squared numeric between 0 and 1, weight of R-squared in the selection of spatial components. See Details, Default: NULL
-#' @param weight.penalization.n.predictors numeric between 0 and 1, weight of the penalization imposed with the addition of an increasing number of spatial predictors into a model, Default: NULL
-#' @param scaled.importance (optional) boolean. If TRUE, and 'importance = "permutation', the function scales 'data' with [scale_robust] and fits a new model to compute scaled variable importance scores. Default: TRUE
-#' @param seed (optional) integer, random seed to facilitate reproducibility. If set to a given number, the returned model is always the same. Only relevant if `repetitions = 1`. Default: NULL
-#' @param repetitions integer, number of random forest models to fit. Default: 5
-#' @param keep.models boolean, if TRUE, the fitted models are returned in the "models" slot. Default: FALSE.
-#' @param verbose Boolean. If TRUE, messages and plots generated during the execution of the function are displayed, Default: TRUE
-#' @param n.cores number of cores to use to compute repetitions. If NULL, all cores but one are used, unless a cluster is used.
-#' @param cluster.ips character vector, IPs of the machines in the cluster. The first machine will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.
-#' @param cluster.cores numeric integer vector, number of cores on each machine.
-#' @param cluster.user character string, name of the user (should be the same throughout machines), Defaults to the current system user. Default: user name of the current session.
-#' @param cluster.port integer, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: 11000.
-#' @return A ranger model with several new slots.
-#' If `iterations = 1`, the slots generated by [rf] are returned:
+#' @title Fits spatial random forest models
+#' @description Fits spatial random forest models using different methods to generate, rank, and select spatial predictors. The end goal is to provide the model with information about the spatial structure of the data in order to minimize the spatial correlation (Moran's I) of the model residuals.
+#' @param model A model produced by [rf()] or [rf_repeat()]. If used, the arguments `data`, `dependent.variable.name`, `predictor.variable.names`, `distance.matrix`, `distance.thresholds`, `ranger.arguments`, `trees.per.variable`, and `scaled.importance` are taken directly from the model definition. Default: NULL
+#' @param data Data frame with a response variable and a set of predictors. Default: `NULL`
+#' @param dependent.variable.name Character string with the name of the response variable. Must be in the column names of `data`. Default: `NULL`
+#' @param predictor.variable.names Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Default: `NULL`
+#' @param distance.matrix Squared matrix with the distances among the records in `data`. The number of rows of `distance.matrix` and `data` must be the same. If not provided, the computation of the Moran's I of the residuals is omitted. Default: `NULL`
+#' @param distance.thresholds Numeric vector with neighborhood distances. All distances in the distance matrix below each value in `dustance.thresholds` are set to 0 for the computation of Moran's I. If `NULL`, it defaults to seq(0, max(distance.matrix), length.out = 4). Default: `NULL`
+#' @param ranger.arguments Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.
+#' @param trees.per.variable Number of individual regression trees to fit per variable in `predictor.variable.names`. This is an alternative way to define ranger's `num.trees`. If `NULL`, `num.trees` is 500. Default: `NULL`
+#' @param scaled.importance Logical. If `TRUE`, and 'importance = "permutation', the function scales 'data' with [scale_robust()] and fits a new model to compute scaled variable importance scores. Default: `TRUE`
+#' @param repetitions Integer, number of repetitions. If 1, [rf()] is used to fit the non-spatial and spatial models. If higher than one, [rf_repeat()] is used instead. Notice that using more than one repetition can get computationally costly if the selected method generated a large number of spatial predictors, as it is the case of the "hengl" method. Default: `1`
+#' @param keep.models Logical. If `TRUE`, the fitted models are returned in the "models" slot. If `repetitions` is very high and `method` is "hengl",
+#' setting `keep.models` to `TRUE` may cause memory issues. Default: `FALSE`
+#' @param method Character, method to build, rank, and select spatial predictors. One of:
 #' \itemize{
-#'   \item `ranger.arguments`: stores the values of the arguments used to fit the ranger model.
-#'   \item `variable.importance`: a list containing the vector of variable importance as originally returned by ranger (scaled or not depending on the value of 'scaled.importance'), a data frame with the predictors ordered by their importance, and a ggplot showing the importance values.
-#'   \item `pseudo.r.squared`: computed as the correlation between the observations and the predictions.
-#'   \item `rmse`: as computed by [root_mean_squared_error] with 'normalization = NULL'.
-#'   \item `nrmse`: as computed by [root_mean_squared_error] with 'normalization = "iq'.
-#'   \item `residuals`: computed as observations minus predictions.
-#'   \item `spatial.correlation.residuals`: the result of [moran_multithreshold].
+#'   \item "hengl"
+#'   \item "hengl.moran.sequential"  (experimental)
+#'   \item "hengl.effect.sequential" (experimental)
+#'   \item "hengl.effect.optimized"  (experimental)
+#'   \item "pca.moran.sequential"    (experimental)
+#'   \item "pca.effect.sequential"   (experimental)
+#'   \item "pca.effect.optimized"    (experimental)
+#'   \item "mem.moran.sequential"
+#'   \item "mem.effect.sequential"
+#'   \item "mem.effect.optimized"    (experimental)
 #' }
-#'  If `iterations > 1`, the slots generated by [rf_repeat] are returned:
+#'
+#' See **Details**.
+#' @param max.spatial.predictors Integer, maximum number of spatial predictors to generate. Useful when memory problems arise due to a large number of spatial predictors, Default: `1000`
+#' @param weight.r.squared Numeric between 0 and 1, weight of R-squared in the selection of spatial components. See Details, Default: `NULL`
+#' @param weight.penalization.n.predictors Numeric between 0 and 1, weight of the penalization for adding an increasing number of spatial predictors during selection. Default: `1000`
+#' @param seed Integer, random seed to facilitate reproducibility. If set to a given number, the returned model is always the same. Only relevant if `repetitions = 1`. Default: `NULL`
+#' @param verbose Logical. If TRUE, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
+#' @param n.cores Integer, number of cores to use during computations. If `NULL`, all cores but one are used, unless a cluster is used. Default = `NULL`
+#' @param cluster.ips Character vector with the IPs of the machines in a cluster. The machine with the first IP will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.
+#' @param cluster.cores Numeric integer vector, number of cores to use on each machine.
+#' @param cluster.user Character string, name of the user (should be the same throughout machines). Defaults to the current system user.
+#' @param cluster.port Integer, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: `11000`
+#' @return A ranger model with several new slots:
 #' \itemize{
-#'   \item{ranger.arguments}{stores the values of the arguments used to fit the ranger model}
-#'   \item{predictions}{a list with the predictions obtained on each repetition stored in a data frame named 'df.wide' and the average of the predictions in a data frame named 'df'}
-#'   \item{variable.importance}{a list containing data frames with variable importance scores. These are `per.variable`, with the importance or average importance (if `repetitions > 1`) of each predictor, `per.repetition`, only if `repetitions > 1`, `spatial.predictors`, for plotting purposes, and `spatial.predictors.stats`, for printing purposes.}
-#'   \item{pseudo.r.squared}{pseudo R-squared values throughout repetitions}
-#'   \item{rmse}{rmse obtained on each repetition}
-#'   \item{nrmse}{normalizad rmse obtained on each repetition}
-#'   \item{residuals}{the residuals obtained on each repetition (df.wide), their mean (df) and their stats (stats)}
-#'   \item{spatial.correlation.residuals}{the result of [moran_multithreshold] applied to the results of each repetition (df.long), the mean of Moran's I across repetitions (df), and a plot with the results of every repetition (plot)}
-#' }
-#' And in any case, two new slots are generated by [rf_spatial] if the original model needs spatial predictors to remove the spatial correlation of the residuals:
-#' \itemize{
-#'   \item performance.comparison:  A data frame with the R-squared, rmse, nrmse, and Moran's I of the residuals of the non-spatial and the spatial model.
-#'   \item selection.spatial.predictors: a list with four slots:
+#'   \item `ranger.arguments`: Values of the arguments used to fit the ranger model.
+#'   \item `variable.importance`: A list containing the vector of variable importance as originally returned by ranger (scaled or not depending on the value of 'scaled.importance'), a data frame with the predictors ordered by their importance, and a ggplot showing the importance values.
+#'   \item `performance`: With the out-of-bag R squared, pseudo R squared, RMSE and NRMSE of the model.
+#'   \item `spatial.correlation.residuals`: Result of [moran_multithreshold()] applied in the model residuals.
+#'   \item `performance.comparison`:  A data frame with the R-squared, rmse, nrmse, and Moran's I of the residuals of the non-spatial and the spatial model.
+#'   \item `selection.spatial.predictors`: A list with four slots:
 #'   \itemize{
-#'     \item method string, method used to generate, rank, and select spatial predictors.
-#'     \item names character vector with the names of the selected spatial predictors. Not returned if the method is "hengl".
-#'     \item df criteria used to select the spatial predictors. Not returned if the method is "hengl".
-#'     \item plot plot of the criteria used to select the spatial predictors. Not returned if the method is "hengl".
+#'     \item `method`: Character, method used to generate, rank, and select spatial predictors.
+#'     \item `names`: Character vector with the names of the selected spatial predictors. Not returned if the method is "hengl".
+#'     \item `optimization`: Criteria used to select the spatial predictors. Not returned if the method is "hengl".
+#'     \item `plot`: Plot of the criteria used to select the spatial predictors. Not returned if the method is "hengl".
 #'   }
 #' }
 #' @details The function uses three different methods to generate spatial predictors ("hengl", "pca", and "mem"), two methods to rank them in order to define in what order they are introduced in the model ("effect" and "moran), and two methods to select the spatial predictors that minimize the spatial correlation of the model residuals ("sequential" and "optimized"). All method names but "hengl" (that uses the complete distance matrix as predictors in the spatial model) are named by combining a method to generate the spatial predictors, a method to rank them, and a method to select them, separated by a point. Examples are "mem.moran.sequential" or "mem.effect.optimized". All combinations are not possible, since the ranking method "moran" cannot be used with the selection method "optimized" (because the logics behind them are very different, see below).
 #' Methods to generate spatial predictors:
 #' \itemize{
-#'   \item hengl: named after Tomislav Hengl and the paper [Hengl et al. (2018)](https://peerj.com/articles/5518/), where the authors propose to use the distance matrix among records as a set of covariates in spatial random forest models (RFsp method). In this function, all methods starting with "hengl" use either the complete distance matrix, or select columns of the distance matrix.
-#'   \item mem: generates Moran's Eigenvector Maps, that is, the eigenvectors of the double-centered weights of the distance matrix. The method is described in [Dray, Legendre and Peres-Neto (2006)](https://www.sciencedirect.com/science/article/abs/pii/S0304380006000925) and [Legendre and Gauthier (2014)](https://royalsocietypublishing.org/doi/10.1098/rspb.2013.2728).
-#'   \item pca: computes spatial predictors from the principal component analysis of a weighted distance matrix (see [weights_from_distance_matrix]). This method to generate spatial predictors is the one with the least performance in the preliminary trials of this function.
+#'   \item `"hengl"`: named after Tomislav Hengl and the paper [Hengl et al. (2018)](https://peerj.com/articles/5518/), where the authors propose to use the distance matrix among records as predictors in spatial random forest models (RFsp method). In this function, all methods starting with "hengl" use either the complete distance matrix, or select columns of the distance matrix as spatial predictors.
+#'   \item `"mem"`: Generates Moran's Eigenvector Maps, that is, the eigenvectors of the double-centered weights of the distance matrix. The method is described in [Dray, Legendre and Peres-Neto (2006)](https://www.sciencedirect.com/science/article/abs/pii/S0304380006000925) and [Legendre and Gauthier (2014)](https://royalsocietypublishing.org/doi/10.1098/rspb.2013.2728).
+#'   \item `"pca"`: Computes spatial predictors from the principal component analysis of a weighted distance matrix (see [weights_from_distance_matrix()]). This is an experimental method, use with caution.
 #' }
-#' Methods to rank spatial predictors (see [rank_spatial_predictors]):
+#' Methods to rank spatial predictors (see [rank_spatial_predictors()]):
 #' \itemize{
-#'   \item moran: Computes the Moran's I of each spatial predictor, selects the ones with positive values, and ranks them from higher to lower Moran's I.
-#'   \item effect: If a given non-spatial random forest model is defined as `y = p1 + ... + pn`, being `p1 + ... + pn` the set of predictors, for every spatial predictor generated (`spX`) a spatial model `y = p1 + ... + pn + spX` is fitted, and the Moran's I of its residuals is computed. The spatial predictors are then ranked by how much they help to reduce spatial autocorrelation between the non-spatial and the spatial model.
+#'   \item `"moran"`: Computes the Moran's I of each spatial predictor, selects the ones with positive values, and ranks them from higher to lower Moran's I.
+#'   \item `"effect"`: If a given non-spatial random forest model is defined as `y = p1 + ... + pn`, being `p1 + ... + pn` the set of predictors, for every spatial predictor generated (`spX`) a spatial model `y = p1 + ... + pn + spX` is fitted, and the Moran's I of its residuals is computed. The spatial predictors are then ranked by how much they help to reduce spatial autocorrelation between the non-spatial and the spatial model.
 #' }
 #' Methods to select spatial predictors:
 #' \itemize{
-#'   \item sequential (see [select_spatial_predictors_sequential]): The spatial predictors are added one by one in the order they were ranked, and once all spatial predictors are introduced, the best first n predictors are selected. This method is similar to the one employed in the MEM methodology (Moran's Eigenvector Maps) described in [Dray, Legendre and Peres-Neto (2006)](https://www.sciencedirect.com/science/article/abs/pii/S0304380006000925) and [Legendre and Gauthier (2014)](https://royalsocietypublishing.org/doi/10.1098/rspb.2013.2728). This method generally introduces tens of predictors into the model.
-#'   \item optimized (see [select_spatial_predictors_optimized]): This method tries to find the smallest combination of spatial predictors that reduce the spatial correlation of the model's residuals the most. The algorithm goes as follows: 1. The first ranked spatial predictor is introduced into the model; 2. the remaining predictors are ranked again using the "effect" method, using the model in 1. as reference. The first spatial predictor in the resulting ranking is then introduced into the model, and the steps 1. and 2. are repeated until spatial predictors stop having an effect in reducing the Moran's I of the model residuals. This method takes longer to compute, but generates smaller sets of spatial predictors.
+#'   \item `"sequential"` (see [select_spatial_predictors_sequential()]): The spatial predictors are added one by one in the order they were ranked, and once all spatial predictors are introduced, the best first n predictors are selected. This method is similar to the one employed in the MEM methodology (Moran's Eigenvector Maps) described in [Dray, Legendre and Peres-Neto (2006)](https://www.sciencedirect.com/science/article/abs/pii/S0304380006000925) and [Legendre and Gauthier (2014)](https://royalsocietypublishing.org/doi/10.1098/rspb.2013.2728). This method generally introduces tens of predictors into the model, but usually offers good results.
+#'   \item `"optimized"` (see [select_spatial_predictors_optimized()]): This method tries to find the smallest combination of spatial predictors that reduce the spatial correlation of the model's residuals the most. The algorithm goes as follows: 1. The first ranked spatial predictor is introduced into the model; 2. the remaining predictors are ranked again using the "effect" method, using the model in 1. as reference. The first spatial predictor in the resulting ranking is then introduced into the model, and the steps 1. and 2. are repeated until spatial predictors stop having an effect in reducing the Moran's I of the model residuals. This method takes longer to compute, but generates smaller sets of spatial predictors. This is an experimental method, use with caution.
 #' }
-#' Once a selection procedure is comlete, an algorithm is used to select the best subset of spatial predictors: for each new predictor introduced, the Moran's I of the residuals, it's p-value, a binary version of the p-value (0 if < 0.05 and 1 if >= 0.05), the R-squared of the model, and a penalization linear with the number of spatial predictors introduced is computed as `(1 / total spatial predictors) * introduced spatial predictors` are recorded, and rescaled between 0 and 1. The optimization criteria is computed as `max(1 - Moran's I, p-value binary) + (weight.r.squared * R-squared) - (weight.penalization.n.predictors * penalization)`. The predictors from the first one to the one with the highest optimization criteria then selected as the best ones in reducing the spatial correlation of the model residuals, and used along with `data` to fit the final spatial model that is then returned by the function.
+#' Once ranking procedure is completed, an algorithm is used to select the minimal subset of spatial predictors that reduce the most the Moran's I of the residuals: for each new spatial predictor introduced in the model, the Moran's I of the residuals, it's p-value, a binary version of the p-value (0 if < 0.05 and 1 if >= 0.05), the R-squared of the model, and a penalization linear with the number of spatial predictors introduced (computed as `(1 / total spatial predictors) * introduced spatial predictors`) are rescaled between 0 and 1. Then, the optimization criteria is computed as `max(1 - Moran's I, p-value binary) + (weight.r.squared * R-squared) - (weight.penalization.n.predictors * penalization)`. The predictors from the first one to the one with the highest optimization criteria are then selected as the best ones in reducing the spatial correlation of the model residuals, and used along with `data` to fit the final spatial model.
+#' @seealso [rank_spatial_predictors()], [select_spatial_predictors_sequential()], [select_spatial_predictors_optimized()]
 #' @examples
 #' \dontrun{
 #' if(interactive()){
+#'
 #'  data("distance_matrix")
 #'  data("plant_richness_df")
 #'  data <- plant_richness_df
@@ -134,7 +130,8 @@
 #'
 #'  rf.spatial <- rf_spatial(model = rf.repeat)
 #'  rf.spatial$spatial.correlation.residuals$plot
-#'  }
+#'
+#' }
 #' }
 #' @rdname rf_spatial
 #' @export
@@ -586,7 +583,7 @@ rf_spatial <- function(
 
   #VARIABLE IMPORTANCE
   #complete df
-  if(inherits(model.spatial, "rf")){
+  if(inherits(model.spatial, "rf") & !inherits(model.spatial, "rf_repeat")){
     importance.df <- model.spatial$variable.importance$per.variable
   }
   if(inherits(model.spatial, "rf_repeat")){
@@ -630,7 +627,7 @@ rf_spatial <- function(
     )
   )
 
-  if(inherits(model.spatial, "rf")){
+  if(inherits(model.spatial, "rf") & !inherits(model.spatial, "rf_repeat")){
 
     importance.df <- rbind(
       non.spatial.predictors.plot.df,
@@ -693,9 +690,9 @@ rf_spatial <- function(
 
   #adding class
   if(inherits(model.spatial, "rf_repeat")){
-    class(model.spatial) <- c("ranger", "rf_spatial", "rf_repeat")
+    class(model.spatial) <- c("ranger", "rf", "rf_spatial", "rf_repeat")
   } else {
-    class(model.spatial) <- c("ranger", "rf_spatial", "rf")
+    class(model.spatial) <- c("ranger", "rf", "rf_spatial")
   }
 
   if(verbose == TRUE){

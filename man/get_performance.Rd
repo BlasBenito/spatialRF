@@ -2,28 +2,29 @@
 % Please edit documentation in R/get_performance.R
 \name{get_performance}
 \alias{get_performance}
-\title{get_performance()}
+\title{Gets out-of-bag performance scores from a model}
 \usage{
 get_performance(x)
 }
 \arguments{
-\item{x}{Model fitted by \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}.}
+\item{x}{Model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}.}
 }
 \value{
 A data frame with four columns:
 \itemize{
-\item \emph{metric} Name of the performance metric.
-\item \emph{mean} Value of the performance metric. Only really a mean if the model is fitted with \code{\link[=rf_repeat]{rf_repeat()}}.
-\item \emph{standard_error} Standard error of the mean, only if the model is fitted with \code{\link[=rf_repeat]{rf_repeat()}}, and \code{NA} otherwise.
-\item \emph{standard_deviation} Standard deviation of the mean, only if the model is fitted with \code{\link[=rf_repeat]{rf_repeat()}}, and \code{NA} otherwise.
+\item \code{metric} Name of the performance metric.
+\item \code{mean} Value of the performance metric. Truly a mean only if the model is fitted with \code{\link[=rf_repeat]{rf_repeat()}}.
+\item \code{standard_error} Standard error of the mean, only if the model is fitted with \code{\link[=rf_repeat]{rf_repeat()}}, and \code{NA} otherwise.
+\item \code{standard_deviation} Standard deviation of the mean, only if the model is fitted with \code{\link[=rf_repeat]{rf_repeat()}}, and \code{NA} otherwise.
 }
 }
 \description{
-Returns the performance slot of an \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}} model.
+Returns the performance slot of an \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}} model computed on the out-of-bag data.
 }
 \examples{
 \dontrun{
 if(interactive()){
+
  data(plant_richness_df)
  data(distance.matrix)
 
@@ -37,6 +38,11 @@ if(interactive()){
  )
 
  x <- get_performance(rf.model)
- }
+ x
+
 }
+}
+}
+\seealso{
+\code{\link[=print_performance]{print_performance()}}
 }

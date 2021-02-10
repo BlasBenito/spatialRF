@@ -1,27 +1,28 @@
-#' @title select_spatial_predictors_sequential
-#' @description selects spatial predictors (either a distance matrix or the PCA factors of a distance matrix) by adding them sequentially to a model while monitoring the spatial correlation of the model residuals and the R-squared. Once all the available spatial predictors have been added to the model, the function identifies the first n predictors that minimize the spatial correlation of the residuals and maximize R-squared, and returns the names of the selected spatial predictors and a data frame with the selection criteria.
-#' @param data (required) data frame with a response variable and a set of (preferably uncorrelated) predictors, Default: NULL
-#' @param dependent.variable.name (required) string with the name of the response variable. Must be in the column names of 'data', Default: NULL
-#' @param predictor.variable.names (required) character vector with the names of the predictive variables. Every element must be in the column names of 'data', Default: NULL
-#' @param distance.matrix (optional) a squared matrix with the distances among the records in 'data'. Notice that the rows of 'distance.matrix' and 'data' must be the same. If not provided, the computation of the Moran's I of the residuals is ommited. Default: NULL.
-#' @param distance.thresholds (optional) numeric vector, distances below each value in the distance matrix are set to 0 for the computation of Moran's I. If NULL, it defaults to seq(0, max(distance.matrix), length.out = 4). Default: NULL.
-#' @param ranger.arguments list with \link[ranger]{ranger} arguments. See [rf] or [rf_repeat] for further details.
-#' @param spatial.predictors.df data frame of spatial predictors, either a distance matrix, or the PCA factors of the distance matrix produced by [pca_multithreshold].
-#' @param spatial.predictors.ranking ranking of predictors returned by [rank_spatial_predictors].
-#' @param weight.r.squared numeric between 0 and 1, weight of R-squared in the optimization index.
-#' @param weight.penalization.n.predictors numeric between 0 and 1, weight of the penalization for the number of spatial predictors added in the optimization index.
-#' @param n.cores number of cores to use to compute repetitions. If NULL, all cores but one are used, unless a cluster is used.
-#' @param cluster.ips character vector, IPs of the machines in the cluster. The first machine will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.
-#' @param cluster.cores numeric integer vector, number of cores on each machine.
-#' @param cluster.user character string, name of the user (should be the same throughout machines), Defaults to the current system user. Default: user name of the current session.
-#' @param cluster.port integer, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: 11000.
-#' @return a list with two slots: `optimization`, a data frame with the index of the spatial predictor added on each iteration, the spatial correlation of the model residuals, and the R-squared of the model, and `best.spatial.predictors`, that is a character vector with the names of the spatial predictors that minimize the Moran's I of the residuals and maximize the R-squared of the model.
-#' @details How does the algorithm work? If the function [rank_spatial_predictors] returns 10 spatial predictors (sp1 to sp10, ordered from best to worst), [select_spatial_predictors_sequential] is going to fit the models `y ~ predictors + sp1`, `y ~ predictors + sp1 + sp2`, until all spatial predictors are used in `y ~ predictors + sp1 ... sp10`. The model with lower Moran's I of the residuals and higher R-squared is selected, and its spatial predictors returned.
+#' @title Sequential introduction of spatial predictors into a model
+#' @description Selects spatial predictors by adding them sequentially into a model while monitoring the Moran's I of the model residuals and the model's R-squared. Once all the available spatial predictors have been added to the model, the function identifies the first `n` predictors that minimize the spatial correlation of the residuals and maximize R-squared, and returns the names of the selected spatial predictors and a data frame with the selection criteria.
+#' @param data Data frame with a response variable and a set of predictors. Default: `NULL`
+#' @param dependent.variable.name Character string with the name of the response variable. Must be in the column names of `data`. Default: `NULL`
+#' @param predictor.variable.names Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Default: `NULL`
+#' @param distance.matrix Squared matrix with the distances among the records in `data`. The number of rows of `distance.matrix` and `data` must be the same. If not provided, the computation of the Moran's I of the residuals is omitted. Default: `NULL`
+#' @param distance.thresholds Numeric vector with neighborhood distances. All distances in the distance matrix below each value in `dustance.thresholds` are set to 0 for the computation of Moran's I. If `NULL`, it defaults to seq(0, max(distance.matrix), length.out = 4). Default: `NULL`
+#' @param ranger.arguments Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.
+#' @param spatial.predictors.df Data frame of spatial predictors.
+#' @param spatial.predictors.ranking Ranking of the spatial predictors returned by [rank_spatial_predictors()].
+#' @param weight.r.squared Numeric between 0 and 1, weight of R-squared in the optimization index. Default: `0.75`
+#' @param weight.penalization.n.predictors Numeric between 0 and 1, weight of the penalization for the number of spatial predictors added in the optimization index. Default: `0.25`
+#' @param n.cores Integer, number of cores to use during computations. If `NULL`, all cores but one are used, unless a cluster is used. Default = `NULL`
+#' @param cluster.ips Character vector with the IPs of the machines in a cluster. The machine with the first IP will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.
+#' @param cluster.cores Numeric integer vector, number of cores to use on each machine.
+#' @param cluster.user Character string, name of the user (should be the same throughout machines). Defaults to the current system user.
+#' @param cluster.port Integer, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: `11000`
+#' @return A list with two slots: `optimization`, a data frame with the index of the spatial predictor added on each iteration, the spatial correlation of the model residuals, and the R-squared of the model, and `best.spatial.predictors`, that is a character vector with the names of the spatial predictors that minimize the Moran's I of the residuals and maximize the R-squared of the model.
+#' @details The algorithm works as follows: If the function [rank_spatial_predictors] returns 10 spatial predictors (sp1 to sp10, ordered from best to worst), [select_spatial_predictors_sequential] is going to fit the models `y ~ predictors + sp1`, `y ~ predictors + sp1 + sp2`, until all spatial predictors are used in `y ~ predictors + sp1 ... sp10`. The model with lower Moran's I of the residuals and higher R-squared is selected, and its spatial predictors returned.
 #' @examples
 #' \dontrun{
 #' if(interactive()){
-#' data("distance_matrix")
-#' data("plant_richness_df")
+#'
+#' data(distance_matrix)
+#' data(plant_richness_df)
 #'
 #' #common arguments
 #' data = plant_richness_df
@@ -69,7 +70,8 @@
 #'
 #' selection$optimization
 #' selection$best.spatial.predictors
-#'  }
+#'
+#' }
 #' }
 #' @rdname select_spatial_predictors_sequential
 #' @export

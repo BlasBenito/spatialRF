@@ -1,13 +1,19 @@
-#' @title scale_robust
-#' @description scales a matrix or a data frame by the median instead of the mean.
-#' @param x matrix or data.frame
-#' @param center substract median (default:TRUE)
-#' @param scale scale by the median absolute deviation (mad())  (default:FALSE)
+#' @title Robust scaling of training data frames
+#' @description Scales a matrix or a data frame by the median instead of the mean.
+#' @param x Matrix or data.frame
+#' @param center Logical. If `TRUE`, substracts the median to center the data. Default: `TRUE`
+#' @param scale Logical. If `TRUE`, scales the data by the median absolute deviation. Default: `TRUE`
 #' @return a scaled matrix or dataframe
 #' @details Adapted from \link[quantable]{robustscale}.
 #' @examples
+#' \dontrun{
+#' if(interactive()){
+#'
 #' data(plant_richness_df)
 #' plant_richness_df.scaled <- scale_robust(x = plant_richness_df[, 5:10])
+#'
+#' }
+#' }
 #' @rdname scale_robust
 #' @importFrom stats mad median
 #' @export

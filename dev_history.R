@@ -8,6 +8,10 @@ library(exampletestr)
 # devtools::install_github("datastorm-open/DependenciesGraphs")
 library(DependenciesGraphs)
 
+#build documentation
+devtools::document()
+devtools::build_manual()
+
 #TO CHECK
 ########################################
 attachment::att_from_description()
@@ -17,8 +21,10 @@ devtools::check()
 
 devtools::load_all()
 
-
 devtools::install()
+
+
+
 
 1#create package
 usethis::create_package("/home/blas/Dropbox/GITHUB/R_packages/spatialRF")

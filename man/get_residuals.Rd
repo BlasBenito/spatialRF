@@ -2,18 +2,18 @@
 % Please edit documentation in R/get_residuals.R
 \name{get_residuals}
 \alias{get_residuals}
-\title{get_residuals}
+\title{Gets model residuals}
 \usage{
 get_residuals(x)
 }
 \arguments{
-\item{x}{A model produced by \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}. Default: NULL}
+\item{x}{A model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}.}
 }
 \value{
 A data frame with residuals, or mean and standard deviation of the residuals if the model was fitted with \code{\link[=rf_repeat]{rf_repeat()}}.
 }
 \description{
-Returns model residuals
+Returns the residuals of models fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}.
 }
 \examples{
 \dontrun{
@@ -29,6 +29,8 @@ rf.model <- rf(
 )
 
 x <- get_residuals(x = rf.model)
- }
+x
+
+}
 }
 }

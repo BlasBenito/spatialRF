@@ -1,13 +1,14 @@
-#' @title statistical_mode
-#' @description computes the mode of a numeric or character vector
-#' @param x numeric or character vector
-#' @return statistical mode of x
+#' @title Statistical mode of a vector
+#' @description Computes the mode of a numeric or character vector
+#' @param x Numeric or character vector.
+#' @return Statistical mode of `x`.
 #' @examples
 #' \dontrun{
 #' if(interactive()){
-#'  out <- statistical_mode(c(rep(10, 10), rep(9, 9)))
-#'  out
-#'  }
+#'
+#'  statistical_mode(c(rep(10, 10), rep(9, 9)))
+#'
+#' }
 #' }
 #' @rdname statistical_mode
 #' @export

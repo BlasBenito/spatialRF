@@ -1,7 +1,8 @@
-#' @title print_evaluation
-#' @description Prints the results of an evaluation performed with [rf_evaluate()].
-#' @param x A model resulting from [rf_evaluate()]
-#' @return A huxtable printed to the standard output.
+#' @title Prints cross-validation results
+#' @description Prints the results of an spatial cross-validation performed with [rf_evaluate()].
+#' @param x A model resulting from [rf_evaluate()].
+#' @return A table printed to the standard output.
+#' @seealso [plot_evaluation()], [get_evaluation()]
 #' @rdname print_evaluation
 #' @export
 print_evaluation <- function(x){

@@ -1,33 +1,34 @@
-#' @title select_spatial_predictors_optimized
-#' @description selects spatial predictors (either a distance matrix or the PCA factors of a distance matrix) following these steps:
+#' @title Finds optimal combinations of spatial predictors
+#' @description Selects spatial predictors following these steps:
 #' \enumerate{
-#'   \item Gets the best spatial predictor yielded by [rank_spatial_predictors] and fits a model of the form `y ~ predictors + best_spatial_predictor_1`. The Moran's I of the residuals of this model are used as reference value for the next step.
-#'   \item The remaining spatial predictors are introduced again into [rank_spatial_predictors], and the best one is introduced in a new model `y ~  predictors + best_spatial_predictor_1 + best_spatial_predictor_2`.
+#'   \item Gets the best spatial predictor yielded by [rank_spatial_predictors()] and fits a model of the form `y ~ predictors + best_spatial_predictor_1`. The Moran's I of the residuals of this model are used as reference value for the next step.
+#'   \item The remaining spatial predictors are introduced again into [rank_spatial_predictors()], and the spatial predictor with the highest ranking is introduced in a new model of the form `y ~  predictors + best_spatial_predictor_1 + best_spatial_predictor_2`.
 #'   \item Steps 1 and 2 are repeated until there are no more spatial predictors left.
 #' }
-#' This method allows to select the set of spatial predictors that have the largest joint effect in reducing the spatial correlation of the model residuals while maintaining an R-squared as high as possible. As a consequence of running [rank_spatial_predictors] on each iteration, this method includes in the final model less spatial predictors than [select_spatial_predictors_sequential] while minimizing spatial correlation and maximizing R-squared as much as possible.
-#' @param data (required) data frame with a response variable and a set of (preferably uncorrelated) predictors, Default: NULL
-#' @param dependent.variable.name (required) string with the name of the response variable. Must be in the column names of 'data', Default: NULL
-#' @param predictor.variable.names (required) character vector with the names of the predictive variables. Every element must be in the column names of 'data', Default: NULL
-#' @param distance.matrix (optional) a squared matrix with the distances among the records in 'data'. Notice that the rows of 'distance.matrix' and 'data' must be the same. If not provided, the computation of the Moran's I of the residuals is ommited. Default: NULL.
-#' @param distance.thresholds (optional) numeric vector, distances below each value in the distance matrix are set to 0 for the computation of Moran's I. If NULL, it defaults to seq(0, max(distance.matrix), length.out = 4). Default: NULL.
-#' @param ranger.arguments list with \link[ranger]{ranger} arguments. See [rf] or [rf_repeat] for further details.
-#' @param spatial.predictors.df data frame of spatial predictors, either a distance matrix, or the PCA factors of the distance matrix produced by [pca_multithreshold].
-#' @param spatial.predictors.ranking ranking of predictors returned by [rank_spatial_predictors].
-#' @param weight.r.squared numeric between 0 and 1, weight of R-squared in the optimization index.
-#' @param weight.penalization.n.predictors numeric between 0 and 1, weight of the penalization for the number of spatial predictors added in the optimization index.
-#' @param n.cores number of cores to use to compute repetitions. If NULL, all cores but one are used, unless a cluster is used.
-#' @param cluster.ips character vector, IPs of the machines in the cluster. The first machine will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.
-#' @param cluster.cores numeric integer vector, number of cores on each machine.
-#' @param cluster.user character string, name of the user (should be the same throughout machines), Defaults to the current system user. Default: user name of the current session.
-#' @param cluster.port integer, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: 11000.
-#' @return a list with two slots: `optimization`, a data frame with the index of the spatial predictor added on each iteration, the spatial correlation of the model residuals, and the R-squared of the model, and `best.spatial.predictors`, that is a character vector with the names of the spatial predictors that minimize the Moran's I of the residuals and maximize the R-squared of the model.
-#' @details How does the algorithm work? For example, if the function [rank_spatial_predictors] returns 10 ranked spatial predictors (sp1 to sp10, being sp7 the best one), [select_spatial_predictors_optimized] is going to first fit the model `y ~ predictors + sp7`. Then, the spatial predictors sp2 to sp9 are again ranked with [rank_spatial_predictors] using the model `y ~ predictors + sp7` as reference (at this stage, some of the spatial predictors might be dropped due to lack of effect). When the new ranking of spatial predictors is ready (let's say they are sp5, sp3, and sp4), the best one (sp5) is included in the model `y ~ predictors + sp7 + sp5`, and the remaining ones go again to [rank_spatial_predictors] to repeat the process until spatial predictors are depleted.
+#' This method allows to select the smallest set of spatial predictors that have the largest joint effect in reducing the spatial correlation of the model residuals, while maintaining the model's R-squared as high as possible. As a consequence of running [rank_spatial_predictors()] on each iteration, this method includes in the final model less spatial predictors than the sequential method implemented in [select_spatial_predictors_sequential()] would do, while minimizing spatial correlation and maximizing the R squared of the model as much as possible.
+#' @param data Data frame with a response variable and a set of predictors. Default: `NULL`
+#' @param dependent.variable.name Character string with the name of the response variable. Must be in the column names of `data`. Default: `NULL`
+#' @param predictor.variable.names Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Default: `NULL`
+#' @param distance.matrix Squared matrix with the distances among the records in `data`. The number of rows of `distance.matrix` and `data` must be the same. If not provided, the computation of the Moran's I of the residuals is omitted. Default: `NULL`
+#' @param distance.thresholds Numeric vector with neighborhood distances. All distances in the distance matrix below each value in `dustance.thresholds` are set to 0 for the computation of Moran's I. If `NULL`, it defaults to seq(0, max(distance.matrix), length.out = 4). Default: `NULL`
+#' @param ranger.arguments Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.
+#' @param spatial.predictors.df Data frame of spatial predictors produced by [pca_multithreshold()] or [mem_multithreshold()].
+#' @param spatial.predictors.ranking Ranking of predictors returned by [rank_spatial_predictors()].
+#' @param weight.r.squared Numeric between 0 and 1, weight of R-squared in the optimization index. Default: `0.25`
+#' @param weight.penalization.n.predictors Numeric between 0 and 1, weight of the penalization for the number of spatial predictors added in the optimization index. Default: `0`
+#' @param n.cores Integer, number of cores to use during computations. If `NULL`, all cores but one are used, unless a cluster is used. Default = `NULL`
+#' @param cluster.ips Character vector with the IPs of the machines in a cluster. The machine with the first IP will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.
+#' @param cluster.cores Numeric integer vector, number of cores to use on each machine.
+#' @param cluster.user Character string, name of the user (should be the same throughout machines). Defaults to the current system user.
+#' @param cluster.port Integer, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: `11000`
+#' @return A list with two slots: `optimization`, a data frame with the index of the spatial predictor added on each iteration, the spatial correlation of the model residuals, and the R-squared of the model, and `best.spatial.predictors`, that is a character vector with the names of the spatial predictors that minimize the Moran's I of the residuals and maximize the R-squared of the model.
+#' @details The algorithm works as follows. If the function [rank_spatial_predictors()] returns 10 ranked spatial predictors (sp1 to sp10, being sp7 the best one), [select_spatial_predictors_optimized()] is going to first fit the model `y ~ predictors + sp7`. Then, the spatial predictors sp2 to sp9 are again ranked with [rank_spatial_predictors()] using the model `y ~ predictors + sp7` as reference (at this stage, some of the spatial predictors might be dropped due to lack of effect). When the new ranking of spatial predictors is ready (let's say they are sp5, sp3, and sp4), the best one (sp5) is included in the model `y ~ predictors + sp7 + sp5`, and the remaining ones go again to [rank_spatial_predictors()] to repeat the process until spatial predictors are depleted.
 #' @examples
 #' \dontrun{
 #' if(interactive()){
-#' data("distance_matrix")
-#' data("plant_richness_df")
+#'
+#' data(distance_matrix)
+#' data(plant_richness_df)
 #'
 #' #common arguments
 #' data = plant_richness_df
@@ -78,7 +79,8 @@
 #'
 #' selection$optimization
 #' selection$best.spatial.predictors
-#'  }
+#'
+#' }
 #' }
 #' @rdname select_spatial_predictors_optimized
 #' @export

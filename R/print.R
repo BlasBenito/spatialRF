@@ -1,12 +1,13 @@
-#' @title print
-#' @description Custom print method for models fitted with [rf()], [rf_repeat()], and [rf_spatial())].
-#' @param x A model fitted with [rf()], [rf_repeat()], and [rf_spatial())].
+#' @title Custom print method for random forest models
+#' @description Custom print method for models fitted with [rf()], [rf_repeat()], and [rf_spatial()].
+#' @param x A model fitted with [rf()], [rf_repeat()], or [rf_spatial()].
 #' @param ... Additional arguments for print methods.
-#' @return Prints model details to the standard output.
+#' @return Prints model details to the console.
+#' @seealso [print_evaluation()], [print_importance()], [print_moran()], [print_performance()]
 #' @rdname print
 #' @export
 #' @importFrom huxtable hux add_colnames set_bold set_all_borders number_format print_screen set_width number_format
-print.ranger <- function(x, ...) {
+print.rf <- function(x, ...) {
 
   #getting model features
 

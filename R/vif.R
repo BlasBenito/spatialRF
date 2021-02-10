@@ -1,14 +1,17 @@
-#' @title vif
-#' @description computes the variance inflation factor (VIF) of the colums in a data frame.
-#' @param x data frame with numeric columns, typically with a set of predictors.
-#' @return a data frame with two columns having the name of the variables in 'x' and their respective VIF values.
+#' @title Variance Inflation Factor of a data frame
+#' @description Computes the variance inflation factor (VIF) of the colums in a data frame.
+#' @param x Data frame with numeric columns, typically containing a set of model predictors.
+#' @return A data frame with two columns having the name of the variables in 'x' and their respective VIF values.
+#' @seealso [auto_vif()], [auto_cor()]
 #' @examples
 #' \dontrun{
 #' if(interactive()){
-#' data(plant_richness_df)
-#'  out <- vif(plant_richness_df[, 5:21])
-#'  out
-#'  }
+#'
+#'  data(plant_richness_df)
+#'
+#'  vif(plant_richness_df[, 5:21])
+#'
+#' }
 #' }
 #' @rdname vif
 #' @importFrom tibble rownames_to_column

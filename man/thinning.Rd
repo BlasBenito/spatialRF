@@ -2,33 +2,40 @@
 % Please edit documentation in R/thinning.R
 \name{thinning}
 \alias{thinning}
-\title{thinning}
+\title{Applies thinning to pairs of coordinates}
 \usage{
 thinning(xy, minimum.distance = NULL)
 }
 \arguments{
-\item{xy}{a data frame with columns named "x" and "y" representing geographic coordinates.}
+\item{xy}{A data frame with columns named "x" and "y" representing geographic coordinates.}
 
-\item{minimum.distance}{minimum distance among nearby points, in the same units as the coordinates of xy.}
+\item{minimum.distance}{Numeric, minimum distance to be set between nearby points, in the same units as the coordinates of xy.}
 }
 \value{
-a data frame with the same columns as xy with points separated by the defined minimum distance.
+A data frame with the same columns as \code{xy} with points separated by the defined minimum distance.
 }
 \description{
 Resamples a set of points with x and y coordinates to impose a minimum distance among nearby points.
 }
 \details{
-Generally to remove redundant points that could produce pseudo-replication.
+Generally used to remove redundant points that could produce pseudo-replication, and to limit sampling bias by disaggregating clusters of points.
 }
 \examples{
 \dontrun{
 if(interactive()){
+
  data(plant_richness)
+
  plant_richness.thin <- thinning(
    x = plant_richness_df,
    minimum.distance = 5 #oints separated by at least 5 degrees
    )
+
  plant_richness.thin
- }
+
 }
+}
+}
+\seealso{
+\code{\link[=thinning_til_n]{thinning_til_n()}}
 }

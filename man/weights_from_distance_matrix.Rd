@@ -2,29 +2,33 @@
 % Please edit documentation in R/weights_from_distance_matrix.R
 \name{weights_from_distance_matrix}
 \alias{weights_from_distance_matrix}
-\title{weights_from_distance_matrix}
+\title{Transforms a distance matrix into a matrix of weights}
 \usage{
 weights_from_distance_matrix(x, distance.threshold = 0)
 }
 \arguments{
-\item{x}{numeric squared and symmetric distance matrix.}
+\item{x}{Numeric squared and symmetric distance matrix.}
 
-\item{distance.threshold}{(optional) numeric, positive, in the range of values of \code{distance.matrix} distances below this value in the distance matrix are set to 0., Default: 0}
+\item{distance.threshold}{Numeric, positive, in the range of values of \code{distance.matrix}. Distances below this value in the distance matrix are set to 0., Default: 0}
 }
 \value{
-a weighted distance matrix.
+A weighted distance matrix.
 }
 \description{
-transforms a distance matrix into weights (1/distance.matrix) normalized by the row sums. Used to compute Moran's I values and Moran's Eigenvector Maps. Allows to apply a threshold to the distance matrix before computing the weights.
+Transforms a distance matrix into weights (1/distance.matrix) normalized by the row sums. Used to compute Moran's I values and Moran's Eigenvector Maps. Allows to apply a threshold to the distance matrix before computing the weights.
 }
 \examples{
 \dontrun{
 if(interactive()){
+
  data(distance_matrix)
+
  distance.matrix.weights <- weights_from_distance_matrix(
    x = distance_matrix
    )
+
  distance.matrix.weights
- }
+
+}
 }
 }

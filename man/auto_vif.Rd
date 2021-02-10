@@ -2,12 +2,12 @@
 % Please edit documentation in R/auto_vif.R
 \name{auto_vif}
 \alias{auto_vif}
-\title{auto_vif}
+\title{Multicollinearity reduction via Variance Inflation Factor}
 \usage{
 auto_vif(x = NULL, preference.order = NULL, vif.threshold = 5, verbose = FALSE)
 }
 \arguments{
-\item{x}{A data frame with predictors. Default: \code{NULL}.}
+\item{x}{A data frame with predictors or the result of \code{\link[=auto_cor]{auto_cor()}}. Default: \code{NULL}.}
 
 \item{preference.order}{a character vector with columns names of x ordered by the user preference, Default: \code{NULL}.}
 
@@ -16,24 +16,44 @@ auto_vif(x = NULL, preference.order = NULL, vif.threshold = 5, verbose = FALSE)
 \item{verbose}{Logical. if \code{TRUE}, describes the function operations to the user.}
 }
 \value{
-List with two slots:
+List with three slots:
 \itemize{
-\item \strong{vif}: Data frame with the names of the selected variables and their respective VIF scores.
-\item \strong{selected.variables}: Character vector with the names of the selected variables.
+\item \code{vif}: data frame with the names of the selected variables and their respective VIF scores.
+\item \code{selected.variables}: character vector with the names of the selected variables.
+\item \code{selected.variables.df}: data frame with the selected variables.
 }
 }
 \description{
-Selects variables within a training dataframe that are not linear combinations of other variables by using the variance inflation factor (VIF). This function has two modes of operation:
-\itemize{
-\item 1. When the argument \emph{preference.order} is \code{NULL}, the function removes on each iteration the variable with the highest VIF until all VIF values are lower than \emph{vif.threshold}.
-\item 2. When \emph{preference.order} is provided, the variables are selected by giving them priority according to their order in \emph{preference.order}. If there are variables not in \emph{preference.order}, these are selected as in option 1. Once both groups of variables have been processed, all variables are put together and selected by giving priority to the ones in \emph{preference.order}. This method preserves the variables desired by the user as much as possible.
+Selects predictors that are not linear combinations of other predictors by using computing their variance inflation factors (VIF). Allows the user to define an order of preference for the selection of predictors.
 }
+\details{
+This function has two modes of operation:
+\itemize{
+\item 1. When the argument \code{preference.order} is \code{NULL}, the function removes on each iteration the variable with the highest VIF until all VIF values are lower than \code{vif.threshold}.
+\item 2. When \code{preference.order} is provided, the variables are selected by giving them priority according to their order in \code{preference.order}. If there are variables not in \code{preference.order}, these are selected as in option 1. Once both groups of variables have been processed, all variables are put together and selected by giving priority to the ones in \code{preference.order}. This method preserves the variables desired by the user as much as possible.
+}
+Can be chained together with \code{\link[=auto_cor]{auto_cor()}} through pipes, see the examples below.
 }
 \examples{
 \dontrun{
 if(interactive()){
+
  out <- auto_vif(x = plant_richness_df[, 5:20])
- }
  out$selected.variables
+
+ #on the result of auto_cor
+ out <- auto_cor(x = plant_richness_df[, 5:20])
+ out <- auto_vif(x = out)
+
+ #with pipes
+ out <- plant_richness_df[, 5:20] \%>\%
+ auto_cor(cor.threshold = 0.4) \%>\% #artificially low
+ auto_vif(vif.threshold = 2.5)     #artificially low
+
+
+ }
 }
+}
+\seealso{
+\code{\link[=auto_cor]{auto_cor()}}
 }

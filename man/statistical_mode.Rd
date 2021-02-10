@@ -2,24 +2,25 @@
 % Please edit documentation in R/statistical_mode.R
 \name{statistical_mode}
 \alias{statistical_mode}
-\title{statistical_mode}
+\title{Statistical mode of a vector}
 \usage{
 statistical_mode(x)
 }
 \arguments{
-\item{x}{numeric or character vector}
+\item{x}{Numeric or character vector.}
 }
 \value{
-statistical mode of x
+Statistical mode of \code{x}.
 }
 \description{
-computes the mode of a numeric or character vector
+Computes the mode of a numeric or character vector
 }
 \examples{
 \dontrun{
 if(interactive()){
- out <- statistical_mode(c(rep(10, 10), rep(9, 9)))
- out
- }
+
+ statistical_mode(c(rep(10, 10), rep(9, 9)))
+
+}
 }
 }

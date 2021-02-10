@@ -1,11 +1,17 @@
-#' @title objects_size
-#' @description shows the size of the objects currently in the R environment. Helper function to locate large objects cluttering the R environment.
-#' @param n number of objects to show, Default: 10
-#' @return a data frame with the row names indicating the object name, the field 'Type' indicating the object type, 'Size' indicating the object size, and the columns 'Length/Rows' and 'Columns' indicating the object dimensions.
+#' @title Shows size of objects in the R environment
+#' @description Shows the size of the objects currently in the R environment. Helps to locate large objects cluttering the R environment and/or causing memory problems.
+#' @param n Number of objects to show, Default: `10`
+#' @return A data frame with the row names indicating the object name, the field 'Type' indicating the object type, 'Size' indicating the object size, and the columns 'Length/Rows' and 'Columns' indicating the object dimensions if applicable.
 #' @examples
+#' \dontrun{
+#' if(interactive()){
+#'
 #'  x <- matrix(runif(100), 10, 10)
 #'  y <- matrix(runif(10000), 100, 100)
 #'  objects_size()
+#'
+#' }
+#' }
 #' @rdname objects_size
 #' @importFrom utils object.size
 #' @export

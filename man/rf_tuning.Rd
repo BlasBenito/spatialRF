@@ -2,20 +2,20 @@
 % Please edit documentation in R/rf_tuning.R
 \name{rf_tuning}
 \alias{rf_tuning}
-\title{rf_tuning}
+\title{Tuning of random forest hyperparameters}
 \usage{
 rf_tuning(
-  model = NULL,
   data = NULL,
   dependent.variable.name = NULL,
   predictor.variable.names = NULL,
+  ranger.arguments = NULL,
   tuning.method = "spatial.cv",
   num.trees = c(500, 1000),
   trees.per.variable = NULL,
-  mtry = c(2, 3),
+  mtry = c(1, 5),
   min.node.size = c(5, 10),
   xy = NULL,
-  repetitions = 30,
+  repetitions = 10,
   training.fraction = 0.6,
   verbose = TRUE,
   n.cores = NULL,
@@ -26,65 +26,66 @@ rf_tuning(
 )
 }
 \arguments{
-\item{model}{Model to tune, produced by \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}.}
+\item{data}{Data frame with a response variable and a set of predictors. Default: \code{NULL}}
 
-\item{data}{data frame with a response variable and a set of (preferably uncorrelated) predictors. Not required if \code{model} is provided. Default: NULL}
+\item{dependent.variable.name}{Character string with the name of the response variable. Must be in the column names of \code{data}. Default: \code{NULL}}
 
-\item{dependent.variable.name}{string with the name of the response variable. Must be in the column names of 'data'. Not required if \code{model} is provided. Default: NULL}
+\item{predictor.variable.names}{Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. Default: \code{NULL}}
 
-\item{predictor.variable.names}{character vector with the names of the predictive variables. Every element must be in the column names of 'data'. Not required if \code{model} is provided. Default: NULL}
+\item{ranger.arguments}{Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.}
 
-\item{tuning.method}{Character, "oob" to use R squared computed on the out-of-bag data to guide the tuning analysis, and "spatial.cv" to use R squared values from a spatial cross-validation done via \code{\link[=rf_evaluate]{rf_evaluate()}}. Default: "spatial.cv".}
+\item{tuning.method}{Character, "oob" to use RMSE values computed on the out-of-bag data to guide the tuning, and "spatial.cv", to use RMSE values from a spatial cross-validation on independent spatial folds done via \code{\link[=rf_evaluate]{rf_evaluate()}}. Default: \code{"oob"}}
 
 \item{num.trees}{Numeric integer vector with the number of trees to fit on each model repetition. Defalut: c(500, 1000).}
 
-\item{trees.per.variable}{(optional) number of individual regression trees to fit per variable in 'predictor.variable.names'. This is an alternative way to define ranger's 'num.trees'. If NULL, 'num.trees' is 500. Default: NULL}
+\item{trees.per.variable}{Integer, number of individual regression trees to fit per variable in \code{predictor.variable.names}. This is an alternative way to define ranger's \code{num.trees}. If \code{NULL}, \code{num.trees} is 500. Default: \code{NULL}}
 
-\item{mtry}{Numeric integer vector, number of predictors to randomly select from the complete pool of predictors on each tree split. Default: c(2, 3)}
+\item{mtry}{Numeric integer vector, number of predictors to randomly select from the complete pool of predictors on each tree split. Default: \code{c(2, 3)}}
 
-\item{min.node.size}{Numeric integer, minimal number of cases in a terminal node. Default:  c(5, 10)}
+\item{min.node.size}{Numeric integer, minimal number of cases in a terminal node. Default: \code{c(5, 10)}}
 
 \item{xy}{Data frame or matrix with two columns containing coordinates and named "x" and "y", or an sf file with geometry class \code{sfc_POINT} (see \link{plant_richness_sf}). If \code{NULL}, the function will throw an error. Default: \code{NULL}}
 
-\item{repetitions}{Integer, number of repetitions to compute the R squared from. If \code{tuning.method = "oob"}, number of repetitions to be used in \code{\link[=rf_repeat]{rf_repeat()}} to fit models for each combination of hyperparameters. If \code{tuning.method = "spatial.cv"}, number of independent spatial folds to use during the cross-validation. Default: 10}
+\item{repetitions}{Integer, number of repetitions to compute the R squared from. If \code{tuning.method = "oob"}, number of repetitions to be used in \code{\link[=rf_repeat]{rf_repeat()}} to fit models for each combination of hyperparameters. If \code{tuning.method = "spatial.cv"}, number of independent spatial folds to use during the cross-validation. Default: \code{10}}
 
-\item{training.fraction}{Proportion between 0.2 and 0.8 indicating the number of records to be used in model training. Default: 0.6}
+\item{training.fraction}{Proportion between 0.2 and 0.8 indicating the number of records to be used in model training. Default: \code{0.6}}
 
-\item{verbose}{Boolean. If TRUE, messages and plots generated during the execution of the function are displayed, Default: TRUE}
+\item{verbose}{Logical. If TRUE, messages and plots generated during the execution of the function are displayed, Default: \code{TRUE}}
 
-\item{n.cores}{number of cores to use to compute repetitions. If NULL, all cores but one are used, unless a cluster is used.}
+\item{n.cores}{Integer, number of cores to use during computations. If \code{NULL}, all cores but one are used, unless a cluster is used. Default = \code{NULL}}
 
-\item{cluster.ips}{character vector, IPs of the machines in the cluster. The first machine will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.}
+\item{cluster.ips}{Character vector with the IPs of the machines in a cluster. The machine with the first IP will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.}
 
-\item{cluster.cores}{numeric integer vector, number of cores on each machine.}
+\item{cluster.cores}{Numeric integer vector, number of cores to use on each machine.}
 
-\item{cluster.user}{character string, name of the user (should be the same throughout machines), Defaults to the current system user. Default: user name of the current session.}
+\item{cluster.user}{Character string, name of the user (should be the same throughout machines). Defaults to the current system user.}
 
-\item{cluster.port}{integer, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: 11000.}
+\item{cluster.port}{Integer, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: \code{11000}}
 }
 \value{
-A list with four slots: \strong{tuning} data frame with the results of the tuning analysis; \strong{tuning.long}, a long version of the previous data frame; \strong{tuning.plot}, ggplot of \strong{tuning.long}; \strong{ranger.arguments}, a list ready to be used as the argument \code{ranger.arguments} in \code{\link[=rf_repeat]{rf_repeat()}} or \code{\link[=rf_spatial]{rf_spatial()}}.
+A list with four slots: \code{tuning} data frame with the results of the tuning analysis; \code{tuning.long}, a long version of the previous data frame; \code{tuning.plot}, ggplot of \code{tuning.long}; \code{ranger.arguments}, a list ready to be used as the argument \code{ranger.arguments} in \code{\link[=rf_repeat]{rf_repeat()}} or \code{\link[=rf_spatial]{rf_spatial()}}.
 }
 \description{
-Tunes the random forest hyperparameters \code{num.trees}, \code{mtry}, and \code{min.node.size}.
+Tunes the random forest hyperparameters \code{num.trees}, \code{mtry}, and \code{min.node.size} via out-of-bag performance measures or spatial cross-validation performed with \code{\link[=rf_evaluate]{rf_evaluate()}}.
 }
 \details{
-The tuning method "oob" uses as reference the R squared computed on the out-of-bag data, while the method "spatial.cv" uses R squared computed on spatially independent data unseen by the model. The R squared values of the latter method will always be lower, but inform better about the capacity of the combinations of hyperparameters to yield more general models.
+The tuning method "oob" uses as reference the RMSE computed on the out-of-bag data, while the method "spatial.cv" uses RMSE computed on spatially independent data unseen by the model. The RMSE values of the latter method will always be higher, but inform better about the capacity of the combinations of hyperparameters to yield more general models.
 }
 \examples{
 \dontrun{
 if(interactive()){
+
 data(plant_richness_df)
 data(distance_matrix)
 
-rf.model <- rf(
+tuning <- rf_tuning(
   data = plant_richness_df,
   dependent.variable.name = "richness_species_vascular",
   predictor.variable.names = colnames(plant_richness_df)[5:21],
+  n.cores = 1,
   verbose = FALSE
 )
 
-tuning <- rf_tuning(model = rf.model)
- }
+}
 }
 }

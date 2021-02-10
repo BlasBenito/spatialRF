@@ -2,7 +2,7 @@
 % Please edit documentation in R/make_spatial_fold.R
 \name{make_spatial_fold}
 \alias{make_spatial_fold}
-\title{make_spatial_fold}
+\title{Makes one training and one testing spatial folds}
 \usage{
 make_spatial_fold(
   xy.i = NULL,
@@ -12,24 +12,26 @@ make_spatial_fold(
 )
 }
 \arguments{
-\item{xy.i}{One row data frame with at least three columns: "x" (longitude), "y" (latitude), and "id" (integer, id of the record). Can be a row of \emph{xy}. Default: \code{NULL}.}
+\item{xy.i}{One row data frame with at least three columns: "x" (longitude), "y" (latitude), and "id" (integer, id of the record). Can be a row of \code{xy}. Default: \code{NULL}.}
 
 \item{xy}{A data frame with at least three columns: "x" (longitude), "y" (latitude), and "id" (integer, index of the record). Default: \code{NULL}.}
 
-\item{distance.step}{Numeric, distance the buffer around \emph{xy.i} is grown on each iteration. If \code{NULL}, it defaults to the minimum distance between points in \emph{xy} divided by 2. Default: \code{NULL}.}
+\item{distance.step}{Numeric, distance the buffer around \code{xy.i} is grown on each iteration. If \code{NULL}, it defaults to the minimum distance between points in \code{xy} divided by 2. Default: \code{NULL}.}
 
-\item{training.fraction}{Numeric, fraction of the data to be included in the growing buffer as training data, Default: 0.6.}
+\item{training.fraction}{Numeric, fraction of the data to be included in the training fold, Default: \code{0.6}.}
 }
 \value{
-A list with two slots named \strong{training} and \strong{testing} with the former having the indices of the training records selected from \emph{xy}, and the latter having the indices of the testing records.
+A list with two slots named \code{training} and \code{testing} with the former having the indices of the training records selected from \code{xy}, and the latter having the indices of the testing records.
 }
 \description{
-Uses the coordinates of a point \emph{xy.i} to generate two spatially independent folds over the dataset \emph{xy}. It does so by growing a rectangular buffer from \emph{xy.i} until a number of records defined by \emph{training.fraction} is inside the buffer. The indices of these records are then stored as "training" in the output list. The indices of the remaining records outside of the buffer are stored as "testing". These training and testing records can be then used to evaluate a model on independent data.
+Used internally by \code{\link[=make_spatial_folds]{make_spatial_folds()}} and \code{\link[=rf_evaluate]{rf_evaluate()}}. Uses the coordinates of a point \code{xy.i} to generate two spatially independent data folds from the data frame \code{xy}. It does so by growing a rectangular buffer from \code{xy.i} until a number of records defined by \code{training.fraction} is inside the buffer. The indices of these records are then stored as "training" in the output list. The indices of the remaining records outside of the buffer are stored as "testing". These training and testing records can be then used to evaluate a model on independent data via cross-validation.
 }
 \examples{
 \dontrun{
 if(interactive()){
+
  data(plant_richness_df)
+
  xy <- plant_richness_df[, 1:3]
  colnames(xy) <- c("id", "x", "y")
  out <- make_spatial_fold(
@@ -49,6 +51,10 @@ if(interactive()){
  points(xy[out$testing, c("x", "y")], col = "blue4", pch = 15)
  #plots xy.i
  points(xy[1, c("x", "y")], col = "black", pch = 15, cex = 2)
- }
+
 }
+}
+}
+\seealso{
+\code{\link[=make_spatial_folds]{make_spatial_folds()}}, \code{\link[=rf_evaluate]{rf_evaluate()}}
 }

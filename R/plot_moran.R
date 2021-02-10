@@ -1,11 +1,13 @@
-#' @title plot_moran
-#' @description Plots results of spatial autocorrelation tests for a variety of functions within the package.
-#' @param x A model produced by [rf()], [rf_repeat()], or [rf_spatial()], or a data frame resulting from [moran_multithreshold]. Default: NULL
-#' @param verbose logical, if TRUE, the resulting table is printed into the console, Default: TRUE
-#' @return a ggplot.
+#' @title Plots a Moran's I test of model residuals
+#' @description Plots the results of spatial autocorrelation tests for a variety of functions within the package.
+#' @param x A model fitted with [rf()], [rf_repeat()], or [rf_spatial()]. Default: `NULL`
+#' @param verbose Logical, if `TRUE`, the resulting plot is printed, Default: `TRUE`
+#' @return A ggplot.
+#' @seealso [moran()], [moran_multithreshold()]
 #' @examples
 #' \dontrun{
 #' if(interactive()){
+#'
 #'  data(plant_richness_df)
 #'  data(distance.matrix)
 #'
@@ -19,7 +21,8 @@
 #'  )
 #'
 #'  plot_moran(x = rf.model)
-#'  }
+#'
+#' }
 #' }
 #' @rdname plot_moran
 #' @export

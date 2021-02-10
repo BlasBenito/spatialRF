@@ -1,8 +1,36 @@
-#' @title plot_evaluation
-#' @description Plots the results of an evaluation performed with [rf_evaluate()].
-#' @param x A model resulting from [rf_evaluate()]
-#' @param verbose logical, if TRUE the plot is printed, Default: TRUE
+#' @title Plots the results of a spatial cross-validation
+#' @description Plots the results of an spatial cross-validation performed with [rf_evaluate()].
+#' @param x A model resulting from [rf_evaluate()].
+#' @param verbose Logical, if TRUE the plot is printed. Default: `TRUE`
 #' @return A ggplot.
+#' @seealso [rf_evaluate()], [get_evaluation()], [print_evaluation()].
+#' @examples
+#' \dontrun{
+#' if(interactive()){
+#'
+#' data(plant_richness_df)
+#' data(distance_matrix)
+#'
+#' rf.model <- rf(
+#'   data = plant_richness_df,
+#'   dependent.variable.name = "richness_species_vascular",
+#'   predictor.variable.names = colnames(plant_richness_df)[5:21],
+#'   distance.matrix = distance_matrix,
+#'   distance.thresholds = c(0, 1000, 2000),
+#'   verbose = FALSE
+#' )
+#'
+#' rf.model <- rf_evaluate(
+#'   model = rf.model,
+#'   xy = plant_richness_df[, c("x", "y")],
+#'   n.cores = 1
+#' )
+#'
+#' plot_evaluation(rf.model)
+#'
+#' }
+#' }
+#'
 #' @rdname plot_evaluation
 #' @export
 #' @importFrom ggplot2 ggplot facet_wrap theme xlab ylab labs
@@ -16,7 +44,6 @@ plot_evaluation <- function(x, verbose = TRUE){
   if(!inherits(x, "rf_evaluate")){
     stop("Object 'x' does not have an 'evaluation' slot.")
   }
-
 
   #function to fix labels
   .pretty_labels <- function(x){

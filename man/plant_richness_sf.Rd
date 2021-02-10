@@ -3,15 +3,23 @@
 \docType{data}
 \name{plant_richness_sf}
 \alias{plant_richness_sf}
-\title{Centroids of North and South American ecoregions.}
+\title{Centroids of North and South American ecoregions.
+
+Centroids of the American ecoregions represented in \link{plant_richness_df} in format \link[sf]{sf}, with latitude and longitude coordinates and datum WGS84 stored in the column \emph{geom_centroids}.
+plant_richness_sf}
 \format{
 A spatial data frame (sf) with 227 rows
 }
 \usage{
-plant_richness_sf
+data(plant_richness_sf)
 }
 \description{
+Centroids of North and South American ecoregions.
+
 Centroids of the American ecoregions represented in \link{plant_richness_df} in format \link[sf]{sf}, with latitude and longitude coordinates and datum WGS84 stored in the column \emph{geom_centroids}.
 plant_richness_sf
+}
+\seealso{
+\link{plant_richness_df}, \link{distance_matrix}
 }
 \keyword{datasets}

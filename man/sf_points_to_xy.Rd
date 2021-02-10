@@ -2,12 +2,12 @@
 % Please edit documentation in R/sf_points_to_xy.R
 \name{sf_points_to_xy}
 \alias{sf_points_to_xy}
-\title{sf_points_to_xy}
+\title{Converts sf points into a data frame with x and y columns}
 \usage{
-sf_points_to_xy(sf.points)
+sf_points_to_xy(x)
 }
 \arguments{
-\item{sf.points}{An \link[sf]{sf} data frame with points (geometry class "sfc_POINT").}
+\item{x}{An \link[sf]{sf} data frame with points (geometry class "sfc_POINT").}
 }
 \value{
 A data frame with the point coordinates stored in the columns \emph{x} and \emph{y}.
@@ -18,8 +18,11 @@ Transforms an \link[sf]{sf} data frame with points into a data frame with column
 \examples{
 \dontrun{
 if(interactive()){
+
  data(plant_richness_sf)
  xy <- sf_points_to_xy(plant_richness_sf)
- }
+ head(xy)
+
+}
 }
 }

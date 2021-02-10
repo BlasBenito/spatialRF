@@ -2,41 +2,47 @@
 % Please edit documentation in R/moran.R
 \name{moran}
 \alias{moran}
-\title{moran}
+\title{Moran's I test on a numeric vector}
 \usage{
 moran(x = NULL, distance.matrix = NULL, distance.threshold = 0)
 }
 \arguments{
-\item{x}{numeric vector, generally a model residuals, Default: NULL}
+\item{x}{Numeric vector, generally model residuals, Default: \code{NULL}}
 
-\item{distance.matrix}{distance matrix among the records represented in the numeric vector. The number of rows of this matrix must be equal to the length of x. Default: NULL}
+\item{distance.matrix}{Distance matrix among cases in \code{x}. The number of rows of this matrix must be equal to the length of \code{x}. Default: \code{NULL}}
 
-\item{distance.threshold}{(optional) numeric, positive, in the range of values of \code{distance.matrix} distances below this value in the distance matrix are set to 0., Default: 0}
+\item{distance.threshold}{numeric value in the range of values available in \code{distance.matrix}. Distances below such threshold are set to 0. Default: \code{0}}
 }
 \value{
-a list with three named slots:
-\describe{
-\item{moran.i}{Moran's I (spatial correlation) of x.}
-\item{p.value}{p-value of the Moran's I estimate.}
-\item{interpretation}{interpretation of the Moran's I value according to the p-value. One of "Positive spatial correlation", "Negative spatial correlation", and "No spatial correlation".}
+A list with three named slots:
+\itemize{
+\item \code{moran.i}: Moran's I of \code{x}.
+\item \code{p.value}: P-value of the Moran's I estimate.
+\item \code{interpretation}: Interpretation of the Moran's I value according to the p-value. One of "Positive spatial correlation", "Negative spatial correlation", and "No spatial correlation".
 }
 }
 \description{
-Computes the spatial correlation coefficient (Moran's I) of a vector given a distance matrix.
+Computes the spatial correlation coefficient (Moran's I) of a vector given a distance matrix, and a distance threshold used to define neihgborhood.
 }
 \details{
-This function is based on \link[ape]{Moran.I}.
+Based on the \link[ape]{Moran.I} function of the \code{ape} package.
 }
 \examples{
 \dontrun{
 if(interactive()){
+
  data(distance_matrix)
  data(plant_richness)
+
  moran.out <- moran(
    x = plant_richness$richness_species_vascular,
    distance.matrix = distance_matrix
    )
  moran.out
- }
+
 }
+}
+}
+\seealso{
+\code{\link[=moran_multithreshold]{moran_multithreshold()}}
 }

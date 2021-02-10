@@ -1,13 +1,14 @@
-#' @title rescale_vector
-#' @description Helper function to rescale numeric vectors to a new range.
-#' @param x numeric vector, Default: NULL
-#' @param new.min new minimum value, Default: 0
-#' @param new.max new maximum value, Default: 1
-#' @param integer coerce the output to integer, Default: FALSE
-#' @return a numeric vector of the same length as x, but with its values rescaled between new.min and new.max.
+#' @title Rescales a numeric vector into a new range
+#' @description Rescales a numeric vector to a new range.
+#' @param x Numeric vector. Default: `NULL`
+#' @param new.min New minimum value. Default: `0`
+#' @param new.max New maximum value. Default: `1`
+#' @param integer Logical, if `TRUE`, coerces the output to integer. Default: `FALSE`
+#' @return A numeric vector of the same length as x, but with its values rescaled between `new.min` and `new.max.`
 #' @examples
 #' \dontrun{
 #' if(interactive()){
+#'
 #'  out <- rescale_vector(
 #'    x = rnorm(100),
 #'    new.min = 0,
@@ -15,7 +16,8 @@
 #'    integer = TRUE
 #'    )
 #'    out
-#'  }
+#'
+#' }
 #' }
 #' @rdname rescale_vector
 #' @export

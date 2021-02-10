@@ -2,7 +2,7 @@
 % Please edit documentation in R/rf.R
 \name{rf}
 \alias{rf}
-\title{rf}
+\title{Fits random forest models and tests the spatial correlation of the residuals}
 \usage{
 rf(
   data = NULL,
@@ -18,47 +18,47 @@ rf(
 )
 }
 \arguments{
-\item{data}{(required) data frame with a response variable and a set of (preferably uncorrelated) predictors, Default: NULL}
+\item{data}{Data frame with a response variable and a set of predictors. Default: \code{NULL}}
 
-\item{dependent.variable.name}{(required) string with the name of the response variable. Must be in the column names of 'data', Default: NULL}
+\item{dependent.variable.name}{Character string with the name of the response variable. Must be in the column names of \code{data}. Default: \code{NULL}}
 
-\item{predictor.variable.names}{(required) character vector with the names of the predictive variables. Every element must be in the column names of 'data', Default: NULL}
+\item{predictor.variable.names}{Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. Default: \code{NULL}}
 
-\item{distance.matrix}{(optional) a squared matrix with the distances among the records in 'data'. Notice that the rows of 'distance.matrix' and 'data' must be the same. If not provided, the computation of the Moran's I of the residuals is omitted. Default: \code{NULL}.}
+\item{distance.matrix}{Squared matrix with the distances among the records in \code{data}. The number of rows of \code{distance.matrix} and \code{data} must be the same. If not provided, the computation of the Moran's I of the residuals is omitted. Default: \code{NULL}}
 
-\item{distance.thresholds}{(optional) numeric vector, distances below each value in the distance matrix are set to 0 for the computation of Moran's I. If NULL, it defaults to seq(0, max(distance.matrix), length.out = 4). Default: NULL.}
+\item{distance.thresholds}{Numeric vector with neighborhood distances. All distances in the distance matrix below each value in \code{dustance.thresholds} are set to 0 for the computation of Moran's I. If \code{NULL}, it defaults to seq(0, max(distance.matrix), length.out = 4). Default: \code{NULL}}
 
-\item{ranger.arguments}{(optional) list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.}
+\item{ranger.arguments}{Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.}
 
-\item{trees.per.variable}{(optional) number of individual regression trees to fit per variable in 'predictor.variable.names'. This is an alternative way to define ranger's 'num.trees'. If NULL, 'num.trees' is 500. Default: NULL}
+\item{trees.per.variable}{Number of individual regression trees to fit per variable in \code{predictor.variable.names}. This is an alternative way to define ranger's \code{num.trees}. If \code{NULL}, \code{num.trees} is 500. Default: \code{NULL}}
 
-\item{scaled.importance}{(optional) boolean. If TRUE, and 'importance = "permutation', the function scales 'data' with \link{scale_robust} and fits a new model to compute scaled variable importance scores. Default: TRUE}
+\item{scaled.importance}{Logical, if \code{TRUE}, the function scales \code{data} with \code{\link[=scale_robust]{scale_robust()}} and fits a new model to compute scaled variable importance scores. This makes variable importance scores of different models somewhat comparable. Default: \code{TRUE}}
 
-\item{seed}{(optional) integer, random seed to facilitate reproducibility. If set to a given number, the returned model is always the same. Default: NULL}
+\item{seed}{Integer, random seed to facilitate reproducibility. If set to a given number, the returned model is always the same. Default: \code{NULL}}
 
-\item{verbose}{Boolean. If TRUE, messages and plots generated during the execution of the function are displayed, Default: TRUE}
+\item{verbose}{Boolean. If TRUE, messages and plots generated during the execution of the function are displayed. Default: \code{TRUE}}
 }
 \value{
-a ranger model with several new slots:
+A ranger model with several new slots:
 \itemize{
-\item \code{ranger.arguments}: stores the values of the arguments used to fit the ranger model.
-\item \code{variable.importance}: a list containing a data frame with the predictors ordered by their importance, and a ggplot showing the importance values.
+\item \code{ranger.arguments}: Stores the values of the arguments used to fit the ranger model.
+\item \code{variable.importance}: A list containing a data frame with the predictors ordered by their importance, and a ggplot showing the importance values.
+\item \code{performance}: out-of-bag performance scores: R squared, pseudo R squared, RMSE, and normalized RMSE (NRMSE).
 \item \code{pseudo.r.squared}: computed as the correlation between the observations and the predictions.
-\item \code{rmse}: as computed by \link{root_mean_squared_error} with 'normalization = NULL'.
-\item \code{nrmse}: as computed by \link{root_mean_squared_error} with 'normalization = "iq'.
 \item \code{residuals}: computed as observations minus predictions.
-\item \code{spatial.correlation.residuals}: the result of \link{moran_multithreshold}.
+\item \code{spatial.correlation.residuals}: the result of \code{\link[=moran_multithreshold]{moran_multithreshold()}} applied to the model results.
 }
 }
 \description{
-a convenient wrapper for \link[ranger]{ranger} that completes its output by providing the Moran's I of the residuals for different distance thresholds, the rmse and nrmse (as computed by \link{root_mean_squared_error}), and variable importance scores based on a scaled version of the data generated by \link{scale_robust}.
+A convenient wrapper for \link[ranger]{ranger} that completes its output by providing the Moran's I of the residuals for different distance thresholds, the rmse and nrmse (as computed by \code{\link[=root_mean_squared_error]{root_mean_squared_error()}}), and variable importance scores based on a scaled version of the data generated by \code{\link[=scale_robust]{scale_robust()}}.
 }
 \details{
-Please read the help file of \link[ranger]{ranger} for further details. Notice that the \code{formula} interface of \link[ranger]{ranger} is supported through \code{ranger.arguments}, interactions are not allowed. If you need to consider interactions in your model, add them explicitly as new columns in \code{data} as in \code{data$x_y <- data$x * data$y}.
+Please read the help file of \link[ranger]{ranger} for further details. Notice that the \code{formula} interface of \link[ranger]{ranger} is supported through \code{ranger.arguments}, but variable interactions are not allowed (but check \code{\link[=suggest_interactions]{suggest_interactions()}}).
 }
 \examples{
 \dontrun{
 if(interactive()){
+
  data("plant_richness_df")
  data("distance_matrix")
 
@@ -125,6 +125,7 @@ if(interactive()){
      x = plant_richness_df[, 5:21]
      )
    )
- }
+
+}
 }
 }

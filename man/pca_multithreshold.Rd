@@ -2,7 +2,7 @@
 % Please edit documentation in R/pca_multithreshold.R
 \name{pca_multithreshold}
 \alias{pca_multithreshold}
-\title{pca_multithreshold}
+\title{PCA of a distance matrix over distance thresholds}
 \usage{
 pca_multithreshold(
   x = NULL,
@@ -11,30 +11,33 @@ pca_multithreshold(
 )
 }
 \arguments{
-\item{x}{(required) numeric squared matrix with distances among records, Default: NULL}
+\item{x}{Distance matrix with the same number of columns and rows. Default: \code{NULL}}
 
-\item{distance.thresholds}{(optional) numeric vector with distance thresholds defining neighborhood in the distance matrix, Default: 0}
+\item{distance.thresholds}{Numeric vector with distance thresholds defining neighborhood in the distance matrix, Default: \code{0}}
 
-\item{max.spatial.predictors}{(optional) maximum number of spatial predictors to generate. Only useful when the distance matrix \code{x} is very large. Default: 1000}
+\item{max.spatial.predictors}{Integer, maximum number of spatial predictors to generate. Only useful when the distance matrix \code{x} is very large. Default: \code{1000}}
 }
 \value{
-a data frame with the PCA factors of the thresholded matrix. The number of columns should be equal to ncol(x) * length(distance.thresholds), but notice that the function \link{pca} removes columns with variance 0, and therefore the final number of columns of the function output may vary. The data frame columns are named "spatial_predictor_DISTANCE_COLUMN", where distance is the given distance threshold, and column is the column index of the given predictor.
+A data frame with the PCA factors of the thresholded matrix. The data frame columns are named "spatial_predictor_DISTANCE_COLUMN", where DISTANCE is the given distance threshold, and COLUMN is the column index of the given predictor.
 }
 \description{
-computes PCA factors of a distance matrix given a set of distance thresholds. This function allows to generate spatial predictors (Moran's Eigenvector Maps) from the same distance matrix thresholded at different neighborhood distances.
+Computes PCA factors of a distance matrix over different distance thresholds to generate spatial predictors for a model fitted with \code{\link[=rf_spatial]{rf_spatial()}}.
 }
 \details{
-The distance matrix is converted into weights with \link{weights_from_distance_matrix} before computing the PCA. This produces more meaningful spatial predictors than using the distance matrix as is.
+The distance matrix is converted into weights with \code{\link[=weights_from_distance_matrix]{weights_from_distance_matrix()}} before computing the PCA. This produces more meaningful spatial predictors than using the distance matrix as is.
 }
 \examples{
 \dontrun{
 if(interactive()){
+
  x <- pca_multithreshold(
    x = distance_matrix,
    distance.thresholds = c(0, 1000)
    )
- x
- colnames(x)
- }
+ head(x)
 }
+}
+}
+\seealso{
+\code{\link[=pca]{pca()}}
 }

@@ -2,14 +2,14 @@
 % Please edit documentation in R/mem.R
 \name{mem}
 \alias{mem}
-\title{mem}
+\title{Moran's Eigenvector Maps of a distance matrix}
 \usage{
 mem(x = NULL, distance.threshold = 0, colnames.prefix = "mem")
 }
 \arguments{
 \item{x}{Numeric distance matrix or data frame. Default: \code{NULL}.}
 
-\item{distance.threshold}{Numeric vector with distance thresholds defining different neighborhood extents in the distance matrix, Default: 0}
+\item{distance.threshold}{Numeric vector with distance thresholds defining different neighborhood extents within the distance matrix, Default: 0}
 
 \item{colnames.prefix}{Character, name prefix for the output columns. Default: \code{"mem"}}
 }
@@ -20,14 +20,20 @@ A data frame with positive Moran's Eigenvector Maps.
 Computes the positive Moran's Eigenvector Maps of a distance matrix.
 }
 \details{
-The function takes the distance matrix \emph{x}, computes its weights and double-centers it with \code{\link[=double_center_distance_matrix]{double_center_distance_matrix()}}, applies \link[base]{eigen}, and returns eigenvectors with positive normalized eigenvalues.
+The function takes the distance matrix \code{x}, computes its weights and double-centers it with \code{\link[=double_center_distance_matrix]{double_center_distance_matrix()}}, applies \link[base]{eigen}, and returns eigenvectors with positive normalized eigenvalues (a.k.a Moran's Eigenvector Maps, or MEMs). These MEMs are later used as spatial predictors by \code{\link[=rf_spatial]{rf_spatial()}}.
 }
 \examples{
 \dontrun{
 if(interactive()){
+
  data(distance_matrix)
+
  distance_matrix.mem <- mem(x = distance_matrix)
- distance_matrix.mem
- }
+ head(distance_matrix.mem)
+
 }
+}
+}
+\seealso{
+\code{\link[=mem_multithreshold]{mem_multithreshold()}}, \code{\link[=rf_spatial]{rf_spatial()}}, \code{\link[=rank_spatial_predictors]{rank_spatial_predictors()}}, \code{\link[=select_spatial_predictors_optimized]{select_spatial_predictors_optimized()}}, \code{\link[=select_spatial_predictors_sequential]{select_spatial_predictors_sequential()}}
 }

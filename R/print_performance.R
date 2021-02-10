@@ -1,9 +1,11 @@
 #' @title print_performance
 #' @description Prints the performance slot of a model fitted with [rf()], [rf_repeat()], or [rf_spatial()].
-#' @param x Model fitted by [rf()], [rf_repeat()], or [rf_spatial()].
+#' @param x Model fitted with [rf()], [rf_repeat()], or [rf_spatial()].
+#' @seealso [print_performance()], [get_performance()]
 #' @examples
 #' \dontrun{
 #' if(interactive()){
+#'
 #'  data(plant_richness_df)
 #'  data(distance.matrix)
 #'
@@ -17,7 +19,8 @@
 #'  )
 #'
 #'  print_performance(rf.model)
-#'  }
+#'
+#' }
 #' }
 #' @rdname print_performance
 #' @export

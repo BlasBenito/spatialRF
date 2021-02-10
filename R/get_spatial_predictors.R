@@ -1,25 +1,27 @@
-#' @title get_spatial_predictors
+#' @title Gets the spatial predictors of a spatial model
 #' @description Returns spatial predictors from a model fitted with [rf_spatial()] in order of importance.
-#' @param x A model fitted with [rf_spatial()]. Default: NULL
+#' @param x A model fitted with [rf_spatial()].
 #' @return A data frame with the spatial predictors included in the model.
 #' @examples
 #' \dontrun{
 #' if(interactive()){
+#'
 #'  data(distance_matrix)
 #'  data(plant_richness_df)
-
-#'  #mem.moran.sequential
+#'
+#'
 #'  model <- rf_spatial(
-#'    data = data,
+#'    data = plant_richness_df,
 #'    dependent.variable.name = "richness_species_vascular",
-#'    predictor.variable.names = olnames(plant_richness_df)[5:21],
+#'    predictor.variable.names = colnames(plant_richness_df)[5:21],
 #'    distance.matrix = distance_matrix,
 #'    distance.thresholds = c(0, 500, 1000),
 #'    method = "mem.moran.sequential"
 #'  )
 #'
 #' spatial.predictors <- get_spatial_predictors(x = model)
-#'  }
+#' head(spatial.predictors)
+#' }
 #' }
 #' @rdname get_spatial_predictors
 #' @export

@@ -2,7 +2,7 @@
 % Please edit documentation in R/make_spatial_folds.R
 \name{make_spatial_folds}
 \alias{make_spatial_folds}
-\title{make_spatial_folds}
+\title{Makes training and testing spatial folds}
 \usage{
 make_spatial_folds(
   xy.selected = NULL,
@@ -13,7 +13,7 @@ make_spatial_folds(
 )
 }
 \arguments{
-\item{xy.selected}{data frame with at least three columns: "x" (longitude), "y" (latitude), and "id" (integer, id of the record). Usually a subset of 'xy' obtained with \link{thinning} or \link{thinning_til_n} to avoid redundant spatial folds (happen when the origin points are too close to each other). Default: \code{NULL}.}
+\item{xy.selected}{Data frame with at least three columns: "x" (longitude), "y" (latitude), and "id" (integer, id of the record). Usually a subset of \code{xy}. Usually the result of applying \code{\link[=thinning]{thinning()}} or \code{\link[=thinning_til_n]{thinning_til_n()}} to 'xy' Default: \code{NULL}.}
 
 \item{xy}{data frame with at least three columns: "x" (longitude), "y" (latitude), and "id" (integer, index of the record). Default: \code{NULL}.}
 
@@ -24,19 +24,24 @@ make_spatial_folds(
 \item{n.cores}{number of cores to use to generate spatial folds in parallel. Default: \code{NULL}.}
 }
 \value{
-a list with as many slots as rows are in \emph{xy.selected}. Each slot has TWO slots named \strong{training} and \strong{testing}, with the former having the indices of the training records selected from xy, and the latter having the indices of the testing records.
+a list with as many slots as rows are in \code{xy.selected}. Each slot has TWO slots named \code{training} and \code{testing}, with the former having the indices of the training records selected from xy, and the latter having the indices of the testing records.
 }
 \description{
-it applies \link{make_spatial_fold} to every record in a data frame 'xy.selected' (generally the result of applying \link{thinning} or \link{thinning_til_n} to 'xy') to generate as many spatially independent folds over the dataset 'xy' as rows are in ''xy.selected'.
+Applies \code{\link[=make_spatial_fold]{make_spatial_fold()}} to every record in a data frame \code{xy.selected} to generate as many spatially independent folds over the dataset \code{xy} as rows are in \code{xy.selected}.
 }
 \examples{
+\dontrun{
+if(interactive()){
+
  data(plant_richness_df)
+
  xy <- plant_richness_df[, 1:3]
  colnames(xy) <- c("id", "x", "y")
  xy.selected <- thinning_til_n(
    xy = xy,
    n = 20
    )
+
  out <- make_spatial_folds(
    xy.selected = xy.selected,
    xy = xy,
@@ -54,4 +59,9 @@ it applies \link{make_spatial_fold} to every record in a data frame 'xy.selected
  points(xy[out[[10]]$testing, c("x", "y")], col = "blue4", pch = 15)
  #plots xy.i
  points(xy[10, c("x", "y")], col = "black", pch = 15, cex = 2)
+}
+}
+}
+\seealso{
+\code{\link[=make_spatial_fold]{make_spatial_fold()}}, \code{\link[=rf_evaluate]{rf_evaluate()}}
 }

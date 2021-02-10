@@ -2,20 +2,23 @@
 % Please edit documentation in R/get_moran.R
 \name{get_moran}
 \alias{get_moran}
-\title{get_moran}
+\title{Gets Moran's I test of a model's residuals}
 \usage{
 get_moran(x)
 }
 \arguments{
-\item{x}{A model produced by \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}}
+\item{x}{A model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}}
 }
 \value{
-A data frame with moran test results produced by \code{\link[=moran_multithreshold]{moran_multithreshold()}}.
+A data frame with Moran's I test results produced by \code{\link[=moran_multithreshold]{moran_multithreshold()}}.
 }
 \description{
-Returns the Moran's I test of a model produced by \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}.
+Returns the Moran's I test on the residuals of a model produced by \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}.
 }
 \examples{
+\dontrun{
+if(interactive()){
+
  data(plant_richness_df)
  data(distance_matrix)
 
@@ -29,4 +32,10 @@ Returns the Moran's I test of a model produced by \code{\link[=rf]{rf()}}, \code
  )
 
  x <- get_moran(rf.model)
+
+}
+}
+}
+\seealso{
+\code{\link[=moran]{moran()}}, \code{\link[=moran_multithreshold]{moran_multithreshold()}}, \code{\link[=plot_moran]{plot_moran()}}, \code{\link[=print_moran]{print_moran()}}.
 }

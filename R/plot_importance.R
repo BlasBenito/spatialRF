@@ -1,15 +1,16 @@
-#' @title plot_importance
-#' @description plots variable importance scores of [rf()], [rf_repeat()], and [rf_spatial()] models.
-#' @param x A model produced by [rf()], [rf_repeat()], or [rf_spatial()], or a data frame with importance scores. Default: NULL
-#' @param verbose Logical, if TRUE, the generated plot is printed. Default: TRUE
-#' @return a ggplot
-#' @details For [rf_repeat()] models, the middle point of each boxplot represents the mean variable importance rather than the median. This is to keep consistency within the package, as every other aggregated measure of performance or importance is presented as a mean.
+#' @title Plots the variable importance of a model
+#' @description Plots variable importance scores of [rf()], [rf_repeat()], and [rf_spatial()] models.
+#' @param x A model fitted with [rf()], [rf_repeat()], or [rf_spatial()]. Default: `NULL`
+#' @param verbose Logical, if `TRUE`, the plot is printed. Default: `TRUE`
+#' @return A ggplot.
+#' @seealso [print_importance()], [get_importance()]
 #' @examples
 #' \dontrun{
 #' if(interactive()){
 #'
 #' data(plant_richness_df)
 #' data(distance.matrix)
+#'
 #' rf.model <- rf(
 #'   data = plant_richness_df,
 #'  dependent.variable.name = "richness_species_vascular",
@@ -18,8 +19,10 @@
 #'  distance.thresholds = c(0, 1000, 2000),
 #'  verbose = FALSE
 #' )
+#'
 #' plot_importance(x = rf.model)
-#'  }
+#'
+#' }
 #' }
 #' @rdname plot_importance
 #' @export

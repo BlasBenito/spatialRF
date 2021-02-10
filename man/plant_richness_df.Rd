@@ -3,40 +3,41 @@
 \docType{data}
 \name{plant_richness_df}
 \alias{plant_richness_df}
-\title{Richness of vascular plants the american ecoregions as defined in \href{https://ecoregions2017.appspot.com/}{Ecoregions 2017}.
-plant_richness_df}
+\title{Plant richness and predictors of American ecoregions}
 \format{
-A data frame (sf) file with 227 rows and 22 columns:
-\describe{
-\item{ecoregion_id}{id of the ecoregion).}
-\item{x}{longitude in degrees (WGS84).}
-\item{y}{latitude in degrees (WGS84).}
-\item{richness_species_vascular}{number of vascular species found in the ecoregion.}
-\item{bias_area_km2}{area of the ecoregion in squared kilometers.}
-\item{bias_species_per_record}{number of species divided by the number of spatial GBIF records available in the ecoregion as a measure of sampling bias.}
-\item{climate_aridity_index_average}{average \href{https://figshare.com/articles/dataset/Global_Aridity_Index_and_Potential_Evapotranspiration_ET0_Climate_Database_v2/7504448}{aridity index} of the ecoregion.}
-\item{climate_hypervolume}{volume of the climatic envelope of the ecoregion.}
-\item{climate_velocity_lgm_average}{average \href{https://science.sciencemag.org/content/334/6056/660}{climate velocity} of the ecoregion since the Last Glacial Maximum.}
-\item{neighbors_count}{number of immediate neighbors of the ecoregion as a measure of connectivity/isolation.}
-\item{neighbors_percent_shared_edge}{percentage of shared edge with the neighbors as a measure of connectivity/isolation.}
-\item{human_population_density}{population density of the ecoregion.}
-\item{topography_elevation_average}{average elevation of the ecoregion.}
-\item{landcover_herbs_percent_average}{average cover percentage of herbs extracted from \href{https://modis-land.gsfc.nasa.gov/vcc.html}{MODIS Vegetation Continuous Fields}.}
-\item{fragmentation_cohesion}{geographic fragmentation index of the ecoregion as computed with the R package \href{https://cran.r-project.org/web/packages/landscapemetrics/index.html}{landscapemetrics}.}
-\item{fragmentation_division}{another fragmentation index.}
-\item{neighbors_area}{total area of the ecoregions's immediate neighbors.}
-\item{human_population}{human population in the ecoregion.}
-\item{human_footprint_average}{average \href{https://sedac.ciesin.columbia.edu/data/set/wildareas-v3-2009-human-footprint}{human footprint} in the ecoregion.}
-\item{climate_bio1_average}{average mean annual temperature according to \href{https://chelsa-climate.org/}{CHELSA}.}
-\item{climate_bio15_minimum}{average precipitation seasonality.}
+A data frame with 227 rows and 22 columns:
+\itemize{
+\item \code{ecoregion_id}: Id of the ecoregion).
+\item \code{x}: Longitude in degrees (WGS84).
+\item \code{y}: Latitude in degrees (WGS84).
+\item \code{richness_species_vascular}: Number of vascular species found in the ecoregion. Response variable.
+\item \code{bias_area_km2}: Area of the ecoregion in squared kilometers.
+\item \code{bias_species_per_record}: Number of species divided by the number of spatial GBIF records available in the ecoregion as a measure of sampling bias.
+\item \code{climate_aridity_index_average}: Average \href{https://figshare.com/articles/dataset/Global_Aridity_Index_and_Potential_Evapotranspiration_ET0_Climate_Database_v2/7504448}{aridity index} of the ecoregion.
+\item \code{climate_hypervolume}: Volume of the climatic envelope of the ecoregion, computed with the \href{https://cran.r-project.org/package=hypervolume}{hypervolume} package.
+\item \code{climate_velocity_lgm_average}: Average \href{https://science.sciencemag.org/content/334/6056/660}{climate velocity} of the ecoregion since the Last Glacial Maximum.
+\item \code{neighbors_count}: Number of immediate neighbors of the ecoregion as a measure of connectivity/isolation.
+\item \code{neighbors_percent_shared_edge}: Percentage of shared edge with the neighbors as a measure of connectivity/isolation.
+\item \code{human_population_density}: Population density of the ecoregion.
+\item \code{topography_elevation_average}: Average elevation of the ecoregion.
+\item \code{landcover_herbs_percent_average}: Average cover percentage of herbs extracted from \href{https://modis-land.gsfc.nasa.gov/vcc.html}{MODIS Vegetation Continuous Fields}.
+\item \code{fragmentation_cohesion}: Geographic fragmentation index of the ecoregion as computed with the R package \href{https://cran.r-project.org/web/packages/landscapemetrics/index.html}{landscapemetrics}.
+\item \code{fragmentation_division}: Another fragmentation index.
+\item \code{neighbors_area}: Total area of the ecoregions's immediate neighbors.
+\item \code{human_population}: Human population in the ecoregion.
+\item \code{human_footprint_average}: Average \href{https://sedac.ciesin.columbia.edu/data/set/wildareas-v3-2009-human-footprint}{human footprint} in the ecoregion.
+\item \code{climate_bio1_average}: Average mean annual temperature according to \href{https://chelsa-climate.org/}{CHELSA}.
+\item \code{climate_bio15_minimum}: Average precipitation seasonality.
 
 }
 }
 \usage{
-plant_richness_df
+data(plant_richness_df)
 }
 \description{
 Richness of vascular plants the american ecoregions as defined in \href{https://ecoregions2017.appspot.com/}{Ecoregions 2017}.
-plant_richness_df
+}
+\seealso{
+\link{plant_richness_sf}, \link{distance_matrix}
 }
 \keyword{datasets}

@@ -2,7 +2,7 @@
 % Please edit documentation in R/rf_evaluate.R
 \name{rf_evaluate}
 \alias{rf_evaluate}
-\title{rf_evaluate}
+\title{Evaluates random forest models with spatial cross-validation}
 \usage{
 rf_evaluate(
   model = NULL,
@@ -18,45 +18,46 @@ rf_evaluate(
 )
 }
 \arguments{
-\item{model}{Model to evaluate, produced by \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}.}
+\item{model}{Model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}.}
 
 \item{xy}{Data frame or matrix with two columns containing coordinates and named "x" and "y", or an sf file with geometry class \code{sfc_POINT} (see \link{plant_richness_sf}). If \code{NULL}, the function will throw an error. Default: \code{NULL}}
 
-\item{repetitions}{Integer, must be lower than the total number of rows available in the model's data. Default: 30}
+\item{repetitions}{Integer, must be lower than the total number of rows available in the model's data. Default: \code{30}}
 
-\item{training.fraction}{Proportion between 0.5 and 0.9 indicating the number of records to be used in model training. Default: 0.6}
+\item{training.fraction}{Proportion between 0.5 and 0.9 indicating the number of records to be used in model training. Default: \code{0.6}}
 
-\item{verbose}{Boolean. If TRUE, messages and plots generated during the execution of the function are displayed, Default: TRUE}
+\item{verbose}{Logical. If \code{TRUE}, messages and plots generated during the execution of the function are displayed, Default: \code{TRUE}}
 
-\item{n.cores}{number of cores to use to compute repetitions. If NULL, all cores but one are used, unless a cluster is used.}
+\item{n.cores}{Integer, number of cores to use during computations. If \code{NULL}, all cores but one are used, unless a cluster is used. Default = \code{NULL}}
 
-\item{cluster.ips}{character vector, IPs of the machines in the cluster. The first machine will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.}
+\item{cluster.ips}{Character vector with the IPs of the machines in a cluster. The machine with the first IP will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.}
 
-\item{cluster.cores}{numeric integer vector, number of cores on each machine.}
+\item{cluster.cores}{Numeric integer vector, number of cores to use on each machine.}
 
-\item{cluster.user}{character string, name of the user (should be the same throughout machines), Defaults to the current system user. Default: user name of the current session.}
+\item{cluster.user}{Character string, name of the user (should be the same throughout machines). Defaults to the current system user.}
 
-\item{cluster.port}{integer, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: 11000.}
+\item{cluster.port}{Integer, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: \code{11000}}
 }
 \value{
-A model of the class "rf_evaluate" with a new slot named "evaluation", with the following slots:
+A model of the class "rf_evaluate" with a new slot named "evaluation", that is a list with the following slots:
 \itemize{
-\item \emph{training.fraction}: value of the argument \code{training.fraction}.
-\item \emph{spatial.folds}: result of applying \code{\link[=make_spatial_folds]{make_spatial_folds()}} on the data coordinates. It is a list with as many slots as \code{repetitions} are indicated by the user. Each slot has two slots named "training" and "testing", each one having the indices of the cases used on the training and testing models.
-\item \emph{per.fold}: data frame with the evaluation results per spatial fold (or repetition). It contains the ID of each fold, it's central coordinates, the number of training and testing cases, and the training and testing performance measures: R squared, pseudo R squared (cor(observed, predicted)), rmse, and normalized rmse.
-\item \emph{per.model}: same data as above, but organized per fold and model ("Training", "Testing", and "Full").
-\item \emph{aggregated}: same data, but aggregated by model and performance measure.
+\item \code{training.fraction}: Value of the argument \code{training.fraction}.
+\item \code{spatial.folds}: Result of applying \code{\link[=make_spatial_folds]{make_spatial_folds()}} on the data coordinates. It is a list with as many slots as \code{repetitions} are indicated by the user. Each slot has two slots named "training" and "testing", each one having the indices of the cases used on the training and testing models.
+\item \code{per.fold}: Data frame with the evaluation results per spatial fold (or repetition). It contains the ID of each fold, it's central coordinates, the number of training and testing cases, and the training and testing performance measures: R squared, pseudo R squared (cor(observed, predicted)), rmse, and normalized rmse.
+\item \code{per.model}: Same data as above, but organized per fold and model ("Training", "Testing", and "Full").
+\item \code{aggregated}: Same data, but aggregated by model and performance measure.
 }
 }
 \description{
-Evaluates model performance on independent spatial folds.
+Evaluates the performance of random forest on unseen data over independent spatial folds.
 }
 \details{
-The evaluation algorithm works as follows: the number of \code{repetitions} and the input dataset (stored in \code{model$ranger.arguments$data}) are used as inputs for the function \code{\link[=thinning_til_n]{thinning_til_n()}}, that applies \code{\link[=thinning]{thinning()}} to the input data until as many cases as \code{repetitions} are left, and as separated as possible. Each of these remaining records will be used as a "fold center". From that point, the fold grows, until a number of points equal (or close) to \code{training.fraction} is reached. The indices of the records within the grown spatial fold are stored as "training" in the output list, and the remaining ones as "testing". Then, for each spatial fold, a "training model" is fitted using the cases corresponding with the training indices, and predicted over the cases corresponding with the testing indices. The model predictions on the "unseen" data are compared with the observations, and the performance measures computed.
+The evaluation algorithm works as follows: the number of \code{repetitions} and the input dataset (stored in \code{model$ranger.arguments$data}) are used as inputs for the function \code{\link[=thinning_til_n]{thinning_til_n()}}, that applies \code{\link[=thinning]{thinning()}} to the input data until as many cases as \code{repetitions} are left, and as separated as possible. Each of these remaining records will be used as a "fold center". From that point, the fold grows, until a number of points equal (or close) to \code{training.fraction} is reached. The indices of the records within the grown spatial fold are stored as "training" in the output list, and the remaining ones as "testing". Then, for each spatial fold, a "training model" is fitted using the cases corresponding with the training indices, and predicted over the cases corresponding with the testing indices. The model predictions on the "unseen" data are compared with the observations, and the performance measures (R squared, pseudo R squared, RMSE and NRMSE) computed.
 }
 \examples{
 \dontrun{
 if(interactive()){
+
 data(plant_richness_df)
 data(distance_matrix)
 
@@ -78,6 +79,7 @@ rf.model <- rf_evaluate(
 plot_evaluation(rf.model)
 print_evaluation(rf.model)
 x <- get_evaluation(rf.model)
- }
+
+}
 }
 }

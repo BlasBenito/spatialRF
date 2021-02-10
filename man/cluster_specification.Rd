@@ -2,7 +2,7 @@
 % Please edit documentation in R/cluster_specification.R
 \name{cluster_specification}
 \alias{cluster_specification}
-\title{cluster_specification}
+\title{Generates a cluster definition}
 \usage{
 cluster_specification(
   cluster.ips = NULL,
@@ -11,7 +11,7 @@ cluster_specification(
 )
 }
 \arguments{
-\item{cluster.ips}{Character vector, IPs of the machines in the cluster. The first machine will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed. Default: \code{NULL}.}
+\item{cluster.ips}{Character vector with the IPs of the machines in the cluster. The first machine will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed. Default: \code{NULL}.}
 
 \item{cluster.cores}{Numeric integer vector, number of cores on each machine. Default: \code{NULL}.}
 
@@ -21,16 +21,18 @@ cluster_specification(
 A list ready to be used as input for the \emph{spec} argument of the function \link[parallel]{makeCluster}.
 }
 \description{
-Defines a cluster for \link[parallel]{makeCluster}.
+Defines a cluster for \link[parallel]{makeCluster} from the IPs of the machines in the cluster, the number of cores of each machine, and the user name..
 }
 \details{
-This function is used internally by several other functions of the package, but can be useful for a user working with \link[foreach]{foreach} to parallelize loops in a cluster.
+This function is used internally by several other functions in the package, but can be useful for a user working with \link[foreach]{foreach} to parallelize loops in a small cluster.
 }
 \examples{
+
  cluster.spec <- cluster_specification(
    cluster.ips = c("10.0.1.40", "10.0.1.41"),
    cluster.cores = c(6, 4),
    cluster.user = Sys.info()[["user"]]
  )
  cluster.spec
+
 }

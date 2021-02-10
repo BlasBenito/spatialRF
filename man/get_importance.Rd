@@ -2,18 +2,18 @@
 % Please edit documentation in R/get_importance.R
 \name{get_importance}
 \alias{get_importance}
-\title{get_importance}
+\title{Gets importance data frame from a model}
 \usage{
 get_importance(x)
 }
 \arguments{
-\item{x}{A model produced by \link{rf}, \link{rf_repeat}, or \link{rf_spatial}, or a data frame with importance scores. Default: NULL}
+\item{x}{A model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}. Default: NULL}
 }
 \value{
-a data frame
+A data frame with variable names and importance scores.
 }
 \description{
-Gets variable importance scores from \link{rf}, \link{rf_repeat}, and \link{rf_spatial} models.
+Gets variable importance scores from \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, and \code{\link[=rf_spatial]{rf_spatial()}} models.
 }
 \examples{
 \dontrun{
@@ -21,6 +21,7 @@ if(interactive()){
 
 data(plant_richness_df)
 data(distance_matrix)
+
 rf.model <- rf(
   data = plant_richness_df,
   dependent.variable.name = "richness_species_vascular",
@@ -29,7 +30,13 @@ rf.model <- rf(
   distance.thresholds = c(0, 1000, 2000),
   verbose = FALSE
 )
+
 x <- get_importance(x = rf.model)
- }
+x
+
 }
+}
+}
+\seealso{
+\code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, \code{\link[=rf_spatial]{rf_spatial()}}, \code{\link[=plot_importance]{plot_importance()}}, \code{\link[=print_importance]{print_importance()}}.
 }
