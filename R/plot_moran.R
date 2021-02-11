@@ -1,7 +1,7 @@
 #' @title Plots a Moran's I test of model residuals
 #' @description Plots the results of spatial autocorrelation tests for a variety of functions within the package.
 #' @param x A model fitted with [rf()], [rf_repeat()], or [rf_spatial()]. Default: `NULL`
-#' @param verbose Logical, if `TRUE`, the resulting plot is printed, Default: `TRUE`
+#' @param verbose Logical, if `TRUE`, the resulting plot is printed, Default: `FALSE`
 #' @return A ggplot.
 #' @seealso [moran()], [moran_multithreshold()]
 #' @examples
@@ -28,7 +28,7 @@
 #' @export
 #' @importFrom ggplot2 ggplot aes geom_hline geom_point geom_line xlab ylab ggtitle theme labs scale_colour_manual
 #' @export
-plot_moran <- function(x, verbose = TRUE){
+plot_moran <- function(x, verbose = FALSE){
 
   #declaring variables
   distance.threshold <- NULL
@@ -199,6 +199,6 @@ plot_moran <- function(x, verbose = TRUE){
     suppressWarnings(print(p))
   }
 
-  p
+  suppressWarnings(p)
 
 }
