@@ -10,7 +10,7 @@
 
 #' @title Plant richness and predictors of American ecoregions
 #'
-#' @description Richness of vascular plants the american ecoregions as defined in [Ecoregions 2017](https://ecoregions2017.appspot.com/).
+#' @description Richness of vascular plants of the American ecoregions as defined in [Ecoregions 2017](https://ecoregions2017.appspot.com/).
 #' @usage data(plant_richness_df)
 #' @seealso [plant_richness_sf], [distance_matrix]
 #' @format A data frame with 227 rows and 22 columns:

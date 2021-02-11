@@ -1,5 +1,5 @@
 ---
-title: "spatialRF: R package for spatial regression with Random Forest"
+title: "spatialRF: easy spatial regression with Random Forest"
 output:
   github_document:
     toc: true
@@ -20,7 +20,7 @@ This package implements two main methods to generate *spatial predictors* from t
   + Principal coordinate analysis of neighbor matrices [(Dray, Legendre, and Peres-Neto 2006)](https://www.sciencedirect.com/science/article/abs/pii/S0304380006000925).
   + Distance matrix columns as explanatory variables [(Hengl et al. 2018)](https://peerj.com/articles/5518/).
 
-The package provides as well a set of tools to identify variable interactions, tune random forest hyperparameters, assess model performance on spatially independent data folds, and examine the resulting models via importance plots, and response curves and surfaces. 
+The package also provides a set of tools to identify variable interactions, tune random forest hyperparameters, assess model performance on spatially independent data folds, and examine the resulting models via importance plots, and response curves and surfaces. 
 
 ## Installing the package
 
@@ -34,32 +34,92 @@ remotes::install_github(
 library(spatialRF)
 ```
 
+There are a few other libraries that will be useful during this tutorial.
+
+```{r}
+library(tidyverse)
+library(kableExtra)
+library(patchwork)
+library(rnaturalearth)
+library(rnaturalearthdata)
+```
+
+
 ## Fitting a spatial model with **spatialRF**
 
 Let's start with a simple example, to then unpack what is happening inside the package functions.
 
 ### The data
 
-The package includes an example dataset named **plant_richness_df**, a data frame with plant species richness and predictor variables for 227 ecoregions in the Americas;  a distance matrix among the ecoregion edges named, well, **distance_matrix**, and **plant_richness_sf**, an sf file containing the centroids of the polygons represented in **plant_richness_df**. Check 
+The package includes an example dataset named **plant_richness_df**, a data frame with plant species richness and predictor variables for 227 ecoregions in the Americas;  a distance matrix among the ecoregion edges named, well, **distance_matrix**, and **plant_richness_sf**, an sf file containing the centroids of the polygons represented in **plant_richness_df**.
 
 ```{r}
 data(plant_richness_df)
+help(plant_richness_df)
 data(plant_richness_sf)
 data(distance_matrix)
-help(plant_richness_df)
 ```
 
-The response variable of **plant_richness_df** is "richness_species_vascular", with the total count of vascular plant species found on each ecoregion, and the predictors (columns 5 to 21) represent diverse factors such as sampling bias, climatic variables, human presence and impact, topography, geographical fragmentation, and features of the neighbors of each ecoregion.
+The response variable of **plant_richness_df** is "richness_species_vascular", with the total count of vascular plant species found on each ecoregion. The figure below shows the centroids of each ecoregion along with their associated value of the response variable.
 
-To fit a Random Forest model we use the `rf()` function, that takes the data, the names of the response and the predictors, the distance matrix, and a vector of distance thresholds (in the same units as the distances in **distance_matrix**). These distance thresholds are the neighborhoods at which the model with check the spatial autocorrelation of the residuals.
+```{r, echo=FALSE, fig.width=6, fig.height=5.5}
+pr <- cbind(plant_richness_df, plant_richness_sf)
+world <- rnaturalearth::ne_countries(
+  scale = "medium", 
+  returnclass = "sf"
+  )
+
+ggplot2::ggplot() +
+  ggplot2::geom_sf(data = world) +
+  ggplot2::geom_sf(data = pr,
+          ggplot2::aes(
+            geometry = geom_centroids,
+            fill = richness_species_vascular
+            ),
+          shape = 21,
+          color = "black",
+          size = 2.5
+          ) +
+  ggplot2::scale_fill_viridis_c(direction = -1) +
+  ggplot2::theme_bw() +
+  ggplot2::labs(fill = "Plant richness") +
+  ggplot2::scale_x_continuous(limits = c(-170, -30)) +
+  ggplot2::scale_y_continuous(limits = c(-58, 75))  +
+  ggplot2::ggtitle("Plant richness of the American ecoregions")
+```
+
+The predictors (columns 5 to 21) represent diverse factors such as sampling bias, climatic variables, human presence and impact, topography, geographical fragmentation, and features of the neighbors of each ecoregion. The figure below shows the scatterplots of the response variable (y axis) against each predictor (x axis).
+
+```{r, echo = FALSE, fig.width=14, fig.height=9}
+plot.list <- list()
+for(variable in colnames(plant_richness_df)[5:21]){
+  plot.list[[variable]] <- ggplot2::ggplot(
+    data = plant_richness_df,
+    ggplot2::aes_string(
+      x = variable,
+      y = "richness_species_vascular",
+      color = "richness_species_vascular"
+    )
+    ) +
+    ggplot2::geom_point() +
+    ggplot2::scale_color_viridis_c(direction = -1) + 
+    ggplot2::theme_bw() + 
+    ggplot2::theme(legend.position = "none")
+}
+patchwork::wrap_plots(plot.list)
+```
+
+### Fitting a non-spatial model
+
+To fit a Random Forest model we use the `rf()` function, that takes the data, the names of the response and the predictors, the distance matrix, and a vector of distance thresholds (in the same units as the distances in **distance_matrix**). These distance thresholds are the neighborhoods at which the model will check the spatial autocorrelation of the residuals.
 
 ```{r}
-m.non.spatial <- rf(
+model.non.spatial <- rf(
   data = plant_richness_df,
   dependent.variable.name = "richness_species_vascular",
   predictor.variable.names = colnames(plant_richness_df)[5:21],
   distance.matrix = distance_matrix,
-  distance.thresholds = c(0, 1000, 2000),
+  distance.thresholds = c(0, 1500, 3000),
   seed = 100,
   verbose = FALSE
 )
@@ -67,6 +127,90 @@ m.non.spatial <- rf(
 
 The spatial autocorrelation of the residuals can be plotted with `plot_moran()`
 
-```{r, fig.width=4, fig.height=2.5}
-plot_moran(m.non.spatial)
+```{r, fig.width=6, fig.height=3, message=FALSE, warning=FALSE}
+plot_moran(model.non.spatial)
 ```
+
+This plot is telling us that the spatial autocorrelation of the residuals is highly positive for the distances 0 and 1500, and from there it decays until becoming neutral at 3000km. Here we can say that the model is missing something.
+
+### Fitting a spatial model
+
+The non-spatial model fitted above can be converted into a spatial model easily with **rf_spatial()**.
+
+```{r}
+model.spatial <- spatialRF::rf_spatial(
+  model = model.non.spatial,
+  method = "mem.moran.sequential",
+  verbose = FALSE
+  )
+```
+
+The plot below compares the Moran's I of the residuals of the spatial (green) and non spatial (purple) models. It shows that **rf_spatial()** has managed to reduce the spatial autocorrelation (measured via [Moran's I](https://en.wikipedia.org/wiki/Moran%27s_I)) of the model residuals for the three selected distances.
+
+```{r, fig.width=6, fig.height=3, message=FALSE, warning=FALSE}
+plot_moran(model.spatial)
+```
+
+It has done so by generating spatial predictors from the distance matrix, and introducing them into the model one by one until the spatial autocorrelation of the residuals is reduced as much as possible. If we compare the variable importance plots of both models, we can see that the spatial model has an additional set of dots under the name "spatial_predictors", and that the maximum importance of a few of these spatial predictors matches the importance of the most relevant non-spatial predictors.
+
+```{r, fig.width=p, fig.height=6}
+p1 <- plot_importance(model.non.spatial) + ggplot2::ggtitle("Non-spatial model")
+p2 <- plot_importance(model.spatial) + ggplot2::ggtitle("Spatial model")
+p1 | p2
+```
+Let's check the five most important variables of the spatial model.
+
+```{r}
+kableExtra::kable(
+  head(model.spatial$variable.importance$per.variable)
+) %>% kableExtra::kable_styling()
+```
+
+Three of these are spatial predictors generated by **rf_spatial()**. How do these spatial predictors look?
+
+```{r, echo=FALSE, fig.width=9, fig.height=5.5}
+spatial.predictors <- get_spatial_predictors(model.spatial)
+pr <- cbind(spatial.predictors, plant_richness_sf)
+
+p1 <- ggplot2::ggplot() +
+  ggplot2::geom_sf(data = world) +
+  ggplot2::geom_sf(data = pr,
+          ggplot2::aes(
+            geometry = geom_centroids,
+            fill = spatial_predictor_0_6
+            ),
+          shape = 21,
+          color = "black",
+          size = 2.5
+          ) +
+  ggplot2::scale_fill_viridis_c(direction = -1) +
+  ggplot2::theme_bw() +
+  ggplot2::labs(fill = "Eigenvalue") +
+  ggplot2::scale_x_continuous(limits = c(-170, -30)) +
+  ggplot2::scale_y_continuous(limits = c(-58, 75))  +
+  ggplot2::ggtitle("Spatial predictor 'spatial_predictor_0_6'") + 
+  ggplot2::theme(legend.position = "bottom")
+
+p2 <- ggplot2::ggplot() +
+  ggplot2::geom_sf(data = world) +
+  ggplot2::geom_sf(data = pr,
+          ggplot2::aes(
+            geometry = geom_centroids,
+            fill = spatial_predictor_1500_2
+            ),
+          shape = 21,
+          color = "black",
+          size = 2.5
+          ) +
+  ggplot2::scale_fill_viridis_c(direction = -1) +
+  ggplot2::theme_bw() +
+  ggplot2::labs(fill = "Eigenvalue") +
+  ggplot2::scale_x_continuous(limits = c(-170, -30)) +
+  ggplot2::scale_y_continuous(limits = c(-58, 75))  +
+  ggplot2::ggtitle("Spatial predictor 'spatial_predictor_1500_2'") + 
+  ggplot2::theme(legend.position = "bottom")
+
+p1 | p2
+
+```
+

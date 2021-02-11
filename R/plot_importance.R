@@ -1,7 +1,7 @@
 #' @title Plots the variable importance of a model
 #' @description Plots variable importance scores of [rf()], [rf_repeat()], and [rf_spatial()] models.
 #' @param x A model fitted with [rf()], [rf_repeat()], or [rf_spatial()]. Default: `NULL`
-#' @param verbose Logical, if `TRUE`, the plot is printed. Default: `TRUE`
+#' @param verbose Logical, if `TRUE`, the plot is printed. Default: `FALSE`
 #' @return A ggplot.
 #' @seealso [print_importance()], [get_importance()]
 #' @examples
@@ -27,7 +27,7 @@
 #' @rdname plot_importance
 #' @export
 #' @importFrom ggplot2 ggplot aes geom_point scale_fill_viridis_c ylab xlab theme geom_boxplot scale_fill_viridis_d
-plot_importance <- function(x = NULL, verbose = TRUE){
+plot_importance <- function(x = NULL, verbose = FALSE){
 
   #declaring variables
   importance <- NULL
@@ -74,6 +74,7 @@ plot_importance <- function(x = NULL, verbose = TRUE){
       ggplot2::scale_fill_viridis_c(direction = -1, alpha = 0.8) +
       ggplot2::ylab("") +
       ggplot2::xlab("Variable importance") +
+      ggplot2::theme_bw() +
       ggplot2::theme(legend.position = "none")
 
   } else {
@@ -99,6 +100,7 @@ plot_importance <- function(x = NULL, verbose = TRUE){
         ggplot2::scale_fill_viridis_d(direction = -1, alpha = 0.8) +
         ggplot2::ylab("") +
         ggplot2::xlab("Variable importance") +
+        ggplot2::theme_bw() +
         ggplot2::theme(legend.position = "none")
 
     }
@@ -123,6 +125,7 @@ plot_importance <- function(x = NULL, verbose = TRUE){
           ggplot2::scale_fill_viridis_c(direction = -1, alpha = 0.8) +
           ggplot2::ylab("") +
           ggplot2::xlab("Variable importance") +
+          ggplot2::theme_bw() +
           ggplot2::theme(legend.position = "none")
 
         #rf_spatial rf_repeat
@@ -146,6 +149,7 @@ plot_importance <- function(x = NULL, verbose = TRUE){
           ggplot2::scale_fill_viridis_d(direction = -1, alpha = 0.8) +
           ggplot2::ylab("") +
           ggplot2::xlab("Variable importance") +
+          ggplot2::theme_bw() +
           ggplot2::theme(legend.position = "none")
 
       }

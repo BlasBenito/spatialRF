@@ -86,6 +86,7 @@ plot_moran <- function(x, verbose = FALSE){
       ggplot2::xlab("Distance thresholds") +
       ggplot2::ylab("Moran's I of residuals") +
       ggplot2::ggtitle("Multiscale Moran's I") +
+      ggplot2::theme_bw() +
       ggplot2::theme(legend.position = "bottom") +
       ggplot2::labs(size = "Moran's I p-value")
 
@@ -119,6 +120,7 @@ plot_moran <- function(x, verbose = FALSE){
       ggplot2::xlab("Distance thresholds") +
       ggplot2::ylab("Moran's I of residuals") +
       ggplot2::ggtitle("Moran's I of the residuals") +
+      ggplot2::theme_bw() +
       ggplot2::theme(legend.position = "bottom") +
       ggplot2::labs(color = "Model", size = "Moran's I p-value")
 
@@ -145,6 +147,7 @@ plot_moran <- function(x, verbose = FALSE){
         size = 1,
         alpha = 0.7
         ) +
+      ggplot2::theme_bw() +
       ggplot2::scale_colour_manual(values = c("#440154FF", "#35B779FF")) +
       ggplot2::xlab("Distance thresholds") +
       ggplot2::ylab("Moran's I of residuals") +
@@ -184,6 +187,7 @@ plot_moran <- function(x, verbose = FALSE){
           "#440154FF",
           "#35B779FF")
         ) +
+      ggplot2::theme_bw() +
       ggplot2::xlab("Distance thresholds") +
       ggplot2::ylab("Moran's I of residuals") +
       ggplot2::ggtitle("Residuals' Moran's I of the spatial and non-spatial models") +
