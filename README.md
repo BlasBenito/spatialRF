@@ -16,8 +16,11 @@ The package provides as well a set of tools to identify variable interactions, t
 
 The package is not yet in the CRAN repositories, so at the moment it must be installed from GitHub as follows.
 
-```{r}
-remotes::install_github("blasbenito/spatialRF")
+```r
+devtools::install_github(
+  repo = "blasbenito/spatialRF", 
+  ref = "main"
+  )
 ```
 
 
