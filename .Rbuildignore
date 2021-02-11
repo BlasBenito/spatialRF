@@ -8,3 +8,4 @@
 ^informal_tests\.R$
 ^optimization_sequential\.R$
 .github
+plot_post.R

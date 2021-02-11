@@ -20,7 +20,6 @@ devtools::check()
 ########################################
 
 devtools::load_all()
-
 devtools::install()
 
 

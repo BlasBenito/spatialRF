@@ -37,7 +37,7 @@ plot_importance <- function(x = NULL, verbose = TRUE){
   if(!is.data.frame(x)){
 
     #importance from rf
-    if(inherits(x, "rf") & !inherits(x, "rf_spatial")){
+    if(inherits(x, "rf") & !inherits(x, "rf_spatial") & !inherits(x, "rf_repeat")){
       x <- x$variable.importance$per.variable
     }
 
