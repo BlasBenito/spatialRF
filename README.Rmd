@@ -67,6 +67,6 @@ m.non.spatial <- rf(
 
 The spatial autocorrelation of the residuals can be plotted with `plot_moran()`
 
-```{r}
+```{r, fig.width=4, fig.height=2.5}
 plot_moran(m.non.spatial)
 ```

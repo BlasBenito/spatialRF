@@ -199,6 +199,6 @@ plot_moran <- function(x, verbose = FALSE){
     suppressWarnings(print(p))
   }
 
-  suppressWarnings(p)
+  p
 
 }
