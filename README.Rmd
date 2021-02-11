@@ -153,7 +153,7 @@ plot_moran(model.spatial)
 
 It has done so by generating spatial predictors from the distance matrix, and introducing them into the model one by one until the spatial autocorrelation of the residuals is reduced as much as possible. If we compare the variable importance plots of both models, we can see that the spatial model has an additional set of dots under the name "spatial_predictors", and that the maximum importance of a few of these spatial predictors matches the importance of the most relevant non-spatial predictors.
 
-```{r, fig.width=p, fig.height=6}
+```{r, fig.width=9, fig.height=6}
 p1 <- plot_importance(model.non.spatial) + ggplot2::ggtitle("Non-spatial model")
 p2 <- plot_importance(model.spatial) + ggplot2::ggtitle("Spatial model")
 p1 | p2
