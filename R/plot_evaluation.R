@@ -1,7 +1,8 @@
 #' @title Plots the results of a spatial cross-validation
 #' @description Plots the results of an spatial cross-validation performed with [rf_evaluate()].
 #' @param x A model resulting from [rf_evaluate()].
-#' @param verbose Logical, if TRUE the plot is printed. Default: `TRUE`
+#' @param verbose Logical, if `TRUE` the plot is printed. Default: `TRUE`
+#' @param notch Logical, if `TRUE`, boxplot notches are plotted. Default: `TRUE`
 #' @return A ggplot.
 #' @seealso [rf_evaluate()], [get_evaluation()], [print_evaluation()].
 #' @examples
@@ -34,7 +35,7 @@
 #' @rdname plot_evaluation
 #' @export
 #' @importFrom ggplot2 ggplot facet_wrap theme xlab ylab labs
-plot_evaluation <- function(x, verbose = TRUE){
+plot_evaluation <- function(x, verbose = TRUE, notch = TRUE){
 
   #declaring variable because of check BS
   performance.value <- NULL
@@ -81,9 +82,10 @@ plot_evaluation <- function(x, verbose = TRUE){
       ggplot2::aes(
         group = model,
         y = model,
-        x = performance.value
+        x = performance.value,
+        fill = model
       ),
-      notch = TRUE,
+      notch = notch,
     ) +
     ggplot2::facet_wrap(
       "performance.measure",
@@ -95,7 +97,8 @@ plot_evaluation <- function(x, verbose = TRUE){
     ggplot2::theme(legend.position = "none") +
     ggplot2::xlab("") +
     ggplot2::ylab("") +
-    ggplot2::labs(color = "Model") +
+    ggplot2::scale_fill_viridis_d(end = 0.8, alpha = 0.75) +
+    ggplot2::labs(fill = "Model") +
     ggplot2::ggtitle(
       paste0(
         "Evaluation results on ",

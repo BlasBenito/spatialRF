@@ -413,7 +413,7 @@ rf <- function(
 
   #performance slot
   m$performance <- list()
-  m$performance$r.squared <- round(m$r.squared, 3)
+  m$performance$r.squared <- round(cor(observed, predicted) ^ 2, 3)
   m$performance$pseudo.r.squared <- round(cor(
     observed,
     predicted

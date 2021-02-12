@@ -258,10 +258,53 @@ The function generates a new slot in the model named "evaluation" with several o
 ```{r}
 names(model.spatial$evaluation)
 ```
+The slot "spatial.folds", produced by `make_spatial_folds()` contains the indices of the training and testing cases for each cross-validation repetition. The maps below show two sets of training and testing spatial folds.
 
+```{r, echo=FALSE, fig.width=10, fig.height=5}
+pr <- plant_richness_sf
+pr$group.2 <- pr$group.1 <- "Training"
+pr[model.spatial$evaluation$spatial.folds[[1]]$testing, "group.1"] <- "Testing"
+pr[model.spatial$evaluation$spatial.folds[[25]]$testing, "group.2"] <- "Testing"
+
+p1 <- ggplot2::ggplot() +
+  ggplot2::geom_sf(data = world, fill = "white") +
+  ggplot2::geom_sf(data = pr,
+          ggplot2::aes(
+            geometry = geom_centroids,
+            color = group.1
+            ),
+          size = 2.5
+          ) +
+  ggplot2::scale_color_viridis_d(direction = -1, end = 0.8, alpha = 0.6) +
+  ggplot2::theme_bw() +
+  ggplot2::labs(color = "Group") +
+  ggplot2::scale_x_continuous(limits = c(-170, -30)) +
+  ggplot2::scale_y_continuous(limits = c(-58, 75))  +
+  ggplot2::ggtitle("Spatial fold 1") + 
+  ggplot2::theme(legend.position = "none")
+
+p2 <- ggplot2::ggplot() +
+  ggplot2::geom_sf(data = world, fill = "white") +
+  ggplot2::geom_sf(data = pr,
+          ggplot2::aes(
+            geometry = geom_centroids,
+            color = group.2
+            ),
+          size = 2.5
+          ) +
+  ggplot2::scale_color_viridis_d(direction = -1, end = 0.8, alpha = 0.6) +
+  ggplot2::theme_bw() +
+  ggplot2::labs(color = "Group") +
+  ggplot2::scale_x_continuous(limits = c(-170, -30)) +
+  ggplot2::scale_y_continuous(limits = c(-58, 75)) +
+  ggplot2::ggtitle("Spatial fold 25")
+
+p1 | p2
+```
+The functions `plot_evaluation()` and `print_evaluation()` allow to see the evaluation results as a plot or as a table. The plot below shows the performance scores of the "Full" model (original model introduced into `rf_evaluate()`), the model fitted on the training data ("Training"), and the results of the Training model predicted over the "Testing" data. From these performance scores, only the ones labeled as "Testing" represent model performance on unseen data.
 
 ```{r, fig.width=6, fig.height=6}
-plot_evaluation(model.spatial)
+plot_evaluation(model.spatial, notch = FALSE)
 ```
 
 
