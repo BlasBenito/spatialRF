@@ -84,6 +84,8 @@ library(dplyr)
     ##     intersect, setdiff, setequal, union
 
 ``` r
+options(dplyr.summarise.inform = FALSE)
+library(magrittr)
 library(patchwork)
 library(rnaturalearth)
 library(rnaturalearthdata)
@@ -200,26 +202,22 @@ spatial predictors matches the importance of the most relevant
 non-spatial predictors.
 
 ``` r
-p1 <- plot_importance(model.non.spatial) + ggplot2::ggtitle("Non-spatial model")
+p1 <- plot_importance(
+  model.non.spatial, 
+  verbose = FALSE) + 
+  ggplot2::ggtitle("Non-spatial model") 
+p2 <- plot_importance(
+  model.spatial,
+  verbose = FALSE) + 
+  ggplot2::ggtitle("Spatial model")
+p1 | p2 
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
-
-``` r
-p2 <- plot_importance(model.spatial) + ggplot2::ggtitle("Spatial model")
-```
-
-![](README_files/figure-gfm/unnamed-chunk-10-2.png)<!-- -->
-
-``` r
-p1 | p2
-```
-
-![](README_files/figure-gfm/unnamed-chunk-10-3.png)<!-- --> If we take a
+![](README_files/figure-gfm/unnamed-chunk-10-1.png)<!-- --> If we take a
 look to the five most important variables in **model.spatial** we will
 see that a few of them are spatial predictors.
 
-<table class="table" style="margin-left: auto; margin-right: auto;">
+<table>
 <thead>
 <tr>
 <th style="text-align:left;">
@@ -236,7 +234,7 @@ importance
 human\_population
 </td>
 <td style="text-align:right;">
-0.2987865
+0.3518442
 </td>
 </tr>
 <tr>
@@ -244,23 +242,7 @@ human\_population
 climate\_hypervolume
 </td>
 <td style="text-align:right;">
-0.2507690
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-spatial\_predictor\_0\_6
-</td>
-<td style="text-align:right;">
-0.2368151
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-climate\_bio1\_average
-</td>
-<td style="text-align:right;">
-0.2316968
+0.2845224
 </td>
 </tr>
 <tr>
@@ -268,7 +250,23 @@ climate\_bio1\_average
 spatial\_predictor\_0\_2
 </td>
 <td style="text-align:right;">
-0.2028692
+0.2117031
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+spatial\_predictor\_0\_6
+</td>
+<td style="text-align:right;">
+0.2113401
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+climate\_bio1\_average
+</td>
+<td style="text-align:right;">
+0.2078517
 </td>
 </tr>
 <tr>
@@ -276,7 +274,7 @@ spatial\_predictor\_0\_2
 spatial\_predictor\_1500\_2
 </td>
 <td style="text-align:right;">
-0.1724050
+0.1696063
 </td>
 </tr>
 </tbody>
@@ -290,7 +288,7 @@ they come from? How are they generated and included in the model?
 
 ### Generation and selection of spatial predictors
 
-The final model includes 27 spatial predictors. In this particular
+The final model includes 38 spatial predictors. In this particular
 model, that uses the method “mem.moran.sequential” (Moran’s Eigenvector
 Maps as described in [(Dray, Legendre, and Peres-Neto
 2006)](https://www.sciencedirect.com/science/article/abs/pii/S0304380006000925)),
@@ -328,10 +326,10 @@ print_performance(model.spatial)
 
     ## 
     ## Model performance 
-    ##   - R squared (OOB):                 0.53
-    ##   - Pseudo R squared:                0.745
-    ##   - RMSE:                            2309.948
-    ##   - Normalized RMSE:                 0.667
+    ##   - R squared (OOB):                 0.547
+    ##   - Pseudo R squared:                0.739
+    ##   - RMSE:                            2327.502
+    ##   - Normalized RMSE:                 0.672
 
 R squared is computed on the out-of-bag data (fraction of data not used
 while training each regression tree in the forest), while the other
@@ -356,63 +354,33 @@ model.spatial <- rf_evaluate(
 )
 ```
 
-``` r
-print_evaluation(model.spatial)
-```
-
-    ## 
-    ## Spatial evaluation 
-    ##   - Training fraction:             0.75
-    ##   - Spatial folds:                 25
-    ##   - R squared: 
-    ##             ┌──────────┬───────┬──────────────┬─────────┬─────────┐
-    ##             │ Model    │  Mean │     Standard │ minimum │ maximum │
-    ##             │          │       │    deviation │         │         │
-    ##             ├──────────┼───────┼──────────────┼─────────┼─────────┤
-    ##             │ Full     │ 0.530 │              │         │         │
-    ##             ├──────────┼───────┼──────────────┼─────────┼─────────┤
-    ##             │ Training │ 0.496 │        0.085 │   0.396 │   0.624 │
-    ##             ├──────────┼───────┼──────────────┼─────────┼─────────┤
-    ##             │ Testing  │ 0.236 │        0.184 │   0.012 │   0.592 │
-    ##             └──────────┴───────┴──────────────┴─────────┴─────────┘
-    ##   - Pseudo R squared: 
-    ##             ┌──────────┬───────┬──────────────┬─────────┬─────────┐
-    ##             │ Model    │  Mean │     Standard │ minimum │ maximum │
-    ##             │          │       │    deviation │         │         │
-    ##             ├──────────┼───────┼──────────────┼─────────┼─────────┤
-    ##             │ Full     │ 0.745 │              │         │         │
-    ##             ├──────────┼───────┼──────────────┼─────────┼─────────┤
-    ##             │ Training │ 0.720 │        0.058 │   0.635 │   0.802 │
-    ##             ├──────────┼───────┼──────────────┼─────────┼─────────┤
-    ##             │ Testing  │ 0.390 │        0.296 │  -0.114 │   0.769 │
-    ##             └──────────┴───────┴──────────────┴─────────┴─────────┘
-    ##   - RMSE: 
-    ##           ┌──────────┬──────────┬──────────────┬──────────┬──────────┐
-    ##           │ Model    │     Mean │     Standard │  minimum │  maximum │
-    ##           │          │          │    deviation │          │          │
-    ##           ├──────────┼──────────┼──────────────┼──────────┼──────────┤
-    ##           │ Full     │ 2309.948 │              │          │          │
-    ##           ├──────────┼──────────┼──────────────┼──────────┼──────────┤
-    ##           │ Training │ 2262.205 │      419.826 │ 1661.953 │ 2667.371 │
-    ##           ├──────────┼──────────┼──────────────┼──────────┼──────────┤
-    ##           │ Testing  │ 3505.666 │      587.940 │ 2392.508 │ 4469.403 │
-    ##           └──────────┴──────────┴──────────────┴──────────┴──────────┘
-    ##   - NRMSE: 
-    ##             ┌──────────┬───────┬──────────────┬─────────┬─────────┐
-    ##             │ Model    │  Mean │     Standard │ minimum │ maximum │
-    ##             │          │       │    deviation │         │         │
-    ##             ├──────────┼───────┼──────────────┼─────────┼─────────┤
-    ##             │ Full     │ 0.667 │              │         │         │
-    ##             ├──────────┼───────┼──────────────┼─────────┼─────────┤
-    ##             │ Training │ 0.664 │        0.101 │   0.500 │   0.835 │
-    ##             ├──────────┼───────┼──────────────┼─────────┼─────────┤
-    ##             │ Testing  │ 1.308 │        0.638 │   0.639 │   2.298 │
-    ##             └──────────┴───────┴──────────────┴─────────┴─────────┘
+The function generates a new slot in the model named “evaluation” with
+several objects that summarize the spatial cross-validation results.
 
 ``` r
-plot_evaluation(model.spatial)
+names(model.spatial$evaluation)
 ```
+
+    ## [1] "training.fraction" "spatial.folds"     "per.fold"         
+    ## [4] "per.model"         "aggregated"
+
+The slot “spatial.folds”, produced by `make_spatial_folds()` contains
+the indices of the training and testing cases for each cross-validation
+repetition. The maps below show two sets of training and testing spatial
+folds.
 
 ![](README_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
+
+The functions `plot_evaluation()` and `print_evaluation()` allow to see
+the evaluation results as a plot or as a table. The plot below shows the
+performance scores of the “Full” model (original model introduced into
+`rf_evaluate()`), the model fitted on the training data (“Training”),
+and the results of the Training model predicted over the “Testing” data.
+From these performance scores, only the ones labeled as “Testing”
+represent model performance on unseen data.
+
+``` r
+plot_evaluation(model.spatial, notch = FALSE)
+```
 
 ![](README_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->

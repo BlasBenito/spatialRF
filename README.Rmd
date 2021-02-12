@@ -42,6 +42,7 @@ library(kableExtra)
 library(ggplot2)
 library(dplyr)
 options(dplyr.summarise.inform = FALSE)
+library(magrittr)
 library(patchwork)
 library(rnaturalearth)
 library(rnaturalearthdata)
@@ -170,7 +171,7 @@ If we take a look to the five most important variables in **model.spatial** we w
 ```{r, echo = FALSE}
 kableExtra::kable(
   head(model.spatial$variable.importance$per.variable)
-) %>% kableExtra::kable_styling()
+)
 ```
 
 Spatial predictors, as shown below, are smooth surfaces representing neighborhood among records at different spatial scales. But where do they come from? How are they generated and included in the model?
@@ -197,7 +198,7 @@ p1 <- ggplot2::ggplot() +
   ggplot2::theme(legend.position = "bottom")
 
 p2 <- ggplot2::ggplot() +
-  ggplot2::geom_sf(data = world) +
+  ggplot2::geom_sf(data = world, fill = "white") +
   ggplot2::geom_sf(data = pr,
           ggplot2::aes(
             geometry = geom_centroids,
