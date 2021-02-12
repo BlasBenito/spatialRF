@@ -218,7 +218,7 @@ p1 | p2
 look to the five most important variables in **model.spatial** we will
 see that a few of them are spatial predictors.
 
-<table class="table" style="margin-left: auto; margin-right: auto;">
+<table>
 <thead>
 <tr>
 <th style="text-align:left;">
