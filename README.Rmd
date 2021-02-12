@@ -39,6 +39,7 @@ There are a few other libraries that will be useful during this tutorial.
 
 ```{r}
 library(kableExtra)
+options(knitr.table.format = "html")
 library(ggplot2)
 library(dplyr)
 options(dplyr.summarise.inform = FALSE)
@@ -171,7 +172,8 @@ If we take a look to the five most important variables in **model.spatial** we w
 ```{r, echo = FALSE}
 kableExtra::kable(
   head(model.spatial$variable.importance$per.variable)
-)
+) %>%
+  kable_styling()
 ```
 
 Spatial predictors, as shown below, are smooth surfaces representing neighborhood among records at different spatial scales. But where do they come from? How are they generated and included in the model?

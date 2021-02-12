@@ -64,6 +64,7 @@ tutorial.
 
 ``` r
 library(kableExtra)
+options(knitr.table.format = "html")
 library(ggplot2)
 library(dplyr)
 ```
@@ -217,7 +218,7 @@ p1 | p2
 look to the five most important variables in **model.spatial** we will
 see that a few of them are spatial predictors.
 
-<table>
+<table class="table" style="margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
 <th style="text-align:left;">
