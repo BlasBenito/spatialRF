@@ -41,6 +41,7 @@ There are a few other libraries that will be useful during this tutorial.
 library(kableExtra)
 library(ggplot2)
 library(dplyr)
+options(dplyr.summarise.inform = FALSE)
 library(patchwork)
 library(rnaturalearth)
 library(rnaturalearthdata)
@@ -154,9 +155,15 @@ plot_moran(model.spatial)
 It has done so by generating spatial predictors from the distance matrix, and introducing them into the model one by one until the spatial autocorrelation of the residuals is reduced as much as possible. If we compare the variable importance plots of both models, we can see that the spatial model has an additional set of dots under the name "spatial_predictors", and that the maximum importance of a few of these spatial predictors matches the importance of the most relevant non-spatial predictors.
 
 ```{r, fig.width=9, fig.height=6}
-p1 <- plot_importance(model.non.spatial) + ggplot2::ggtitle("Non-spatial model")
-p2 <- plot_importance(model.spatial) + ggplot2::ggtitle("Spatial model")
-p1 | p2
+p1 <- plot_importance(
+  model.non.spatial, 
+  verbose = FALSE) + 
+  ggplot2::ggtitle("Non-spatial model") 
+p2 <- plot_importance(
+  model.spatial,
+  verbose = FALSE) + 
+  ggplot2::ggtitle("Spatial model")
+p1 | p2 
 ```
 If we take a look to the five most important variables in **model.spatial** we will see that a few of them are spatial predictors.
 
@@ -246,9 +253,12 @@ model.spatial <- rf_evaluate(
 )
 ```
 
+The function generates a new slot in the model named "evaluation" with several objects that summarize the spatial cross-validation results.
+
 ```{r}
-print_evaluation(model.spatial)
+names(model.spatial$evaluation)
 ```
+
 
 ```{r, fig.width=6, fig.height=6}
 plot_evaluation(model.spatial)
@@ -256,7 +266,4 @@ plot_evaluation(model.spatial)
 
 
 
-```{r, echo=FALSE, fig.width=9, fig.height=7}
-plot_response_curves(model.spatial) 
-```
 
