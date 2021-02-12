@@ -154,6 +154,4 @@ plot_response_surfaces <- function(
     print(ab.grid.quantiles)
   }
 
-  ab.grid.quantiles
-
 }

@@ -38,23 +38,6 @@ double_center_distance_matrix <- function(
   #double centering
   x.double.centered <- x - x.row.means - x.col.means + mean(x[])
 
-  #bicenter wt code
-  #col and row weights
-  # cr.weights <- rep(1, ncol(x))
-  # cr.weights <- cr.weights / sum(cr.weights)
-  # cr.weights.sqrt <- sqrt(cr.weights)
-  #
-  # row.mean <- apply(cr.weights * x, 2, sum)
-  # col.mean <- apply(cr.weights * t(x), 2, sum)
-  # col.mean <- col.mean - sum(row.mean * cr.weights)
-  # x <- sweep(x, 2, row.mean)
-  # x <- t(sweep(t(x), 2, col.mean))
-  # UNTIL HERE BOTH OPTIONS ARE THE SAME
-  #
-  # #multiplying by square root of the weights
-  # x <- x * cr.weights.sqrt
-  # x <- t(t(x) * cr.weights.sqrt)
-
   #return output
   x
 

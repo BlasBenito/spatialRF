@@ -17,11 +17,11 @@ print_evaluation <- function(x){
     measure = "r.squared"
     ){
 
-    performance.measure <- NULL
+    metric <- NULL
 
     x <- x %>%
       dplyr::filter(
-        performance.measure == measure
+        metric == measure
       ) %>%
       dplyr::select(
         model,
@@ -60,7 +60,7 @@ print_evaluation <- function(x){
 
   #evaluation data frames
   model <- x
-  x <- x$evaluation$aggregated
+  x <- model$evaluation$aggregated
   x.rmse <- .to_huxtable(x, measure = "rmse")
   x.nrmse <- .to_huxtable(x, measure = "nrmse")
   x.r.squared <- .to_huxtable(x, measure = "r.squared")

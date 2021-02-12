@@ -29,23 +29,25 @@ The package is not yet in the CRAN repositories, so at the moment it must be ins
 ```{r}
 remotes::install_github(
   repo = "blasbenito/spatialRF", 
-  ref = "main"
+  ref = "main",
+  quiet = TRUE
   )
-library(spatialRF)
+library(spatialRF, quietly = TRUE)
 ```
 
 There are a few other libraries that will be useful during this tutorial.
 
 ```{r}
-library(tidyverse)
 library(kableExtra)
+library(ggplot2)
+library(dplyr)
 library(patchwork)
 library(rnaturalearth)
 library(rnaturalearthdata)
 ```
 
 
-## Fitting a spatial model with **spatialRF**
+## Fitting spatial models with `spatialRF`
 
 Let's start with a simple example, to then unpack what is happening inside the package functions.
 
@@ -70,19 +72,17 @@ world <- rnaturalearth::ne_countries(
   )
 
 ggplot2::ggplot() +
-  ggplot2::geom_sf(data = world) +
+  ggplot2::geom_sf(data = world, fill = "white") +
   ggplot2::geom_sf(data = pr,
           ggplot2::aes(
             geometry = geom_centroids,
-            fill = richness_species_vascular
+            color = richness_species_vascular
             ),
-          shape = 21,
-          color = "black",
           size = 2.5
           ) +
-  ggplot2::scale_fill_viridis_c(direction = -1) +
+  ggplot2::scale_color_viridis_c(direction = -1) +
   ggplot2::theme_bw() +
-  ggplot2::labs(fill = "Plant richness") +
+  ggplot2::labs(color = "Plant richness") +
   ggplot2::scale_x_continuous(limits = c(-170, -30)) +
   ggplot2::scale_y_continuous(limits = c(-58, 75))  +
   ggplot2::ggtitle("Plant richness of the American ecoregions")
@@ -111,7 +111,7 @@ patchwork::wrap_plots(plot.list)
 
 ### Fitting a non-spatial model
 
-To fit a Random Forest model we use the `rf()` function, that takes the data, the names of the response and the predictors, the distance matrix, and a vector of distance thresholds (in the same units as the distances in **distance_matrix**). These distance thresholds are the neighborhoods at which the model will check the spatial autocorrelation of the residuals.
+To fit a Random Forest model we use the `rf()` function, that takes the data, the names of the response and the predictors, the distance matrix, and a vector of distance thresholds (in the same units as the distances in **distance_matrix**). These distance thresholds are the neighborhoods at which the model will check the spatial autocorrelation of the residuals. Their values may depend on the spatial scale of the data, and the ecological system under study.
 
 ```{r}
 model.non.spatial <- rf(
@@ -131,21 +131,21 @@ The spatial autocorrelation of the residuals can be plotted with `plot_moran()`
 plot_moran(model.non.spatial)
 ```
 
-This plot is telling us that the spatial autocorrelation of the residuals is highly positive for the distances 0 and 1500, and from there it decays until becoming neutral at 3000km. Here we can say that the model is missing something.
+According to the plot, the spatial autocorrelation of the residuals is highly positive for the distances 0 and 1500, while it becomes non-significant (p-value > 0.05, whatever that means) at 3000km. This model is definitely missing something.
 
 ### Fitting a spatial model
 
-The non-spatial model fitted above can be converted into a spatial model easily with **rf_spatial()**.
+The non-spatial model fitted above can be converted into a spatial model easily with `rf_spatial()` (this is because **model.non.spatial** has a slot named "ranger.arguments" that contains the model configuration and the data used to train it).
 
 ```{r}
 model.spatial <- spatialRF::rf_spatial(
   model = model.non.spatial,
-  method = "mem.moran.sequential",
+  method = "mem.moran.sequential", #default method
   verbose = FALSE
   )
 ```
 
-The plot below compares the Moran's I of the residuals of the spatial (green) and non spatial (purple) models. It shows that **rf_spatial()** has managed to reduce the spatial autocorrelation (measured via [Moran's I](https://en.wikipedia.org/wiki/Moran%27s_I)) of the model residuals for the three selected distances.
+The plot below compares the Moran's I of the residuals of the spatial (green) and non spatial (purple) models. It shows that `rf_spatial()` has managed to reduce the spatial autocorrelation (measured via [Moran's I](https://en.wikipedia.org/wiki/Moran%27s_I) with the function `moran_multithreshold()`) of the model residuals for the three selected distances.
 
 ```{r, fig.width=6, fig.height=3, message=FALSE, warning=FALSE}
 plot_moran(model.spatial)
@@ -158,34 +158,32 @@ p1 <- plot_importance(model.non.spatial) + ggplot2::ggtitle("Non-spatial model")
 p2 <- plot_importance(model.spatial) + ggplot2::ggtitle("Spatial model")
 p1 | p2
 ```
-Let's check the five most important variables of the spatial model.
+If we take a look to the five most important variables in **model.spatial** we will see that a few of them are spatial predictors.
 
-```{r}
+```{r, echo = FALSE}
 kableExtra::kable(
   head(model.spatial$variable.importance$per.variable)
 ) %>% kableExtra::kable_styling()
 ```
 
-Three of these are spatial predictors generated by **rf_spatial()**. How do these spatial predictors look?
+Spatial predictors, as shown below, are smooth surfaces representing neighborhood among records at different spatial scales. But where do they come from? How are they generated and included in the model?
 
 ```{r, echo=FALSE, fig.width=9, fig.height=5.5}
 spatial.predictors <- get_spatial_predictors(model.spatial)
 pr <- cbind(spatial.predictors, plant_richness_sf)
 
 p1 <- ggplot2::ggplot() +
-  ggplot2::geom_sf(data = world) +
+  ggplot2::geom_sf(data = world, fill = "white") +
   ggplot2::geom_sf(data = pr,
           ggplot2::aes(
             geometry = geom_centroids,
-            fill = spatial_predictor_0_6
+            color = spatial_predictor_0_6
             ),
-          shape = 21,
-          color = "black",
           size = 2.5
           ) +
-  ggplot2::scale_fill_viridis_c(direction = -1) +
+  ggplot2::scale_color_viridis_c(direction = -1) +
   ggplot2::theme_bw() +
-  ggplot2::labs(fill = "Eigenvalue") +
+  ggplot2::labs(color = "Eigenvalue") +
   ggplot2::scale_x_continuous(limits = c(-170, -30)) +
   ggplot2::scale_y_continuous(limits = c(-58, 75))  +
   ggplot2::ggtitle("Spatial predictor 'spatial_predictor_0_6'") + 
@@ -196,15 +194,13 @@ p2 <- ggplot2::ggplot() +
   ggplot2::geom_sf(data = pr,
           ggplot2::aes(
             geometry = geom_centroids,
-            fill = spatial_predictor_1500_2
+            color = spatial_predictor_1500_2
             ),
-          shape = 21,
-          color = "black",
           size = 2.5
           ) +
-  ggplot2::scale_fill_viridis_c(direction = -1) +
+  ggplot2::scale_color_viridis_c(direction = -1) +
   ggplot2::theme_bw() +
-  ggplot2::labs(fill = "Eigenvalue") +
+  ggplot2::labs(color = "Eigenvalue") +
   ggplot2::scale_x_continuous(limits = c(-170, -30)) +
   ggplot2::scale_y_continuous(limits = c(-58, 75))  +
   ggplot2::ggtitle("Spatial predictor 'spatial_predictor_1500_2'") + 
@@ -212,5 +208,55 @@ p2 <- ggplot2::ggplot() +
 
 p1 | p2
 
+```
+
+### Generation and selection of spatial predictors
+
+The final model includes `r length(model.spatial$selection.spatial.predictors$names)` spatial predictors. In this particular model, that uses the method "mem.moran.sequential" (Moran's Eigenvector Maps as described in [(Dray, Legendre, and Peres-Neto 2006)](https://www.sciencedirect.com/science/article/abs/pii/S0304380006000925)), the spatial predictors have been generated by the function `mem_multithreshold()`, for every distance threshold selected by the user, as follows:
+
+
+  + `weights_from_distance_matrix()` sets the values of the distance matrix below a given distance threshold to 0, computes `1/distance_matrix` to convert distances into weights, sets the diagonal to 0, and normalizes the weights.
+  + `double_center_distance_matrix()` double-centers the distance matrix, so the sum of each row and each column is zero.
+  + `mem()` computes the positive eigenvectors of the double-centered matrix.
+
+The function `rank_spatial_predictors()` ranks the spatial predictors from higher to lower spatial autocorrelation (computed with `moran()`), and `select_spatial_predictors_sequential()` introduces them one by one into the model, and selects the smallest subset that minimizes the Moran's I of the residuals while maximizing the R squared of the model, as shown in the optimization plot below (every dot represents one spatial predictor, and its size matches their position in the ranking, and their order of inclusioin in the model).
+
+```{r, echo=FALSE, fig.width=6, fig.height=4}
+p <- plot_optimization(model.spatial)
+```
+## Assessing model performance
+
+Models fitted with `rf()` or `rf_spatial()` have a performance slot with several performance measures.
+
+```{r}
+print_performance(model.spatial)
+```
+
+R squared is computed on the out-of-bag data (fraction of data not used while training each regression tree in the forest), while the other three performance measures are computed by comparing observations and model predictions. These performance scores are not computed on independent data, and therefore do not represent the model ability to predict over *unseen* data.
+
+The function `rf_evaluate()` separates the data into a number of spatially independent training and testing folds, fits a model on each training fold, predicts over each testing fold, and computes performance measures, to finally aggregate them across model repetitions. Let's see how it works.
+
+```{r}
+model.spatial <- rf_evaluate(
+  model = model.spatial,
+  xy = plant_richness_df[, c("x", "y")], #data coordinates
+  repetitions = 30,                      #number of folds
+  training.fraction = 0.75,              #training data fraction
+  verbose = FALSE
+)
+```
+
+```{r}
+print_evaluation(model.spatial)
+```
+
+```{r, fig.width=6, fig.height=6}
+plot_evaluation(model.spatial)
+```
+
+
+
+```{r, echo=FALSE, fig.width=9, fig.height=7}
+plot_response_curves(model.spatial) 
 ```
 

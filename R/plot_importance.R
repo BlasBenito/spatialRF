@@ -1,7 +1,7 @@
 #' @title Plots the variable importance of a model
 #' @description Plots variable importance scores of [rf()], [rf_repeat()], and [rf_spatial()] models.
 #' @param x A model fitted with [rf()], [rf_repeat()], or [rf_spatial()]. Default: `NULL`
-#' @param verbose Logical, if `TRUE`, the plot is printed. Default: `FALSE`
+#' @param verbose Logical, if `TRUE`, the plot is printed. Default: `TRUE`
 #' @return A ggplot.
 #' @seealso [print_importance()], [get_importance()]
 #' @examples
@@ -27,7 +27,7 @@
 #' @rdname plot_importance
 #' @export
 #' @importFrom ggplot2 ggplot aes geom_point scale_fill_viridis_c ylab xlab theme geom_boxplot scale_fill_viridis_d
-plot_importance <- function(x = NULL, verbose = FALSE){
+plot_importance <- function(x = NULL, verbose = TRUE){
 
   #declaring variables
   importance <- NULL
@@ -161,7 +161,5 @@ plot_importance <- function(x = NULL, verbose = FALSE){
   if(verbose == TRUE){
     suppressMessages(print(p))
   }
-
-  p
 
 }

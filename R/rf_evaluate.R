@@ -242,7 +242,7 @@ rf_evaluate <- function(
       training.records = nrow(data.training),
       testing.records = nrow(data.testing),
       training.r.squared = m.training$performance$r.squared,
-      testing.r.squared = round(1 - ((sum((predicted - observed)^2))/(sum((mean(observed) - observed)^2))), 3),
+      testing.r.squared = round(cor(observed, predicted) ^ 2, 3),
       training.pseudo.r.squared = m.training$performance$pseudo.r.squared,
       testing.pseudo.r.squared = round(cor(
         observed,

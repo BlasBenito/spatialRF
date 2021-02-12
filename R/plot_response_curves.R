@@ -141,6 +141,7 @@ plot_response_curves <- function(
           end = 0.8
         ) +
         ggplot2::theme_bw() +
+        # ggplot2::theme(legend.position = "none") +
         ggplot2::labs(
           color = "   Quantiles of \n other predictors"
         )
@@ -162,6 +163,7 @@ plot_response_curves <- function(
           end = 0.8
         ) +
         ggplot2::theme_bw() +
+        # ggplot2::theme(legend.position = "none") +
         ggplot2::labs(
           color = "   Quantiles of \n other predictors"
         )
@@ -172,12 +174,13 @@ plot_response_curves <- function(
 
   }#end of iterations through variables
 
-  variables.plots <- patchwork::wrap_plots(variables.plots)
+  #add legend to the last slot
+
+
+  variables.plots <- patchwork::wrap_plots(variables.plots, guides = "collect")
 
   if(verbose == TRUE){
     print(variables.plots)
   }
-
-  variables.plots
 
 }
