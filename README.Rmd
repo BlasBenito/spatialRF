@@ -12,7 +12,7 @@ always_allow_html: yes
 
 ## Introduction
 
-The package **spatialRF** facilitates fitting spatial regression models on regular or irregular data with Random Forest, using the **ranger** package under the hood [(Wright and Ziegler 2017)](file:///tmp/mozilla_blas0/v77i01.pdf), and does so by generating *spatial predictors* that allow the model to take into account the spatial structure of the training data. The end goal is minimizing the spatial autocorrelation of the model residuals as much as possible. Spatial autocorrelation in the residuals indicate that there is a source of spatial autocorrelation in the model variance that cannot be explained by the model predictors, and it is a clear sign that there are important variables missing from the model. In an ideal model, the residuals are not autocorrelated, and should be centered around zero, but this is rarely the case when working with spatial data.
+The package **spatialRF** facilitates fitting spatial regression models on regular or irregular data with Random Forest, using the **ranger** package under the hood [(Wright and Ziegler 2017)](https://arxiv.org/abs/1508.04409), and does so by generating *spatial predictors* that allow the model to take into account the spatial structure of the training data. The end goal is minimizing the spatial autocorrelation of the model residuals as much as possible. Spatial autocorrelation in the residuals indicate that there is a source of spatial autocorrelation in the model variance that cannot be explained by the model predictors, and it is a clear sign that there are important variables missing from the model. In an ideal model, the residuals are not autocorrelated, and should be centered around zero, but this is rarely the case when working with spatial data.
 
 This package implements two main methods to generate *spatial predictors* from the distance matrix of the data points:
 
@@ -29,17 +29,15 @@ The package is not yet in the CRAN repositories, so at the moment it must be ins
 ```{r}
 remotes::install_github(
   repo = "blasbenito/spatialRF", 
-  ref = "main",
-  quiet = TRUE
+  ref = "main"
   )
-library(spatialRF, quietly = TRUE)
+library(spatialRF)
 ```
 
 There are a few other libraries that will be useful during this tutorial.
 
 ```{r}
 library(kableExtra)
-options(knitr.table.format = "html")
 library(ggplot2)
 library(dplyr)
 options(dplyr.summarise.inform = FALSE)
@@ -173,7 +171,7 @@ If we take a look to the five most important variables in **model.spatial** we w
 kableExtra::kable(
   head(model.spatial$variable.importance$per.variable)
 ) %>%
-  kable_styling()
+  kable_paper("hover", full_width = F)
 ```
 
 Spatial predictors, as shown below, are smooth surfaces representing neighborhood among records at different spatial scales. But where do they come from? How are they generated and included in the model?
@@ -310,7 +308,4 @@ The functions `plot_evaluation()` and `print_evaluation()` allow to see the eval
 ```{r, fig.width=6, fig.height=6}
 plot_evaluation(model.spatial, notch = FALSE)
 ```
-
-
-hola
 

@@ -13,7 +13,7 @@ spatialRF: easy spatial regression with Random Forest
 The package **spatialRF** facilitates fitting spatial regression models
 on regular or irregular data with Random Forest, using the **ranger**
 package under the hood [(Wright and Ziegler
-2017)](file:///tmp/mozilla_blas0/v77i01.pdf), and does so by generating
+2017)](https://arxiv.org/abs/1508.04409), and does so by generating
 *spatial predictors* that allow the model to take into account the
 spatial structure of the training data. The end goal is minimizing the
 spatial autocorrelation of the model residuals as much as possible.
@@ -46,10 +46,30 @@ must be installed from GitHub as follows.
 ``` r
 remotes::install_github(
   repo = "blasbenito/spatialRF", 
-  ref = "main",
-  quiet = TRUE
+  ref = "main"
   )
-library(spatialRF, quietly = TRUE)
+```
+
+    ## Using github PAT from envvar GITHUB_PAT
+
+    ## Downloading GitHub repo blasbenito/spatialRF@main
+
+    ## Skipping 1 packages not available: huxtable
+
+    ##      checking for file ‘/tmp/RtmpLqsDKh/remotes109e57fb4182c/BlasBenito-spatialRF-b7f4d33/DESCRIPTION’ ...  ✓  checking for file ‘/tmp/RtmpLqsDKh/remotes109e57fb4182c/BlasBenito-spatialRF-b7f4d33/DESCRIPTION’
+    ##   ─  preparing ‘spatialRF’:
+    ##      checking DESCRIPTION meta-information ...  ✓  checking DESCRIPTION meta-information
+    ##   ─  checking for LF line-endings in source and make files and shell scripts
+    ##   ─  checking for empty or unneeded directories
+    ##   ─  building ‘spatialRF_0.0.0.9000.tar.gz’
+    ##      
+    ## 
+
+    ## Installing package into '/home/blas/R/x86_64-pc-linux-gnu-library/4.0'
+    ## (as 'lib' is unspecified)
+
+``` r
+library(spatialRF)
 ```
 
     ## 
@@ -64,7 +84,6 @@ tutorial.
 
 ``` r
 library(kableExtra)
-options(knitr.table.format = "html")
 library(ggplot2)
 library(dplyr)
 ```
@@ -218,7 +237,7 @@ p1 | p2
 look to the five most important variables in **model.spatial** we will
 see that a few of them are spatial predictors.
 
-<table class="table" style="margin-left: auto; margin-right: auto;">
+<table class=" lightable-paper lightable-hover" style="font-family: &quot;Arial Narrow&quot;, arial, helvetica, sans-serif; width: auto !important; margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
 <th style="text-align:left;">
@@ -385,5 +404,3 @@ plot_evaluation(model.spatial, notch = FALSE)
 ```
 
 ![](README_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
-
-hola
