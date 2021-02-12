@@ -301,6 +301,7 @@ p2 <- ggplot2::ggplot() +
 
 p1 | p2
 ```
+
 The functions `plot_evaluation()` and `print_evaluation()` allow to see the evaluation results as a plot or as a table. The plot below shows the performance scores of the "Full" model (original model introduced into `rf_evaluate()`), the model fitted on the training data ("Training"), and the results of the Training model predicted over the "Testing" data. From these performance scores, only the ones labeled as "Testing" represent model performance on unseen data.
 
 ```{r, fig.width=6, fig.height=6}
