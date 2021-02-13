@@ -24,7 +24,7 @@
 #' if(interactive()){
 #'  data(plant_richness_df)
 #'
-#'  interactions <- suggest_interactions(
+#'  interactions <- rf_interactions(
 #'    data = plant_richness_df,
 #'    dependent.variable.name = "richness_species_vascular",
 #'    predictor.variable.names = colnames(plant_richness_df)[5:21],
@@ -39,9 +39,9 @@
 #' }
 #' @importFrom utils combn
 #' @importFrom foreach %do%
-#' @rdname suggest_interactions
+#' @rdname rf_interactions
 #' @export
-suggest_interactions <- function(
+rf_interactions <- function(
   model = NULL,
   data = NULL,
   dependent.variable.name = NULL,

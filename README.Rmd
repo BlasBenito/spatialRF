@@ -259,6 +259,7 @@ The function generates a new slot in the model named "evaluation" with several o
 ```{r}
 names(model.spatial$evaluation)
 ```
+
 The slot "spatial.folds", produced by `make_spatial_folds()` contains the indices of the training and testing cases for each cross-validation repetition. The maps below show two sets of training and testing spatial folds.
 
 ```{r, echo=FALSE, fig.width=10, fig.height=5}

@@ -9,7 +9,7 @@ test_that("`suggest_interactions()` works", {
       1000, 2000
     ), verbose = FALSE
   )
-  interactions <- suggest_interactions(
+  interactions <- rf_interactions(
     model = rf.model,
     n.cores = 1, verbose = FALSE
     )

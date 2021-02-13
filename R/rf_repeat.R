@@ -160,6 +160,7 @@ rf_repeat <- function(
       }
     }
     list2env(ranger.arguments, envir=environment())
+
   }
 
   #initializes local.importance
@@ -400,10 +401,6 @@ rf_repeat <- function(
       verbose = verbose
     )
 
-    if(verbose == TRUE){
-      suppressWarnings(print(m.curves$variable.importance$plot))
-    }
-
   }
 
   #gathering prediction.error
@@ -505,7 +502,7 @@ rf_repeat <- function(
             "spatial.correlation.residuals"
           ),
           "[[",
-          3
+          2
         )
       )
     )
@@ -519,7 +516,7 @@ rf_repeat <- function(
             "spatial.correlation.residuals"
           ),
           "[[",
-          4
+          3
         )
       )
     )
