@@ -47,15 +47,10 @@ must be installed from GitHub as follows.
 ``` r
 remotes::install_github(
   repo = "blasbenito/spatialRF", 
-  ref = "main"
+  ref = "main",
+  quiet = TRUE
   )
-```
-
-    ## Skipping install of 'spatialRF' from a github remote, the SHA1 (c6276e78) has not changed since last install.
-    ##   Use `force = TRUE` to force installation
-
-``` r
-suppressMessages(library(spatialRF))
+library(spatialRF)
 ```
 
 There are a few other libraries that will be useful during this

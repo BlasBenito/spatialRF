@@ -26,17 +26,18 @@ The package also provides a set of tools to identify variable interactions, tune
 
 The package is not yet in the CRAN repositories, so at the moment it must be installed from GitHub as follows.
 
-```{r}
+```{r, message = FALSE}
 remotes::install_github(
   repo = "blasbenito/spatialRF", 
-  ref = "main"
+  ref = "main",
+  quiet = TRUE
   )
-suppressMessages(library(spatialRF))
+library(spatialRF)
 ```
 
 There are a few other libraries that will be useful during this tutorial.
 
-```{r}
+```{r, message = FALSE}
 library(kableExtra)
 library(ggplot2)
 suppressMessages(library(dplyr))
