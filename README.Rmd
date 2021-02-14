@@ -48,9 +48,7 @@ library(rnaturalearthdata)
 ```
 
 
-## Fitting spatial models with `spatialRF`
-
-Let's start with a simple example, to then unpack what is happening inside the package functions.
+## Working with `spatialRF`
 
 ### The data
 
@@ -61,6 +59,10 @@ data(plant_richness_df)
 help(plant_richness_df)
 data(plant_richness_sf)
 data(distance_matrix)
+
+#names of the response variable and the predictors
+dependent.variable.name <- "richness_species_vascular"
+predictor.variable.names <- colnames(plant_richness_df)[5:21]
 ```
 
 The response variable of **plant_richness_df** is "richness_species_vascular", with the total count of vascular plant species found on each ecoregion. The figure below shows the centroids of each ecoregion along with their associated value of the response variable.
@@ -93,7 +95,7 @@ The predictors (columns 5 to 21) represent diverse factors such as sampling bias
 
 ```{r, echo = FALSE, fig.width=14, fig.height=9}
 plot.list <- list()
-for(variable in colnames(plant_richness_df)[5:21]){
+for(variable in predictor.variable.names){
   plot.list[[variable]] <- ggplot2::ggplot(
     data = plant_richness_df,
     ggplot2::aes_string(
@@ -109,6 +111,33 @@ for(variable in colnames(plant_richness_df)[5:21]){
 }
 patchwork::wrap_plots(plot.list)
 ```
+
+### Completing the training dataset: finding relevant variable interactions
+
+Random Forests already takes into account variable interactions of the form "variable `b` becomes important when `a` is higher than x" in every regression tree of the forest. However, with Random Forest we can also use the more traditional concept of variable interaction across the whole ranges of two predictors, as in `a * b`, the common way to define them in regression models. 
+
+The function `rf_interactions()` helps the user to identify potential variable interactions. It does so by testing all possible interactions among predictors, using each one of them in a separate model (y ~ predictors + interaction), and suggesting the ones with the higher potential contribution to the model's R squared.
+
+```{r}
+interactions <- rf_interactions(
+  data = plant_richness_df,
+  dependent.variable.name = dependent.variable.name,
+  predictor.variable.names = predictor.variable.names,
+  verbose = TRUE
+  )
+```
+Here the function suggests four candidate interactions, shows the variable importance of each interaction within the model, and their contribution to the model's R squared (column "R2 improvement"). Of course, the function cannot say whether an interaction *makes sense*, and it is up to the user to choose wisely (domain expertise is key here) whether to select an interaction or not.
+
+Here as an example I choose `climate_bio1_average::bias_area_km2` because it is likely that ecoregions with higher area (bias_area_km2) and energy (represented by the annual temperature, climate_bio1_average) will have more species of vascular plants. The data required to add it ot the dataset is inside the output of ´rf_interactions()´.
+
+```{r}
+plant_richness_df[, "climate_bio1_average::bias_area_km2"] <- interactions$columns[, "climate_bio1_average::bias_area_km2"]
+predictor.variable.names <- c(predictor.variable.names, "climate_bio1_average::bias_area_km2")
+```
+
+
+
+
 
 ### Fitting a non-spatial model
 

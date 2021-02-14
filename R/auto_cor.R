@@ -53,10 +53,14 @@ auto_cor <- function(
 
   #completing preference order
   if(!is.null(preference.order)){
+    #subset preference.order to colnames(x)
+    preference.order <- preference.order[preference.order %in% colnames(x)]
+    #if there are variables not in preference.order, add them in any order
     if(length(preference.order) < ncol(x)){
       not.in.preference.order <- colnames(x)[!(colnames(x) %in% preference.order)]
       preference.order <- c(preference.order, not.in.preference.order)
     }
+    #organize the matrix according to preference.order
     x.cor <- x.cor[preference.order, preference.order]
   }
 

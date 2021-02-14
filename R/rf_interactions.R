@@ -181,18 +181,32 @@ rf_interactions <- function(
   )
 
   #arrange by gain
-  interaction.screening <- dplyr::arrange(interaction.screening, dplyr::desc(interaction.r.squared.gain))
+  interaction.screening <- dplyr::arrange(
+    interaction.screening,
+    dplyr::desc(interaction.r.squared.gain)
+    )
 
   #selected only
   interaction.screening.selected <- interaction.screening[interaction.screening$selected == TRUE, ]
-  interaction.screening.selected <- interaction.screening.selected[, c("interaction.name", "interaction.importance", "interaction.r.squared.gain")]
+  interaction.screening.selected <- interaction.screening.selected[, c(
+    "interaction.name",
+    "interaction.importance",
+    "interaction.r.squared.gain",
+    "variable.a.name",
+    "variable.b.name"
+    )]
 
   if(nrow(interaction.screening) == 0){
     stop("There are no variable interactions to suggest for this model.")
   }
 
   if(verbose == TRUE){
-    message(paste0(nrow(interaction.screening.selected), " potential interactions identified."))
+    message(
+      paste0(
+        nrow(
+          interaction.screening.selected), " potential interactions identified."
+        )
+      )
   }
 
   #preparing data frame of interactions
@@ -200,9 +214,13 @@ rf_interactions <- function(
     dummy.column = rep(NA, nrow(data.scaled))
   )
   for(i in 1:nrow(interaction.screening.selected)){
-    interaction.df[, interaction.screening.selected[i, "interaction.name"]] <- data.scaled[, interaction.screening.selected[i, "variable.1.name"]] * data.scaled[, interaction.screening.selected[i, "variable.2.name"]]
+    interaction.df[, interaction.screening.selected[i, "interaction.name"]] <- data.scaled[, interaction.screening.selected[i, "variable.a.name"]] * data.scaled[, interaction.screening.selected[i, "variable.b.name"]]
   }
   interaction.df$dummy.column <- NULL
+
+  #removing variable names
+  interaction.screening.selected$variable.1.name <- NULL
+  interaction.screening.selected$variable.2.name <- NULL
 
   #printing suggested interactions
   if(verbose == TRUE){

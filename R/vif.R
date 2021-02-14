@@ -30,5 +30,6 @@ vif <- function(x){
     as.data.frame() %>%
     tibble::rownames_to_column(var = "variable")
   colnames(out)[2] <- "vif"
+  out$vif <- round(out$vif, 3)
   return(out)
 }

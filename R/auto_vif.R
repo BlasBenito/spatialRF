@@ -81,7 +81,7 @@ auto_vif <- function(
       verbose = verbose
     )
 
-    #if there are variables outside of preference.order
+    #if there are variables not in of preference.order
     if(sum(preference.order %in% colnames(x)) != ncol(x)){
 
       #selecting by max vif (variables not in preference.order)
