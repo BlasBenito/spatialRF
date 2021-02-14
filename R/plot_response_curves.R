@@ -1,7 +1,7 @@
-#' @title Plots the response curves of a random forest model
+#' @title Plots the response curves of a random forest x
 #' @description Plots the response curves of models fitted with [rf()], [rf_repeat()], or  [rf_spatial()].
-#' @param model A model fitted with [rf()], [rf_repeat()], or [rf_spatial()].
-#' @param variables Character vector, names of predictors to plot. If `NULL`, the most important variables (importance higher than the median) in `model` are selected. Default: `NULL`.
+#' @param x A model fitted with [rf()], [rf_repeat()], or [rf_spatial()].
+#' @param variables Character vector, names of predictors to plot. If `NULL`, the most important variables (importance higher than the median) in `x` are selected. Default: `NULL`.
 #' @param quantiles Numeric vector with values between 0 and 1, argument `probs` of \link[stats]{quantile}. Quantiles to set the other variables to. Default: `c(0.1, 0.5, 0.9)`
 #' @param grid.resolution Integer between 20 and 500. Resolution of the plotted curve Default: `100`
 #' @param show.data Logical, if `TRUE`, the observed data is plotted along with the response curves. Default. `FALSE`
@@ -21,14 +21,14 @@
  #'  verbose = FALSE
 #')
 #'
-#'p <- plot_response_curves(model = out)
+#'p <- plot_response_curves(x = out)
 #'
 #' }
 #' }
 #' @rdname plot_response_curves
 #' @export
 plot_response_curves <- function(
-  model = NULL,
+  x = NULL,
   variables = NULL,
   quantiles = c(0.1, 0.5, 0.9),
   grid.resolution = 100,
@@ -36,8 +36,8 @@ plot_response_curves <- function(
   verbose = TRUE
   ){
 
-  if(is.null(model)){
-    stop("Argument 'model' must not be empty.")
+  if(is.null(x)){
+    stop("Argument 'x' must not be empty.")
   }
 
   grid.resolution <- floor(grid.resolution)
@@ -47,22 +47,22 @@ plot_response_curves <- function(
   quantiles <- quantiles[quantiles >= 0]
   quantiles <- quantiles[quantiles <= 1]
 
-  data <- model$ranger.arguments$data
+  data <- x$ranger.arguments$data
 
   #getting the response variable
-  response.variable <- model$ranger.arguments$dependent.variable.name
-  predictors <- model$ranger.arguments$predictor.variable.names
-  if(inherits(model, "rf_spatial")){
-    predictors <- predictors[!(predictors %in% model$selection.spatial.predictors$names)]
+  response.variable <- x$ranger.arguments$dependent.variable.name
+  predictors <- x$ranger.arguments$predictor.variable.names
+  if(inherits(x, "rf_spatial")){
+    predictors <- predictors[!(predictors %in% x$selection.spatial.predictors$names)]
   }
 
   #default values for variables
   if(is.null(variables)){
-    variables <- model$variable.importance$per.variable[model$variable.importance$per.variable$variable %in% predictors, "variable"][1:floor(length(predictors) / 2)]
+    variables <- x$variable.importance$per.variable[x$variable.importance$per.variable$variable %in% predictors, "variable"][1:floor(length(predictors) / 2)]
   }
 
   if(sum(variables %in% colnames(data)) != length(variables)){
-    stop("Variable names in 'variables' must be column names of model$ranger.arguments$data.")
+    stop("Variable names in 'variables' must be column names of x$ranger.arguments$data.")
   }
 
   #list to store plots
@@ -72,7 +72,7 @@ plot_response_curves <- function(
   for(variable.i in variables){
 
     #names of the other variables
-    other.variables <- setdiff(model$ranger.arguments$predictor.variable.names, variable.i)
+    other.variables <- setdiff(x$ranger.arguments$predictor.variable.names, variable.i)
 
     #generating grid
     variable.i.grid <- data.frame(
@@ -100,7 +100,7 @@ plot_response_curves <- function(
 
       #predicting
       variable.i.grid.copy[, response.variable] <- predict(
-        model,
+        x,
         variable.i.grid.copy)$predictions
 
       #adding quantile column
@@ -177,10 +177,13 @@ plot_response_curves <- function(
   #add legend to the last slot
 
 
-  variables.plots <- patchwork::wrap_plots(variables.plots, guides = "collect")
+  variables.plots.out <- patchwork::wrap_plots(
+    variables.plots,
+    guides = "collect"
+    )
 
   if(verbose == TRUE){
-    print(variables.plots)
+    variables.plots.out
   }
 
 }

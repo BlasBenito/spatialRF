@@ -152,6 +152,10 @@ rf <- function(
   #user arguments (overwrites defaults)
   if(!is.null(ranger.arguments)){
 
+    if(inherits(ranger.arguments, "rf_tuning")){
+      ranger.arguments <- ranger.arguments$ranger.arguments
+    }
+
     #giving preference a data not in ranger arguments
     if(!is.null(data)){
       if("data" %in% names(ranger.arguments)){

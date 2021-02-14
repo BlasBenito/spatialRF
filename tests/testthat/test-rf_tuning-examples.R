@@ -4,7 +4,7 @@ test_that("`rf_tuning()` works", {
     data = plant_richness_df,
     dependent.variable.name = "richness_species_vascular",
     predictor.variable.names = colnames(plant_richness_df)[5:21],
-    tuning.method = "oob",
+    method = "oob",
     n.cores = 1,
     verbose = FALSE)
   expect_s3_class(tuning$tuning, "data.frame")

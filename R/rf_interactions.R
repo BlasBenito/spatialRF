@@ -127,7 +127,7 @@ rf_interactions <- function(
 
     #get pair
     pair.i <- c(variables.pairs[i, 1], variables.pairs[i, 2])
-    pair.i.name <- paste(pair.i, collapse = ":")
+    pair.i.name <- paste(pair.i, collapse = "_X_")
 
     #prepare data.i
     ranger.arguments.i$data <- data.frame(
@@ -219,8 +219,8 @@ rf_interactions <- function(
   interaction.df$dummy.column <- NULL
 
   #removing variable names
-  interaction.screening.selected$variable.1.name <- NULL
-  interaction.screening.selected$variable.2.name <- NULL
+  interaction.screening.selected$variable.a.name <- NULL
+  interaction.screening.selected$variable.b.name <- NULL
 
   #printing suggested interactions
   if(verbose == TRUE){

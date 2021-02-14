@@ -5,7 +5,7 @@ test_that("`plot_response_surfaces()` works", {
     predictor.variable.names = colnames(plant_richness_df)[5:21],
     verbose = FALSE
   )
-  p <- plot_response_curves(model = m)
+  p <- plot_response_curves(x = m)
   expect_type(p, "list")
   expect_s3_class(p[[1]], "ggplot")
 })

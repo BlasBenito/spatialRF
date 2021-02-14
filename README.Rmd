@@ -120,8 +120,6 @@ In this section I describe a typical workflow built with the package step-by-ste
 
 ### Completing the training dataset: finding relevant variable interactions
 
-*This is an optional step.*
-
 Random Forests already takes into account variable interactions of the form "variable `b` becomes important when `a` is higher than x" in every regression tree of the forest. However, Random Forest we can also use variable interactions of the form `a * b`, as they are commonly defined in regression models. 
 
 The function `rf_interactions()` tests all possible interactions among predictors by using each one of them in a separate model, and suggesting the ones with the higher potential contribution to the model's R squared.
@@ -134,18 +132,64 @@ interactions <- rf_interactions(
   verbose = TRUE
   )
 ```
-Here the function suggests four candidate interactions, shows the variable importance of each interaction within the model, and their contribution to the model's R squared (column "R2 improvement"). Of course, the function cannot say whether an interaction *makes sense*, and it is up to the user to choose wisely (domain expertise is key here) whether to select an interaction or not.
+Here the function suggests four candidate interactions, shows the variable importance of each interaction within a model, and their contribution to the model's R squared (difference in R squared between a model without the interaction and a model with the interaction). Of course, the function cannot say whether an interaction *makes sense*, and it is up to the user to choose wisely (domain expertise is key here) whether to select an interaction or not.
 
-Here as an example I choose `climate_bio1_average::bias_area_km2` because it is likely that ecoregions with higher area (bias_area_km2) and energy (represented by the annual temperature, climate_bio1_average) will have more species of vascular plants. The data required to add it ot the dataset is inside the output of ´rf_interactions()´.
+Here, as an example, I choose `climate_bio1_average::bias_area_km2` because it is likely that ecoregions with higher area (bias_area_km2) and energy (represented by the annual temperature, climate_bio1_average) will have more species of vascular plants. The data required to add it ot the dataset is inside the output of ´rf_interactions()´.
 
 ```{r}
-plant_richness_df[, "climate_bio1_average::bias_area_km2"] <- interactions$columns[, "climate_bio1_average::bias_area_km2"]
-predictor.variable.names <- c(predictor.variable.names, "climate_bio1_average::bias_area_km2")
+plant_richness_df[, "climate_bio1_average_X_bias_area_km2"] <- interactions$columns[, "climate_bio1_average_X_bias_area_km2"]
+predictor.variable.names <- c(predictor.variable.names, "climate_bio1_average_X_bias_area_km2")
 ```
 
+### Assessing and reducing multicollinearity
 
+The functions `auto_cor()` and `auto_vif()` help reduce redundancy in the predictors by using different criteria (bivariate R squared vs. [variance inflation factor](https://www.statisticshowto.com/variance-inflation-factor/)), while allowing the user to define an *order of preference*, which can be based either on domain expertise or on a quantitative assessment. In the example below I give preference to the interaction we discovered above over it's two components, and prioritize climate over other types of predictors. These rules are applies to both `auto_cor()` and `auto_vif()`, that are applied sequentially over the data using the "%>%" pipe.
 
+```{r}
+preference.order = c(
+    "climate_bio1_average_X_bias_area_km2",
+    "climate_aridity_index_average",
+    "climate_hypervolume",
+    "climate_bio1_average",
+    "climate_bio15_minimum",
+    "bias_area_km2"
+  )
 
+variable.selection <- auto_cor(
+  x = plant_richness_df[, predictor.variable.names],
+  cor.threshold = 0.5,
+  preference.order = preference.order
+) %>% 
+  auto_vif(
+    vif.threshold = 2.5,
+    preference.order = preference.order
+  )
+```
+
+The slot `variable.selection$selected.variables` contains the names of the selected predictors, so from here on we can set `predictor.variable.names <- variable.selection$selected.variables`, or use `variable.selection` directly as input for other modeling functions. An example is shown in the next section.
+
+### Tuning Random Forest hyperparameters
+
+The function `rf_tuning()` helps the user to choose sensible values for three Random Forest hyperparameters that are critical to model performance:
+
+  + `num.trees`: number of regression trees in the forest.
+  + `mtry`: number of variables to choose from on each tree split.
+  + `min.node.size`: minimum number of cases on a terminal node.
+  
+Model tuning can be done on out-of-bag (`method = "oob"`) or spatial cross-validation (`method = "spatial.cv"`) R squared values. The example below shows the out-of-bag approach because I will explain spatial cross-validation with `rf_evaluate()` later in this document.
+  
+```{r, fig.heigt = 4, fig.width=6}
+model.tuning <- rf_tuning(
+  data = plant_richness_df,
+  dependent.variable.name = dependent.variable.name,
+  predictor.variable.names = predictor.variable.names,
+  method = "oob",
+  num.trees = c(500, 1000),
+  mtry = c(5, 10),
+  min.node.size = c(5, 10)
+)
+```
+The `model.tuning` object can be plugged directly onto the `ranger.arguments` argument of other modeling functions to use the hyperparameters that maximize R squared.
 
 ### Fitting a non-spatial model
 
@@ -154,15 +198,21 @@ To fit a Random Forest model we use the `rf()` function, that takes the data, th
 ```{r}
 model.non.spatial <- rf(
   data = plant_richness_df,
-  dependent.variable.name = "richness_species_vascular",
-  predictor.variable.names = colnames(plant_richness_df)[5:21],
+  dependent.variable.name = dependent.variable.name,
+  predictor.variable.names = variable.selection, #from auto_cor() and auto_vif()
   distance.matrix = distance_matrix,
   distance.thresholds = c(0, 1500, 3000),
+  ranger.arguments = model.tuning,               #from rf_tuning()
   seed = 100,
   verbose = FALSE
 )
 ```
 
+The model output can be printed or plotted with a plethora of functions such as `print()`, `print_importance()`, `print_performance()`, `plot_importance()`, `print_moran()`, `plot_response_curves()`, `plot_response_surfaces)`, or `plot_moran()`, among others.
+
+```{r, fig.width = 9, fig.height=7.5}
+plot_response_curves(x = model.non.spatial)
+```
 The spatial autocorrelation of the residuals can be plotted with `plot_moran()`
 
 ```{r, fig.width=6, fig.height=3, message=FALSE, warning=FALSE}
@@ -222,6 +272,23 @@ p1 <- ggplot2::ggplot() +
   ggplot2::geom_sf(data = pr,
           ggplot2::aes(
             geometry = geom_centroids,
+            color = spatial_predictor_0_2
+            ),
+          size = 2.5
+          ) +
+  ggplot2::scale_color_viridis_c(direction = -1) +
+  ggplot2::theme_bw() +
+  ggplot2::labs(color = "Eigenvalue") +
+  ggplot2::scale_x_continuous(limits = c(-170, -30)) +
+  ggplot2::scale_y_continuous(limits = c(-58, 75))  +
+  ggplot2::ggtitle("Spatial predictor 'spatial_predictor_0_2'") + 
+  ggplot2::theme(legend.position = "bottom")
+
+p2 <- ggplot2::ggplot() +
+  ggplot2::geom_sf(data = world, fill = "white") +
+  ggplot2::geom_sf(data = pr,
+          ggplot2::aes(
+            geometry = geom_centroids,
             color = spatial_predictor_0_6
             ),
           size = 2.5
@@ -232,23 +299,6 @@ p1 <- ggplot2::ggplot() +
   ggplot2::scale_x_continuous(limits = c(-170, -30)) +
   ggplot2::scale_y_continuous(limits = c(-58, 75))  +
   ggplot2::ggtitle("Spatial predictor 'spatial_predictor_0_6'") + 
-  ggplot2::theme(legend.position = "bottom")
-
-p2 <- ggplot2::ggplot() +
-  ggplot2::geom_sf(data = world, fill = "white") +
-  ggplot2::geom_sf(data = pr,
-          ggplot2::aes(
-            geometry = geom_centroids,
-            color = spatial_predictor_1500_2
-            ),
-          size = 2.5
-          ) +
-  ggplot2::scale_color_viridis_c(direction = -1) +
-  ggplot2::theme_bw() +
-  ggplot2::labs(color = "Eigenvalue") +
-  ggplot2::scale_x_continuous(limits = c(-170, -30)) +
-  ggplot2::scale_y_continuous(limits = c(-58, 75))  +
-  ggplot2::ggtitle("Spatial predictor 'spatial_predictor_1500_2'") + 
   ggplot2::theme(legend.position = "bottom")
 
 p1 | p2

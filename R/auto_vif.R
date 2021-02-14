@@ -4,7 +4,7 @@
 #' @param x A data frame with predictors or the result of [auto_cor()]. Default: `NULL`.
 #' @param preference.order a character vector with columns names of x ordered by the user preference, Default: `NULL`.
 #' @param vif.threshold Numeric between 2.5 and 10 defining the selection threshold for the VIF analysis. Higher numbers result in a more relaxed variable selection. Default: 5.
-#' @param verbose Logical. if `TRUE`, describes the function operations to the user.
+#' @param verbose Logical. if `TRUE`, describes the function operations to the user. Default:: `TRUE`
 #' @return List with three slots:
 #' \itemize{
 #'   \item `vif`: data frame with the names of the selected variables and their respective VIF scores.
@@ -46,15 +46,12 @@ auto_vif <- function(
   x = NULL,
   preference.order = NULL,
   vif.threshold = 5,
-  verbose = FALSE
+  verbose = TRUE
 ){
 
   if(inherits(x, "auto_cor") == TRUE){
     x <- x$selected.variables.df
   }
-
-  #message
-  if(verbose == TRUE){cat("Removed variables: \n")}
 
   #AND preference.order IS NOT PROVIDED
   if(is.null(preference.order)){
@@ -110,7 +107,18 @@ auto_vif <- function(
   }
 
   #message
-  if(verbose == TRUE){cat("Done! \n")}
+  if(verbose == TRUE){
+    removed.vars <- setdiff(colnames(x), output.list$selected.variables)
+    message(
+      paste0(
+        "[auto_vif()]: Removed variables: ",
+        paste0(
+          removed.vars,
+          collapse = ", "
+        )
+      )
+    )
+  }
 
   #returning output
   output.list
@@ -164,10 +172,6 @@ auto_vif <- function(
         dplyr::slice(1) %>%
         dplyr::select(variable) %>%
         as.character()
-
-      if(verbose == TRUE){
-        cat(paste(var.to.remove, ", ", sep = ""))
-      }
 
       #updates select.cols
       selected.variables <- selected.variables[selected.variables != var.to.remove]
@@ -224,8 +228,6 @@ auto_vif <- function(
 
     } else {
 
-      #message
-      if(verbose == TRUE){cat(paste(new.var, ", ", sep = ""))}
       next
 
     }

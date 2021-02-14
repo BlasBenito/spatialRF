@@ -1,8 +1,9 @@
 #' @title Multicollinearity reduction via Pearson correlation
-#' @description Computes the correlation matrix among a set of predictors, orders the correlation matrix according to a user-defined preference order, and removes variables one by one until the remaining ones are below a given Pearson correlation threshold.
+#' @description Computes the correlation matrix among a set of predictors, orders the correlation matrix according to a user-defined preference order, and removes variables one by one, taking into account the preference order, until the remaining ones are below a given Pearson correlation threshold. \strong{Warning}: variables in `preference.order` not in `colnames(x)` are removed silently from `preference.order`.
 #' @param x A data frame with predictors, or the result of [auto_vif()] Default: `NULL`.
 #' @param preference.order Character vector indicating the user's order of preference to keep variables. Doesn't need to contain If not provided, variables in `x` are prioritised by their column order. Default: `NULL`.
-#' @param cor.threshold Numeric between 0 and 1, with recommended values between 0.5 and 0.9. Maximum Pearson correlation between any pair of the selected variables. Default: 0.75
+#' @param cor.threshold Numeric between 0 and 1, with recommended values between 0.5 and 0.9. Maximum Pearson correlation between any pair of the selected variables. Default: `0.75`
+#' @param verbose Logical. if `TRUE`, describes the function operations to the user. Default:: `TRUE`
 #' @return List with trhee slots:
 #' \itemize{
 #'   \item `cor`: correlation matrix of the selected variables.
@@ -38,7 +39,8 @@
 auto_cor <- function(
   x = NULL,
   preference.order = NULL,
-  cor.threshold = 0.75
+  cor.threshold = 0.75,
+  verbose = TRUE
 ){
 
   if(inherits(x, "auto_vif")){
@@ -84,6 +86,20 @@ auto_cor <- function(
       ]
     }
 
+  }
+
+  #message
+  if(verbose == TRUE){
+    removed.vars <- setdiff(colnames(x), colnames(x.cor))
+    message(
+      paste0(
+        "[auto_cor()]: Removed variables: ",
+        paste0(
+          removed.vars,
+          collapse = ", "
+        )
+      )
+    )
   }
 
   #return output
