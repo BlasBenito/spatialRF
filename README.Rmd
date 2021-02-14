@@ -10,7 +10,7 @@ always_allow_html: yes
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-## Introduction
+# Introduction
 
 The package **spatialRF** facilitates fitting spatial regression models on regular or irregular data with Random Forest, using the **ranger** package under the hood [(Wright and Ziegler 2017)](https://arxiv.org/abs/1508.04409), and does so by generating *spatial predictors* that allow the model to take into account the spatial structure of the training data. The end goal is minimizing the spatial autocorrelation of the model residuals as much as possible. Spatial autocorrelation in the residuals indicate that there is a source of spatial autocorrelation in the model variance that cannot be explained by the model predictors, and it is a clear sign that there are important variables missing from the model. In an ideal model, the residuals are not autocorrelated, and should be centered around zero, but this is rarely the case when working with spatial data.
 
@@ -22,7 +22,7 @@ This package implements two main methods to generate *spatial predictors* from t
 
 The package also provides a set of tools to identify variable interactions, tune random forest hyperparameters, assess model performance on spatially independent data folds, and examine the resulting models via importance plots, and response curves and surfaces. 
 
-## Installing the package
+# Installing the package
 
 The package is not yet in the CRAN repositories, so at the moment it must be installed from GitHub as follows.
 
@@ -48,9 +48,9 @@ library(rnaturalearthdata)
 ```
 
 
-## Working with `spatialRF`
+# Working with `spatialRF`
 
-### The data
+## The data
 
 The package includes an example dataset named **plant_richness_df**, a data frame with plant species richness and predictor variables for 227 ecoregions in the Americas;  a distance matrix among the ecoregion edges named, well, **distance_matrix**, and **plant_richness_sf**, an sf file containing the centroids of the polygons represented in **plant_richness_df**.
 
@@ -112,11 +112,19 @@ for(variable in predictor.variable.names){
 patchwork::wrap_plots(plot.list)
 ```
 
+## The workflow
+
+The package `spatialRF` provides tools to find potentially interesting variable interactions, reduce the multicollinearity in the set of predictors, fit non-spatial and spatial random forest models, assess the spatial autocorrelation of the residuals, plot variable importance scores, response curves and surfaces, and evaluate the models through cross-validation on independent spatial folds. 
+
+In this section I describe a typical workflow built with the package step-by-step. 
+
 ### Completing the training dataset: finding relevant variable interactions
 
-Random Forests already takes into account variable interactions of the form "variable `b` becomes important when `a` is higher than x" in every regression tree of the forest. However, with Random Forest we can also use the more traditional concept of variable interaction across the whole ranges of two predictors, as in `a * b`, the common way to define them in regression models. 
+*This is an optional step.*
 
-The function `rf_interactions()` helps the user to identify potential variable interactions. It does so by testing all possible interactions among predictors, using each one of them in a separate model (y ~ predictors + interaction), and suggesting the ones with the higher potential contribution to the model's R squared.
+Random Forests already takes into account variable interactions of the form "variable `b` becomes important when `a` is higher than x" in every regression tree of the forest. However, Random Forest we can also use variable interactions of the form `a * b`, as they are commonly defined in regression models. 
+
+The function `rf_interactions()` tests all possible interactions among predictors by using each one of them in a separate model, and suggesting the ones with the higher potential contribution to the model's R squared.
 
 ```{r}
 interactions <- rf_interactions(

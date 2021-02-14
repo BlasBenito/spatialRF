@@ -35,7 +35,7 @@ A data frame with 227 rows and 22 columns:
 data(plant_richness_df)
 }
 \description{
-Richness of vascular plants the american ecoregions as defined in \href{https://ecoregions2017.appspot.com/}{Ecoregions 2017}.
+Richness of vascular plants of the American ecoregions as defined in \href{https://ecoregions2017.appspot.com/}{Ecoregions 2017}.
 }
 \seealso{
 \link{plant_richness_sf}, \link{distance_matrix}

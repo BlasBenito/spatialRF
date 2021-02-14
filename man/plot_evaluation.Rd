@@ -4,12 +4,14 @@
 \alias{plot_evaluation}
 \title{Plots the results of a spatial cross-validation}
 \usage{
-plot_evaluation(x, verbose = TRUE)
+plot_evaluation(x, verbose = TRUE, notch = TRUE)
 }
 \arguments{
 \item{x}{A model resulting from \code{\link[=rf_evaluate]{rf_evaluate()}}.}
 
-\item{verbose}{Logical, if TRUE the plot is printed. Default: \code{TRUE}}
+\item{verbose}{Logical, if \code{TRUE} the plot is printed. Default: \code{TRUE}}
+
+\item{notch}{Logical, if \code{TRUE}, boxplot notches are plotted. Default: \code{TRUE}}
 }
 \value{
 A ggplot.
