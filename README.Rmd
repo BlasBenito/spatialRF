@@ -31,7 +31,7 @@ remotes::install_github(
   repo = "blasbenito/spatialRF", 
   ref = "main"
   )
-library(spatialRF)
+suppressMessages(library(spatialRF))
 ```
 
 There are a few other libraries that will be useful during this tutorial.
@@ -39,7 +39,7 @@ There are a few other libraries that will be useful during this tutorial.
 ```{r}
 library(kableExtra)
 library(ggplot2)
-library(dplyr)
+suppressMessages(library(dplyr))
 options(dplyr.summarise.inform = FALSE)
 library(magrittr)
 library(patchwork)

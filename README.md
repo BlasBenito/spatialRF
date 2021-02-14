@@ -51,32 +51,12 @@ remotes::install_github(
   )
 ```
 
-    ## Downloading GitHub repo blasbenito/spatialRF@main
-
-    ## Skipping 1 packages not available: huxtable
-
-    ##      checking for file ‘/tmp/RtmpihQWfz/remotes179726643edad/BlasBenito-spatialRF-78791a1/DESCRIPTION’ ...  ✓  checking for file ‘/tmp/RtmpihQWfz/remotes179726643edad/BlasBenito-spatialRF-78791a1/DESCRIPTION’
-    ##   ─  preparing ‘spatialRF’:
-    ##      checking DESCRIPTION meta-information ...  ✓  checking DESCRIPTION meta-information
-    ##   ─  checking for LF line-endings in source and make files and shell scripts
-    ##   ─  checking for empty or unneeded directories
-    ##   ─  building ‘spatialRF_0.0.0.9000.tar.gz’
-    ##      
-    ## 
-
-    ## Installing package into '/home/blas/R/x86_64-pc-linux-gnu-library/4.0'
-    ## (as 'lib' is unspecified)
+    ## Skipping install of 'spatialRF' from a github remote, the SHA1 (c6276e78) has not changed since last install.
+    ##   Use `force = TRUE` to force installation
 
 ``` r
-library(spatialRF)
+suppressMessages(library(spatialRF))
 ```
-
-    ## 
-    ## Attaching package: 'spatialRF'
-
-    ## The following object is masked from 'package:stats':
-    ## 
-    ##     rf
 
 There are a few other libraries that will be useful during this
 tutorial.
@@ -84,25 +64,7 @@ tutorial.
 ``` r
 library(kableExtra)
 library(ggplot2)
-library(dplyr)
-```
-
-    ## 
-    ## Attaching package: 'dplyr'
-
-    ## The following object is masked from 'package:kableExtra':
-    ## 
-    ##     group_rows
-
-    ## The following objects are masked from 'package:stats':
-    ## 
-    ##     filter, lag
-
-    ## The following objects are masked from 'package:base':
-    ## 
-    ##     intersect, setdiff, setequal, union
-
-``` r
+suppressMessages(library(dplyr))
 options(dplyr.summarise.inform = FALSE)
 library(magrittr)
 library(patchwork)
