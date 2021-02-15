@@ -299,7 +299,7 @@ p1 | p2
 If we take a look to the five most important variables in **model.spatial** we will see that a few of them are spatial predictors.
 
 ```{r, echo = FALSE}
-kableExtra::kable(
+kableExtra::kbl(
   head(model.spatial$variable.importance$per.variable, n = 10),
   format = "markdown"
 ) %>%
@@ -440,8 +440,8 @@ comparison <- rf_compare(
   )
 ```
 
-```{r, echo = FALSE}
-kableExtra::kable(
+```{r, echo = FALSE, message = FALSE}
+kableExtra::kbl(
   comparison$df.aggregated,
   format = "markdown"
   ) %>%
