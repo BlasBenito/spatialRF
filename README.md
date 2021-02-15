@@ -42,21 +42,9 @@ must be installed from GitHub as follows.
 remotes::install_github(
   repo = "blasbenito/spatialRF", 
   ref = "main",
-  force = TRUE
+  force = TRUE,
+  quiet = TRUE
   )
-```
-
-    ## 
-    ##      checking for file ‘/tmp/RtmpKJzINc/remotes1c3b636c14d07/BlasBenito-spatialRF-fef3cd7/DESCRIPTION’ ...  ✓  checking for file ‘/tmp/RtmpKJzINc/remotes1c3b636c14d07/BlasBenito-spatialRF-fef3cd7/DESCRIPTION’
-    ##   ─  preparing ‘spatialRF’:
-    ##      checking DESCRIPTION meta-information ...  ✓  checking DESCRIPTION meta-information
-    ##   ─  checking for LF line-endings in source and make files and shell scripts
-    ##   ─  checking for empty or unneeded directories
-    ##   ─  building ‘spatialRF_0.0.0.9000.tar.gz’
-    ##      
-    ## 
-
-``` r
 library(spatialRF)
 ```
 
@@ -408,100 +396,22 @@ p1 | p2
 If we take a look to the five most important variables in
 **model.spatial** we will see that a few of them are spatial predictors.
 
-<table class=" lightable-paper lightable-hover" style="font-family: &quot;Arial Narrow&quot;, arial, helvetica, sans-serif; width: auto !important; margin-left: auto; margin-right: auto;">
-<thead>
-<tr>
-<th style="text-align:left;">
-variable
-</th>
-<th style="text-align:right;">
-importance
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left;">
-climate\_bio1\_average\_X\_bias\_area\_km2
-</td>
-<td style="text-align:right;">
-0.4332106
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-climate\_bio1\_average
-</td>
-<td style="text-align:right;">
-0.3878793
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-climate\_hypervolume
-</td>
-<td style="text-align:right;">
-0.3418443
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-spatial\_predictor\_0\_2
-</td>
-<td style="text-align:right;">
-0.2091861
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-spatial\_predictor\_0\_6
-</td>
-<td style="text-align:right;">
-0.2064525
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-bias\_species\_per\_record
-</td>
-<td style="text-align:right;">
-0.1316044
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-spatial\_predictor\_0\_7
-</td>
-<td style="text-align:right;">
-0.1234315
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-bias\_area\_km2
-</td>
-<td style="text-align:right;">
-0.1091224
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-human\_population\_density
-</td>
-<td style="text-align:right;">
-0.1085920
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-neighbors\_count
-</td>
-<td style="text-align:right;">
-0.0754988
-</td>
-</tr>
-</tbody>
-</table>
+    ## Warning in kable_styling(kable_input, "none", htmltable_class = light_class, :
+    ## Please specify format in kable. kableExtra can customize either HTML or LaTeX
+    ## outputs. See https://haozhu233.github.io/kableExtra/ for details.
+
+| variable                                   | importance |
+|:-------------------------------------------|-----------:|
+| climate\_bio1\_average\_X\_bias\_area\_km2 |  0.4332106 |
+| climate\_bio1\_average                     |  0.3878793 |
+| climate\_hypervolume                       |  0.3418443 |
+| spatial\_predictor\_0\_2                   |  0.2091861 |
+| spatial\_predictor\_0\_6                   |  0.2064525 |
+| bias\_species\_per\_record                 |  0.1316044 |
+| spatial\_predictor\_0\_7                   |  0.1234315 |
+| bias\_area\_km2                            |  0.1091224 |
+| human\_population\_density                 |  0.1085920 |
+| neighbors\_count                           |  0.0754988 |
 
 Spatial predictors, as shown below, are smooth surfaces representing
 neighborhood among records at different spatial scales.
@@ -591,243 +501,17 @@ comparison <- rf_compare(
 
 ![](README_files/figure-gfm/unnamed-chunk-28-1.png)<!-- -->
 
-<table class=" lightable-paper lightable-hover" style="font-family: &quot;Arial Narrow&quot;, arial, helvetica, sans-serif; width: auto !important; margin-left: auto; margin-right: auto;">
-<thead>
-<tr>
-<th style="text-align:left;">
-model
-</th>
-<th style="text-align:left;">
-metric
-</th>
-<th style="text-align:right;">
-mean
-</th>
-<th style="text-align:right;">
-median
-</th>
-<th style="text-align:right;">
-standard\_deviation
-</th>
-<th style="text-align:right;">
-standard\_error
-</th>
-<th style="text-align:right;">
-minimum
-</th>
-<th style="text-align:right;">
-maximum
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left;">
-Non-spatial
-</td>
-<td style="text-align:left;">
-R squared
-</td>
-<td style="text-align:right;">
-0.341
-</td>
-<td style="text-align:right;">
-0.413
-</td>
-<td style="text-align:right;">
-0.211
-</td>
-<td style="text-align:right;">
-0.042
-</td>
-<td style="text-align:right;">
-0.001
-</td>
-<td style="text-align:right;">
-0.654
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Spatial
-</td>
-<td style="text-align:left;">
-R squared
-</td>
-<td style="text-align:right;">
-0.275
-</td>
-<td style="text-align:right;">
-0.280
-</td>
-<td style="text-align:right;">
-0.184
-</td>
-<td style="text-align:right;">
-0.037
-</td>
-<td style="text-align:right;">
-0.000
-</td>
-<td style="text-align:right;">
-0.685
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Non-spatial
-</td>
-<td style="text-align:left;">
-pseudo R squared
-</td>
-<td style="text-align:right;">
-0.501
-</td>
-<td style="text-align:right;">
-0.643
-</td>
-<td style="text-align:right;">
-0.305
-</td>
-<td style="text-align:right;">
-0.061
-</td>
-<td style="text-align:right;">
--0.077
-</td>
-<td style="text-align:right;">
-0.809
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Spatial
-</td>
-<td style="text-align:left;">
-pseudo R squared
-</td>
-<td style="text-align:right;">
-0.463
-</td>
-<td style="text-align:right;">
-0.530
-</td>
-<td style="text-align:right;">
-0.252
-</td>
-<td style="text-align:right;">
-0.050
-</td>
-<td style="text-align:right;">
--0.057
-</td>
-<td style="text-align:right;">
-0.827
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Non-spatial
-</td>
-<td style="text-align:left;">
-RMSE
-</td>
-<td style="text-align:right;">
-2855.146
-</td>
-<td style="text-align:right;">
-2553.747
-</td>
-<td style="text-align:right;">
-633.989
-</td>
-<td style="text-align:right;">
-126.798
-</td>
-<td style="text-align:right;">
-1758.142
-</td>
-<td style="text-align:right;">
-4016.171
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Spatial
-</td>
-<td style="text-align:left;">
-RMSE
-</td>
-<td style="text-align:right;">
-3197.387
-</td>
-<td style="text-align:right;">
-2956.940
-</td>
-<td style="text-align:right;">
-691.100
-</td>
-<td style="text-align:right;">
-138.220
-</td>
-<td style="text-align:right;">
-2202.104
-</td>
-<td style="text-align:right;">
-4574.846
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Non-spatial
-</td>
-<td style="text-align:left;">
-NRMSE
-</td>
-<td style="text-align:right;">
-1.581
-</td>
-<td style="text-align:right;">
-0.814
-</td>
-<td style="text-align:right;">
-1.160
-</td>
-<td style="text-align:right;">
-0.232
-</td>
-<td style="text-align:right;">
-0.495
-</td>
-<td style="text-align:right;">
-3.615
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Spatial
-</td>
-<td style="text-align:left;">
-NRMSE
-</td>
-<td style="text-align:right;">
-1.753
-</td>
-<td style="text-align:right;">
-0.911
-</td>
-<td style="text-align:right;">
-1.288
-</td>
-<td style="text-align:right;">
-0.258
-</td>
-<td style="text-align:right;">
-0.594
-</td>
-<td style="text-align:right;">
-4.178
-</td>
-</tr>
-</tbody>
-</table>
+    ## Warning in kable_styling(kable_input, "none", htmltable_class = light_class, :
+    ## Please specify format in kable. kableExtra can customize either HTML or LaTeX
+    ## outputs. See https://haozhu233.github.io/kableExtra/ for details.
+
+| model       | metric           |     mean |   median | standard\_deviation | standard\_error |  minimum |  maximum |
+|:------------|:-----------------|---------:|---------:|--------------------:|----------------:|---------:|---------:|
+| Non-spatial | R squared        |    0.341 |    0.413 |               0.211 |           0.042 |    0.001 |    0.654 |
+| Spatial     | R squared        |    0.275 |    0.280 |               0.184 |           0.037 |    0.000 |    0.685 |
+| Non-spatial | pseudo R squared |    0.501 |    0.643 |               0.305 |           0.061 |   -0.077 |    0.809 |
+| Spatial     | pseudo R squared |    0.463 |    0.530 |               0.252 |           0.050 |   -0.057 |    0.827 |
+| Non-spatial | RMSE             | 2855.146 | 2553.747 |             633.989 |         126.798 | 1758.142 | 4016.171 |
+| Spatial     | RMSE             | 3197.387 | 2956.940 |             691.100 |         138.220 | 2202.104 | 4574.846 |
+| Non-spatial | NRMSE            |    1.581 |    0.814 |               1.160 |           0.232 |    0.495 |    3.615 |
+| Spatial     | NRMSE            |    1.753 |    0.911 |               1.288 |           0.258 |    0.594 |    4.178 |

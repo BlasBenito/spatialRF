@@ -30,7 +30,8 @@ The package is not yet in the CRAN repositories, so at the moment it must be ins
 remotes::install_github(
   repo = "blasbenito/spatialRF", 
   ref = "main",
-  force = TRUE
+  force = TRUE,
+  quiet = TRUE
   )
 library(spatialRF)
 ```
@@ -299,7 +300,8 @@ If we take a look to the five most important variables in **model.spatial** we w
 
 ```{r, echo = FALSE}
 kableExtra::kable(
-  head(model.spatial$variable.importance$per.variable, n = 10)
+  head(model.spatial$variable.importance$per.variable, n = 10),
+  format = "markdown"
 ) %>%
   kable_paper("hover", full_width = F)
 ```
@@ -439,7 +441,10 @@ comparison <- rf_compare(
 ```
 
 ```{r, echo = FALSE}
-kableExtra::kable(comparison$df.aggregated) %>%
+kableExtra::kable(
+  comparison$df.aggregated,
+  format = "markdown"
+  ) %>%
   kable_paper("hover", full_width = F)
 ```
 
