@@ -226,6 +226,9 @@ rf_evaluate <- function(
       verbose = FALSE
     )
 
+    #adding ranger class
+    class(m.training) <- c(class(m.training), "ranger")
+
     #predicting over data.testing
     predicted <- stats::predict(
       object = m.training,

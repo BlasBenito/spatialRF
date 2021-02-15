@@ -212,9 +212,9 @@ The model output can be printed or plotted with a plethora of functions such as 
 plot_response_curves(model.non.spatial)
 ```
 
-```{r}
+```{r, fig.height = 4, fig.width=6}
 plot_response_surfaces(
-  x = model.non.spatial
+  x = model.non.spatial,
   a = "climate_bio1_average",
   b = "neighbors_count"
   )
