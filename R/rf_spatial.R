@@ -584,6 +584,7 @@ rf_spatial <- function(
   if(inherits(model.spatial, "rf_repeat")){
     importance.df <- model.spatial$variable.importance$per.repetition
   }
+  importance.df$importance <- round(importance.df$importance, 3)
 
   #spatial predictors only
   spatial.predictors.plot.df <- importance.df[grepl(
@@ -700,13 +701,11 @@ rf_spatial <- function(
     verbose = verbose
   )
 
-
   #adding importance
   model.spatial$variable.importance$plot <- plot_importance(
     x = model.spatial,
     verbose = verbose
   )
-
 
   #return output
   model.spatial

@@ -440,7 +440,7 @@ comparison <- rf_compare(
   )
 ```
 
-```{r, echo = FALSE, message = FALSE}
+```{r, echo = FALSE, message=FALSE, warning=FALSE}
 kableExtra::kbl(
   comparison$df.aggregated,
   format = "markdown"
