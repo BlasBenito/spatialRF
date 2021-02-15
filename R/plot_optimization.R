@@ -62,7 +62,8 @@ plot_optimization <- function(x, verbose = TRUE){
     ) +
     ggplot2::ylab("Moran's I of the model residuals") +
     ggplot2::xlab("Model's R squared") +
-    ggplot2::ggtitle("Selection of spatial predictors (selection path shown in gray)")
+    ggplot2::ggtitle("Selection of spatial predictors (selection path shown in gray)") +
+    ggplot2::theme_bw()
 
   if(verbose == TRUE){
     suppressMessages(print(p))
