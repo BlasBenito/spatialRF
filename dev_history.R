@@ -233,6 +233,7 @@ exampletestr::make_test_shell_fun("get_performance", open = FALSE)
 sinew::makeOxygen(get_performance)
 exampletestr::make_test_shell_fun("sf_points_to_xy", open = FALSE)
 
+sinew::makeOxygen(rf_compare)
 
 sinew::makeOxygen(print_performance)
 

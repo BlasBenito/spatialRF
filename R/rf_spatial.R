@@ -74,8 +74,8 @@
 #' \dontrun{
 #' if(interactive()){
 #'
-#'  data("distance_matrix")
-#'  data("plant_richness_df")
+#'  data(distance_matrix)
+#'  data(plant_richness_df)
 #'  data <- plant_richness_df
 #'  dependent.variable.name <- "richness_species_vascular"
 #'  predictor.variable.names <- colnames(plant_richness_df)[5:21]
