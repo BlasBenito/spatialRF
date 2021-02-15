@@ -402,16 +402,16 @@ If we take a look to the five most important variables in
 
 | variable                                   | importance |
 |:-------------------------------------------|-----------:|
-| climate\_bio1\_average\_X\_bias\_area\_km2 |  0.4332106 |
-| climate\_bio1\_average                     |  0.3878793 |
-| climate\_hypervolume                       |  0.3418443 |
-| spatial\_predictor\_0\_2                   |  0.2091861 |
-| spatial\_predictor\_0\_6                   |  0.2064525 |
-| bias\_species\_per\_record                 |  0.1316044 |
-| spatial\_predictor\_0\_7                   |  0.1234315 |
-| bias\_area\_km2                            |  0.1091224 |
-| human\_population\_density                 |  0.1085920 |
-| neighbors\_count                           |  0.0754988 |
+| climate\_bio1\_average\_X\_bias\_area\_km2 |      0.433 |
+| climate\_bio1\_average                     |      0.388 |
+| climate\_hypervolume                       |      0.342 |
+| spatial\_predictor\_0\_2                   |      0.209 |
+| spatial\_predictor\_0\_6                   |      0.206 |
+| bias\_species\_per\_record                 |      0.132 |
+| spatial\_predictor\_0\_7                   |      0.123 |
+| bias\_area\_km2                            |      0.109 |
+| human\_population\_density                 |      0.109 |
+| neighbors\_count                           |      0.075 |
 
 Spatial predictors, as shown below, are smooth surfaces representing
 neighborhood among records at different spatial scales.
