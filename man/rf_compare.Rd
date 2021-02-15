@@ -12,6 +12,7 @@ rf_compare(
   xy = NULL,
   repetitions = 30,
   training.fraction = 0.8,
+  notch = FALSE,
   verbose = TRUE,
   n.cores = NULL,
   cluster.ips = NULL,
@@ -33,7 +34,9 @@ rf_compare(
 
 \item{repetitions}{Integer, must be lower than the total number of rows available in the model's data. Default: \code{30}}
 
-\item{training.fraction}{Proportion between 0.5 and 0.9 indicating the number of records to be used in model training. Default: \code{0.6}}
+\item{training.fraction}{Proportion between 0.5 and 0.9 indicating the number of records to be used in model training. Default: \code{0.8}}
+
+\item{notch}{Logical, if \code{TRUE}, boxplot notches are plotted. Default: \code{TRUE}}
 
 \item{verbose}{Logical. If \code{TRUE}, messages and plots generated during the execution of the function are displayed, Default: \code{TRUE}}
 

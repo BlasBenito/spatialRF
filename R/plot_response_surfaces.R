@@ -1,9 +1,9 @@
 #' @title Plots the response surfaces of a random forest model
 #' @description Plots response surfaces for any given pair of predictors in a [rf()], [rf_repeat()], or [rf_spatial()] model.
-#' @param model A model fitted with [rf()], [rf_repeat()], or [rf_spatial()]. Default `NULL`
+#' @param x A model fitted with [rf()], [rf_repeat()], or [rf_spatial()]. Default `NULL`
 #' @param a Character string, name of a model predictor. If `NULL`, the most important variable in `model` is selected. Default: `NULL`
 #' @param b Character string, name of a model predictor. If `NULL`, the second most important variable in `model` is selected. Default: `NULL`
-#' @param quantiles Numeric vector between 0 and 1. Argument `probs` of the function \link[stats]{quantile}. Quantiles to set the other variables to. Default: `c(0.1, 0.5, 0.9)`
+#' @param quantiles Numeric vector between 0 and 1. Argument `probs` of the function \link[stats]{quantile}. Quantiles to set the other variables to. Default: `0.5`
 #' @param grid.resolution Integer between 20 and 500. Resolution of the plotted surface Default: `100`
 #' @param point.size.range Numeric vector of length 2 with the range of point sizes used by \link[ggplot2]{geom_point}, Default: `c(0.5, 2.5)`
 #' @param verbose Logical, if TRUE the plot is printed. Default: `TRUE`
@@ -23,7 +23,7 @@
  #'  verbose = FALSE
 #')
 #'
-#'p <- plot_response_surfaces(model = out)
+#'p <- plot_response_surfaces(x = out)
 #'
 #' }
 #' }
@@ -33,17 +33,21 @@
 #' @importFrom viridis scale_fill_viridis
 #' @importFrom patchwork wrap_plots
 plot_response_surfaces <- function(
-  model = NULL,
+  x = NULL,
   a = NULL,
   b = NULL,
-  quantiles = c(0.10, 0.5, 0.90),
+  quantiles = 0.5,
   grid.resolution = 100,
   point.size.range = c(0.5, 2.5),
   verbose = TRUE
   ){
 
-  if(is.null(model)){
-    stop("Argument 'model' must not be empty.")
+  if(is.null(x)){
+    stop("Argument 'x' must not be empty.")
+  }
+  #add ranger class if rf
+  if(inherits(x, "rf")){
+    class(x) <- c(class(x), "ranger")
   }
 
   grid.resolution <- floor(grid.resolution)
@@ -53,21 +57,21 @@ plot_response_surfaces <- function(
   quantiles <- quantiles[quantiles >= 0]
   quantiles <- quantiles[quantiles <= 1]
 
-  data <- model$ranger.arguments$data
+  data <- x$ranger.arguments$data
 
   #response variable and predictors
-  response.variable <- model$ranger.arguments$dependent.variable.name
-  predictors <- model$ranger.arguments$predictor.variable.names
-  if(inherits(model, "rf_spatial")){
-    predictors <- predictors[!(predictors %in% model$selection.spatial.predictors$names)]
+  response.variable <- x$ranger.arguments$dependent.variable.name
+  predictors <- x$ranger.arguments$predictor.variable.names
+  if(inherits(x, "rf_spatial")){
+    predictors <- predictors[!(predictors %in% x$selection.spatial.predictors$names)]
   }
 
   #default values for a and b
   if(is.null(a)){
-    a <- model$variable.importance$per.variable[model$variable.importance$per.variable$variable %in% predictors, "variable"][1]
+    a <- x$variable.importance$per.variable[x$variable.importance$per.variable$variable %in% predictors, "variable"][1]
   }
   if(is.null(b)){
-    b <- model$variable.importance$per.variable[model$variable.importance$per.variable$variable %in% predictors, "variable"][2]
+    b <- x$variable.importance$per.variable[x$variable.importance$per.variable$variable %in% predictors, "variable"][2]
   }
 
   if(!(a %in% colnames(data))){
@@ -78,7 +82,7 @@ plot_response_surfaces <- function(
   }
 
   #names of the other variables
-  other.variables <- setdiff(model$ranger.arguments$predictor.variable.names, c(a, b))
+  other.variables <- setdiff(x$ranger.arguments$predictor.variable.names, c(a, b))
 
   #generating grid
   ab.grid <- expand.grid(
@@ -110,7 +114,7 @@ plot_response_surfaces <- function(
 
     #predicting the response
     ab.grid.i[, response.variable] <- predict(
-      model,
+      x,
       ab.grid.i)$predictions
 
     #heatmap
@@ -148,7 +152,11 @@ plot_response_surfaces <- function(
 
   }
 
-  ab.grid.quantiles <- patchwork::wrap_plots(ab.grid.quantiles)
+  if(length(quantiles) > 1){
+    ab.grid.quantiles <- patchwork::wrap_plots(ab.grid.quantiles)
+  } else {
+    ab.grid.quantiles <- ab.grid.quantiles[[1]]
+  }
 
   if(verbose == TRUE){
     print(ab.grid.quantiles)

@@ -6,7 +6,8 @@
 #' @param b.name Character, name of model `b`, Default: `'Model B'`
 #' @param xy Data frame or matrix with two columns containing coordinates and named "x" and "y", or an sf file with geometry class `sfc_POINT` (see [plant_richness_sf]). If `NULL`, the function will throw an error. Default: `NULL`
 #' @param repetitions Integer, must be lower than the total number of rows available in the model's data. Default: `30`
-#' @param training.fraction Proportion between 0.5 and 0.9 indicating the number of records to be used in model training. Default: `0.6`
+#' @param training.fraction Proportion between 0.5 and 0.9 indicating the number of records to be used in model training. Default: `0.8`
+#' @param notch Logical, if `TRUE`, boxplot notches are plotted. Default: `TRUE`
 #' @param verbose Logical. If `TRUE`, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
 #' @param n.cores Integer, number of cores to use during computations. If `NULL`, all cores but one are used, unless a cluster is used. Default = `NULL`
 #' @param cluster.ips Character vector with the IPs of the machines in a cluster. The machine with the first IP will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.
@@ -50,6 +51,7 @@ rf_compare <- function(
   xy = NULL,
   repetitions = 30,
   training.fraction = 0.8,
+  notch = FALSE,
   verbose = TRUE,
   n.cores = NULL,
   cluster.ips = NULL,
@@ -146,7 +148,7 @@ rf_compare <- function(
         group = model,
         fill = model
       ),
-      notch = TRUE
+      notch = notch
     ) +
     ggplot2::scale_fill_viridis_d(end = 0.8, alpha = 0.75) +
     ggplot2::theme_bw() +

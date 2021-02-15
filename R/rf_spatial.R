@@ -685,9 +685,9 @@ rf_spatial <- function(
 
   #adding class
   if(inherits(model.spatial, "rf_repeat")){
-    class(model.spatial) <- c("ranger", "rf", "rf_spatial", "rf_repeat")
+    class(model.spatial) <- c("rf", "rf_spatial", "rf_repeat")
   } else {
-    class(model.spatial) <- c("ranger", "rf", "rf_spatial")
+    class(model.spatial) <- c("rf", "rf_spatial")
   }
 
   if(verbose == TRUE){

@@ -5,23 +5,23 @@
 \title{Plots the response surfaces of a random forest model}
 \usage{
 plot_response_surfaces(
-  model = NULL,
+  x = NULL,
   a = NULL,
   b = NULL,
-  quantiles = c(0.1, 0.5, 0.9),
+  quantiles = 0.5,
   grid.resolution = 100,
   point.size.range = c(0.5, 2.5),
   verbose = TRUE
 )
 }
 \arguments{
-\item{model}{A model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}. Default \code{NULL}}
+\item{x}{A model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}. Default \code{NULL}}
 
 \item{a}{Character string, name of a model predictor. If \code{NULL}, the most important variable in \code{model} is selected. Default: \code{NULL}}
 
 \item{b}{Character string, name of a model predictor. If \code{NULL}, the second most important variable in \code{model} is selected. Default: \code{NULL}}
 
-\item{quantiles}{Numeric vector between 0 and 1. Argument \code{probs} of the function \link[stats]{quantile}. Quantiles to set the other variables to. Default: \code{c(0.1, 0.5, 0.9)}}
+\item{quantiles}{Numeric vector between 0 and 1. Argument \code{probs} of the function \link[stats]{quantile}. Quantiles to set the other variables to. Default: \code{0.5}}
 
 \item{grid.resolution}{Integer between 20 and 500. Resolution of the plotted surface Default: \code{100}}
 
@@ -51,7 +51,7 @@ out <- rf(
  verbose = FALSE
 )
 
-p <- plot_response_surfaces(model = out)
+p <- plot_response_surfaces(x = out)
 
 }
 }

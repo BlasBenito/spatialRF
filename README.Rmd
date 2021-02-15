@@ -212,6 +212,15 @@ The model output can be printed or plotted with a plethora of functions such as 
 plot_response_curves(model.non.spatial)
 ```
 
+```{r}
+plot_response_surfaces(
+  x = model.non.spatial
+  a = "climate_bio1_average",
+  b = "neighbors_count"
+  )
+```
+
+
 ```{r, fig.width = 6, fig.height=6}
 plot_importance(model.non.spatial, verbose = FALSE)
 ```
@@ -290,7 +299,7 @@ If we take a look to the five most important variables in **model.spatial** we w
 
 ```{r, echo = FALSE}
 kableExtra::kable(
-  head(model.spatial$variable.importance$per.variable)
+  head(model.spatial$variable.importance$per.variable, n = 10)
 ) %>%
   kable_paper("hover", full_width = F)
 ```
@@ -345,17 +354,9 @@ The spatial predictors have been generated and included in the model using the m
 p <- plot_optimization(model.spatial)
 ```
 
-### Assessing model performance
+### Assessing model performance on spatially independent folds
 
-I have explained above that models fitted with `rf()`, `rf_tuning()`, or `rf_spatial()` have a performance slot with several performance measures.
-
-```{r}
-print_performance(model.spatial)
-```
-
-R squared is computed on the out-of-bag data (fraction of data not used while training each regression tree in the forest), while the other three performance measures are computed by comparing observations and model predictions. These performance scores are not computed on independent data, and therefore do not represent the model ability to predict over *unseen* data.
-
-The function `rf_evaluate()` separates the data into a number of spatially independent training and testing folds, fits a model on each training fold, predicts over each testing fold, and computes performance measures, to finally aggregate them across model repetitions. Let's see how it works.
+The function `rf_evaluate()` separates the training data into a number of spatially independent training and testing folds, fits a model on each training fold, predicts over each testing fold, and computes performance measures, to finally aggregate them across model repetitions. Let's see how it works.
 
 ```{r}
 model.spatial <- rf_evaluate(
@@ -422,11 +423,6 @@ The functions `plot_evaluation()` and `print_evaluation()` allow to see the eval
 ```{r, fig.width=6, fig.height=6}
 plot_evaluation(model.spatial, notch = FALSE)
 ```
-
-```{r}
-print_evaluation(model.spatial)
-```
-
 
 ### Comparing two models
 

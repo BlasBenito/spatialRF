@@ -129,6 +129,7 @@ rf_repeat <- function(
 
   #importance
   importance <- ranger.arguments$importance
+  if(is.null(importance)){importance <- "permutation"}
   local.importance <- ranger.arguments$local.importance
 
   #INITIALIZING CLUSTER
@@ -212,8 +213,10 @@ rf_repeat <- function(
     #gathering results
     out <- list()
     out$predictions <- m.i$predictions
-    if(local.importance == TRUE){
-      out$variable.importance.local <- m.i.scaled$variable.importance.local
+    if(!is.null(local.importance)){
+      if(local.importance == TRUE){
+        out$variable.importance.local <- m.i.scaled$variable.importance.local
+      }
     }
     out$variable.importance <- m.i$variable.importance$per.variable
     out$prediction.error <- m.i$prediction.error
@@ -270,24 +273,26 @@ rf_repeat <- function(
   m.curves$predictions$mean <- predictions.mean
 
   #gathering variable.importance.local
-  if(local.importance == TRUE){
-    m.curves$variable.importance.local <- as.data.frame(
-      apply(
-        simplify2array(
-          lapply(
-            repeated.models,
-            "[[",
-            "variable.importance.local"
-          )
-        ),
-        1:2,
-        mean
+  if(!is.null(local.importance)){
+    if(local.importance == TRUE){
+      m.curves$variable.importance.local <- as.data.frame(
+        apply(
+          simplify2array(
+            lapply(
+              repeated.models,
+              "[[",
+              "variable.importance.local"
+            )
+          ),
+          1:2,
+          mean
+        )
       )
-    )
+    }
   }
 
 
-  if(importance != "none"){
+  if(importance == "permutation"){
 
     #gathering variable.importance
     m.curves$variable.importance <- NULL
@@ -470,7 +475,7 @@ rf_repeat <- function(
   m.curves$ranger.arguments$keep.models <- keep.models
 
   #adding class to the model
-  class(m.curves) <- c("ranger", "rf", "rf_repeat")
+  class(m.curves) <- c("rf", "rf_repeat")
 
   #print model
   if(verbose == TRUE){
