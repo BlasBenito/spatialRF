@@ -1,11 +1,11 @@
 #' @title Tuning of random forest hyperparameters
-#' @description Tunes the random forest hyperparameters `num.trees`, `mtry`, and `min.node.size` via out-of-bag performance measures or spatial cross-validation performed with [rf_evaluate()].
+#' @description Tunes the random forest hyperparameters `num.trees`, `mtry`, and `min.node.size` via grid search by maximizing the model's R squared. Two methods are available: out-of-bag (`oob`), and spatial cross-validation performed with [rf_evaluate()].
+#' @param model A model fitted with [rf()]. If provided, the arguments `data`, `dependent.variable.name`, `predictor.variable.names`, `distance.matrix`, `distance.thresholds`, `ranger.arguments`, and `scaled.importance` are taken directly from the model definition (stored in `model$ranger.arguments`). Default: `NULL`
 #' @param data Data frame with a response variable and a set of predictors. Default: `NULL`
 #' @param dependent.variable.name Character string with the name of the response variable. Must be in the column names of `data`. Default: `NULL`
-#' @param predictor.variable.names Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Default: `NULL`
+#' @param predictor.variable.names Character vector with the names of the predictive variables, or output of [auto_cor()] or [auto_vif()]. Every element of this vector must be in the column names of `data`. Default: `NULL`
 #' @param method Character, "oob" to use RMSE values computed on the out-of-bag data to guide the tuning, and "spatial.cv", to use RMSE values from a spatial cross-validation on independent spatial folds done via [rf_evaluate()]. Default: `"oob"`
 #' @param num.trees Numeric integer vector with the number of trees to fit on each model repetition. Defalut: c(500, 1000).
-#' @param trees.per.variable Integer, number of individual regression trees to fit per variable in `predictor.variable.names`. This is an alternative way to define ranger's `num.trees`. If `NULL`, `num.trees` is 500. Default: `NULL`
 #' @param mtry Numeric integer vector, number of predictors to randomly select from the complete pool of predictors on each tree split. Default: `c(2, 3)`
 #' @param min.node.size Numeric integer, minimal number of cases in a terminal node. Default: `c(5, 10)`
 #' @param xy Data frame or matrix with two columns containing coordinates and named "x" and "y", or an sf file with geometry class `sfc_POINT` (see [plant_richness_sf]). If `NULL`, the function will throw an error. Default: `NULL`
@@ -40,12 +40,12 @@
 #' @rdname rf_tuning
 #' @export
 rf_tuning <- function(
+  model = NULL,
   data = NULL,
   dependent.variable.name = NULL,
   predictor.variable.names = NULL,
-  method = "spatial.cv",
+  method = "oob",
   num.trees = c(500, 1000),
-  trees.per.variable = NULL,
   mtry = c(1, 5),
   min.node.size = c(5, 10),
   xy = NULL,
@@ -63,18 +63,15 @@ rf_tuning <- function(
   rmse <- NULL
   value <- NULL
 
-  #checking arguments to tune
-  #num.trees vs. trees.per.variable
-  if(!is.null(trees.per.variable) & !is.null(num.trees)){
-    if(verbose == TRUE){
-      message("'num.trees' and 'trees.per.variable' are provided, using 'num.trees' only.")
-    }
-  }
-  if(!is.null(trees.per.variable) & is.null(num.trees)){
-    num.trees <- trees.per.variable * length(predictor.variable.names)
-  }
-  if(is.null(trees.per.variable) & is.null(num.trees)){
-    num.trees <- 500
+  #getting arguments from model rather than ranger.arguments
+  if(!is.null(model)){
+    ranger.arguments <- model$ranger.arguments
+    data <- ranger.arguments$data
+    dependent.variable.name <- ranger.arguments$dependent.variable.name
+    predictor.variable.names <- ranger.arguments$predictor.variable.names
+    distance.matrix <- ranger.arguments$distance.matrix
+    distance.thresholds <- ranger.arguments$distance.thresholds
+    scaled.importance <- ranger.arguments$scaled.importance
   }
 
   #mtry
@@ -115,8 +112,18 @@ rf_tuning <- function(
     min.node.size = min.node.size
   )
 
-  #copy of ranger arguments
-  ranger.arguments.i <- list()
+  if(verbose == TRUE){
+    message(
+      paste0(
+        "Exploring ",
+        nrow(combinations),
+        " combinations of hyperparameters."
+      )
+    )
+  }
+
+  #copy of ranger.arguments for iterations
+  ranger.arguments.i <- ranger.arguments
 
   #looping through combinations
   tuning <- foreach(
@@ -130,15 +137,16 @@ rf_tuning <- function(
     ranger.arguments.i$num.trees <- num.trees
     ranger.arguments.i$mtry <- mtry
     ranger.arguments.i$min.node.size <- min.node.size
+    ranger.arguments.i$importance <- "none"
+    ranger.arguments.i$data = data
+    ranger.arguments.i$dependent.variable.name = dependent.variable.name
+    ranger.arguments.i$predictor.variable.names = predictor.variable.names
 
     #using out of bag
     if(method == "oob"){
 
       #fit model
       m.i <- rf_repeat(
-        data = data,
-        dependent.variable.name = dependent.variable.name,
-        predictor.variable.names = predictor.variable.names,
         ranger.arguments = ranger.arguments.i,
         scaled.importance = FALSE,
         repetitions = repetitions,
@@ -160,9 +168,6 @@ rf_tuning <- function(
 
       #fit model
       m.i <- rf(
-        data = data,
-        dependent.variable.name = dependent.variable.name,
-        predictor.variable.names = predictor.variable.names,
         ranger.arguments = ranger.arguments.i,
         scaled.importance = FALSE,
         seed = 100,
@@ -205,66 +210,47 @@ rf_tuning <- function(
   ) %>%
     dplyr::arrange(desc(r.squared))
 
-  #to long format
-  tuning.long <- tidyr::pivot_longer(
-    tuning,
-    cols = 1:3,
-    names_to = "parameter",
-    values_to = "value"
-  ) %>%
-    as.data.frame()
-
-  p <- ggplot2::ggplot(
-    data = tuning.long,
-    ggplot2::aes(
-      y = r.squared,
-      x = value,
-      fill = r.squared
-    )) +
-    ggplot2::geom_smooth(
-      method = "lm",
-      se = TRUE,
-      color = "gray20",
-      alpha = 0.5) +
-    ggplot2::geom_point(
-      shape = 21,
-      alpha = 0.5,
-      size = 3
-    ) +
-    ggplot2::facet_wrap(
-      "parameter",
-      ncol = 1,
-      scales = "free"
-      ) +
-    ggplot2::scale_fill_viridis_c(direction = -1) +
-    ggplot2::theme_bw() +
-    ggplot2::theme(legend.position = "none") +
-    ggplot2::xlab("") +
-    ggplot2::ylab("R squared")
-
-  #message and plot
-  if(verbose == TRUE){
-    suppressMessages(print(p))
-    message("Best hyperparameters:  \n")
-    message(paste0("  - num.trees:     ", tuning[1, "num.trees"], "\n"))
-    message(paste0("  - mtry:          ", tuning[1, "mtry"], "\n"))
-    message(paste0("  - min.node.size: ", tuning[1, "min.node.size"], "\n"))
-  }
-
   #preparing ranger arguments
   ranger.arguments <- list()
+  ranger.arguments$data <- data
+  ranger.arguments$dependent.variable.name <- dependent.variable.name
+  ranger.arguments$predictor.variable.names <- predictor.variable.names
   ranger.arguments$num.trees <- tuning[1, "num.trees"]
   ranger.arguments$mtry <- tuning[1, "mtry"]
   ranger.arguments$min.node.size <- tuning[1, "min.node.size"]
 
-  out.list <- list()
-  out.list$tuning <- tuning
-  out.list$tuning.long <- tuning.long
-  out.list$tuning.plot <- p
-  out.list$ranger.arguments <- ranger.arguments
+  #preparing tuning list
+  tuning.list <- list()
+  tuning.list$method <- method
+  tuning.list$tuning.df <- tuning
 
-  class(out.list) <- "rf_tuning"
+  #fitting tuned model
+  m <- rf(
+    ranger.arguments = ranger.arguments,
+    distance.matrix = distance.matrix,
+    distance.thresholds = distance.thresholds,
+    verbose = FALSE
+    )
 
-  out.list
+  #adding tuning slot
+  m$tuning <- tuning.list
+
+  #adding plot to the tunning slot
+  m$tuning$plot <- plot_tuning(
+    x = m,
+    verbose = FALSE
+    )
+
+  #message and plot
+  if(verbose == TRUE){
+    message("Best hyperparameters:")
+    message(paste0("  - num.trees:     ", tuning[1, "num.trees"]))
+    message(paste0("  - mtry:          ", tuning[1, "mtry"]))
+    message(paste0("  - min.node.size: ", tuning[1, "min.node.size"]))
+    plot_tuning(m)
+  }
+
+  #returning output
+  m
 
 }

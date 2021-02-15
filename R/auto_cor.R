@@ -43,7 +43,7 @@ auto_cor <- function(
   verbose = TRUE
 ){
 
-  if(inherits(x, "auto_vif")){
+  if(inherits(x, "variable_selection")){
     x <- x$selected.variables.df
   }
 
@@ -108,7 +108,7 @@ auto_cor <- function(
   output.list$selected.variables <- colnames(x.cor)
   output.list$selected.variables.df <- x[, colnames(x.cor)]
 
-  class(output.list) <- "auto_cor"
+  class(output.list) <- "variable_selection"
 
   output.list
 

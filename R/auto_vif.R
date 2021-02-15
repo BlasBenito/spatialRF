@@ -49,7 +49,7 @@ auto_vif <- function(
   verbose = TRUE
 ){
 
-  if(inherits(x, "auto_cor") == TRUE){
+  if(inherits(x, "variable_selection") == TRUE){
     x <- x$selected.variables.df
   }
 
@@ -119,6 +119,9 @@ auto_vif <- function(
       )
     )
   }
+
+  #adding class
+  class(output.list) <- "variable_selection"
 
   #returning output
   output.list
@@ -191,8 +194,6 @@ auto_vif <- function(
   output.list$selected.variables <- selected.variables
   output.list$selected.variables.df <- x[, selected.variables]
 
-  class(output.list) <- "auto_vif"
-
   output.list
 
 }
@@ -242,8 +243,6 @@ auto_vif <- function(
   output.list$vif <- vif.df[, c("variable", "vif")]
   output.list$selected.variables <- selected.variables
   output.list$selected.variables.df <- x[, selected.variables]
-
-  class(output.list) <- "auto_vif"
 
   output.list
 

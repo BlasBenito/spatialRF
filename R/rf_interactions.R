@@ -1,9 +1,9 @@
 #' @title Suggest variable interactions for random forest models
 #' @description Suggests candidate variable interactions by selecting the variables above a given importance threshold (given by the argument `importance.threshold`) from a model and combining them in pairs through multiplication (`a * b`).
 #'
-#' For each variable interaction, a model including all the predictors plus the interaction is fitted, and it's R squared is compared with the R squared of a model fitted without any interactions. This model without interactions can either be provided through the argument `model`, or fitted with [rf_repeat()] by providing the arguments `data`, `dependent.variable.name`, and `predictor.variable.names`.
+#' For each variable interaction, a model including all the predictors plus the interaction is fitted, and it's R squared is compared with the R squared of the model without interactions. This model without interactions can either be provided through the argument `model`, or is fitted on the fly with [rf_repeat()] if the user provides the arguments `data`, `dependent.variable.name`, and `predictor.variable.names`.
 #'
-#' I advise the users not to use variable interactions blindly. Most likely, only one or a few of the suggested interactions may make sense from a domain expertise standpoint.
+#' TheI advise the users not to use variable interactions blindly. Most likely, only one or a few of the suggested interactions may make sense from a domain expertise standpoint.
 #' @param model A model fitted with [rf()]. If used, the arguments `data`, `dependent.variable.name`, `predictor.variable.names`, `distance.matrix`, `distance.thresholds`, `ranger.arguments`, `trees.per.variable`, and `scaled.importance` are taken directly from the model definition. Default: `NULL`
 #' @param data Data frame with a response variable and a set of predictors. Default: `NULL`
 #' @param dependent.variable.name Character string with the name of the response variable. Must be in the column names of `data`. Default: `NULL`
@@ -155,18 +155,15 @@ rf_interactions <- function(
     )
 
     #importance data frames
-    model.i.importance <- model.i$variable.importance$per.variable %>%
-      dplyr::filter(variable %in% c(pair.i.name, pair.i))
+    model.i.importance <- model.i$variable.importance$per.variable
 
     #gathering results
     out.df <- data.frame(
       interaction.name = pair.i.name,
-      interaction.importance = round(model.i.importance[model.i.importance$variable == pair.i.name, "importance"], 3),
+      interaction.importance = round((model.i.importance[model.i.importance$variable == pair.i.name, "importance"] * 100) / max(model.i.importance$importance), 3),
       interaction.r.squared.gain = mean(model.i$performance$r.squared) - mean(model$performance$r.squared),
       variable.a.name = pair.i[1],
-      variable.a.importance = round(model.i.importance[model.i.importance$variable == pair.i[1], "importance"], 3),
-      variable.b.name = pair.i[2],
-      variable.b.importance = round(model.i.importance[model.i.importance$variable == pair.i[2], "importance"], 3)
+      variable.b.name = pair.i[2]
     )
 
     return(out.df)
@@ -180,11 +177,17 @@ rf_interactions <- function(
     FALSE
   )
 
+  #compute order
+  interaction.screening$order <- (interaction.screening$interaction.importance / 100) + interaction.screening$interaction.r.squared.gain
+
   #arrange by gain
   interaction.screening <- dplyr::arrange(
     interaction.screening,
-    dplyr::desc(interaction.r.squared.gain)
+    dplyr::desc(order)
     )
+
+  #remove order
+  interaction.screening$order <- NULL
 
   #selected only
   interaction.screening.selected <- interaction.screening[interaction.screening$selected == TRUE, ]
@@ -226,7 +229,7 @@ rf_interactions <- function(
   if(verbose == TRUE){
 
     x <- interaction.screening.selected
-    colnames(x) <- c("Interaction", "Importance", "R2 improvement")
+    colnames(x) <- c("Interaction", "Importance (% of max)", "R2 improvement")
 
     x.hux <- huxtable::hux(x) %>%
       huxtable::set_bold(
@@ -235,7 +238,8 @@ rf_interactions <- function(
         value = TRUE
       ) %>%
       huxtable::set_all_borders(TRUE)
-    huxtable::number_format(x.hux)[2:5, 2:3] <- 3
+    huxtable::number_format(x.hux)[2:nrow(x), 2] <- 1
+    huxtable::number_format(x.hux)[2:nrow(x), 3] <- 3
     huxtable::print_screen(x.hux, colnames = FALSE)
 
   }

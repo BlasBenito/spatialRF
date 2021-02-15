@@ -1,13 +1,12 @@
 #' @title Fits several random forest models on the same data
 #' @description Fits several random forest models on the same data in order to capture the effect of the algorithm's stochasticity on the importance scores and performance measures. The function is prepared to run on a cluster if the IPs, number of cores, and user name are provided (see [cluster_specification]).
-#' @param model A model fitted with [rf]. If provided, the arguments `data`, `dependent.variable.name`, `predictor.variable.names`, `distance.matrix`, `distance.thresholds`, `ranger.arguments`, `trees.per.variable`, and `scaled.importance` are taken directly from the model definition (stored in `model$ranger.arguments`). Default: `NULL`
+#' @param model A model fitted with [rf()]. If provided, the arguments `data`, `dependent.variable.name`, `predictor.variable.names`, `distance.matrix`, `distance.thresholds`, `ranger.arguments`, and `scaled.importance` are taken directly from the model definition (stored in `model$ranger.arguments`). Default: `NULL`
 #' @param data Data frame with a response variable and a set of predictors. Default: `NULL`
 #' @param dependent.variable.name Character string with the name of the response variable. Must be in the column names of `data`. Default: `NULL`
 #' @param predictor.variable.names Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Default: `NULL`
 #' @param distance.matrix Squared matrix with the distances among the records in `data`. The number of rows of `distance.matrix` and `data` must be the same. If not provided, the computation of the Moran's I of the residuals is omitted. Default: `NULL`
 #' @param distance.thresholds Numeric vector with neighborhood distances. All distances in the distance matrix below each value in `dustance.thresholds` are set to 0 for the computation of Moran's I. If `NULL`, it defaults to seq(0, max(distance.matrix), length.out = 4). Default: `NULL`
 #' @param ranger.arguments Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.
-#' @param trees.per.variable Number of individual regression trees to fit per variable in `predictor.variable.names`. This is an alternative way to define ranger's `num.trees`. If `NULL`, `num.trees` is 500. Default: `NULL`
 #' @param scaled.importance Logical. If `TRUE`, and 'importance = "permutation', the function scales 'data' with [scale_robust()] and fits a new model to compute scaled variable importance scores. Default: `TRUE`
 #' @param repetitions Integer, number of random forest models to fit. Default: `5`
 #' @param keep.models Logical, if `TRUE`, the fitted models are returned in the `models` slot. Default: `FALSE`.
@@ -95,7 +94,6 @@ rf_repeat <- function(
   distance.matrix = NULL,
   distance.thresholds = NULL,
   ranger.arguments = NULL,
-  trees.per.variable = NULL,
   scaled.importance = TRUE,
   repetitions = 5,
   keep.models = FALSE,
@@ -121,79 +119,16 @@ rf_repeat <- function(
     repetitions <- 5
   }
   if(repetitions > 30){
-    message("Large numbers of 'repetitions' may lead to long computation times.")
+    warning("Large numbers of 'repetitions' may lead to long computation times.")
   }
 
   #getting arguments from model rather than ranger.arguments
   if(!is.null(model)){
-      ranger.arguments <- model$ranger.arguments
-      data <- ranger.arguments$data
-      dependent.variable.name <- ranger.arguments$dependent.variable.name
-      predictor.variable.names <- ranger.arguments$predictor.variable.names
-      distance.matrix = ranger.arguments$distance.matrix
-      distance.thresholds <- ranger.arguments$distance.thresholds
-      trees.per.variable <- ranger.arguments$trees.per.variable
-      scaled.importance <- ranger.arguments$scaled.importance
-      seed <- NULL
-      importance <- ranger.arguments$importance
-  } else {
-    importance <- "permutation"
+    ranger.arguments <- model$ranger.arguments
   }
 
-  #user arguments (overwrites defaults)
-  if(!is.null(ranger.arguments)){
-
-    #giving preference a data not in ranger arguments
-    if(!is.null(data)){
-      if("data" %in% names(ranger.arguments)){
-        ranger.arguments$data <- NULL
-      }
-    }
-    if(!is.null(dependent.variable.name)){
-      if("dependent.variable.name" %in% names(ranger.arguments)){
-        ranger.arguments$dependent.variable.name <- NULL
-      }
-    }
-    if(!is.null(predictor.variable.names)){
-      if("predictor.variable.names" %in% names(ranger.arguments)){
-        ranger.arguments$predictor.variable.names <- NULL
-      }
-    }
-    list2env(ranger.arguments, envir=environment())
-
-  }
-
-  #initializes local.importance
-  if(is.null(ranger.arguments$local.importance)){
-    local.importance <- FALSE
-  } else {
-    local.importance <- ranger.arguments$local.importance
-  }
-
-  #initializes trees.per.variable
-  if(!is.null(ranger.arguments$trees.per.variable)){
-    trees.per.variable <- ranger.arguments$trees.per.variable
-  }
-
-  #SCALING DATA
-  if(scaled.importance == TRUE){
-
-    data.scaled <- scale_robust(
-      x = data[, c(
-        dependent.variable.name,
-        predictor.variable.names
-      )]
-    )
-
-    #if scaling fails, use regular scaling
-    if(
-      sum(is.nan(data.scaled[, 1])) > 0 |
-      sum(is.infinite(data.scaled[, 1])) > 0
-    ){
-      data.scaled <- as.data.frame(scale(data))
-    }
-
-  }
+  #importance
+  importance <- ranger.arguments$importance
 
   #INITIALIZING CLUSTER
   if(is.null(cluster.port)){
@@ -251,9 +186,10 @@ rf_repeat <- function(
   doParallel::registerDoParallel(cl = temp.cluster)
   on.exit(parallel::stopCluster(cl = temp.cluster))
 
+  #removing seed from ranger arguments
   ranger.arguments$seed <- NULL
 
-  #PARALLELIZED LOOP
+  #executing repetitions
   i <- NULL
   repeated.models <- foreach::foreach(
     i = 1:repetitions
@@ -267,25 +203,10 @@ rf_repeat <- function(
       distance.matrix = distance.matrix,
       distance.thresholds = distance.thresholds,
       ranger.arguments = ranger.arguments,
-      trees.per.variable = trees.per.variable,
+      scaled.importance = scaled.importance,
       seed = i,
       verbose = FALSE
     )
-
-    #model on scaled data
-    if(scaled.importance == TRUE){
-
-      m.i.scaled <- rf(
-        data = data.scaled,
-        dependent.variable.name = dependent.variable.name,
-        predictor.variable.names = predictor.variable.names,
-        ranger.arguments = ranger.arguments,
-        trees.per.variable = trees.per.variable,
-        seed = i,
-        verbose = FALSE
-      )
-
-    }
 
     #gathering results
     out <- list()
@@ -293,11 +214,7 @@ rf_repeat <- function(
     if(local.importance == TRUE){
       out$variable.importance.local <- m.i.scaled$variable.importance.local
     }
-    if(scaled.importance == TRUE){
-      out$variable.importance <- m.i.scaled$variable.importance$per.variable
-    } else {
-      out$variable.importance <- m.i$variable.importance$per.variable
-    }
+    out$variable.importance <- m.i$variable.importance$per.variable
     out$prediction.error <- m.i$prediction.error
     out$r.squared <- m.i$performance$r.squared
     out$pseudo.r.squared <- m.i$performance$pseudo.r.squared
@@ -321,7 +238,7 @@ rf_repeat <- function(
     distance.matrix = distance.matrix,
     distance.thresholds = distance.thresholds,
     ranger.arguments = ranger.arguments,
-    trees.per.variable = trees.per.variable,
+    scaled.importance = scaled.importance,
     seed = 1,
     verbose = FALSE
   )

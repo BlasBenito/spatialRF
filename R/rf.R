@@ -5,8 +5,7 @@
 #' @param predictor.variable.names Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Optionally, the result of [auto_cor()] or [auto_vif()] Default: `NULL`
 #' @param distance.matrix Squared matrix with the distances among the records in `data`. The number of rows of `distance.matrix` and `data` must be the same. If not provided, the computation of the Moran's I of the residuals is omitted. Default: `NULL`
 #' @param distance.thresholds Numeric vector with neighborhood distances. All distances in the distance matrix below each value in `dustance.thresholds` are set to 0 for the computation of Moran's I. If `NULL`, it defaults to seq(0, max(distance.matrix), length.out = 4). Default: `NULL`
-#' @param ranger.arguments Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.
-#' @param trees.per.variable Number of individual regression trees to fit per variable in `predictor.variable.names`. This is an alternative way to define ranger's `num.trees`. If `NULL`, `num.trees` is 500. Default: `NULL`
+#' @param ranger.arguments Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. The ranger arguments `x`, `y`, and `formula` are disabled. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.
 #' @param scaled.importance Logical, if `TRUE`, the function scales `data` with [scale_robust()] and fits a new model to compute scaled variable importance scores. This makes variable importance scores of different models somewhat comparable. Default: `TRUE`
 #' @param seed Integer, random seed to facilitate reproducibility. If set to a given number, the returned model is always the same. Default: `NULL`
 #' @param verbose Boolean. If TRUE, messages and plots generated during the execution of the function are displayed. Default: `TRUE`
@@ -107,14 +106,12 @@ rf <- function(
   distance.matrix = NULL,
   distance.thresholds = NULL,
   ranger.arguments = NULL,
-  trees.per.variable = NULL,
   scaled.importance = TRUE,
   seed = NULL,
   verbose = TRUE
 ){
 
-  #default arguments
-  formula = NULL
+  #default ranger arguments
   num.trees = 500
   mtry = NULL
   mtry = NULL
@@ -146,35 +143,83 @@ rf <- function(
   num.threads = parallel::detectCores() - 1
   save.memory = FALSE
   classification = NULL
-  x = NULL
-  y = NULL
 
-  #user arguments (overwrites defaults)
+  #were are data, dependent.variable.name, and predictor.variable.names coming from?
+  if(is.null(data)){
+    if("data" %in% names(ranger.arguments)){
+      data <- ranger.arguments$data
+    } else {
+      stop("Argument 'data' not found.")
+    }
+  } else {
+    ranger.arguments$data <- NULL
+  }
+
+  if(is.null(dependent.variable.name)){
+    if("dependent.variable.name" %in% names(ranger.arguments)){
+      dependent.variable.name <- ranger.arguments$dependent.variable.name
+    } else {
+      stop("Argument 'dependent.variable.name' not found.")
+    }
+  } else {
+    ranger.arguments$dependent.variable.name <- NULL
+  }
+
+  if(is.null(predictor.variable.names)){
+    if("predictor.variable.names" %in% names(ranger.arguments)){
+      predictor.variable.names <- ranger.arguments$predictor.variable.names
+    } else {
+      stop("Argument 'predictor.variable.names' not found.")
+    }
+  } else {
+    ranger.arguments$predictor.variable.names <- NULL
+    #predictor.variable.names comes from auto_vif or auto_cor
+    if(inherits(predictor.variable.names, "variable_selection")){
+      predictor.variable.names <- predictor.variable.names$selected.variables
+    }
+  }
+
+  #checking if dependent.variable.name and predictor.variable.names are in colnames(data) and are numeric
+  if(!(dependent.variable.name %in% colnames(data))){
+    stop(
+      paste0(
+        "The dependent.variable.name ",
+        dependent.variable.name,
+        " is not a column of 'data'."
+        )
+      )
+  } else {
+    if(!is.numeric(data[, dependent.variable.name])){
+      stop(
+        paste0(
+          "The dependent.variable.name ",
+          dependent.variable.name,
+          " is not numeric."
+        )
+      )
+    }
+  }
+  if(sum(predictor.variable.names %in% colnames(data)) < length(predictor.variable.names)){
+    stop(
+      paste0(
+        "The predictor.variable.names ",
+        predictor.variable.names[!(predictor.variable.names %in% colnames(data))],
+        " are missing from 'data'"
+        )
+      )
+  }
+  if(sum(apply(X = data[, predictor.variable.names], MARGIN = 2, FUN = is.numeric)) < length(predictor.variable.names)){
+    stop(
+      paste0(
+        "The predictor.variable.names ",
+        predictor.variable.names[!apply(X = data[, predictor.variable.names], MARGIN = 2, FUN = is.numeric)],
+        " are not numeric."
+      )
+    )
+  }
+
+  #putting ranger arguments in the environment
   if(!is.null(ranger.arguments)){
-
-    if(inherits(ranger.arguments, "rf_tuning")){
-      ranger.arguments <- ranger.arguments$ranger.arguments
-    }
-
-    #giving preference a data not in ranger arguments
-    if(!is.null(data)){
-      if("data" %in% names(ranger.arguments)){
-        ranger.arguments$data <- NULL
-      }
-    }
-    if(!is.null(dependent.variable.name)){
-      if("dependent.variable.name" %in% names(ranger.arguments)){
-        ranger.arguments$dependent.variable.name <- NULL
-      }
-    }
-    if(!is.null(predictor.variable.names)){
-      if(inherits(predictor.variable.names, "auto_cor") | inherits(predictor.variable.names, "auto_vif")){
-        predictor.variable.names <- predictor.variable.names$selected.variables
-      }
-      if("predictor.variable.names" %in% names(ranger.arguments)){
-        ranger.arguments$predictor.variable.names <- NULL
-      }
-    }
     list2env(ranger.arguments, envir=environment())
   }
 
@@ -183,75 +228,11 @@ rf <- function(
     set.seed(seed)
   }
 
-  #data input method
-
-  #if data is null
-  if(is.null(data)){
-
-    #x and y must be provided
-    if(is.null(x) & is.null(y)){
-      stop("arguments 'data' or 'x' and 'y' must be provided")
-    } else {
-
-      #generate data from x and y
-      data <- data.frame(y, x)
-      dependent.variable.name <- "y"
-      predictor.variable.names <- colnames(x)
-    }
-
-  } else {
-
-    #formula is provided
-    if(!is.null(formula)){
-
-      #subset data
-      data <- data[, all.vars(formula)]
-      predictor.variable.names <- all.vars(formula)[2:length(all.vars(formula))]
-      dependent.variable.name <- all.vars(formula)[1]
-
-    } else {
-
-
-      #dependent.variable.name is provided
-      if(!is.null(dependent.variable.name)){
-
-        if(!(dependent.variable.name %in% colnames(data))){
-          stop(paste0("The dependent.variable.name ", dependent.variable.name, " is not a column of data."))
-        }
-
-      }
-
-      #predictor.variable.names is provided
-      if(!is.null(predictor.variable.names)){
-
-        #checking if these are column names in data
-        if(sum(predictor.variable.names %in% colnames(data)) < length(predictor.variable.names)){
-          stop(paste0("The predictor.variable.names ", predictor.variable.names[!(predictor.variable.names %in% colnames(data))], " are missing from 'data'"))
-        }
-
-      }
-
-      #subset data
-      data <- data[, c(dependent.variable.name, predictor.variable.names)]
-
-    }
-
-  }
-
-  #if not numeric, stop
-  if(!is.numeric(data[, dependent.variable.name])){
-    stop("The response variable must be numeric")
-  }
-
-
-  #setting trees.per.variable
-  if(!is.null(trees.per.variable)){
-    num.trees <- trees.per.variable * length(predictor.variable.names)
-  }
+  #subset data
+  data <- data[, c(dependent.variable.name, predictor.variable.names)]
 
   #ranger model for r-squared and predictions
   m <- ranger::ranger(
-    formula = formula,
     data = data,
     dependent.variable.name = dependent.variable.name,
     num.trees = num.trees,
@@ -285,9 +266,7 @@ rf <- function(
     save.memory = save.memory,
     verbose = verbose,
     seed = seed,
-    classification = classification,
-    x = x,
-    y = y
+    classification = classification
   )
 
   #if scaled.importance is TRUE
@@ -305,7 +284,6 @@ rf <- function(
 
     #ranger model for variable importance
     m.scaled <- ranger::ranger(
-      formula = formula,
       data = data.scaled,
       dependent.variable.name = dependent.variable.name,
       num.trees = num.trees,
@@ -339,9 +317,7 @@ rf <- function(
       save.memory = save.memory,
       verbose = verbose,
       seed = seed,
-      classification = classification,
-      x = x,
-      y = y
+      classification = classification
     )
 
   } else {
@@ -352,7 +328,6 @@ rf <- function(
 
   #adding model arguments
   m$ranger.arguments <- list(
-    formula = formula,
     data = data,
     dependent.variable.name = dependent.variable.name,
     predictor.variable.names = predictor.variable.names,
