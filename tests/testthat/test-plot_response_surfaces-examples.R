@@ -6,6 +6,5 @@ test_that("`plot_response_surfaces()` works", {
     verbose = FALSE
   )
   p <- plot_response_surfaces(x = m)
-  expect_type(p, "list")
-  expect_s3_class(p[[1]], "ggplot")
+  expect_s3_class(p, "ggplot")
 })

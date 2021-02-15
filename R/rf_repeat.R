@@ -215,7 +215,7 @@ rf_repeat <- function(
     out$predictions <- m.i$predictions
     if(!is.null(local.importance)){
       if(local.importance == TRUE){
-        out$variable.importance.local <- m.i.scaled$variable.importance.local
+        out$variable.importance.local <- m.i$variable.importance.local
       }
     }
     out$variable.importance <- m.i$variable.importance$per.variable

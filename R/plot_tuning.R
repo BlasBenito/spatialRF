@@ -25,6 +25,10 @@
 #' @export
 plot_tuning <- function(x, verbose = TRUE){
 
+  #declaring variables
+  r.squared <- NULL
+  value <- NULL
+
   if(!("tuning" %in% names(x))){
     stop("Object 'x' does not have a 'tuning' slot.")
   }

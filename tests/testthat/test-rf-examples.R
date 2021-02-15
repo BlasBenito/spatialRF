@@ -9,7 +9,6 @@ test_that("`rf()` works", {
     distance.thresholds = c(0,100, 1000, 10000),
     verbose = FALSE
   )
-  expect_s3_class(out, "ranger")
   expect_s3_class(out, "rf")
   expect_s3_class(out$variable.importance$per.variable, "data.frame")
   expect_named(out$variable.importance$per.variable, c("variable", "importance"))

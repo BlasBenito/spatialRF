@@ -60,8 +60,8 @@ rf_tuning <- function(
 ){
 
   #declaring variables
-  rmse <- NULL
   value <- NULL
+  r.squared <- NULL
 
   #getting arguments from model rather than ranger.arguments
   if(!is.null(model)){
@@ -72,6 +72,9 @@ rf_tuning <- function(
     distance.matrix <- ranger.arguments$distance.matrix
     distance.thresholds <- ranger.arguments$distance.thresholds
     scaled.importance <- ranger.arguments$scaled.importance
+  } else {
+    distance.matrix <- NULL
+    distance.thresholds <- NULL
   }
 
   #mtry
@@ -122,8 +125,7 @@ rf_tuning <- function(
     )
   }
 
-  #copy of ranger.arguments for iterations
-  ranger.arguments.i <- ranger.arguments
+
 
   #looping through combinations
   tuning <- foreach(
@@ -134,6 +136,7 @@ rf_tuning <- function(
   ) %do% {
 
     #filling ranger arguments
+    ranger.arguments.i <- list()
     ranger.arguments.i$num.trees <- num.trees
     ranger.arguments.i$mtry <- mtry
     ranger.arguments.i$min.node.size <- min.node.size
@@ -208,7 +211,7 @@ rf_tuning <- function(
     combinations,
     tuning
   ) %>%
-    dplyr::arrange(desc(r.squared))
+    dplyr::arrange(dplyr::desc(r.squared))
 
   #preparing ranger arguments
   ranger.arguments <- list()

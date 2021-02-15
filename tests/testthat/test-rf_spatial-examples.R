@@ -12,7 +12,7 @@ test_that("`rf_spatial()` works", {
     n.cores = 1,
     verbose = FALSE
   )
-  expect_equal(inherits(out, "ranger"), TRUE)
+  expect_equal(inherits(out, "rf_spatial"), TRUE)
   expect_equal(inherits(out$variable.importance$plot, "ggplot"), TRUE)
   expect_equal(inherits(out$spatial.correlation.residuals$plot, "ggplot"), TRUE)
   expect_equal(length(out$performance$rmse), 5)

@@ -60,6 +60,11 @@ rf_compare <- function(
   cluster.port = 11000
 ){
 
+  #declaring variables
+  model <- NULL
+  value <- NULL
+  metric <- NULL
+
   #capturing user options
   user.options <- options()
   options(dplyr.summarise.inform = FALSE)

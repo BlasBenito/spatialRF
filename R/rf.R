@@ -18,7 +18,7 @@
 #'   \item `residuals`: computed as observations minus predictions.
 #'   \item `spatial.correlation.residuals`: the result of [moran_multithreshold()] applied to the model results.
 #' }
-#' @details Please read the help file of \link[ranger]{ranger} for further details. Notice that the `formula` interface of \link[ranger]{ranger} is supported through `ranger.arguments`, but variable interactions are not allowed (but check [suggest_interactions()]).
+#' @details Please read the help file of \link[ranger]{ranger} for further details. Notice that the `formula` interface of \link[ranger]{ranger} is supported through `ranger.arguments`, but variable interactions are not allowed (but check [rf_interactions()]).
 #' @examples
 #' \dontrun{
 #' if(interactive()){

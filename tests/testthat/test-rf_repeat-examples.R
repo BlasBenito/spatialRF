@@ -11,7 +11,6 @@ test_that("`rf_repeat()` works", {
     n.cores = 1,
     verbose = FALSE
   )
-  expect_s3_class(out, "ranger")
   expect_s3_class(out, "rf_repeat")
   expect_s3_class(out$variable.importance$per.variable, "data.frame")
   expect_s3_class(out$spatial.correlation.residuals$per.distance, "data.frame")
