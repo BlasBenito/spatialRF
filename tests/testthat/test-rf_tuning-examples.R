@@ -7,7 +7,6 @@ test_that("`rf_tuning()` works", {
     method = "oob",
     n.cores = 1,
     verbose = FALSE)
-  expect_s3_class(tuning$tuning, "data.frame")
-  expect_s3_class(tuning$tuning.long, "data.frame")
-  expect_type(tuning, "list")
+  expect_s3_class(tuning$tuning$tuning.df, "data.frame")
+  expect_type(tuning$tuning, "list")
 })
