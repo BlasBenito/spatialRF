@@ -9,3 +9,5 @@
 ^optimization_sequential\.R$
 .github
 plot_post.R
+README.Rmd
+README_files
