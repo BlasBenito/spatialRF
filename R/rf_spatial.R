@@ -1,13 +1,12 @@
 #' @title Fits spatial random forest models
 #' @description Fits spatial random forest models using different methods to generate, rank, and select spatial predictors. The end goal is to provide the model with information about the spatial structure of the data in order to minimize the spatial correlation (Moran's I) of the model residuals.
-#' @param model A model produced by [rf()] or [rf_repeat()]. If used, the arguments `data`, `dependent.variable.name`, `predictor.variable.names`, `distance.matrix`, `distance.thresholds`, `ranger.arguments`, `trees.per.variable`, and `scaled.importance` are taken directly from the model definition. Default: NULL
+#' @param model A model produced by [rf()] or [rf_repeat()]. If used, the arguments `data`, `dependent.variable.name`, `predictor.variable.names`, `distance.matrix`, `distance.thresholds`, `ranger.arguments`, and `scaled.importance` are taken directly from the model definition. Default: NULL
 #' @param data Data frame with a response variable and a set of predictors. Default: `NULL`
 #' @param dependent.variable.name Character string with the name of the response variable. Must be in the column names of `data`. Default: `NULL`
 #' @param predictor.variable.names Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Default: `NULL`
 #' @param distance.matrix Squared matrix with the distances among the records in `data`. The number of rows of `distance.matrix` and `data` must be the same. If not provided, the computation of the Moran's I of the residuals is omitted. Default: `NULL`
 #' @param distance.thresholds Numeric vector with neighborhood distances. All distances in the distance matrix below each value in `dustance.thresholds` are set to 0 for the computation of Moran's I. If `NULL`, it defaults to seq(0, max(distance.matrix), length.out = 4). Default: `NULL`
 #' @param ranger.arguments Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.
-#' @param trees.per.variable Number of individual regression trees to fit per variable in `predictor.variable.names`. This is an alternative way to define ranger's `num.trees`. If `NULL`, `num.trees` is 500. Default: `NULL`
 #' @param scaled.importance Logical. If `TRUE`, and 'importance = "permutation', the function scales 'data' with [scale_robust()] and fits a new model to compute scaled variable importance scores. Default: `TRUE`
 #' @param repetitions Integer, number of repetitions. If 1, [rf()] is used to fit the non-spatial and spatial models. If higher than one, [rf_repeat()] is used instead. Notice that using more than one repetition can get computationally costly if the selected method generated a large number of spatial predictors, as it is the case of the "hengl" method. Default: `1`
 #' @param keep.models Logical. If `TRUE`, the fitted models are returned in the "models" slot. If `repetitions` is very high and `method` is "hengl",
@@ -143,7 +142,6 @@ rf_spatial <- function(
   distance.matrix = NULL,
   distance.thresholds = NULL,
   ranger.arguments = NULL,
-  trees.per.variable = NULL,
   scaled.importance = TRUE,
   repetitions = 1,
   keep.models = FALSE,
@@ -201,7 +199,6 @@ rf_spatial <- function(
     predictor.variable.names <- ranger.arguments$predictor.variable.names
     distance.matrix <- ranger.arguments$distance.matrix
     distance.thresholds <- ranger.arguments$distance.thresholds
-    trees.per.variable <- ranger.arguments$trees.per.variable
     scaled.importance <- ranger.arguments$scaled.importance
     seed <- NULL
     importance <- "permutation"
@@ -238,7 +235,6 @@ rf_spatial <- function(
         distance.matrix = distance.matrix,
         distance.thresholds = distance.thresholds,
         ranger.arguments = ranger.arguments,
-        trees.per.variable = trees.per.variable,
         scaled.importance = scaled.importance,
         repetitions = repetitions,
         keep.models = keep.models,
@@ -545,7 +541,6 @@ rf_spatial <- function(
       distance.matrix = distance.matrix,
       distance.thresholds = distance.thresholds,
       ranger.arguments = ranger.arguments,
-      trees.per.variable = trees.per.variable,
       scaled.importance = scaled.importance,
       repetitions = repetitions,
       keep.models = keep.models,

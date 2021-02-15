@@ -40,8 +40,8 @@ print_evaluation <- function(x){
         Model = model,
         Mean = mean,
         `Standard deviation` = sd,
-        minimum = min,
-        maximum = max
+        Minimum = min,
+        Maximum = max
       )
 
       x <- x[c(1, 3, 2), ] %>%
