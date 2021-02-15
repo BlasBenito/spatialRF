@@ -129,6 +129,7 @@ rf_repeat <- function(
 
   #importance
   importance <- ranger.arguments$importance
+  local.importance <- ranger.arguments$local.importance
 
   #INITIALIZING CLUSTER
   if(is.null(cluster.port)){
