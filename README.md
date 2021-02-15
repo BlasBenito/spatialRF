@@ -501,10 +501,6 @@ comparison <- rf_compare(
 
 ![](README_files/figure-gfm/unnamed-chunk-28-1.png)<!-- -->
 
-    ## Warning in kable_styling(kable_input, "none", htmltable_class = light_class, :
-    ## Please specify format in kable. kableExtra can customize either HTML or LaTeX
-    ## outputs. See https://haozhu233.github.io/kableExtra/ for details.
-
 | model       | metric           |     mean |   median | standard\_deviation | standard\_error |  minimum |  maximum |
 |:------------|:-----------------|---------:|---------:|--------------------:|----------------:|---------:|---------:|
 | Non-spatial | R squared        |    0.341 |    0.413 |               0.211 |           0.042 |    0.001 |    0.654 |

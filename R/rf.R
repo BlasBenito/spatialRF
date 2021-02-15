@@ -381,7 +381,9 @@ rf <- function(
       importance = m.scaled$variable.importance
     ) %>%
       tibble::remove_rownames() %>%
-      dplyr::arrange(dplyr::desc(importance))
+      dplyr::arrange(dplyr::desc(importance)) %>%
+      dplyr::mutate(importance = round(importance, 3)) %>%
+      as.data.frame()
 
     variable <- NULL
     m$variable.importance$plot <- plot_importance(
