@@ -164,7 +164,7 @@ ggplot2::ggplot(
 The functions `auto_cor()` and `auto_vif()` help reduce redundancy in the predictors by using different criteria (bivariate R squared vs. [variance inflation factor](https://www.statisticshowto.com/variance-inflation-factor/)), while allowing the user to define an *order of preference*, which can be based either on domain expertise or on a quantitative assessment. In the example below I give preference to the interaction suggested by `rf_interactions()` over it's two components, and prioritize climate over other types of predictors (any other choice would be valid, it just depends on the scope of the study). These rules are applies to both `auto_cor()` and `auto_vif()`, that are executed sequentially by using the "%>%" pipe  from the [magrittr](https://magrittr.tidyverse.org/) package. Notice that I have set `cor.threshold` and `vif.threshold` to low values because the predictors in `plant_richness_df` show little multicollinearity. The default values (`cor.threshold = 0.75` and `vif.threshold = 5`) should work well when combined together for any other dataset.
 
 ```{r}
-preference.order = c(
+preference.order <- c(
     "climate_bio1_average_X_bias_area_km2",
     "climate_aridity_index_average",
     "climate_hypervolume",
@@ -173,7 +173,7 @@ preference.order = c(
     "bias_area_km2"
   )
 
-variable.selection <- auto_cor(
+predictor.variable.names <- auto_cor(
   x = plant_richness_df[, predictor.variable.names],
   cor.threshold = 0.5,
   preference.order = preference.order
@@ -192,16 +192,16 @@ To fit basic Random Forest models `spatialRF` provides the `rf()` function. It t
 
 These distance thresholds are the neighborhoods at which the model will check the spatial autocorrelation of the residuals. Their values may depend on the spatial scale of the data, and the ecological system under study.
 
-Notice that here I plug the object `variable.selection`, output of `auto_cor()` and `auto_vif()`, directly into the `predictor.variable.names` argument.
+Notice that here I plug the object `predictor.variable.names`, output of `auto_cor()` and `auto_vif()`, directly into the `predictor.variable.names` argument.
 
 ```{r}
 model.non.spatial <- rf(
   data = plant_richness_df,
   dependent.variable.name = dependent.variable.name,
-  predictor.variable.names = variable.selection,
+  predictor.variable.names = predictor.variable.names,
   distance.matrix = distance_matrix,
   distance.thresholds = c(0, 1500, 3000),
-  seed = 100,
+  seed = 100, #just for reproducibility
   verbose = FALSE
 )
 ```
@@ -216,9 +216,6 @@ plot_response_curves(model.non.spatial)
 plot_importance(model.non.spatial, verbose = FALSE)
 ```
 
-```{r}
-print_performance(model.non.spatial)
-```
 
 ### Tuning Random Forest hyperparameters
 

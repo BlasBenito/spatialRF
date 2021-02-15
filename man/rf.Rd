@@ -11,7 +11,6 @@ rf(
   distance.matrix = NULL,
   distance.thresholds = NULL,
   ranger.arguments = NULL,
-  trees.per.variable = NULL,
   scaled.importance = TRUE,
   seed = NULL,
   verbose = TRUE
@@ -28,9 +27,7 @@ rf(
 
 \item{distance.thresholds}{Numeric vector with neighborhood distances. All distances in the distance matrix below each value in \code{dustance.thresholds} are set to 0 for the computation of Moran's I. If \code{NULL}, it defaults to seq(0, max(distance.matrix), length.out = 4). Default: \code{NULL}}
 
-\item{ranger.arguments}{Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.}
-
-\item{trees.per.variable}{Number of individual regression trees to fit per variable in \code{predictor.variable.names}. This is an alternative way to define ranger's \code{num.trees}. If \code{NULL}, \code{num.trees} is 500. Default: \code{NULL}}
+\item{ranger.arguments}{Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. The ranger arguments \code{x}, \code{y}, and \code{formula} are disabled. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.}
 
 \item{scaled.importance}{Logical, if \code{TRUE}, the function scales \code{data} with \code{\link[=scale_robust]{scale_robust()}} and fits a new model to compute scaled variable importance scores. This makes variable importance scores of different models somewhat comparable. Default: \code{TRUE}}
 

@@ -4,14 +4,21 @@
 \alias{auto_cor}
 \title{Multicollinearity reduction via Pearson correlation}
 \usage{
-auto_cor(x = NULL, preference.order = NULL, cor.threshold = 0.75)
+auto_cor(
+  x = NULL,
+  preference.order = NULL,
+  cor.threshold = 0.75,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{x}{A data frame with predictors, or the result of \code{\link[=auto_vif]{auto_vif()}} Default: \code{NULL}.}
 
 \item{preference.order}{Character vector indicating the user's order of preference to keep variables. Doesn't need to contain If not provided, variables in \code{x} are prioritised by their column order. Default: \code{NULL}.}
 
-\item{cor.threshold}{Numeric between 0 and 1, with recommended values between 0.5 and 0.9. Maximum Pearson correlation between any pair of the selected variables. Default: 0.75}
+\item{cor.threshold}{Numeric between 0 and 1, with recommended values between 0.5 and 0.9. Maximum Pearson correlation between any pair of the selected variables. Default: \code{0.75}}
+
+\item{verbose}{Logical. if \code{TRUE}, describes the function operations to the user. Default:: \code{TRUE}}
 }
 \value{
 List with trhee slots:
@@ -22,7 +29,7 @@ List with trhee slots:
 }
 }
 \description{
-Computes the correlation matrix among a set of predictors, orders the correlation matrix according to a user-defined preference order, and removes variables one by one until the remaining ones are below a given Pearson correlation threshold.
+Computes the correlation matrix among a set of predictors, orders the correlation matrix according to a user-defined preference order, and removes variables one by one, taking into account the preference order, until the remaining ones are below a given Pearson correlation threshold. \strong{Warning}: variables in \code{preference.order} not in \code{colnames(x)} are removed silently from \code{preference.order}.
 }
 \details{
 Can be chained together with \code{\link[=auto_vif]{auto_vif()}} through pipes, see the examples below.

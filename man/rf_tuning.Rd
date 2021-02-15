@@ -5,13 +5,12 @@
 \title{Tuning of random forest hyperparameters}
 \usage{
 rf_tuning(
+  model = NULL,
   data = NULL,
   dependent.variable.name = NULL,
   predictor.variable.names = NULL,
-  ranger.arguments = NULL,
-  tuning.method = "spatial.cv",
+  method = "oob",
   num.trees = c(500, 1000),
-  trees.per.variable = NULL,
   mtry = c(1, 5),
   min.node.size = c(5, 10),
   xy = NULL,
@@ -26,19 +25,17 @@ rf_tuning(
 )
 }
 \arguments{
+\item{model}{A model fitted with \code{\link[=rf]{rf()}}. If provided, the arguments \code{data}, \code{dependent.variable.name}, \code{predictor.variable.names}, \code{distance.matrix}, \code{distance.thresholds}, \code{ranger.arguments}, and \code{scaled.importance} are taken directly from the model definition (stored in \code{model$ranger.arguments}). Default: \code{NULL}}
+
 \item{data}{Data frame with a response variable and a set of predictors. Default: \code{NULL}}
 
 \item{dependent.variable.name}{Character string with the name of the response variable. Must be in the column names of \code{data}. Default: \code{NULL}}
 
-\item{predictor.variable.names}{Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. Default: \code{NULL}}
+\item{predictor.variable.names}{Character vector with the names of the predictive variables, or output of \code{\link[=auto_cor]{auto_cor()}} or \code{\link[=auto_vif]{auto_vif()}}. Every element of this vector must be in the column names of \code{data}. Default: \code{NULL}}
 
-\item{ranger.arguments}{Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.}
-
-\item{tuning.method}{Character, "oob" to use RMSE values computed on the out-of-bag data to guide the tuning, and "spatial.cv", to use RMSE values from a spatial cross-validation on independent spatial folds done via \code{\link[=rf_evaluate]{rf_evaluate()}}. Default: \code{"oob"}}
+\item{method}{Character, "oob" to use RMSE values computed on the out-of-bag data to guide the tuning, and "spatial.cv", to use RMSE values from a spatial cross-validation on independent spatial folds done via \code{\link[=rf_evaluate]{rf_evaluate()}}. Default: \code{"oob"}}
 
 \item{num.trees}{Numeric integer vector with the number of trees to fit on each model repetition. Defalut: c(500, 1000).}
-
-\item{trees.per.variable}{Integer, number of individual regression trees to fit per variable in \code{predictor.variable.names}. This is an alternative way to define ranger's \code{num.trees}. If \code{NULL}, \code{num.trees} is 500. Default: \code{NULL}}
 
 \item{mtry}{Numeric integer vector, number of predictors to randomly select from the complete pool of predictors on each tree split. Default: \code{c(2, 3)}}
 
@@ -46,7 +43,7 @@ rf_tuning(
 
 \item{xy}{Data frame or matrix with two columns containing coordinates and named "x" and "y", or an sf file with geometry class \code{sfc_POINT} (see \link{plant_richness_sf}). If \code{NULL}, the function will throw an error. Default: \code{NULL}}
 
-\item{repetitions}{Integer, number of repetitions to compute the R squared from. If \code{tuning.method = "oob"}, number of repetitions to be used in \code{\link[=rf_repeat]{rf_repeat()}} to fit models for each combination of hyperparameters. If \code{tuning.method = "spatial.cv"}, number of independent spatial folds to use during the cross-validation. Default: \code{10}}
+\item{repetitions}{Integer, number of repetitions to compute the R squared from. If \code{method = "oob"}, number of repetitions to be used in \code{\link[=rf_repeat]{rf_repeat()}} to fit models for each combination of hyperparameters. If \code{method = "spatial.cv"}, number of independent spatial folds to use during the cross-validation. Default: \code{10}}
 
 \item{training.fraction}{Proportion between 0.2 and 0.8 indicating the number of records to be used in model training. Default: \code{0.6}}
 
@@ -66,7 +63,7 @@ rf_tuning(
 A list with four slots: \code{tuning} data frame with the results of the tuning analysis; \code{tuning.long}, a long version of the previous data frame; \code{tuning.plot}, ggplot of \code{tuning.long}; \code{ranger.arguments}, a list ready to be used as the argument \code{ranger.arguments} in \code{\link[=rf_repeat]{rf_repeat()}} or \code{\link[=rf_spatial]{rf_spatial()}}.
 }
 \description{
-Tunes the random forest hyperparameters \code{num.trees}, \code{mtry}, and \code{min.node.size} via out-of-bag performance measures or spatial cross-validation performed with \code{\link[=rf_evaluate]{rf_evaluate()}}.
+Tunes the random forest hyperparameters \code{num.trees}, \code{mtry}, and \code{min.node.size} via grid search by maximizing the model's R squared. Two methods are available: out-of-bag (\code{oob}), and spatial cross-validation performed with \code{\link[=rf_evaluate]{rf_evaluate()}}.
 }
 \details{
 The tuning method "oob" uses as reference the RMSE computed on the out-of-bag data, while the method "spatial.cv" uses RMSE computed on spatially independent data unseen by the model. The RMSE values of the latter method will always be higher, but inform better about the capacity of the combinations of hyperparameters to yield more general models.
@@ -82,6 +79,7 @@ tuning <- rf_tuning(
   data = plant_richness_df,
   dependent.variable.name = "richness_species_vascular",
   predictor.variable.names = colnames(plant_richness_df)[5:21],
+  method = "oob",
   n.cores = 1,
   verbose = FALSE
 )

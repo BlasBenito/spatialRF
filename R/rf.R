@@ -152,7 +152,9 @@ rf <- function(
       stop("Argument 'data' not found.")
     }
   } else {
-    ranger.arguments$data <- NULL
+    if(!is.null(ranger.arguments)){
+      ranger.arguments$data <- NULL
+    }
   }
 
   if(is.null(dependent.variable.name)){
@@ -162,7 +164,9 @@ rf <- function(
       stop("Argument 'dependent.variable.name' not found.")
     }
   } else {
-    ranger.arguments$dependent.variable.name <- NULL
+    if(!is.null(ranger.arguments)){
+      ranger.arguments$dependent.variable.name <- NULL
+    }
   }
 
   if(is.null(predictor.variable.names)){
@@ -172,7 +176,9 @@ rf <- function(
       stop("Argument 'predictor.variable.names' not found.")
     }
   } else {
-    ranger.arguments$predictor.variable.names <- NULL
+    if(!is.null(ranger.arguments)){
+      ranger.arguments$predictor.variable.names <- NULL
+    }
     #predictor.variable.names comes from auto_vif or auto_cor
     if(inherits(predictor.variable.names, "variable_selection")){
       predictor.variable.names <- predictor.variable.names$selected.variables
@@ -334,7 +340,6 @@ rf <- function(
     distance.matrix = distance.matrix,
     distance.thresholds = distance.thresholds,
     num.trees = num.trees,
-    trees.per.variable = trees.per.variable,
     mtry = mtry,
     importance = importance,
     scaled.importance = scaled.importance,

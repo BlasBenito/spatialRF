@@ -4,7 +4,7 @@
 \alias{auto_vif}
 \title{Multicollinearity reduction via Variance Inflation Factor}
 \usage{
-auto_vif(x = NULL, preference.order = NULL, vif.threshold = 5, verbose = FALSE)
+auto_vif(x = NULL, preference.order = NULL, vif.threshold = 5, verbose = TRUE)
 }
 \arguments{
 \item{x}{A data frame with predictors or the result of \code{\link[=auto_cor]{auto_cor()}}. Default: \code{NULL}.}
@@ -13,7 +13,7 @@ auto_vif(x = NULL, preference.order = NULL, vif.threshold = 5, verbose = FALSE)
 
 \item{vif.threshold}{Numeric between 2.5 and 10 defining the selection threshold for the VIF analysis. Higher numbers result in a more relaxed variable selection. Default: 5.}
 
-\item{verbose}{Logical. if \code{TRUE}, describes the function operations to the user.}
+\item{verbose}{Logical. if \code{TRUE}, describes the function operations to the user. Default:: \code{TRUE}}
 }
 \value{
 List with three slots:

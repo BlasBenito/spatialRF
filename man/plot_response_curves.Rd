@@ -2,10 +2,10 @@
 % Please edit documentation in R/plot_response_curves.R
 \name{plot_response_curves}
 \alias{plot_response_curves}
-\title{Plots the response curves of a random forest model}
+\title{Plots the response curves of a random forest x}
 \usage{
 plot_response_curves(
-  model = NULL,
+  x = NULL,
   variables = NULL,
   quantiles = c(0.1, 0.5, 0.9),
   grid.resolution = 100,
@@ -14,9 +14,9 @@ plot_response_curves(
 )
 }
 \arguments{
-\item{model}{A model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}.}
+\item{x}{A model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}.}
 
-\item{variables}{Character vector, names of predictors to plot. If \code{NULL}, the most important variables (importance higher than the median) in \code{model} are selected. Default: \code{NULL}.}
+\item{variables}{Character vector, names of predictors to plot. If \code{NULL}, the most important variables (importance higher than the median) in \code{x} are selected. Default: \code{NULL}.}
 
 \item{quantiles}{Numeric vector with values between 0 and 1, argument \code{probs} of \link[stats]{quantile}. Quantiles to set the other variables to. Default: \code{c(0.1, 0.5, 0.9)}}
 
@@ -47,7 +47,7 @@ out <- rf(
  verbose = FALSE
 )
 
-p <- plot_response_curves(model = out)
+p <- plot_response_curves(x = out)
 
 }
 }

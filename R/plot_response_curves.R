@@ -138,7 +138,8 @@ plot_response_curves <- function(
           size = 1
         )  +
       ggplot2::scale_color_viridis_d(
-          end = 0.8
+          end = 0.8,
+          direction = -1
         ) +
         ggplot2::theme_bw() +
         # ggplot2::theme(legend.position = "none") +
@@ -160,7 +161,8 @@ plot_response_curves <- function(
           size = 1
         )  +
         ggplot2::scale_color_viridis_d(
-          end = 0.8
+          end = 0.8,
+          direction = -1
         ) +
         ggplot2::theme_bw() +
         # ggplot2::theme(legend.position = "none") +
