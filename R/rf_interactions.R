@@ -4,12 +4,11 @@
 #' For each variable interaction, a model including all the predictors plus the interaction is fitted, and it's R squared is compared with the R squared of the model without interactions. This model without interactions can either be provided through the argument `model`, or is fitted on the fly with [rf_repeat()] if the user provides the arguments `data`, `dependent.variable.name`, and `predictor.variable.names`.
 #'
 #' TheI advise the users not to use variable interactions blindly. Most likely, only one or a few of the suggested interactions may make sense from a domain expertise standpoint.
-#' @param model A model fitted with [rf()]. If used, the arguments `data`, `dependent.variable.name`, `predictor.variable.names`, `distance.matrix`, `distance.thresholds`, `ranger.arguments`, `trees.per.variable`, and `scaled.importance` are taken directly from the model definition. Default: `NULL`
+#' @param model A model fitted with [rf()]. If used, the arguments `data`, `dependent.variable.name`, `predictor.variable.names`, `distance.matrix`, `distance.thresholds`, `ranger.arguments`, and `scaled.importance` are taken directly from the model definition. Default: `NULL`
 #' @param data Data frame with a response variable and a set of predictors. Default: `NULL`
 #' @param dependent.variable.name Character string with the name of the response variable. Must be in the column names of `data`. Default: `NULL`
 #' @param predictor.variable.names Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Default: `NULL`
 #' @param ranger.arguments Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.
-#' @param trees.per.variable Number of individual regression trees to fit per variable in `predictor.variable.names`. This is an alternative way to define ranger's `num.trees`. If `NULL`, `num.trees` is 500. Default: `NULL`
 #' @param importance.threshold Value of variable importance from `model` used as threshold to select variables to generate candidate interactions. Default: Median of the variable importance in `model`.
 #' @param repetitions Integer, number of random forest models to fit in order to assess the importance of the interaction. Default: `5`
 #' @param verbose Logical If `TRUE`, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
@@ -47,7 +46,6 @@ rf_interactions <- function(
   dependent.variable.name = NULL,
   predictor.variable.names = NULL,
   ranger.arguments = NULL,
-  trees.per.variable = NULL,
   importance.threshold = NULL,
   repetitions = 5,
   verbose = TRUE,
@@ -76,7 +74,6 @@ rf_interactions <- function(
       dependent.variable.name = dependent.variable.name,
       predictor.variable.names = predictor.variable.names,
       ranger.arguments = ranger.arguments,
-      trees.per.variable = trees.per.variable,
       scaled.importance = FALSE,
       verbose = FALSE,
       n.cores = n.cores,
@@ -92,7 +89,6 @@ rf_interactions <- function(
   data.scaled <- ranger.arguments$data
   dependent.variable.name <- ranger.arguments$dependent.variable.name
   predictor.variable.names <- ranger.arguments$predictor.variable.names
-  trees.per.variable <- ranger.arguments$trees.per.variable
   scaled.importance <- ranger.arguments$scaled.importance
   importance <- "permutation"
   local.importance <- FALSE
