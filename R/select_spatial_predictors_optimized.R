@@ -131,18 +131,23 @@ select_spatial_predictors_optimized <- function(
   data.i <- data
   predictor.variable.names.i <- predictor.variable.names
 
-  #vectors to build optimization.df
-  optimization.index <- vector()
-  optimization.spatial.predictors.name <- vector()
-  optimization.moran.i <- vector()
-  optimization.p.value <- vector()
-  optimization.r.squared <- vector()
+  #putting together the optimization data frame
+  optimization.df <- data.frame(
+    spatial.predictor.name = rep(NA, length(spatial.predictors.ranking$ranking)),
+    spatial.predictor.index = rep(NA, length(spatial.predictors.ranking$ranking)),
+    moran.i = rep(NA, length(spatial.predictors.ranking$ranking)),
+    p.value = rep(NA, length(spatial.predictors.ranking$ranking)),
+    p.value.binary  = rep(NA, length(spatial.predictors.ranking$ranking)),
+    r.squared = rep(NA, length(spatial.predictors.ranking$ranking)),
+    penalization.per.variable = rep(NA, length(spatial.predictors.ranking$ranking)),
+    optimization = rep(NA, length(spatial.predictors.ranking$ranking))
+  )
+
+  #starting row counter
   i <- 0
 
-  #setting up default number of cores
-  if(is.null(n.cores)){
-    n.cores <- parallel::detectCores() - 1
-  }
+  #vector to store the index of max(optimization.df$optimization)
+  optimized.index.tracking <- vector()
 
   #iterating
   while(length(spatial.predictors.candidates.i) > 1){
@@ -190,41 +195,37 @@ select_spatial_predictors_optimized <- function(
       cluster.port = cluster.port
     )
 
-    #if ranking criteria stops being positive, break
-    if(spatial.predictors.ranking.i$criteria$ranking.criteria[1] <= 0){
-      break
-    }
-
     #redo spatial.predictors.candidates.i
     spatial.predictors.candidates.i <- spatial.predictors.ranking.i$ranking
 
     #gathering data for optimization df.
     if(length(spatial.predictors.candidates.i) > 0){
-      optimization.index[i] <- i
-      optimization.spatial.predictors.name[i] <- spatial.predictors.ranking.i$ranking[1]
-      optimization.moran.i[i] <- spatial.predictors.ranking.i$criteria[1, "moran.i"]
-      optimization.p.value[i] <- spatial.predictors.ranking.i$criteria[1, "p.value"]
-      optimization.r.squared[i] <- spatial.predictors.ranking.i$criteria[1, "model.r.squared"]
+
+      optimization.df[i, "spatial.predictor.index"] <- i
+      optimization.df[i, "spatial.predictor.name"] <- spatial.predictors.ranking.i$ranking[1]
+      optimization.df[i, "moran.i"] <- spatial.predictors.ranking.i$criteria[1, "moran.i"]
+      optimization.df[i, "p.value"] <- spatial.predictors.ranking.i$criteria[1, "p.value"]
+      optimization.df[i, "r.squared"] <- spatial.predictors.ranking.i$criteria[1, "model.r.squared"]
+      optimization.df[i, "p.value.binary"] <- ifelse(optimization.df[i, "p.value"] >= 0.05, 1, 0)
+      optimization.df[i, "penalization.per.variable"] <- (1/nrow(optimization.df)) * i
+      optimization.df[i, "optimization"] <- (1 - optimization.df[i, "moran.i"]) + (weight.r.squared * optimization.df[i, "r.squared"]) - (weight.penalization.n.predictors * optimization.df[i, "penalization.per.variable"])
+
+    }
+
+    #getting the index with the maximum optimization
+    optimized.index.tracking[i] <- optimization.df[which.max(optimization.df$optimization), "spatial.predictor.index"]
+
+    #finding repetitions in the maximum value of optimized index
+    print(optimized.index.tracking)
+
+    if(sum(optimized.index.tracking == max(optimized.index.tracking)) > floor(nrow(optimization.df)/5)){
+      break
     }
 
   }#end of while loop
 
-  #putting together the optimization data frame
-  optimization.df <- data.frame(
-    spatial.predictor.name = optimization.spatial.predictors.name,
-    spatial.predictor.index = optimization.index,
-    moran.i = optimization.moran.i,
-    p.value = optimization.p.value,
-    p.value.binary  = ifelse(optimization.p.value >= 0.05, 1, 0),
-    r.squared = optimization.r.squared,
-    penalization.per.variable = (1/length(optimization.moran.i)) * optimization.index
-  )
-
-  optimization.df$optimization <- optimization_function(
-    x = optimization.df,
-    weight.r.squared = weight.r.squared,
-    weight.penalization.n.predictors = weight.penalization.n.predictors
-  )
+  #remove empty rows
+  optimization.df <- na.omit(optimization.df)
 
   #get index of spatial predictor with optimized r-squared and moran.i
   optimized.index <- which.max(optimization.df$optimization)

@@ -57,7 +57,13 @@ print_importance(rf.model)
 rf.repeat <- rf_repeat(model = rf.model, verbose = TRUE)
 
 #spatial model
-rf.spatial <- rf_spatial(model = rf.model, verbose = TRUE)
+rf.spatial <- rf_spatial(model = rf.model, verbose = TRUE, method = "mem.effect.optimized")
+x11()
+plot_optimization(rf.spatial) + ggplot2::ggtitle("optimized")
+
+rf.spatial.2 <- rf_spatial(model = rf.model, verbose = TRUE)
+x11()
+plot_optimization(rf.spatial.2) + ggplot2::ggtitle("sequential")
 
 #from repeat
 rf.spatial.repeat <- rf_spatial(model = rf.repeat, verbose = FALSE)
