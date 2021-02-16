@@ -21,7 +21,7 @@ A data frame with 227 rows and 22 columns:
 \item \code{human_population_density}: Population density of the ecoregion.
 \item \code{topography_elevation_average}: Average elevation of the ecoregion.
 \item \code{landcover_herbs_percent_average}: Average cover percentage of herbs extracted from \href{https://modis-land.gsfc.nasa.gov/vcc.html}{MODIS Vegetation Continuous Fields}.
-\item \code{fragmentation_cohesion}: Geographic fragmentation index of the ecoregion as computed with the R package \href{https://cran.r-project.org/web/packages/landscapemetrics/index.html}{landscapemetrics}.
+\item \code{fragmentation_cohesion}: Geographic fragmentation index of the ecoregion as computed with the R package \href{https://CRAN.R-project.org/package=landscapemetrics}{landscapemetrics}.
 \item \code{fragmentation_division}: Another fragmentation index.
 \item \code{neighbors_area}: Total area of the ecoregions's immediate neighbors.
 \item \code{human_population}: Human population in the ecoregion.

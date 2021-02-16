@@ -7,6 +7,20 @@ library(sinew)
 library(exampletestr)
 # devtools::install_github("datastorm-open/DependenciesGraphs")
 library(DependenciesGraphs)
+library(rhub)
+
+#release
+rhub::validate_email()
+rhub::check_for_cran()
+
+#relevant links for release
+# https://github.com/tidyverse/multidplyr/issues/109?s=03
+# https://github.com/DavisVaughan/extrachecks
+# https://r-pkgs.org/release.html
+# https://r-hub.github.io/rhub/articles/rhub.html
+# https://github.com/ThinkR-open/prepare-for-cran
+# https://cran.r-project.org//web//packages//submission_checklist.html
+# https://win-builder.r-project.org/
 
 #build documentation
 devtools::document()
@@ -17,9 +31,12 @@ devtools::build_manual()
 attachment::att_from_description()
 devtools::document()
 devtools::check()
- ########################################
+########################################
 
+#load all functions
 devtools::load_all()
+
+#install packages
 devtools::install()
 
 

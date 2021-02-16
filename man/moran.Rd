@@ -24,9 +24,6 @@ A list with three named slots:
 \description{
 Computes the spatial correlation coefficient (Moran's I) of a vector given a distance matrix, and a distance threshold used to define neihgborhood.
 }
-\details{
-Based on the \link[ape]{Moran.I} function of the \code{ape} package.
-}
 \examples{
 \dontrun{
 if(interactive()){

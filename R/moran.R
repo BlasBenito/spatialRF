@@ -9,7 +9,6 @@
 #'    \item `p.value`: P-value of the Moran's I estimate.
 #'    \item `interpretation`: Interpretation of the Moran's I value according to the p-value. One of "Positive spatial correlation", "Negative spatial correlation", and "No spatial correlation".
 #'  }
-#' @details Based on the \link[ape]{Moran.I} function of the `ape` package.
 #' @seealso [moran_multithreshold()]
 #' @examples
 #' \dontrun{

@@ -19,9 +19,6 @@ a scaled matrix or dataframe
 \description{
 Scales a matrix or a data frame by the median instead of the mean.
 }
-\details{
-Adapted from \link[quantable]{robustscale}.
-}
 \examples{
 \dontrun{
 if(interactive()){

@@ -12,3 +12,5 @@ plot_post.R
 README.Rmd
 README_files
 checking_optimized_algorithm.R
+cran-comments.md
+tests

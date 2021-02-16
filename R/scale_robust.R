@@ -4,7 +4,6 @@
 #' @param center Logical. If `TRUE`, substracts the median to center the data. Default: `TRUE`
 #' @param scale Logical. If `TRUE`, scales the data by the median absolute deviation. Default: `TRUE`
 #' @return a scaled matrix or dataframe
-#' @details Adapted from \link[quantable]{robustscale}.
 #' @examples
 #' \dontrun{
 #' if(interactive()){

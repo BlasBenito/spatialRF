@@ -29,12 +29,12 @@
 #'   \item `human_population_density`: Population density of the ecoregion.
 #'   \item `topography_elevation_average`: Average elevation of the ecoregion.
 #'   \item `landcover_herbs_percent_average`: Average cover percentage of herbs extracted from [MODIS Vegetation Continuous Fields](https://modis-land.gsfc.nasa.gov/vcc.html).
-#'   \item `fragmentation_cohesion`: Geographic fragmentation index of the ecoregion as computed with the R package [landscapemetrics](https://cran.r-project.org/web/packages/landscapemetrics/index.html).
+#'   \item `fragmentation_cohesion`: Geographic fragmentation index of the ecoregion as computed with the R package [landscapemetrics]( https://CRAN.R-project.org/package=landscapemetrics).
 #'   \item `fragmentation_division`: Another fragmentation index.
 #'   \item `neighbors_area`: Total area of the ecoregions's immediate neighbors.
 #'   \item `human_population`: Human population in the ecoregion.
 #'   \item `human_footprint_average`: Average [human footprint](https://sedac.ciesin.columbia.edu/data/set/wildareas-v3-2009-human-footprint) in the ecoregion.
-#'   \item `climate_bio1_average`: Average mean annual temperature according to [CHELSA](https://chelsa-climate.org/).
+#'   \item `climate_bio1_average`: Average mean annual temperature.
 #'   \item `climate_bio15_minimum`: Average precipitation seasonality.
 #'
 #' }
