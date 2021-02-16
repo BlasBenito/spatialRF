@@ -20,7 +20,7 @@ Prints a table in the console using the \link[huxtable]{huxtable} package.
 Prints the results of a Moran's I test on the residuals of a model.
 }
 \examples{
-\dontrun{
+\donttest{
 if(interactive()){
 
  data(plant_richness_df)

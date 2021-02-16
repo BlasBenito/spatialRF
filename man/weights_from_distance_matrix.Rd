@@ -18,7 +18,7 @@ A weighted distance matrix.
 Transforms a distance matrix into weights (1/distance.matrix) normalized by the row sums. Used to compute Moran's I values and Moran's Eigenvector Maps. Allows to apply a threshold to the distance matrix before computing the weights.
 }
 \examples{
-\dontrun{
+\donttest{
 if(interactive()){
 
  data(distance_matrix)

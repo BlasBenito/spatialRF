@@ -13,7 +13,7 @@ print_performance(x)
 Prints the performance slot of a model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}.
 }
 \examples{
-\dontrun{
+\donttest{
 if(interactive()){
 
  data(plant_richness_df)

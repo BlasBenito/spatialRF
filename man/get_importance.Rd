@@ -16,7 +16,7 @@ A data frame with variable names and importance scores.
 Gets variable importance scores from \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, and \code{\link[=rf_spatial]{rf_spatial()}} models.
 }
 \examples{
-\dontrun{
+\donttest{
 if(interactive()){
 
 data(plant_richness_df)

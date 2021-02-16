@@ -30,7 +30,7 @@ a list with as many slots as rows are in \code{xy.selected}. Each slot has TWO s
 Applies \code{\link[=make_spatial_fold]{make_spatial_fold()}} to every record in a data frame \code{xy.selected} to generate as many spatially independent folds over the dataset \code{xy} as rows are in \code{xy.selected}.
 }
 \examples{
-\dontrun{
+\donttest{
 if(interactive()){
 
  data(plant_richness_df)

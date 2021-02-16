@@ -20,7 +20,7 @@ a scaled matrix or dataframe
 Scales a matrix or a data frame by the median instead of the mean.
 }
 \examples{
-\dontrun{
+\donttest{
 if(interactive()){
 
 data(plant_richness_df)

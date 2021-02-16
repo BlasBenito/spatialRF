@@ -35,7 +35,7 @@ This function has two modes of operation:
 Can be chained together with \code{\link[=auto_cor]{auto_cor()}} through pipes, see the examples below.
 }
 \examples{
-\dontrun{
+\donttest{
 if(interactive()){
 
  out <- auto_vif(x = plant_richness_df[, 5:20])

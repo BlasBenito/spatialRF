@@ -16,7 +16,7 @@ A data frame with the point coordinates stored in the columns \emph{x} and \emph
 Transforms an \link[sf]{sf} data frame with points into a data frame with columns \emph{x} and \emph{y}.
 }
 \examples{
-\dontrun{
+\donttest{
 if(interactive()){
 
  data(plant_richness_sf)

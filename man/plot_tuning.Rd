@@ -18,7 +18,7 @@ A ggplot.
 Plots the tuning of the hyperparameters \code{num.trees}, \code{mtry}, and \code{min.node.size} performed by \code{\link[=rf_tuning]{rf_tuning()}}.
 }
 \examples{
-\dontrun{
+\donttest{
 if(interactive()){
 
 data(plant_richness_df)

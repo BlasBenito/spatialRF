@@ -22,7 +22,7 @@ A data frame with four columns:
 Returns the performance slot of an \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}} model computed on the out-of-bag data.
 }
 \examples{
-\dontrun{
+\donttest{
 if(interactive()){
 
  data(plant_richness_df)

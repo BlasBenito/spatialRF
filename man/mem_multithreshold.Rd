@@ -27,7 +27,7 @@ Computes Moran's Eigenvector Maps of a distance matrix (using \code{\link[=mem]{
 The function takes the distance matrix \code{x}, computes its weights at difference distance thresholds, double-centers the resulting weight matrices with \code{\link[=double_center_distance_matrix]{double_center_distance_matrix()}}, applies \link[base]{eigen} to each double-centered matrix, and returns eigenvectors with positive normalized eigenvalues for different distance thresholds.
 }
 \examples{
-\dontrun{
+\donttest{
 if(interactive()){
 
  data(distance_matrix)

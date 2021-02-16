@@ -22,7 +22,7 @@ A data frame with evaluation scores. The following columns are shown:
 Returns performance metrics produced by \code{\link[=rf_evaluate]{rf_evaluate()}}.
 }
 \examples{
-\dontrun{
+\donttest{
 if(interactive()){
 
 data(plant_richness_df)

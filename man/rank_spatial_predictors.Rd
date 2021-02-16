@@ -72,7 +72,7 @@ The purpose of this function is to provide criteria on how to include spatial pr
 This function has been designed to be used internally by \code{\link[=rf_spatial]{rf_spatial()}} rather than by directly by a user.
 }
 \examples{
-\dontrun{
+\donttest{
 if(interactive()){
  data("distance_matrix")
 

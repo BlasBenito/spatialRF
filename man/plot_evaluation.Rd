@@ -20,7 +20,7 @@ A ggplot.
 Plots the results of an spatial cross-validation performed with \code{\link[=rf_evaluate]{rf_evaluate()}}.
 }
 \examples{
-\dontrun{
+\donttest{
 if(interactive()){
 
 data(plant_richness_df)

@@ -25,7 +25,7 @@ A list with three named slots:
 Computes the spatial correlation coefficient (Moran's I) of a vector given a distance matrix, and a distance threshold used to define neihgborhood.
 }
 \examples{
-\dontrun{
+\donttest{
 if(interactive()){
 
  data(distance_matrix)

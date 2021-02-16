@@ -18,7 +18,7 @@ A double-centered matrix of the same dimensions as `x.
 Generates a double-centered matrix from the weights of a distance matrix (see \code{\link[=weights_from_distance_matrix]{weights_from_distance_matrix()}}) and a distance threshold. This is a required step before the computation of Moran's Eigenvector Maps.
 }
 \examples{
-\dontrun{
+\donttest{
 if(interactive()){
 
  data(distance_matrix)

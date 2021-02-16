@@ -30,7 +30,7 @@ devtools::build_manual()
 ########################################
 attachment::att_from_description()
 devtools::document()
-devtools::check()
+devtools::check(run_dont_test = TRUE)
 ########################################
 
 #load all functions

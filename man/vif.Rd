@@ -16,7 +16,7 @@ A data frame with two columns having the name of the variables in 'x' and their 
 Computes the variance inflation factor (VIF) of the colums in a data frame.
 }
 \examples{
-\dontrun{
+\donttest{
 if(interactive()){
 
  data(plant_richness_df)

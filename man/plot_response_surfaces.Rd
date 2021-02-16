@@ -39,7 +39,7 @@ Plots response surfaces for any given pair of predictors in a \code{\link[=rf]{r
 All variables that are not \code{a} or \code{b} in a response curve are set to the values of their respective quantiles to plot the response surfaces. The output list can be plotted all at once with \code{patchwork::wrap_plots(p)} or \code{cowplot::plot_grid(plotlist = p)}, or one by one by extracting each plot from the list.
 }
 \examples{
-\dontrun{
+\donttest{
 if(interactive()){
 
 data(plant_richness_df)

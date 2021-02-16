@@ -53,7 +53,7 @@ A convenient wrapper for \link[ranger]{ranger} that completes its output by prov
 Please read the help file of \link[ranger]{ranger} for further details. Notice that the \code{formula} interface of \link[ranger]{ranger} is supported through \code{ranger.arguments}, but variable interactions are not allowed (but check \code{\link[=rf_interactions]{rf_interactions()}}).
 }
 \examples{
-\dontrun{
+\donttest{
 if(interactive()){
 
  data("plant_richness_df")

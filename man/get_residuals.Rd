@@ -16,7 +16,7 @@ A data frame with residuals, or mean and standard deviation of the residuals if 
 Returns the residuals of models fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}.
 }
 \examples{
-\dontrun{
+\donttest{
 if(interactive()){
 
 data(plant_richness_df)

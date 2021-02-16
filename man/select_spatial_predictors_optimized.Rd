@@ -69,7 +69,7 @@ This method allows to select the smallest set of spatial predictors that have th
 The algorithm works as follows. If the function \code{\link[=rank_spatial_predictors]{rank_spatial_predictors()}} returns 10 ranked spatial predictors (sp1 to sp10, being sp7 the best one), \code{\link[=select_spatial_predictors_optimized]{select_spatial_predictors_optimized()}} is going to first fit the model \code{y ~ predictors + sp7}. Then, the spatial predictors sp2 to sp9 are again ranked with \code{\link[=rank_spatial_predictors]{rank_spatial_predictors()}} using the model \code{y ~ predictors + sp7} as reference (at this stage, some of the spatial predictors might be dropped due to lack of effect). When the new ranking of spatial predictors is ready (let's say they are sp5, sp3, and sp4), the best one (sp5) is included in the model \code{y ~ predictors + sp7 + sp5}, and the remaining ones go again to \code{\link[=rank_spatial_predictors]{rank_spatial_predictors()}} to repeat the process until spatial predictors are depleted.
 }
 \examples{
-\dontrun{
+\donttest{
 if(interactive()){
 
 data(distance_matrix)

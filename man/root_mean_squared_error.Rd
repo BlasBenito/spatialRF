@@ -34,7 +34,7 @@ The normalization methods go as follows:
 }
 }
 \examples{
-\dontrun{
+\donttest{
 if(interactive()){
 
  out <- root_mean_squared_error(

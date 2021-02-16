@@ -16,7 +16,7 @@ A data frame with the spatial predictors included in the model.
 Returns spatial predictors from a model fitted with \code{\link[=rf_spatial]{rf_spatial()}} in order of importance.
 }
 \examples{
-\dontrun{
+\donttest{
 if(interactive()){
 
  data(distance_matrix)

@@ -36,7 +36,7 @@ Plots the response curves of models fitted with \code{\link[=rf]{rf()}}, \code{\
 All variables that are not plotted in a particular response curve are set to the values of their respective quantiles, and the response curve for each one of these quantiles is shown in the plot. The output list can be plotted all at once with \code{patchwork::wrap_plots(p)} or \code{cowplot::plot_grid(plotlist = p)}, or one by one by extracting each plot from the list.
 }
 \examples{
-\dontrun{
+\donttest{
 if(interactive()){
 data(plant_richness_df)
 

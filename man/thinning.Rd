@@ -21,7 +21,7 @@ Resamples a set of points with x and y coordinates to impose a minimum distance 
 Generally used to remove redundant points that could produce pseudo-replication, and to limit sampling bias by disaggregating clusters of points.
 }
 \examples{
-\dontrun{
+\donttest{
 if(interactive()){
 
  data(plant_richness)

@@ -55,7 +55,7 @@ Evaluates the performance of random forest on unseen data over independent spati
 The evaluation algorithm works as follows: the number of \code{repetitions} and the input dataset (stored in \code{model$ranger.arguments$data}) are used as inputs for the function \code{\link[=thinning_til_n]{thinning_til_n()}}, that applies \code{\link[=thinning]{thinning()}} to the input data until as many cases as \code{repetitions} are left, and as separated as possible. Each of these remaining records will be used as a "fold center". From that point, the fold grows, until a number of points equal (or close) to \code{training.fraction} is reached. The indices of the records within the grown spatial fold are stored as "training" in the output list, and the remaining ones as "testing". Then, for each spatial fold, a "training model" is fitted using the cases corresponding with the training indices, and predicted over the cases corresponding with the testing indices. The model predictions on the "unseen" data are compared with the observations, and the performance measures (R squared, pseudo R squared, RMSE and NRMSE) computed.
 }
 \examples{
-\dontrun{
+\donttest{
 if(interactive()){
 
 data(plant_richness_df)

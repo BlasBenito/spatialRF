@@ -57,7 +57,7 @@ A list with three slots: \code{df.long}, with the performance metrics for each m
 Uses \code{\link[=rf_evaluate]{rf_evaluate()}} to compare the performance of two models on independent spatial folds.
 }
 \examples{
-\dontrun{
+\donttest{
 if(interactive()){
  data(distance_matrix)
  data(plant_richness_df)

@@ -23,7 +23,7 @@ Computes the positive Moran's Eigenvector Maps of a distance matrix.
 The function takes the distance matrix \code{x}, computes its weights and double-centers it with \code{\link[=double_center_distance_matrix]{double_center_distance_matrix()}}, applies \link[base]{eigen}, and returns eigenvectors with positive normalized eigenvalues (a.k.a Moran's Eigenvector Maps, or MEMs). These MEMs are later used as spatial predictors by \code{\link[=rf_spatial]{rf_spatial()}}.
 }
 \examples{
-\dontrun{
+\donttest{
 if(interactive()){
 
  data(distance_matrix)

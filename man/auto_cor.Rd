@@ -35,7 +35,7 @@ Computes the correlation matrix among a set of predictors, orders the correlatio
 Can be chained together with \code{\link[=auto_vif]{auto_vif()}} through pipes, see the examples below.
 }
 \examples{
-\dontrun{
+\donttest{
 if(interactive()){
 
  data(plant_richness_df)

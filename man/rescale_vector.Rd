@@ -22,7 +22,7 @@ A numeric vector of the same length as x, but with its values rescaled between \
 Rescales a numeric vector to a new range.
 }
 \examples{
-\dontrun{
+\donttest{
 if(interactive()){
 
  out <- rescale_vector(

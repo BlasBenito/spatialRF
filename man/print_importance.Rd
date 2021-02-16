@@ -18,7 +18,7 @@ A table printed to the standard output.
 Prints variable importance scores from \link{rf}, \link{rf_repeat}, and \link{rf_spatial} models.
 }
 \examples{
-\dontrun{
+\donttest{
 if(interactive()){
 
 data(plant_richness_df)

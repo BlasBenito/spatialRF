@@ -71,7 +71,7 @@ A ranger model with several new slots:
 Fits several random forest models on the same data in order to capture the effect of the algorithm's stochasticity on the importance scores and performance measures. The function is prepared to run on a cluster if the IPs, number of cores, and user name are provided (see \link{cluster_specification}).
 }
 \examples{
-\dontrun{
+\donttest{
 if(interactive()){
 
  data(plant_richness_df)

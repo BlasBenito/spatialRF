@@ -18,7 +18,7 @@ A ggplot.
 Plots the results of spatial autocorrelation tests for a variety of functions within the package.
 }
 \examples{
-\dontrun{
+\donttest{
 if(interactive()){
 
  data(plant_richness_df)

@@ -16,7 +16,7 @@ A data frame with the row names indicating the object name, the field 'Type' ind
 Shows the size of the objects currently in the R environment. Helps to locate large objects cluttering the R environment and/or causing memory problems.
 }
 \examples{
-\dontrun{
+\donttest{
 if(interactive()){
 
  x <- matrix(runif(100), 10, 10)

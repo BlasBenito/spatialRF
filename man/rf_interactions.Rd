@@ -58,7 +58,7 @@ For each variable interaction, a model including all the predictors plus the int
 TheI advise the users not to use variable interactions blindly. Most likely, only one or a few of the suggested interactions may make sense from a domain expertise standpoint.
 }
 \examples{
-\dontrun{
+\donttest{
 if(interactive()){
  data(plant_richness_df)
 

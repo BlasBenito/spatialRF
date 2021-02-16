@@ -21,7 +21,7 @@ Extracts all factors of a principal component analysis of a matrix or data frame
 Columns in \code{x} with zero variance are removed before computing the PCA.
 }
 \examples{
-\dontrun{
+\donttest{
 if(interactive()){
 
  data(distance_matrix)

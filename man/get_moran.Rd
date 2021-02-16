@@ -16,7 +16,7 @@ A data frame with Moran's I test results produced by \code{\link[=moran_multithr
 Returns the Moran's I test on the residuals of a model produced by \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}.
 }
 \examples{
-\dontrun{
+\donttest{
 if(interactive()){
 
  data(plant_richness_df)
