@@ -11,7 +11,7 @@
 #'  }
 #' @seealso [moran_multithreshold()]
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' if(interactive()){
 #'
 #'  data(distance_matrix)

@@ -6,7 +6,7 @@
 #' @return A ggplot.
 #' @seealso [rf_evaluate()], [get_evaluation()], [print_evaluation()].
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' if(interactive()){
 #'
 #' data(plant_richness_df)

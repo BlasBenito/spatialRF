@@ -3,7 +3,7 @@
 #' @param x An \link[sf]{sf} data frame with points (geometry class "sfc_POINT").
 #' @return A data frame with the point coordinates stored in the columns *x* and *y*.
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' if(interactive()){
 #'
 #'  data(plant_richness_sf)

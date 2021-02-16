@@ -6,7 +6,7 @@
 #' @details Generally used to remove redundant points that could produce pseudo-replication, and to limit sampling bias by disaggregating clusters of points.
 #' @seealso [thinning_til_n()]
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' if(interactive()){
 #'
 #'  data(plant_richness)

@@ -5,7 +5,7 @@
 #' @return A table printed to the standard output.
 #' @seealso [plot_importance()], [get_importance()]
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' if(interactive()){
 #'
 #' data(plant_richness_df)

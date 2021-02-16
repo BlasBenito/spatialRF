@@ -5,7 +5,7 @@
 #' @param scale Logical. If `TRUE`, scales the data by the median absolute deviation. Default: `TRUE`
 #' @return a scaled matrix or dataframe
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' if(interactive()){
 #'
 #' data(plant_richness_df)

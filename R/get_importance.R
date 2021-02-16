@@ -4,7 +4,7 @@
 #' @return A data frame with variable names and importance scores.
 #' @seealso [rf()], [rf_repeat()], [rf_spatial()], [plot_importance()], [print_importance()].
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' if(interactive()){
 #'
 #' data(plant_richness_df)

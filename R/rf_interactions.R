@@ -19,7 +19,7 @@
 #' @param cluster.port Integer, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: `11000`
 #' @return A list with two slots: `screening`, with the complete screening results; `selected`, with the names and the R squared improvement produced by each variable interaction; `columns`, data frame with the interactions computed from the data in `model$ranger.arguments` after scaling it with [scale_robust()]. Variable interactions are computed as `a * b` on the scaled data.
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' if(interactive()){
 #'  data(plant_richness_df)
 #'

@@ -16,7 +16,7 @@
 #' @param cluster.port Integer, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: `11000`
 #' @return A list with three slots: `df.long`, with the performance metrics for each model across repetitions; `df.aggregated`, with aggregated stats per model and performance matric; `plot`, with a boxplot built from `df.long`.
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' if(interactive()){
 #'  data(distance_matrix)
 #'  data(plant_richness_df)

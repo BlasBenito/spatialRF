@@ -6,7 +6,7 @@
 #' @details Columns in `x` with zero variance are removed before computing the PCA.
 #' @seealso [pca_multithreshold()]
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' if(interactive()){
 #'
 #'  data(distance_matrix)

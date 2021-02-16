@@ -26,7 +26,7 @@
 #'   \item `spatial.correlation.residuals`: the result of [moran_multithreshold()] applied to the model results.
 #' }
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' if(interactive()){
 #'
 #'  data(plant_richness_df)

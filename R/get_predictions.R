@@ -3,7 +3,7 @@
 #' @param x A model produced by [rf()], [rf_repeat()], or [rf_spatial()].
 #' @return A data frame with predictions, or mean and standard deviation of the predictions if the model was fitted with [rf_repeat()].
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' if(interactive()){
 #'
 #' data(plant_richness_df)

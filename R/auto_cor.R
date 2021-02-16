@@ -13,7 +13,7 @@
 #' @details Can be chained together with [auto_vif()] through pipes, see the examples below.
 #' @seealso [auto_vif()]
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' if(interactive()){
 #'
 #'  data(plant_richness_df)

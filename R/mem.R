@@ -7,7 +7,7 @@
 #' @details The function takes the distance matrix `x`, computes its weights and double-centers it with [double_center_distance_matrix()], applies \link[base]{eigen}, and returns eigenvectors with positive normalized eigenvalues (a.k.a Moran's Eigenvector Maps, or MEMs). These MEMs are later used as spatial predictors by [rf_spatial()].
 #' @seealso [mem_multithreshold()], [rf_spatial()], [rank_spatial_predictors()], [select_spatial_predictors_optimized()], [select_spatial_predictors_sequential()]
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' if(interactive()){
 #'
 #'  data(distance_matrix)

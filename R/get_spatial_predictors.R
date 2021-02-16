@@ -3,7 +3,7 @@
 #' @param x A model fitted with [rf_spatial()].
 #' @return A data frame with the spatial predictors included in the model.
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' if(interactive()){
 #'
 #'  data(distance_matrix)

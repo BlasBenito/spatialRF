@@ -5,7 +5,7 @@
 #' @return A ggplot.
 #' @seealso [print_importance()], [get_importance()]
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' if(interactive()){
 #'
 #' data(plant_richness_df)

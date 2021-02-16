@@ -20,7 +20,7 @@
 #'  Can be chained together with [auto_cor()] through pipes, see the examples below.
 #' @seealso [auto_cor()]
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' if(interactive()){
 #'
 #'  out <- auto_vif(x = plant_richness_df[, 5:20])

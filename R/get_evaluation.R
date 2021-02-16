@@ -10,7 +10,7 @@
 #' }
 #' @seealso [rf_evaluate()], [plot_evaluation()], [print_evaluation()]
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' if(interactive()){
 #'
 #' data(plant_richness_df)

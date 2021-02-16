@@ -3,7 +3,7 @@
 #' @param x A model fitted with [rf()], [rf_repeat()], or [rf_spatial()].
 #' @return A data frame with residuals, or mean and standard deviation of the residuals if the model was fitted with [rf_repeat()].
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' if(interactive()){
 #'
 #' data(plant_richness_df)

@@ -5,7 +5,7 @@
 #' @return A ggplot.
 #' @seealso [rf_tuning()]
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' if(interactive()){
 #'
 #' data(plant_richness_df)

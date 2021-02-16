@@ -3,7 +3,7 @@
 #' @param x Model fitted with [rf()], [rf_repeat()], or [rf_spatial()].
 #' @seealso [print_performance()], [get_performance()]
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' if(interactive()){
 #'
 #'  data(plant_richness_df)

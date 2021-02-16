@@ -3,7 +3,7 @@
 #' @param x Numeric or character vector.
 #' @return Statistical mode of `x`.
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' if(interactive()){
 #'
 #'  statistical_mode(c(rep(10, 10), rep(9, 9)))

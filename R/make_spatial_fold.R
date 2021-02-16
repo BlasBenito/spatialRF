@@ -7,7 +7,7 @@
 #' @return A list with two slots named `training` and `testing` with the former having the indices of the training records selected from `xy`, and the latter having the indices of the testing records.
 #' @seealso [make_spatial_folds()], [rf_evaluate()]
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' if(interactive()){
 #'
 #'  data(plant_richness_df)

@@ -5,7 +5,7 @@
 #' @return A data frame with the same columns as xy with a row number close to n.
 #' @seealso [thinning()]
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' if(interactive()){
 #'
 #'  data(plant_richness)

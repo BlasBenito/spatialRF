@@ -31,7 +31,7 @@
 #'  \item `ranking`: Ordered character vector with the names of the spatial predictors selected.
 #' }
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' if(interactive()){
 #'  data("distance_matrix")
 #'

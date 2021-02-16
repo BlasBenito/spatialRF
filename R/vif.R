@@ -4,7 +4,7 @@
 #' @return A data frame with two columns having the name of the variables in 'x' and their respective VIF values.
 #' @seealso [auto_vif()], [auto_cor()]
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' if(interactive()){
 #'
 #'  data(plant_richness_df)

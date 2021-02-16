@@ -4,7 +4,7 @@
 #' @return A data frame with Moran's I test results produced by [moran_multithreshold()].
 #' @seealso [moran()], [moran_multithreshold()], [plot_moran()], [print_moran()].
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' if(interactive()){
 #'
 #'  data(plant_richness_df)

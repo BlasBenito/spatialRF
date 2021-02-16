@@ -6,7 +6,7 @@
 #' @return Prints a table in the console using the \link[huxtable]{huxtable} package.
 #' @seealso [moran()], [moran_multithreshold()], [get_moran()], [plot_moran()]
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' if(interactive()){
 #'
 #'  data(plant_richness_df)

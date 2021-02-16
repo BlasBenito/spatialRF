@@ -5,7 +5,7 @@
 #' @return A ggplot.
 #' @seealso [moran()], [moran_multithreshold()]
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' if(interactive()){
 #'
 #'  data(plant_richness_df)

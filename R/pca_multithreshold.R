@@ -7,7 +7,7 @@
 #' @details The distance matrix is converted into weights with [weights_from_distance_matrix()] before computing the PCA. This produces more meaningful spatial predictors than using the distance matrix as is.
 #' @seealso [pca()]
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' if(interactive()){
 #'
 #'  x <- pca_multithreshold(

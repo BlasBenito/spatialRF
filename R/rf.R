@@ -20,7 +20,7 @@
 #' }
 #' @details Please read the help file of \link[ranger]{ranger} for further details. Notice that the `formula` interface of \link[ranger]{ranger} is supported through `ranger.arguments`, but variable interactions are not allowed (but check [rf_interactions()]).
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' if(interactive()){
 #'
 #'  data("plant_richness_df")
