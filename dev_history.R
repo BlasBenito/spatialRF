@@ -13,9 +13,14 @@ library(spelling)
 #check in different platforms
 rhub::validate_email()
 platforms <- rhub::platforms()
-rhub::check_for_cran(platforms = "macos-highsierra-release-cran")
-rhub::check_for_cran(platforms = "solaris-x86-patched")
-rhub::check_for_cran(platforms = "windows-x86_64-devel")
+a <- rhub::check_for_cran(platforms = "debian-clang-devel")#took too long, stopped it
+b <- rhub::check_for_cran(platforms = "debian-gcc-devel")
+c <- rhub::check_for_cran(platforms = "debian-gcc-release")
+d <- rhub::check_for_cran(platforms = "macos-highsierra-release-cran")
+e <- rhub::check_for_cran(platforms = "solaris-x86-patched")
+f <- rhub::check_for_cran(platforms = "solaris-x86-patched-ods")
+g <- rhub::check_for_cran(platforms = "windows-x86_64-devel")
+h <- rhub::check_for_cran(platforms = "windows-x86_64-release")
 
 devtools::check_win_devel()
 devtools::check(remote = TRUE, manual = TRUE)

@@ -34,8 +34,8 @@
 #'   \item `neighbors_area`: Total area of the ecoregions's immediate neighbors.
 #'   \item `human_population`: Human population in the ecoregion.
 #'   \item `human_footprint_average`: Average [human footprint](https://sedac.ciesin.columbia.edu/data/set/wildareas-v3-2009-human-footprint) in the ecoregion.
-#'   \item `climate_bio1_average`: Average mean annual temperature, from [CHELSA](https://chelsa-climate.org/).
-#'   \item `climate_bio15_minimum`: Average precipitation seasonality, from CHELSA.
+#'   \item `climate_bio1_average`: Average mean annual temperature.
+#'   \item `climate_bio15_minimum`: Average precipitation seasonality.
 #'
 #' }
 "plant_richness_df"

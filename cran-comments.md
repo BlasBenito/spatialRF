@@ -1,7 +1,21 @@
 ## Test environments
 
   + local Ubuntu 20.04, R 4.0.3
-  + rhub::check_for_cran()
+  PENDING:
+  + rhub
+    + "macos-highsierra-release-cran"
+    + "debian-clang-devel"
+    + "debian-gcc-devel"
+    + "debian-gcc-release"
+    + "solaris-x86-patched"
+    + "solaris-x86-patched-ods"
+    + "windows-x86_64-devel"
+    + "windows-x86_64-release"
+  
+
+
+## R CMD check results
+0 ERRORs | 0 WARNINGs | 1 NOTE.
   
 ## Pre-release checks
 
