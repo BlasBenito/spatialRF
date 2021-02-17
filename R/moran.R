@@ -1,5 +1,11 @@
 #' @title Moran's I test on a numeric vector
 #' @description Computes the spatial correlation coefficient (Moran's I) of a vector given a distance matrix, and a distance threshold used to define neighborhood.
+#' @usage
+#' moran(
+#'   x = NULL,
+#'   distance.matrix = NULL,
+#'   distance.threshold = 0
+#' )
 #' @param x Numeric vector, generally model residuals, Default: `NULL`
 #' @param distance.matrix Distance matrix among cases in `x`. The number of rows of this matrix must be equal to the length of `x`. Default: `NULL`
 #' @param distance.threshold numeric value in the range of values available in `distance.matrix`. Distances below such threshold are set to 0. Default: `0`

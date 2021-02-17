@@ -1,5 +1,11 @@
 #' @title Robust scaling of training data frames
 #' @description Scales a matrix or a data frame by the median instead of the mean.
+#' @usage
+#' scale_robust(
+#'   x,
+#'   center = TRUE,
+#'   scale = TRUE
+#' )
 #' @param x Matrix or data.frame
 #' @param center Logical. If `TRUE`, subtracts the median to center the data. Default: `TRUE`
 #' @param scale Logical. If `TRUE`, scales the data by the median absolute deviation. Default: `TRUE`

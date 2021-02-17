@@ -1,5 +1,11 @@
 #' @title Plots the results of a spatial cross-validation
 #' @description Plots the results of an spatial cross-validation performed with [rf_evaluate()].
+#' @usage
+#' plot_evaluation(
+#'   x,
+#'   verbose = TRUE,
+#'   notch = TRUE
+#' )
 #' @param x A model resulting from [rf_evaluate()].
 #' @param verbose Logical, if `TRUE` the plot is printed. Default: `TRUE`
 #' @param notch Logical, if `TRUE`, boxplot notches are plotted. Default: `TRUE`

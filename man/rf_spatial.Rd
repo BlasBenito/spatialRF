@@ -64,10 +64,8 @@ setting \code{keep.models} to \code{TRUE} may cause memory issues. Default: \cod
 \item "pca.effect.optimized"    (experimental)
 \item "mem.moran.sequential"
 \item "mem.effect.sequential"
-\item "mem.effect.optimized"    (experimental)
-}
-
-See \strong{Details}.}
+\item "mem.effect.optimized"
+}}
 
 \item{max.spatial.predictors}{Integer, maximum number of spatial predictors to generate. Useful when memory problems arise due to a large number of spatial predictors, Default: \code{1000}}
 
@@ -191,7 +189,4 @@ if(interactive()){
 
 }
 }
-}
-\seealso{
-\code{\link[=rank_spatial_predictors]{rank_spatial_predictors()}}, \code{\link[=select_spatial_predictors_sequential]{select_spatial_predictors_sequential()}}, \code{\link[=select_spatial_predictors_optimized]{select_spatial_predictors_optimized()}}
 }

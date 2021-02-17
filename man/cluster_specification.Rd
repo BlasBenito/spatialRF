@@ -18,10 +18,10 @@ cluster_specification(
 \item{cluster.user}{Character string, name of the user (should be the same throughout machines), Defaults to the current system user.}
 }
 \value{
-A list ready to be used as input for the \emph{spec} argument of the function \link[parallel]{makeCluster}.
+A list ready to be used as input for the \code{spec} argument of the function \link[parallel]{makeCluster}.
 }
 \description{
-Defines a cluster for \link[parallel]{makeCluster} from the IPs of the machines in the cluster, the number of cores of each machine, and the user name..
+Defines a Beowulf cluster for \link[parallel]{makeCluster} from the IPs of the machines in the cluster, the number of cores of each machine, and the user name.
 }
 \details{
 This function is used internally by several other functions in the package, but can be useful for a user working with \link[foreach]{foreach} to parallelize loops in a small cluster.

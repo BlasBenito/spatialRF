@@ -4,7 +4,10 @@
 \alias{thinning_til_n}
 \title{Applies thinning to pairs of coordinates until reaching a given n}
 \usage{
-thinning_til_n(xy, n = 30)
+thinning_til_n(
+  xy,
+  n = 30
+)
 }
 \arguments{
 \item{xy}{A data frame with columns named "x" and "y" representing geographic coordinates.}

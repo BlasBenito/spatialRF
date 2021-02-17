@@ -1,5 +1,10 @@
 #' @title Plots a tuning object produced by [rf_tuning()]
 #' @description Plots the tuning of the hyperparameters `num.trees`, `mtry`, and `min.node.size` performed by [rf_tuning()].
+#' @usage
+#' plot_tuning(
+#'   x,
+#'   verbose = TRUE
+#' )
 #' @param x A model fitted with [rf_tuning()]. Default: `NULL`
 #' @param verbose Logical, if `TRUE`, the plot is printed. Default: `TRUE`
 #' @return A ggplot.

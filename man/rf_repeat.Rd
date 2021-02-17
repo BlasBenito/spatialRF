@@ -24,7 +24,7 @@ rf_repeat(
 )
 }
 \arguments{
-\item{model}{A model fitted with \code{\link[=rf]{rf()}}. If provided, the arguments \code{data}, \code{dependent.variable.name}, \code{predictor.variable.names}, \code{distance.matrix}, \code{distance.thresholds}, \code{ranger.arguments}, and \code{scaled.importance} are taken directly from the model definition (stored in \code{model$ranger.arguments}). Default: \code{NULL}}
+\item{model}{A model fitted with \code{\link[=rf]{rf()}}. If provided, the data and ranger arguments are taken directly from the model definition (stored in \code{model$ranger.arguments}). Default: \code{NULL}}
 
 \item{data}{Data frame with a response variable and a set of predictors. Default: \code{NULL}}
 
@@ -68,7 +68,7 @@ A ranger model with several new slots:
 }
 }
 \description{
-Fits several random forest models on the same data in order to capture the effect of the algorithm's stochasticity on the importance scores and performance measures. The function is prepared to run on a cluster if the IPs, number of cores, and user name are provided (see \link{cluster_specification}).
+Fits several random forest models on the same data in order to capture the effect of the algorithm's stochasticity on the importance scores and performance measures.
 }
 \examples{
 \donttest{

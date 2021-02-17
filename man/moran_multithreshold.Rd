@@ -21,7 +21,7 @@ moran_multithreshold(
 \item{verbose}{Logical, if \code{TRUE}, plots Moran's I values for each distance threshold. Default: \code{TRUE}}
 }
 \value{
-a named list with the slots:
+A named list with the slots:
 \itemize{
 \item \code{df}: Data frame with the results of \link{moran} per distance threshold.
 \item \code{plot}: A plot of Moran's I across distance thresholds.
@@ -33,7 +33,7 @@ a named list with the slots:
 Applies \code{\link[=moran]{moran()}} to different distance thresholds at the same time.
 }
 \details{
-The idea behind this function comes from the uncertainty about what "neighborhood" means in ecological systems (1000km in geological time means little, but 100m might be quite a long distance for a tree to disperse seeds over), and allows to explore spatial autocorrelation of model residuals for several minimum-distance criteria at once.
+Using different distance thresholds helps to take into account the uncertainty about what "neighborhood" means in ecological systems (1000km in geological time means little, but 100m might be quite a long distance for a tree to disperse seeds over), and allows to explore spatial autocorrelation of model residuals for several minimum-distance criteria at once.
 }
 \examples{
 \donttest{

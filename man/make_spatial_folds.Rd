@@ -17,14 +17,14 @@ make_spatial_folds(
 
 \item{xy}{data frame with at least three columns: "x" (longitude), "y" (latitude), and "id" (integer, index of the record). Default: \code{NULL}.}
 
-\item{distance.step}{numeric, distance the buffer around xy.i is grown on each iteration. If NULL, it defaults to the minimum distance between points in xy divided by 2. Default: \code{NULL}.}
+\item{distance.step}{numeric, distance the buffer around xy.i is grown on each iteration. If NULL, it defaults to the minimum distance between points in \code{xy} divided by 2. Default: \code{NULL}.}
 
 \item{training.fraction}{numeric, fraction of the data to be included in the growing buffer as training data, Default: 0.6}
 
 \item{n.cores}{number of cores to use to generate spatial folds in parallel. Default: \code{NULL}.}
 }
 \value{
-a list with as many slots as rows are in \code{xy.selected}. Each slot has TWO slots named \code{training} and \code{testing}, with the former having the indices of the training records selected from xy, and the latter having the indices of the testing records.
+A list with as many slots as rows are in \code{xy.selected}. Each slot has two slots named \code{training} and \code{testing}, with the former having the indices of the training records selected from xy, and the latter having the indices of the testing records.
 }
 \description{
 Applies \code{\link[=make_spatial_fold]{make_spatial_fold()}} to every record in a data frame \code{xy.selected} to generate as many spatially independent folds over the dataset \code{xy} as rows are in \code{xy.selected}.

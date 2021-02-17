@@ -4,7 +4,10 @@
 \alias{pca}
 \title{Principal Components Analysis}
 \usage{
-pca(x = NULL, colnames.prefix = "pca_factor")
+pca(
+  x = NULL,
+  colnames.prefix = "pca_factor"
+)
 }
 \arguments{
 \item{x}{numeric matrix or data frame, Default: NULL}

@@ -4,7 +4,11 @@
 \alias{print_moran}
 \title{Prints results of a Moran's I test}
 \usage{
-print_moran(x, caption = NULL, verbose = TRUE)
+print_moran(
+  x,
+  caption = NULL,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{x}{A model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}.}

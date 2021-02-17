@@ -22,17 +22,17 @@
 **DOCUMENTATION**
   
   + Passed documentation through spellcheck:                        YES
-  + All links are https rather than http:                           PENDING
-  + Links to CRAN packages are canonical:                           PENDING
-  + Relative links (file URIE) exist or are not broken:             PENDING
-  + All exported functions have @returns and @examples              PENDING
+  + All links are https rather than http:                           YES
+  + Links to CRAN packages are canonical:                           YES
+  + Relative links (file URIE) exist or are not broken:             YES
+  + All exported functions have @returns and @examples              YES
   + The tag \dontrun is not used in any example:                    YES
   + Examples running for more than 5s are wrapped in donttest:      YES
-  + There is no commented code in the @examples sections:           PENDING
-  + Check for un-exported functions with roxygen examples:          PENDING
+  + There is no commented code in the @examples sections:           YES
+  + Check for un-exported functions with roxygen examples:          DONE
   + Examples run on one thread:                                     YES
 
 
 **CODE**
 
-  + Check that no function modifies the user's options     PENDING
+  + Check that no function modifies the user's options     DONE

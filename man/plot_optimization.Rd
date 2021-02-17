@@ -4,12 +4,15 @@
 \alias{plot_optimization}
 \title{Optimization plot of a selection of spatial predictors}
 \usage{
-plot_optimization(x, verbose = TRUE)
+plot_optimization(
+  x,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{x}{A model produced by \code{\link[=rf_spatial]{rf_spatial()}}, or an optimization data frame produced by \code{\link[=select_spatial_predictors_sequential]{select_spatial_predictors_sequential()}} or \code{\link[=select_spatial_predictors_optimized]{select_spatial_predictors_optimized()}}.}
 
-\item{verbose}{logical, if TRUE the plot is printed Default: TRUE}
+\item{verbose}{Logical, if \code{TRUE} the plot is printed. Default: \code{TRUE}}
 }
 \value{
 A ggplot.

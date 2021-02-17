@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_moran.R
 \name{get_moran}
 \alias{get_moran}
-\title{Gets Moran's I test of a model's residuals}
+\title{Gets Moran's I test of model residuals}
 \usage{
 get_moran(x)
 }

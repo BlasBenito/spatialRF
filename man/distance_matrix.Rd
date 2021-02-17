@@ -3,7 +3,7 @@
 \docType{data}
 \name{distance_matrix}
 \alias{distance_matrix}
-\title{Matrix of distances among american ecoregions.}
+\title{Matrix of distances among the American ecoregions.}
 \format{
 A numeric matrix with 227 rows and columns.
 }

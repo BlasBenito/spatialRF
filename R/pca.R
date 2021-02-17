@@ -1,5 +1,10 @@
 #' @title Principal Components Analysis
 #' @description Extracts all factors of a principal component analysis of a matrix or data frame. Just a convenient wrapper for [prcomp].
+#' @usage
+#' pca(
+#'   x = NULL,
+#'   colnames.prefix = "pca_factor"
+#' )
 #' @param x numeric matrix or data frame, Default: NULL
 #' @param colnames.prefix character, name prefix for the output columns, Default: 'pca_factor'
 #' @return A data frame with the PCA factors of `x`.

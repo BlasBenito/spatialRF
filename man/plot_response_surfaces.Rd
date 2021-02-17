@@ -52,6 +52,7 @@ out <- rf(
 )
 
 p <- plot_response_surfaces(x = out)
+p
 
 }
 }

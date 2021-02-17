@@ -4,7 +4,10 @@
 \alias{weights_from_distance_matrix}
 \title{Transforms a distance matrix into a matrix of weights}
 \usage{
-weights_from_distance_matrix(x, distance.threshold = 0)
+weights_from_distance_matrix(
+  x,
+  distance.threshold = 0
+)
 }
 \arguments{
 \item{x}{Numeric squared and symmetric distance matrix.}

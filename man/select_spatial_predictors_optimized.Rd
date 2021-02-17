@@ -35,7 +35,7 @@ select_spatial_predictors_optimized(
 
 \item{ranger.arguments}{Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.}
 
-\item{spatial.predictors.df}{Data frame of spatial predictors produced by \code{\link[=pca_multithreshold]{pca_multithreshold()}} or \code{\link[=mem_multithreshold]{mem_multithreshold()}}.}
+\item{spatial.predictors.df}{Data frame of spatial predictors.}
 
 \item{spatial.predictors.ranking}{Ranking of predictors returned by \code{\link[=rank_spatial_predictors]{rank_spatial_predictors()}}.}
 

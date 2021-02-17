@@ -1,5 +1,10 @@
 #' @title Applies thinning to pairs of coordinates until reaching a given n
 #' @description Resamples a set of points with x and y coordinates by increasing the distance step by step until a given sample size is obtained.
+#' @usage
+#' thinning_til_n(
+#'   xy,
+#'   n = 30
+#' )
 #' @param xy A data frame with columns named "x" and "y" representing geographic coordinates.
 #' @param n Integer, number of samples to obtain. Must be lower than `nrow(xy)`. Default: `30`
 #' @return A data frame with the same columns as xy with a row number close to n.

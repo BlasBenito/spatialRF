@@ -1,5 +1,5 @@
 #' @title Shows size of objects in the R environment
-#' @description Shows the size of the objects currently in the R environment. Helps to locate large objects cluttering the R environment and/or causing memory problems.
+#' @description Shows the size of the objects currently in the R environment. Helps to locate large objects cluttering the R environment and/or causing memory problems during the execution of large workflows.
 #' @param n Number of objects to show, Default: `10`
 #' @return A data frame with the row names indicating the object name, the field 'Type' indicating the object type, 'Size' indicating the object size, and the columns 'Length/Rows' and 'Columns' indicating the object dimensions if applicable.
 #' @examples
@@ -15,7 +15,7 @@
 #' @rdname objects_size
 #' @importFrom utils object.size
 #' @export
-objects_size <- function(n=10) {
+objects_size <- function(n = 10) {
 
   .ls.objects <- function (
     pos = 1,

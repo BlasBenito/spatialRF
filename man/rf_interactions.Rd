@@ -21,7 +21,7 @@ rf_interactions(
 )
 }
 \arguments{
-\item{model}{A model fitted with \code{\link[=rf]{rf()}}. If used, the arguments \code{data}, \code{dependent.variable.name}, \code{predictor.variable.names}, \code{distance.matrix}, \code{distance.thresholds}, \code{ranger.arguments}, and \code{scaled.importance} are taken directly from the model definition. Default: \code{NULL}}
+\item{model}{A model fitted with \code{\link[=rf]{rf()}}. If used, the data is taken directly from the model definition and no other data-related arguments are required. Default: \code{NULL}}
 
 \item{data}{Data frame with a response variable and a set of predictors. Default: \code{NULL}}
 
@@ -53,7 +53,7 @@ A list with two slots: \code{screening}, with the complete screening results; \c
 \description{
 Suggests candidate variable interactions by selecting the variables above a given importance threshold (given by the argument \code{importance.threshold}) from a model and combining them in pairs through multiplication (\code{a * b}).
 
-For each variable interaction, a model including all the predictors plus the interaction is fitted, and it's R squared is compared with the R squared of the model without interactions. This model without interactions can either be provided through the argument \code{model}, or is fitted on the fly with \code{\link[=rf_repeat]{rf_repeat()}} if the user provides the arguments \code{data}, \code{dependent.variable.name}, and \code{predictor.variable.names}.
+For each variable interaction, a model including all the predictors plus the interaction is fitted, and it's R squared is compared with the R squared of the model without interactions. This model without interactions can either be provided through the argument \code{model}, or is fitted on the fly with \code{\link[=rf_repeat]{rf_repeat()}} if the user provides the data.
 
 Users should not use the suggested variable interactions hastily. Most likely, only one or a few of the suggested interactions may make sense from a domain expertise standpoint.
 }

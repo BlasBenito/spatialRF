@@ -4,7 +4,11 @@
 \alias{moran}
 \title{Moran's I test on a numeric vector}
 \usage{
-moran(x = NULL, distance.matrix = NULL, distance.threshold = 0)
+moran(
+  x = NULL,
+  distance.matrix = NULL,
+  distance.threshold = 0
+)
 }
 \arguments{
 \item{x}{Numeric vector, generally model residuals, Default: \code{NULL}}

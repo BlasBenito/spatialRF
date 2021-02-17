@@ -1,6 +1,6 @@
-#' @title  Centroids of North and South American ecoregions.
+#' @title  Centroids of American ecoregions.
 #'
-#' Centroids of the American ecoregions represented in [plant_richness_df] in format \link[sf]{sf}, with latitude and longitude coordinates and datum WGS84 stored in the column *geom_centroids*.
+#' @description Centroids of the American ecoregions represented in [plant_richness_df] in format \link[sf]{sf}, with latitude and longitude coordinates and datum WGS84 stored in the column *geom_centroids*.
 #' plant_richness_sf
 #' @usage data(plant_richness_sf)
 #' @seealso [plant_richness_df], [distance_matrix]

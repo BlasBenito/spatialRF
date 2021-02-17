@@ -1,5 +1,11 @@
 #' @title Prints results of a Moran's I test
 #' @description Prints the results of a Moran's I test on the residuals of a model.
+#' @usage
+#' print_moran(
+#'   x,
+#'   caption = NULL,
+#'   verbose = TRUE
+#' )
 #' @param x A model fitted with [rf()], [rf_repeat()], or [rf_spatial()].
 #' @param caption Character, caption of the output table, Default: `NULL`
 #' @param verbose Logical, if `TRUE`, the resulting table is printed into the console, Default: `TRUE`

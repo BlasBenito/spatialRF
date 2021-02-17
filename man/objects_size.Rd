@@ -13,7 +13,7 @@ objects_size(n = 10)
 A data frame with the row names indicating the object name, the field 'Type' indicating the object type, 'Size' indicating the object size, and the columns 'Length/Rows' and 'Columns' indicating the object dimensions if applicable.
 }
 \description{
-Shows the size of the objects currently in the R environment. Helps to locate large objects cluttering the R environment and/or causing memory problems.
+Shows the size of the objects currently in the R environment. Helps to locate large objects cluttering the R environment and/or causing memory problems during the execution of large workflows.
 }
 \examples{
 \donttest{

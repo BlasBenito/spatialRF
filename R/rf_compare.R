@@ -1,4 +1,4 @@
-#' @title Compares performance of two models on independent data
+#' @title Compares the performance of two models on independent data
 #' @description Uses [rf_evaluate()] to compare the performance of two models on independent spatial folds.
 #' @param a Model fitted with [rf()], [rf_tuning()], [rf_repeat()], or [rf_spatial()]. Default: NULL
 #' @param b Model fitted with [rf()], [rf_tuning()], [rf_repeat()], or [rf_spatial()]., Default: NULL

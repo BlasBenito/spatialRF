@@ -4,7 +4,10 @@
 \alias{plot_moran}
 \title{Plots a Moran's I test of model residuals}
 \usage{
-plot_moran(x, verbose = TRUE)
+plot_moran(
+  x,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{x}{A model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}. Default: \code{NULL}}

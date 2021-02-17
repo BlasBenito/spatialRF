@@ -7,9 +7,7 @@
 #'
 #' In both cases, spatial predictors with no effect (no reduction of Moran's I  or Moran's I of the spatial predictor equal or lower than 0) are removed.
 #'
-#' The purpose of this function is to provide criteria on how to include spatial predictors in a model that is later used by [select_spatial_predictors_optimized()] or [select_spatial_predictors_sequential()].
-#'
-#' This function has been designed to be used internally by [rf_spatial()] rather than by directly by a user.
+#' This function has been designed to be used internally by [rf_spatial()] rather than directly by a user.
 #' @param data Data frame with a response variable and a set of predictors. Default: `NULL`
 #' @param dependent.variable.name Character string with the name of the response variable. Must be in the column names of `data`. Default: `NULL`
 #' @param predictor.variable.names Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Default: `NULL`
@@ -17,7 +15,7 @@
 #' @param distance.matrix Squared matrix with the distances among the records in `data`. The number of rows of `distance.matrix` and `data` must be the same. If not provided, the computation of the Moran's I of the residuals is omitted. Default: `NULL`
 #' @param distance.thresholds Numeric vector with neighborhood distances. All distances in the distance matrix below each value in `dustance.thresholds` are set to 0 for the computation of Moran's I. If `NULL`, it defaults to seq(0, max(distance.matrix), length.out = 4). Default: `NULL`
 #' @param ranger.arguments List with \link[ranger]{ranger} arguments. See [rf] or [rf_repeat] for further details.
-#' @param spatial.predictors.df Data frame of spatial predictors produced by [mem_multithreshold()] or [pca_multithreshold()].
+#' @param spatial.predictors.df Data frame of spatial predictors.
 #' @param ranking.method Character, method used by to rank spatial predictors. The method "effect" ranks spatial predictors according how much each predictor reduces Moran's I of the model residuals, while the method "moran" ranks them by their own Moran's I.
 #' @param n.cores Integer, number of cores to use during computations. If `NULL`, all cores but one are used, unless a cluster is used. Default = `NULL`
 #' @param cluster.ips Character vector with the IPs of the machines in a cluster. The machine with the first IP will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.

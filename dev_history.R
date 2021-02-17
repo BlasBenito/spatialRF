@@ -12,7 +12,11 @@ library(spelling)
 
 #check in different platforms
 rhub::validate_email()
-rhub::check_for_cran()
+platforms <- rhub::platforms()
+rhub::check_for_cran(platforms = "macos-highsierra-release-cran")
+rhub::check_for_cran(platforms = "solaris-x86-patched")
+rhub::check_for_cran(platforms = "windows-x86_64-devel")
+
 devtools::check_win_devel()
 devtools::check(remote = TRUE, manual = TRUE)
 

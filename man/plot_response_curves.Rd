@@ -48,6 +48,7 @@ out <- rf(
 )
 
 p <- plot_response_curves(x = out)
+p
 
 }
 }

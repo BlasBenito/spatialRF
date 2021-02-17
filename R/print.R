@@ -4,6 +4,24 @@
 #' @param ... Additional arguments for print methods.
 #' @return Prints model details to the console.
 #' @seealso [print_evaluation()], [print_importance()], [print_moran()], [print_performance()]
+#' @examples
+#' \donttest{
+#' if(interactive()){
+#'
+#'  data("plant_richness_df")
+#'  data("distance_matrix")
+#'
+#'  out <- rf(
+#'    data = plant_richness_df,
+#'    dependent.variable.name = "richness_species_vascular",
+#'    predictor.variable.names = colnames(plant_richness_df)[5:21],
+#'    distance.matrix = distance_matrix,
+#'    distance.thresholds = c(0, 100, 1000, 10000)
+#'  )
+#'
+#'  print(out)
+#' }
+#' }
 #' @rdname print
 #' @export
 #' @importFrom huxtable hux add_colnames set_bold set_all_borders number_format print_screen set_width number_format

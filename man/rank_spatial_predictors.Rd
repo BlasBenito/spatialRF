@@ -34,7 +34,7 @@ rank_spatial_predictors(
 
 \item{ranger.arguments}{List with \link[ranger]{ranger} arguments. See \link{rf} or \link{rf_repeat} for further details.}
 
-\item{spatial.predictors.df}{Data frame of spatial predictors produced by \code{\link[=mem_multithreshold]{mem_multithreshold()}} or \code{\link[=pca_multithreshold]{pca_multithreshold()}}.}
+\item{spatial.predictors.df}{Data frame of spatial predictors.}
 
 \item{ranking.method}{Character, method used by to rank spatial predictors. The method "effect" ranks spatial predictors according how much each predictor reduces Moran's I of the model residuals, while the method "moran" ranks them by their own Moran's I.}
 
@@ -67,9 +67,7 @@ In the latter case, the spatial predictors are ordered by their Moran's I alone 
 
 In both cases, spatial predictors with no effect (no reduction of Moran's I  or Moran's I of the spatial predictor equal or lower than 0) are removed.
 
-The purpose of this function is to provide criteria on how to include spatial predictors in a model that is later used by \code{\link[=select_spatial_predictors_optimized]{select_spatial_predictors_optimized()}} or \code{\link[=select_spatial_predictors_sequential]{select_spatial_predictors_sequential()}}.
-
-This function has been designed to be used internally by \code{\link[=rf_spatial]{rf_spatial()}} rather than by directly by a user.
+This function has been designed to be used internally by \code{\link[=rf_spatial]{rf_spatial()}} rather than directly by a user.
 }
 \examples{
 \donttest{

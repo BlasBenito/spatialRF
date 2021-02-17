@@ -25,7 +25,7 @@ rf_tuning(
 )
 }
 \arguments{
-\item{model}{A model fitted with \code{\link[=rf]{rf()}}. If provided, the arguments \code{data}, \code{dependent.variable.name}, \code{predictor.variable.names}, \code{distance.matrix}, \code{distance.thresholds}, \code{ranger.arguments}, and \code{scaled.importance} are taken directly from the model definition (stored in \code{model$ranger.arguments}). Default: \code{NULL}}
+\item{model}{A model fitted with \code{\link[=rf]{rf()}}. If provided, the training data is taken directly from the model definition (stored in \code{model$ranger.arguments}). Default: \code{NULL}}
 
 \item{data}{Data frame with a response variable and a set of predictors. Default: \code{NULL}}
 

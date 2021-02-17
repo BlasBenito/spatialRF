@@ -2,7 +2,7 @@
 % Please edit documentation in R/rf_compare.R
 \name{rf_compare}
 \alias{rf_compare}
-\title{Compares performance of two models on independent data}
+\title{Compares the performance of two models on independent data}
 \usage{
 rf_compare(
   a = NULL,

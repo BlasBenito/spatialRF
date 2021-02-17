@@ -3,10 +3,7 @@
 \docType{data}
 \name{plant_richness_sf}
 \alias{plant_richness_sf}
-\title{Centroids of North and South American ecoregions.
-
-Centroids of the American ecoregions represented in \link{plant_richness_df} in format \link[sf]{sf}, with latitude and longitude coordinates and datum WGS84 stored in the column \emph{geom_centroids}.
-plant_richness_sf}
+\title{Centroids of American ecoregions.}
 \format{
 A spatial data frame (sf) with 227 rows
 }
@@ -14,8 +11,6 @@ A spatial data frame (sf) with 227 rows
 data(plant_richness_sf)
 }
 \description{
-Centroids of North and South American ecoregions.
-
 Centroids of the American ecoregions represented in \link{plant_richness_df} in format \link[sf]{sf}, with latitude and longitude coordinates and datum WGS84 stored in the column \emph{geom_centroids}.
 plant_richness_sf
 }

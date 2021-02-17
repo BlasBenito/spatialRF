@@ -4,7 +4,11 @@
 \alias{scale_robust}
 \title{Robust scaling of training data frames}
 \usage{
-scale_robust(x, center = TRUE, scale = TRUE)
+scale_robust(
+  x,
+  center = TRUE,
+  scale = TRUE
+)
 }
 \arguments{
 \item{x}{Matrix or data.frame}
