@@ -26,8 +26,8 @@ A data frame with 227 rows and 22 columns:
 \item \code{neighbors_area}: Total area of the ecoregions's immediate neighbors.
 \item \code{human_population}: Human population in the ecoregion.
 \item \code{human_footprint_average}: Average \href{https://sedac.ciesin.columbia.edu/data/set/wildareas-v3-2009-human-footprint}{human footprint} in the ecoregion.
-\item \code{climate_bio1_average}: Average mean annual temperature.
-\item \code{climate_bio15_minimum}: Average precipitation seasonality.
+\item \code{climate_bio1_average}: Average mean annual temperature, from \href{https://chelsa-climate.org/}{CHELSA}.
+\item \code{climate_bio15_minimum}: Average precipitation seasonality, from CHELSA.
 
 }
 }

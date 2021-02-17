@@ -1,5 +1,5 @@
 #' @title Gets model predictions
-#' @description Returns model predictions from a model fited with [rf()], [rf_repeat()], or [rf_spatial()].
+#' @description Returns model predictions from a model fitted with [rf()], [rf_repeat()], or [rf_spatial()].
 #' @param x A model produced by [rf()], [rf_repeat()], or [rf_spatial()].
 #' @return A data frame with predictions, or mean and standard deviation of the predictions if the model was fitted with [rf_repeat()].
 #' @examples

@@ -9,15 +9,18 @@ scale_robust(x, center = TRUE, scale = TRUE)
 \arguments{
 \item{x}{Matrix or data.frame}
 
-\item{center}{Logical. If \code{TRUE}, substracts the median to center the data. Default: \code{TRUE}}
+\item{center}{Logical. If \code{TRUE}, subtracts the median to center the data. Default: \code{TRUE}}
 
 \item{scale}{Logical. If \code{TRUE}, scales the data by the median absolute deviation. Default: \code{TRUE}}
 }
 \value{
-a scaled matrix or dataframe
+A scaled matrix or dataframe
 }
 \description{
 Scales a matrix or a data frame by the median instead of the mean.
+}
+\details{
+Adapted from the \code{robustscale()} function of the \href{https://cran.r-project.org/package=quantable}{quantable} package.
 }
 \examples{
 \donttest{

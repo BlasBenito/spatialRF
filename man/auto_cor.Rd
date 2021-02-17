@@ -21,7 +21,7 @@ auto_cor(
 \item{verbose}{Logical. if \code{TRUE}, describes the function operations to the user. Default:: \code{TRUE}}
 }
 \value{
-List with trhee slots:
+List with three slots:
 \itemize{
 \item \code{cor}: correlation matrix of the selected variables.
 \item \code{selected.variables}: character vector with the names of the selected variables.
@@ -48,16 +48,14 @@ if(interactive()){
  out <- auto_vif(x = plant_richness_df[, 5:20])
  out <- auto_cor(x = out)
 
- #with pipes
+ #with pipes (cor and vif thresholds are arbitrary)
  out <- plant_richness_df[, 5:20] \%>\%
- auto_vif(vif.threshold = 2.5) \%>\% #artificially low
- auto_cor(cor.threshold = 0.4)     #artificially low
+ auto_vif(vif.threshold = 2.5) \%>\%
+ auto_cor(cor.threshold = 0.4)
 
  }
 }
 }
 \seealso{
-\code{\link[=auto_vif]{auto_vif()}}
-
 \code{\link[=auto_vif]{auto_vif()}}
 }

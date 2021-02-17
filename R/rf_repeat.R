@@ -475,7 +475,7 @@ rf_repeat <- function(
   m.curves$ranger.arguments$keep.models <- keep.models
 
   #adding class to the model
-  class(m.curves) <- c("rf", "rf_repeat")
+  class(m.curves) <- c("rf", "rf_repeat", "ranger")
 
   #print model
   if(verbose == TRUE){

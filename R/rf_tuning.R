@@ -5,7 +5,7 @@
 #' @param dependent.variable.name Character string with the name of the response variable. Must be in the column names of `data`. Default: `NULL`
 #' @param predictor.variable.names Character vector with the names of the predictive variables, or output of [auto_cor()] or [auto_vif()]. Every element of this vector must be in the column names of `data`. Default: `NULL`
 #' @param method Character, "oob" to use RMSE values computed on the out-of-bag data to guide the tuning, and "spatial.cv", to use RMSE values from a spatial cross-validation on independent spatial folds done via [rf_evaluate()]. Default: `"oob"`
-#' @param num.trees Numeric integer vector with the number of trees to fit on each model repetition. Defalut: c(500, 1000).
+#' @param num.trees Numeric integer vector with the number of trees to fit on each model repetition. Default: c(500, 1000).
 #' @param mtry Numeric integer vector, number of predictors to randomly select from the complete pool of predictors on each tree split. Default: `c(2, 3)`
 #' @param min.node.size Numeric integer, minimal number of cases in a terminal node. Default: `c(5, 10)`
 #' @param xy Data frame or matrix with two columns containing coordinates and named "x" and "y", or an sf file with geometry class `sfc_POINT` (see [plant_richness_sf]). If `NULL`, the function will throw an error. Default: `NULL`

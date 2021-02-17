@@ -13,7 +13,7 @@ get_predictions(x)
 A data frame with predictions, or mean and standard deviation of the predictions if the model was fitted with \code{\link[=rf_repeat]{rf_repeat()}}.
 }
 \description{
-Returns model predictions from a model fited with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}.
+Returns model predictions from a model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}.
 }
 \examples{
 \donttest{

@@ -1,9 +1,9 @@
 #' @title Generates a cluster definition
-#' @description Defines a cluster for \link[parallel]{makeCluster} from the IPs of the machines in the cluster, the number of cores of each machine, and the user name..
+#' @description Defines a Beowulf cluster for \link[parallel]{makeCluster} from the IPs of the machines in the cluster, the number of cores of each machine, and the user name.
 #' @param cluster.ips Character vector with the IPs of the machines in the cluster. The first machine will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed. Default: `NULL`.
 #' @param cluster.cores Numeric integer vector, number of cores on each machine. Default: `NULL`.
 #' @param cluster.user Character string, name of the user (should be the same throughout machines), Defaults to the current system user.
-#' @return A list ready to be used as input for the *spec* argument of the function \link[parallel]{makeCluster}.
+#' @return A list ready to be used as input for the `spec` argument of the function \link[parallel]{makeCluster}.
 #' @details This function is used internally by several other functions in the package, but can be useful for a user working with \link[foreach]{foreach} to parallelize loops in a small cluster.
 #' @examples
 #'

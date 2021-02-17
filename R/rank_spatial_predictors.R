@@ -27,7 +27,7 @@
 #' @return A list with three slots:
 #' \itemize{
 #' \item `method`: Character, name of the method used to rank the spatial predictors.
-#'  \item `criteria`: Data frame with two different configurations depending on the ranking method. If `ranking.method = "effect"`, the columns contain the names of the spatial predictors, the r-squared of the model, the Moran's I of the model residuals, the difference between the Moran's I of the model including the given sptial predictor, and the Moran's I of the model fitted without spatial predictors, and the interpretation of the Moran's I value. If `ranking.method = "moran"`, only the name of the spatial predictor and it's Moran's I are in the output data frame.
+#'  \item `criteria`: Data frame with two different configurations depending on the ranking method. If `ranking.method = "effect"`, the columns contain the names of the spatial predictors, the r-squared of the model, the Moran's I of the model residuals, the difference between the Moran's I of the model including the given spatial predictor, and the Moran's I of the model fitted without spatial predictors, and the interpretation of the Moran's I value. If `ranking.method = "moran"`, only the name of the spatial predictor and it's Moran's I are in the output data frame.
 #'  \item `ranking`: Ordered character vector with the names of the spatial predictors selected.
 #' }
 #' @examples

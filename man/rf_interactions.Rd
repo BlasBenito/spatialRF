@@ -55,7 +55,7 @@ Suggests candidate variable interactions by selecting the variables above a give
 
 For each variable interaction, a model including all the predictors plus the interaction is fitted, and it's R squared is compared with the R squared of the model without interactions. This model without interactions can either be provided through the argument \code{model}, or is fitted on the fly with \code{\link[=rf_repeat]{rf_repeat()}} if the user provides the arguments \code{data}, \code{dependent.variable.name}, and \code{predictor.variable.names}.
 
-TheI advise the users not to use variable interactions blindly. Most likely, only one or a few of the suggested interactions may make sense from a domain expertise standpoint.
+Users should not use the suggested variable interactions hastily. Most likely, only one or a few of the suggested interactions may make sense from a domain expertise standpoint.
 }
 \examples{
 \donttest{

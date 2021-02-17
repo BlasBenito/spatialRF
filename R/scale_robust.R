@@ -1,9 +1,10 @@
 #' @title Robust scaling of training data frames
 #' @description Scales a matrix or a data frame by the median instead of the mean.
 #' @param x Matrix or data.frame
-#' @param center Logical. If `TRUE`, substracts the median to center the data. Default: `TRUE`
+#' @param center Logical. If `TRUE`, subtracts the median to center the data. Default: `TRUE`
 #' @param scale Logical. If `TRUE`, scales the data by the median absolute deviation. Default: `TRUE`
-#' @return a scaled matrix or dataframe
+#' @return A scaled matrix or dataframe
+#' @details Adapted from the `robustscale()` function of the [quantable](https://cran.r-project.org/package=quantable) package.
 #' @examples
 #' \donttest{
 #' if(interactive()){

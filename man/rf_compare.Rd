@@ -51,7 +51,7 @@ rf_compare(
 \item{cluster.port}{Integer, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: \code{11000}}
 }
 \value{
-A list with three slots: \code{df.long}, with the performance metrics for each model across repetitions; \code{df.aggregated}, with aggregated stats per model and performance matric; \code{plot}, with a boxplot built from \code{df.long}.
+A list with three slots: \code{df.long}, with the performance metrics for each model across repetitions; \code{df.aggregated}, with aggregated stats per model and performance metrics; \code{plot}, with a boxplot built from \code{df.long}.
 }
 \description{
 Uses \code{\link[=rf_evaluate]{rf_evaluate()}} to compare the performance of two models on independent spatial folds.

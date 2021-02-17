@@ -4,14 +4,13 @@
 #' @param preference.order Character vector indicating the user's order of preference to keep variables. Doesn't need to contain If not provided, variables in `x` are prioritised by their column order. Default: `NULL`.
 #' @param cor.threshold Numeric between 0 and 1, with recommended values between 0.5 and 0.9. Maximum Pearson correlation between any pair of the selected variables. Default: `0.75`
 #' @param verbose Logical. if `TRUE`, describes the function operations to the user. Default:: `TRUE`
-#' @return List with trhee slots:
+#' @return List with three slots:
 #' \itemize{
 #'   \item `cor`: correlation matrix of the selected variables.
 #'   \item `selected.variables`: character vector with the names of the selected variables.
 #'   \item `selected.variables.df`: data frame with the selected variables.
 #' }
 #' @details Can be chained together with [auto_vif()] through pipes, see the examples below.
-#' @seealso [auto_vif()]
 #' @examples
 #' \donttest{
 #' if(interactive()){
@@ -26,10 +25,10 @@
 #'  out <- auto_vif(x = plant_richness_df[, 5:20])
 #'  out <- auto_cor(x = out)
 #'
-#'  #with pipes
+#'  #with pipes (cor and vif thresholds are arbitrary)
 #'  out <- plant_richness_df[, 5:20] %>%
-#'  auto_vif(vif.threshold = 2.5) %>% #artificially low
-#'  auto_cor(cor.threshold = 0.4)     #artificially low
+#'  auto_vif(vif.threshold = 2.5) %>%
+#'  auto_cor(cor.threshold = 0.4)
 #'
 #'  }
 #' }

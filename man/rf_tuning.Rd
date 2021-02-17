@@ -35,7 +35,7 @@ rf_tuning(
 
 \item{method}{Character, "oob" to use RMSE values computed on the out-of-bag data to guide the tuning, and "spatial.cv", to use RMSE values from a spatial cross-validation on independent spatial folds done via \code{\link[=rf_evaluate]{rf_evaluate()}}. Default: \code{"oob"}}
 
-\item{num.trees}{Numeric integer vector with the number of trees to fit on each model repetition. Defalut: c(500, 1000).}
+\item{num.trees}{Numeric integer vector with the number of trees to fit on each model repetition. Default: c(500, 1000).}
 
 \item{mtry}{Numeric integer vector, number of predictors to randomly select from the complete pool of predictors on each tree split. Default: \code{c(2, 3)}}
 

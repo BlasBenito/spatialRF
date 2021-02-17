@@ -442,7 +442,7 @@ rf <- function(
   }
 
   #adding rf class
-  class(m) <- c("rf")
+  class(m) <- c("rf", "ranger")
 
   if(verbose == TRUE){
     print(m)

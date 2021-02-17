@@ -8,10 +8,13 @@ library(exampletestr)
 # devtools::install_github("datastorm-open/DependenciesGraphs")
 library(DependenciesGraphs)
 library(rhub)
+library(spelling)
 
-#release
+#check in different platforms
 rhub::validate_email()
 rhub::check_for_cran()
+devtools::check_win_devel()
+devtools::check(remote = TRUE, manual = TRUE)
 
 #relevant links for release
 # https://github.com/tidyverse/multidplyr/issues/109?s=03
@@ -28,6 +31,7 @@ devtools::build_manual()
 
 #TO CHECK
 ########################################
+usethis::use_spell_check()
 attachment::att_from_description()
 devtools::document()
 devtools::check(run_dont_test = TRUE)

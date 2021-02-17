@@ -4,7 +4,12 @@
 \alias{auto_vif}
 \title{Multicollinearity reduction via Variance Inflation Factor}
 \usage{
-auto_vif(x = NULL, preference.order = NULL, vif.threshold = 5, verbose = TRUE)
+auto_vif(
+  x = NULL,
+  preference.order = NULL,
+  vif.threshold = 5,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{x}{A data frame with predictors or the result of \code{\link[=auto_cor]{auto_cor()}}. Default: \code{NULL}.}
@@ -45,10 +50,10 @@ if(interactive()){
  out <- auto_cor(x = plant_richness_df[, 5:20])
  out <- auto_vif(x = out)
 
- #with pipes
+ #with pipes (cor and vif thresholds are arbitrary)
  out <- plant_richness_df[, 5:20] \%>\%
- auto_cor(cor.threshold = 0.4) \%>\% #artificially low
- auto_vif(vif.threshold = 2.5)     #artificially low
+ auto_cor(cor.threshold = 0.4) \%>\%
+ auto_vif(vif.threshold = 2.5)
 
 
  }

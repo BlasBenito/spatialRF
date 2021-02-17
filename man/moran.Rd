@@ -22,7 +22,10 @@ A list with three named slots:
 }
 }
 \description{
-Computes the spatial correlation coefficient (Moran's I) of a vector given a distance matrix, and a distance threshold used to define neihgborhood.
+Computes the spatial correlation coefficient (Moran's I) of a vector given a distance matrix, and a distance threshold used to define neighborhood.
+}
+\details{
+Inspired in the \code{Moran.I()} function of the \href{https://cran.r-project.org/package=ape}{ape} package.
 }
 \examples{
 \donttest{

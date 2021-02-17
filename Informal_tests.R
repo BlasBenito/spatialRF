@@ -51,6 +51,13 @@ rf.model <- rf(
 print_performance(rf.model)
 print_importance(rf.model)
 
+predicted <- stats::predict(
+  object = rf.model,
+  data = plant_richness_df,
+  type = "response"
+)$predictions
+
+
 
 
 #with repetitions
