@@ -185,7 +185,7 @@ example below I give preference to the interaction suggested by
 over other types of predictors (any other choice would be valid, it just
 depends on the scope of the study). These rules are applies to both
 `auto_cor()` and `auto_vif()`, that are executed sequentially by using
-the “%&gt;%” pipe from the [magrittr](https://magrittr.tidyverse.org/)
+the `%>%` pipe from the [magrittr](https://magrittr.tidyverse.org/)
 package. Notice that I have set `cor.threshold` and `vif.threshold` to
 low values because the predictors in `plant_richness_df` show little
 multicollinearity. The default values (`cor.threshold = 0.75` and
@@ -345,7 +345,7 @@ I](https://en.wikipedia.org/wiki/Moran%27s_I), can be plotted with
 plot_moran(model.non.spatial.tuned)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->![](README_files/figure-gfm/unnamed-chunk-17-2.png)<!-- -->
 
 According to the plot, the spatial autocorrelation of the residuals is
 highly positive a neighborhood of 0 km, while it becomes non-significant
@@ -371,7 +371,7 @@ residuals.
 plot_moran(model.spatial)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->![](README_files/figure-gfm/unnamed-chunk-19-2.png)<!-- -->
 
 If we compare the variable importance plots of both models, we can see
 that the spatial model has an additional set of dots under the name
