@@ -29,7 +29,7 @@ List with three slots:
 }
 }
 \description{
-Selects predictors that are not linear combinations of other predictors by using computing their variance inflation factors (VIF). Allows the user to define an order of preference for the selection of predictors.
+Selects predictors that are not linear combinations of other predictors by using computing their variance inflation factors (VIF). Allows the user to define an order of preference for the selection of predictors. \strong{Warning}: variables in \code{preference.order} not in \code{colnames(x)}, columns with zero variance, and non-numeric columns are removed silently from \code{x} and \code{preference.order}. The same happens with rows having NA values (\code{\link[=na.omit]{na.omit()}} is applied).
 }
 \details{
 This function has two modes of operation:

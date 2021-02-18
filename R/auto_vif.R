@@ -1,6 +1,6 @@
 #' @title Multicollinearity reduction via Variance Inflation Factor
 #'
-#' @description Selects predictors that are not linear combinations of other predictors by using computing their variance inflation factors (VIF). Allows the user to define an order of preference for the selection of predictors.
+#' @description Selects predictors that are not linear combinations of other predictors by using computing their variance inflation factors (VIF). Allows the user to define an order of preference for the selection of predictors. \strong{Warning}: variables in `preference.order` not in `colnames(x)`, columns with zero variance, and non-numeric columns are removed silently from `x` and `preference.order`. The same happens with rows having NA values ([na.omit()] is applied).
 #' @usage
 #' auto_vif(
 #'   x = NULL,
@@ -59,6 +59,11 @@ auto_vif <- function(
   if(inherits(x, "variable_selection") == TRUE){
     x <- x$selected.variables.df
   }
+
+  #removing columns with zero variance
+  x <- x[ , which(apply(x, 2, var) != 0)]
+  x <- x[sapply(x, is.numeric)]
+  x <- na.omit(x)
 
   #AND preference.order IS NOT PROVIDED
   if(is.null(preference.order)){

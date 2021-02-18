@@ -43,7 +43,7 @@ devtools::build_manual()
 usethis::use_spell_check()
 attachment::att_from_description()
 devtools::document()
-devtools::check(run_dont_test = TRUE)
+devtools::check()
 ########################################
 
 #load all functions
