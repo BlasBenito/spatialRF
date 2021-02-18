@@ -61,9 +61,9 @@ auto_vif <- function(
   }
 
   #removing columns with zero variance
-  x <- x[ , which(apply(x, 2, var) != 0)]
-  x <- x[sapply(x, is.numeric)]
   x <- na.omit(x)
+  x <- x[sapply(x, is.numeric)]
+  x <- x[ , which(apply(x, 2, var) != 0)]
 
   #AND preference.order IS NOT PROVIDED
   if(is.null(preference.order)){

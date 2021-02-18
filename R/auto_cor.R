@@ -47,9 +47,10 @@ auto_cor <- function(
   }
 
   #removing columns with zero variance
-  x <- x[ , which(apply(x, 2, var) != 0)]
-  x <- x[sapply(x, is.numeric)]
   x <- na.omit(x)
+  x <- x[sapply(x, is.numeric)]
+  x <- x[ , which(apply(x, 2, var) != 0)]
+
 
   #compute correlation matrix of x
   x.cor <- abs(cor(x))
