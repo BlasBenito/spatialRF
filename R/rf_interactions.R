@@ -288,15 +288,13 @@ rf_interactions <- function(
   }
 
   #plot list of plots
-  variables.plots.out <- patchwork::wrap_plots(
-    plot.list
-  )
+  plot.list.out <- patchwork::wrap_plots(plot.list)
 
   if(verbose == TRUE){
-    print(variables.plots.out)
+    print(plot.list.out)
   }
 
-  out.list$plot <- variables.plots.out
+  out.list$plot <- plot.list.out
 
   out.list
 
