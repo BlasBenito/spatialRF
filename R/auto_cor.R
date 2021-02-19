@@ -46,7 +46,7 @@ auto_cor <- function(
     x <- x$selected.variables.df
   }
 
-  #removing columns with zero variance
+  #removing non-numeric and zero variance columns
   x <- na.omit(x)
   x <- x[sapply(x, is.numeric)]
   x <- x[ , which(round(apply(x, 2, var), 4) != 0)]

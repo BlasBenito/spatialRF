@@ -22,6 +22,7 @@ vif <- function(x){
     stop("x must be a data frame with numeric columns")
   }
 
+  #removing non-numeric and zero variance columns
   x <- na.omit(x)
   x <- x[sapply(x, is.numeric)]
   x <- x[ , which(round(apply(x, 2, var), 4) != 0)]

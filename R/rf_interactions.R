@@ -69,9 +69,6 @@ rf_interactions <- function(
       predictor.variable.names
     )]
 
-    #getting only numeric variables in data
-    data <- data[sapply(data, is.numeric)]
-
     #scaling
     data.scaled <- scale_robust(
       x = data
