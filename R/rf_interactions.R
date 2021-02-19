@@ -264,7 +264,7 @@ rf_interactions <- function(
         data = plot.df,
         ggplot2::aes(
           x = x,
-          y =
+          y = y
         ),
         alpha = 0.5
       ) +
