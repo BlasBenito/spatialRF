@@ -293,7 +293,7 @@ rf_interactions <- function(
   )
 
   if(verbose == TRUE){
-    variables.plots.out
+    print(variables.plots.out)
   }
 
   out.list$plot <- variables.plots.out
