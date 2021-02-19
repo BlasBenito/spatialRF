@@ -459,7 +459,7 @@ names(model.spatial$evaluation)
 ```
 
     ## [1] "training.fraction" "spatial.folds"     "per.fold"         
-    ## [4] "per.model"         "aggregated"
+    ## [4] "per.fold.long"     "per.model"         "aggregated"
 
 The slot “spatial.folds”, produced by `make_spatial_folds()` contains
 the indices of the training and testing cases for each cross-validation
@@ -491,23 +491,20 @@ convenient option with the function `rf_compare()`.
 
 ``` r
 comparison <- rf_compare(
-  a = model.non.spatial.tuned,
-  b = model.spatial,
-  a.name = "Non-spatial",
-  b.name = "Spatial",
-  xy = plant_richness_df[, c("x", "y")]
+  models = list(
+    `Non-spatial` = model.non.spatial.tuned,
+    `Spatial` = model.spatial
+  ),
+  xy = plant_richness_df[, c("x", "y")],
+  metrics = c("r.squared", "rmse")
   )
 ```
 
 ![](README_files/figure-gfm/unnamed-chunk-28-1.png)<!-- -->
 
-| model       | metric           |     mean |   median | standard\_deviation | standard\_error |  minimum |  maximum |
-|:------------|:-----------------|---------:|---------:|--------------------:|----------------:|---------:|---------:|
-| Non-spatial | R squared        |    0.341 |    0.413 |               0.211 |           0.042 |    0.001 |    0.654 |
-| Spatial     | R squared        |    0.275 |    0.280 |               0.184 |           0.037 |    0.000 |    0.685 |
-| Non-spatial | pseudo R squared |    0.501 |    0.643 |               0.305 |           0.061 |   -0.077 |    0.809 |
-| Spatial     | pseudo R squared |    0.463 |    0.530 |               0.252 |           0.050 |   -0.057 |    0.827 |
-| Non-spatial | RMSE             | 2855.146 | 2553.747 |             633.989 |         126.798 | 1758.142 | 4016.171 |
-| Spatial     | RMSE             | 3197.387 | 2956.940 |             691.100 |         138.220 | 2202.104 | 4574.846 |
-| Non-spatial | NRMSE            |    1.581 |    0.814 |               1.160 |           0.232 |    0.495 |    3.615 |
-| Spatial     | NRMSE            |    1.753 |    0.911 |               1.288 |           0.258 |    0.594 |    4.178 |
+| model       | metric    |    value |
+|:------------|:----------|---------:|
+| Non-spatial | r.squared |    0.469 |
+| Spatial     | r.squared |    0.425 |
+| Non-spatial | rmse      | 2452.922 |
+| Spatial     | rmse      | 2664.577 |

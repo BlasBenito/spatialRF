@@ -443,7 +443,11 @@ comparison <- rf_compare(
 
 ```{r, echo = FALSE, message=FALSE, warning=FALSE}
 kableExtra::kbl(
-  comparison$df.aggregated,
+  comparison$comparison.df %>% 
+    dplyr::group_by(model, metric) %>% 
+    dplyr::summarise(value = round(mean(value), 3)) %>% 
+    dplyr::arrange(metric) %>% 
+    as.data.frame(),
   format = "markdown"
   ) %>%
   kable_paper("hover", full_width = F)

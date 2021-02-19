@@ -53,6 +53,7 @@ plot_evaluation <- function(x, verbose = TRUE, notch = TRUE){
   }
 
   #getting plotting df
+  n.spatial.folds <- length(x$evaluation$spatial.folds)
   x <- x$evaluation$per.fold.long
 
   #prettier labels
@@ -91,7 +92,7 @@ plot_evaluation <- function(x, verbose = TRUE, notch = TRUE){
     ggplot2::ggtitle(
       paste0(
         "Evaluation results on ",
-        length(x$evaluation$spatial.folds),
+        n.spatial.folds,
         " spatial folds."
       )
     )
