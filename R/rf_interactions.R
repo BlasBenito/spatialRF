@@ -151,6 +151,7 @@ rf_interactions <- function(
       verbose = FALSE,
       repetitions = repetitions,
       n.cores = n.cores,
+      cluster.ips = cluster.ips,
       cluster.cores = cluster.cores,
       cluster.user = cluster.user,
       cluster.port = cluster.port
