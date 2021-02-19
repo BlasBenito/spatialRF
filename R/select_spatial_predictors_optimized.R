@@ -122,6 +122,8 @@ select_spatial_predictors_optimized <- function(
   spatial.predictors.candidates.i <- spatial.predictors.ranking$ranking
 
   #weights limits
+  if(is.null(weight.r.squared)){weight.r.squared <- 0.25}
+  if(is.null(weight.penalization.n.predictors)){weight.penalization.n.predictors <- 0}
   if(weight.r.squared > 1){weight.r.squared <- 1}
   if(weight.r.squared < 0){weight.r.squared <- 0}
   if(weight.penalization.n.predictors > 1){weight.penalization.n.predictors <- 1}

@@ -162,7 +162,7 @@ rf_spatial <- function(
   n.cores = NULL,
   cluster.ips = NULL,
   cluster.cores = NULL,
-  cluster.user = NULL,
+  cluster.user = Sys.info()[["user"]],
   cluster.port = 11000
 ){
 
@@ -197,6 +197,7 @@ rf_spatial <- function(
     distance.matrix <- ranger.arguments$distance.matrix
     distance.thresholds <- ranger.arguments$distance.thresholds
     scaled.importance <- ranger.arguments$scaled.importance
+    repetitioins <- ranger.arguments$repetitions
     seed <- NULL
     importance <- "permutation"
   }
@@ -509,12 +510,7 @@ rf_spatial <- function(
     spatial.predictors.selected
   )
 
-  #fitting a single spatial model
-  #find repetitions in model
-  if(inherits(model, "rf_repeat")){
-    repetitions <- model$ranger.arguments$repetitions
-  }
-
+  #fitting spatial model
   if(repetitions == 1){
 
     #fitting model

@@ -4,6 +4,7 @@
 #' @param xy Data frame or matrix with two columns containing coordinates and named "x" and "y", or an sf file with geometry class `sfc_POINT` (see [plant_richness_sf]). If `NULL`, the function will throw an error. Default: `NULL`
 #' @param repetitions Integer, must be lower than the total number of rows available in the model's data. Default: `30`
 #' @param training.fraction Proportion between 0.5 and 0.9 indicating the number of records to be used in model training. Default: `0.6`
+#' @param metrics Character vector, names of the performance metrics selected. The possible values are: "r.squared" (`cor(obs, pred) ^ 2`), "pseudo.r.squared" (`cor(obs, pred)`), "rmse" (`sqrt(sum((obs - pred)^2)/length(obs))`), "nrmse" (`rmse/(quantile(obs, 0.75) - quantile(obs, 0.25))`). Default: `c("r.squared", "pseudo.r.squared", "rmse", "nrmse")`
 #' @param verbose Logical. If `TRUE`, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
 #' @param n.cores Integer, number of cores to use during computations. If `NULL`, all cores but one are used, unless a cluster is used. Default = `NULL`
 #' @param cluster.ips Character vector with the IPs of the machines in a cluster. The machine with the first IP will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.
@@ -60,11 +61,12 @@ rf_evaluate <- function(
   xy = NULL,
   repetitions = 30,
   training.fraction = 0.6,
+  metrics = c("r.squared", "pseudo.r.squared", "rmse", "nrmse"),
   verbose = TRUE,
   n.cores = NULL,
   cluster.ips = NULL,
   cluster.cores = NULL,
-  cluster.user = NULL,
+  cluster.user = Sys.info()[["user"]],
   cluster.port = 11000
 ){
 
@@ -72,6 +74,19 @@ rf_evaluate <- function(
   i <- NULL
   metric <- NULL
   value <- NULL
+
+  #capturing user options
+  user.options <- options()
+  #avoid dplyr messages
+  options(dplyr.summarise.inform = FALSE)
+  on.exit(options <- user.options)
+
+  #testing method argument
+  metrics <- match.arg(
+    arg = metrics,
+    choices = c("r.squared", "pseudo.r.squared", "rmse", "nrmse"),
+    several.ok = TRUE
+  )
 
   #checking repetitions
   repetitions <- floor(repetitions)
@@ -240,27 +255,36 @@ rf_evaluate <- function(
       fold.center.x = xy.reference.records[i, "x"],
       fold.center.y = xy.reference.records[i, "y"],
       training.records = nrow(data.training),
-      testing.records = nrow(data.testing),
-      training.r.squared = m.training$performance$r.squared,
-      testing.r.squared = round(cor(observed, predicted) ^ 2, 3),
-      training.pseudo.r.squared = m.training$performance$pseudo.r.squared,
-      testing.pseudo.r.squared = round(cor(
+      testing.records = nrow(data.testing)
+      )
+
+    if("r.squared" %in% metrics){
+      out.df$training.r.squared = m.training$performance$r.squared
+      out.df$testing.r.squared = round(cor(observed, predicted) ^ 2, 3)
+    }
+    if("pseudo.r.squared" %in% metrics){
+      out.df$training.pseudo.r.squared = m.training$performance$pseudo.r.squared
+      out.df$testing.pseudo.r.squared = round(cor(
         observed,
         predicted
-      ), 3),
-      training.rmse = m.training$performance$rmse,
-      testing.rmse = round(root_mean_squared_error(
+      ), 3)
+    }
+    if("rmse" %in% metrics){
+      out.df$training.rmse = m.training$performance$rmse
+      out.df$testing.rmse = round(root_mean_squared_error(
         o = observed,
         p = predicted,
         normalization = NULL
-      ), 3),
-      training.nrmse = m.training$performance$nrmse,
-      testing.nrmse = round(root_mean_squared_error(
+      ), 3)
+    }
+    if("nrmse" %in% metrics){
+      out.df$training.nrmse = m.training$performance$nrmse
+      out.df$testing.nrmse = round(root_mean_squared_error(
         o = observed,
         p = predicted,
         normalization = "iq"
       ), 3)
-    )
+    }
     rownames(out.df) <- NULL
 
     return(out.df)
@@ -292,13 +316,11 @@ rf_evaluate <- function(
     nrmse = model$performance$nrmse,
     model = "Full"
   )
+  performance.full <- performance.full[, c(metrics, "model")]
 
   #set colnames
   colnames(performance.training) <- colnames(performance.testing) <- colnames(performance.full) <- c(
-    "r.squared",
-    "pseudo.r.squared",
-    "rmse",
-    "nrmse",
+    metrics,
     "model"
   )
 
@@ -312,7 +334,7 @@ rf_evaluate <- function(
   #to long format
   performance.df.long <- performance.df %>%
     tidyr::pivot_longer(
-      cols = 1:4,
+      cols = 1:length(metrics),
       names_to = "metric",
       values_to = "value"
     ) %>%
@@ -344,6 +366,7 @@ rf_evaluate <- function(
   model$evaluation$training.fraction <- training.fraction
   model$evaluation$spatial.folds <- spatial.folds
   model$evaluation$per.fold <- evaluation.df
+  model$evaluation$per.fold.long <- performance.df.long
   model$evaluation$per.model <- performance.df
   model$evaluation$aggregated <- performande.df.aggregated
 

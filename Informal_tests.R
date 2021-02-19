@@ -48,29 +48,12 @@ rf.model <- rf(
   seed = 50,
   verbose = FALSE
 )
-print_performance(rf.model)
-print_importance(rf.model)
-
-predicted <- stats::predict(
-  object = rf.model,
-  data = plant_richness_df,
-  type = "response"
-)$predictions
-
-
-
 
 #with repetitions
-rf.repeat <- rf_repeat(model = rf.model, verbose = TRUE)
+rf.repeat <- rf_repeat(model = rf.model, verbose = FALSE)
 
 #spatial model
-rf.spatial <- rf_spatial(model = rf.model, verbose = TRUE, method = "mem.effect.optimized")
-x11()
-plot_optimization(rf.spatial) + ggplot2::ggtitle("optimized")
-
-rf.spatial.2 <- rf_spatial(model = rf.model, verbose = TRUE)
-x11()
-plot_optimization(rf.spatial.2) + ggplot2::ggtitle("sequential")
+rf.spatial <- rf_spatial(model = rf.model, verbose = FALSE)
 
 #from repeat
 rf.spatial.repeat <- rf_spatial(model = rf.repeat, verbose = FALSE)
@@ -79,7 +62,8 @@ rf.spatial.repeat <- rf_spatial(model = rf.repeat, verbose = FALSE)
 rf.model <- rf_evaluate(
   model = rf.model,
   xy = plant_richness_df[, c("x", "y")],
-  verbose = FALSE
+  verbose = FALSE,
+  metrics = "r.squared"
 )
 plot_evaluation(rf.model)
 get_evaluation(rf.model)
@@ -168,4 +152,17 @@ tuning <- rf_tuning(
   tuning.method = "spatial.cv",
   xy = plant_richness_df[, c("x", "y")],
   verbose = TRUE
+)
+
+
+#rf compare
+comparison <- rf_compare2(
+models <- list(
+  rf.model = rf.model,
+  rf.repeat = rf.repeat,
+  rf.spatial = rf.spatial,
+  rf.spatial.repeat = rf.spatial.repeat
+),
+xy = plant_richness_df[, c("x", "y")],
+metrics = "r.squared"
 )

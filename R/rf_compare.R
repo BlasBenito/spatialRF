@@ -1,12 +1,10 @@
-#' @title Compares the performance of two models on independent data
-#' @description Uses [rf_evaluate()] to compare the performance of two models on independent spatial folds.
-#' @param a Model fitted with [rf()], [rf_tuning()], [rf_repeat()], or [rf_spatial()]. Default: NULL
-#' @param b Model fitted with [rf()], [rf_tuning()], [rf_repeat()], or [rf_spatial()]., Default: NULL
-#' @param a.name Character, name of model `a`, Default: `'Model A'`
-#' @param b.name Character, name of model `b`, Default: `'Model B'`
-#' @param xy Data frame or matrix with two columns containing coordinates and named "x" and "y", or an sf file with geometry class `sfc_POINT` (see [plant_richness_sf]). If `NULL`, the function will throw an error. Default: `NULL`
+#' @title Compares the performance of several models on independent data
+#' @description Uses [rf_evaluate()] to compare the performance of several models based on the same pairs of coordinates on independent spatial folds.
+#' @param models Named list with models based on the same pairs of coordinates. Example: `models = list(a = model.a, b = model.b)`. Default: `NULL`
+#' @param xy Data frame or matrix with two columns containing coordinates and named "x" and "y", or an sf file with geometry class `sfc_POINT` (see [plant_richness_sf]). The same `xy` is used for all models, that's why all models must be based on the same pairs of coordinates. If `NULL`, the function will throw an error. Default: `NULL`
 #' @param repetitions Integer, must be lower than the total number of rows available in the model's data. Default: `30`
 #' @param training.fraction Proportion between 0.5 and 0.9 indicating the number of records to be used in model training. Default: `0.8`
+#' @param metrics Character vector, names of the performance metrics selected. The possible values are: "r.squared" (`cor(obs, pred) ^ 2`), "pseudo.r.squared" (`cor(obs, pred)`), "rmse" (`sqrt(sum((obs - pred)^2)/length(obs))`), "nrmse" (`rmse/(quantile(obs, 0.75) - quantile(obs, 0.25))`). Default: `c("r.squared", "pseudo.r.squared", "rmse", "nrmse")`
 #' @param notch Logical, if `TRUE`, boxplot notches are plotted. Default: `TRUE`
 #' @param verbose Logical. If `TRUE`, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
 #' @param n.cores Integer, number of cores to use during computations. If `NULL`, all cores but one are used, unless a cluster is used. Default = `NULL`
@@ -44,19 +42,17 @@
 #' @rdname rf_compare
 #' @export
 rf_compare <- function(
-  a = NULL,
-  b = NULL,
-  a.name = "Model A",
-  b.name = "Model B",
+  models = NULL,
   xy = NULL,
   repetitions = 30,
   training.fraction = 0.8,
-  notch = FALSE,
+  metrics = c("r.squared", "pseudo.r.squared", "rmse", "nrmse"),
+  notch = TRUE,
   verbose = TRUE,
   n.cores = NULL,
   cluster.ips = NULL,
   cluster.cores = NULL,
-  cluster.user = NULL,
+  cluster.user = Sys.info()[["user"]],
   cluster.port = 11000
 ){
 
@@ -67,117 +63,101 @@ rf_compare <- function(
 
   #capturing user options
   user.options <- options()
+  #avoid dplyr messages
   options(dplyr.summarise.inform = FALSE)
   on.exit(options <- user.options)
 
+  #testing method argument
+  metrics <- match.arg(
+    arg = metrics,
+    choices = c("r.squared", "pseudo.r.squared", "rmse", "nrmse"),
+    several.ok = TRUE
+  )
+
   #missing input
-  if(is.null(a)){
-    stop("Model 'a' is missing.")
-  }
-  if(is.null(b)){
-    stop("Model 'b' is missing.")
+  if(is.null(models)){
+    stop("There are no models to compare in 'models'.")
   }
   if(is.null(xy)){
     stop("Case coordinates 'xy' is missing.")
   }
 
-  #evaluating models
-  a.evaluation <- rf_evaluate(
-    model = a,
-    xy = xy,
-    repetitions = repetitions,
-    training.fraction = training.fraction,
-    verbose = FALSE,
-    n.cores = n.cores,
-    cluster.ips = cluster.ips,
-    cluster.cores = cluster.cores,
-    cluster.user = cluster.user,
-    cluster.port = cluster.port
-  )
+  #list to store evaluation outputs
+  evaluation.list <- list()
 
-  b.evaluation <- rf_evaluate(
-    model = b,
-    xy = xy,
-    repetitions = repetitions,
-    training.fraction = training.fraction,
-    verbose = FALSE,
-    n.cores = n.cores,
-    cluster.ips = cluster.ips,
-    cluster.cores = cluster.cores,
-    cluster.user = cluster.user,
-    cluster.port = cluster.port
-  )
+  #iterating through models
+  for(model.i in names(models)){
 
-  #getting evaluation objects
-  a.evaluation <- a.evaluation$evaluation$per.model %>%
-    dplyr::filter(model == "Testing") %>%
-    dplyr::mutate(model = a.name) %>%
-    tidyr::pivot_longer(
-      cols = 1:4,
-      names_to = "metric",
-      values_to = "value"
-    ) %>%
-    as.data.frame()
+    #evaluating model
+    models[[model.i]] <- rf_evaluate(
+      model = models[[model.i]],
+      xy = xy,
+      repetitions = repetitions,
+      training.fraction = training.fraction,
+      metrics = metrics,
+      verbose = FALSE,
+      n.cores = n.cores,
+      cluster.ips = cluster.ips,
+      cluster.cores = cluster.cores,
+      cluster.user = cluster.user,
+      cluster.port = cluster.port
+    )
 
-  b.evaluation <- b.evaluation$evaluation$per.model %>%
-    dplyr::filter(model == "Testing") %>%
-    dplyr::mutate(model = b.name) %>%
-    tidyr::pivot_longer(
-      cols = 1:4,
-      names_to = "metric",
-      values_to = "value"
-    ) %>%
-    as.data.frame()
+    #getting evaluation data frame
+    evaluation.df.i <- models[[model.i]]$evaluation$per.fold.long
+    evaluation.df.i$model <- model.i
 
-  comparison <- rbind(
-    a.evaluation,
-    b.evaluation
-  )
+    #adding it to the evaluation list
+    evaluation.list[[model.i]] <- evaluation.df.i
 
-  comparison$metric <- factor(
-    comparison$metric,
-    levels = c("r.squared", "pseudo.r.squared", "rmse", "nrmse"),
-    labels = c("R squared", "pseudo R squared" , "RMSE","NRMSE")
-  )
+  }
 
+  #binding data frames
+  evaluation.df <- do.call("rbind", evaluation.list)
+  rownames(evaluation.df) <- NULL
+
+  #df to plot
+  x <- evaluation.df
+  x[x$metric == "r.squared", "metric"] <- "R squared"
+  x[x$metric == "pseudo.r.squared", "metric"] <- "pseudo R squared"
+  x[x$metric == "rmse", "metric"] <- "RMSE"
+  x[x$metric == "nrmse", "metric"] <- "NRMSE"
+
+  #plot
   p <- ggplot2::ggplot() +
-    ggplot2::facet_wrap(
-      "metric",
-      scales = "free_x",
-      ncol = 1) +
     ggplot2::geom_boxplot(
-      data = comparison,
+      data = x,
       ggplot2::aes(
-        x = value,
-        y = model,
         group = model,
+        y = model,
+        x = value,
         fill = model
       ),
-      notch = notch
+      notch = notch,
     ) +
-    ggplot2::scale_fill_viridis_d(end = 0.8, alpha = 0.75) +
+    ggplot2::facet_wrap(
+      "metric",
+      scales = "free",
+      drop = TRUE,
+      ncol = 1
+    ) +
     ggplot2::theme_bw() +
+    ggplot2::theme(legend.position = "none") +
+    ggplot2::xlab("") +
     ggplot2::ylab("") +
-    ggplot2::theme(legend.position = "none")
-
-  comparison.aggregated <- comparison %>%
-    dplyr::group_by(model, metric) %>%
-    dplyr::summarise(
-      mean = round(mean(value), 3),
-      median = round(median(value), 3),
-      standard_deviation = round(sd(value), 3),
-      standard_error = round(standard_error(value), 3),
-      minimum = round(min(value), 3),
-      maximum = round(max(value), 3)
-    ) %>%
-    dplyr::ungroup() %>%
-    dplyr::arrange(metric) %>%
-    as.data.frame()
+    ggplot2::scale_fill_viridis_d(end = 0.8, alpha = 0.75) +
+    ggplot2::labs(fill = "Model") +
+    ggplot2::ggtitle(
+      paste0(
+        "Evaluation results on ",
+        repetitions,
+        " spatial folds."
+      )
+    )
 
   #out list
   out.list <- list()
-  out.list$df.long <- comparison
-  out.list$df.aggregated <- comparison.aggregated
+  out.list$comparison.df <- evaluation.df
   out.list$plot <- p
 
   if(verbose == TRUE){
@@ -186,6 +166,5 @@ rf_compare <- function(
   }
 
   out.list
-
 
 }

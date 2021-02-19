@@ -9,11 +9,12 @@ rf_evaluate(
   xy = NULL,
   repetitions = 30,
   training.fraction = 0.6,
+  metrics = c("r.squared", "pseudo.r.squared", "rmse", "nrmse"),
   verbose = TRUE,
   n.cores = NULL,
   cluster.ips = NULL,
   cluster.cores = NULL,
-  cluster.user = NULL,
+  cluster.user = Sys.info()[["user"]],
   cluster.port = 11000
 )
 }
@@ -25,6 +26,8 @@ rf_evaluate(
 \item{repetitions}{Integer, must be lower than the total number of rows available in the model's data. Default: \code{30}}
 
 \item{training.fraction}{Proportion between 0.5 and 0.9 indicating the number of records to be used in model training. Default: \code{0.6}}
+
+\item{metrics}{Character vector, names of the performance metrics selected. The possible values are: "r.squared" (\code{cor(obs, pred) ^ 2}), "pseudo.r.squared" (\code{cor(obs, pred)}), "rmse" (\code{sqrt(sum((obs - pred)^2)/length(obs))}), "nrmse" (\code{rmse/(quantile(obs, 0.75) - quantile(obs, 0.25))}). Default: \code{c("r.squared", "pseudo.r.squared", "rmse", "nrmse")}}
 
 \item{verbose}{Logical. If \code{TRUE}, messages and plots generated during the execution of the function are displayed, Default: \code{TRUE}}
 

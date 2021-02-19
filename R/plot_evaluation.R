@@ -52,49 +52,32 @@ plot_evaluation <- function(x, verbose = TRUE, notch = TRUE){
     stop("Object 'x' does not have an 'evaluation' slot.")
   }
 
-  #function to fix labels
-  .pretty_labels <- function(x){
+  #getting plotting df
+  x <- x$evaluation$per.fold.long
 
-    x$performance.measure <- factor(
-      x$performance.measure,
-      levels = c("r.squared", "pseudo.r.squared", "rmse", "nrmse"),
-      labels = c("R squared", "pseudo R squared" , "RMSE","NRMSE")
-    )
+  #prettier labels
+  x[x$metric == "r.squared", "metric"] <- "R squared"
+  x[x$metric == "pseudo.r.squared", "metric"] <- "pseudo R squared"
+  x[x$metric == "rmse", "metric"] <- "RMSE"
+  x[x$metric == "nrmse", "metric"] <- "NRMSE"
 
-    x$model <- factor(
-      x$model,
-      levels = rev(c("Full", "Training","Testing")),
-      labels = rev(c("Full", "Training","Testing"))
-    )
-
-    x
-
-  }
-
-  #evaluation df in long format
-  evaluation.df <- x$evaluation$per.model %>%
-    tidyr::pivot_longer(
-      cols = 1:4,
-      names_to = "performance.measure",
-      values_to = "performance.value"
-    ) %>%
-    as.data.frame() %>%
-    .pretty_labels()
+  #ordering models
+  x$model <- factor(x$model,levels = c("Testing", "Training", "Full"))
 
   #the plot
-  p <- suppressMessages(ggplot2::ggplot() +
+  p <- ggplot2::ggplot() +
     ggplot2::geom_boxplot(
-      data = evaluation.df,
+      data = x,
       ggplot2::aes(
         group = model,
         y = model,
-        x = performance.value,
+        x = value,
         fill = model
       ),
       notch = notch,
     ) +
     ggplot2::facet_wrap(
-      "performance.measure",
+      "metric",
       scales = "free",
       drop = TRUE,
       ncol = 1
@@ -111,7 +94,7 @@ plot_evaluation <- function(x, verbose = TRUE, notch = TRUE){
         length(x$evaluation$spatial.folds),
         " spatial folds."
       )
-    ))
+    )
 
   if(verbose == TRUE){
     suppressMessages(print(p))

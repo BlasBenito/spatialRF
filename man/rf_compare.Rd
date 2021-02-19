@@ -2,39 +2,33 @@
 % Please edit documentation in R/rf_compare.R
 \name{rf_compare}
 \alias{rf_compare}
-\title{Compares the performance of two models on independent data}
+\title{Compares the performance of several models on independent data}
 \usage{
 rf_compare(
-  a = NULL,
-  b = NULL,
-  a.name = "Model A",
-  b.name = "Model B",
+  models = NULL,
   xy = NULL,
   repetitions = 30,
   training.fraction = 0.8,
-  notch = FALSE,
+  metrics = c("r.squared", "pseudo.r.squared", "rmse", "nrmse"),
+  notch = TRUE,
   verbose = TRUE,
   n.cores = NULL,
   cluster.ips = NULL,
   cluster.cores = NULL,
-  cluster.user = NULL,
+  cluster.user = Sys.info()[["user"]],
   cluster.port = 11000
 )
 }
 \arguments{
-\item{a}{Model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_tuning]{rf_tuning()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}. Default: NULL}
+\item{models}{Named list with models based on the same pairs of coordinates. Example: \code{models = list(a = model.a, b = model.b)}. Default: \code{NULL}}
 
-\item{b}{Model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_tuning]{rf_tuning()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}., Default: NULL}
-
-\item{a.name}{Character, name of model \code{a}, Default: \code{'Model A'}}
-
-\item{b.name}{Character, name of model \code{b}, Default: \code{'Model B'}}
-
-\item{xy}{Data frame or matrix with two columns containing coordinates and named "x" and "y", or an sf file with geometry class \code{sfc_POINT} (see \link{plant_richness_sf}). If \code{NULL}, the function will throw an error. Default: \code{NULL}}
+\item{xy}{Data frame or matrix with two columns containing coordinates and named "x" and "y", or an sf file with geometry class \code{sfc_POINT} (see \link{plant_richness_sf}). The same \code{xy} is used for all models, that's why all models must be based on the same pairs of coordinates. If \code{NULL}, the function will throw an error. Default: \code{NULL}}
 
 \item{repetitions}{Integer, must be lower than the total number of rows available in the model's data. Default: \code{30}}
 
 \item{training.fraction}{Proportion between 0.5 and 0.9 indicating the number of records to be used in model training. Default: \code{0.8}}
+
+\item{metrics}{Character vector, names of the performance metrics selected. The possible values are: "r.squared" (\code{cor(obs, pred) ^ 2}), "pseudo.r.squared" (\code{cor(obs, pred)}), "rmse" (\code{sqrt(sum((obs - pred)^2)/length(obs))}), "nrmse" (\code{rmse/(quantile(obs, 0.75) - quantile(obs, 0.25))}). Default: \code{c("r.squared", "pseudo.r.squared", "rmse", "nrmse")}}
 
 \item{notch}{Logical, if \code{TRUE}, boxplot notches are plotted. Default: \code{TRUE}}
 
@@ -54,7 +48,7 @@ rf_compare(
 A list with three slots: \code{df.long}, with the performance metrics for each model across repetitions; \code{df.aggregated}, with aggregated stats per model and performance metrics; \code{plot}, with a boxplot built from \code{df.long}.
 }
 \description{
-Uses \code{\link[=rf_evaluate]{rf_evaluate()}} to compare the performance of two models on independent spatial folds.
+Uses \code{\link[=rf_evaluate]{rf_evaluate()}} to compare the performance of several models based on the same pairs of coordinates on independent spatial folds.
 }
 \examples{
 \donttest{

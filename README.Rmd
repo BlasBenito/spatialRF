@@ -430,13 +430,14 @@ plot_evaluation(model.spatial, notch = FALSE)
 
 The function `rf_evaluate()` only assesses the predictive performance of one model at a time. If the goal is to compare two models, `rf_evaluate()` can be ran twice, but `spatialRF` offers a more convenient option with the function `rf_compare()`.
 
-```{r, fig.height=6, fig.width=4}
+```{r, fig.height=4, fig.width=4}
 comparison <- rf_compare(
-  a = model.non.spatial.tuned,
-  b = model.spatial,
-  a.name = "Non-spatial",
-  b.name = "Spatial",
-  xy = plant_richness_df[, c("x", "y")]
+  models = list(
+    `Non-spatial` = model.non.spatial.tuned,
+    `Spatial` = model.spatial
+  ),
+  xy = plant_richness_df[, c("x", "y")],
+  metrics = c("r.squared", "rmse")
   )
 ```
 

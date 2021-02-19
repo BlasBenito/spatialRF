@@ -97,9 +97,9 @@ moran_multithreshold <- function(
   #preparing output list
   out.list <- list()
   out.list$per.distance <- out.df
-  out.list$plot <- plot_moran(x = out.df, verbose = verbose)
   out.list$max.moran <- max(out.df$moran.i)
   out.list$max.moran.distance.threshold <- distance.threshold.max.moran
+  out.list$plot <- plot_moran(x = out.df, verbose = verbose)
 
   out.list
 
