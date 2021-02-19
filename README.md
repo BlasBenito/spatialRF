@@ -134,44 +134,38 @@ interactions <- rf_interactions(
     ##       ┌─────────────────────────┬───────────────────────┬────────────────┐
     ##       │ Interaction             │ Importance (% of max) │ R2 improvement │
     ##       ├─────────────────────────┼───────────────────────┼────────────────┤
-    ##       │ climate_bio1_average_X_ │                  83.0 │         0.042  │
+    ##       │ climate_bio1_average_X_ │                  97.2 │         0.013  │
+    ##       │ neighbors_count         │                       │                │
+    ##       ├─────────────────────────┼───────────────────────┼────────────────┤
+    ##       │ climate_bio1_average_X_ │                  95.0 │         0.017  │
     ##       │ bias_area_km2           │                       │                │
     ##       ├─────────────────────────┼───────────────────────┼────────────────┤
-    ##       │ bias_area_km2_X_bias_sp │                  54.1 │         0.043  │
+    ##       │ human_population_X_bias │                  82.6 │         0.013  │
+    ##       │ _area_km2               │                       │                │
+    ##       ├─────────────────────────┼───────────────────────┼────────────────┤
+    ##       │ bias_area_km2_X_bias_sp │                  59.3 │         0.0414 │
     ##       │ ecies_per_record        │                       │                │
-    ##       ├─────────────────────────┼───────────────────────┼────────────────┤
-    ##       │ climate_bio1_average_X_ │                  47.2 │         0.013  │
-    ##       │ bias_species_per_record │                       │                │
-    ##       ├─────────────────────────┼───────────────────────┼────────────────┤
-    ##       │ bias_area_km2_X_climate │                  41.9 │         0.0136 │
-    ##       │ _aridity_index_average  │                       │                │
     ##       └─────────────────────────┴───────────────────────┴────────────────┘
 
 ![](README_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
-Here \`rf\_interactions()\`\` suggests four candidate interactions
-ordered by their impact on the model. The function cannot say whether an
+Here `rf_interactions()` suggests four candidate interactions ordered by
+their impact on the model. The function cannot say whether an
 interaction *makes sense*, and it is up to the user to choose wisely
 whether to select an interaction or not.
 
 As an example, I will choose `climate_bio1_average_X_bias_area_km2`
-under the rationale that it is likely that ecoregions with higher area
-(bias\_area\_km2) and energy (represented by the annual temperature,
-climate\_bio1\_average) will have more species of vascular plants. The
-data required to add it ot the dataset is inside the output of
-`rf_interactions()`.
+hypothesizing that ecoregions with higher area (bias\_area\_km2) and
+energy (represented by the annual temperature, climate\_bio1\_average)
+will have more species of vascular plants. The data required to add it
+ot the dataset is inside the output of `rf_interactions()`. A similar
+rationale (more energy + more neighbors = more species) could have been
+followed to select `climate_bio1_average_X_neighbors_count` as well.
 
 ``` r
 plant_richness_df[, "climate_bio1_average_X_bias_area_km2"] <- interactions$columns[, "climate_bio1_average_X_bias_area_km2"]
 predictor.variable.names <- c(predictor.variable.names, "climate_bio1_average_X_bias_area_km2")
 ```
-
-The relationship between the selected interaction and the response
-variable, as shown below, indicates that there is an important threshold
-above which plant richness increases dramatically, so it seems that
-`rf_interactions()` made a good suggestion.
-
-![](README_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
 ### Assessing and reducing multicollinearity
 
@@ -214,7 +208,7 @@ predictor.variable.names <- auto_cor(
   )
 ```
 
-    ## [auto_cor()]: Removed variables: human_population, human_footprint_average
+    ## [auto_cor()]: Removed variables: bias_area_km2, human_population, human_footprint_average
 
     ## [auto_vif()]: Removed variables: neighbors_area
 
@@ -261,7 +255,7 @@ such as `print()`, `print_importance()`, `print_performance()`,
 plot_response_curves(model.non.spatial)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
 
 ``` r
 plot_response_surfaces(
@@ -271,13 +265,13 @@ plot_response_surfaces(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
 
 ``` r
 plot_importance(model.non.spatial, verbose = FALSE)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
 
 ### Tuning Random Forest hyperparameters
 
@@ -301,7 +295,7 @@ model.non.spatial.tuned <- rf_tuning(
   model = model.non.spatial,
   method = "oob",
   num.trees = c(500, 750, 1000),
-  mtry = c(5, 10, 15),
+  mtry = c(5, 10, 14),
   min.node.size = c(5, 10, 15)
 )
 ```
@@ -312,25 +306,25 @@ model.non.spatial.tuned <- rf_tuning(
 
     ##   - num.trees:     500
 
-    ##   - mtry:          15
+    ##   - mtry:          14
 
     ##   - min.node.size: 5
 
-![](README_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
 
     ## 
     ## Model performance 
-    ##   - R squared (OOB):                 0.62
-    ##   - Pseudo R squared:                0.787
-    ##   - RMSE:                            2156.059
-    ##   - Normalized RMSE:                 0.622
+    ##   - R squared (OOB):                 0.592
+    ##   - Pseudo R squared:                0.77
+    ##   - RMSE:                            2206.564
+    ##   - Normalized RMSE:                 0.637
 
     ## 
     ## Model performance 
-    ##   - R squared (OOB):                 0.639
-    ##   - Pseudo R squared:                0.799
-    ##   - RMSE:                            2031.77
-    ##   - Normalized RMSE:                 0.587
+    ##   - R squared (OOB):                 0.603
+    ##   - Pseudo R squared:                0.777
+    ##   - RMSE:                            2120.469
+    ##   - Normalized RMSE:                 0.612
 
 Model tuning has helped to improve performance measures across the
 board, so from here, we can keep working with `model.non.spatial.tuned`.
@@ -346,7 +340,7 @@ I](https://en.wikipedia.org/wiki/Moran%27s_I), can be plotted with
 plot_moran(model.non.spatial.tuned, verbose = FALSE)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
 
 According to the plot, the spatial autocorrelation of the residuals is
 highly positive a neighborhood of 0 km, while it becomes non-significant
@@ -372,7 +366,7 @@ residuals.
 plot_moran(model.spatial, verbose = FALSE)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
 
 If we compare the variable importance plots of both models, we can see
 that the spatial model has an additional set of dots under the name
@@ -394,28 +388,28 @@ p2 <- plot_importance(
 p1 | p2 
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
 
 If we take a look to the five most important variables in
 **model.spatial** we will see that a few of them are spatial predictors.
 
 | variable                                   | importance |
 |:-------------------------------------------|-----------:|
-| climate\_bio1\_average\_X\_bias\_area\_km2 |      0.477 |
-| climate\_bio1\_average                     |      0.402 |
-| climate\_hypervolume                       |      0.343 |
-| spatial\_predictor\_0\_2                   |      0.233 |
-| spatial\_predictor\_0\_6                   |      0.192 |
-| bias\_species\_per\_record                 |      0.158 |
-| bias\_area\_km2                            |      0.134 |
-| human\_population\_density                 |      0.108 |
-| spatial\_predictor\_0\_7                   |      0.106 |
-| neighbors\_count                           |      0.096 |
+| climate\_bio1\_average\_X\_bias\_area\_km2 |      0.676 |
+| climate\_hypervolume                       |      0.296 |
+| climate\_bio1\_average                     |      0.266 |
+| spatial\_predictor\_0\_2                   |      0.186 |
+| bias\_species\_per\_record                 |      0.157 |
+| spatial\_predictor\_0\_6                   |      0.154 |
+| spatial\_predictor\_0\_7                   |      0.111 |
+| neighbors\_count                           |      0.105 |
+| human\_population\_density                 |      0.084 |
+| spatial\_predictor\_0\_11                  |      0.048 |
 
 Spatial predictors, as shown below, are smooth surfaces representing
 neighborhood among records at different spatial scales.
 
-![](README_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
 
 The spatial predictors have been generated and included in the model
 using the method “mem.moran.sequential” (function’s default), that
@@ -430,7 +424,7 @@ order of their Moran’s I, and finally, the subset of MEMs maximizing the
 model’s R squared and minimizing the Moran’s I of the residuals are
 selected, as optimization plot below shows.
 
-![](README_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
 
 ### Assessing model performance on spatially independent folds
 
@@ -465,7 +459,7 @@ the indices of the training and testing cases for each cross-validation
 repetition. The maps below show two sets of training and testing spatial
 folds.
 
-![](README_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->
 
 The functions `plot_evaluation()` and `print_evaluation()` allow to see
 the evaluation results as a plot or as a table. The plot below shows the
@@ -479,7 +473,7 @@ represent model performance on unseen data.
 plot_evaluation(model.spatial, notch = FALSE)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
 
 ### Comparing two models
 
@@ -500,11 +494,11 @@ comparison <- rf_compare(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-28-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->
 
 | model       | metric    |    value |
 |:------------|:----------|---------:|
-| Non-spatial | r.squared |    0.470 |
-| Spatial     | r.squared |    0.431 |
-| Non-spatial | rmse      | 2452.031 |
-| Spatial     | rmse      | 2646.165 |
+| Non-spatial | r.squared |    0.525 |
+| Spatial     | r.squared |    0.464 |
+| Non-spatial | rmse      | 2309.470 |
+| Spatial     | rmse      | 2522.531 |

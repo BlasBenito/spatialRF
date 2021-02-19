@@ -132,10 +132,11 @@ interactions <- rf_interactions(
   )
 ```
 
-Here `rf_interactions()`` suggests four candidate interactions ordered by their impact on the model. The function cannot say whether an interaction *makes sense*, and it is up to the user to choose wisely whether to select an interaction or not.
+Here `rf_interactions()` suggests four candidate interactions ordered by their impact on the model. The function cannot say whether an interaction *makes sense*, and it is up to the user to choose wisely whether to select an interaction or not.
 
-As an example, I will choose `climate_bio1_average_X_bias_area_km2` under the rationale that it is likely that ecoregions with higher area (bias_area_km2) and energy (represented by the annual temperature, climate_bio1_average) will have more species of vascular plants. The data required to add it ot the dataset is inside the output of `rf_interactions()`.
-
+As an example, I will choose `climate_bio1_average_X_bias_area_km2` hypothesizing that ecoregions with higher area (bias_area_km2) and energy (represented by the annual temperature, climate_bio1_average) will have more species of vascular plants. The data required to add it ot the dataset is inside the output of `rf_interactions()`. A similar rationale (more energy + more neighbors = more species)
+ could have been followed to select `climate_bio1_average_X_neighbors_count` as well.
+ 
 ```{r}
 plant_richness_df[, "climate_bio1_average_X_bias_area_km2"] <- interactions$columns[, "climate_bio1_average_X_bias_area_km2"]
 predictor.variable.names <- c(predictor.variable.names, "climate_bio1_average_X_bias_area_km2")
@@ -223,7 +224,7 @@ model.non.spatial.tuned <- rf_tuning(
   model = model.non.spatial,
   method = "oob",
   num.trees = c(500, 750, 1000),
-  mtry = c(5, 10, 15),
+  mtry = c(5, 10, 14),
   min.node.size = c(5, 10, 15)
 )
 ```

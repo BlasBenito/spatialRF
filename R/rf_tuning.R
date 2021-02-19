@@ -79,14 +79,7 @@ rf_tuning <- function(
 
   #mtry
   if(max(mtry) > length(predictor.variable.names)){
-    if(verbose == TRUE){
-      message(paste0(
-        "'mtry' values larger than the number of predictors (",
-        length(predictor.variable.names),
-        ") were removed."
-      )
-      )
-    }
+    mtry[mtry == max(mtry)] <- length(predictor.variable.names)
   }
   if(is.null(mtry)){
     mtry <- floor(sqrt(length(predictor.variable.names)))
