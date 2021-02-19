@@ -124,7 +124,7 @@ Random Forests already takes into account variable interactions of the form "var
 
 The function `rf_interactions()` tests all possible interactions among predictors by using each one of them in a separate model, and suggesting the ones with the higher potential contribution to the model's R squared and the higher relative importance (presented as a percentage of the maximum importance of a variable in the model).
 
-```{r, fig.width=8, fig.height=6}
+```{r, fig.width=10, fig.height=8}
 interactions <- rf_interactions(
   data = plant_richness_df,
   dependent.variable.name = dependent.variable.name,
@@ -140,24 +140,6 @@ As an example, I will choose `climate_bio1_average_X_bias_area_km2` under the ra
 plant_richness_df[, "climate_bio1_average_X_bias_area_km2"] <- interactions$columns[, "climate_bio1_average_X_bias_area_km2"]
 predictor.variable.names <- c(predictor.variable.names, "climate_bio1_average_X_bias_area_km2")
 ```
-
-The relationship between the selected interaction and the response variable, as shown below, indicates that there is an important threshold above which plant richness increases dramatically, so it seems that `rf_interactions()` made a good suggestion.
-
-```{r, echo = FALSE, fig.width=5, fig.height=3.5}
-ggplot2::ggplot(
-    data = plant_richness_df,
-    ggplot2::aes_string(
-      x = "climate_bio1_average_X_bias_area_km2",
-      y = "richness_species_vascular",
-      color = "richness_species_vascular"
-    )
-    ) +
-    ggplot2::geom_point() +
-    ggplot2::scale_color_viridis_c(direction = -1) + 
-    ggplot2::theme_bw() + 
-    ggplot2::theme(legend.position = "none")
-```
-
 
 ### Assessing and reducing multicollinearity
 

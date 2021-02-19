@@ -147,6 +147,8 @@ interactions <- rf_interactions(
     ##       │ _aridity_index_average  │                       │                │
     ##       └─────────────────────────┴───────────────────────┴────────────────┘
 
+![](README_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+
 Here \`rf\_interactions()\`\` suggests four candidate interactions
 ordered by their impact on the model. The function cannot say whether an
 interaction *makes sense*, and it is up to the user to choose wisely
@@ -399,16 +401,16 @@ If we take a look to the five most important variables in
 
 | variable                                   | importance |
 |:-------------------------------------------|-----------:|
-| climate\_bio1\_average\_X\_bias\_area\_km2 |      0.433 |
-| climate\_bio1\_average                     |      0.388 |
-| climate\_hypervolume                       |      0.342 |
-| spatial\_predictor\_0\_2                   |      0.209 |
-| spatial\_predictor\_0\_6                   |      0.206 |
-| bias\_species\_per\_record                 |      0.132 |
-| spatial\_predictor\_0\_7                   |      0.123 |
-| bias\_area\_km2                            |      0.109 |
-| human\_population\_density                 |      0.109 |
-| neighbors\_count                           |      0.075 |
+| climate\_bio1\_average\_X\_bias\_area\_km2 |      0.477 |
+| climate\_bio1\_average                     |      0.402 |
+| climate\_hypervolume                       |      0.343 |
+| spatial\_predictor\_0\_2                   |      0.233 |
+| spatial\_predictor\_0\_6                   |      0.192 |
+| bias\_species\_per\_record                 |      0.158 |
+| bias\_area\_km2                            |      0.134 |
+| human\_population\_density                 |      0.108 |
+| spatial\_predictor\_0\_7                   |      0.106 |
+| neighbors\_count                           |      0.096 |
 
 Spatial predictors, as shown below, are smooth surfaces representing
 neighborhood among records at different spatial scales.
@@ -502,7 +504,7 @@ comparison <- rf_compare(
 
 | model       | metric    |    value |
 |:------------|:----------|---------:|
-| Non-spatial | r.squared |    0.469 |
-| Spatial     | r.squared |    0.425 |
-| Non-spatial | rmse      | 2452.922 |
-| Spatial     | rmse      | 2664.577 |
+| Non-spatial | r.squared |    0.470 |
+| Spatial     | r.squared |    0.431 |
+| Non-spatial | rmse      | 2452.031 |
+| Spatial     | rmse      | 2646.165 |

@@ -71,13 +71,14 @@ rf_interactions <- function(
     )]
 
     #scaling
-    data.scaled <- scale_robust(
-      x = data
-    )
+    # data <- scale_robust(
+    #   x = data,
+    #   center = FALSE
+    # )
 
     #fitting model
     model <- rf_repeat(
-      data = data.scaled,
+      data = data,
       dependent.variable.name = dependent.variable.name,
       predictor.variable.names = predictor.variable.names,
       ranger.arguments = ranger.arguments,
@@ -93,7 +94,7 @@ rf_interactions <- function(
 
   #getting model arguments
   ranger.arguments <- model$ranger.arguments
-  data.scaled <- ranger.arguments$data
+  data <- ranger.arguments$data
   dependent.variable.name <- ranger.arguments$dependent.variable.name
   predictor.variable.names <- ranger.arguments$predictor.variable.names
   scaled.importance <- ranger.arguments$scaled.importance
@@ -134,8 +135,8 @@ rf_interactions <- function(
 
     #prepare data.i
     ranger.arguments.i$data <- data.frame(
-      data.scaled,
-      interaction = data.scaled[, pair.i[1]] * data.scaled[, pair.i[2]]
+      data,
+      interaction = data[, pair.i[1]] * data[, pair.i[2]]
     )
     colnames(ranger.arguments.i$data)[ncol(ranger.arguments.i$data)] <- pair.i.name
 
@@ -218,10 +219,10 @@ rf_interactions <- function(
 
   #preparing data frame of interactions
   interaction.df <- data.frame(
-    dummy.column = rep(NA, nrow(data.scaled))
+    dummy.column = rep(NA, nrow(data))
   )
   for(i in 1:nrow(interaction.screening.selected)){
-    interaction.df[, interaction.screening.selected[i, "interaction.name"]] <- data.scaled[, interaction.screening.selected[i, "variable.a.name"]] * data.scaled[, interaction.screening.selected[i, "variable.b.name"]]
+    interaction.df[, interaction.screening.selected[i, "interaction.name"]] <- data[, interaction.screening.selected[i, "variable.a.name"]] * data[, interaction.screening.selected[i, "variable.b.name"]]
   }
   interaction.df$dummy.column <- NULL
 
@@ -247,12 +248,6 @@ rf_interactions <- function(
     huxtable::print_screen(x.hux, colnames = FALSE)
 
   }
-
-  #preparing out list
-  out.list <- list()
-  out.list$screening <- interaction.screening
-  out.list$selected <- interaction.screening.selected
-  out.list$columns <- interaction.df
 
   #plot interactions
   plot.list <- list()
@@ -294,6 +289,11 @@ rf_interactions <- function(
     print(plot.list.out)
   }
 
+  #preparing out list
+  out.list <- list()
+  out.list$screening <- interaction.screening
+  out.list$selected <- interaction.screening.selected
+  out.list$columns <- interaction.df
   out.list$plot <- plot.list.out
 
   out.list
