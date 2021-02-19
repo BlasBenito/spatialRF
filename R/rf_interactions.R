@@ -1,5 +1,5 @@
 #' @title Suggest variable interactions for random forest models
-#' @description Suggests candidate variable interactions by selecting the variables above a given importance threshold (given by the argument `importance.threshold`) from a model and combining them in pairs through multiplication (`a * b`).
+#' @description Suggests candidate variable interactions by selecting the variables above a given importance threshold (given by the argument `importance.threshold`, or the median importance if not provided) from a model and combining them in pairs through multiplication (`a * b`).
 #'
 #' For each variable interaction, a model including all the predictors plus the interaction is fitted, and it's R squared is compared with the R squared of the model without interactions. This model without interactions can either be provided through the argument `model`, or is fitted on the fly with [rf_repeat()] if the user provides the data.
 #'
@@ -18,7 +18,6 @@
 #' @param cluster.user Character string, name of the user (should be the same throughout machines). Defaults to the current system user.
 #' @param cluster.port Integer, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: `11000`
 #' @return A list with four slots: `screening`, with the complete screening results; `selected`, with the names and the R squared improvement produced by each variable interaction; `columns`, data frame with the interactions computed from the data in `model$ranger.arguments` after scaling it with [scale_robust()], and `plot`, with the plots of the selected interactions versus the response variable.
-#' @details Variable interactions are computed as `a * b` on the scaled data.
 #' @examples
 #' \donttest{
 #' if(interactive()){
