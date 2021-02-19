@@ -341,10 +341,10 @@ I](https://en.wikipedia.org/wiki/Moran%27s_I), can be plotted with
 `plot_moran()`
 
 ``` r
-plot_moran(model.non.spatial.tuned)
+plot_moran(model.non.spatial.tuned, verbose = FALSE)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->![](README_files/figure-gfm/unnamed-chunk-17-2.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
 
 According to the plot, the spatial autocorrelation of the residuals is
 highly positive a neighborhood of 0 km, while it becomes non-significant
@@ -367,10 +367,10 @@ has managed to remove the spatial autocorrelation of the model
 residuals.
 
 ``` r
-plot_moran(model.spatial)
+plot_moran(model.spatial, verbose = FALSE)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->![](README_files/figure-gfm/unnamed-chunk-19-2.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
 
 If we compare the variable importance plots of both models, we can see
 that the spatial model has an additional set of dots under the name
@@ -383,10 +383,12 @@ p1 <- plot_importance(
   model.non.spatial.tuned, 
   verbose = FALSE) + 
   ggplot2::ggtitle("Non-spatial model") 
+
 p2 <- plot_importance(
   model.spatial,
   verbose = FALSE) + 
   ggplot2::ggtitle("Spatial model")
+
 p1 | p2 
 ```
 
@@ -394,10 +396,6 @@ p1 | p2
 
 If we take a look to the five most important variables in
 **model.spatial** we will see that a few of them are spatial predictors.
-
-    ## Warning in kable_styling(kable_input, "none", htmltable_class = light_class, :
-    ## Please specify format in kable. kableExtra can customize either HTML or LaTeX
-    ## outputs. See https://haozhu233.github.io/kableExtra/ for details.
 
 | variable                                   | importance |
 |:-------------------------------------------|-----------:|

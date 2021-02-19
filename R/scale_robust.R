@@ -1,5 +1,5 @@
 #' @title Robust scaling of training data frames
-#' @description Scales a matrix or a data frame by the median instead of the mean.
+#' @description Scales a matrix or a data frame by the median instead of the mean. Silently removes rows with NA, non-numeric columns, and columns with variance or mode equal to 0 before scaling.
 #' @usage
 #' scale_robust(
 #'   x,
@@ -33,6 +33,9 @@ scale_robust <- function(
   x <- na.omit(x)
   x <- x[sapply(x, is.numeric)]
   x <- x[ , which(round(apply(x, 2, var), 4) != 0)]
+
+  #removing columns with mode 0
+  x <- x[ , which(round(as.numeric(apply(x, 2, statistical_mode)), 4) != 0)]
 
   if(center == TRUE){
 

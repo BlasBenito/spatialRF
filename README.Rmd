@@ -262,7 +262,7 @@ Model tuning has helped to improve performance measures across the board, so fro
 The spatial autocorrelation of the residuals of `model.non.spatial.tuned`, measured with [Moran's I](https://en.wikipedia.org/wiki/Moran%27s_I), can be plotted with `plot_moran()`
 
 ```{r, fig.width=6, fig.height=3, message=FALSE, warning=FALSE}
-plot_moran(model.non.spatial.tuned)
+plot_moran(model.non.spatial.tuned, verbose = FALSE)
 ```
 
 According to the plot, the spatial autocorrelation of the residuals is highly positive a neighborhood of 0 km, while it becomes non-significant (p-value > 0.05, whatever that means) at the distances 1500 and 3000 km. To reduce the spatial autocorrelation of the residuals, the non-spatial tuned model fitted above can be converted into a spatial model easily with `rf_spatial()`.
@@ -278,7 +278,7 @@ model.spatial <- spatialRF::rf_spatial(
 The plot below compares the Moran's I of the residuals of the spatial (green) and non spatial (purple) models. It shows that `rf_spatial()` has managed to remove the spatial autocorrelation of the model residuals.
 
 ```{r, fig.width=6, fig.height=3, message=FALSE, warning=FALSE}
-plot_moran(model.spatial)
+plot_moran(model.spatial, verbose = FALSE)
 ```
 
 If we compare the variable importance plots of both models, we can see that the spatial model has an additional set of dots under the name "spatial_predictors", and that the maximum importance of a few of these spatial predictors matches the importance of the most relevant non-spatial predictors.
@@ -288,16 +288,18 @@ p1 <- plot_importance(
   model.non.spatial.tuned, 
   verbose = FALSE) + 
   ggplot2::ggtitle("Non-spatial model") 
+
 p2 <- plot_importance(
   model.spatial,
   verbose = FALSE) + 
   ggplot2::ggtitle("Spatial model")
+
 p1 | p2 
 ```
 
 If we take a look to the five most important variables in **model.spatial** we will see that a few of them are spatial predictors.
 
-```{r, echo = FALSE}
+```{r, echo = FALSE, warning = FALSE, message=FALSE}
 kableExtra::kbl(
   head(model.spatial$variable.importance$per.variable, n = 10),
   format = "markdown"
