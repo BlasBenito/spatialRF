@@ -123,8 +123,7 @@ maximum importance of a variable in the model).
 interactions <- rf_interactions(
   data = plant_richness_df,
   dependent.variable.name = dependent.variable.name,
-  predictor.variable.names = predictor.variable.names,
-  verbose = TRUE
+  predictor.variable.names = predictor.variable.names
   )
 ```
 

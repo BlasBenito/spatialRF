@@ -63,6 +63,15 @@ rf_interactions <- function(
   #fitting model if absent
   if(is.null(model)){
 
+    #subsetting data
+    data <- data[, c(
+      dependent.variable.name,
+      predictor.variable.names
+    )]
+
+    #getting only numeric variables in data
+    data <- data[sapply(data, is.numeric)]
+
     #scaling
     data.scaled <- scale_robust(
       x = data

@@ -17,9 +17,15 @@
 #' @importFrom tibble rownames_to_column
 #' @export
 vif <- function(x){
+
   if(!is.data.frame(x)){
     stop("x must be a data frame with numeric columns")
   }
+
+  x <- na.omit(x)
+  x <- x[sapply(x, is.numeric)]
+  x <- x[ , which(round(apply(x, 2, var), 4) != 0)]
+
   out <- x %>%
     na.omit() %>%
     as.matrix() %>%
@@ -29,7 +35,11 @@ vif <- function(x){
     sort(decreasing = TRUE) %>%
     as.data.frame() %>%
     tibble::rownames_to_column(var = "variable")
+
   colnames(out)[2] <- "vif"
+
   out$vif <- round(out$vif, 3)
+
   return(out)
+
 }

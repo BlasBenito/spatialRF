@@ -128,8 +128,7 @@ The function `rf_interactions()` tests all possible interactions among predictor
 interactions <- rf_interactions(
   data = plant_richness_df,
   dependent.variable.name = dependent.variable.name,
-  predictor.variable.names = predictor.variable.names,
-  verbose = TRUE
+  predictor.variable.names = predictor.variable.names
   )
 ```
 
