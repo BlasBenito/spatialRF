@@ -265,7 +265,7 @@ rf_interactions <- function(
         data = plot.df,
         ggplot2::aes(
           x = x,
-          y = y
+          y =
         ),
         alpha = 0.5
       ) +
@@ -273,12 +273,13 @@ rf_interactions <- function(
       ggplot2::ylab(dependent.variable.name) +
       ggplot2::ggtitle(
         paste0(
-          "R squared gain: ",
+          "R2 gain: ",
           round(interaction.screening.selected[interaction.screening.selected$interaction.name == variable, "interaction.r.squared.gain"], 3),
-          "; Relative importance: ",
+          "; Relative importance (%): ",
           round(interaction.screening.selected[interaction.screening.selected$interaction.name == variable, "interaction.importance"], 1)
         )
-      )
+      ) +
+      ggplot2::theme_bw()
 
   }
 
