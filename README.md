@@ -496,7 +496,8 @@ comparison <- rf_compare(
     `Spatial` = model.spatial
   ),
   xy = plant_richness_df[, c("x", "y")],
-  metrics = c("r.squared", "rmse")
+  metrics = c("r.squared", "rmse"),
+  notch = FALSE
   )
 ```
 

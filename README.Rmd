@@ -422,7 +422,7 @@ p1 | p2
 
 The functions `plot_evaluation()` and `print_evaluation()` allow to see the evaluation results as a plot or as a table. The plot below shows the performance scores of the "Full" model (original model introduced into `rf_evaluate()`), the model fitted on the training data ("Training"), and the results of the Training model predicted over the "Testing" data. From these performance scores, only the ones labeled as "Testing" represent model performance on unseen data.
 
-```{r, fig.width=6, fig.height=6}
+```{r, fig.width=4, fig.height=6}
 plot_evaluation(model.spatial, notch = FALSE)
 ```
 
@@ -430,24 +430,26 @@ plot_evaluation(model.spatial, notch = FALSE)
 
 The function `rf_evaluate()` only assesses the predictive performance of one model at a time. If the goal is to compare two models, `rf_evaluate()` can be ran twice, but `spatialRF` offers a more convenient option with the function `rf_compare()`.
 
-```{r, fig.height=4, fig.width=4}
+```{r, fig.height=3, fig.width=4}
 comparison <- rf_compare(
   models = list(
     `Non-spatial` = model.non.spatial.tuned,
     `Spatial` = model.spatial
   ),
   xy = plant_richness_df[, c("x", "y")],
-  metrics = c("r.squared", "rmse")
+  metrics = c("r.squared", "rmse"),
+  notch = FALSE
   )
 ```
 
 ```{r, echo = FALSE, message=FALSE, warning=FALSE}
-kableExtra::kbl(
-  comparison$comparison.df %>% 
+x <- comparison$comparison.df %>% 
     dplyr::group_by(model, metric) %>% 
     dplyr::summarise(value = round(mean(value), 3)) %>% 
     dplyr::arrange(metric) %>% 
-    as.data.frame(),
+    as.data.frame()
+kableExtra::kbl(
+  x,
   format = "markdown"
   ) %>%
   kable_paper("hover", full_width = F)
