@@ -48,7 +48,7 @@ rf_interactions(
 \item{cluster.port}{Integer, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: \code{11000}}
 }
 \value{
-A list with two slots: \code{screening}, with the complete screening results; \code{selected}, with the names and the R squared improvement produced by each variable interaction; \code{columns}, data frame with the interactions computed from the data in \code{model$ranger.arguments} after scaling it with \code{\link[=scale_robust]{scale_robust()}}. Variable interactions are computed as \code{a * b} on the scaled data.
+A list with four slots: \code{screening}, with the complete screening results; \code{selected}, with the names and the R squared improvement produced by each variable interaction; \code{columns}, data frame with the interactions computed from the data in \code{model$ranger.arguments} after scaling it with \code{\link[=scale_robust]{scale_robust()}}, and \code{plot}, with the plots of the selected interactions versus the response variable.
 }
 \description{
 Suggests candidate variable interactions by selecting the variables above a given importance threshold (given by the argument \code{importance.threshold}) from a model and combining them in pairs through multiplication (\code{a * b}).
@@ -56,6 +56,9 @@ Suggests candidate variable interactions by selecting the variables above a give
 For each variable interaction, a model including all the predictors plus the interaction is fitted, and it's R squared is compared with the R squared of the model without interactions. This model without interactions can either be provided through the argument \code{model}, or is fitted on the fly with \code{\link[=rf_repeat]{rf_repeat()}} if the user provides the data.
 
 Users should not use the suggested variable interactions hastily. Most likely, only one or a few of the suggested interactions may make sense from a domain expertise standpoint.
+}
+\details{
+Variable interactions are computed as \code{a * b} on the scaled data.
 }
 \examples{
 \donttest{
