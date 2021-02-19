@@ -17,7 +17,8 @@
 #' @param cluster.cores Numeric integer vector, number of cores to use on each machine.
 #' @param cluster.user Character string, name of the user (should be the same throughout machines). Defaults to the current system user.
 #' @param cluster.port Integer, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: `11000`
-#' @return A list with two slots: `screening`, with the complete screening results; `selected`, with the names and the R squared improvement produced by each variable interaction; `columns`, data frame with the interactions computed from the data in `model$ranger.arguments` after scaling it with [scale_robust()]. Variable interactions are computed as `a * b` on the scaled data.
+#' @return A list with four slots: `screening`, with the complete screening results; `selected`, with the names and the R squared improvement produced by each variable interaction; `columns`, data frame with the interactions computed from the data in `model$ranger.arguments` after scaling it with [scale_robust()], and `plot`, with the plots of the selected interactions versus the response variable.
+#' @details Variable interactions are computed as `a * b` on the scaled data.
 #' @examples
 #' \donttest{
 #' if(interactive()){
@@ -252,6 +253,50 @@ rf_interactions <- function(
   out.list$screening <- interaction.screening
   out.list$selected <- interaction.screening.selected
   out.list$columns <- interaction.df
+
+  #plot interactions
+  plot.list <- list()
+  for(variable in names(interaction.df)){
+
+    #create plot data frame
+    plot.df <- data.frame(
+      y = data[, dependent.variable.name],
+      x = interaction.df[, variable]
+    )
+
+    #save plot
+    plot.list[[variable]] <- ggplot2::ggplot() +
+      ggplot2::geom_point(
+        data = plot.df,
+        ggplot2::aes(
+          x = x,
+          y = y
+        ),
+        alpha = 0.5
+      ) +
+      ggplot2::xlab(variable) +
+      ggplot2::ylab(dependent.variable.name) +
+      ggplot2::ggtitle(
+        paste0(
+          "R squared gain: ",
+          round(interaction.screening.selected[interaction.screening.selected$interaction.name == variable, "interaction.r.squared.gain"], 3),
+          "; Relative importance: ",
+          round(interaction.screening.selected[interaction.screening.selected$interaction.name == variable, "interaction.importance"], 1)
+        )
+      )
+
+  }
+
+  #plot list of plots
+  variables.plots.out <- patchwork::wrap_plots(
+    variables.plots
+  )
+
+  if(verbose == TRUE){
+    variables.plots.out
+  }
+
+  out.list$plot <- variables.plots.out
 
   out.list
 
