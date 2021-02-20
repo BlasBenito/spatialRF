@@ -198,7 +198,7 @@ rf_interactions <- function(
     )
 
     #fitting model
-    model.i <- rf_repeat(
+    model.i <- spatialRF::rf_repeat(
       ranger.arguments = ranger.arguments.i,
       scaled.importance = FALSE,
       verbose = FALSE,
