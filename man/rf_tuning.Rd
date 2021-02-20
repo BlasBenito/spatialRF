@@ -9,18 +9,18 @@ rf_tuning(
   data = NULL,
   dependent.variable.name = NULL,
   predictor.variable.names = NULL,
-  method = "oob",
+  method = c("oob", "spatial.cv"),
   num.trees = c(500, 1000),
   mtry = c(1, 5),
   min.node.size = c(5, 10),
   xy = NULL,
-  repetitions = 10,
+  repetitions = NULL,
   training.fraction = 0.6,
   verbose = TRUE,
   n.cores = NULL,
   cluster.ips = NULL,
   cluster.cores = NULL,
-  cluster.user = NULL,
+  cluster.user = Sys.info()[["user"]],
   cluster.port = 11000
 )
 }
@@ -43,7 +43,7 @@ rf_tuning(
 
 \item{xy}{Data frame or matrix with two columns containing coordinates and named "x" and "y", or an sf file with geometry class \code{sfc_POINT} (see \link{plant_richness_sf}). If \code{NULL}, the function will throw an error. Default: \code{NULL}}
 
-\item{repetitions}{Integer, number of repetitions to compute the R squared from. If \code{method = "oob"}, number of repetitions to be used in \code{\link[=rf_repeat]{rf_repeat()}} to fit models for each combination of hyperparameters. If \code{method = "spatial.cv"}, number of independent spatial folds to use during the cross-validation. Default: \code{10}}
+\item{repetitions}{Integer, number of repetitions to compute the R squared from. If \code{method = "oob"}, number of repetitions to be used in \code{\link[=rf_repeat]{rf_repeat()}} to fit models for each combination of hyperparameters. If \code{method = "spatial.cv"}, number of independent spatial folds to use during the cross-validation. Default: \code{NULL} (which yields 30 for "spatial.cv" and 5 for "oob").}
 
 \item{training.fraction}{Proportion between 0.2 and 0.8 indicating the number of records to be used in model training. Default: \code{0.6}}
 

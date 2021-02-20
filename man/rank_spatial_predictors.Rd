@@ -17,7 +17,7 @@ rank_spatial_predictors(
   n.cores = NULL,
   cluster.ips = NULL,
   cluster.cores = NULL,
-  cluster.user = NULL,
+  cluster.user = Sys.info()[["user"]],
   cluster.port = 11000
 )
 }

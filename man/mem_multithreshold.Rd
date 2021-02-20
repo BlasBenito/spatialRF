@@ -7,7 +7,7 @@
 mem_multithreshold(
   x = NULL,
   distance.thresholds = 0,
-  max.spatial.predictors = 1000
+  max.spatial.predictors = NULL
 )
 }
 \arguments{
@@ -15,7 +15,7 @@ mem_multithreshold(
 
 \item{distance.thresholds}{Numeric vector with distance thresholds defining neighborhood in the distance matrix, Default: \code{0}.}
 
-\item{max.spatial.predictors}{Maximum number of spatial predictors to generate. Only useful to save memory when the distance matrix \code{x} is very large. Default: \code{1000}.}
+\item{max.spatial.predictors}{Maximum number of spatial predictors to generate. Only useful to save memory when the distance matrix \code{x} is very large. Default: \code{NULL}.}
 }
 \value{
 A data frame with as many rows as the distance matrix \code{x} containing positive Moran's Eigenvector Maps. The data frame columns are named "spatial_predictor_DISTANCE_COLUMN", where DISTANCE is the given distance threshold, and COLUMN is the column index of the given spatial predictor.

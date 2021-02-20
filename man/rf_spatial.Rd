@@ -19,7 +19,7 @@ rf_spatial(
     "hengl", "hengl.moran.sequential", "hengl.effect.sequential",
     "hengl.effect.optimized", "pca.moran.sequential", "pca.effect.sequential",
     "pca.effect.optimized"),
-  max.spatial.predictors = 1000,
+  max.spatial.predictors = NULL,
   weight.r.squared = NULL,
   weight.penalization.n.predictors = NULL,
   seed = NULL,
@@ -67,7 +67,7 @@ setting \code{keep.models} to \code{TRUE} may cause memory issues. Default: \cod
 \item "mem.effect.optimized"
 }}
 
-\item{max.spatial.predictors}{Integer, maximum number of spatial predictors to generate. Useful when memory problems arise due to a large number of spatial predictors, Default: \code{1000}}
+\item{max.spatial.predictors}{Integer, maximum number of spatial predictors to generate. Useful when memory problems arise due to a large number of spatial predictors, Default: \code{NULL}}
 
 \item{weight.r.squared}{Numeric between 0 and 1, weight of R-squared in the selection of spatial components. See Details, Default: \code{NULL}}
 

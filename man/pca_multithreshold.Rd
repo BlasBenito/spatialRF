@@ -7,7 +7,7 @@
 pca_multithreshold(
   x = NULL,
   distance.thresholds = 0,
-  max.spatial.predictors = 1000
+  max.spatial.predictors = NULL
 )
 }
 \arguments{
@@ -15,7 +15,7 @@ pca_multithreshold(
 
 \item{distance.thresholds}{Numeric vector with distance thresholds defining neighborhood in the distance matrix, Default: \code{0}}
 
-\item{max.spatial.predictors}{Integer, maximum number of spatial predictors to generate. Only useful when the distance matrix \code{x} is very large. Default: \code{1000}}
+\item{max.spatial.predictors}{Integer, maximum number of spatial predictors to generate. Only useful when the distance matrix \code{x} is very large. Default: \code{NULL}}
 }
 \value{
 A data frame with the PCA factors of the thresholded matrix. The data frame columns are named "spatial_predictor_DISTANCE_COLUMN", where DISTANCE is the given distance threshold, and COLUMN is the column index of the given predictor.
