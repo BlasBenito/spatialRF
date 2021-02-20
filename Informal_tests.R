@@ -166,3 +166,36 @@ models <- list(
 xy = plant_richness_df[, c("x", "y")],
 metrics = "r.squared"
 )
+
+
+
+#rf_repeat sequential
+data(plant_richness_df)
+data(distance_matrix)
+
+#basic model
+rf.model <- rf(
+  data = plant_richness_df,
+  dependent.variable.name = "richness_species_vascular",
+  predictor.variable.names = colnames(plant_richness_df)[5:21],
+  distance.matrix = distance_matrix,
+  distance.thresholds = c(0, 1000, 2000),
+  seed = 50,
+  verbose = FALSE
+)
+
+#with repetitions
+rf.repeat <- rf_repeat(model = rf.model, verbose = FALSE, disable.parallel = TRUE, repetitions = 100)
+
+#interactions
+interactions <- rf_interactions(
+  data = plant_richness_df,
+  dependent.variable.name = "richness_species_vascular",
+  predictor.variable.names = colnames(plant_richness_df)[5:21],
+  cluster.ips = c(
+    "10.42.0.1",
+    "10.42.0.34",
+    "10.42.0.104"
+  ),
+  cluster.cores = c(7, 4, 4)
+  )

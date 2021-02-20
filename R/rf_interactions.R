@@ -69,12 +69,6 @@ rf_interactions <- function(
       predictor.variable.names
     )]
 
-    #scaling
-    # data <- scale_robust(
-    #   x = data,
-    #   center = FALSE
-    # )
-
     #fitting model
     model <- rf_repeat(
       data = data,
@@ -83,6 +77,7 @@ rf_interactions <- function(
       ranger.arguments = ranger.arguments,
       scaled.importance = FALSE,
       verbose = FALSE,
+      disable.parallel = TRUE,
       n.cores = n.cores,
       cluster.cores = cluster.cores,
       cluster.user = cluster.user,
@@ -121,12 +116,69 @@ rf_interactions <- function(
     message(paste0("Testing ", nrow(variables.pairs), " candidate interactions."))
   }
 
+
+  #cluster setup
+  if(is.null(cluster.port)){
+    cluster.port <- Sys.getenv("R_PARALLEL_PORT")
+  }
+
+  #preparing cluster for stand alone machine
+  if(is.null(cluster.ips) == TRUE){
+
+    #number of available cores
+    if(is.null(n.cores)){
+      n.cores <- parallel::detectCores() - 1
+    }
+    if(n.cores == 1){
+      if(is.null(ranger.arguments)){
+        ranger.arguments <- list()
+      }
+      ranger.arguments$num.threads <- 1
+    }
+    if(.Platform$OS.type == "windows"){
+      temp.cluster <- parallel::makeCluster(
+        n.cores,
+        type = "PSOCK"
+      )
+    } else {
+      temp.cluster <- parallel::makeCluster(
+        n.cores,
+        type = "FORK"
+      )
+    }
+
+    #preparing beowulf cluster
+  } else {
+
+    #preparing the cluster specification
+    cluster.spec <- cluster_specification(
+      cluster.ips = cluster.ips,
+      cluster.cores = cluster.cores,
+      cluster.user = cluster.user
+    )
+
+    #setting parallel port
+    Sys.setenv(R_PARALLEL_PORT = cluster.port)
+
+    #cluster setup
+    temp.cluster <- parallel::makeCluster(
+      master = cluster.ips[1],
+      spec = cluster.spec,
+      port = Sys.getenv("R_PARALLEL_PORT"),
+      outfile = "",
+      homogeneous = TRUE
+    )
+
+  }
+  doParallel::registerDoParallel(cl = temp.cluster)
+  on.exit(parallel::stopCluster(cl = temp.cluster))
+
   #testing interactions
   i <- NULL
   interaction.screening <- foreach::foreach(
     i = 1:nrow(variables.pairs),
     .combine = "rbind"
-  ) %do% {
+  ) %dopar% {
 
     #get pair
     pair.i <- c(variables.pairs[i, 1], variables.pairs[i, 2])

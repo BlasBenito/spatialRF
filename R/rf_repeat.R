@@ -10,7 +10,8 @@
 #' @param scaled.importance Logical. If `TRUE`, and 'importance = "permutation', the function scales 'data' with [scale_robust()] and fits a new model to compute scaled variable importance scores. Default: `TRUE`
 #' @param repetitions Integer, number of random forest models to fit. Default: `5`
 #' @param keep.models Logical, if `TRUE`, the fitted models are returned in the `models` slot. Default: `FALSE`.
-#' @param verbose Logical If `TRUE`, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
+#' @param verbose Logical, ff `TRUE`, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
+#' @param disable.parallel Logical, if `TRUE`, the function is executed in a single core. Users do not need to use this argument, it is intended for other functions that use [rf_repeat()] internally. Default: `FALSE`
 #' @param n.cores Integer, number of cores to use during computations. If `NULL`, all cores but one are used, unless a cluster is used. Default = `NULL`
 #' @param cluster.ips Character vector with the IPs of the machines in a cluster. The machine with the first IP will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.
 #' @param cluster.cores Numeric integer vector, number of cores to use on each machine.
@@ -98,6 +99,7 @@ rf_repeat <- function(
   repetitions = 5,
   keep.models = FALSE,
   verbose = TRUE,
+  disable.parallel = FALSE,
   n.cores = NULL,
   cluster.ips = NULL,
   cluster.cores = NULL,
@@ -118,9 +120,6 @@ rf_repeat <- function(
   if(repetitions < 5){
     repetitions <- 5
   }
-  if(repetitions > 30){
-    warning("Large numbers of 'repetitions' may lead to long computation times.")
-  }
 
   #getting arguments from model rather than ranger.arguments
   if(!is.null(model)){
@@ -132,61 +131,73 @@ rf_repeat <- function(
   if(is.null(importance)){importance <- "permutation"}
   local.importance <- ranger.arguments$local.importance
 
-  #INITIALIZING CLUSTER
-  if(is.null(cluster.port)){
-    cluster.port <- Sys.getenv("R_PARALLEL_PORT")
-  }
-
-  #preparing cluster for stand alone machine
-  if(is.null(cluster.ips) == TRUE){
-
-    #number of available cores
-    if(is.null(n.cores)){
-      n.cores <- parallel::detectCores() - 1
-    }
-    if(n.cores == 1){
-      if(is.null(ranger.arguments)){
-        ranger.arguments <- list()
-      }
-      ranger.arguments$num.threads <- 1
-    }
-    if(.Platform$OS.type == "windows"){
-      temp.cluster <- parallel::makeCluster(
-        n.cores,
-        type = "PSOCK"
-      )
-    } else {
-      temp.cluster <- parallel::makeCluster(
-        n.cores,
-        type = "FORK"
-      )
-    }
-
-    #preparing beowulf cluster
-  } else {
-
-    #preparing the cluster specification
-    cluster.spec <- cluster_specification(
-      cluster.ips = cluster.ips,
-      cluster.cores = cluster.cores,
-      cluster.user = cluster.user
-    )
-
-    #setting parallel port
-    Sys.setenv(R_PARALLEL_PORT = cluster.port)
+  #PARALLEL EXECUTION
+  if(disable.parallel == FALSE){
 
     #cluster setup
-    temp.cluster <- parallel::makeCluster(
-      master = cluster.ips[1],
-      spec = cluster.spec,
-      port = Sys.getenv("R_PARALLEL_PORT"),
-      outfile = "",
-      homogeneous = TRUE
-    )
+    if(is.null(cluster.port)){
+      cluster.port <- Sys.getenv("R_PARALLEL_PORT")
+    }
+
+    #preparing cluster for stand alone machine
+    if(is.null(cluster.ips) == TRUE){
+
+      #number of available cores
+      if(is.null(n.cores)){
+        n.cores <- parallel::detectCores() - 1
+      }
+      if(n.cores == 1){
+        if(is.null(ranger.arguments)){
+          ranger.arguments <- list()
+        }
+        ranger.arguments$num.threads <- 1
+      }
+      if(.Platform$OS.type == "windows"){
+        temp.cluster <- parallel::makeCluster(
+          n.cores,
+          type = "PSOCK"
+        )
+      } else {
+        temp.cluster <- parallel::makeCluster(
+          n.cores,
+          type = "FORK"
+        )
+      }
+
+      #preparing beowulf cluster
+    } else {
+
+      #preparing the cluster specification
+      cluster.spec <- cluster_specification(
+        cluster.ips = cluster.ips,
+        cluster.cores = cluster.cores,
+        cluster.user = cluster.user
+      )
+
+      #setting parallel port
+      Sys.setenv(R_PARALLEL_PORT = cluster.port)
+
+      #cluster setup
+      temp.cluster <- parallel::makeCluster(
+        master = cluster.ips[1],
+        spec = cluster.spec,
+        port = Sys.getenv("R_PARALLEL_PORT"),
+        outfile = "",
+        homogeneous = TRUE
+      )
+
+    }
+    doParallel::registerDoParallel(cl = temp.cluster)
+    on.exit(parallel::stopCluster(cl = temp.cluster))
+
+  } else {
+
+    #execution in a single core
+    `%dopar%` <- foreach::`%do%`
+    on.exit(`%dopar%` <- foreach::`%dopar%`)
+    ranger.arguments$num.threads <- 1
 
   }
-  doParallel::registerDoParallel(cl = temp.cluster)
-  on.exit(parallel::stopCluster(cl = temp.cluster))
 
   #removing seed from ranger arguments
   ranger.arguments$seed <- NULL
