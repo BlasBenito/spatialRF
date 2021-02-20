@@ -116,25 +116,26 @@ rf_interactions <- function(
     message(paste0("Testing ", nrow(variables.pairs), " candidate interactions."))
   }
 
+  #setup of parallel execution
+  if(is.null(n.cores)){
 
-  #cluster setup
-  if(is.null(cluster.port)){
-    cluster.port <- Sys.getenv("R_PARALLEL_PORT")
+    n.cores <- parallel::detectCores() - 1
+    `%dopar%` <- foreach::`%dopar%`
+
+  } else {
+
+    #only one core, no cluster
+    if(n.cores == 1){
+      #replaces dopar (parallel) by do (serial)
+      `%dopar%` <- foreach::`%do%`
+      on.exit(`%dopar%` <- foreach::`%dopar%`)
+    }
+
   }
 
-  #preparing cluster for stand alone machine
-  if(is.null(cluster.ips) == TRUE){
+  #local cluster
+  if(is.null(cluster.ips)){
 
-    #number of available cores
-    if(is.null(n.cores)){
-      n.cores <- parallel::detectCores() - 1
-    }
-    if(n.cores == 1){
-      if(is.null(ranger.arguments)){
-        ranger.arguments <- list()
-      }
-      ranger.arguments$num.threads <- 1
-    }
     if(.Platform$OS.type == "windows"){
       temp.cluster <- parallel::makeCluster(
         n.cores,
@@ -147,8 +148,11 @@ rf_interactions <- function(
       )
     }
 
-    #preparing beowulf cluster
   } else {
+    #beowulf cluster
+
+    #cluster port
+    Sys.setenv(R_PARALLEL_PORT = cluster.port)
 
     #preparing the cluster specification
     cluster.spec <- cluster_specification(
@@ -157,19 +161,18 @@ rf_interactions <- function(
       cluster.user = cluster.user
     )
 
-    #setting parallel port
-    Sys.setenv(R_PARALLEL_PORT = cluster.port)
-
     #cluster setup
     temp.cluster <- parallel::makeCluster(
       master = cluster.ips[1],
       spec = cluster.spec,
-      port = Sys.getenv("R_PARALLEL_PORT"),
+      port = cluster.port,
       outfile = "",
       homogeneous = TRUE
     )
 
   }
+
+  #register cluster and close on exit
   doParallel::registerDoParallel(cl = temp.cluster)
   on.exit(parallel::stopCluster(cl = temp.cluster))
 

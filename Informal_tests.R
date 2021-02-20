@@ -184,10 +184,50 @@ rf.model <- rf(
   verbose = FALSE
 )
 
-#with repetitions
-rf.repeat <- rf_repeat(model = rf.model, verbose = FALSE, disable.parallel = TRUE, repetitions = 100)
+#testing n.cores rf_repeat
+rf.repeat <- rf_repeat(
+  model = rf.model,
+  verbose = FALSE,
+  repetitions = 100,
+  n.cores = 1
+)
 
-#interactions
+rf.repeat <- rf_repeat(
+  model = rf.model,
+  verbose = FALSE,
+  repetitions = 100,
+  n.cores = 7
+)
+
+rf.repeat <- rf_repeat(
+  model = rf.model,
+  verbose = FALSE,
+  repetitions = 100,
+  cluster.ips = c(
+    "10.42.0.1",
+    "10.42.0.34",
+    "10.42.0.104"
+  ),
+  cluster.cores = c(7, 4, 4)
+  )
+
+
+#stand-alone machine 1 core
+interactions <- rf_interactions(
+  data = plant_richness_df,
+  dependent.variable.name = "richness_species_vascular",
+  predictor.variable.names = colnames(plant_richness_df)[5:21],
+  n.cores = 1
+)
+
+#stand-alone machine
+interactions <- rf_interactions(
+  data = plant_richness_df,
+  dependent.variable.name = "richness_species_vascular",
+  predictor.variable.names = colnames(plant_richness_df)[5:21]
+)
+
+#in cluster
 interactions <- rf_interactions(
   data = plant_richness_df,
   dependent.variable.name = "richness_species_vascular",

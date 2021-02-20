@@ -16,7 +16,6 @@ rf_repeat(
   repetitions = 5,
   keep.models = FALSE,
   verbose = TRUE,
-  disable.parallel = FALSE,
   n.cores = NULL,
   cluster.ips = NULL,
   cluster.cores = NULL,
@@ -46,8 +45,6 @@ rf_repeat(
 \item{keep.models}{Logical, if \code{TRUE}, the fitted models are returned in the \code{models} slot. Default: \code{FALSE}.}
 
 \item{verbose}{Logical, ff \code{TRUE}, messages and plots generated during the execution of the function are displayed, Default: \code{TRUE}}
-
-\item{disable.parallel}{Logical, if \code{TRUE}, the function is executed in a single core. Users do not need to use this argument, it is intended for other functions that use \code{\link[=rf_repeat]{rf_repeat()}} internally. Default: \code{FALSE}}
 
 \item{n.cores}{Integer, number of cores to use during computations. If \code{NULL}, all cores but one are used, unless a cluster is used. Default = \code{NULL}}
 
