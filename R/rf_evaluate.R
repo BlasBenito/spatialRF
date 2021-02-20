@@ -102,11 +102,19 @@ rf_evaluate <- function(
     training.fraction <- 0.9
   }
 
-  #getting data from the model
+  #getting data and ranger arguments from the model
   data <- model$ranger.arguments$data
   dependent.variable.name <- model$ranger.arguments$dependent.variable.name
   predictor.variable.names <- model$ranger.arguments$predictor.variable.names
   ranger.arguments <- model$ranger.arguments
+  ranger.arguments$data <- NULL
+  ranger.arguments$dependent.variable.name <- NULL
+  ranger.arguments$predictor.variable.names <- NULL
+  ranger.arguments$importance <- "none"
+  ranger.arguments$data <- NULL
+  ranger.arguments$scaled.importance <- FALSE
+  ranger.arguments$distance.matrix <- NULL
+  ranger.arguments$num.threads <- 1
 
   #preparing xy
   #if null, stop
@@ -152,21 +160,32 @@ rf_evaluate <- function(
     n.cores = n.cores
   )
 
-  #INITIALIZING CLUSTER
+  #setup of parallel execution
+  if(is.null(n.cores)){
 
-  #preparing cluster for stand alone machine
-  if(is.null(cluster.ips) == TRUE){
+    n.cores <- parallel::detectCores() - 1
+    `%dopar%` <- foreach::`%dopar%`
 
-    #number of available cores
-    if(is.null(n.cores)){
-      n.cores <- parallel::detectCores() - 1
-    }
+  } else {
+
+    #only one core, no cluster
     if(n.cores == 1){
-      if(is.null(ranger.arguments)){
-        ranger.arguments <- list()
-      }
-      ranger.arguments$num.threads <- 1
+
+      #replaces dopar (parallel) by do (serial)
+      `%dopar%` <- foreach::`%do%`
+      on.exit(`%dopar%` <- foreach::`%dopar%`)
+
+    } else {
+
+      `%dopar%` <- foreach::`%dopar%`
+
     }
+
+  }
+
+  #local cluster
+  if(is.null(cluster.ips) & n.cores > 1){
+
     if(.Platform$OS.type == "windows"){
       temp.cluster <- parallel::makeCluster(
         n.cores,
@@ -179,8 +198,18 @@ rf_evaluate <- function(
       )
     }
 
-    #preparing beowulf cluster
-  } else {
+    #register cluster and close on exit
+    doParallel::registerDoParallel(cl = temp.cluster)
+    on.exit(parallel::stopCluster(cl = temp.cluster))
+
+  }
+
+  #beowulf cluster
+  if(!is.null(cluster.ips)){
+
+
+    #cluster port
+    Sys.setenv(R_PARALLEL_PORT = cluster.port)
 
     #preparing the cluster specification
     cluster.spec <- cluster_specification(
@@ -189,51 +218,34 @@ rf_evaluate <- function(
       cluster.user = cluster.user
     )
 
-    #setting parallel port
-    Sys.setenv(R_PARALLEL_PORT = cluster.port)
-
     #cluster setup
     temp.cluster <- parallel::makeCluster(
       master = cluster.ips[1],
       spec = cluster.spec,
-      port = Sys.getenv("R_PARALLEL_PORT"),
+      port = cluster.port,
       outfile = "",
       homogeneous = TRUE
     )
 
-  }
-  doParallel::registerDoParallel(cl = temp.cluster)
-  on.exit(parallel::stopCluster(cl = temp.cluster))
+    #register cluster and close on exit
+    doParallel::registerDoParallel(cl = temp.cluster)
+    on.exit(parallel::stopCluster(cl = temp.cluster))
 
-  #setting importance = "none" in ranger.arguments
-  ranger.arguments$importance <- "none"
-  ranger.arguments$data <- NULL
-  ranger.arguments$scaled.importance <- FALSE
-  ranger.arguments$distance.matrix <- NULL
+  }
 
   #loop to evaluate models
   #####################################
   evaluation.df <- foreach::foreach(
     i = 1:length(spatial.folds),
-    .combine = "rbind",
-    .packages = c(
-      "ranger",
-      "magrittr"
-    ),
-    .export = c(
-      "root_mean_squared_error",
-      "rescale_vector",
-      "scale_robust",
-      "root_mean_squared_error"
-    )
-  ) %dopar% {
+    .combine = "rbind"
+    ) %dopar% {
 
     #separating training and testing data
     data.training <- data[data$id %in% spatial.folds[[i]]$training, ]
     data.testing <- data[data$id %in% spatial.folds[[i]]$testing, ]
 
     #training model
-    m.training <- rf(
+    m.training <- spatialRF::rf(
       data = data.training,
       dependent.variable.name = dependent.variable.name,
       predictor.variable.names = predictor.variable.names,
@@ -245,7 +257,8 @@ rf_evaluate <- function(
     predicted <- stats::predict(
       object = m.training,
       data = data.testing,
-      type = "response"
+      type = "response",
+      num.threads = 1
     )$predictions
     observed <- data.testing[, dependent.variable.name]
 
@@ -271,7 +284,7 @@ rf_evaluate <- function(
     }
     if("rmse" %in% metrics){
       out.df$training.rmse = m.training$performance$rmse
-      out.df$testing.rmse = round(root_mean_squared_error(
+      out.df$testing.rmse = round(spatialRF::root_mean_squared_error(
         o = observed,
         p = predicted,
         normalization = NULL
@@ -279,7 +292,7 @@ rf_evaluate <- function(
     }
     if("nrmse" %in% metrics){
       out.df$training.nrmse = m.training$performance$nrmse
-      out.df$testing.nrmse = round(root_mean_squared_error(
+      out.df$testing.nrmse = round(spatialRF::root_mean_squared_error(
         o = observed,
         p = predicted,
         normalization = "iq"

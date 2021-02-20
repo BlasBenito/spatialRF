@@ -227,6 +227,13 @@ interactions <- rf_interactions(
   n.cores = 1
 )
 
+interactions <- rf_interactions(
+  data = plant_richness_df,
+  dependent.variable.name = "richness_species_vascular",
+  predictor.variable.names = colnames(plant_richness_df)[5:21],
+  n.cores = NULL
+)
+
 #stand-alone machine
 interactions <- rf_interactions(
   data = plant_richness_df,

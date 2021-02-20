@@ -76,6 +76,7 @@ rf_interactions <- function(
       predictor.variable.names = predictor.variable.names,
       ranger.arguments = ranger.arguments,
       scaled.importance = FALSE,
+      repetitions = repetitions,
       verbose = FALSE,
       n.cores = n.cores,
       cluster.cores = cluster.cores,
@@ -221,11 +222,7 @@ rf_interactions <- function(
       scaled.importance = FALSE,
       verbose = FALSE,
       repetitions = repetitions,
-      n.cores = 1,
-      cluster.ips = cluster.ips,
-      cluster.cores = cluster.cores,
-      cluster.user = cluster.user,
-      cluster.port = cluster.port
+      n.cores = 1
     )
 
     #importance data frames
