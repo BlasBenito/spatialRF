@@ -342,7 +342,7 @@ rf_interactions <- function(
         paste0(
           "R2 gain: ",
           round(interaction.screening.selected[interaction.screening.selected$interaction.name == variable, "interaction.r.squared.gain"], 3),
-          "; Relative importance (%): ",
+          "; Importance (%): ",
           round(interaction.screening.selected[interaction.screening.selected$interaction.name == variable, "interaction.importance"], 1)
         )
       ) +

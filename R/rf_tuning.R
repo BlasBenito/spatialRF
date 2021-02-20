@@ -238,7 +238,7 @@ rf_tuning <- function(
         verbose = FALSE,
         repetitions = repetitions,
         n.cores = 1
-      )$performance
+      )
 
       #get performance measures
       m.i.performance <- spatialRF::get_performance(m.i)[, 1:2]
