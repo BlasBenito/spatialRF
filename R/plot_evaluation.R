@@ -46,6 +46,7 @@ plot_evaluation <- function(x, verbose = TRUE, notch = TRUE){
   #declaring variable because of check BS
   performance.value <- NULL
   model <- NULL
+  value <- NULL
 
   #stop if no evaluation slot
   if(!inherits(x, "rf_evaluate")){

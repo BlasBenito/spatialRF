@@ -144,6 +144,11 @@ rf <- function(
   save.memory = FALSE
   classification = NULL
 
+  #creating ranger arguments if it does not exist
+  if(is.null(ranger.arguments)){
+    ranger.arguments <- list()
+  }
+
   #were are data, dependent.variable.name, and predictor.variable.names coming from?
   if(is.null(data)){
     if("data" %in% names(ranger.arguments)){

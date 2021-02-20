@@ -59,6 +59,7 @@ rf_interactions <- function(
   #declaring variables
   variable <- NULL
   interaction.r.squared.gain <- NULL
+  y <- NULL
 
   #fitting model if absent
   if(is.null(model)){

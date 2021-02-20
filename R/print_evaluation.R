@@ -7,6 +7,8 @@
 #' @export
 print_evaluation <- function(x){
 
+  value <- NULL
+
   #stop if no evaluation slot
   if(!inherits(x, "rf_evaluate")){
     stop("Object 'x' does not have an 'evaluation' slot.")

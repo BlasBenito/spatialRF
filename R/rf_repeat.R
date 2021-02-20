@@ -131,11 +131,13 @@ rf_repeat <- function(
     importance <- ranger.arguments$importance
     local.importance <- ranger.arguments$local.importance
     ranger.arguments$seed <- NULL
-  } else {
-    ranger.arguments <- list()
-    ranger.arguments$importance <- importance <- "permutation"
-    ranger.arguments$local.importance <- local.importance <- FALSE
   }
+
+  if(is.null(ranger.arguments)){
+    ranger.arguments <- list()
+  }
+  ranger.arguments$importance <- importance <- "permutation"
+  ranger.arguments$local.importance <- local.importance <- FALSE
   ranger.arguments$num.threads <- 1
 
   #setup of parallel execution

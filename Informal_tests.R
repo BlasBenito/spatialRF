@@ -188,7 +188,7 @@ rf.model <- rf(
 rf.repeat <- rf_repeat(
   model = rf.model,
   verbose = FALSE,
-  repetitions = 100,
+  repetitions = 10,
   n.cores = 1
 )
 
@@ -434,6 +434,60 @@ tuning <- rf_tuning(
   predictor.variable.names = colnames(plant_richness_df)[5:21],
   method = "spatial.cv",
   xy = plant_richness_df[, c("x", "y")],
+  num.trees = c(500, 1000, 1500),
+  mtry = c(1, 5, 10, 15),
+  min.node.size = c(5, 10, 20),
+  n.cores = 7
+)
+
+tuning <- rf_tuning(
+  data = plant_richness_df,
+  dependent.variable.name = "richness_species_vascular",
+  predictor.variable.names = colnames(plant_richness_df)[5:21],
+  method = "spatial.cv",
+  xy = plant_richness_df[, c("x", "y")],
+  num.trees = c(500, 1000, 1500),
+  mtry = c(1, 5, 10, 15),
+  min.node.size = c(5, 10, 20),
+  n.cores = NULL
+)
+
+tuning <- rf_tuning(
+  data = plant_richness_df,
+  dependent.variable.name = "richness_species_vascular",
+  predictor.variable.names = colnames(plant_richness_df)[5:21],
+  method = "spatial.cv",
+  xy = plant_richness_df[, c("x", "y")],
+  num.trees = c(500, 1000, 1500),
+  mtry = c(1, 5, 10, 15),
+  min.node.size = c(5, 10, 20),
+  cluster.ips = c(
+    "10.42.0.1",
+    "10.42.0.34",
+    "10.42.0.104"
+  ),
+  cluster.cores = c(7, 4, 4)
+)
+
+
+
+tuning <- rf_tuning(
+  data = plant_richness_df,
+  dependent.variable.name = "richness_species_vascular",
+  predictor.variable.names = colnames(plant_richness_df)[5:21],
+  method = "oob",
+  num.trees = c(500, 1000),
+  mtry = c(1, 5, 10, 15),
+  min.node.size = c(5, 10, 20),
+  n.cores = 1
+)
+
+
+tuning <- rf_tuning(
+  data = plant_richness_df,
+  dependent.variable.name = "richness_species_vascular",
+  predictor.variable.names = colnames(plant_richness_df)[5:21],
+  method = "oob",
   num.trees = c(500, 1000, 1500),
   mtry = c(1, 5, 10, 15),
   min.node.size = c(5, 10, 20),
