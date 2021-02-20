@@ -219,7 +219,7 @@ rf.repeat <- rf_repeat(
   )
 
 
-#stand-alone machine 1 core
+#testing rf_interactions
 interactions <- rf_interactions(
   data = plant_richness_df,
   dependent.variable.name = "richness_species_vascular",
@@ -254,3 +254,217 @@ interactions <- rf_interactions(
   ),
   cluster.cores = c(7, 4, 4)
   )
+
+
+#testing rf_evaluate
+evaluation <- rf_evaluate(
+  model = rf.model,
+  repetitions = 1000,
+  xy = plant_richness_df[, c("x", "y")],
+  n.cores = 1
+)
+
+evaluation <- rf_evaluate(
+  model = rf.model,
+  repetitions = 1000,
+  xy = plant_richness_df[, c("x", "y")],
+  n.cores = NULL
+)
+
+evaluation <- rf_evaluate(
+  model = rf.model,
+  repetitions = 1000,
+  xy = plant_richness_df[, c("x", "y")],
+  n.cores = 6
+)
+
+evaluation <- rf_evaluate(
+  model = rf.model,
+  repetitions = 1000,
+  xy = plant_richness_df[, c("x", "y")],
+  cluster.ips = c(
+    "10.42.0.1",
+    "10.42.0.34",
+    "10.42.0.104"
+  ),
+  cluster.cores = c(7, 4, 4)
+)
+
+
+
+spatial.predictors.df <- mem_multithreshold(
+  x = distance_matrix,
+  distance.thresholds = c(0, 100, 1000, 10000),
+  max.spatial.predictors = NULL
+)
+rank <- rank_spatial_predictors(
+  distance.matrix = distance_matrix,
+  distance.thresholds = c(0, 100, 1000, 10000),
+  spatial.predictors.df = spatial.predictors.df,
+  ranking.method = "moran",
+  n.cores = 1
+)
+
+rank <- rank_spatial_predictors(
+  distance.matrix = distance_matrix,
+  distance.thresholds = c(0, 100, 1000, 10000),
+  spatial.predictors.df = spatial.predictors.df,
+  ranking.method = "moran",
+  n.cores = NULL
+)
+
+rank <- rank_spatial_predictors(
+  distance.matrix = distance_matrix,
+  distance.thresholds = c(0, 100, 1000, 10000),
+  spatial.predictors.df = spatial.predictors.df,
+  ranking.method = "moran",
+  n.cores = 6
+)
+
+rank <- rank_spatial_predictors(
+  distance.matrix = distance_matrix,
+  distance.thresholds = c(0, 100, 1000, 10000),
+  spatial.predictors.df = spatial.predictors.df,
+  ranking.method = "moran",
+  cluster.ips = c(
+    "10.42.0.1",
+    "10.42.0.34",
+    "10.42.0.104"
+  ),
+  cluster.cores = c(7, 4, 4)
+)
+
+#SELECT SPATIAL PREDICTORS
+data <- plant_richness_df
+dependent.variable.name <- "richness_species_vascular"
+predictor.variable.names <- colnames(plant_richness_df)[5:21]
+distance.matrix <- distance_matrix
+distance.thresholds <- c(1000)
+
+model <- rf(
+  data = data,
+  dependent.variable.name = dependent.variable.name,
+  predictor.variable.names = predictor.variable.names,
+  distance.matrix = distance.matrix,
+  distance.thresholds = distance.thresholds,
+  verbose = FALSE
+)
+
+spatial.predictors <- mem_multithreshold(
+  x = distance.matrix,
+  distance.thresholds = distance.thresholds
+)
+
+spatial.predictors.ranked <- rank_spatial_predictors(
+  distance.matrix = distance.matrix,
+  distance.thresholds = distance.thresholds,
+  spatial.predictors.df = spatial.predictors,
+  ranking.method = "moran",
+  reference.moran.i = model$spatial.correlation.residuals$max.moran,
+  n.cores = NULL
+)
+
+selection <- select_spatial_predictors_sequential(
+  data = data,
+  dependent.variable.name = dependent.variable.name,
+  predictor.variable.names = predictor.variable.names,
+  distance.matrix = distance.matrix,
+  distance.thresholds = distance.thresholds,
+  spatial.predictors.df = spatial.predictors,
+  spatial.predictors.ranking = spatial.predictors.ranked,
+  n.cores = 1
+)
+
+selection <- select_spatial_predictors_sequential(
+  data = data,
+  dependent.variable.name = dependent.variable.name,
+  predictor.variable.names = predictor.variable.names,
+  distance.matrix = distance.matrix,
+  distance.thresholds = distance.thresholds,
+  spatial.predictors.df = spatial.predictors,
+  spatial.predictors.ranking = spatial.predictors.ranked,
+  n.cores = NULL
+)
+
+selection <- select_spatial_predictors_sequential(
+  data = data,
+  dependent.variable.name = dependent.variable.name,
+  predictor.variable.names = predictor.variable.names,
+  distance.matrix = distance.matrix,
+  distance.thresholds = distance.thresholds,
+  spatial.predictors.df = spatial.predictors,
+  spatial.predictors.ranking = spatial.predictors.ranked,
+  n.cores = 7
+)
+
+selection <- select_spatial_predictors_sequential(
+  data = data,
+  dependent.variable.name = dependent.variable.name,
+  predictor.variable.names = predictor.variable.names,
+  distance.matrix = distance.matrix,
+  distance.thresholds = distance.thresholds,
+  spatial.predictors.df = spatial.predictors,
+  spatial.predictors.ranking = spatial.predictors.ranked,
+  cluster.ips = c(
+    "10.42.0.1",
+    "10.42.0.34",
+    "10.42.0.104"
+  ),
+  cluster.cores = c(7, 4, 4)
+)
+
+
+#testing rf tuning
+tuning <- rf_tuning(
+  data = plant_richness_df,
+  dependent.variable.name = "richness_species_vascular",
+  predictor.variable.names = colnames(plant_richness_df)[5:21],
+  method = "spatial.cv",
+  xy = plant_richness_df[, c("x", "y")],
+  num.trees = c(500, 1000, 1500),
+  mtry = c(1, 5, 10, 15),
+  min.node.size = c(5, 10, 20),
+  n.cores = 1
+  )
+
+
+tuning <- rf_tuning(
+  data = plant_richness_df,
+  dependent.variable.name = "richness_species_vascular",
+  predictor.variable.names = colnames(plant_richness_df)[5:21],
+  method = "spatial.cv",
+  xy = plant_richness_df[, c("x", "y")],
+  num.trees = c(500, 1000, 1500),
+  mtry = c(1, 5, 10, 15),
+  min.node.size = c(5, 10, 20),
+  n.cores = 7
+)
+
+tuning <- rf_tuning(
+  data = plant_richness_df,
+  dependent.variable.name = "richness_species_vascular",
+  predictor.variable.names = colnames(plant_richness_df)[5:21],
+  method = "spatial.cv",
+  xy = plant_richness_df[, c("x", "y")],
+  num.trees = c(500, 1000, 1500),
+  mtry = c(1, 5, 10, 15),
+  min.node.size = c(5, 10, 20),
+  n.cores = NULL
+)
+
+tuning <- rf_tuning(
+  data = plant_richness_df,
+  dependent.variable.name = "richness_species_vascular",
+  predictor.variable.names = colnames(plant_richness_df)[5:21],
+  method = "spatial.cv",
+  xy = plant_richness_df[, c("x", "y")],
+  num.trees = c(500, 1000, 1500),
+  mtry = c(1, 5, 10, 15),
+  min.node.size = c(5, 10, 20),
+  cluster.ips = c(
+    "10.42.0.1",
+    "10.42.0.34",
+    "10.42.0.104"
+  ),
+  cluster.cores = c(7, 4, 4)
+)

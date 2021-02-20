@@ -65,7 +65,7 @@ rank_spatial_predictors <- function(
   n.cores = NULL,
   cluster.ips = NULL,
   cluster.cores = NULL,
-  cluster.user = NULL,
+  cluster.user = Sys.info()[["user"]],
   cluster.port = 11000
 ){
 
@@ -90,19 +90,32 @@ rank_spatial_predictors <- function(
   #reference.moran.i
   if(is.null(reference.moran.i)){reference.moran.i <- 1}
 
-  #preparing cluster for stand alone machine
-  if(is.null(cluster.ips) == TRUE){
+  #setup of parallel execution
+  if(is.null(n.cores)){
 
-    #number of available cores
-    if(is.null(n.cores)){
-      n.cores <- parallel::detectCores() - 1
-    }
+    n.cores <- parallel::detectCores() - 1
+    `%dopar%` <- foreach::`%dopar%`
+
+  } else {
+
+    #only one core, no cluster
     if(n.cores == 1){
-      if(is.null(ranger.arguments)){
-        ranger.arguments <- list()
-      }
-      ranger.arguments$num.threads <- 1
+
+      #replaces dopar (parallel) by do (serial)
+      `%dopar%` <- foreach::`%do%`
+      on.exit(`%dopar%` <- foreach::`%dopar%`)
+
+    } else {
+
+      `%dopar%` <- foreach::`%dopar%`
+
     }
+
+  }
+
+  #local cluster
+  if(is.null(cluster.ips) & n.cores > 1){
+
     if(.Platform$OS.type == "windows"){
       temp.cluster <- parallel::makeCluster(
         n.cores,
@@ -115,8 +128,18 @@ rank_spatial_predictors <- function(
       )
     }
 
-    #preparing beowulf cluster
-  } else {
+    #register cluster and close on exit
+    doParallel::registerDoParallel(cl = temp.cluster)
+    on.exit(parallel::stopCluster(cl = temp.cluster))
+
+  }
+
+  #beowulf cluster
+  if(!is.null(cluster.ips)){
+
+
+    #cluster port
+    Sys.setenv(R_PARALLEL_PORT = cluster.port)
 
     #preparing the cluster specification
     cluster.spec <- cluster_specification(
@@ -125,39 +148,27 @@ rank_spatial_predictors <- function(
       cluster.user = cluster.user
     )
 
-    #setting parallel port
-    Sys.setenv(R_PARALLEL_PORT = cluster.port)
-
     #cluster setup
     temp.cluster <- parallel::makeCluster(
       master = cluster.ips[1],
       spec = cluster.spec,
-      port = Sys.getenv("R_PARALLEL_PORT"),
+      port = cluster.port,
       outfile = "",
       homogeneous = TRUE
     )
 
-  }
-  doParallel::registerDoParallel(cl = temp.cluster)
-  on.exit(parallel::stopCluster(cl = temp.cluster))
+    #register cluster and close on exit
+    doParallel::registerDoParallel(cl = temp.cluster)
+    on.exit(parallel::stopCluster(cl = temp.cluster))
 
-  #3.2.3 PREPARING PARALLELIZED LOOP TO ITERATE THROUGH distance.matrix.pca
+  }
+
+  #parallelized loop
   spatial.predictors.i <- NULL
   spatial.predictors.order <- foreach::foreach(
     spatial.predictors.i = 1:ncol(spatial.predictors.df),
-    .combine = "rbind",
-    .packages = c(
-      "ranger",
-      "magrittr"
-    ),
-    .export = c(
-      "root_mean_squared_error",
-      "rescale_vector",
-      "moran_multithreshold",
-      "auto_vif",
-      "scale_robust"
-    )
-  ) %dopar% {
+    .combine = "rbind"
+    ) %dopar% {
 
     #3.2.3.1 preparing data
 
@@ -178,7 +189,7 @@ rank_spatial_predictors <- function(
       predictor.variable.names.i <- c(predictor.variable.names, spatial.predictors.name.i)
 
       #fitting model I
-      m.i <- rf(
+      m.i <- spatialRF::rf(
         data = data.i,
         dependent.variable.name = dependent.variable.name,
         predictor.variable.names = predictor.variable.names.i,
@@ -205,7 +216,7 @@ rank_spatial_predictors <- function(
     if(ranking.method == "moran"){
 
       #moran's I of spatial predictor
-      m.i <- moran(
+      m.i <- spatialRF::moran(
         x = spatial.predictors.df[, spatial.predictors.i],
         distance.matrix = distance.matrix,
         distance.threshold = distance.thresholds[1]

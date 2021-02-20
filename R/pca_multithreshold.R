@@ -2,7 +2,7 @@
 #' @description Computes PCA factors of a distance matrix over different distance thresholds to generate spatial predictors for a model fitted with [rf_spatial()].
 #' @param x Distance matrix with the same number of columns and rows. Default: `NULL`
 #' @param distance.thresholds Numeric vector with distance thresholds defining neighborhood in the distance matrix, Default: `0`
-#' @param max.spatial.predictors Integer, maximum number of spatial predictors to generate. Only useful when the distance matrix `x` is very large. Default: `1000`
+#' @param max.spatial.predictors Integer, maximum number of spatial predictors to generate. Only useful when the distance matrix `x` is very large. Default: `NULL`
 #' @return A data frame with the PCA factors of the thresholded matrix. The data frame columns are named "spatial_predictor_DISTANCE_COLUMN", where DISTANCE is the given distance threshold, and COLUMN is the column index of the given predictor.
 #' @details The distance matrix is converted into weights with [weights_from_distance_matrix()] before computing the PCA. This produces more meaningful spatial predictors than using the distance matrix as is.
 #' @seealso [pca()]
@@ -22,7 +22,7 @@
 pca_multithreshold <- function(
   x = NULL,
   distance.thresholds = 0,
-  max.spatial.predictors = 1000
+  max.spatial.predictors = NULL
 ){
 
   #list to store pca factors
@@ -62,8 +62,10 @@ pca_multithreshold <- function(
   pca.factors <- pca.factors[, colnames(pca.factors) %in% names(pca.factors.filter)]
 
   #applying max.pca.factors
-  if(ncol(pca.factors) > max.spatial.predictors){
-    pca.factors <- pca.factors[, 1:max.spatial.predictors]
+  if(!is.null(max.spatial.predictors)){
+    if(ncol(pca.factors) > max.spatial.predictors){
+      pca.factors <- pca.factors[, 1:max.spatial.predictors]
+    }
   }
 
   #returning output

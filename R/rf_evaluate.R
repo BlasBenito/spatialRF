@@ -152,7 +152,7 @@ rf_evaluate <- function(
 
   #generates spatial folds
   ####################################
-  spatial.folds <- make_spatial_folds(
+  spatial.folds <- spatialRF::make_spatial_folds(
     xy.selected = xy.reference.records,
     xy = xy,
     distance.step = distance.step,

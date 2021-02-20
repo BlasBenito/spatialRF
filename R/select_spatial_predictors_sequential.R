@@ -89,7 +89,7 @@ select_spatial_predictors_sequential <- function(
   n.cores = NULL,
   cluster.ips = NULL,
   cluster.cores = NULL,
-  cluster.user = NULL,
+  cluster.user = Sys.info()[["user"]],
   cluster.port = 11000
 ){
 
@@ -118,24 +118,34 @@ select_spatial_predictors_sequential <- function(
   ranger.arguments$formula <- NULL
   ranger.arguments$dependent.variable.name <- NULL
   ranger.arguments$predictor.variable.names <- NULL
+  ranger.arguments$num.threads <- 1
 
-  #preparing cluster for stand alone machine
-  if(is.null(cluster.port)){
-    cluster.port <- Sys.getenv("R_PARALLEL_PORT")
+  #setup of parallel execution
+  if(is.null(n.cores)){
+
+    n.cores <- parallel::detectCores() - 1
+    `%dopar%` <- foreach::`%dopar%`
+
+  } else {
+
+    #only one core, no cluster
+    if(n.cores == 1){
+
+      #replaces dopar (parallel) by do (serial)
+      `%dopar%` <- foreach::`%do%`
+      on.exit(`%dopar%` <- foreach::`%dopar%`)
+
+    } else {
+
+      `%dopar%` <- foreach::`%dopar%`
+
+    }
+
   }
 
-  if(is.null(cluster.ips) == TRUE){
+  #local cluster
+  if(is.null(cluster.ips) & n.cores > 1){
 
-    #number of available cores
-    if(is.null(n.cores)){
-      n.cores <- parallel::detectCores() - 1
-    }
-    if(n.cores == 1){
-      if(is.null(ranger.arguments)){
-        ranger.arguments <- list()
-      }
-      ranger.arguments$num.threads <- 1
-    }
     if(.Platform$OS.type == "windows"){
       temp.cluster <- parallel::makeCluster(
         n.cores,
@@ -148,8 +158,18 @@ select_spatial_predictors_sequential <- function(
       )
     }
 
-    #preparing beowulf cluster
-  } else {
+    #register cluster and close on exit
+    doParallel::registerDoParallel(cl = temp.cluster)
+    on.exit(parallel::stopCluster(cl = temp.cluster))
+
+  }
+
+  #beowulf cluster
+  if(!is.null(cluster.ips)){
+
+
+    #cluster port
+    Sys.setenv(R_PARALLEL_PORT = cluster.port)
 
     #preparing the cluster specification
     cluster.spec <- cluster_specification(
@@ -158,37 +178,25 @@ select_spatial_predictors_sequential <- function(
       cluster.user = cluster.user
     )
 
-    #setting parallel port
-    Sys.setenv(R_PARALLEL_PORT = cluster.port)
-
     #cluster setup
     temp.cluster <- parallel::makeCluster(
       master = cluster.ips[1],
       spec = cluster.spec,
-      port = Sys.getenv("R_PARALLEL_PORT"),
+      port = cluster.port,
       outfile = "",
       homogeneous = TRUE
     )
 
+    #register cluster and close on exit
+    doParallel::registerDoParallel(cl = temp.cluster)
+    on.exit(parallel::stopCluster(cl = temp.cluster))
+
   }
-  doParallel::registerDoParallel(cl = temp.cluster)
-  on.exit(parallel::stopCluster(cl = temp.cluster))
 
   spatial.predictors.i <- NULL
   optimization.df <- foreach::foreach(
     spatial.predictors.i = 1:length(spatial.predictors.ranking),
-    .combine = "rbind"#,
-    # .packages = c(
-    #   "ranger",
-    #   "magrittr"
-    # ),
-    # .export = c(
-    #   "root_mean_squared_error",
-    #   "rescale_vector",
-    #   "moran_multithreshold",
-    #   "moran",
-    #   "scale_robust"
-    # )
+    .combine = "rbind"
   ) %dopar% {
 
     #pca factor names
@@ -208,7 +216,7 @@ select_spatial_predictors_sequential <- function(
     )
 
     #fitting model i
-    m.i <- rf(
+    m.i <- spatialRF::rf(
       data = data.i,
       dependent.variable.name = dependent.variable.name,
       predictor.variable.names = predictor.variable.names.i,

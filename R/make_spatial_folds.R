@@ -50,30 +50,13 @@ make_spatial_folds <- function(
   n.cores = NULL
 ){
 
-  #prepare cluster for parallelized loop
-  if(is.null(n.cores)){n.cores <- parallel::detectCores() - 1}
-  if(.Platform$OS.type == "windows"){
-    temp.cluster <- parallel::makeCluster(
-      n.cores,
-      type = "PSOCK"
-    )
-  } else {
-    temp.cluster <- parallel::makeCluster(
-      n.cores,
-      type = "FORK"
-    )
-  }
-  doParallel::registerDoParallel(cl = temp.cluster)
-  on.exit(parallel::stopCluster(cl = temp.cluster))
-  parallel::clusterExport(cl = temp.cluster, "make_spatial_fold")
-
   #parallelized loop
-  i <- NULL #define i to avoid complains from devtools::check()
+  i <- NULL
   spatial.folds <- foreach::foreach(
     i = 1:nrow(xy.selected)
-  ) %dopar% {
+  ) %do% {
 
-    spatial.fold.i <- make_spatial_fold(
+    spatial.fold.i <- spatialRF::make_spatial_fold(
       xy.i = xy.selected[i, ],
       xy = xy,
       distance.step = distance.step,

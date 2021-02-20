@@ -98,7 +98,7 @@ select_spatial_predictors_optimized <- function(
   n.cores = NULL,
   cluster.ips = NULL,
   cluster.cores = NULL,
-  cluster.user = NULL,
+  cluster.user = Sys.info()[["user"]],
   cluster.port = 11000
 ){
 

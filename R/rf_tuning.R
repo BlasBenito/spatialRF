@@ -9,7 +9,7 @@
 #' @param mtry Numeric integer vector, number of predictors to randomly select from the complete pool of predictors on each tree split. Default: `c(2, 3)`
 #' @param min.node.size Numeric integer, minimal number of cases in a terminal node. Default: `c(5, 10)`
 #' @param xy Data frame or matrix with two columns containing coordinates and named "x" and "y", or an sf file with geometry class `sfc_POINT` (see [plant_richness_sf]). If `NULL`, the function will throw an error. Default: `NULL`
-#' @param repetitions Integer, number of repetitions to compute the R squared from. If `method = "oob"`, number of repetitions to be used in [rf_repeat()] to fit models for each combination of hyperparameters. If `method = "spatial.cv"`, number of independent spatial folds to use during the cross-validation. Default: `10`
+#' @param repetitions Integer, number of repetitions to compute the R squared from. If `method = "oob"`, number of repetitions to be used in [rf_repeat()] to fit models for each combination of hyperparameters. If `method = "spatial.cv"`, number of independent spatial folds to use during the cross-validation. Default: `NULL` (which yields 30 for "spatial.cv" and 5 for "oob").
 #' @param training.fraction Proportion between 0.2 and 0.8 indicating the number of records to be used in model training. Default: `0.6`
 #' @param verbose Logical. If TRUE, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
 #' @param n.cores Integer, number of cores to use during computations. If `NULL`, all cores but one are used, unless a cluster is used. Default = `NULL`
@@ -44,24 +44,39 @@ rf_tuning <- function(
   data = NULL,
   dependent.variable.name = NULL,
   predictor.variable.names = NULL,
-  method = "oob",
+  method = c("oob", "spatial.cv"),
   num.trees = c(500, 1000),
   mtry = c(1, 5),
   min.node.size = c(5, 10),
   xy = NULL,
-  repetitions = 10,
+  repetitions = NULL,
   training.fraction = 0.6,
   verbose = TRUE,
   n.cores = NULL,
   cluster.ips = NULL,
   cluster.cores = NULL,
-  cluster.user = NULL,
+  cluster.user = Sys.info()[["user"]],
   cluster.port = 11000
 ){
 
   #declaring variables
   value <- NULL
   r.squared <- NULL
+
+  #matching arguments
+  method <- match.arg(
+    method,
+    choices = c("oob", "spatial.cv")
+  )
+
+  if(is.null(repetitions)){
+    if(method == "oob"){
+      repetitions <- 5
+    }
+    if(method == "spatial.cv"){
+      repetitions <- 30
+    }
+  }
 
   #getting arguments from model rather than ranger.arguments
   if(!is.null(model)){
@@ -118,44 +133,112 @@ rf_tuning <- function(
     )
   }
 
+  #setup of parallel execution
+  if(is.null(n.cores)){
 
+    n.cores <- parallel::detectCores() - 1
+    `%dopar%` <- foreach::`%dopar%`
+
+  } else {
+
+    #only one core, no cluster
+    if(n.cores == 1){
+
+      #replaces dopar (parallel) by do (serial)
+      `%dopar%` <- foreach::`%do%`
+      on.exit(`%dopar%` <- foreach::`%dopar%`)
+
+    } else {
+
+      `%dopar%` <- foreach::`%dopar%`
+
+    }
+
+  }
+
+  #local cluster
+  if(is.null(cluster.ips) & n.cores > 1){
+
+    if(.Platform$OS.type == "windows"){
+      temp.cluster <- parallel::makeCluster(
+        n.cores,
+        type = "PSOCK"
+      )
+    } else {
+      temp.cluster <- parallel::makeCluster(
+        n.cores,
+        type = "FORK"
+      )
+    }
+
+    #register cluster and close on exit
+    doParallel::registerDoParallel(cl = temp.cluster)
+    on.exit(parallel::stopCluster(cl = temp.cluster))
+
+  }
+
+  #beowulf cluster
+  if(!is.null(cluster.ips)){
+
+
+    #cluster port
+    Sys.setenv(R_PARALLEL_PORT = cluster.port)
+
+    #preparing the cluster specification
+    cluster.spec <- cluster_specification(
+      cluster.ips = cluster.ips,
+      cluster.cores = cluster.cores,
+      cluster.user = cluster.user
+    )
+
+    #cluster setup
+    temp.cluster <- parallel::makeCluster(
+      master = cluster.ips[1],
+      spec = cluster.spec,
+      port = cluster.port,
+      outfile = "",
+      homogeneous = TRUE
+    )
+
+    #register cluster and close on exit
+    doParallel::registerDoParallel(cl = temp.cluster)
+    on.exit(parallel::stopCluster(cl = temp.cluster))
+
+  }
 
   #looping through combinations
   tuning <- foreach(
-    num.trees = combinations$num.trees,
-    mtry = combinations$mtry,
-    min.node.size = combinations$min.node.size,
+    num.trees.i = combinations$num.trees,
+    mtry.i = combinations$mtry,
+    min.node.size.i = combinations$min.node.size,
     .combine = "rbind"
-  ) %do% {
+  ) %dopar% {
 
     #filling ranger arguments
     ranger.arguments.i <- list()
-    ranger.arguments.i$num.trees <- num.trees
-    ranger.arguments.i$mtry <- mtry
-    ranger.arguments.i$min.node.size <- min.node.size
+    ranger.arguments.i$num.trees <- num.trees.i
+    ranger.arguments.i$mtry <- mtry.i
+    ranger.arguments.i$min.node.size <- min.node.size.i
     ranger.arguments.i$importance <- "none"
-    ranger.arguments.i$data = data
-    ranger.arguments.i$dependent.variable.name = dependent.variable.name
-    ranger.arguments.i$predictor.variable.names = predictor.variable.names
+    ranger.arguments.i$num.threads <- 1
 
     #using out of bag
     if(method == "oob"){
 
       #fit model
-      m.i <- rf_repeat(
+      m.i <- spatialRF::rf_repeat(
+        data = data,
+        dependent.variable.name = dependent.variable.name,
+        predictor.variable.names = predictor.variable.names,
         ranger.arguments = ranger.arguments.i,
         scaled.importance = FALSE,
-        repetitions = repetitions,
         verbose = FALSE,
-        n.cores = n.cores,
-        cluster.ips = cluster.ips,
-        cluster.cores = cluster.cores,
-        cluster.user = cluster.user,
-        cluster.port = cluster.port
+        repetitions = repetitions,
+        n.cores = 1
       )
 
       #get performance measures
-      m.i.performance <- get_performance(m.i)[, 1:2]
+      m.i.performance <- spatialRF::get_performance(m.i)[, 1:2]
 
     }
 
@@ -163,7 +246,10 @@ rf_tuning <- function(
     if(method == "spatial.cv"){
 
       #fit model
-      m.i <- rf(
+      m.i <- spatialRF::rf(
+        data = data,
+        dependent.variable.name = dependent.variable.name,
+        predictor.variable.names = predictor.variable.names,
         ranger.arguments = ranger.arguments.i,
         scaled.importance = FALSE,
         seed = 100,
@@ -171,21 +257,17 @@ rf_tuning <- function(
       )
 
       #evaluate
-      m.i <- rf_evaluate(
+      m.i <- spatialRF::rf_evaluate(
         model = m.i,
         xy = xy,
         repetitions = repetitions,
         training.fraction = training.fraction,
         verbose = FALSE,
-        n.cores = n.cores,
-        cluster.ips = cluster.ips,
-        cluster.cores = cluster.cores,
-        cluster.user = cluster.user,
-        cluster.port = cluster.port
+        n.cores = 1
       )
 
       #getting performance measures
-      m.i.performance <- get_evaluation(m.i)
+      m.i.performance <- spatialRF::get_evaluation(m.i)
       m.i.performance <- m.i.performance[m.i.performance$model == "Testing", c("metric", "mean")]
 
     }
@@ -208,25 +290,25 @@ rf_tuning <- function(
 
   #preparing ranger arguments
   ranger.arguments <- list()
-  ranger.arguments$data <- data
-  ranger.arguments$dependent.variable.name <- dependent.variable.name
-  ranger.arguments$predictor.variable.names <- predictor.variable.names
   ranger.arguments$num.trees <- tuning[1, "num.trees"]
   ranger.arguments$mtry <- tuning[1, "mtry"]
   ranger.arguments$min.node.size <- tuning[1, "min.node.size"]
 
-  #preparing tuning list
-  tuning.list <- list()
-  tuning.list$method <- method
-  tuning.list$tuning.df <- tuning
-
   #fitting tuned model
   m <- rf(
+    data = data,
+    dependent.variable.name = dependent.variable.name,
+    predictor.variable.names = predictor.variable.names,
     ranger.arguments = ranger.arguments,
     distance.matrix = distance.matrix,
     distance.thresholds = distance.thresholds,
     verbose = FALSE
     )
+
+  #preparing tuning list
+  tuning.list <- list()
+  tuning.list$method <- method
+  tuning.list$tuning.df <- tuning
 
   #adding tuning slot
   m$tuning <- tuning.list

@@ -2,7 +2,7 @@
 #' @description Computes Moran's Eigenvector Maps of a distance matrix (using [mem()]) over different distance thresholds.
 #' @param x x Numeric matrix or data frame, generally a distance matrix. Default: `NULL`.
 #' @param distance.thresholds Numeric vector with distance thresholds defining neighborhood in the distance matrix, Default: `0`.
-#' @param max.spatial.predictors Maximum number of spatial predictors to generate. Only useful to save memory when the distance matrix `x` is very large. Default: `1000`.
+#' @param max.spatial.predictors Maximum number of spatial predictors to generate. Only useful to save memory when the distance matrix `x` is very large. Default: `NULL`.
 #' @return A data frame with as many rows as the distance matrix `x` containing positive Moran's Eigenvector Maps. The data frame columns are named "spatial_predictor_DISTANCE_COLUMN", where DISTANCE is the given distance threshold, and COLUMN is the column index of the given spatial predictor.
 #' @details The function takes the distance matrix `x`, computes its weights at difference distance thresholds, double-centers the resulting weight matrices with [double_center_distance_matrix()], applies \link[base]{eigen} to each double-centered matrix, and returns eigenvectors with positive normalized eigenvalues for different distance thresholds.
 #' @examples
@@ -23,7 +23,7 @@
 mem_multithreshold <- function(
   x = NULL,
   distance.thresholds = 0,
-  max.spatial.predictors = 1000
+  max.spatial.predictors = NULL
 ){
 
   #list to store mems
@@ -50,8 +50,10 @@ mem_multithreshold <- function(
   mem.df <- as.data.frame(do.call("cbind", mem.list))
 
   #applying max.pca.factors
-  if(ncol(mem.df) > max.spatial.predictors){
-    mem.df <- mem.df[, 1:max.spatial.predictors]
+  if(!is.null(max.spatial.predictors)){
+    if(ncol(mem.df) > max.spatial.predictors){
+      mem.df <- mem.df[, 1:max.spatial.predictors]
+    }
   }
 
   #returning output

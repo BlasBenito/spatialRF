@@ -24,7 +24,7 @@
 #'   \item "mem.effect.sequential"
 #'   \item "mem.effect.optimized"
 #' }
-#' @param max.spatial.predictors Integer, maximum number of spatial predictors to generate. Useful when memory problems arise due to a large number of spatial predictors, Default: `1000`
+#' @param max.spatial.predictors Integer, maximum number of spatial predictors to generate. Useful when memory problems arise due to a large number of spatial predictors, Default: `NULL`
 #' @param weight.r.squared Numeric between 0 and 1, weight of R-squared in the selection of spatial components. See Details, Default: `NULL`
 #' @param weight.penalization.n.predictors Numeric between 0 and 1, weight of the penalization for adding an increasing number of spatial predictors during selection. Default: `1000`
 #' @param seed Integer, random seed to facilitate reproducibility. If set to a given number, the returned model is always the same. Only relevant if `repetitions = 1`. Default: `NULL`
@@ -154,7 +154,7 @@ rf_spatial <- function(
     "pca.effect.sequential", #pca factors added in order of effect
     "pca.effect.optimized" #pca factors added maximizing their joint effect.
   ),
-  max.spatial.predictors = 1000,
+  max.spatial.predictors = NULL,
   weight.r.squared = NULL,
   weight.penalization.n.predictors = NULL,
   seed = NULL,
