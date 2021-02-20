@@ -196,7 +196,14 @@ rf.repeat <- rf_repeat(
   model = rf.model,
   verbose = FALSE,
   repetitions = 100,
-  n.cores = 7
+  n.cores = NULL
+)
+
+rf.repeat <- rf_repeat(
+  model = rf.model,
+  verbose = FALSE,
+  repetitions = 100,
+  n.cores = 6
 )
 
 rf.repeat <- rf_repeat(
@@ -224,7 +231,8 @@ interactions <- rf_interactions(
 interactions <- rf_interactions(
   data = plant_richness_df,
   dependent.variable.name = "richness_species_vascular",
-  predictor.variable.names = colnames(plant_richness_df)[5:21]
+  predictor.variable.names = colnames(plant_richness_df)[5:21],
+  n.cores = 7
 )
 
 #in cluster

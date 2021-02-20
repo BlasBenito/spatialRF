@@ -64,10 +64,10 @@ rf_interactions <- function(
   if(is.null(model)){
 
     #subsetting data
-    data <- data[, c(
-      dependent.variable.name,
-      predictor.variable.names
-    )]
+    # data <- data[, c(
+    #   dependent.variable.name,
+    #   predictor.variable.names
+    # )]
 
     #fitting model
     model <- rf_repeat(
@@ -125,15 +125,21 @@ rf_interactions <- function(
 
     #only one core, no cluster
     if(n.cores == 1){
+
       #replaces dopar (parallel) by do (serial)
       `%dopar%` <- foreach::`%do%`
       on.exit(`%dopar%` <- foreach::`%dopar%`)
+
+    } else {
+
+      `%dopar%` <- foreach::`%dopar%`
+
     }
 
   }
 
   #local cluster
-  if(is.null(cluster.ips)){
+  if(is.null(cluster.ips) & n.cores > 1){
 
     if(.Platform$OS.type == "windows"){
       temp.cluster <- parallel::makeCluster(
@@ -147,8 +153,15 @@ rf_interactions <- function(
       )
     }
 
-  } else {
-    #beowulf cluster
+    #register cluster and close on exit
+    doParallel::registerDoParallel(cl = temp.cluster)
+    on.exit(parallel::stopCluster(cl = temp.cluster))
+
+  }
+
+  #beowulf cluster
+  if(!is.null(cluster.ips)){
+
 
     #cluster port
     Sys.setenv(R_PARALLEL_PORT = cluster.port)
@@ -169,11 +182,11 @@ rf_interactions <- function(
       homogeneous = TRUE
     )
 
-  }
+    #register cluster and close on exit
+    doParallel::registerDoParallel(cl = temp.cluster)
+    on.exit(parallel::stopCluster(cl = temp.cluster))
 
-  #register cluster and close on exit
-  doParallel::registerDoParallel(cl = temp.cluster)
-  on.exit(parallel::stopCluster(cl = temp.cluster))
+  }
 
   #testing interactions
   i <- NULL
@@ -187,25 +200,28 @@ rf_interactions <- function(
     pair.i.name <- paste(pair.i, collapse = "_X_")
 
     #prepare data.i
-    ranger.arguments.i$data <- data.frame(
+    data.i <- data.frame(
       data,
       interaction = data[, pair.i[1]] * data[, pair.i[2]]
     )
-    colnames(ranger.arguments.i$data)[ncol(ranger.arguments.i$data)] <- pair.i.name
+    colnames(data.i)[ncol(data.i)] <- pair.i.name
 
     #prepare predictor.variable.names.i
-    ranger.arguments.i$predictor.variable.names <- c(
+    predictor.variable.names.i <- c(
       predictor.variable.names,
       pair.i.name
     )
 
     #fitting model
     model.i <- spatialRF::rf_repeat(
+      data = data.i,
+      dependent.variable.name = dependent.variable.name,
+      predictor.variable.names = predictor.variable.names.i,
       ranger.arguments = ranger.arguments.i,
       scaled.importance = FALSE,
       verbose = FALSE,
       repetitions = repetitions,
-      n.cores = n.cores,
+      n.cores = 1,
       cluster.ips = cluster.ips,
       cluster.cores = cluster.cores,
       cluster.user = cluster.user,

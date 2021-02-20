@@ -122,6 +122,12 @@ rf_repeat <- function(
   #getting arguments from model rather than ranger.arguments
   if(!is.null(model)){
     ranger.arguments <- model$ranger.arguments
+    data <- ranger.arguments$data
+    dependent.variable.name <- ranger.arguments$dependent.variable.name
+    predictor.variable.names <- ranger.arguments$predictor.variable.names
+    distance.matrix <- ranger.arguments$distance.matrix
+    distance.thresholds <- ranger.arguments$distance.thresholds
+    scaled.importance <- ranger.arguments$scaled.importance
     importance <- ranger.arguments$importance
     local.importance <- ranger.arguments$local.importance
     ranger.arguments$seed <- NULL
@@ -142,15 +148,21 @@ rf_repeat <- function(
 
     #only one core, no cluster
     if(n.cores == 1){
+
       #replaces dopar (parallel) by do (serial)
       `%dopar%` <- foreach::`%do%`
       on.exit(`%dopar%` <- foreach::`%dopar%`)
+
+    } else {
+
+      `%dopar%` <- foreach::`%dopar%`
+
     }
 
   }
 
   #local cluster
-  if(is.null(cluster.ips)){
+  if(is.null(cluster.ips) & n.cores > 1){
 
     if(.Platform$OS.type == "windows"){
       temp.cluster <- parallel::makeCluster(
@@ -164,8 +176,15 @@ rf_repeat <- function(
       )
     }
 
-  } else {
-    #beowulf cluster
+    #register cluster and close on exit
+    doParallel::registerDoParallel(cl = temp.cluster)
+    on.exit(parallel::stopCluster(cl = temp.cluster))
+
+  }
+
+  #beowulf cluster
+  if(!is.null(cluster.ips)){
+
 
     #cluster port
     Sys.setenv(R_PARALLEL_PORT = cluster.port)
@@ -186,11 +205,11 @@ rf_repeat <- function(
       homogeneous = TRUE
     )
 
-  }
+    #register cluster and close on exit
+    doParallel::registerDoParallel(cl = temp.cluster)
+    on.exit(parallel::stopCluster(cl = temp.cluster))
 
-  #register cluster and close on exit
-  doParallel::registerDoParallel(cl = temp.cluster)
-  on.exit(parallel::stopCluster(cl = temp.cluster))
+  }
 
   #executing repetitions
   i <- NULL
