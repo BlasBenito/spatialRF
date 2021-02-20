@@ -77,7 +77,6 @@ rf_interactions <- function(
       ranger.arguments = ranger.arguments,
       scaled.importance = FALSE,
       verbose = FALSE,
-      disable.parallel = TRUE,
       n.cores = n.cores,
       cluster.cores = cluster.cores,
       cluster.user = cluster.user,
