@@ -129,28 +129,42 @@ interactions <- rf_interactions(
 
     ## Testing 36 candidate interactions.
 
-    ## 4 potential interactions identified.
+    ## 8 potential interactions identified.
 
     ##       ┌─────────────────────────┬───────────────────────┬────────────────┐
     ##       │ Interaction             │ Importance (% of max) │ R2 improvement │
     ##       ├─────────────────────────┼───────────────────────┼────────────────┤
-    ##       │ climate_bio1_average_X_ │                  97.2 │         0.013  │
-    ##       │ neighbors_count         │                       │                │
-    ##       ├─────────────────────────┼───────────────────────┼────────────────┤
-    ##       │ climate_bio1_average_X_ │                  95.0 │         0.017  │
+    ##       │ climate_bio1_average_X_ │                  93.0 │         0.020  │
     ##       │ bias_area_km2           │                       │                │
     ##       ├─────────────────────────┼───────────────────────┼────────────────┤
-    ##       │ human_population_X_bias │                  82.6 │         0.013  │
+    ##       │ human_population_X_bias │                  82.1 │         0.019  │
     ##       │ _area_km2               │                       │                │
     ##       ├─────────────────────────┼───────────────────────┼────────────────┤
-    ##       │ bias_area_km2_X_bias_sp │                  59.3 │         0.0414 │
+    ##       │ climate_hypervolume_X_n │                  66.7 │         0.013  │
+    ##       │ eighbors_count          │                       │                │
+    ##       ├─────────────────────────┼───────────────────────┼────────────────┤
+    ##       │ bias_area_km2_X_bias_sp │                  59.1 │         0.045  │
     ##       │ ecies_per_record        │                       │                │
+    ##       ├─────────────────────────┼───────────────────────┼────────────────┤
+    ##       │ climate_hypervolume_X_b │                  62.0 │         0.013  │
+    ##       │ ias_area_km2            │                       │                │
+    ##       ├─────────────────────────┼───────────────────────┼────────────────┤
+    ##       │ climate_hypervolume_X_c │                  58.8 │         0.010  │
+    ##       │ limate_velocity_lgm_ave │                       │                │
+    ##       │ rage                    │                       │                │
+    ##       ├─────────────────────────┼───────────────────────┼────────────────┤
+    ##       │ climate_hypervolume_X_b │                  39.2 │         0.019  │
+    ##       │ ias_species_per_record  │                       │                │
+    ##       ├─────────────────────────┼───────────────────────┼────────────────┤
+    ##       │ climate_aridity_index_a │                  37.1 │         0.0154 │
+    ##       │ verage_X_climate_veloci │                       │                │
+    ##       │ ty_lgm_average          │                       │                │
     ##       └─────────────────────────┴───────────────────────┴────────────────┘
 
 ![](README_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
-Here `rf_interactions()` suggests four candidate interactions ordered by
-their impact on the model. The function cannot say whether an
+Here `rf_interactions()` suggests several candidate interactions ordered
+by their impact on the model. The function cannot say whether an
 interaction *makes sense*, and it is up to the user to choose wisely
 whether to select an interaction or not.
 
@@ -321,10 +335,10 @@ model.non.spatial.tuned <- rf_tuning(
 
     ## 
     ## Model performance 
-    ##   - R squared (OOB):                 0.603
-    ##   - Pseudo R squared:                0.777
-    ##   - RMSE:                            2120.469
-    ##   - Normalized RMSE:                 0.612
+    ##   - R squared (OOB):                 0.602
+    ##   - Pseudo R squared:                0.776
+    ##   - RMSE:                            2124.993
+    ##   - Normalized RMSE:                 0.613
 
 Model tuning has helped to improve performance measures across the
 board, so from here, we can keep working with `model.non.spatial.tuned`.
@@ -395,16 +409,16 @@ If we take a look to the five most important variables in
 
 | variable                                   | importance |
 |:-------------------------------------------|-----------:|
-| climate\_bio1\_average\_X\_bias\_area\_km2 |      0.676 |
-| climate\_hypervolume                       |      0.296 |
-| climate\_bio1\_average                     |      0.266 |
-| spatial\_predictor\_0\_2                   |      0.186 |
-| bias\_species\_per\_record                 |      0.157 |
-| spatial\_predictor\_0\_6                   |      0.154 |
-| spatial\_predictor\_0\_7                   |      0.111 |
-| neighbors\_count                           |      0.105 |
-| human\_population\_density                 |      0.084 |
-| spatial\_predictor\_0\_11                  |      0.048 |
+| climate\_bio1\_average\_X\_bias\_area\_km2 |      0.627 |
+| climate\_bio1\_average                     |      0.291 |
+| climate\_hypervolume                       |      0.273 |
+| spatial\_predictor\_0\_2                   |      0.178 |
+| spatial\_predictor\_0\_6                   |      0.160 |
+| bias\_species\_per\_record                 |      0.138 |
+| spatial\_predictor\_1500\_2                |      0.092 |
+| neighbors\_count                           |      0.091 |
+| human\_population\_density                 |      0.081 |
+| spatial\_predictor\_0\_7                   |      0.077 |
 
 Spatial predictors, as shown below, are smooth surfaces representing
 neighborhood among records at different spatial scales.
@@ -499,6 +513,6 @@ comparison <- rf_compare(
 | model       | metric    |    value |
 |:------------|:----------|---------:|
 | Non-spatial | r.squared |    0.525 |
-| Spatial     | r.squared |    0.464 |
-| Non-spatial | rmse      | 2309.470 |
-| Spatial     | rmse      | 2522.531 |
+| Spatial     | r.squared |    0.435 |
+| Non-spatial | rmse      | 2311.426 |
+| Spatial     | rmse      | 2618.292 |
