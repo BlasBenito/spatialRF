@@ -128,25 +128,19 @@ interactions <- rf_interactions(
 
     ## Testing 36 candidate interactions.
 
-    ## 5 potential interactions identified.
+    ## 3 potential interactions identified.
 
     ##       ┌─────────────────────────┬───────────────────────┬────────────────┐
     ##       │ Interaction             │ Importance (% of max) │ R2 improvement │
     ##       ├─────────────────────────┼───────────────────────┼────────────────┤
-    ##       │ climate_bio1_average_X_ │                  93.0 │         0.019  │
+    ##       │ climate_bio1_average_X_ │                  81.6 │         0.014  │
     ##       │ bias_area_km2           │                       │                │
     ##       ├─────────────────────────┼───────────────────────┼────────────────┤
-    ##       │ human_population_X_bias │                  82.1 │         0.018  │
+    ##       │ human_population_X_bias │                  79.5 │         0.025  │
     ##       │ _area_km2               │                       │                │
     ##       ├─────────────────────────┼───────────────────────┼────────────────┤
-    ##       │ climate_hypervolume_X_n │                  66.7 │         0.012  │
-    ##       │ eighbors_count          │                       │                │
-    ##       ├─────────────────────────┼───────────────────────┼────────────────┤
-    ##       │ bias_area_km2_X_bias_sp │                  59.1 │         0.044  │
+    ##       │ bias_area_km2_X_bias_sp │                  61.7 │         0.0419 │
     ##       │ ecies_per_record        │                       │                │
-    ##       ├─────────────────────────┼───────────────────────┼────────────────┤
-    ##       │ climate_hypervolume_X_b │                  62   │         0.0119 │
-    ##       │ ias_area_km2            │                       │                │
     ##       └─────────────────────────┴───────────────────────┴────────────────┘
 
 ![](README_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
@@ -212,7 +206,7 @@ predictor.variable.names <- auto_cor(
 
     ## [auto_cor()]: Removed variables: bias_area_km2, human_population, human_footprint_average
 
-    ## [auto_vif()]: Removed variables: neighbors_area
+    ## [auto_vif()]: Removed variables:
 
 The output of `auto_cor()` or `auto_vif()` is of the class
 “variable\_selection”, that can be used as input for the argument
@@ -308,7 +302,7 @@ model.non.spatial.tuned <- rf_tuning(
 
     ##   - num.trees:     500
 
-    ##   - mtry:          14
+    ##   - mtry:          5
 
     ##   - min.node.size: 5
 
@@ -316,17 +310,17 @@ model.non.spatial.tuned <- rf_tuning(
 
     ## 
     ## Model performance 
-    ##   - R squared (OOB):                 0.592
-    ##   - Pseudo R squared:                0.77
-    ##   - RMSE:                            2206.564
-    ##   - Normalized RMSE:                 0.637
+    ##   - R squared (OOB):                 0.594
+    ##   - Pseudo R squared:                0.771
+    ##   - RMSE:                            2214.932
+    ##   - Normalized RMSE:                 0.639
 
     ## 
     ## Model performance 
-    ##   - R squared (OOB):                 0.602
-    ##   - Pseudo R squared:                0.776
-    ##   - RMSE:                            2124.993
-    ##   - Normalized RMSE:                 0.613
+    ##   - R squared (OOB):                 0.603
+    ##   - Pseudo R squared:                0.777
+    ##   - RMSE:                            2164.684
+    ##   - Normalized RMSE:                 0.625
 
 Model tuning has helped to improve performance measures across the
 board, so from here, we can keep working with `model.non.spatial.tuned`.
@@ -397,16 +391,16 @@ If we take a look to the five most important variables in
 
 | variable                                   | importance |
 |:-------------------------------------------|-----------:|
-| climate\_bio1\_average\_X\_bias\_area\_km2 |      0.627 |
-| climate\_bio1\_average                     |      0.291 |
-| climate\_hypervolume                       |      0.273 |
-| spatial\_predictor\_0\_2                   |      0.178 |
-| spatial\_predictor\_0\_6                   |      0.160 |
-| bias\_species\_per\_record                 |      0.138 |
-| spatial\_predictor\_1500\_2                |      0.092 |
-| neighbors\_count                           |      0.091 |
-| human\_population\_density                 |      0.081 |
-| spatial\_predictor\_0\_7                   |      0.077 |
+| climate\_bio1\_average                     |      0.259 |
+| climate\_hypervolume                       |      0.251 |
+| climate\_bio1\_average\_X\_bias\_area\_km2 |      0.249 |
+| spatial\_predictor\_1500\_2                |      0.219 |
+| spatial\_predictor\_0\_6                   |      0.205 |
+| spatial\_predictor\_0\_2                   |      0.203 |
+| bias\_species\_per\_record                 |      0.134 |
+| spatial\_predictor\_0\_7                   |      0.126 |
+| human\_population\_density                 |      0.118 |
+| neighbors\_count                           |      0.110 |
 
 Spatial predictors, as shown below, are smooth surfaces representing
 neighborhood among records at different spatial scales.
@@ -500,7 +494,7 @@ comparison <- rf_compare(
 
 | model       | metric    |    value |
 |:------------|:----------|---------:|
-| Non-spatial | r.squared |    0.525 |
-| Spatial     | r.squared |    0.435 |
-| Non-spatial | rmse      | 2311.426 |
-| Spatial     | rmse      | 2618.292 |
+| Non-spatial | r.squared |    0.467 |
+| Spatial     | r.squared |    0.380 |
+| Non-spatial | rmse      | 2585.326 |
+| Spatial     | rmse      | 2828.901 |
