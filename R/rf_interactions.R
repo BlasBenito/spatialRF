@@ -253,7 +253,7 @@ rf_interactions <- function(
 
   #adding column of selected interactions
   interaction.screening$selected <- ifelse(
-    interaction.screening$interaction.r.squared.gain > 0.1 &
+    interaction.screening$interaction.r.squared.gain > 0.01 &
     interaction.screening$interaction.importance > 50,
     TRUE,
     FALSE
