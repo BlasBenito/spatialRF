@@ -129,36 +129,41 @@ interactions <- rf_interactions(
 
     ## Testing 36 candidate interactions.
 
-    ## 8 potential interactions identified.
+    ## 10 potential interactions identified.
 
     ##       ┌─────────────────────────┬───────────────────────┬────────────────┐
     ##       │ Interaction             │ Importance (% of max) │ R2 improvement │
     ##       ├─────────────────────────┼───────────────────────┼────────────────┤
-    ##       │ climate_bio1_average_X_ │                  93.0 │         0.020  │
+    ##       │ climate_bio1_average_X_ │                  95.2 │         0.008  │
+    ##       │ neighbors_count         │                       │                │
+    ##       ├─────────────────────────┼───────────────────────┼────────────────┤
+    ##       │ climate_bio1_average_X_ │                  93.0 │         0.019  │
     ##       │ bias_area_km2           │                       │                │
     ##       ├─────────────────────────┼───────────────────────┼────────────────┤
-    ##       │ human_population_X_bias │                  82.1 │         0.019  │
+    ##       │ human_population_X_bias │                  82.1 │         0.018  │
     ##       │ _area_km2               │                       │                │
     ##       ├─────────────────────────┼───────────────────────┼────────────────┤
-    ##       │ climate_hypervolume_X_n │                  66.7 │         0.013  │
+    ##       │ climate_hypervolume_X_n │                  66.7 │         0.012  │
     ##       │ eighbors_count          │                       │                │
     ##       ├─────────────────────────┼───────────────────────┼────────────────┤
-    ##       │ bias_area_km2_X_bias_sp │                  59.1 │         0.045  │
+    ##       │ bias_area_km2_X_bias_sp │                  59.1 │         0.044  │
     ##       │ ecies_per_record        │                       │                │
     ##       ├─────────────────────────┼───────────────────────┼────────────────┤
-    ##       │ climate_hypervolume_X_b │                  62.0 │         0.013  │
+    ##       │ climate_hypervolume_X_b │                  62.0 │         0.012  │
     ##       │ ias_area_km2            │                       │                │
     ##       ├─────────────────────────┼───────────────────────┼────────────────┤
-    ##       │ climate_hypervolume_X_c │                  58.8 │         0.010  │
+    ##       │ climate_bio1_average_X_ │                  62.2 │         0.002  │
+    ##       │ human_population        │                       │                │
+    ##       ├─────────────────────────┼───────────────────────┼────────────────┤
+    ##       │ climate_hypervolume_X_c │                  58.8 │         0.009  │
     ##       │ limate_velocity_lgm_ave │                       │                │
     ##       │ rage                    │                       │                │
     ##       ├─────────────────────────┼───────────────────────┼────────────────┤
-    ##       │ climate_hypervolume_X_b │                  39.2 │         0.019  │
-    ##       │ ias_species_per_record  │                       │                │
+    ##       │ bias_area_km2_X_neighbo │                  53.2 │         0.008  │
+    ##       │ rs_count                │                       │                │
     ##       ├─────────────────────────┼───────────────────────┼────────────────┤
-    ##       │ climate_aridity_index_a │                  37.1 │         0.0154 │
-    ##       │ verage_X_climate_veloci │                       │                │
-    ##       │ ty_lgm_average          │                       │                │
+    ##       │ climate_hypervolume_X_c │                  50.9 │         0.0059 │
+    ##       │ limate_bio1_average     │                       │                │
     ##       └─────────────────────────┴───────────────────────┴────────────────┘
 
 ![](README_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
@@ -194,9 +199,9 @@ depends on the scope of the study). These rules are applies to both
 `auto_cor()` and `auto_vif()`, that are executed sequentially by using
 the `%>%` pipe from the [magrittr](https://magrittr.tidyverse.org/)
 package. Notice that I have set `cor.threshold` and `vif.threshold` to
-low values because the predictors in `plant_richness_df` show little
-multicollinearity. The default values (`cor.threshold = 0.75` and
-`vif.threshold = 5`) should work well when combined together for any
+low values because the predictors in `plant_richness_df` already have
+little multicollinearity,. The default values (`cor.threshold = 0.75`
+and `vif.threshold = 5`) should work well when combined together for any
 other dataset.
 
 ``` r
