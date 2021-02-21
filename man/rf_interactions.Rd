@@ -51,7 +51,7 @@ rf_interactions(
 A list with four slots: \code{screening}, with the complete screening results; \code{selected}, with the names and the R squared improvement produced by each variable interaction; \code{columns}, data frame with the interactions computed from the training data, and \code{plot}, with the list of plots of the selected interactions versus the response variable. The output list can be plotted all at once with \code{patchwork::wrap_plots(p)} or \code{cowplot::plot_grid(plotlist = p)}, or one by one by extracting each plot from the list.
 }
 \description{
-Suggests candidate variable interactions by selecting the variables above a given importance threshold (given by the argument \code{importance.threshold}, or the median importance if not provided) from a model and combining them in pairs through multiplication (\code{a * b}).
+Suggests candidate variable interactions by selecting the variables above a given importance threshold (given by the argument \code{importance.threshold}, or the median importance if not provided) from a model and combining them in pairs through multiplication (\code{a * b}). The interacting variables are scaled between 1 and 100 before multiplication to avoid artifacts when a variable has 0 somewhere in the middle of its range (i.e. temperature).
 
 For each variable interaction, a model including all the predictors plus the interaction is fitted, and it's R squared is compared with the R squared of the model without interactions. This model without interactions can either be provided through the argument \code{model}, or is fitted on the fly with \code{\link[=rf_repeat]{rf_repeat()}} if the user provides the data.
 

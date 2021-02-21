@@ -55,7 +55,6 @@ tutorial.
 library(kableExtra)
 library(ggplot2)
 suppressMessages(library(dplyr))
-# options(dplyr.summarise.inform = FALSE)
 library(magrittr)
 library(patchwork)
 library(rnaturalearth)
@@ -129,13 +128,10 @@ interactions <- rf_interactions(
 
     ## Testing 36 candidate interactions.
 
-    ## 10 potential interactions identified.
+    ## 5 potential interactions identified.
 
     ##       ┌─────────────────────────┬───────────────────────┬────────────────┐
     ##       │ Interaction             │ Importance (% of max) │ R2 improvement │
-    ##       ├─────────────────────────┼───────────────────────┼────────────────┤
-    ##       │ climate_bio1_average_X_ │                  95.2 │         0.008  │
-    ##       │ neighbors_count         │                       │                │
     ##       ├─────────────────────────┼───────────────────────┼────────────────┤
     ##       │ climate_bio1_average_X_ │                  93.0 │         0.019  │
     ##       │ bias_area_km2           │                       │                │
@@ -149,21 +145,8 @@ interactions <- rf_interactions(
     ##       │ bias_area_km2_X_bias_sp │                  59.1 │         0.044  │
     ##       │ ecies_per_record        │                       │                │
     ##       ├─────────────────────────┼───────────────────────┼────────────────┤
-    ##       │ climate_hypervolume_X_b │                  62.0 │         0.012  │
+    ##       │ climate_hypervolume_X_b │                  62   │         0.0119 │
     ##       │ ias_area_km2            │                       │                │
-    ##       ├─────────────────────────┼───────────────────────┼────────────────┤
-    ##       │ climate_bio1_average_X_ │                  62.2 │         0.002  │
-    ##       │ human_population        │                       │                │
-    ##       ├─────────────────────────┼───────────────────────┼────────────────┤
-    ##       │ climate_hypervolume_X_c │                  58.8 │         0.009  │
-    ##       │ limate_velocity_lgm_ave │                       │                │
-    ##       │ rage                    │                       │                │
-    ##       ├─────────────────────────┼───────────────────────┼────────────────┤
-    ##       │ bias_area_km2_X_neighbo │                  53.2 │         0.008  │
-    ##       │ rs_count                │                       │                │
-    ##       ├─────────────────────────┼───────────────────────┼────────────────┤
-    ##       │ climate_hypervolume_X_c │                  50.9 │         0.0059 │
-    ##       │ limate_bio1_average     │                       │                │
     ##       └─────────────────────────┴───────────────────────┴────────────────┘
 
 ![](README_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
@@ -176,8 +159,10 @@ whether to select an interaction or not.
 As an example, I will choose `climate_bio1_average_X_bias_area_km2`
 hypothesizing that ecoregions with higher area (bias\_area\_km2) and
 energy (represented by the annual temperature, climate\_bio1\_average)
-will have more species of vascular plants. The data required to add it
-ot the dataset is inside the output of `rf_interactions()`.
+will have more species of vascular plants (this is just an example, many
+other rationales are possible when choosing between candidate
+interactions). The data required to add it ot the dataset is inside the
+output of `rf_interactions()`.
 
 ``` r
 plant_richness_df[, "climate_bio1_average_X_bias_area_km2"] <- interactions$columns[, "climate_bio1_average_X_bias_area_km2"]

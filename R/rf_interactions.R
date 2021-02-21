@@ -1,5 +1,5 @@
 #' @title Suggest variable interactions for random forest models
-#' @description Suggests candidate variable interactions by selecting the variables above a given importance threshold (given by the argument `importance.threshold`, or the median importance if not provided) from a model and combining them in pairs through multiplication (`a * b`).
+#' @description Suggests candidate variable interactions by selecting the variables above a given importance threshold (given by the argument `importance.threshold`, or the median importance if not provided) from a model and combining them in pairs through multiplication (`a * b`). The interacting variables are scaled between 1 and 100 before multiplication to avoid artifacts when a variable has 0 somewhere in the middle of its range (i.e. temperature).
 #'
 #' For each variable interaction, a model including all the predictors plus the interaction is fitted, and it's R squared is compared with the R squared of the model without interactions. This model without interactions can either be provided through the argument `model`, or is fitted on the fly with [rf_repeat()] if the user provides the data.
 #'
@@ -210,10 +210,23 @@ rf_interactions <- function(
     pair.i <- c(variables.pairs[i, 1], variables.pairs[i, 2])
     pair.i.name <- paste(pair.i, collapse = "_X_")
 
+    #get interaction values
+    pair.i.1 <- rescale_vector(
+      x = data[, pair.i[1]],
+      new.min = 1,
+      new.max = 100
+      )
+    pair.i.2 <- rescale_vector(
+      x = data[, pair.i[2]],
+      new.min = 1,
+      new.max = 100
+      )
+
+
     #prepare data.i
     data.i <- data.frame(
       data,
-      interaction = data[, pair.i[1]] * data[, pair.i[2]]
+      interaction = pair.i.1 * pair.i.2
     )
     colnames(data.i)[ncol(data.i)] <- pair.i.name
 
@@ -305,7 +318,20 @@ rf_interactions <- function(
     dummy.column = rep(NA, nrow(data))
   )
   for(i in 1:nrow(interaction.screening.selected)){
-    interaction.df[, interaction.screening.selected[i, "interaction.name"]] <- data[, interaction.screening.selected[i, "variable.a.name"]] * data[, interaction.screening.selected[i, "variable.b.name"]]
+
+    #get interaction values
+    pair.i.1 <- rescale_vector(
+      x = data[, interaction.screening.selected[i, "variable.a.name"]],
+      new.min = 1,
+      new.max = 100
+      )
+    pair.i.2 <- rescale_vector(
+      x = data[, interaction.screening.selected[i, "variable.b.name"]],
+      new.min = 1,
+      new.max = 100
+      )
+    interaction.df[, interaction.screening.selected[i, "interaction.name"]] <- pair.i.1 * pair.i.2
+
   }
   interaction.df$dummy.column <- NULL
 
