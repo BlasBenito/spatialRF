@@ -179,7 +179,11 @@ rf_interactions <- function(
     if(verbose == TRUE){
       outfile <- ""
     } else {
-      outfile <- NULL
+      if(.Platform$OS.type == "windows"){
+        outfile <- "nul:"
+      } else {
+        outfile <- "/dev/null"
+      }
     }
     temp.cluster <- parallel::makeCluster(
       master = cluster.ips[1],
