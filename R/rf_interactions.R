@@ -179,8 +179,8 @@ rf_interactions <- function(
     if(verbose == TRUE){
       outfile <- ""
     } else {
-        outfile <- NULL
-      }
+      outfile <- NULL
+    }
     temp.cluster <- parallel::makeCluster(
       master = cluster.ips[1],
       spec = cluster.spec,
