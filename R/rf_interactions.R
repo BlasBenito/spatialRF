@@ -360,7 +360,7 @@ rf_interactions <- function(
     plot.list.out <- plot.list[[1]]
   }
   if(length(plot.list) == 2){
-    plot.list.out <- patchwork::wrap_plots(plot.list, ncol = 3)
+    plot.list.out <- patchwork::wrap_plots(plot.list, ncol = 2)
   }
   if(length(plot.list) > 2){
     plot.list.out <- patchwork::wrap_plots(plot.list, ncol = 3)
