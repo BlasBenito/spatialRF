@@ -176,11 +176,16 @@ rf_interactions <- function(
     )
 
     #cluster setup
+    if(verbose == TRUE){
+      outfile <- ""
+    } else {
+        outfile <- NULL
+      }
     temp.cluster <- parallel::makeCluster(
       master = cluster.ips[1],
       spec = cluster.spec,
       port = cluster.port,
-      outfile = "",
+      outfile = outfile,
       homogeneous = TRUE
     )
 
