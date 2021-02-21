@@ -251,6 +251,11 @@ rf_interactions <- function(
 
   }#end of parallelized loop
 
+  if(nrow(interaction.screening) == 0){
+    message("No promising interactions found.")
+    stop()
+  }
+
   #adding column of selected interactions
   interaction.screening$selected <- ifelse(
     interaction.screening$interaction.r.squared.gain > 0.01 &
@@ -258,6 +263,11 @@ rf_interactions <- function(
     TRUE,
     FALSE
   )
+
+  if(sum(interaction.screening$selected) == 0){
+    message("No promising interactions found.")
+    stop()
+  }
 
   #compute order
   interaction.screening$order <- (interaction.screening$interaction.importance / 100) + interaction.screening$interaction.r.squared.gain
@@ -280,10 +290,6 @@ rf_interactions <- function(
     "variable.a.name",
     "variable.b.name"
     )]
-
-  if(nrow(interaction.screening) == 0){
-    stop("There are no variable interactions to suggest for this model.")
-  }
 
   if(verbose == TRUE){
     message(
