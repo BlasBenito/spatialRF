@@ -10,7 +10,7 @@
 #' @param predictor.variable.names Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Default: `NULL`
 #' @param ranger.arguments Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.
 #' @param importance.threshold Value of variable importance from `model` used as threshold to select variables to generate candidate interactions. Default: Median of the variable importance in `model`.
-#' @param repetitions Integer, number of random forest models to fit in order to assess the importance of the interaction. Default: `5`
+#' @param repetitions Integer, number of random forest models to fit in order to assess the importance of the interaction. Default: `10`
 #' @param verbose Logical If `TRUE`, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
 #' @param n.cores Integer, number of cores to use during computations. If `NULL`, all cores but one are used, unless a cluster is used. Default = `NULL`
 #' @param cluster.ips Character vector with the IPs of the machines in a cluster. The machine with the first IP will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.
@@ -47,7 +47,7 @@ rf_interactions <- function(
   predictor.variable.names = NULL,
   ranger.arguments = NULL,
   importance.threshold = NULL,
-  repetitions = 5,
+  repetitions = 10,
   verbose = TRUE,
   n.cores = NULL,
   cluster.ips = NULL,
@@ -244,7 +244,8 @@ rf_interactions <- function(
 
   #adding column of selected interactions
   interaction.screening$selected <- ifelse(
-    interaction.screening$interaction.r.squared.gain > 0.01,
+    interaction.screening$interaction.r.squared.gain > 0 &
+    interaction.screening$interaction.importance > 50,
     TRUE,
     FALSE
   )
@@ -346,12 +347,16 @@ rf_interactions <- function(
           round(interaction.screening.selected[interaction.screening.selected$interaction.name == variable, "interaction.importance"], 1)
         )
       ) +
-      ggplot2::theme_bw()
+      ggplot2::theme_bw() +
+      ggplot2::coord_cartesian(
+        xlim = c(min(plot.df$x), quantile(plot.df$x, 0.95)),
+        ylim = c(min(plot.df$y), quantile(plot.df$y, 0.95))
+      )
 
   }
 
   #plot list of plots
-  plot.list.out <- patchwork::wrap_plots(plot.list)
+  plot.list.out <- patchwork::wrap_plots(plot.list, ncol = 3)
 
   if(verbose == TRUE){
     print(plot.list.out)

@@ -172,9 +172,7 @@ As an example, I will choose `climate_bio1_average_X_bias_area_km2`
 hypothesizing that ecoregions with higher area (bias\_area\_km2) and
 energy (represented by the annual temperature, climate\_bio1\_average)
 will have more species of vascular plants. The data required to add it
-ot the dataset is inside the output of `rf_interactions()`. A similar
-rationale (more energy + more neighbors = more species) could have been
-followed to select `climate_bio1_average_X_neighbors_count` as well.
+ot the dataset is inside the output of `rf_interactions()`.
 
 ``` r
 plant_richness_df[, "climate_bio1_average_X_bias_area_km2"] <- interactions$columns[, "climate_bio1_average_X_bias_area_km2"]
