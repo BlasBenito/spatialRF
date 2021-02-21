@@ -17,6 +17,7 @@
 #' @param ranger.arguments List with \link[ranger]{ranger} arguments. See [rf] or [rf_repeat] for further details.
 #' @param spatial.predictors.df Data frame of spatial predictors.
 #' @param ranking.method Character, method used by to rank spatial predictors. The method "effect" ranks spatial predictors according how much each predictor reduces Moran's I of the model residuals, while the method "moran" ranks them by their own Moran's I.
+#' @param verbose Logical, ff `TRUE`, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
 #' @param n.cores Integer, number of cores to use during computations. If `NULL`, all cores but one are used, unless a cluster is used. Default = `NULL`
 #' @param cluster.ips Character vector with the IPs of the machines in a cluster. The machine with the first IP will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.
 #' @param cluster.cores Numeric integer vector, number of cores to use on each machine.
@@ -62,6 +63,7 @@ rank_spatial_predictors <- function(
   spatial.predictors.df = NULL,
   ranking.method = c("effect", "moran"),
   reference.moran.i = 1,
+  verbose = FALSE,
   n.cores = NULL,
   cluster.ips = NULL,
   cluster.cores = NULL,
@@ -149,11 +151,20 @@ rank_spatial_predictors <- function(
     )
 
     #cluster setup
+    if(verbose == TRUE){
+      outfile <- ""
+    } else {
+      if(.Platform$OS.type == "windows"){
+        outfile <- "nul:"
+      } else {
+        outfile <- "/dev/null"
+      }
+    }
     temp.cluster <- parallel::makeCluster(
       master = cluster.ips[1],
       spec = cluster.spec,
       port = cluster.port,
-      outfile = "",
+      outfile = outfile,
       homogeneous = TRUE
     )
 

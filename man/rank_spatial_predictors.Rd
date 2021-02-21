@@ -14,6 +14,7 @@ rank_spatial_predictors(
   spatial.predictors.df = NULL,
   ranking.method = c("effect", "moran"),
   reference.moran.i = 1,
+  verbose = FALSE,
   n.cores = NULL,
   cluster.ips = NULL,
   cluster.cores = NULL,
@@ -39,6 +40,8 @@ rank_spatial_predictors(
 \item{ranking.method}{Character, method used by to rank spatial predictors. The method "effect" ranks spatial predictors according how much each predictor reduces Moran's I of the model residuals, while the method "moran" ranks them by their own Moran's I.}
 
 \item{reference.moran.i}{Moran's I of the residuals of the model without spatial predictors. Default: \code{1}}
+
+\item{verbose}{Logical, ff \code{TRUE}, messages and plots generated during the execution of the function are displayed, Default: \code{TRUE}}
 
 \item{n.cores}{Integer, number of cores to use during computations. If \code{NULL}, all cores but one are used, unless a cluster is used. Default = \code{NULL}}
 

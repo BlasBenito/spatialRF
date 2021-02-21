@@ -247,6 +247,7 @@ interactions <- rf_interactions(
   data = plant_richness_df,
   dependent.variable.name = "richness_species_vascular",
   predictor.variable.names = colnames(plant_richness_df)[5:21],
+  verbose = FALSE,
   cluster.ips = c(
     "10.42.0.1",
     "10.42.0.34",

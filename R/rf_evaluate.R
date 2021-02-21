@@ -219,11 +219,20 @@ rf_evaluate <- function(
     )
 
     #cluster setup
+    if(verbose == TRUE){
+      outfile <- ""
+    } else {
+      if(.Platform$OS.type == "windows"){
+        outfile <- "nul:"
+      } else {
+        outfile <- "/dev/null"
+      }
+    }
     temp.cluster <- parallel::makeCluster(
       master = cluster.ips[1],
       spec = cluster.spec,
       port = cluster.port,
-      outfile = "",
+      outfile = outfile,
       homogeneous = TRUE
     )
 

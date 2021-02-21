@@ -190,6 +190,7 @@ select_spatial_predictors_optimized <- function(
       spatial.predictors.df = spatial.predictors.df.i,
       ranking.method = "effect",
       reference.moran.i = reference.moran.i,
+      verbose = FALSE,
       n.cores = n.cores,
       cluster.ips = cluster.ips,
       cluster.cores = cluster.cores,

@@ -10,6 +10,7 @@
 #' @param spatial.predictors.ranking Ranking of the spatial predictors returned by [rank_spatial_predictors()].
 #' @param weight.r.squared Numeric between 0 and 1, weight of R-squared in the optimization index. Default: `0.75`
 #' @param weight.penalization.n.predictors Numeric between 0 and 1, weight of the penalization for the number of spatial predictors added in the optimization index. Default: `0.25`
+#' @param verbose Logical, ff `TRUE`, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
 #' @param n.cores Integer, number of cores to use during computations. If `NULL`, all cores but one are used, unless a cluster is used. Default = `NULL`
 #' @param cluster.ips Character vector with the IPs of the machines in a cluster. The machine with the first IP will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.
 #' @param cluster.cores Numeric integer vector, number of cores to use on each machine.
@@ -86,6 +87,7 @@ select_spatial_predictors_sequential <- function(
   spatial.predictors.ranking = NULL,
   weight.r.squared = 0.75,
   weight.penalization.n.predictors = 0.25,
+  verbose = TRUE,
   n.cores = NULL,
   cluster.ips = NULL,
   cluster.cores = NULL,
@@ -179,11 +181,20 @@ select_spatial_predictors_sequential <- function(
     )
 
     #cluster setup
+    if(verbose == TRUE){
+      outfile <- ""
+    } else {
+      if(.Platform$OS.type == "windows"){
+        outfile <- "nul:"
+      } else {
+        outfile <- "/dev/null"
+      }
+    }
     temp.cluster <- parallel::makeCluster(
       master = cluster.ips[1],
       spec = cluster.spec,
       port = cluster.port,
-      outfile = "",
+      outfile = outfile,
       homogeneous = TRUE
     )
 

@@ -15,6 +15,7 @@ select_spatial_predictors_sequential(
   spatial.predictors.ranking = NULL,
   weight.r.squared = 0.75,
   weight.penalization.n.predictors = 0.25,
+  verbose = TRUE,
   n.cores = NULL,
   cluster.ips = NULL,
   cluster.cores = NULL,
@@ -42,6 +43,8 @@ select_spatial_predictors_sequential(
 \item{weight.r.squared}{Numeric between 0 and 1, weight of R-squared in the optimization index. Default: \code{0.75}}
 
 \item{weight.penalization.n.predictors}{Numeric between 0 and 1, weight of the penalization for the number of spatial predictors added in the optimization index. Default: \code{0.25}}
+
+\item{verbose}{Logical, ff \code{TRUE}, messages and plots generated during the execution of the function are displayed, Default: \code{TRUE}}
 
 \item{n.cores}{Integer, number of cores to use during computations. If \code{NULL}, all cores but one are used, unless a cluster is used. Default = \code{NULL}}
 
