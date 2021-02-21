@@ -356,7 +356,15 @@ rf_interactions <- function(
   }
 
   #plot list of plots
-  plot.list.out <- patchwork::wrap_plots(plot.list, ncol = 3)
+  if(length(plot.list) == 1){
+    plot.list.out <- plot.list[[1]]
+  }
+  if(length(plot.list) == 2){
+    plot.list.out <- patchwork::wrap_plots(plot.list, ncol = 3)
+  }
+  if(length(plot.list) > 2){
+    plot.list.out <- patchwork::wrap_plots(plot.list, ncol = 3)
+  }
 
   if(verbose == TRUE){
     print(plot.list.out)
