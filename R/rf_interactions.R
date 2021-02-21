@@ -17,7 +17,7 @@
 #' @param cluster.cores Numeric integer vector, number of cores to use on each machine.
 #' @param cluster.user Character string, name of the user (should be the same throughout machines). Defaults to the current system user.
 #' @param cluster.port Integer, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: `11000`
-#' @return A list with four slots: `screening`, with the complete screening results; `selected`, with the names and the R squared improvement produced by each variable interaction; `columns`, data frame with the interactions computed from the data in `model$ranger.arguments` after scaling it with [scale_robust()], and `plot`, with the plots of the selected interactions versus the response variable.
+#' @return A list with four slots: `screening`, with the complete screening results; `selected`, with the names and the R squared improvement produced by each variable interaction; `columns`, data frame with the interactions computed from the training data, and `plot`, with the list of plots of the selected interactions versus the response variable. The output list can be plotted all at once with `patchwork::wrap_plots(p)` or `cowplot::plot_grid(plotlist = p)`, or one by one by extracting each plot from the list.
 #' @examples
 #' \donttest{
 #' if(interactive()){
@@ -375,7 +375,7 @@ rf_interactions <- function(
   out.list$screening <- interaction.screening
   out.list$selected <- interaction.screening.selected
   out.list$columns <- interaction.df
-  out.list$plot <- plot.list.out
+  out.list$plot <- plot.list
 
   out.list
 

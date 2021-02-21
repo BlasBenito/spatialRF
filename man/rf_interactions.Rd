@@ -48,7 +48,7 @@ rf_interactions(
 \item{cluster.port}{Integer, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: \code{11000}}
 }
 \value{
-A list with four slots: \code{screening}, with the complete screening results; \code{selected}, with the names and the R squared improvement produced by each variable interaction; \code{columns}, data frame with the interactions computed from the data in \code{model$ranger.arguments} after scaling it with \code{\link[=scale_robust]{scale_robust()}}, and \code{plot}, with the plots of the selected interactions versus the response variable.
+A list with four slots: \code{screening}, with the complete screening results; \code{selected}, with the names and the R squared improvement produced by each variable interaction; \code{columns}, data frame with the interactions computed from the training data, and \code{plot}, with the list of plots of the selected interactions versus the response variable. The output list can be plotted all at once with \code{patchwork::wrap_plots(p)} or \code{cowplot::plot_grid(plotlist = p)}, or one by one by extracting each plot from the list.
 }
 \description{
 Suggests candidate variable interactions by selecting the variables above a given importance threshold (given by the argument \code{importance.threshold}, or the median importance if not provided) from a model and combining them in pairs through multiplication (\code{a * b}).
