@@ -55,6 +55,13 @@
 #'  #plot of the Moran's I of the residuals for different distance thresholds
 #'  out$spatial.correlation.residuals$plot
 #'
+#'  #predictions for new data as done with ranger models:
+#'  predicted <- stats::predict(
+#'    object = out,
+#'    data = plant_richness_df,
+#'    type = "response"
+#'  )$predictions
+#'
 #'  #alternative data input methods
 #'  ###############################
 #'
