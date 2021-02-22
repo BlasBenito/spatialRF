@@ -326,7 +326,7 @@ Spatial predictors are named `spatial_predictor_X_Y`, where `X` is the neighborh
 
 Spatial predictors, as shown below, are smooth surfaces representing neighborhood among records at different spatial scales.
 
-```{r, echo=FALSE, fig.width=9, fig.height=5.5}
+```{r, echo=FALSE, fig.width=12, fig.height=7}
 spatial.predictors <- get_spatial_predictors(model.spatial)
 pr <- cbind(spatial.predictors, plant_richness_sf)
 
