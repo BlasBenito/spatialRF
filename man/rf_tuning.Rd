@@ -35,11 +35,11 @@ rf_tuning(
 
 \item{method}{Character, "oob" to use RMSE values computed on the out-of-bag data to guide the tuning, and "spatial.cv", to use RMSE values from a spatial cross-validation on independent spatial folds done via \code{\link[=rf_evaluate]{rf_evaluate()}}. Default: \code{"oob"}}
 
-\item{num.trees}{Numeric integer vector with the number of trees to fit on each model repetition. Default: \code{c(500, 1000, 1500)}.}
+\item{num.trees}{Numeric integer vector with the number of trees to fit on each model repetition. Default: \code{c(500, 1000, 2000)}.}
 
-\item{mtry}{Numeric integer vector, number of predictors to randomly select from the complete pool of predictors on each tree split. Default: \code{c(1, floor(sqrt(length(predictor.variable.names))), length(predictor.variable.names))}}
+\item{mtry}{Numeric integer vector, number of predictors to randomly select from the complete pool of predictors on each tree split. Default: \code{floor(seq(1, length(predictor.variable.names), length.out = 4))}}
 
-\item{min.node.size}{Numeric integer, minimal number of cases in a terminal node. Default: \code{c(5, 10, 15)}}
+\item{min.node.size}{Numeric integer, minimal number of cases in a terminal node. Default: \code{c(5, 10, 20, 40)}}
 
 \item{xy}{Data frame or matrix with two columns containing coordinates and named "x" and "y". If \code{NULL}, the function will throw an error. Default: \code{NULL}}
 
