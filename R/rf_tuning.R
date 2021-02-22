@@ -90,6 +90,7 @@ rf_tuning <- function(
     distance.matrix <- ranger.arguments$distance.matrix
     distance.thresholds <- ranger.arguments$distance.thresholds
     scaled.importance <- ranger.arguments$scaled.importance
+    model.class <- class(model)
   } else {
     distance.matrix <- NULL
     distance.thresholds <- NULL
@@ -345,6 +346,9 @@ rf_tuning <- function(
     x = m,
     verbose = FALSE
     )
+
+  #class
+  class(m) <- unique(c(class(m), model.class))
 
   #message and plot
   if(verbose == TRUE){

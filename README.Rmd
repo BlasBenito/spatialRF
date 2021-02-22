@@ -459,7 +459,9 @@ p1 <- ggplot2::ggplot() +
   ggplot2::scale_x_continuous(limits = c(-170, -30)) +
   ggplot2::scale_y_continuous(limits = c(-58, 75))  +
   ggplot2::ggtitle("Spatial fold 1") + 
-  ggplot2::theme(legend.position = "none")
+  ggplot2::theme(legend.position = "none") + 
+  ggplot2::xlab("Longitude") + 
+  ggplot2::ylab("Latitude")
 
 p2 <- ggplot2::ggplot() +
   ggplot2::geom_sf(data = world, fill = "white") +
@@ -476,7 +478,9 @@ p2 <- ggplot2::ggplot() +
   ggplot2::labs(color = "Group") +
   ggplot2::scale_x_continuous(limits = c(-170, -30)) +
   ggplot2::scale_y_continuous(limits = c(-58, 75)) +
-  ggplot2::ggtitle("Spatial fold 25")
+  ggplot2::ggtitle("Spatial fold 25") + 
+  ggplot2::xlab("Longitude") + 
+  ggplot2::ylab("Latitude")
 
 p1 | p2
 ```
