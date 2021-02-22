@@ -10,19 +10,7 @@ always_allow_html: yes
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# Introduction
-
-The package **spatialRF** facilitates fitting spatial regression models on regular or irregular data with Random Forest, using the **ranger** package under the hood [(Wright and Ziegler 2017)](https://arxiv.org/abs/1508.04409), and does so by generating *spatial predictors* that allow the model to take into account the spatial structure of the training data. The end goal is minimizing the spatial autocorrelation of the model residuals as much as possible. 
-
-This package implements two main methods to generate *spatial predictors* from the distance matrix of the data points:
-
-
-  + Principal coordinate analysis of neighbor matrices [(Dray, Legendre, and Peres-Neto 2006)](https://www.sciencedirect.com/science/article/abs/pii/S0304380006000925).
-  + Distance matrix columns as explanatory variables [(Hengl et al. 2018)](https://peerj.com/articles/5518/).
-
-The package also provides a set of tools to identify variable interactions, tune random forest hyperparameters, assess model performance on spatially independent data folds, and examine the resulting models via importance plots, and response curves and surfaces. 
-
-# Installing the package
+# Install
 
 The package is not yet in the CRAN repositories, so at the moment it must be installed from GitHub as follows.
 
@@ -40,14 +28,35 @@ There are a few other libraries that will be useful during this tutorial.
 
 ```{r, message = FALSE}
 library(kableExtra)
-library(ggplot2)
-suppressMessages(library(dplyr))
-library(magrittr)
+library(tidyverse)
 library(patchwork)
 library(rnaturalearth)
 library(rnaturalearthdata)
 ```
 
+# Introduction
+
+The package **spatialRF** facilitates fitting spatial regression models on regular or irregular data with Random Forest, using the **ranger** package under the hood [(Wright and Ziegler 2017)](https://arxiv.org/abs/1508.04409), and does so by generating *spatial predictors* that allow the model to take into account the spatial structure of the training data. The end goal is minimizing the spatial autocorrelation of the model residuals as much as possible. 
+
+Two main methods to generate *spatial predictors* from the distance matrix of the data points are implemented in the package:
+
+
+  + Principal coordinate analysis of neighbor matrices [(Dray, Legendre, and Peres-Neto 2006)](https://www.sciencedirect.com/science/article/abs/pii/S0304380006000925).
+  + Distance matrix columns as explanatory variables [(Hengl et al. 2018)](https://peerj.com/articles/5518/).
+  
+The package is designed to minimize the amount of code required to fit a spatial model from a dataset and a distance matrix. The code below shows all that is needed to fit a spatial model:
+
+```{r, eval=FALSE}
+spatial.model <- rf_spatial(
+  data = plant_richness_df,
+  dependent.variable.name = "richness_species_vascular",
+  predictor.variable.names = colnames(plant_richness_df)[5:21],
+  distance.matrix = distance_matrix
+  )
+```
+
+
+The package also provides a set of tools to identify variable interactions, tune random forest hyperparameters, assess model performance on spatially independent data folds, and examine the resulting models via importance plots, and response curves and surfaces. 
 
 # Working with `spatialRF`
 

@@ -16,7 +16,7 @@ moran_multithreshold(
 
 \item{distance.matrix}{Distance matrix among cases in \code{x}. The number of rows of this matrix must be equal to the length of \code{x}. Default: \code{NULL}}
 
-\item{distance.thresholds}{Numeric vector, distances below each value in the distance matrix are set to 0 (on separated copies of the distance matrix) for the computation of Moran's I. If \code{NULL}, it defaults to seq(0, max(distance.matrix), length.out = 4). Default: \code{NULL}}
+\item{distance.thresholds}{Numeric vector, distances below each value are set to 0 on separated copies of the distance matrix for the computation of Moran's I at different neighborhood distances. If \code{NULL}, it defaults to \code{seq(0, max(distance.matrix)/4, length.out = 2)}. Default: \code{NULL}}
 
 \item{verbose}{Logical, if \code{TRUE}, plots Moran's I values for each distance threshold. Default: \code{TRUE}}
 }

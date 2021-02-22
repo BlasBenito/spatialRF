@@ -2,7 +2,7 @@
 #' @description Applies [moran()] to different distance thresholds at the same time.
 #' @param x Numeric vector, generally model residuals, Default: `NULL`
 #' @param distance.matrix Distance matrix among cases in `x`. The number of rows of this matrix must be equal to the length of `x`. Default: `NULL`
-#' @param distance.thresholds Numeric vector, distances below each value in the distance matrix are set to 0 (on separated copies of the distance matrix) for the computation of Moran's I. If `NULL`, it defaults to seq(0, max(distance.matrix), length.out = 4). Default: `NULL`
+#' @param distance.thresholds Numeric vector, distances below each value are set to 0 on separated copies of the distance matrix for the computation of Moran's I at different neighborhood distances. If `NULL`, it defaults to `seq(0, max(distance.matrix)/4, length.out = 2)`. Default: `NULL`
 #' @param verbose Logical, if `TRUE`, plots Moran's I values for each distance threshold. Default: `TRUE`
 #' @return A named list with the slots:
 #'  \itemize{
@@ -45,13 +45,13 @@ moran_multithreshold <- function(
 
   #check x and distance matrix
   if(is.null(x) | !is.vector(x)){
-    stop("x must be a numeric vector.")
+    stop("Argument 'x' must be a numeric vector.")
+  }
+  if(is.null(distance.matrix)){
+    stop("Argument 'distance.matrix' is missing.`")
   }
   if(nrow(distance.matrix) != length(x)){
     stop("length(x) and nrow(distance.matrix) must be equal.")
-  }
-  if(!is.null(distance.thresholds) & !is.vector(distance.thresholds)){
-    stop("distance.thresholds must be a numeric vector.")
   }
 
   #creating distance thresholds
@@ -59,11 +59,14 @@ moran_multithreshold <- function(
     distance.thresholds <- floor(
       seq(
         0,
-        max(distance.matrix
-        ),
-        length.out = 4
+        max(distance.matrix)/4,
+        length.out = 2
       )
     )
+  }
+
+  if(!is.null(distance.thresholds) & !is.vector(distance.thresholds)){
+    stop("distance.thresholds must be a numeric vector.")
   }
 
   #create output dataframe
