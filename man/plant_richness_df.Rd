@@ -38,6 +38,6 @@ data(plant_richness_df)
 Richness of vascular plants of the American ecoregions as defined in \href{https://ecoregions2017.appspot.com/}{Ecoregions 2017}.
 }
 \seealso{
-\link{plant_richness_sf}, \link{distance_matrix}
+\link{distance_matrix}
 }
 \keyword{datasets}

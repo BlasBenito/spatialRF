@@ -1,7 +1,7 @@
 #' @title Evaluates random forest models with spatial cross-validation
 #' @description Evaluates the performance of random forest on unseen data over independent spatial folds.
 #' @param model Model fitted with [rf()], [rf_repeat()], or [rf_spatial()].
-#' @param xy Data frame or matrix with two columns containing coordinates and named "x" and "y", or an sf file with geometry class `sfc_POINT` (see [plant_richness_sf]). If `NULL`, the function will throw an error. Default: `NULL`
+#' @param xy Data frame or matrix with two columns containing coordinates and named "x" and "y". If `NULL`, the function will throw an error. Default: `NULL`
 #' @param repetitions Integer, must be lower than the total number of rows available in the model's data. Default: `30`
 #' @param training.fraction Proportion between 0.5 and 0.9 indicating the number of records to be used in model training. Default: `0.6`
 #' @param metrics Character vector, names of the performance metrics selected. The possible values are: "r.squared" (`cor(obs, pred) ^ 2`), "pseudo.r.squared" (`cor(obs, pred)`), "rmse" (`sqrt(sum((obs - pred)^2)/length(obs))`), "nrmse" (`rmse/(quantile(obs, 0.75) - quantile(obs, 0.25))`). Default: `c("r.squared", "pseudo.r.squared", "rmse", "nrmse")`
@@ -121,9 +121,6 @@ rf_evaluate <- function(
   if(is.null(xy)){
     stop("Argument 'xy' requires a matrix or data frame with longitude-latitude coordinates with columns named 'x' and 'y'.")
   } else {
-    if(inherits(xy, "sf")){
-      xy <- sf_points_to_xy(xy)
-    }
     if(sum(c("x", "y") %in% colnames(xy)) < 2){
       stop("The column names of 'xy' must be 'x' and 'y'.")
     }

@@ -21,7 +21,7 @@ rf_evaluate(
 \arguments{
 \item{model}{Model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}.}
 
-\item{xy}{Data frame or matrix with two columns containing coordinates and named "x" and "y", or an sf file with geometry class \code{sfc_POINT} (see \link{plant_richness_sf}). If \code{NULL}, the function will throw an error. Default: \code{NULL}}
+\item{xy}{Data frame or matrix with two columns containing coordinates and named "x" and "y". If \code{NULL}, the function will throw an error. Default: \code{NULL}}
 
 \item{repetitions}{Integer, must be lower than the total number of rows available in the model's data. Default: \code{30}}
 

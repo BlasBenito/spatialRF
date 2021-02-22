@@ -22,7 +22,7 @@ rf_compare(
 \arguments{
 \item{models}{Named list with models based on the same pairs of coordinates. Example: \code{models = list(a = model.a, b = model.b)}. Default: \code{NULL}}
 
-\item{xy}{Data frame or matrix with two columns containing coordinates and named "x" and "y", or an sf file with geometry class \code{sfc_POINT} (see \link{plant_richness_sf}). The same \code{xy} is used for all models, that's why all models must be based on the same pairs of coordinates. If \code{NULL}, the function will throw an error. Default: \code{NULL}}
+\item{xy}{Data frame or matrix with two columns containing coordinates and named "x" and "y". The same \code{xy} is used for all models, that's why all models must be based on the same pairs of coordinates. If \code{NULL}, the function will throw an error. Default: \code{NULL}}
 
 \item{repetitions}{Integer, must be lower than the total number of rows available in the model's data. Default: \code{30}}
 

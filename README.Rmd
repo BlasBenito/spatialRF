@@ -62,12 +62,11 @@ library(rnaturalearthdata)
 
 ## The example data
 
-The package includes an example dataset named **plant_richness_df**, a data frame with plant species richness and predictors for 227 ecoregions in the Americas, a distance matrix among the ecoregion edges named, well, **distance_matrix**, and **plant_richness_sf**, an sf file containing the centroids of the polygons represented in **plant_richness_df**.
+The package includes an example dataset named **plant_richness_df**, a data frame with plant species richness and predictors for 227 ecoregions in the Americas, and a distance matrix among the ecoregion edges named, well, **distance_matrix**.
 
 ```{r}
 data(plant_richness_df)
 help(plant_richness_df)
-data(plant_richness_sf)
 data(distance_matrix)
 
 #names of the response variable and the predictors
@@ -77,8 +76,7 @@ predictor.variable.names <- colnames(plant_richness_df)[5:21]
 
 The response variable of **plant_richness_df** is "richness_species_vascular", with the total count of vascular plant species found on each ecoregion. The figure below shows the centroids of each ecoregion along with their associated value of the response variable.
 
-```{r, echo=FALSE, fig.width=6, fig.height=5.5}
-pr <- cbind(plant_richness_df, plant_richness_sf)
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.width=6, fig.height=5.5}
 world <- rnaturalearth::ne_countries(
   scale = "medium", 
   returnclass = "sf"
@@ -86,13 +84,15 @@ world <- rnaturalearth::ne_countries(
 
 ggplot2::ggplot() +
   ggplot2::geom_sf(data = world, fill = "white") +
-  ggplot2::geom_sf(data = pr,
-          ggplot2::aes(
-            geometry = geom_centroids,
-            color = richness_species_vascular
-            ),
-          size = 2.5
-          ) +
+  ggplot2::geom_point(
+    data = plant_richness_df,
+    ggplot2::aes(
+      x = x,
+      y = y,
+      color = richness_species_vascular
+    ),
+    size = 2.5
+  ) +
   ggplot2::scale_color_viridis_c(direction = -1) +
   ggplot2::theme_bw() +
   ggplot2::labs(color = "Plant richness") +
@@ -341,17 +341,19 @@ Spatial predictors, as shown below, are smooth surfaces representing neighborhoo
 
 ```{r, echo=FALSE, fig.width=12, fig.height=7}
 spatial.predictors <- get_spatial_predictors(model.spatial)
-pr <- cbind(spatial.predictors, plant_richness_sf)
+pr <- data.frame(spatial.predictors, plant_richness_df[, c("x", "y")])
 
 p1 <- ggplot2::ggplot() +
   ggplot2::geom_sf(data = world, fill = "white") +
-  ggplot2::geom_sf(data = pr,
-          ggplot2::aes(
-            geometry = geom_centroids,
-            color = spatial_predictor_1500_2
-            ),
-          size = 2.5
-          ) +
+  ggplot2::geom_point(
+    data = pr,
+    ggplot2::aes(
+      x = x,
+      y = y,
+      color = spatial_predictor_1500_2
+    ),
+    size = 2.5
+  ) +
   ggplot2::scale_color_viridis_c(direction = -1) +
   ggplot2::theme_bw() +
   ggplot2::labs(color = "Eigenvalue") +
@@ -362,13 +364,15 @@ p1 <- ggplot2::ggplot() +
 
 p2 <- ggplot2::ggplot() +
   ggplot2::geom_sf(data = world, fill = "white") +
-  ggplot2::geom_sf(data = pr,
-          ggplot2::aes(
-            geometry = geom_centroids,
-            color = spatial_predictor_0_6
-            ),
-          size = 2.5
-          ) +
+  ggplot2::geom_point(
+    data = pr,
+    ggplot2::aes(
+      x = x,
+      y = y,
+      color = spatial_predictor_0_6,
+    ),
+    size = 2.5
+  ) +
   ggplot2::scale_color_viridis_c(direction = -1) +
   ggplot2::theme_bw() +
   ggplot2::labs(color = "Eigenvalue") +
@@ -434,16 +438,17 @@ names(model.spatial.tuned$evaluation)
 The slot "spatial.folds", produced by `make_spatial_folds()`, contains the indices of the training and testing cases for each cross-validation repetition. The maps below show two sets of training and testing spatial folds.
 
 ```{r, echo=FALSE, fig.width=10, fig.height=5}
-pr <- plant_richness_sf
+pr <- plant_richness_df[, c("x", "y")]
 pr$group.2 <- pr$group.1 <- "Training"
 pr[model.spatial.tuned$evaluation$spatial.folds[[1]]$testing, "group.1"] <- "Testing"
 pr[model.spatial.tuned$evaluation$spatial.folds[[25]]$testing, "group.2"] <- "Testing"
 
 p1 <- ggplot2::ggplot() +
   ggplot2::geom_sf(data = world, fill = "white") +
-  ggplot2::geom_sf(data = pr,
+  ggplot2::geom_point(data = pr,
           ggplot2::aes(
-            geometry = geom_centroids,
+            x = x,
+            y = y,
             color = group.1
             ),
           size = 2.5
@@ -458,9 +463,10 @@ p1 <- ggplot2::ggplot() +
 
 p2 <- ggplot2::ggplot() +
   ggplot2::geom_sf(data = world, fill = "white") +
-  ggplot2::geom_sf(data = pr,
+  ggplot2::geom_point(data = pr,
           ggplot2::aes(
-            geometry = geom_centroids,
+            x = x,
+            y = y,
             color = group.2
             ),
           size = 2.5

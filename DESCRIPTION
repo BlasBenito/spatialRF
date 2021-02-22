@@ -1,6 +1,6 @@
 Package: spatialRF
 Title: Easy Spatial Modeling with Random Forest
-Version: 1.0.0
+Version: 1.0.1
 Authors@R: 
     person(given = "Blas M.",
            family = "Benito",
@@ -27,7 +27,6 @@ Imports:
     tidyr,
     tidyselect,
     huxtable,
-    sf,
     patchwork,
     viridis
 Suggests: 

@@ -14,6 +14,6 @@ data(distance_matrix)
 Distance matrix (in km) among the edges of the American ecoregions described in the \link{plant_richness_df} dataset. The polygons themselves are not available as example data due to the size limitations imposed by CRAN for R packages.
 }
 \seealso{
-\link{plant_richness_df}, \link{plant_richness_sf}
+\link{plant_richness_df}
 }
 \keyword{datasets}

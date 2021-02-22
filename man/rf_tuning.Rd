@@ -41,7 +41,7 @@ rf_tuning(
 
 \item{min.node.size}{Numeric integer, minimal number of cases in a terminal node. Default: \code{c(5, 10, 15)}}
 
-\item{xy}{Data frame or matrix with two columns containing coordinates and named "x" and "y", or an sf file with geometry class \code{sfc_POINT} (see \link{plant_richness_sf}). If \code{NULL}, the function will throw an error. Default: \code{NULL}}
+\item{xy}{Data frame or matrix with two columns containing coordinates and named "x" and "y". If \code{NULL}, the function will throw an error. Default: \code{NULL}}
 
 \item{repetitions}{Integer, number of repetitions to compute the R squared from. If \code{method = "oob"}, number of repetitions to be used in \code{\link[=rf_repeat]{rf_repeat()}} to fit models for each combination of hyperparameters. If \code{method = "spatial.cv"}, number of independent spatial folds to use during the cross-validation. Default: \code{NULL} (which yields 30 for "spatial.cv" and 5 for "oob").}
 

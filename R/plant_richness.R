@@ -1,18 +1,8 @@
-#' @title  Centroids of American ecoregions.
-#'
-#' @description Centroids of the American ecoregions represented in [plant_richness_df] in format \link[sf]{sf}, with latitude and longitude coordinates and datum WGS84 stored in the column *geom_centroids*.
-#' plant_richness_sf
-#' @usage data(plant_richness_sf)
-#' @seealso [plant_richness_df], [distance_matrix]
-#' @format A spatial data frame (sf) with 227 rows
-#'
-"plant_richness_sf"
-
 #' @title Plant richness and predictors of American ecoregions
 #'
 #' @description Richness of vascular plants of the American ecoregions as defined in [Ecoregions 2017](https://ecoregions2017.appspot.com/).
 #' @usage data(plant_richness_df)
-#' @seealso [plant_richness_sf], [distance_matrix]
+#' @seealso [distance_matrix]
 #' @format A data frame with 227 rows and 22 columns:
 #' \itemize{
 #'   \item `ecoregion_id`: Id of the ecoregion).
