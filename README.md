@@ -471,16 +471,16 @@ If we take a look to the ten most important variables in
 
 | variable                                   | importance |
 |:-------------------------------------------|-----------:|
-| climate\_bio1\_average                     |      0.273 |
-| climate\_hypervolume                       |      0.263 |
-| climate\_bio1\_average\_X\_bias\_area\_km2 |      0.259 |
-| spatial\_predictor\_0\_6                   |      0.226 |
-| spatial\_predictor\_0\_2                   |      0.225 |
-| spatial\_predictor\_1500\_2                |      0.196 |
-| spatial\_predictor\_0\_7                   |      0.118 |
-| spatial\_predictor\_0\_11                  |      0.116 |
+| climate\_bio1\_average                     |      0.275 |
+| climate\_bio1\_average\_X\_bias\_area\_km2 |      0.255 |
+| climate\_hypervolume                       |      0.236 |
+| spatial\_predictor\_0\_2                   |      0.227 |
+| spatial\_predictor\_0\_6                   |      0.202 |
+| spatial\_predictor\_1500\_2                |      0.179 |
+| spatial\_predictor\_0\_11                  |      0.135 |
 | bias\_species\_per\_record                 |      0.109 |
-| human\_population\_density                 |      0.107 |
+| neighbors\_count                           |      0.109 |
+| spatial\_predictor\_0\_7                   |      0.109 |
 
 Spatial predictors are named `spatial_predictor_X_Y`, where `X` is the
 neighborhood distance at which the predictor has been generated, and `Y`
@@ -526,15 +526,15 @@ model.spatial.tuned <- rf_tuning(
 )
 ```
 
-    ## Exploring 27 combinations of hyperparameters.
+    ## Exploring 48 combinations of hyperparameters.
 
     ## Best hyperparameters:
 
     ##   - num.trees:     500
 
-    ##   - mtry:          41
+    ##   - mtry:          27
 
-    ##   - min.node.size: 15
+    ##   - min.node.size: 10
 
 ![](README_files/figure-gfm/unnamed-chunk-26-1.png)<!-- --> The
 comparison of the original spatial model and the tuned one shows a small
@@ -546,10 +546,10 @@ print_performance(model.spatial)
 
     ## 
     ## Model performance 
-    ##   - R squared (OOB):                 0.579
-    ##   - Pseudo R squared:                0.761
-    ##   - RMSE:                            2254.169
-    ##   - Normalized RMSE:                 0.651
+    ##   - R squared (OOB):                 0.569
+    ##   - Pseudo R squared:                0.755
+    ##   - RMSE:                            2271.729
+    ##   - Normalized RMSE:                 0.656
 
 ``` r
 print_performance(model.spatial.tuned)
@@ -557,10 +557,10 @@ print_performance(model.spatial.tuned)
 
     ## 
     ## Model performance 
-    ##   - R squared (OOB):                 0.573
-    ##   - Pseudo R squared:                0.757
-    ##   - RMSE:                            2209.207
-    ##   - Normalized RMSE:                 0.638
+    ##   - R squared (OOB):                 0.587
+    ##   - Pseudo R squared:                0.766
+    ##   - RMSE:                            2183.907
+    ##   - Normalized RMSE:                 0.63
 
 From this point we work with the tuned spatial model.
 
@@ -641,10 +641,10 @@ comparison <- rf_compare(
 
 | Model       | Metric    |     Mean |
 |:------------|:----------|---------:|
-| Non-spatial | r.squared |    0.467 |
+| Non-spatial | r.squared |    0.471 |
 | Spatial     | r.squared |    0.397 |
-| Non-spatial | rmse      | 2584.374 |
-| Spatial     | rmse      | 2688.720 |
+| Non-spatial | rmse      | 2578.340 |
+| Spatial     | rmse      | 2731.425 |
 
 The comparison shows that the non-spatial model performed slightly
 better than the spatial on, but with overlapping notches, indicating
