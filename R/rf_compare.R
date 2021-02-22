@@ -145,7 +145,7 @@ rf_compare <- function(
     ggplot2::theme(legend.position = "none") +
     ggplot2::xlab("") +
     ggplot2::ylab("") +
-    ggplot2::scale_fill_viridis_d(end = 0.8, alpha = 0.75) +
+    ggplot2::scale_fill_viridis_d(end = 0.5, alpha = 0.75) +
     ggplot2::labs(fill = "Model") +
     ggplot2::ggtitle(
       paste0(

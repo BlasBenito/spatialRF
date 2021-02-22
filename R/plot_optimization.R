@@ -35,7 +35,7 @@ plot_optimization <- function(x, verbose = TRUE){
       size = spatial.predictor.index
     ) +
     ggplot2::geom_point() +
-    ggplot2::scale_color_viridis_c(direction = -1) +
+    ggplot2::scale_color_viridis_c(direction = 1) +
     ggplot2::geom_point(
       data = x[x$selected, ],
       aes(
