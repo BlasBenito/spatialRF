@@ -603,7 +603,7 @@ rf_spatial <- function(
   ),]
   spatial.predictors.plot.df$variable <- "spatial_predictors"
 
-  #non-spatial rpedictors
+  #non-spatial predictors
   non.spatial.predictors.plot.df <- importance.df[!grepl(
     "spatial_predictor",
     importance.df$variable

@@ -348,7 +348,7 @@ rf_tuning <- function(
     )
 
   #aggregating importance if there are spatial predictors
-  if(sum(grepl("spatial_predictor",  m$variable.importance$per.variable)) > 0){
+  if(sum(grepl("spatial_predictor",  m$variable.importance$per.variable$variable)) > 0){
     m$variable.importance$spatial.predictor.stats <- aggregate_importance(x = m$variable.importance$per.variable)
   }
 
