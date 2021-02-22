@@ -77,15 +77,12 @@ library(rnaturalearthdata)
 
 The package includes an example dataset named **plant\_richness\_df**, a
 data frame with plant species richness and predictors for 227 ecoregions
-in the Americas, a distance matrix among the ecoregion edges named,
-well, **distance\_matrix**, and **plant\_richness\_sf**, an sf file
-containing the centroids of the polygons represented in
-**plant\_richness\_df**.
+in the Americas, and a distance matrix among the ecoregion edges named,
+well, **distance\_matrix**.
 
 ``` r
 data(plant_richness_df)
 help(plant_richness_df)
-data(plant_richness_sf)
 data(distance_matrix)
 
 #names of the response variable and the predictors
@@ -474,16 +471,16 @@ If we take a look to the ten most important variables in
 
 | variable                                   | importance |
 |:-------------------------------------------|-----------:|
-| climate\_bio1\_average                     |      0.275 |
-| climate\_bio1\_average\_X\_bias\_area\_km2 |      0.255 |
-| climate\_hypervolume                       |      0.236 |
-| spatial\_predictor\_0\_2                   |      0.227 |
-| spatial\_predictor\_0\_6                   |      0.202 |
-| spatial\_predictor\_1500\_2                |      0.179 |
-| spatial\_predictor\_0\_11                  |      0.135 |
+| climate\_bio1\_average                     |      0.273 |
+| climate\_hypervolume                       |      0.263 |
+| climate\_bio1\_average\_X\_bias\_area\_km2 |      0.259 |
+| spatial\_predictor\_0\_6                   |      0.226 |
+| spatial\_predictor\_0\_2                   |      0.225 |
+| spatial\_predictor\_1500\_2                |      0.196 |
+| spatial\_predictor\_0\_7                   |      0.118 |
+| spatial\_predictor\_0\_11                  |      0.116 |
 | bias\_species\_per\_record                 |      0.109 |
-| neighbors\_count                           |      0.109 |
-| spatial\_predictor\_0\_7                   |      0.109 |
+| human\_population\_density                 |      0.107 |
 
 Spatial predictors are named `spatial_predictor_X_Y`, where `X` is the
 neighborhood distance at which the predictor has been generated, and `Y`
@@ -491,6 +488,10 @@ is the index of the predictor.
 
 Spatial predictors, as shown below, are smooth surfaces representing
 neighborhood among records at different spatial scales.
+
+    ## Warning: Removed 1 rows containing missing values (geom_point).
+
+    ## Warning: Removed 1 rows containing missing values (geom_point).
 
 ![](README_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
 
@@ -545,10 +546,10 @@ print_performance(model.spatial)
 
     ## 
     ## Model performance 
-    ##   - R squared (OOB):                 0.569
-    ##   - Pseudo R squared:                0.755
-    ##   - RMSE:                            2271.729
-    ##   - Normalized RMSE:                 0.656
+    ##   - R squared (OOB):                 0.579
+    ##   - Pseudo R squared:                0.761
+    ##   - RMSE:                            2254.169
+    ##   - Normalized RMSE:                 0.651
 
 ``` r
 print_performance(model.spatial.tuned)
@@ -556,10 +557,10 @@ print_performance(model.spatial.tuned)
 
     ## 
     ## Model performance 
-    ##   - R squared (OOB):                 0.575
-    ##   - Pseudo R squared:                0.758
-    ##   - RMSE:                            2204.476
-    ##   - Normalized RMSE:                 0.636
+    ##   - R squared (OOB):                 0.573
+    ##   - Pseudo R squared:                0.757
+    ##   - RMSE:                            2209.207
+    ##   - Normalized RMSE:                 0.638
 
 From this point we work with the tuned spatial model.
 
@@ -596,6 +597,10 @@ The slot “spatial.folds”, produced by `make_spatial_folds()`, contains
 the indices of the training and testing cases for each cross-validation
 repetition. The maps below show two sets of training and testing spatial
 folds.
+
+    ## Warning: Removed 1 rows containing missing values (geom_point).
+
+    ## Warning: Removed 1 rows containing missing values (geom_point).
 
 ![](README_files/figure-gfm/unnamed-chunk-31-1.png)<!-- -->
 
@@ -636,10 +641,10 @@ comparison <- rf_compare(
 
 | Model       | Metric    |     Mean |
 |:------------|:----------|---------:|
-| Non-spatial | r.squared |    0.471 |
-| Spatial     | r.squared |    0.396 |
-| Non-spatial | rmse      | 2578.340 |
-| Spatial     | rmse      | 2690.792 |
+| Non-spatial | r.squared |    0.467 |
+| Spatial     | r.squared |    0.397 |
+| Non-spatial | rmse      | 2584.374 |
+| Spatial     | rmse      | 2688.720 |
 
 The comparison shows that the non-spatial model performed slightly
 better than the spatial on, but with overlapping notches, indicating
