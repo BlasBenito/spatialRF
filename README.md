@@ -296,6 +296,20 @@ plot_importance(model.non.spatial, verbose = FALSE)
 
 ![](README_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
 
+**Predicting onto new data**
+
+Models fitted with `rf()` and other `rf_X()` functions within the
+pacakge can be predicted onto new data just as it is done with
+`ranger()` models:
+
+``` r
+predicted <- stats::predict(
+  object = model.non.spatial,
+  data = plant_richness_df,
+  type = "response"
+  )$predictions
+```
+
 **Repeating a model execution**
 
 Random Forest is an stochastic algorithm that yields slightly different
@@ -318,7 +332,7 @@ model.non.spatial.repeat <- rf_repeat(
 plot_importance(model.non.spatial.repeat, verbose = FALSE)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
 
 After 30 model repetitions it is clear that the difference in importance
 between `climate_hypervolume` and `climate_bio1_average_X_bias_area_km2`
@@ -361,7 +375,7 @@ model.non.spatial.tuned <- rf_tuning(
 
     ##   - min.node.size: 5
 
-![](README_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
 
 Notice that the object returned by `rf_tuning()` is a model fitted with
 the same data as the original model, but using the best hyperparameters
@@ -405,7 +419,7 @@ I](https://en.wikipedia.org/wiki/Moran%27s_I), can be plotted with
 plot_moran(model.non.spatial.tuned, verbose = FALSE)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
 
 According to the plot, the spatial autocorrelation of the residuals is
 highly positive for a neighborhood of 0 and 1500 km, while it becomes
@@ -431,7 +445,7 @@ for every neighborhood distance.
 plot_moran(model.spatial, verbose = FALSE)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
 
 If we compare the variable importance plots of both models, we can see
 that the spatial model has an additional set of dots under the name
@@ -453,7 +467,7 @@ p2 <- plot_importance(
 p1 | p2 
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
 
 If we take a look to the ten most important variables in
 **model.spatial** we will see that a few of them are spatial predictors.
@@ -478,7 +492,7 @@ is the index of the predictor.
 Spatial predictors, as shown below, are smooth surfaces representing
 neighborhood among records at different spatial scales.
 
-![](README_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
 
 The spatial predictors in the spatial model have been generated using
 the method “mem.moran.sequential” (function’s default), that mimics the
@@ -497,7 +511,7 @@ minimizing the Moran’s I of the residuals and the number of MEMs added
 to the model are selected, as optimization plot below shows (dots linked
 by lines represent the selected spatial predictors).
 
-![](README_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->
 
 The addition of spatial predictors increases the number of total
 predictors used during model training (from 15 to 41), and that might
@@ -521,7 +535,7 @@ model.spatial.tuned <- rf_tuning(
 
     ##   - min.node.size: 15
 
-![](README_files/figure-gfm/unnamed-chunk-25-1.png)<!-- --> The
+![](README_files/figure-gfm/unnamed-chunk-26-1.png)<!-- --> The
 comparison of the original spatial model and the tuned one shows a small
 increase in the R squared of the model.
 
@@ -583,7 +597,7 @@ the indices of the training and testing cases for each cross-validation
 repetition. The maps below show two sets of training and testing spatial
 folds.
 
-![](README_files/figure-gfm/unnamed-chunk-30-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-31-1.png)<!-- -->
 
 The functions `plot_evaluation()` and `print_evaluation()` allow to see
 the evaluation results as a plot or as a table. The boxplot below shows
@@ -597,7 +611,7 @@ as “Testing” represent model performance on unseen data.
 plot_evaluation(model.spatial.tuned, notch = TRUE)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-31-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-32-1.png)<!-- -->
 
 ### Comparing two models
 
@@ -618,7 +632,7 @@ comparison <- rf_compare(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-32-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-33-1.png)<!-- -->
 
 | Model       | Metric    |     Mean |
 |:------------|:----------|---------:|

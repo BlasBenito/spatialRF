@@ -224,6 +224,19 @@ In this response surface, the predictors that are not shown are set to their med
 plot_importance(model.non.spatial, verbose = FALSE)
 ```
 
+**Predicting onto new data**
+
+Models fitted with `rf()` and other `rf_X()` functions within the pacakge can be predicted onto new data just as it is done with `ranger()` models:
+
+```{r}
+predicted <- stats::predict(
+  object = model.non.spatial,
+  data = plant_richness_df,
+  type = "response"
+  )$predictions
+```
+
+
 **Repeating a model execution**
 
 Random Forest is an stochastic algorithm that yields slightly different results on each run unless a random seed is set. This particularity has implications for the interpretation of variable importance scores. For example, in the plot above, the difference in importance between the predictors `climate_hypervolume` and `climate_bio1_average_X_bias_area_km2` could be just the result of chance. The function `rf_repeat()` repeats a model execution and yields the distribution of importance scores of the predictors across executions.
