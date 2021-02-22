@@ -202,10 +202,16 @@ rf_spatial <- function(
     importance <- "permutation"
   }
 
+  #predictor.variable.names comes from auto_vif or auto_cor
+  if(inherits(predictor.variable.names, "variable_selection")){
+    predictor.variable.names <- predictor.variable.names$selected.variables
+  }
+
   #stopping if no distance matrix
   if(is.null(distance.matrix)){
     stop("The distance matrix is missing.")
   }
+
   if(is.null(distance.thresholds) == TRUE){
     distance.thresholds <- floor(
       seq(

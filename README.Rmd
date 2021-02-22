@@ -10,6 +10,30 @@ always_allow_html: yes
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
+# Introduction
+
+The package **spatialRF** facilitates fitting spatial regression models on regular or irregular data with Random Forest, using the **ranger** package under the hood [(Wright and Ziegler 2017)](https://arxiv.org/abs/1508.04409), and does so by generating *spatial predictors* that allow the model to take into account the spatial structure of the training data. The end goal is minimizing the spatial autocorrelation of the model residuals as much as possible. 
+
+Two main methods to generate *spatial predictors* from the distance matrix of the data points are implemented in the package:
+
+
+  + Principal coordinate analysis of neighbor matrices [(Dray, Legendre, and Peres-Neto 2006)](https://www.sciencedirect.com/science/article/abs/pii/S0304380006000925).
+  + Distance matrix columns as explanatory variables [(Hengl et al. 2018)](https://peerj.com/articles/5518/).
+  
+The package is designed to minimize the amount of code required to fit a spatial model from a training dataset, the names of the response and the predictors, and a distance matrix, as the non-runnable example below shows.
+
+```{r, eval=FALSE}
+spatial.model <- rf_spatial(
+  data = your_dataframe,
+  dependent.variable.name = "your_response_variable",
+  predictor.variable.names = c("predictor1", "predictor2", ..., "predictorN"),
+  distance.matrix = your_distance_matrix
+  )
+```
+
+
+The package also provides tools to identify potentially interesting variable interactions, tune random forest hyperparameters, assess model performance on spatially independent data folds, and examine the resulting models via importance plots, response curves, and response surfaces. 
+
 # Install
 
 The package is not yet in the CRAN repositories, so at the moment it must be installed from GitHub as follows.
@@ -33,30 +57,6 @@ library(patchwork)
 library(rnaturalearth)
 library(rnaturalearthdata)
 ```
-
-# Introduction
-
-The package **spatialRF** facilitates fitting spatial regression models on regular or irregular data with Random Forest, using the **ranger** package under the hood [(Wright and Ziegler 2017)](https://arxiv.org/abs/1508.04409), and does so by generating *spatial predictors* that allow the model to take into account the spatial structure of the training data. The end goal is minimizing the spatial autocorrelation of the model residuals as much as possible. 
-
-Two main methods to generate *spatial predictors* from the distance matrix of the data points are implemented in the package:
-
-
-  + Principal coordinate analysis of neighbor matrices [(Dray, Legendre, and Peres-Neto 2006)](https://www.sciencedirect.com/science/article/abs/pii/S0304380006000925).
-  + Distance matrix columns as explanatory variables [(Hengl et al. 2018)](https://peerj.com/articles/5518/).
-  
-The package is designed to minimize the amount of code required to fit a spatial model from a dataset and a distance matrix. The code below shows all that is needed to fit a spatial model:
-
-```{r, eval=FALSE}
-spatial.model <- rf_spatial(
-  data = plant_richness_df,
-  dependent.variable.name = "richness_species_vascular",
-  predictor.variable.names = colnames(plant_richness_df)[5:21],
-  distance.matrix = distance_matrix
-  )
-```
-
-
-The package also provides a set of tools to identify variable interactions, tune random forest hyperparameters, assess model performance on spatially independent data folds, and examine the resulting models via importance plots, and response curves and surfaces. 
 
 # Working with `spatialRF`
 
@@ -103,7 +103,7 @@ ggplot2::ggplot() +
 
 The predictors (columns 5 to 21) represent diverse factors that may influence plant richness such as sampling bias, the area of the ecoregion, climatic variables, human presence and impact, topography, geographical fragmentation, and features of the neighbors of each ecoregion. The figure below shows the scatterplots of the response variable (y axis) against each predictor (x axis).
 
-```{r, echo = FALSE, fig.width=14, fig.height=9}
+```{r, echo = FALSE, fig.width=10, fig.height=14}
 plot.list <- list()
 for(variable in predictor.variable.names){
   plot.list[[variable]] <- ggplot2::ggplot(
@@ -119,7 +119,7 @@ for(variable in predictor.variable.names){
     ggplot2::theme_bw() + 
     ggplot2::theme(legend.position = "none")
 }
-patchwork::wrap_plots(plot.list)
+patchwork::wrap_plots(plot.list, ncol = 3)
 ```
 
 ## The workflow
@@ -142,16 +142,23 @@ interactions <- rf_interactions(
 
 Here `rf_interactions()` suggests several candidate interactions ordered by their impact on the model. The function cannot say whether an interaction *makes sense*, and it is up to the user to choose wisely whether to select an interaction or not.
 
-As an example, I will choose `climate_bio1_average_X_bias_area_km2` hypothesizing that ecoregions with higher area (bias_area_km2) and energy (represented by the annual temperature, climate_bio1_average) will have more species of vascular plants (this is just an example, many other rationales are possible when choosing between candidate interactions). The data required to add it ot the dataset is inside the output of `rf_interactions()`. 
+For the sake of the example, I will choose `climate_bio1_average_X_bias_area_km2`, hypothesizing that ecoregions with higher area (bias_area_km2) and energy (represented by the annual temperature, climate_bio1_average) will have more species of vascular plants (this is just an example, many other rationales are possible when choosing between candidate interactions). The data required to add the interaction to the training data is in the output of `rf_interactions()`. 
  
 ```{r}
+#adding interaction column to the training data
 plant_richness_df[, "climate_bio1_average_X_bias_area_km2"] <- interactions$columns[, "climate_bio1_average_X_bias_area_km2"]
+
+#adding interaction name to predictor.variable.names
 predictor.variable.names <- c(predictor.variable.names, "climate_bio1_average_X_bias_area_km2")
 ```
 
 ### Assessing and reducing multicollinearity
 
-The functions `auto_cor()` and `auto_vif()` help reduce redundancy in the predictors by using different criteria (bivariate R squared vs. [variance inflation factor](https://www.statisticshowto.com/variance-inflation-factor/)), while allowing the user to define an *order of preference*, which can be based either on domain expertise or on a quantitative assessment. In the example below I give preference to the interaction suggested by `rf_interactions()` over it's two components, and prioritize climate over other types of predictors (any other choice would be valid, it just depends on the scope of the study). These rules are applies to both `auto_cor()` and `auto_vif()`, that are executed sequentially by using the `%>%` pipe  from the [magrittr](https://magrittr.tidyverse.org/) package. Notice that I have set `cor.threshold` and `vif.threshold` to low values because the predictors in `plant_richness_df` already have little multicollinearity,. The default values (`cor.threshold = 0.75` and `vif.threshold = 5`) should work well when combined together for any other dataset.
+The functions `auto_cor()` and `auto_vif()` help reduce redundancy in the predictors by using different criteria (bivariate R squared vs. [variance inflation factor](https://www.statisticshowto.com/variance-inflation-factor/)), while allowing the user to define an *order of preference*, which can be based either on domain expertise or on a quantitative assessment. The preference order is defined as a character vector in the `preference.order` argument of both functions, and does not need to include the names of all predictors, but just the ones the user would like to keep in the analysis.
+
+In the example below I give preference to the interaction suggested by `rf_interactions()` over it's two components, and prioritize climate over other types of predictors (any other choice would be valid, it just depends on the scope of the study). These rules are applied to both `auto_cor()` and `auto_vif()`, that are executed sequentially by using the `%>%` pipe  from the [magrittr](https://magrittr.tidyverse.org/) package. 
+
+Notice that I have set `cor.threshold` and `vif.threshold` to low values because the predictors in `plant_richness_df` already have little multicollinearity,. The default values (`cor.threshold = 0.75` and `vif.threshold = 5`) should work well when combined together for any other set of predictors.
 
 ```{r}
 preference.order <- c(
@@ -165,7 +172,7 @@ preference.order <- c(
 
 predictor.variable.names <- auto_cor(
   x = plant_richness_df[, predictor.variable.names],
-  cor.threshold = 0.5,
+  cor.threshold = 0.6,
   preference.order = preference.order
 ) %>% 
   auto_vif(
@@ -201,6 +208,7 @@ The model output can be printed or plotted with a plethora of functions such as 
 ```{r, fig.width = 12, fig.height=7.5}
 plot_response_curves(model.non.spatial)
 ```
+In the response curves above, the other predictors are set to their quantiles 0.1, 0.5, and 0.8, but the user can change this behaviour by modifiying the values of the `quantiles` argument.
 
 ```{r, fig.height = 4, fig.width=6}
 plot_response_surfaces(
@@ -210,11 +218,28 @@ plot_response_surfaces(
   )
 ```
 
+In this response surface, the predictors that are not shown are set to their medians (but other quantiles are possible).
 
 ```{r, fig.width = 6, fig.height=6}
 plot_importance(model.non.spatial, verbose = FALSE)
+#verbose is set to false to avoid double plotting in an .Rmd
 ```
 
+**Repeating a model execution***
+
+Random Forest is an stochastic algorithm that yields slightly different results on each run unless a random seed is set. This particularity has implications for the interpretation of variable importance scores. For example, in the plot above, the difference in importance between the predictors `climate_hypervolume` and `climate_bio1_average_X_bias_area_km2` could be just the result of chance. The function `rf_repeat()` repeats a model execution and yields the distribution of importance scores of the predictors across executions.
+
+```{r, fig.width = 6, fig.height=6}
+model.non.spatial.repeat <- rf_repeat(
+  model = model.non.spatial, 
+  repetitions = 30,
+  verbose = FALSE
+)
+
+plot_importance(model.non.spatial.repeat, verbose = FALSE)
+```
+
+After 30 model repetitions it is clear that the difference in importance between `climate_hypervolume` and `climate_bio1_average_X_bias_area_km2` is not the result of chance.
 
 ### Tuning Random Forest hyperparameters
 
@@ -235,17 +260,17 @@ model.non.spatial.tuned <- rf_tuning(
   min.node.size = c(5, 10, 15)
 )
 ```
+Notice that the object returned by `rf_tuning()` is a model fitted with the same data as the original model, but using the best hyperparameters found during tuning. Now we can compare the original model with the tuned one.
 
-
-```{r, echo = FALSE}
+```{r}
 print_performance(model.non.spatial)
 ```
 
-```{r, echo = FALSE}
+```{r}
 print_performance(model.non.spatial.tuned)
 ```
 
-Model tuning has helped to improve performance measures across the board, so from here, we can keep working with `model.non.spatial.tuned`.
+Model tuning has helped to slightly improve performance measures across the board, so from here, we can keep working with `model.non.spatial.tuned`.
 
 ### Fitting a spatial model
 
@@ -255,17 +280,17 @@ The spatial autocorrelation of the residuals of `model.non.spatial.tuned`, measu
 plot_moran(model.non.spatial.tuned, verbose = FALSE)
 ```
 
-According to the plot, the spatial autocorrelation of the residuals is highly positive a neighborhood of 0 km, while it becomes non-significant (p-value > 0.05, whatever that means) at the distances 1500 and 3000 km. To reduce the spatial autocorrelation of the residuals, the non-spatial tuned model fitted above can be converted into a spatial model easily with `rf_spatial()`.
+According to the plot, the spatial autocorrelation of the residuals is highly positive for a neighborhood of 0 and 1500 km, while it becomes non-significant (p-value > 0.05, whatever that means) at 3000 km. To reduce the spatial autocorrelation of the residuals, the non-spatial tuned model fitted above can be converted into a spatial model easily with `rf_spatial()`.
 
 ```{r}
-model.spatial <- spatialRF::rf_spatial(
+model.spatial <- rf_spatial(
   model = model.non.spatial.tuned,
   method = "mem.moran.sequential", #default method
   verbose = FALSE
   )
 ```
 
-The plot below compares the Moran's I of the residuals of the spatial (green) and non spatial (purple) models. It shows that `rf_spatial()` has managed to remove the spatial autocorrelation of the model residuals.
+The plot below compares the Moran's I of the residuals of the spatial (green) and non spatial (purple) models. It shows that `rf_spatial()` has managed to remove the spatial autocorrelation of the model residuals for every neighborhood distance.
 
 ```{r, fig.width=6, fig.height=3, message=FALSE, warning=FALSE}
 plot_moran(model.spatial, verbose = FALSE)
@@ -297,6 +322,8 @@ kableExtra::kbl(
   kable_paper("hover", full_width = F)
 ```
 
+Spatial predictors are named `spatial_predictor_X_Y`, where `X` is the neighborhood distance at which the predictor has been generated, and `Y` is the index of the predictor.
+
 Spatial predictors, as shown below, are smooth surfaces representing neighborhood among records at different spatial scales.
 
 ```{r, echo=FALSE, fig.width=9, fig.height=5.5}
@@ -308,7 +335,7 @@ p1 <- ggplot2::ggplot() +
   ggplot2::geom_sf(data = pr,
           ggplot2::aes(
             geometry = geom_centroids,
-            color = spatial_predictor_0_2
+            color = spatial_predictor_1500_2
             ),
           size = 2.5
           ) +
@@ -317,7 +344,7 @@ p1 <- ggplot2::ggplot() +
   ggplot2::labs(color = "Eigenvalue") +
   ggplot2::scale_x_continuous(limits = c(-170, -30)) +
   ggplot2::scale_y_continuous(limits = c(-58, 75))  +
-  ggplot2::ggtitle("Spatial predictor 'spatial_predictor_0_2'") + 
+  ggplot2::ggtitle("Spatial predictor 'spatial_predictor_1500_2'") + 
   ggplot2::theme(legend.position = "bottom")
 
 p2 <- ggplot2::ggplot() +
@@ -341,22 +368,45 @@ p1 | p2
 
 ```
 
-The spatial predictors have been generated and included in the model using the method "mem.moran.sequential" (function's default), that mimics the Moran's Eigenvector Maps method described in [(Dray, Legendre, and Peres-Neto 2006)](https://www.sciencedirect.com/science/article/abs/pii/S0304380006000925). In brief, the method consist on transforming the distance matrix into a double-centered matrix of normalized weights, to then compute the positive eigenvectors of the weights matrix (a.k.a, Moran's Eigenvector Maps, or MEMs). The MEMs are included in the model one by one in the order of their Moran's I, and finally, the subset of MEMs maximizing the model's R squared and minimizing the Moran's I of the residuals are selected, as optimization plot below shows.
+The spatial predictors in the spatial model have been generated using the method "mem.moran.sequential" (function's default), that mimics the Moran's Eigenvector Maps method described in [(Dray, Legendre, and Peres-Neto 2006)](https://www.sciencedirect.com/science/article/abs/pii/S0304380006000925). 
+
+In brief, the method consist on transforming the distance matrix into a double-centered matrix of normalized weights, to then compute the positive eigenvectors of the weights matrix (a.k.a, Moran's Eigenvector Maps, or MEMs). 
+
+The MEMs are included in the model one by one in the order of their Moran's I, and the subset of MEMs maximizing the model's R squared and minimizing the Moran's I of the residuals and the number of MEMs added to the model are selected, as optimization plot below shows (dots linked by lines represent the selected spatial predictors).
 
 ```{r, echo=FALSE, fig.width=6, fig.height=4}
 p <- plot_optimization(model.spatial)
 ```
+The addition of spatial predictors increases the number of total predictors used during model training (from `r length(model.non.spatial.tuned$ranger.arguments$predictor.variable.names)` to `r length(model.spatial.tuned$ranger.arguments$predictor.variable.names)`), and that might have an impact on model performance because the hyperparameter `mtry` is now likely lower than it should be. Applying tuning again may help to solve the issue.
+
+```{r, fig.width=6, fig.height=4.5}
+model.spatial.tuned <- rf_tuning(
+  model = model.spatial
+)
+```
+The comparison of the original spatial model and the tuned one shows an interesting increase in the R squared of the model.
+
+```{r}
+print_performance(model.spatial)
+```
+
+```{r}
+print_performance(model.spatial.tuned)
+```
+
+From this point we work with the tuned spatial model.
 
 ### Assessing model performance on spatially independent folds
 
 The function `rf_evaluate()` separates the training data into a number of spatially independent training and testing folds, fits a model on each training fold, predicts over each testing fold, and computes performance measures, to finally aggregate them across model repetitions. Let's see how it works.
 
 ```{r}
-model.spatial <- rf_evaluate(
-  model = model.spatial,
+model.spatial.tuned <- rf_evaluate(
+  model = model.spatial.tuned,
   xy = plant_richness_df[, c("x", "y")], #data coordinates
   repetitions = 30,                      #number of folds
   training.fraction = 0.8,               #training data fraction
+  metrics = c("r.squared", "rmse"),
   verbose = FALSE
 )
 ```
@@ -364,10 +414,10 @@ model.spatial <- rf_evaluate(
 The function generates a new slot in the model named "evaluation" with several objects that summarize the spatial cross-validation results.
 
 ```{r}
-names(model.spatial$evaluation)
+names(model.spatial.tuned$evaluation)
 ```
 
-The slot "spatial.folds", produced by `make_spatial_folds()` contains the indices of the training and testing cases for each cross-validation repetition. The maps below show two sets of training and testing spatial folds.
+The slot "spatial.folds", produced by `make_spatial_folds()`, contains the indices of the training and testing cases for each cross-validation repetition. The maps below show two sets of training and testing spatial folds.
 
 ```{r, echo=FALSE, fig.width=10, fig.height=5}
 pr <- plant_richness_sf
@@ -411,25 +461,25 @@ p2 <- ggplot2::ggplot() +
 p1 | p2
 ```
 
-The functions `plot_evaluation()` and `print_evaluation()` allow to see the evaluation results as a plot or as a table. The plot below shows the performance scores of the "Full" model (original model introduced into `rf_evaluate()`), the model fitted on the training data ("Training"), and the results of the Training model predicted over the "Testing" data. From these performance scores, only the ones labeled as "Testing" represent model performance on unseen data.
+The functions `plot_evaluation()` and `print_evaluation()` allow to see the evaluation results as a plot or as a table. The boxplot below shows the original performance scores of the "Full" model (`model.spatial.tuned`), and the distribution of performance scores of the model fitted on the training data ("Training"), its prediction over the "Testing" data. From these performance scores, only the ones labeled as "Testing" represent model performance on unseen data.
 
-```{r, fig.width=4, fig.height=6}
-plot_evaluation(model.spatial, notch = FALSE)
+```{r, fig.width=4, fig.height=3.5}
+plot_evaluation(model.spatial.tuned, notch = TRUE)
 ```
 
 ### Comparing two models
 
-The function `rf_evaluate()` only assesses the predictive performance of one model at a time. If the goal is to compare two models, `rf_evaluate()` can be ran twice, but `spatialRF` offers a more convenient option with the function `rf_compare()`.
+The function `rf_evaluate()` only assesses the predictive performance on unseen data of one model at a time. If the goal is to compare two models, `rf_evaluate()` can be indeed ran twice, but `spatialRF` offers a more convenient option named `rf_compare()`.
 
-```{r, fig.height=3, fig.width=4}
+```{r, fig.width=4, fig.height=3.5}
 comparison <- rf_compare(
   models = list(
     `Non-spatial` = model.non.spatial.tuned,
-    `Spatial` = model.spatial
+    `Spatial` = model.spatial.tuned
   ),
   xy = plant_richness_df[, c("x", "y")],
   metrics = c("r.squared", "rmse"),
-  notch = FALSE
+  notch = TRUE
   )
 ```
 

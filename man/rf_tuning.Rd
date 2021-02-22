@@ -10,9 +10,9 @@ rf_tuning(
   dependent.variable.name = NULL,
   predictor.variable.names = NULL,
   method = c("oob", "spatial.cv"),
-  num.trees = c(500, 1000),
-  mtry = c(1, 5),
-  min.node.size = c(5, 10),
+  num.trees = NULL,
+  mtry = NULL,
+  min.node.size = NULL,
   xy = NULL,
   repetitions = NULL,
   training.fraction = 0.6,
@@ -35,11 +35,11 @@ rf_tuning(
 
 \item{method}{Character, "oob" to use RMSE values computed on the out-of-bag data to guide the tuning, and "spatial.cv", to use RMSE values from a spatial cross-validation on independent spatial folds done via \code{\link[=rf_evaluate]{rf_evaluate()}}. Default: \code{"oob"}}
 
-\item{num.trees}{Numeric integer vector with the number of trees to fit on each model repetition. Default: c(500, 1000).}
+\item{num.trees}{Numeric integer vector with the number of trees to fit on each model repetition. Default: \code{c(500, 1000, 1500)}.}
 
-\item{mtry}{Numeric integer vector, number of predictors to randomly select from the complete pool of predictors on each tree split. Default: \code{c(2, 3)}}
+\item{mtry}{Numeric integer vector, number of predictors to randomly select from the complete pool of predictors on each tree split. Default: \code{c(1, floor(sqrt(length(predictor.variable.names))), length(predictor.variable.names))}}
 
-\item{min.node.size}{Numeric integer, minimal number of cases in a terminal node. Default: \code{c(5, 10)}}
+\item{min.node.size}{Numeric integer, minimal number of cases in a terminal node. Default: \code{c(5, 10, 15)}}
 
 \item{xy}{Data frame or matrix with two columns containing coordinates and named "x" and "y", or an sf file with geometry class \code{sfc_POINT} (see \link{plant_richness_sf}). If \code{NULL}, the function will throw an error. Default: \code{NULL}}
 
