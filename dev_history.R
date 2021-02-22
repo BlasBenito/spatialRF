@@ -248,6 +248,7 @@ exampletestr::make_test_shell_fun("response_surface", open = FALSE)
 sinew::makeOxygen(print_moran)
 sinew::makeOxygen(optimization_function)
 
+sinew::makeOxygen(aggregate_importance)
 
 sinew::makeOxygen(plot_moran)
 sinew::makeOxygen(plot_importance)
