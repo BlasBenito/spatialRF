@@ -28,7 +28,7 @@ rf_spatial(
   cluster.ips = NULL,
   cluster.cores = NULL,
   cluster.user = Sys.info()[["user"]],
-  cluster.port = 11000
+  cluster.port = "11000"
 )
 }
 \arguments{
@@ -85,7 +85,7 @@ setting \code{keep.models} to \code{TRUE} may cause memory issues. Default: \cod
 
 \item{cluster.user}{Character string, name of the user (should be the same throughout machines). Defaults to the current system user.}
 
-\item{cluster.port}{Integer, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: \code{11000}}
+\item{cluster.port}{Character, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: \code{"11000"}}
 }
 \value{
 A ranger model with several new slots:

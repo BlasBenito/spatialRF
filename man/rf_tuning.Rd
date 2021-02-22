@@ -21,7 +21,7 @@ rf_tuning(
   cluster.ips = NULL,
   cluster.cores = NULL,
   cluster.user = Sys.info()[["user"]],
-  cluster.port = 11000
+  cluster.port = "11000"
 )
 }
 \arguments{
@@ -57,7 +57,7 @@ rf_tuning(
 
 \item{cluster.user}{Character string, name of the user (should be the same throughout machines). Defaults to the current system user.}
 
-\item{cluster.port}{Integer, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: \code{11000}}
+\item{cluster.port}{Character, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: \code{"11000"}}
 }
 \value{
 A list with four slots: \code{tuning} data frame with the results of the tuning analysis; \code{tuning.long}, a long version of the previous data frame; \code{tuning.plot}, ggplot of \code{tuning.long}; \code{ranger.arguments}, a list ready to be used as the argument \code{ranger.arguments} in \code{\link[=rf_repeat]{rf_repeat()}} or \code{\link[=rf_spatial]{rf_spatial()}}.

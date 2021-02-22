@@ -19,7 +19,7 @@ select_spatial_predictors_optimized(
   cluster.ips = NULL,
   cluster.cores = NULL,
   cluster.user = Sys.info()[["user"]],
-  cluster.port = 11000
+  cluster.port = "11000"
 )
 }
 \arguments{
@@ -51,7 +51,7 @@ select_spatial_predictors_optimized(
 
 \item{cluster.user}{Character string, name of the user (should be the same throughout machines). Defaults to the current system user.}
 
-\item{cluster.port}{Integer, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: \code{11000}}
+\item{cluster.port}{Character, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: \code{"11000"}}
 }
 \value{
 A list with two slots: \code{optimization}, a data frame with the index of the spatial predictor added on each iteration, the spatial correlation of the model residuals, and the R-squared of the model, and \code{best.spatial.predictors}, that is a character vector with the names of the spatial predictors that minimize the Moran's I of the residuals and maximize the R-squared of the model.
