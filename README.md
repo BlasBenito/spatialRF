@@ -12,12 +12,10 @@ spatialRF: easy spatial regression with Random Forest
 # Introduction
 
 The package **spatialRF** facilitates fitting spatial regression models
-on regular or irregular data with Random Forest, using the **ranger**
-package under the hood [(Wright and Ziegler
-2017)](https://arxiv.org/abs/1508.04409), and does so by generating
-*spatial predictors* that allow the model to take into account the
-spatial structure of the training data. The end goal is minimizing the
-spatial autocorrelation of the model residuals as much as possible.
+on regular or irregular data with Random Forest by generating *spatial
+predictors* that allow the model to take into account the spatial
+structure of the training data. The end goal is minimizing the spatial
+autocorrelation of the model residuals as much as possible.
 
 Two main methods to generate *spatial predictors* from the distance
 matrix of the data points are implemented in the package:
@@ -42,11 +40,12 @@ spatial.model <- rf_spatial(
   )
 ```
 
-The package also provides tools to identify potentially interesting
-variable interactions, tune random forest hyperparameters, assess model
-performance on spatially independent data folds, and examine the
-resulting models via importance plots, response curves, and response
-surfaces.
+The package, that uses the `ranger` package under the hood [(Wright and
+Ziegler 2017)](https://arxiv.org/abs/1508.04409), also provides tools to
+identify potentially interesting variable interactions, tune random
+forest hyperparameters, assess model performance on spatially
+independent data folds, and examine the resulting models via importance
+plots, response curves, and response surfaces.
 
 # Install
 
