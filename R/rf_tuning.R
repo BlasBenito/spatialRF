@@ -5,9 +5,9 @@
 #' @param dependent.variable.name Character string with the name of the response variable. Must be in the column names of `data`. Default: `NULL`
 #' @param predictor.variable.names Character vector with the names of the predictive variables, or output of [auto_cor()] or [auto_vif()]. Every element of this vector must be in the column names of `data`. Default: `NULL`
 #' @param method Character, "oob" to use RMSE values computed on the out-of-bag data to guide the tuning, and "spatial.cv", to use RMSE values from a spatial cross-validation on independent spatial folds done via [rf_evaluate()]. Default: `"oob"`
-#' @param num.trees Numeric integer vector with the number of trees to fit on each model repetition. Default: `c(500, 1000, 1500)`.
-#' @param mtry Numeric integer vector, number of predictors to randomly select from the complete pool of predictors on each tree split. Default: `c(1, floor(sqrt(length(predictor.variable.names))), length(predictor.variable.names))`
-#' @param min.node.size Numeric integer, minimal number of cases in a terminal node. Default: `c(5, 10, 15)`
+#' @param num.trees Numeric integer vector with the number of trees to fit on each model repetition. Default: `c(500, 1000, 2000)`.
+#' @param mtry Numeric integer vector, number of predictors to randomly select from the complete pool of predictors on each tree split. Default: `floor(seq(1, length(predictor.variable.names), length.out = 4))`
+#' @param min.node.size Numeric integer, minimal number of cases in a terminal node. Default: `c(5, 10, 20, 40)`
 #' @param xy Data frame or matrix with two columns containing coordinates and named "x" and "y". If `NULL`, the function will throw an error. Default: `NULL`
 #' @param repetitions Integer, number of repetitions to compute the R squared from. If `method = "oob"`, number of repetitions to be used in [rf_repeat()] to fit models for each combination of hyperparameters. If `method = "spatial.cv"`, number of independent spatial folds to use during the cross-validation. Default: `NULL` (which yields 30 for "spatial.cv" and 5 for "oob").
 #' @param training.fraction Proportion between 0.2 and 0.8 indicating the number of records to be used in model training. Default: `0.6`
@@ -102,11 +102,7 @@ rf_tuning <- function(
 
   #mtry
   if(is.null(mtry)){
-    mtry <- c(
-      1,
-      floor(sqrt(length(predictor.variable.names))),
-      length(predictor.variable.names)
-    )
+    mtry <- floor(seq(1, length(predictor.variable.names), length.out = 4))
   } else {
     if(max(mtry) > length(predictor.variable.names)){
       if(verbose == TRUE){
@@ -118,7 +114,7 @@ rf_tuning <- function(
 
   #min.node.size
   if(is.null(min.node.size)){
-    min.node.size <- c(5, 10, 15)
+    min.node.size <- c(5, 10, 20, 40)
   } else {
     if(max(min.node.size) >= floor(nrow(data)/4)){
       min.node.size <- min.node.size[min.node.size <= floor(nrow(data)/4)]
@@ -135,7 +131,7 @@ rf_tuning <- function(
 
   #num.trees
   if(is.null(num.trees)){
-    num.trees <- c(500, 1000, 1500)
+    num.trees <- c(500, 1000, 2000)
   }
 
   #combining values
