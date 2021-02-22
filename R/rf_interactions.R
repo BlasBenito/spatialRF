@@ -164,7 +164,6 @@ rf_interactions <- function(
   #beowulf cluster
   if(!is.null(cluster.ips)){
 
-
     #cluster port
     Sys.setenv(R_PARALLEL_PORT = cluster.port)
 

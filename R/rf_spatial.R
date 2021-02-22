@@ -494,9 +494,9 @@ rf_spatial <- function(
       weight.penalization.n.predictors = weight.penalization.n.predictors,
       n.cores = n.cores,
       cluster.ips = cluster.ips,
-      cluster.cores = cluster.ips,
-      cluster.user = cluster.ips,
-      cluster.port = cluster.ips
+      cluster.cores = cluster.cores,
+      cluster.user = cluster.user,
+      cluster.port = cluster.port
     )
 
     #broadcast spatial.predictors.selected
