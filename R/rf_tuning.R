@@ -399,6 +399,9 @@ rf_tuning <- function(
       message(paste0("R squared gain: ", tuning.r.squared - model.r.squared))
     }
 
+    #adding r squared gain
+    model.tuned$tuning$r.squared.gain <- tuning.r.squared - model.r.squared
+
     return(model.tuned)
 
     #tuned model worse than original one
@@ -426,6 +429,9 @@ rf_tuning <- function(
     if(verbose == TRUE){
       plot_tuning(model)
     }
+
+    #adding r squared gain
+    model$tuning$r.squared.gain <- tuning.r.squared - model.r.squared
 
     return(model)
 

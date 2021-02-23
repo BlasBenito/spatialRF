@@ -103,10 +103,10 @@ ggplot2::ggplot() +
   ggplot2::theme_bw() +
   ggplot2::labs(color = "Plant richness") +
   ggplot2::scale_x_continuous(limits = c(-170, -30)) +
-  ggplot2::scale_y_continuous(limits = c(-58, 75))  +
+  ggplot2::scale_y_continuous(limits = c(-58, 80))  +
   ggplot2::ggtitle("Plant richness of the American ecoregions") + 
-  ggplot2::xlab("") + 
-  ggplot2::ylab("")
+  ggplot2::xlab("Longitude") + 
+  ggplot2::ylab("Latitude")
 ```
 
 The predictors (columns 5 to 21) represent diverse factors that may influence plant richness such as sampling bias, the area of the ecoregion, climatic variables, human presence and impact, topography, geographical fragmentation, and features of the neighbors of each ecoregion. The figure below shows the scatterplots of the response variable (y axis) against each predictor (x axis).
@@ -261,19 +261,43 @@ plot_importance(model.non.spatial.repeat, verbose = FALSE)
 
 After 30 model repetitions it is clear that the difference in importance between `climate_hypervolume` and `climate_bio1_average_X_bias_area_km2` is not the result of chance.
 
+### Tuning Random Forest hyperparameters
+
+The model fitted above was based on the default hyperparameter values provided by `ranger()`, and those might not be the most adequate ones for a given dataset. The function `rf_tuning()` helps the user to choose sensible values for three Random Forest hyperparameters that are critical to model performance:
+
+  + `num.trees`: number of regression trees in the forest.
+  + `mtry`: number of variables to choose from on each tree split.
+  + `min.node.size`: minimum number of cases on a terminal node.
+  
+Model tuning can be done on out-of-bag (`method = "oob"`) or spatial cross-validation (`method = "spatial.cv"`) R squared values. The example below shows the out-of-bag approach because I will explain spatial cross-validation with `rf_evaluate()` later in this document.
+  
+```{r, fig.width=6, fig.height=4.5}
+model.non.spatial.tuned <- rf_tuning(
+  model = model.non.spatial,
+  method = "spatial.cv",
+  xy = plant_richness_df[, c("x", "y")],
+  repetitions = 30,
+  num.trees = c(500, 1000),
+  mtry = seq(2, 14, by = 2),
+  min.node.size = c(5, 10, 20)
+)
+```
+
+The function `rf_tuning()` returns a model fitted with the same data as the original model, but using the best hyperparameters found during tuning. Model tuning has helped to a very small improvement in performance measures (+ `r round(model.non.spatial.tuned$tuning$r.squared.gain, 3)` R squared), so from here, we can keep working with `model.non.spatial.tuned`.
+
 ### Fitting a spatial model
 
 The spatial autocorrelation of the residuals of `model.non.spatial`, measured with [Moran's I](https://en.wikipedia.org/wiki/Moran%27s_I), can be plotted with `plot_moran()`
 
 ```{r, fig.width=6, fig.height=3, message=FALSE, warning=FALSE}
-plot_moran(model.non.spatial, verbose = FALSE)
+plot_moran(model.non.spatial.tuned, verbose = FALSE)
 ```
 
-According to the plot, the spatial autocorrelation of the residuals is highly positive for a neighborhood of 0 and 1500 km, while it becomes non-significant (p-value > 0.05, whatever that means) at 3000 km. To reduce the spatial autocorrelation of the residuals, the non-spatial tuned model fitted above can be converted into a spatial model easily with `rf_spatial()`.
+According to the plot, the spatial autocorrelation of the residuals is highly positive for a neighborhood of 0 km, while it becomes non-significant (p-value > 0.05, whatever that means) at 1500 and 3000 km. To reduce the spatial autocorrelation of the residuals as much as possible, the non-spatial tuned model fitted above can be converted into a spatial model easily with `rf_spatial()`.
 
 ```{r}
 model.spatial <- rf_spatial(
-  model = model.non.spatial,
+  model = model.non.spatial.tuned,
   method = "mem.moran.sequential", #default method
   verbose = FALSE
   )
@@ -326,7 +350,7 @@ p1 <- ggplot2::ggplot() +
     ggplot2::aes(
       x = x,
       y = y,
-      color = spatial_predictor_1500_1
+      color = spatial_predictor_0_1
     ),
     size = 2.5
   ) +
@@ -334,8 +358,8 @@ p1 <- ggplot2::ggplot() +
   ggplot2::theme_bw() +
   ggplot2::labs(color = "Eigenvalue") +
   ggplot2::scale_x_continuous(limits = c(-170, -30)) +
-  ggplot2::scale_y_continuous(limits = c(-58, 75))  +
-  ggplot2::ggtitle("Variable: spatial_predictor_1500_1") + 
+  ggplot2::scale_y_continuous(limits = c(-58, 80))  +
+  ggplot2::ggtitle("Variable: spatial_predictor_0_1") + 
   ggplot2::theme(legend.position = "bottom")+ 
   ggplot2::xlab("") + 
   ggplot2::ylab("")
@@ -355,7 +379,7 @@ p2 <- ggplot2::ggplot() +
   ggplot2::theme_bw() +
   ggplot2::labs(color = "Eigenvalue") +
   ggplot2::scale_x_continuous(limits = c(-170, -30)) +
-  ggplot2::scale_y_continuous(limits = c(-58, 75))  +
+  ggplot2::scale_y_continuous(limits = c(-58, 80))  +
   ggplot2::ggtitle("Variable: spatial_predictor_0_2") + 
   ggplot2::theme(legend.position = "bottom") + 
   ggplot2::xlab("") + 
@@ -375,51 +399,13 @@ The MEMs are included in the model one by one in the order of their Moran's I, a
 p <- plot_optimization(model.spatial)
 ```
 
-
-
-### Tuning Random Forest hyperparameters
-
-The addition of spatial predictors increases the number of total predictors used during model training (from `r length(model.non.spatial$ranger.arguments$predictor.variable.names)` to `r length(model.spatial$ranger.arguments$predictor.variable.names)`), and that might have an impact on model performance because the hyperparameter `mtry` is now likely lower than it should be. Applying tuning (now using default sets of hyperparameters) again may help to solve the issue.
-
-The function `rf_tuning()` helps the user to choose sensible values for three Random Forest hyperparameters that are critical to model performance:
-
-  + `num.trees`: number of regression trees in the forest.
-  + `mtry`: number of variables to choose from on each tree split.
-  + `min.node.size`: minimum number of cases on a terminal node.
-  
-Model tuning can be done on out-of-bag (`method = "oob"`) or spatial cross-validation (`method = "spatial.cv"`) R squared values.
-
-```{r, fig.width=6, fig.height=4.5}
-model.spatial.tuned <- rf_tuning(
-  model = model.spatial,
-  num.trees = c(500, 1000, 1500),
-  mtry = seq(2, 14, by = 2),
-  min.node.size = c(5, 10, 20),
-  xy = plant_richness_df[, c("x", "y")]
-)
-```
-
-Notice that the object returned by `rf_tuning()` is a model fitted with the same data as the original model, but using the best hyperparameters found during tuning. Now we can compare the original model with the tuned one. If `rf_tuning()` fails to find a best set of hyperparameters, the original model is returned, and a warning is issued.
-
-The comparison of the original spatial model and the tuned one shows a small increase in the R squared of the model.
-
-```{r}
-print_performance(model.spatial)
-```
-
-```{r}
-print_performance(model.spatial.tuned)
-```
-
-From this point we work with the tuned spatial model.
-
 ### Assessing model performance on spatially independent folds
 
 The function `rf_evaluate()` separates the training data into a number of spatially independent training and testing folds, fits a model on each training fold, predicts over each testing fold, and computes performance measures, to finally aggregate them across model repetitions. Let's see how it works.
 
 ```{r}
-model.spatial.tuned <- rf_evaluate(
-  model = model.spatial.tuned,
+model.spatial <- rf_evaluate(
+  model = model.spatial,
   xy = plant_richness_df[, c("x", "y")], #data coordinates
   repetitions = 30,                      #number of folds
   training.fraction = 0.8,               #training data fraction
@@ -456,7 +442,7 @@ p1 <- ggplot2::ggplot() +
   ggplot2::theme_bw() +
   ggplot2::labs(color = "Group") +
   ggplot2::scale_x_continuous(limits = c(-170, -30)) +
-  ggplot2::scale_y_continuous(limits = c(-58, 75))  +
+  ggplot2::scale_y_continuous(limits = c(-58, 80))  +
   ggplot2::ggtitle("Spatial fold 1") + 
   ggplot2::theme(legend.position = "none") + 
   ggplot2::xlab("Longitude") + 
@@ -476,7 +462,7 @@ p2 <- ggplot2::ggplot() +
   ggplot2::theme_bw() +
   ggplot2::labs(color = "Group") +
   ggplot2::scale_x_continuous(limits = c(-170, -30)) +
-  ggplot2::scale_y_continuous(limits = c(-58, 75)) +
+  ggplot2::scale_y_continuous(limits = c(-58, 80)) +
   ggplot2::ggtitle("Spatial fold 25") + 
   ggplot2::xlab("Longitude") + 
   ggplot2::ylab("Latitude")
@@ -487,7 +473,7 @@ p1 | p2
 The functions `plot_evaluation()` and `print_evaluation()` allow to see the evaluation results as a plot or as a table. The boxplot below shows the original performance scores of the "Full" model (`model.spatial.tuned`), and the distribution of performance scores of the model fitted on the training data ("Training"), its prediction over the "Testing" data. From these performance scores, only the ones labeled as "Testing" represent model performance on unseen data.
 
 ```{r, fig.width=4, fig.height=3.5}
-plot_evaluation(model.spatial.tuned, notch = TRUE)
+plot_evaluation(model.spatial, notch = TRUE)
 ```
 
 ### Comparing two models
@@ -497,8 +483,8 @@ The function `rf_evaluate()` only assesses the predictive performance on unseen 
 ```{r, fig.width=4, fig.height=3.5}
 comparison <- rf_compare(
   models = list(
-    `Non-spatial` = model.non.spatial,
-    `Spatial` = model.spatial.tuned
+    `Non-spatial` = model.non.spatial.tuned,
+    `Spatial` = model.spatial
   ),
   xy = plant_richness_df[, c("x", "y")],
   metrics = c("r.squared", "rmse"),
