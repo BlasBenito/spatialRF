@@ -1,13 +1,13 @@
 #' @title Tuning of random forest hyperparameters
 #' @description Tunes the random forest hyperparameters `num.trees`, `mtry`, and `min.node.size` via grid search by maximizing the model's R squared. Two methods are available: out-of-bag (`oob`), and spatial cross-validation performed with [rf_evaluate()].
-#' @param model A model fitted with [rf()]. If provided, the training data is taken directly from the model definition (stored in `model$ranger.arguments`). Default: `NULL`
+#' @param model A model fitted with [rf()]. If provided, the training data is taken directly from the model definition (stored in `model$ranger.arguments`). It is not recommended to tune models fitted with [rf_spatial()]. Default: `NULL`
 #' @param method Character, "oob" to use RMSE values computed on the out-of-bag data to guide the tuning, and "spatial.cv", to use RMSE values from a spatial cross-validation on independent spatial folds done via [rf_evaluate()]. Default: `"oob"`
 #' @param num.trees Numeric integer vector with the number of trees to fit on each model repetition. Default: `c(500, 1000, 2000)`.
 #' @param mtry Numeric integer vector, number of predictors to randomly select from the complete pool of predictors on each tree split. Default: `floor(seq(1, length(predictor.variable.names), length.out = 4))`
 #' @param min.node.size Numeric integer, minimal number of cases in a terminal node. Default: `c(5, 10, 20, 40)`
 #' @param xy Data frame or matrix with two columns containing coordinates and named "x" and "y". If `NULL`, the function will throw an error. Default: `NULL`
 #' @param repetitions Integer, number of repetitions to compute the R squared from. If `method = "oob"`, number of repetitions to be used in [rf_repeat()] to fit models for each combination of hyperparameters. If `method = "spatial.cv"`, number of independent spatial folds to use during the cross-validation. Default: `NULL` (which yields 30 for "spatial.cv" and 5 for "oob").
-#' @param training.fraction Proportion between 0.2 and 0.8 indicating the number of records to be used in model training. Default: `0.6`
+#' @param training.fraction Proportion between 0.2 and 0.8 indicating the number of records to be used in model training. Default: `0.8`
 #' @param verbose Logical. If TRUE, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
 #' @param n.cores Integer, number of cores to use during computations. If `NULL`, all cores but one are used, unless a cluster is used. Default = `NULL`
 #' @param cluster.ips Character vector with the IPs of the machines in a cluster. The machine with the first IP will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.
@@ -44,7 +44,7 @@ rf_tuning <- function(
   min.node.size = NULL,
   xy = NULL,
   repetitions = NULL,
-  training.fraction = 0.6,
+  training.fraction = 0.8,
   verbose = TRUE,
   n.cores = NULL,
   cluster.ips = NULL,
@@ -68,6 +68,9 @@ rf_tuning <- function(
   if(is.null(model)){
     stop("The argument 'model' is empty, there is no model to tune.")
   }
+  if("rf_spatial" %in% class(model)){
+    warning("Model tuning is not recommended for models fitted with rf_spatial().")
+  }
 
   if(is.null(repetitions)){
     if(method == "oob"){
@@ -89,7 +92,7 @@ rf_tuning <- function(
 
   #mtry
   if(is.null(mtry)){
-    mtry <- floor(seq(1, length(predictor.variable.names) - 1, length.out = 4))
+    mtry <- as.integer(seq(1, length(predictor.variable.names) - 1, length.out = 4))
   } else {
     if(max(mtry) > length(predictor.variable.names)){
       if(verbose == TRUE){
@@ -98,6 +101,7 @@ rf_tuning <- function(
       mtry <- mtry[mtry < length(predictor.variable.names)]
     }
   }
+  mtry <- as.integer(mtry)
 
   #min.node.size
   if(is.null(min.node.size)){
@@ -115,11 +119,13 @@ rf_tuning <- function(
       }
     }
   }
+  min.node.size <- as.integer(min.node.size)
 
   #num.trees
   if(is.null(num.trees)){
     num.trees <- c(500, 1000, 2000)
   }
+  num.trees <- as.integer(num.trees)
 
   #combining values
   combinations <- expand.grid(
@@ -323,12 +329,6 @@ rf_tuning <- function(
     verbose = FALSE
   )
 
-  #aggregating importance if there are spatial predictors
-  if(sum(grepl("spatial_predictor",  model.tuned$variable.importance$per.variable$variable)) > 0){
-    model.tuned$variable.importance$spatial.predictor.stats <- aggregate_importance(x = model.tuned$variable.importance$per.variable)
-  }
-
-
   #adding tuning slot
   model.tuned$tuning <- tuning.list
 
@@ -338,17 +338,52 @@ rf_tuning <- function(
     verbose = FALSE
   )
 
-
   #keeping class
   class(model.tuned) <- unique(c(class(model.tuned), model.class))
 
   #comparing r squared of model and tuning
-  tuning.r.squared <- model.tuned$performance$r.squared
+
+  #if oob
   if(method == "oob"){
+    tuning.r.squared <- model.tuned$performance$r.squared
     model.r.squared <- model$performance$r.squared
   }
+
+  #if spatial cross-validation
   if(method == "spatial.cv"){
-   model.r.squared <- model$evaluation$aggregated[model$evaluation$aggregated$model == "Testing" & model$evaluation$aggregated$metric == "r.squared", "mean"]
+
+    #evaluate model
+    model <- spatialRF::rf_evaluate(
+      model = model,
+      xy = xy,
+      repetitions = repetitions,
+      training.fraction = training.fraction,
+      verbose = FALSE,
+      n.cores = n.cores,
+      cluster.ips = cluster.ips,
+      cluster.cores = cluster.cores,
+      cluster.user = cluster.user,
+      cluster.port = cluster.port
+    )
+
+    #evaluate model tuned
+    model.tuned <- spatialRF::rf_evaluate(
+      model = model.tuned,
+      xy = xy,
+      repetitions = repetitions,
+      training.fraction = training.fraction,
+      verbose = FALSE,
+      n.cores = n.cores,
+      cluster.ips = cluster.ips,
+      cluster.cores = cluster.cores,
+      cluster.user = cluster.user,
+      cluster.port = cluster.port
+    )
+
+    #extract r.squared values
+    tuning.r.squared <- model.tuned$evaluation$aggregated[model.tuned$evaluation$aggregated$model == "Testing" & model.tuned$evaluation$aggregated$metric == "r.squared", "mean"]
+    model.r.squared <- model$evaluation$aggregated[model$evaluation$aggregated$model == "Testing" & model$evaluation$aggregated$metric == "r.squared", "mean"]
+
   }
 
   #if there is r-squared gain
@@ -375,7 +410,7 @@ rf_tuning <- function(
         tuning.r.squared,
         ") is lower than the R squared of the original model (",
         model.r.squared,
-        "), no tuning needed, returning the original model."
+        "), no tuning required, returning the original model."
       )
     )
 
