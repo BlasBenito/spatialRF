@@ -199,7 +199,9 @@ select_spatial_predictors_optimized <- function(
 
     #remove the last 1% of candidates EXPERIMENT TO SPEED UP FUNCTION EXECUTION
     five.percent <- ceiling((5 * length(spatial.predictors.candidates.i))/100)
-    spatial.predictors.candidates.i <- spatial.predictors.candidates.i[(length(spatial.predictors.candidates.i) - five.percent):length(spatial.predictors.candidates.i)]
+    if(length(spatial.predictors.candidates.i) > five.percent){
+      spatial.predictors.candidates.i <- spatial.predictors.candidates.i[(length(spatial.predictors.candidates.i) - five.percent):length(spatial.predictors.candidates.i)]
+    }
 
     #gathering data for optimization df.
     if(length(spatial.predictors.candidates.i) > 0){
