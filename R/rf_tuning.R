@@ -361,9 +361,29 @@ rf_tuning <- function(
     message(paste0("  - mtry:          ", tuning[1, "mtry"]))
     message(paste0("  - min.node.size: ", tuning[1, "min.node.size"]))
     plot_tuning(m)
+    if(!is.null(model)){
+      if(m$performance$r.squared < model$performance$r.squared){
+        warning(
+          paste0(
+            "The R squared of the tuned model (",
+            m$performance$r.squared,
+            ") is lower than the R squared of the original model (",
+            model$performance$r.squared,
+            "). Returning the original model."
+            )
+          )
+      }
+    }
   }
 
+
   #returning output
-  m
+  if(!is.null(model)){
+    if(m$performance$r.squared < model$performance$r.squared){
+      return(model)
+    }
+  } else {
+    return(m)
+  }
 
 }
