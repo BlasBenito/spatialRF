@@ -103,13 +103,13 @@ rf_tuning <- function(
 
   #mtry
   if(is.null(mtry)){
-    mtry <- floor(seq(1, length(predictor.variable.names), length.out = 4))
+    mtry <- floor(seq(1, length(predictor.variable.names) - 1, length.out = 4))
   } else {
     if(max(mtry) > length(predictor.variable.names)){
       if(verbose == TRUE){
         message("Maximum 'mtry' set to length(predictor.variable.names)")
       }
-      mtry[mtry == max(mtry)] <- length(predictor.variable.names)
+      mtry <- mtry[mtry < length(predictor.variable.names)]
     }
   }
 
