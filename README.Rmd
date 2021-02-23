@@ -8,15 +8,13 @@ output:
 always_allow_html: yes
 ---
 
-<!-- README.md is generated from README.Rmd. Please edit that file -->
-
-  <!-- badges: start -->
-  [![R-CMD-check](https://github.com/BlasBenito/spatialRF/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/BlasBenito/spatialRF/actions/workflows/R-CMD-check.yaml)
+<!-- badges: start -->
+[![R-CMD-check](https://github.com/BlasBenito/spatialRF/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/BlasBenito/spatialRF/actions/workflows/R-CMD-check.yaml)
   
-  [![Devel-version](https://img.shields.io/badge/devel%20version-1.0.1-blue.svg)](https://github.com/blasbenito/spatialRF)
+[![Devel-version](https://img.shields.io/badge/devel%20version-1.0.1-blue.svg)](https://github.com/blasbenito/spatialRF)
   
-  [![CRAN](https://img.shields.io/badge/CRAN-not_published-red)](https://github.com/blasbenito/spatialRF)
-  <!-- badges: end -->
+[![CRAN](https://img.shields.io/badge/CRAN-not_published-red)](https://github.com/blasbenito/spatialRF)
+<!-- badges: end -->
 
 
 
@@ -254,7 +252,7 @@ Random Forest is an stochastic algorithm that yields slightly different results 
 ```{r, fig.width = 6, fig.height=4.5}
 model.non.spatial.repeat <- rf_repeat(
   model = model.non.spatial, 
-  repetitions = 30,
+  repetitions = 10,
   verbose = FALSE
 )
 

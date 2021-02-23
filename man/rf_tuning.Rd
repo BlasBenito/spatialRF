@@ -6,9 +6,6 @@
 \usage{
 rf_tuning(
   model = NULL,
-  data = NULL,
-  dependent.variable.name = NULL,
-  predictor.variable.names = NULL,
   method = c("oob", "spatial.cv"),
   num.trees = NULL,
   mtry = NULL,
@@ -26,12 +23,6 @@ rf_tuning(
 }
 \arguments{
 \item{model}{A model fitted with \code{\link[=rf]{rf()}}. If provided, the training data is taken directly from the model definition (stored in \code{model$ranger.arguments}). Default: \code{NULL}}
-
-\item{data}{Data frame with a response variable and a set of predictors. Default: \code{NULL}}
-
-\item{dependent.variable.name}{Character string with the name of the response variable. Must be in the column names of \code{data}. Default: \code{NULL}}
-
-\item{predictor.variable.names}{Character vector with the names of the predictive variables, or output of \code{\link[=auto_cor]{auto_cor()}} or \code{\link[=auto_vif]{auto_vif()}}. Every element of this vector must be in the column names of \code{data}. Default: \code{NULL}}
 
 \item{method}{Character, "oob" to use RMSE values computed on the out-of-bag data to guide the tuning, and "spatial.cv", to use RMSE values from a spatial cross-validation on independent spatial folds done via \code{\link[=rf_evaluate]{rf_evaluate()}}. Default: \code{"oob"}}
 
