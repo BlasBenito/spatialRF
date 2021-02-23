@@ -34,6 +34,9 @@ scale_robust <- function(
   x <- x[sapply(x, is.numeric)]
   x <- x[ , which(round(apply(x, 2, var), 4) != 0)]
 
+  #copy in case scaling fails
+  x_ <- x
+
   #removing columns with mode 0
   x <- x[ , which(round(as.numeric(apply(x, 2, statistical_mode)), 4) != 0)]
 
@@ -75,7 +78,7 @@ scale_robust <- function(
 
   #if robust scaling fails, regular scaling
   if(sum(is.nan(x[, 1])) > 0 | sum(is.infinite(x[, 1])) > 0){
-    x <- as.data.frame(scale(x))
+    x <- as.data.frame(scale(x_))
   }
 
   x
