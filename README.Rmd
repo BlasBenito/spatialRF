@@ -8,6 +8,8 @@ output:
 always_allow_html: yes
 ---
 
+.
+
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/BlasBenito/spatialRF/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/BlasBenito/spatialRF/actions/workflows/R-CMD-check.yaml)
   
@@ -417,7 +419,7 @@ model.spatial <- rf_evaluate(
 The function generates a new slot in the model named "evaluation" with several objects that summarize the spatial cross-validation results.
 
 ```{r}
-names(model.spatial.tuned$evaluation)
+names(model.spatial$evaluation)
 ```
 
 The slot "spatial.folds", produced by `make_spatial_folds()`, contains the indices of the training and testing cases for each cross-validation repetition. The maps below show two sets of training and testing spatial folds.
@@ -425,8 +427,8 @@ The slot "spatial.folds", produced by `make_spatial_folds()`, contains the indic
 ```{r, echo=FALSE, fig.width=10, fig.height=5}
 pr <- plant_richness_df[, c("x", "y")]
 pr$group.2 <- pr$group.1 <- "Training"
-pr[model.spatial.tuned$evaluation$spatial.folds[[1]]$testing, "group.1"] <- "Testing"
-pr[model.spatial.tuned$evaluation$spatial.folds[[25]]$testing, "group.2"] <- "Testing"
+pr[model.spatial$evaluation$spatial.folds[[1]]$testing, "group.1"] <- "Testing"
+pr[model.spatial$evaluation$spatial.folds[[25]]$testing, "group.2"] <- "Testing"
 
 p1 <- ggplot2::ggplot() +
   ggplot2::geom_sf(data = world, fill = "white") +

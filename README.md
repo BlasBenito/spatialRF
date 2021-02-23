@@ -7,14 +7,15 @@ spatialRF: easy spatial regression with Random Forest
     -   [The example data](#the-example-data)
     -   [The workflow](#the-workflow)
 
-<!-- README.md is generated from README.Rmd. Please edit that file -->
+.
 
 <!-- badges: start -->
+
 [![R-CMD-check](https://github.com/BlasBenito/spatialRF/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/BlasBenito/spatialRF/actions/workflows/R-CMD-check.yaml)
 
-[![](https://img.shields.io/badge/devel%20version-1.0.1-blue.svg)](https://github.com/blasbenito/spatialRF)
+[![Devel-version](https://img.shields.io/badge/devel%20version-1.0.1-blue.svg)](https://github.com/blasbenito/spatialRF)
 
-[![](https://img.shields.io/badge/CRAN-not_published-red)](https://github.com/blasbenito/spatialRF)
+[![CRAN](https://img.shields.io/badge/CRAN-not_published-red)](https://github.com/blasbenito/spatialRF)
 <!-- badges: end -->
 
 # Introduction
@@ -181,7 +182,7 @@ plant_richness_df[, "climate_bio1_average_X_bias_area_km2"] <- interactions$colu
 predictor.variable.names <- c(predictor.variable.names, "climate_bio1_average_X_bias_area_km2")
 ```
 
-### Assessing and reducing multicollinearity
+### Reducing multicollinearity in the predictors
 
 The functions `auto_cor()` and `auto_vif()` help reduce redundancy in
 the predictors by using different criteria (bivariate R squared
@@ -329,7 +330,7 @@ executions.
 ``` r
 model.non.spatial.repeat <- rf_repeat(
   model = model.non.spatial, 
-  repetitions = 30,
+  repetitions = 10,
   verbose = FALSE
 )
 
@@ -362,75 +363,53 @@ cross-validation with `rf_evaluate()` later in this document.
 ``` r
 model.non.spatial.tuned <- rf_tuning(
   model = model.non.spatial,
-  method = "oob",
-  num.trees = c(500, 750, 1000),
-  mtry = c(5, 10, 14),
-  min.node.size = c(5, 10, 15)
+  method = "spatial.cv",
+  xy = plant_richness_df[, c("x", "y")],
+  repetitions = 30,
+  num.trees = c(500, 1000),
+  mtry = seq(2, 14, by = 2),
+  min.node.size = c(5, 10, 20)
 )
 ```
 
-    ## Exploring 27 combinations of hyperparameters.
+    ## Exploring 42 combinations of hyperparameters.
 
     ## Best hyperparameters:
 
-    ##   - num.trees:     500
+    ##   - num.trees:     1000
 
-    ##   - mtry:          5
+    ##   - mtry:          14
 
     ##   - min.node.size: 5
 
+    ## R squared gain: 0.06432
+
 ![](README_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
 
-Notice that the object returned by `rf_tuning()` is a model fitted with
-the same data as the original model, but using the best hyperparameters
-found during tuning. Now we can compare the original model with the
-tuned one.
-
-``` r
-print_performance(model.non.spatial)
-```
-
-    ## 
-    ## Model performance 
-    ##   - R squared (OOB):                 0.594
-    ##   - Pseudo R squared:                0.771
-    ##   - RMSE:                            2214.932
-    ##   - Normalized RMSE:                 0.639
-
-``` r
-print_performance(model.non.spatial.tuned)
-```
-
-    ## 
-    ## Model performance 
-    ##   - R squared (OOB):                 0.578
-    ##   - Pseudo R squared:                0.76
-    ##   - RMSE:                            2217.236
-    ##   - Normalized RMSE:                 0.64
-
-Model tuning has helped to slightly improve performance measures across
-the board, so from here, we can keep working with
-`model.non.spatial.tuned`.
+The function `rf_tuning()` returns a model fitted with the same data as
+the original model, but using the best hyperparameters found during
+tuning. Model tuning has helped to a very small improvement in
+performance measures (+ 0.064 R squared), so from here, we can keep
+working with `model.non.spatial.tuned`.
 
 ### Fitting a spatial model
 
-The spatial autocorrelation of the residuals of
-`model.non.spatial.tuned`, measured with [Moran’s
-I](https://en.wikipedia.org/wiki/Moran%27s_I), can be plotted with
-`plot_moran()`
+The spatial autocorrelation of the residuals of `model.non.spatial`,
+measured with [Moran’s I](https://en.wikipedia.org/wiki/Moran%27s_I),
+can be plotted with `plot_moran()`
 
 ``` r
 plot_moran(model.non.spatial.tuned, verbose = FALSE)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
 
 According to the plot, the spatial autocorrelation of the residuals is
-highly positive for a neighborhood of 0 and 1500 km, while it becomes
-non-significant (p-value &gt; 0.05, whatever that means) at 3000 km. To
-reduce the spatial autocorrelation of the residuals, the non-spatial
-tuned model fitted above can be converted into a spatial model easily
-with `rf_spatial()`.
+highly positive for a neighborhood of 0 km, while it becomes
+non-significant (p-value &gt; 0.05, whatever that means) at 1500 and
+3000 km. To reduce the spatial autocorrelation of the residuals as much
+as possible, the non-spatial tuned model fitted above can be converted
+into a spatial model easily with `rf_spatial()`.
 
 ``` r
 model.spatial <- rf_spatial(
@@ -449,7 +428,7 @@ for every neighborhood distance.
 plot_moran(model.spatial, verbose = FALSE)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
 
 If we compare the variable importance plots of both models, we can see
 that the spatial model has an additional set of dots under the name
@@ -459,7 +438,7 @@ non-spatial predictors.
 
 ``` r
 p1 <- plot_importance(
-  model.non.spatial.tuned, 
+  model.non.spatial, 
   verbose = FALSE) + 
   ggplot2::ggtitle("Non-spatial model") 
 
@@ -471,23 +450,23 @@ p2 <- plot_importance(
 p1 | p2 
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
 
 If we take a look to the ten most important variables in
 **model.spatial** we will see that a few of them are spatial predictors.
 
 | variable                                   | importance |
 |:-------------------------------------------|-----------:|
-| climate\_bio1\_average                     |      0.259 |
-| climate\_bio1\_average\_X\_bias\_area\_km2 |      0.227 |
-| climate\_hypervolume                       |      0.223 |
-| spatial\_predictor\_1500\_2                |      0.217 |
-| spatial\_predictor\_0\_6                   |      0.197 |
-| spatial\_predictor\_0\_2                   |      0.166 |
-| spatial\_predictor\_0\_7                   |      0.135 |
-| spatial\_predictor\_0\_11                  |      0.117 |
-| neighbors\_count                           |      0.112 |
-| bias\_species\_per\_record                 |      0.105 |
+| climate\_bio1\_average\_X\_bias\_area\_km2 |      0.405 |
+| climate\_bio1\_average                     |      0.345 |
+| spatial\_predictor\_0\_2                   |      0.334 |
+| climate\_hypervolume                       |      0.328 |
+| bias\_species\_per\_record                 |      0.151 |
+| spatial\_predictor\_0\_6                   |      0.126 |
+| spatial\_predictor\_0\_1                   |      0.125 |
+| spatial\_predictor\_0\_5                   |      0.103 |
+| human\_population\_density                 |      0.095 |
+| neighbors\_count                           |      0.091 |
 
 Spatial predictors are named `spatial_predictor_X_Y`, where `X` is the
 neighborhood distance at which the predictor has been generated, and `Y`
@@ -496,11 +475,7 @@ is the index of the predictor.
 Spatial predictors, as shown below, are smooth surfaces representing
 neighborhood among records at different spatial scales.
 
-    ## Warning: Removed 1 rows containing missing values (geom_point).
-
-    ## Warning: Removed 1 rows containing missing values (geom_point).
-
-![](README_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
 
 The spatial predictors in the spatial model have been generated using
 the method “mem.moran.sequential” (function’s default), that mimics the
@@ -519,57 +494,7 @@ minimizing the Moran’s I of the residuals and the number of MEMs added
 to the model are selected, as optimization plot below shows (dots linked
 by lines represent the selected spatial predictors).
 
-![](README_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->
-
-The addition of spatial predictors increases the number of total
-predictors used during model training (from 15 to 38), and that might
-have an impact on model performance because the hyperparameter `mtry` is
-now likely lower than it should be. Applying tuning (now using default
-sets of hyperparameters) again may help to solve the issue.
-
-``` r
-model.spatial.tuned <- rf_tuning(
-  model = model.spatial
-)
-```
-
-    ## Exploring 48 combinations of hyperparameters.
-
-    ## Best hyperparameters:
-
-    ##   - num.trees:     500
-
-    ##   - mtry:          13
-
-    ##   - min.node.size: 5
-
-![](README_files/figure-gfm/unnamed-chunk-26-1.png)<!-- --> The
-comparison of the original spatial model and the tuned one shows a small
-increase in the R squared of the model.
-
-``` r
-print_performance(model.spatial)
-```
-
-    ## 
-    ## Model performance 
-    ##   - R squared (OOB):                 0.576
-    ##   - Pseudo R squared:                0.759
-    ##   - RMSE:                            2255.182
-    ##   - Normalized RMSE:                 0.651
-
-``` r
-print_performance(model.spatial.tuned)
-```
-
-    ## 
-    ## Model performance 
-    ##   - R squared (OOB):                 0.58
-    ##   - Pseudo R squared:                0.762
-    ##   - RMSE:                            2205.843
-    ##   - Normalized RMSE:                 0.637
-
-From this point we work with the tuned spatial model.
+![](README_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
 
 ### Assessing model performance on spatially independent folds
 
@@ -580,8 +505,8 @@ performance measures, to finally aggregate them across model
 repetitions. Let’s see how it works.
 
 ``` r
-model.spatial.tuned <- rf_evaluate(
-  model = model.spatial.tuned,
+model.spatial <- rf_evaluate(
+  model = model.spatial,
   xy = plant_richness_df[, c("x", "y")], #data coordinates
   repetitions = 30,                      #number of folds
   training.fraction = 0.8,               #training data fraction
@@ -594,7 +519,7 @@ The function generates a new slot in the model named “evaluation” with
 several objects that summarize the spatial cross-validation results.
 
 ``` r
-names(model.spatial.tuned$evaluation)
+names(model.spatial$evaluation)
 ```
 
     ## [1] "training.fraction" "spatial.folds"     "per.fold"         
@@ -605,11 +530,7 @@ the indices of the training and testing cases for each cross-validation
 repetition. The maps below show two sets of training and testing spatial
 folds.
 
-    ## Warning: Removed 1 rows containing missing values (geom_point).
-
-    ## Warning: Removed 1 rows containing missing values (geom_point).
-
-![](README_files/figure-gfm/unnamed-chunk-31-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
 
 The functions `plot_evaluation()` and `print_evaluation()` allow to see
 the evaluation results as a plot or as a table. The boxplot below shows
@@ -620,10 +541,10 @@ the “Testing” data. From these performance scores, only the ones labeled
 as “Testing” represent model performance on unseen data.
 
 ``` r
-plot_evaluation(model.spatial.tuned, notch = TRUE)
+plot_evaluation(model.spatial, notch = TRUE)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-32-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->
 
 ### Comparing two models
 
@@ -636,7 +557,7 @@ a more convenient option named `rf_compare()`.
 comparison <- rf_compare(
   models = list(
     `Non-spatial` = model.non.spatial.tuned,
-    `Spatial` = model.spatial.tuned
+    `Spatial` = model.spatial
   ),
   xy = plant_richness_df[, c("x", "y")],
   metrics = c("r.squared", "rmse"),
@@ -644,14 +565,14 @@ comparison <- rf_compare(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-33-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-28-1.png)<!-- -->
 
 | Model       | Metric    |     Mean |
 |:------------|:----------|---------:|
-| Non-spatial | r.squared |    0.471 |
-| Spatial     | r.squared |    0.399 |
-| Non-spatial | rmse      | 2578.340 |
-| Spatial     | rmse      | 2755.388 |
+| Non-spatial | r.squared |    0.487 |
+| Spatial     | r.squared |    0.415 |
+| Non-spatial | rmse      | 2450.496 |
+| Spatial     | rmse      | 2694.532 |
 
 The comparison shows that the non-spatial model performed slightly
 better than the spatial on, but with overlapping notches, indicating
