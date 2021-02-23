@@ -9,6 +9,7 @@ library(exampletestr)
 library(DependenciesGraphs)
 library(rhub)
 library(spelling)
+library(pkgdown)
 
 #check in different platforms
 rhub::validate_email()
@@ -33,6 +34,21 @@ devtools::check(remote = TRUE, manual = TRUE)
 # https://github.com/ThinkR-open/prepare-for-cran
 # https://cran.r-project.org//web//packages//submission_checklist.html
 # https://win-builder.r-project.org/
+
+#preparing github actions
+usethis::use_github_action_check_standard()
+
+#preparing website
+#create new git branch for the website
+#https://ropenscilabs.github.io/actions_sandbox/websites-using-pkgdown-bookdown-and-blogdown.html
+#in the shell
+# git checkout --orphan gh-pages
+# git rm -rf .
+# git commit --allow-empty -m 'Initial gh-pages commit'
+# git push origin gh-pages
+# git checkout main
+usethis::use_pkgdown()
+usethis::use_github_action("pkgdown")
 
 #build documentation
 devtools::document()
