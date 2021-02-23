@@ -197,7 +197,9 @@ rf_spatial <- function(
     distance.matrix <- ranger.arguments$distance.matrix
     distance.thresholds <- ranger.arguments$distance.thresholds
     scaled.importance <- ranger.arguments$scaled.importance
-    repetitions <- ranger.arguments$repetitions
+    if(!is.null(ranger.arguments$repetitions)){
+      repetitions <- ranger.arguments$repetitions
+    }
     seed <- NULL
     importance <- "permutation"
   }

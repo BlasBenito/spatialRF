@@ -1,9 +1,6 @@
 #' @title Tuning of random forest hyperparameters
 #' @description Tunes the random forest hyperparameters `num.trees`, `mtry`, and `min.node.size` via grid search by maximizing the model's R squared. Two methods are available: out-of-bag (`oob`), and spatial cross-validation performed with [rf_evaluate()].
 #' @param model A model fitted with [rf()]. If provided, the training data is taken directly from the model definition (stored in `model$ranger.arguments`). Default: `NULL`
-#' @param data Data frame with a response variable and a set of predictors. Default: `NULL`
-#' @param dependent.variable.name Character string with the name of the response variable. Must be in the column names of `data`. Default: `NULL`
-#' @param predictor.variable.names Character vector with the names of the predictive variables, or output of [auto_cor()] or [auto_vif()]. Every element of this vector must be in the column names of `data`. Default: `NULL`
 #' @param method Character, "oob" to use RMSE values computed on the out-of-bag data to guide the tuning, and "spatial.cv", to use RMSE values from a spatial cross-validation on independent spatial folds done via [rf_evaluate()]. Default: `"oob"`
 #' @param num.trees Numeric integer vector with the number of trees to fit on each model repetition. Default: `c(500, 1000, 2000)`.
 #' @param mtry Numeric integer vector, number of predictors to randomly select from the complete pool of predictors on each tree split. Default: `floor(seq(1, length(predictor.variable.names), length.out = 4))`
@@ -41,9 +38,6 @@
 #' @export
 rf_tuning <- function(
   model = NULL,
-  data = NULL,
-  dependent.variable.name = NULL,
-  predictor.variable.names = NULL,
   method = c("oob", "spatial.cv"),
   num.trees = NULL,
   mtry = NULL,
@@ -71,6 +65,10 @@ rf_tuning <- function(
     choices = c("oob", "spatial.cv")
   )
 
+  if(is.null(model)){
+    stop("The argument 'model' is empty, there is no model to tune.")
+  }
+
   if(is.null(repetitions)){
     if(method == "oob"){
       repetitions <- 5
@@ -81,23 +79,13 @@ rf_tuning <- function(
   }
 
   #getting arguments from model rather than ranger.arguments
-  if(!is.null(model)){
-    ranger.arguments <- model$ranger.arguments
-    data <- ranger.arguments$data
-    dependent.variable.name <- ranger.arguments$dependent.variable.name
-    predictor.variable.names <- ranger.arguments$predictor.variable.names
-    distance.matrix <- ranger.arguments$distance.matrix
-    distance.thresholds <- ranger.arguments$distance.thresholds
-    model.class <- class(model)
-  } else {
-    distance.matrix <- NULL
-    distance.thresholds <- NULL
-  }
-
-  #predictor.variable.names comes from auto_vif or auto_cor
-  if(inherits(predictor.variable.names, "variable_selection")){
-    predictor.variable.names <- predictor.variable.names$selected.variables
-  }
+  ranger.arguments <- model$ranger.arguments
+  data <- ranger.arguments$data
+  dependent.variable.name <- ranger.arguments$dependent.variable.name
+  predictor.variable.names <- ranger.arguments$predictor.variable.names
+  distance.matrix <- ranger.arguments$distance.matrix
+  distance.thresholds <- ranger.arguments$distance.thresholds
+  model.class <- class(model)
 
   #mtry
   if(is.null(mtry)){
@@ -320,7 +308,7 @@ rf_tuning <- function(
   ranger.arguments$min.node.size <- tuning[1, "min.node.size"]
 
   #fitting tuned model
-  m <- rf(
+  model.tuned <- rf(
     data = data,
     dependent.variable.name = dependent.variable.name,
     predictor.variable.names = predictor.variable.names,
@@ -328,62 +316,69 @@ rf_tuning <- function(
     distance.matrix = distance.matrix,
     distance.thresholds = distance.thresholds,
     verbose = FALSE
-    )
-
-  #preparing tuning list
-  tuning.list <- list()
-  tuning.list$method <- method
-  tuning.list$tuning.df <- tuning
-
-  #adding tuning slot
-  m$tuning <- tuning.list
-
-  #adding plot to the tunning slot
-  m$tuning$plot <- plot_tuning(
-    x = m,
-    verbose = FALSE
-    )
+  )
 
   #aggregating importance if there are spatial predictors
-  if(sum(grepl("spatial_predictor",  m$variable.importance$per.variable$variable)) > 0){
-    m$variable.importance$spatial.predictor.stats <- aggregate_importance(x = m$variable.importance$per.variable)
+  if(sum(grepl("spatial_predictor",  model.tuned$variable.importance$per.variable$variable)) > 0){
+    model.tuned$variable.importance$spatial.predictor.stats <- aggregate_importance(x = model.tuned$variable.importance$per.variable)
   }
 
-  #class
-  if(!is.null(model)){
-    class(m) <- unique(c(class(m), model.class))
+  #keeping class
+  class(model.tuned) <- unique(c(class(model.tuned), model.class))
+
+  #comparing r squared of model and tuning
+  tuning.r.squared <- model.tuned$performance$r.squared
+  if(method == "oob"){
+    model.r.squared <- model$performance$r.squared
+  }
+  if(method == "spatial.cv"){
+   model.r.squared <- model$evaluation$aggregated[model$evaluation$aggregated$model == "Testing" & model$evaluation$aggregated$metric == "r.squared", "mean"]
   }
 
-  #message and plot
-  if(verbose == TRUE){
-    message("Best hyperparameters:")
-    message(paste0("  - num.trees:     ", tuning[1, "num.trees"]))
-    message(paste0("  - mtry:          ", tuning[1, "mtry"]))
-    message(paste0("  - min.node.size: ", tuning[1, "min.node.size"]))
-    plot_tuning(m)
-    if(!is.null(model)){
-      if(m$performance$r.squared < model$performance$r.squared){
-        warning(
-          paste0(
-            "The R squared of the tuned model (",
-            m$performance$r.squared,
-            ") is lower than the R squared of the original model (",
-            model$performance$r.squared,
-            "). Returning the original model."
-            )
-          )
-      }
+  #if there is r-squared gain
+  if(tuning.r.squared > model.r.squared){
+
+    #plot tuning
+    if(verbose == TRUE){
+      plot_tuning(model.tuned)
+      message("Best hyperparameters:")
+      message(paste0("  - num.trees:     ", tuning[1, "num.trees"]))
+      message(paste0("  - mtry:          ", tuning[1, "mtry"]))
+      message(paste0("  - min.node.size: ", tuning[1, "min.node.size"]))
+      message(paste0("R squared gain: ", tuning.r.squared - model.r.squared))
     }
+
+    #preparing tuning list
+    tuning.list <- list()
+    tuning.list$method <- method
+    tuning.list$tuning.df <- tuning
+
+    #adding tuning slot
+    model.tuned$tuning <- tuning.list
+
+    #adding plot to the tunning slot
+    model.tuned$tuning$plot <- plot_tuning(
+      x = model.tuned,
+      verbose = FALSE
+    )
+
+    return(model.tuned)
+
+    #tuned model worse than original one
+  } else {
+
+    warning(
+      paste0(
+        "The R squared of the tuned model (",
+        tuning.r.squared,
+        ") is lower than the R squared of the original model (",
+        model.r.squared,
+        "), no tuning needed, returning the original model."
+      )
+    )
+
+    return(model)
+
   }
-
-
-  #returning original model
-  if(!is.null(model)){
-    if(m$performance$r.squared < model$performance$r.squared){
-      m <- model
-    }
-  }
-
-  m
 
 }
