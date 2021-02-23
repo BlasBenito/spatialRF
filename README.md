@@ -1,13 +1,5 @@
-spatialRF: easy spatial regression with Random Forest
-================
 
--   [Introduction](#introduction)
--   [Install](#install)
--   [Working with `spatialRF`](#working-with-spatialrf)
-    -   [The example data](#the-example-data)
-    -   [The workflow](#the-workflow)
-
-.
+# `spatialRF`: easy spatial regression with Random Forest
 
 <!-- badges: start -->
 
@@ -15,7 +7,11 @@ spatialRF: easy spatial regression with Random Forest
 
 [![Devel-version](https://img.shields.io/badge/devel%20version-1.0.1-blue.svg)](https://github.com/blasbenito/spatialRF)
 
+[![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html)
+
 [![CRAN](https://img.shields.io/badge/CRAN-not_published-red)](https://github.com/blasbenito/spatialRF)
+
+[![License](https://img.shields.io/badge/licence-GPL--3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
 <!-- badges: end -->
 
 # Introduction

@@ -12,7 +12,7 @@ rf_tuning(
   min.node.size = NULL,
   xy = NULL,
   repetitions = NULL,
-  training.fraction = 0.6,
+  training.fraction = 0.8,
   verbose = TRUE,
   n.cores = NULL,
   cluster.ips = NULL,
@@ -22,7 +22,7 @@ rf_tuning(
 )
 }
 \arguments{
-\item{model}{A model fitted with \code{\link[=rf]{rf()}}. If provided, the training data is taken directly from the model definition (stored in \code{model$ranger.arguments}). Default: \code{NULL}}
+\item{model}{A model fitted with \code{\link[=rf]{rf()}}. If provided, the training data is taken directly from the model definition (stored in \code{model$ranger.arguments}). It is not recommended to tune models fitted with \code{\link[=rf_spatial]{rf_spatial()}}. Default: \code{NULL}}
 
 \item{method}{Character, "oob" to use RMSE values computed on the out-of-bag data to guide the tuning, and "spatial.cv", to use RMSE values from a spatial cross-validation on independent spatial folds done via \code{\link[=rf_evaluate]{rf_evaluate()}}. Default: \code{"oob"}}
 
@@ -36,7 +36,7 @@ rf_tuning(
 
 \item{repetitions}{Integer, number of repetitions to compute the R squared from. If \code{method = "oob"}, number of repetitions to be used in \code{\link[=rf_repeat]{rf_repeat()}} to fit models for each combination of hyperparameters. If \code{method = "spatial.cv"}, number of independent spatial folds to use during the cross-validation. Default: \code{NULL} (which yields 30 for "spatial.cv" and 5 for "oob").}
 
-\item{training.fraction}{Proportion between 0.2 and 0.8 indicating the number of records to be used in model training. Default: \code{0.6}}
+\item{training.fraction}{Proportion between 0.2 and 0.8 indicating the number of records to be used in model training. Default: \code{0.8}}
 
 \item{verbose}{Logical. If TRUE, messages and plots generated during the execution of the function are displayed, Default: \code{TRUE}}
 
