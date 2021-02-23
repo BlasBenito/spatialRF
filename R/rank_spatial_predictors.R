@@ -236,7 +236,8 @@ rank_spatial_predictors <- function(
       #out.df
       out.i <- data.frame(
         spatial.predictors.name = spatial.predictors.name.i,
-        ranking.criteria = m.i$moran.i
+        ranking.criteria = m.i$moran.i,
+        interpretation = m.i$interpretation
       )
 
     }
@@ -246,8 +247,19 @@ rank_spatial_predictors <- function(
 
   } #end of parallelized loop
 
-  #order dataframe
+  #variables to avoid check complaints
   ranking.criteria <- NULL
+  interpretation <- NULL
+
+  #getting only spatial predictors with positive spatial correlation
+  if(ranking.method == "moran"){
+    spatial.predictors.order <- dplyr::filter(
+      spatial.predictors.order,
+      interpretation == "Positive spatial correlation"
+    )
+  }
+
+  #arrainging by Moran's I
   spatial.predictors.order <- dplyr::arrange(
     spatial.predictors.order,
     dplyr::desc(ranking.criteria)
