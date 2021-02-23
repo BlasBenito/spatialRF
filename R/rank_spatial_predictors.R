@@ -177,7 +177,7 @@ rank_spatial_predictors <- function(
   #parallelized loop
   spatial.predictors.i <- NULL
   spatial.predictors.order <- foreach::foreach(
-    spatial.predictors.i = 1:ncol(spatial.predictors.df),
+    spatial.predictors.i = seq(1, ncol(spatial.predictors.df)),
     .combine = "rbind"
     ) %dopar% {
 

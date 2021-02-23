@@ -24,7 +24,7 @@ A scaled matrix or dataframe
 Scales a matrix or a data frame by the median instead of the mean. Silently removes rows with NA, non-numeric columns, and columns with variance or mode equal to 0 before scaling.
 }
 \details{
-Adapted from the \code{robustscale()} function of the \href{https://cran.r-project.org/package=quantable}{quantable} package.
+Adapted from the \code{robustscale()} function of the \href{https://cran.r-project.org/package=quantable}{quantable} package. If the robust scaling yields Nan or NA, a regular scaling with \code{scale()} is preformed.
 }
 \examples{
 \donttest{

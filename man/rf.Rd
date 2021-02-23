@@ -2,7 +2,7 @@
 % Please edit documentation in R/rf.R
 \name{rf}
 \alias{rf}
-\title{Fits random forest models and tests the spatial correlation of the residuals}
+\title{Random forest models with Moran's I test of the residuals}
 \usage{
 rf(
   data = NULL,

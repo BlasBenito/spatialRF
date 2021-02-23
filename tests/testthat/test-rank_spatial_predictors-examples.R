@@ -15,6 +15,5 @@ test_that("`rank_spatial_predictors()` works", {
   expect_named(rank, c("method", "criteria", "ranking"))
   expect_length(rank, 3)
   expect_s3_class(rank$criteria, "data.frame")
-  expect_named(rank$criteria, c("spatial.predictors.name", "ranking.criteria"))
 
 })

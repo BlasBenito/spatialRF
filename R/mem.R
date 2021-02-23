@@ -47,7 +47,7 @@ mem <- function(
   mem <- as.data.frame(mem$vectors[, which(mem.values.normalized > 0)])
 
   #adding colnames
-  colnames(mem) <- paste(colnames.prefix, 1:ncol(mem), sep = "_")
+  colnames(mem) <- paste(colnames.prefix, seq(1, ncol(mem)), sep = "_")
 
   #returning output
   mem

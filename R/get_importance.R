@@ -30,7 +30,6 @@ get_importance <- function(x){
 
   #declaring variables
   importance <- NULL
-  variable <- NULL
 
   #importance from rf
   if((inherits(x, "rf") & !inherits(x, "rf_spatial")) | (inherits(x, "rf_repeat") & !inherits(x, "rf_spatial"))){

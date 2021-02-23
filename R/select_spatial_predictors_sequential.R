@@ -206,7 +206,7 @@ select_spatial_predictors_sequential <- function(
 
   spatial.predictors.i <- NULL
   optimization.df <- foreach::foreach(
-    spatial.predictors.i = 1:length(spatial.predictors.ranking),
+    spatial.predictors.i = seq(1, length(spatial.predictors.ranking)),
     .combine = "rbind"
   ) %dopar% {
 

@@ -10,7 +10,7 @@
 #' @param center Logical. If `TRUE`, subtracts the median to center the data. Default: `TRUE`
 #' @param scale Logical. If `TRUE`, scales the data by the median absolute deviation. Default: `TRUE`
 #' @return A scaled matrix or dataframe
-#' @details Adapted from the `robustscale()` function of the [quantable](https://cran.r-project.org/package=quantable) package.
+#' @details Adapted from the `robustscale()` function of the [quantable](https://cran.r-project.org/package=quantable) package. If the robust scaling yields Nan or NA, a regular scaling with `scale()` is preformed.
 #' @examples
 #' \donttest{
 #' if(interactive()){
@@ -71,6 +71,11 @@ scale_robust <- function(
       "/"
       )
 
+  }
+
+  #if robust scaling fails, regular scaling
+  if(sum(is.nan(x[, 1])) > 0 | sum(is.infinite(x[, 1])) > 0){
+    x <- as.data.frame(scale(x))
   }
 
   x

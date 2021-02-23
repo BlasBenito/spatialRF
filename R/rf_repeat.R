@@ -437,7 +437,6 @@ rf_repeat <- function(
       ) %>%
       as.data.frame()
 
-    repetition <- NULL
     m.curves$spatial.correlation.residuals <- list()
     m.curves$spatial.correlation.residuals$per.distance <- spatial.correlation.residuals.mean
     m.curves$spatial.correlation.residuals$per.repetition <- spatial.correlation.residuals.per.repetition

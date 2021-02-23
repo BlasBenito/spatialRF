@@ -9,6 +9,14 @@ spatialRF: easy spatial regression with Random Forest
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
+<!-- badges: start -->
+[![R-CMD-check](https://github.com/BlasBenito/spatialRF/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/BlasBenito/spatialRF/actions/workflows/R-CMD-check.yaml)
+
+[![](https://img.shields.io/badge/devel%20version-1.0.1-blue.svg)](https://github.com/blasbenito/spatialRF)
+
+[![](https://img.shields.io/badge/CRAN-not_published-red)](https://github.com/blasbenito/spatialRF)
+<!-- badges: end -->
+
 # Introduction
 
 The package **spatialRF** facilitates fitting spatial regression models
@@ -28,8 +36,7 @@ matrix of the data points are implemented in the package:
 
 The package is designed to minimize the amount of code required to fit a
 spatial model from a training dataset, the names of the response and the
-predictors, and a distance matrix, as the non-runnable example below
-shows.
+predictors, and a distance matrix, as the example below shows.
 
 ``` r
 spatial.model <- rf_spatial(
@@ -271,7 +278,7 @@ plot_response_curves(model.non.spatial)
 
 ![](README_files/figure-gfm/unnamed-chunk-11-1.png)<!-- --> In the
 response curves above, the other predictors are set to their quantiles
-0.1, 0.5, and 0.8, but the user can change this behaviour by modifiying
+0.1, 0.5, and 0.8, but the user can change this behavior by modifying
 the values of the `quantiles` argument.
 
 ``` r
@@ -296,7 +303,7 @@ plot_importance(model.non.spatial, verbose = FALSE)
 **Predicting onto new data**
 
 Models fitted with `rf()` and other `rf_X()` functions within the
-pacakge can be predicted onto new data just as it is done with
+package can be predicted onto new data just as it is done with
 `ranger()` models:
 
 ``` r
@@ -471,16 +478,16 @@ If we take a look to the ten most important variables in
 
 | variable                                   | importance |
 |:-------------------------------------------|-----------:|
-| climate\_bio1\_average                     |      0.275 |
-| climate\_bio1\_average\_X\_bias\_area\_km2 |      0.255 |
-| climate\_hypervolume                       |      0.236 |
-| spatial\_predictor\_0\_2                   |      0.227 |
-| spatial\_predictor\_0\_6                   |      0.202 |
-| spatial\_predictor\_1500\_2                |      0.179 |
-| spatial\_predictor\_0\_11                  |      0.135 |
-| bias\_species\_per\_record                 |      0.109 |
-| neighbors\_count                           |      0.109 |
-| spatial\_predictor\_0\_7                   |      0.109 |
+| climate\_bio1\_average                     |      0.259 |
+| climate\_bio1\_average\_X\_bias\_area\_km2 |      0.227 |
+| climate\_hypervolume                       |      0.223 |
+| spatial\_predictor\_1500\_2                |      0.217 |
+| spatial\_predictor\_0\_6                   |      0.197 |
+| spatial\_predictor\_0\_2                   |      0.166 |
+| spatial\_predictor\_0\_7                   |      0.135 |
+| spatial\_predictor\_0\_11                  |      0.117 |
+| neighbors\_count                           |      0.112 |
+| bias\_species\_per\_record                 |      0.105 |
 
 Spatial predictors are named `spatial_predictor_X_Y`, where `X` is the
 neighborhood distance at which the predictor has been generated, and `Y`
@@ -515,7 +522,7 @@ by lines represent the selected spatial predictors).
 ![](README_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->
 
 The addition of spatial predictors increases the number of total
-predictors used during model training (from 15 to 41), and that might
+predictors used during model training (from 15 to 38), and that might
 have an impact on model performance because the hyperparameter `mtry` is
 now likely lower than it should be. Applying tuning (now using default
 sets of hyperparameters) again may help to solve the issue.
@@ -532,9 +539,9 @@ model.spatial.tuned <- rf_tuning(
 
     ##   - num.trees:     500
 
-    ##   - mtry:          27
+    ##   - mtry:          13
 
-    ##   - min.node.size: 10
+    ##   - min.node.size: 5
 
 ![](README_files/figure-gfm/unnamed-chunk-26-1.png)<!-- --> The
 comparison of the original spatial model and the tuned one shows a small
@@ -546,10 +553,10 @@ print_performance(model.spatial)
 
     ## 
     ## Model performance 
-    ##   - R squared (OOB):                 0.569
-    ##   - Pseudo R squared:                0.755
-    ##   - RMSE:                            2271.729
-    ##   - Normalized RMSE:                 0.656
+    ##   - R squared (OOB):                 0.576
+    ##   - Pseudo R squared:                0.759
+    ##   - RMSE:                            2255.182
+    ##   - Normalized RMSE:                 0.651
 
 ``` r
 print_performance(model.spatial.tuned)
@@ -557,10 +564,10 @@ print_performance(model.spatial.tuned)
 
     ## 
     ## Model performance 
-    ##   - R squared (OOB):                 0.587
-    ##   - Pseudo R squared:                0.766
-    ##   - RMSE:                            2183.907
-    ##   - Normalized RMSE:                 0.63
+    ##   - R squared (OOB):                 0.58
+    ##   - Pseudo R squared:                0.762
+    ##   - RMSE:                            2205.843
+    ##   - Normalized RMSE:                 0.637
 
 From this point we work with the tuned spatial model.
 
@@ -642,9 +649,9 @@ comparison <- rf_compare(
 | Model       | Metric    |     Mean |
 |:------------|:----------|---------:|
 | Non-spatial | r.squared |    0.471 |
-| Spatial     | r.squared |    0.397 |
+| Spatial     | r.squared |    0.399 |
 | Non-spatial | rmse      | 2578.340 |
-| Spatial     | rmse      | 2731.425 |
+| Spatial     | rmse      | 2755.388 |
 
 The comparison shows that the non-spatial model performed slightly
 better than the spatial on, but with overlapping notches, indicating

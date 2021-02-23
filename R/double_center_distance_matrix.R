@@ -43,9 +43,9 @@ double_center_distance_matrix <- function(
   #compute col means
   x.col.means <- t(x*0 + colMeans(x))
   #double centering
-  x.double.centered <- x - x.row.means - x.col.means + mean(x[])
+  x.double.centered <- (x - x.row.means - x.col.means + mean(x[]))
 
   #return output
-  x
+  x.double.centered
 
 }

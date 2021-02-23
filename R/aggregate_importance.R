@@ -55,6 +55,7 @@ aggregate_importance <- function(x){
   )
 
   #final data frame
+  importance <- NULL
   out <- rbind(
     non.spatial.predictors,
     spatial.predictors.stats

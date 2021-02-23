@@ -58,7 +58,6 @@ rf_interactions <- function(
 
   #declaring variables
   variable <- NULL
-  interaction.r.squared.gain <- NULL
   y <- NULL
 
   #fitting model if absent
@@ -92,9 +91,6 @@ rf_interactions <- function(
   data <- ranger.arguments$data
   dependent.variable.name <- ranger.arguments$dependent.variable.name
   predictor.variable.names <- ranger.arguments$predictor.variable.names
-  scaled.importance <- ranger.arguments$scaled.importance
-  importance <- "permutation"
-  local.importance <- FALSE
 
   #select variables to test
   if(is.null(importance.threshold)){
@@ -201,7 +197,7 @@ rf_interactions <- function(
   #testing interactions
   i <- NULL
   interaction.screening <- foreach::foreach(
-    i = 1:nrow(variables.pairs),
+    i = seq(1, nrow(variables.pairs)),
     .combine = "rbind"
   ) %dopar% {
 
@@ -316,7 +312,7 @@ rf_interactions <- function(
   interaction.df <- data.frame(
     dummy.column = rep(NA, nrow(data))
   )
-  for(i in 1:nrow(interaction.screening.selected)){
+  for(i in seq(1, nrow(interaction.screening.selected))){
 
     #get interaction values
     pair.i.1 <- rescale_vector(

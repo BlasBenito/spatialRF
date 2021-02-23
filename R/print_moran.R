@@ -37,13 +37,6 @@
 #' @importFrom dplyr group_by summarise arrange
 print_moran <- function(x, caption = NULL, verbose = TRUE){
 
-  #declaring variables
-  model <- NULL
-  distance.threshold <- NULL
-  moran.i <- NULL
-  p.value <- NULL
-  interpretation <- NULL
-
   #if x is not a data frame
   if(inherits(x, "rf") | inherits(x, "rf_repeat") | inherits(x, "rf_spatial")){
       x <- x$spatial.correlation.residuals$per.distance

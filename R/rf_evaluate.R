@@ -132,7 +132,7 @@ rf_evaluate <- function(
   }
 
   #add id to data and xy
-  data$id <- xy$id <- 1:nrow(data)
+  data$id <- xy$id <- seq(1, nrow(data))
 
   #thinning coordinates to get a more systematic sample of reference points
   if(repetitions < nrow(xy)){
@@ -241,7 +241,7 @@ rf_evaluate <- function(
   #loop to evaluate models
   #####################################
   evaluation.df <- foreach::foreach(
-    i = 1:length(spatial.folds),
+    i = seq(1, length(spatial.folds)),
     .combine = "rbind"
     ) %dopar% {
 
@@ -352,7 +352,7 @@ rf_evaluate <- function(
   #to long format
   performance.df.long <- performance.df %>%
     tidyr::pivot_longer(
-      cols = 1:length(metrics),
+      cols = seq(1, length(metrics)),
       names_to = "metric",
       values_to = "value"
     ) %>%

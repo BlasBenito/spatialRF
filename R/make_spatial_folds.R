@@ -53,7 +53,7 @@ make_spatial_folds <- function(
   #parallelized loop
   i <- NULL
   spatial.folds <- foreach::foreach(
-    i = 1:nrow(xy.selected)
+    i = seq(1, nrow(xy.selected), by = 1)
   ) %do% {
 
     spatial.fold.i <- spatialRF::make_spatial_fold(

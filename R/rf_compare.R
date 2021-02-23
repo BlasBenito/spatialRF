@@ -59,7 +59,6 @@ rf_compare <- function(
   #declaring variables
   model <- NULL
   value <- NULL
-  metric <- NULL
 
   #capturing user options
   user.options <- options()

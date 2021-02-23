@@ -13,9 +13,9 @@ README.Rmd
 README_files
 checking_optimized_algorithm.R
 cran-comments.md
-tests
 _config.yml
 ^_pkgdown\.yml$
 ^docs$
 ^pkgdown$
 ^\.github$
+tests

@@ -57,7 +57,6 @@ make_spatial_fold <- function(
   }
 
   #getting details of xy.i
-  xy.i.id <- xy.i[1, "id"]
   xy.i.x <- xy.i[1, "x"]
   xy.i.y <- xy.i[1, "y"]
 

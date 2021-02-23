@@ -32,7 +32,7 @@ cluster_specification <- function(
   #creating initial list
   spec <- list()
 
-  for(i in 1:length(cluster.ips)){
+  for(i in seq(1, length(cluster.ips), by = 1)){
     spec[[i]] <- list()
     spec[[i]]$host <- cluster.ips[i]
     spec[[i]]$user <- cluster.user

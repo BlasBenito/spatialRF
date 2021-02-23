@@ -60,7 +60,6 @@ rf_tuning <- function(
 ){
 
   #declaring variables
-  value <- NULL
   r.squared <- NULL
   num.trees.i <- NULL
   mtry.i <- NULL
@@ -89,7 +88,6 @@ rf_tuning <- function(
     predictor.variable.names <- ranger.arguments$predictor.variable.names
     distance.matrix <- ranger.arguments$distance.matrix
     distance.thresholds <- ranger.arguments$distance.thresholds
-    scaled.importance <- ranger.arguments$scaled.importance
     model.class <- class(model)
   } else {
     distance.matrix <- NULL
@@ -352,7 +350,9 @@ rf_tuning <- function(
   }
 
   #class
-  class(m) <- unique(c(class(m), model.class))
+  if(!is.null(model)){
+    class(m) <- unique(c(class(m), model.class))
+  }
 
   #message and plot
   if(verbose == TRUE){

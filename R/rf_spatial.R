@@ -197,7 +197,7 @@ rf_spatial <- function(
     distance.matrix <- ranger.arguments$distance.matrix
     distance.thresholds <- ranger.arguments$distance.thresholds
     scaled.importance <- ranger.arguments$scaled.importance
-    repetitioins <- ranger.arguments$repetitions
+    repetitions <- ranger.arguments$repetitions
     seed <- NULL
     importance <- "permutation"
   }
@@ -296,7 +296,7 @@ rf_spatial <- function(
 
     #change name of distance matrix
     spatial.predictors.df <- distance.matrix
-    colnames(spatial.predictors.df) <- rownames(spatial.predictors.df) <- paste0("spatial_predictor_", 1:ncol(distance.matrix))
+    colnames(spatial.predictors.df) <- rownames(spatial.predictors.df) <- paste0("spatial_predictor_", seq(1, ncol(distance.matrix)))
 
     if(verbose == TRUE){
       message("Using the distance matrix columns as spatial predictors.")

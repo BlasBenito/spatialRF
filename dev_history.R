@@ -10,6 +10,7 @@ library(DependenciesGraphs)
 library(rhub)
 library(spelling)
 library(pkgdown)
+library(lintr)
 
 #check in different platforms
 rhub::validate_email()
@@ -35,6 +36,9 @@ devtools::check(remote = TRUE, manual = TRUE)
 # https://cran.r-project.org//web//packages//submission_checklist.html
 # https://win-builder.r-project.org/
 
+#about badges
+# https://www.rostrum.blog/2020/05/08/readme-badge/
+
 #preparing github actions
 usethis::use_github_action_check_standard()
 
@@ -55,6 +59,9 @@ usethis::use_github_action("pkgdown")
 #build documentation
 devtools::document()
 devtools::build_manual()
+
+#lintr
+lintr::lint_dir("R")
 
 #TO CHECK
 ########################################

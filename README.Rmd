@@ -11,9 +11,11 @@ always_allow_html: yes
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
   <!-- badges: start -->
-  [![R build status](https://github.com/BlasBenito/spatialRF/workflows/R-CMD-check/badge.svg)](https://github.com/BlasBenito/spatialRF/actions)
-  
   [![R-CMD-check](https://github.com/BlasBenito/spatialRF/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/BlasBenito/spatialRF/actions/workflows/R-CMD-check.yaml)
+  
+  [![](https://img.shields.io/badge/devel%20version-1.0.1-blue.svg)](https://github.com/blasbenito/spatialRF)
+  
+  [![](https://img.shields.io/badge/CRAN-not_published-red)](https://github.com/blasbenito/spatialRF)
   <!-- badges: end -->
 
 
@@ -28,7 +30,7 @@ Two main methods to generate *spatial predictors* from the distance matrix of th
   + Principal coordinate analysis of neighbor matrices [(Dray, Legendre, and Peres-Neto 2006)](https://www.sciencedirect.com/science/article/abs/pii/S0304380006000925).
   + Distance matrix columns as explanatory variables [(Hengl et al. 2018)](https://peerj.com/articles/5518/).
   
-The package is designed to minimize the amount of code required to fit a spatial model from a training dataset, the names of the response and the predictors, and a distance matrix, as the non-runnable example below shows.
+The package is designed to minimize the amount of code required to fit a spatial model from a training dataset, the names of the response and the predictors, and a distance matrix, as the example below shows.
 
 ```{r, eval=FALSE}
 spatial.model <- rf_spatial(
@@ -216,7 +218,7 @@ The model output can be printed or plotted with a plethora of functions such as 
 ```{r, fig.width = 12, fig.height=7.5}
 plot_response_curves(model.non.spatial)
 ```
-In the response curves above, the other predictors are set to their quantiles 0.1, 0.5, and 0.8, but the user can change this behaviour by modifiying the values of the `quantiles` argument.
+In the response curves above, the other predictors are set to their quantiles 0.1, 0.5, and 0.8, but the user can change this behavior by modifying the values of the `quantiles` argument.
 
 ```{r, fig.height = 4, fig.width=6}
 plot_response_surfaces(
@@ -234,7 +236,7 @@ plot_importance(model.non.spatial, verbose = FALSE)
 
 **Predicting onto new data**
 
-Models fitted with `rf()` and other `rf_X()` functions within the pacakge can be predicted onto new data just as it is done with `ranger()` models:
+Models fitted with `rf()` and other `rf_X()` functions within the package can be predicted onto new data just as it is done with `ranger()` models:
 
 ```{r}
 predicted <- stats::predict(
@@ -368,7 +370,9 @@ p1 <- ggplot2::ggplot() +
   ggplot2::scale_x_continuous(limits = c(-170, -30)) +
   ggplot2::scale_y_continuous(limits = c(-58, 75))  +
   ggplot2::ggtitle("Variable: spatial_predictor_1500_2") + 
-  ggplot2::theme(legend.position = "bottom")
+  ggplot2::theme(legend.position = "bottom")+ 
+  ggplot2::xlab("") + 
+  ggplot2::ylab("")
 
 p2 <- ggplot2::ggplot() +
   ggplot2::geom_sf(data = world, fill = "white") +
@@ -387,7 +391,9 @@ p2 <- ggplot2::ggplot() +
   ggplot2::scale_x_continuous(limits = c(-170, -30)) +
   ggplot2::scale_y_continuous(limits = c(-58, 75))  +
   ggplot2::ggtitle("Variable: spatial_predictor_0_6") + 
-  ggplot2::theme(legend.position = "bottom")
+  ggplot2::theme(legend.position = "bottom") + 
+  ggplot2::xlab("") + 
+  ggplot2::ylab("")
 
 p1 | p2
 

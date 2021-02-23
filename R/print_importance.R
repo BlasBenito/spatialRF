@@ -35,7 +35,7 @@ print_importance <- function(x, verbose = TRUE){
 
   #declaring variables
   importance <- NULL
-  variable <- NULL
+
 
   #if x is not a data frame
   if(!is.data.frame(x)){

@@ -40,8 +40,8 @@ moran_multithreshold <- function(
 ){
 
   #declaring variables to avoid check complaints
-  distance.threshold <- NULL
-  moran.i <- NULL
+  # distance.threshold <- NULL
+  # moran.i <- NULL
 
   #check x and distance matrix
   if(is.null(x) | !is.vector(x)){
@@ -78,7 +78,7 @@ moran_multithreshold <- function(
   )
 
   #iterating over out.df
-  for(i in 1:nrow(out.df)){
+  for(i in seq(1, nrow(out.df))){
 
     #compute Moran's I
     moran.out <- moran(

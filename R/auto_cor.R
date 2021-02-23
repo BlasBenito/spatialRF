@@ -73,7 +73,7 @@ auto_cor <- function(
 
 
   #iterating through columns
-  for(i in ncol(x.cor):1){
+  for(i in seq(ncol(x.cor), 1)){
 
     #compute max
     x.cor.max <- apply(x.cor, 2, FUN = max)
