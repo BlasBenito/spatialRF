@@ -14,6 +14,7 @@
 [![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html)
 [![CRAN](https://img.shields.io/badge/CRAN-not_published-red)](https://github.com/blasbenito/spatialRF)
 [![License](https://img.shields.io/badge/licence-GPL--3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
+
 <!-- badges: end -->
 
 # Introduction
@@ -275,10 +276,11 @@ such as `print()`, `print_importance()`, `print_performance()`,
 plot_response_curves(model.non.spatial)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-11-1.png)<!-- --> In the
-response curves above, the other predictors are set to their quantiles
-0.1, 0.5, and 0.8, but the user can change this behavior by modifying
-the values of the `quantiles` argument.
+![](README_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+
+In the response curves above, the other predictors are set to their
+quantiles 0.1, 0.5, and 0.8, but the user can change this behavior by
+modifying the values of the `quantiles` argument.
 
 ``` r
 plot_response_surfaces(
