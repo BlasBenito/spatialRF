@@ -219,8 +219,6 @@ select_spatial_predictors_optimized <- function(
     optimized.index.tracking[i] <- optimization.df[which.max(optimization.df$optimization), "spatial.predictor.index"]
 
     #finding repetitions in the maximum value of optimized index
-    print(optimized.index.tracking)
-
     if(sum(optimized.index.tracking == max(optimized.index.tracking)) > floor(nrow(optimization.df)/5)){
       break
     }
