@@ -301,6 +301,11 @@ rf_tuning <- function(
   ) %>%
     dplyr::arrange(dplyr::desc(r.squared))
 
+  #preparing tuning list
+  tuning.list <- list()
+  tuning.list$method <- method
+  tuning.list$tuning.df <- tuning
+
   #preparing ranger arguments
   ranger.arguments <- list()
   ranger.arguments$num.trees <- tuning[1, "num.trees"]
@@ -322,6 +327,17 @@ rf_tuning <- function(
   if(sum(grepl("spatial_predictor",  model.tuned$variable.importance$per.variable$variable)) > 0){
     model.tuned$variable.importance$spatial.predictor.stats <- aggregate_importance(x = model.tuned$variable.importance$per.variable)
   }
+
+
+  #adding tuning slot
+  model.tuned$tuning <- tuning.list
+
+  #adding plot to the tunning slot
+  model.tuned$tuning$plot <- plot_tuning(
+    x = model.tuned,
+    verbose = FALSE
+  )
+
 
   #keeping class
   class(model.tuned) <- unique(c(class(model.tuned), model.class))
@@ -348,20 +364,6 @@ rf_tuning <- function(
       message(paste0("R squared gain: ", tuning.r.squared - model.r.squared))
     }
 
-    #preparing tuning list
-    tuning.list <- list()
-    tuning.list$method <- method
-    tuning.list$tuning.df <- tuning
-
-    #adding tuning slot
-    model.tuned$tuning <- tuning.list
-
-    #adding plot to the tunning slot
-    model.tuned$tuning$plot <- plot_tuning(
-      x = model.tuned,
-      verbose = FALSE
-    )
-
     return(model.tuned)
 
     #tuned model worse than original one
@@ -376,6 +378,19 @@ rf_tuning <- function(
         "), no tuning needed, returning the original model."
       )
     )
+
+    #adding tuning slot
+    model$tuning <- tuning.list
+
+    #adding plot to the tunning slot
+    model$tuning$plot <- plot_tuning(
+      x = model,
+      verbose = FALSE
+    )
+
+    if(verbose == TRUE){
+      plot_tuning(model)
+    }
 
     return(model)
 
