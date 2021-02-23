@@ -10,6 +10,14 @@ always_allow_html: yes
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
+  <!-- badges: start -->
+  [![R build status](https://github.com/BlasBenito/spatialRF/workflows/R-CMD-check/badge.svg)](https://github.com/BlasBenito/spatialRF/actions)
+  
+  [![R-CMD-check](https://github.com/BlasBenito/spatialRF/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/BlasBenito/spatialRF/actions/workflows/R-CMD-check.yaml)
+  <!-- badges: end -->
+
+
+
 # Introduction
 
 The package **spatialRF** facilitates fitting spatial regression models on regular or irregular data with Random Forest by generating *spatial predictors* that allow the model to take into account the spatial structure of the training data. The end goal is minimizing the spatial autocorrelation of the model residuals as much as possible. 

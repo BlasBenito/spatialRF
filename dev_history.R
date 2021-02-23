@@ -47,6 +47,8 @@ usethis::use_github_action_check_standard()
 # git commit --allow-empty -m 'Initial gh-pages commit'
 # git push origin gh-pages
 # git checkout main
+
+#https://www.rostrum.blog/2020/08/09/ghactions-pkgs/
 usethis::use_pkgdown()
 usethis::use_github_action("pkgdown")
 
