@@ -156,19 +156,12 @@ select_spatial_predictors_optimized <- function(
 
     i <- i + 1
 
-    #subset and order spatial.predictors
-    spatial.predictors.df.i <- spatial.predictors.df[, spatial.predictors.candidates.i, drop = FALSE]
-
     #add the first factor to data
     data.i <- data.frame(
       data.i,
       spatial.predictors.df[, spatial.predictors.candidates.i[1]]
     )
     colnames(data.i)[ncol(data.i)] <- spatial.predictors.candidates.i[1]
-
-
-    #remove used column from spatial.predictors.df
-    spatial.predictors.df.i <- spatial.predictors.df.i[, colnames(spatial.predictors.df.i) != spatial.predictors.candidates.i[1], drop = FALSE]
 
     #new predictor.variable.names
     predictor.variable.names.i <- c(
@@ -178,6 +171,9 @@ select_spatial_predictors_optimized <- function(
 
     #reference moran I
     reference.moran.i <- spatial.predictors.ranking.i$criteria[spatial.predictors.ranking.i$criteria$spatial.predictors.name == spatial.predictors.candidates.i[1], "moran.i"]
+
+    #subset and order spatial.predictors
+    spatial.predictors.df.i <- spatial.predictors.df[, spatial.predictors.candidates.i[2:length(spatial.predictors.candidates.i)], drop = FALSE]
 
     #rank pca factors
     spatial.predictors.ranking.i <- rank_spatial_predictors(
@@ -200,6 +196,10 @@ select_spatial_predictors_optimized <- function(
 
     #redo spatial.predictors.candidates.i
     spatial.predictors.candidates.i <- spatial.predictors.ranking.i$ranking
+
+    #remove the last 1% of candidates EXPERIMENT TO SPEED UP FUNCTION EXECUTION
+    five.percent <- ceiling((5 * length(spatial.predictors.candidates.i))/100)
+    spatial.predictors.candidates.i <- spatial.predictors.candidates.i[(length(spatial.predictors.candidates.i) - five.percent):length(spatial.predictors.candidates.i)]
 
     #gathering data for optimization df.
     if(length(spatial.predictors.candidates.i) > 0){
