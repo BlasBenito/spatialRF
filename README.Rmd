@@ -277,9 +277,9 @@ Model tuning can be done on out-of-bag (`method = "oob"`) or spatial cross-valid
 model.non.spatial.tuned <- rf_tuning(
   model = model.non.spatial,
   method = "oob",
-  num.trees = c(500, 750, 1000),
-  mtry = c(5, 10, 14),
-  min.node.size = c(5, 10, 15)
+  num.trees = c(500, 1000, 1500),
+  mtry = seq(2, 14, by = 2),
+  min.node.size = c(5, 10, 20)
 )
 ```
 

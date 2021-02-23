@@ -59,7 +59,6 @@ plot_tuning <- function(x, verbose = TRUE){
       fill = r.squared
     )) +
     ggplot2::geom_smooth(
-      method = "lm",
       se = TRUE,
       color = "gray20",
       alpha = 0.5,
@@ -87,7 +86,7 @@ plot_tuning <- function(x, verbose = TRUE){
       )
 
   if(verbose == TRUE){
-    print(p)
+    suppressWarnings(suppressMessages(print(p)))
   }
 
 }

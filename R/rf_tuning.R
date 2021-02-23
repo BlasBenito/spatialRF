@@ -377,13 +377,13 @@ rf_tuning <- function(
   }
 
 
-  #returning output
+  #returning original model
   if(!is.null(model)){
     if(m$performance$r.squared < model$performance$r.squared){
-      return(model)
+      m <- model
     }
-  } else {
-    return(m)
   }
+
+  m
 
 }
