@@ -1,4 +1,4 @@
-test_that("`select_spatial_predictors_optimized()` works", {
+test_that("`select_spatial_predictors_recursive()` works", {
   data("distance_matrix")
   data("plant_richness_df")
   data <- plant_richness_df
@@ -29,7 +29,7 @@ test_that("`select_spatial_predictors_optimized()` works", {
     reference.moran.i = model$spatial.correlation.residuals$max.moran,
     n.cores = 1
   )
-  selection <- select_spatial_predictors_optimized(
+  selection <- select_spatial_predictors_recursive(
     data = data,
     dependent.variable.name = dependent.variable.name,
     predictor.variable.names = predictor.variable.names,

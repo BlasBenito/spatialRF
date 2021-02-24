@@ -1,6 +1,6 @@
 #' @title Optimization equation to select spatial predictors
 #' @description Optimizes the selection of spatial predictors using two different methods: "moran.i", and "p.value".
-#' @param x Optimization data frame generated internally by [select_spatial_predictors_optimized()] or [select_spatial_predictors_optimized()]. Default: `NULL`
+#' @param x Optimization data frame generated internally by [select_spatial_predictors_sequential()] or [select_spatial_predictors_recursive()]. Default: `NULL`
 #' @param weight.r.squared Numeric between 0 and 1, weight of R-squared in the optimization process. Default: `NULL`
 #' @param weight.penalization.n.predictors Numeric between 0 and 1, weight of the penalization on the number of added spatial predictors. Default: `NULL`
 #' @param optimization.method Character, one of "moran.i", and "p.value". Default: `"moran.i"`
@@ -16,7 +16,7 @@
 #' max(1 - Moran's I, binary p-value) + w1 * r.squared - w2 * penalization
 #'
 #' The "moran.i" method generally selects more spatial predictors than the "p.value" method.
-#' @seealso [select_spatial_predictors_optimized()], [select_spatial_predictors_optimized()]
+#' @seealso [select_spatial_predictors_recursive()], [select_spatial_predictors_sequential()]
 #' @rdname optimization_function
 #' @export
 optimization_function <- function(

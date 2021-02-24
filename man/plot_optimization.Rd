@@ -10,7 +10,7 @@ plot_optimization(
 )
 }
 \arguments{
-\item{x}{A model produced by \code{\link[=rf_spatial]{rf_spatial()}}, or an optimization data frame produced by \code{\link[=select_spatial_predictors_sequential]{select_spatial_predictors_sequential()}} or \code{\link[=select_spatial_predictors_optimized]{select_spatial_predictors_optimized()}}.}
+\item{x}{A model produced by \code{\link[=rf_spatial]{rf_spatial()}}, or an optimization data frame produced by \code{\link[=select_spatial_predictors_sequential]{select_spatial_predictors_sequential()}} or \code{\link[=select_spatial_predictors_recursive]{select_spatial_predictors_recursive()}}.}
 
 \item{verbose}{Logical, if \code{TRUE} the plot is printed. Default: \code{TRUE}}
 }
@@ -19,7 +19,7 @@ A ggplot.
 }
 \description{
 Plots optimization data frames produced by \code{\link[=select_spatial_predictors_sequential]{select_spatial_predictors_sequential()}}
-and \code{\link[=select_spatial_predictors_optimized]{select_spatial_predictors_optimized()}}.
+and \code{\link[=select_spatial_predictors_recursive]{select_spatial_predictors_recursive()}}.
 }
 \details{
 If the method used to fit a model with \code{\link[=rf_spatial]{rf_spatial()}} is "hengl", the function returns nothing, as this method does not require optimization.

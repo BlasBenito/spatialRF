@@ -12,7 +12,7 @@ optimization_function(
 )
 }
 \arguments{
-\item{x}{Optimization data frame generated internally by \code{\link[=select_spatial_predictors_optimized]{select_spatial_predictors_optimized()}} or \code{\link[=select_spatial_predictors_optimized]{select_spatial_predictors_optimized()}}. Default: \code{NULL}}
+\item{x}{Optimization data frame generated internally by \code{\link[=select_spatial_predictors_sequential]{select_spatial_predictors_sequential()}} or \code{\link[=select_spatial_predictors_recursive]{select_spatial_predictors_recursive()}}. Default: \code{NULL}}
 
 \item{weight.r.squared}{Numeric between 0 and 1, weight of R-squared in the optimization process. Default: \code{NULL}}
 
@@ -38,5 +38,5 @@ max(1 - Moran's I, binary p-value) + w1 * r.squared - w2 * penalization
 The "moran.i" method generally selects more spatial predictors than the "p.value" method.
 }
 \seealso{
-\code{\link[=select_spatial_predictors_optimized]{select_spatial_predictors_optimized()}}, \code{\link[=select_spatial_predictors_optimized]{select_spatial_predictors_optimized()}}
+\code{\link[=select_spatial_predictors_recursive]{select_spatial_predictors_recursive()}}, \code{\link[=select_spatial_predictors_sequential]{select_spatial_predictors_sequential()}}
 }
