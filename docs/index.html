@@ -388,7 +388,7 @@
   <span class="kw">method</span> <span class="kw">=</span> <span class="st">"spatial.cv"</span>,
   <span class="kw">xy</span> <span class="kw">=</span> <span class="no">plant_richness_df</span>[, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"x"</span>, <span class="st">"y"</span>)],
   <span class="kw">repetitions</span> <span class="kw">=</span> <span class="fl">30</span>,
-  <span class="kw">num.trees</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">1000</span>, <span class="fl">3000</span>),
+  <span class="kw">num.trees</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">500</span>, <span class="fl">1000</span>),
   <span class="kw">mtry</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span>(
     <span class="fl">2</span>,
     <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span>(<span class="no">model.spatial</span>$<span class="no">ranger.arguments</span>$<span class="no">predictor.variable.names</span>),
@@ -399,20 +399,20 @@
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="do">## Best hyperparameters:</span></span>
 <span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="do">##   - num.trees:     3000</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="do">##   - num.trees:     1000</span></span>
 <span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a><span class="do">##   - mtry:          47</span></span>
 <span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a><span class="do">##   - min.node.size: 5</span></span>
 <span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a><span class="do">## R squared gain: 0.016</span></span></code></pre></div>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a><span class="do">## R squared gain: 0.015</span></span></code></pre></div>
 <p><img src="README_files/figure-gfm/unnamed-chunk-24-1.png"><!-- --></p>
 </div>
 <div id="assessing-model-performance-on-spatially-independent-folds" class="section level3">
 <h3 class="hasAnchor">
 <a href="#assessing-model-performance-on-spatially-independent-folds" class="anchor"></a>Assessing model performance on spatially independent folds</h3>
 <p>The function <a href="https://blasbenito.github.io/spatialRF/reference/rf_evaluate.html"><code><a href="reference/rf_evaluate.html">rf_evaluate()</a></code></a> separates the training data into a number of spatially independent training and testing folds, fits a model on each training fold, predicts over each testing fold, and computes performance measures, to finally aggregate them across model repetitions. Let’s see how it works.</p>
-<div class="sourceCode" id="cb24"><pre class="r"><span class="no">model.spatial</span> <span class="kw">&lt;-</span> <span class="fu"><a href="reference/rf_evaluate.html">rf_evaluate</a></span>(
+<div class="sourceCode" id="cb24"><pre class="r"><span class="no">model.spatial.tuned</span> <span class="kw">&lt;-</span> <span class="fu"><a href="reference/rf_evaluate.html">rf_evaluate</a></span>(
   <span class="kw">model</span> <span class="kw">=</span> <span class="no">model.spatial.tuned</span>,
   <span class="kw">xy</span> <span class="kw">=</span> <span class="no">plant_richness_df</span>[, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"x"</span>, <span class="st">"y"</span>)], <span class="co">#data coordinates</span>
   <span class="kw">repetitions</span> <span class="kw">=</span> <span class="fl">30</span>,                      <span class="co">#number of folds</span>
@@ -422,8 +422,7 @@
 )</pre></div>
 <p>The function generates a new slot in the model named “evaluation” with several objects that summarize the spatial cross-validation results.</p>
 <div class="sourceCode" id="cb25"><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span>(<span class="no">model.spatial</span>$<span class="no">evaluation</span>)</pre></div>
-<div class="sourceCode" id="cb26"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] "training.fraction" "spatial.folds"     "per.fold"         </span></span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="do">## [4] "per.fold.long"     "per.model"         "aggregated"</span></span></code></pre></div>
+<div class="sourceCode" id="cb26"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="do">## NULL</span></span></code></pre></div>
 <p>The slot “spatial.folds”, produced by <a href="https://blasbenito.github.io/spatialRF/reference/make_spatial_folds.html"><code><a href="reference/make_spatial_folds.html">make_spatial_folds()</a></code></a>, contains the indices of the training and testing cases for each cross-validation repetition. The maps below show two sets of training and testing spatial folds.</p>
 <p><img src="README_files/figure-gfm/unnamed-chunk-27-1.png"><!-- --></p>
 <p>The functions <a href="https://blasbenito.github.io/spatialRF/reference/plot_evaluation.html"><code><a href="reference/plot_evaluation.html">plot_evaluation()</a></code></a> and <a href="https://blasbenito.github.io/spatialRF/reference/print_evaluation.html"><code><a href="reference/print_evaluation.html">print_evaluation()</a></code></a> allow to check the evaluation results as a plot or as a table. The boxplot below shows the original performance scores of the “Full” model (<code>model.spatial.tuned</code>), and the distribution of performance scores of the model fitted on the training data (“Training”), its prediction over the “Testing” data. From these performance scores, only the ones labeled as “Testing” represent model performance on unseen data.</p>
@@ -431,9 +430,9 @@
 <p><img src="README_files/figure-gfm/unnamed-chunk-28-1.png"><!-- --></p>
 <p>The plot shows that the spatial model does a lousy job in predicting over unseen data.</p>
 </div>
-<div id="comparing-two-models" class="section level3">
+<div id="comparing-several-models" class="section level3">
 <h3 class="hasAnchor">
-<a href="#comparing-two-models" class="anchor"></a>Comparing two models</h3>
+<a href="#comparing-several-models" class="anchor"></a>Comparing several models</h3>
 <p>The function <code><a href="reference/rf_evaluate.html">rf_evaluate()</a></code> only assesses the predictive performance on unseen data of one model at a time. If the goal is to compare two models, <code><a href="reference/rf_evaluate.html">rf_evaluate()</a></code> can be indeed ran twice, but <code>spatialRF</code> offers a more convenient option named <a href="https://blasbenito.github.io/spatialRF/reference/rf_compare.html"><code><a href="reference/rf_compare.html">rf_compare()</a></code></a>. It takes as input a named list with as many models as the user needs to compare.</p>
 <div class="sourceCode" id="cb28"><pre class="r"><span class="no">comparison</span> <span class="kw">&lt;-</span> <span class="fu"><a href="reference/rf_compare.html">rf_compare</a></span>(
   <span class="kw">models</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(
@@ -467,12 +466,12 @@
 <tr class="odd">
 <td align="left">Spatial</td>
 <td align="left">r.squared</td>
-<td align="right">0.460</td>
+<td align="right">0.478</td>
 </tr>
 <tr class="even">
 <td align="left">Spatial tuned</td>
 <td align="left">r.squared</td>
-<td align="right">0.460</td>
+<td align="right">0.458</td>
 </tr>
 <tr class="odd">
 <td align="left">Non-spatial</td>
@@ -487,16 +486,16 @@
 <tr class="odd">
 <td align="left">Spatial</td>
 <td align="left">rmse</td>
-<td align="right">2502.014</td>
+<td align="right">2503.165</td>
 </tr>
 <tr class="even">
 <td align="left">Spatial tuned</td>
 <td align="left">rmse</td>
-<td align="right">2502.014</td>
+<td align="right">2504.872</td>
 </tr>
 </tbody>
 </table>
-<p>The comparison shows that the non-spatial model performed slightly better than the spatial on, but with overlapping notches, indicating that the medians of the R squared and RMSE distributions are not statistically different. That is a small trade-off considering that the spatial model incorporates information about the spatial structure of the data, and its residuals show no spatial autocorrelation.</p>
+<p>The comparison shows that the non-spatial models performed slightly better than the spatial ones, but with overlapping notches, indicating that the medians of the R squared and RMSE distributions are not statistically different. That is a small trade-off, considering that the spatial model incorporates information about the spatial structure of the data, and its residuals are not spatially correlated.</p>
 </div>
 </div>
 </div>

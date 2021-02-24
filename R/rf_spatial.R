@@ -264,7 +264,7 @@ rf_spatial <- function(
     #computing pca factors for pca methods
     spatial.predictors.df <- pca_multithreshold(
       x = distance.matrix,
-      distance.thresholds =  model.moran.i$distance.threshold,
+      distance.thresholds =  distance.thresholds,
       max.spatial.predictors = max.spatial.predictors
     )
 

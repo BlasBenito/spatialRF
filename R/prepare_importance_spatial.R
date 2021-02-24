@@ -26,6 +26,9 @@
 #' @export
 prepare_importance_spatial <- function(x){
 
+  importance <- NULL
+  variable <- NULL
+
   #no rf repeat
   if(!inherits(x, "rf_repeat")){
 

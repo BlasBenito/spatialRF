@@ -380,6 +380,9 @@ rf_evaluate <- function(
   }
 
   #add spatial folds to the model
+  if("evaluation" %in% names(model)){
+    model$evaluation <- NULL
+  }
   model$evaluation <- list()
   model$evaluation$training.fraction <- training.fraction
   model$evaluation$spatial.folds <- spatial.folds

@@ -329,7 +329,7 @@ kableExtra::kbl(
   head(model.spatial$variable.importance$per.variable, n = 10),
   format = "markdown"
 ) %>%
-  kable_paper("hover", full_width = F)
+  kableExtra::kable_paper("hover", full_width = F)
 ```
 
 Spatial predictors are named `spatial_predictor_X_Y`, where `X` is the neighborhood distance at which the predictor has been generated, and `Y` is the index of the predictor.
@@ -406,7 +406,7 @@ model.spatial.tuned <- rf_tuning(
   method = "spatial.cv",
   xy = plant_richness_df[, c("x", "y")],
   repetitions = 30,
-  num.trees = c(1000, 3000),
+  num.trees = c(500, 1000),
   mtry = seq(
     2,
     length(model.spatial$ranger.arguments$predictor.variable.names),
@@ -421,7 +421,7 @@ model.spatial.tuned <- rf_tuning(
 The function [`rf_evaluate()`](https://blasbenito.github.io/spatialRF/reference/rf_evaluate.html) separates the training data into a number of spatially independent training and testing folds, fits a model on each training fold, predicts over each testing fold, and computes performance measures, to finally aggregate them across model repetitions. Let's see how it works.
 
 ```{r}
-model.spatial <- rf_evaluate(
+model.spatial.tuned <- rf_evaluate(
   model = model.spatial.tuned,
   xy = plant_richness_df[, c("x", "y")], #data coordinates
   repetitions = 30,                      #number of folds

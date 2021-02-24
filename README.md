@@ -539,7 +539,7 @@ model.spatial.tuned <- rf_tuning(
   method = "spatial.cv",
   xy = plant_richness_df[, c("x", "y")],
   repetitions = 30,
-  num.trees = c(1000, 3000),
+  num.trees = c(500, 1000),
   mtry = seq(
     2,
     length(model.spatial$ranger.arguments$predictor.variable.names),
@@ -552,13 +552,13 @@ model.spatial.tuned <- rf_tuning(
 
     ## Best hyperparameters:
 
-    ##   - num.trees:     3000
+    ##   - num.trees:     1000
 
     ##   - mtry:          47
 
     ##   - min.node.size: 5
 
-    ## R squared gain: 0.016
+    ## R squared gain: 0.015
 
 ![](README_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
 
@@ -572,7 +572,7 @@ over each testing fold, and computes performance measures, to finally
 aggregate them across model repetitions. Let’s see how it works.
 
 ``` r
-model.spatial <- rf_evaluate(
+model.spatial.tuned <- rf_evaluate(
   model = model.spatial.tuned,
   xy = plant_richness_df[, c("x", "y")], #data coordinates
   repetitions = 30,                      #number of folds
@@ -589,8 +589,7 @@ several objects that summarize the spatial cross-validation results.
 names(model.spatial$evaluation)
 ```
 
-    ## [1] "training.fraction" "spatial.folds"     "per.fold"         
-    ## [4] "per.fold.long"     "per.model"         "aggregated"
+    ## NULL
 
 The slot “spatial.folds”, produced by
 [`make_spatial_folds()`](https://blasbenito.github.io/spatialRF/reference/make_spatial_folds.html),
@@ -620,7 +619,7 @@ plot_evaluation(model.spatial.tuned, notch = TRUE)
 The plot shows that the spatial model does a lousy job in predicting
 over unseen data.
 
-### Comparing two models
+### Comparing several models
 
 The function `rf_evaluate()` only assesses the predictive performance on
 unseen data of one model at a time. If the goal is to compare two
@@ -650,16 +649,16 @@ comparison <- rf_compare(
 |:------------------|:----------|---------:|
 | Non-spatial       | r.squared |    0.483 |
 | Non-spatial tuned | r.squared |    0.492 |
-| Spatial           | r.squared |    0.460 |
-| Spatial tuned     | r.squared |    0.460 |
+| Spatial           | r.squared |    0.478 |
+| Spatial tuned     | r.squared |    0.458 |
 | Non-spatial       | rmse      | 2496.102 |
 | Non-spatial tuned | rmse      | 2333.807 |
-| Spatial           | rmse      | 2502.014 |
-| Spatial tuned     | rmse      | 2502.014 |
+| Spatial           | rmse      | 2503.165 |
+| Spatial tuned     | rmse      | 2504.872 |
 
-The comparison shows that the non-spatial model performed slightly
-better than the spatial on, but with overlapping notches, indicating
+The comparison shows that the non-spatial models performed slightly
+better than the spatial ones, but with overlapping notches, indicating
 that the medians of the R squared and RMSE distributions are not
-statistically different. That is a small trade-off considering that the
+statistically different. That is a small trade-off, considering that the
 spatial model incorporates information about the spatial structure of
-the data, and its residuals show no spatial autocorrelation.
+the data, and its residuals are not spatially correlated.

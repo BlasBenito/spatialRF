@@ -332,6 +332,8 @@ rf_tuning <- function(
 
   }#end of loop
 
+
+
   #binding with combinations
   tuning <- cbind(
     combinations,
@@ -421,7 +423,9 @@ rf_tuning <- function(
 
   #adding the variable importance slot if rf_spatial
   if(inherits(model, "rf_spatial")){
+
     model.tuned$variable.importance <- prepare_importance_spatial(model.tuned)
+
   }
 
   #comparing r squared of model and tuning
@@ -481,9 +485,6 @@ rf_tuning <- function(
       3
       )
 
-    #remove evaluation slots
-    model$evaluation <- NULL
-    model.tuned$evaluation <- NULL
   }
 
   #if there is r-squared gain
@@ -504,7 +505,9 @@ rf_tuning <- function(
 
     #adding selection of spatial predictors
     if(inherits(model, "rf_spatial")){
+
       model.tuned$selection.spatial.predictors <- selection.spatial.predictors
+
     }
 
     return(model.tuned)
