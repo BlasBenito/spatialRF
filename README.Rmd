@@ -495,7 +495,7 @@ plot_evaluation(model.spatial.tuned, notch = TRUE)
 
 The plot shows that the spatial model does a lousy job in predicting over unseen data. 
 
-### Comparing two models
+### Comparing several models
 
 The function `rf_evaluate()` only assesses the predictive performance on unseen data of one model at a time. If the goal is to compare two models, `rf_evaluate()` can be indeed ran twice, but `spatialRF` offers a more convenient option named [`rf_compare()`](https://blasbenito.github.io/spatialRF/reference/rf_compare.html). It takes as input a named list with as many models as the user needs to compare.
 
@@ -524,7 +524,7 @@ kableExtra::kbl(
   x,
   format = "markdown"
   ) %>%
-  kable_paper("hover", full_width = F)
+  kableExtra::kable_paper("hover", full_width = F)
 ```
 
-The comparison shows that the non-spatial model performed slightly better than the spatial on, but with overlapping notches, indicating that the medians of the R squared and RMSE distributions are not statistically different. That is a small trade-off considering that the spatial model incorporates information about the spatial structure of the data, and its residuals show no spatial autocorrelation.
+The comparison shows that the non-spatial models performed slightly better than the spatial ones, but with overlapping notches, indicating that the medians of the R squared and RMSE distributions are not statistically different. That is a small trade-off, considering that the spatial model incorporates information about the spatial structure of the data, and its residuals are not spatially correlated.

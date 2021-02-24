@@ -480,6 +480,10 @@ rf_tuning <- function(
         ],
       3
       )
+
+    #remove evaluation slots
+    model$evaluation <- NULL
+    model.tuned$evaluation <- NULL
   }
 
   #if there is r-squared gain
