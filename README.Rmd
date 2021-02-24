@@ -396,9 +396,11 @@ The MEMs are included in the model one by one in the order of their Moran's I, a
 p <- plot_optimization(model.spatial)
 ```
 
+**Tuning spatial models**
+
 Spatial models fitted with `rf_spatial()` can be tuned as well with `rf_tuning()`. However, tuning may in some cases increase the spatial autocorrelation of the model residuals. In that case, the function will return a message explaining the situation, and the original model without any sort of tuning applied
 
-```{r, fig.width=6, fig.height=4.5, eval = FALSE}
+```{r, fig.width=6, fig.height=4.5}
 model.spatial.tuned <- rf_tuning(
   model = model.spatial,
   method = "spatial.cv",
@@ -440,8 +442,8 @@ The slot "spatial.folds", produced by [`make_spatial_folds()`](https://blasbenit
 ```{r, echo=FALSE, fig.width=10, fig.height=5}
 pr <- plant_richness_df[, c("x", "y")]
 pr$group.2 <- pr$group.1 <- "Training"
-pr[model.spatial$evaluation$spatial.folds[[1]]$testing, "group.1"] <- "Testing"
-pr[model.spatial$evaluation$spatial.folds[[25]]$testing, "group.2"] <- "Testing"
+pr[model.spatial.tuned$evaluation$spatial.folds[[1]]$testing, "group.1"] <- "Testing"
+pr[model.spatial.tuned$evaluation$spatial.folds[[25]]$testing, "group.2"] <- "Testing"
 
 p1 <- ggplot2::ggplot() +
   ggplot2::geom_sf(data = world, fill = "white") +
@@ -488,7 +490,7 @@ p1 | p2
 The functions [`plot_evaluation()`](https://blasbenito.github.io/spatialRF/reference/plot_evaluation.html) and [`print_evaluation()`](https://blasbenito.github.io/spatialRF/reference/print_evaluation.html) allow to check the evaluation results as a plot or as a table. The boxplot below shows the original performance scores of the "Full" model (`model.spatial.tuned`), and the distribution of performance scores of the model fitted on the training data ("Training"), its prediction over the "Testing" data. From these performance scores, only the ones labeled as "Testing" represent model performance on unseen data.
 
 ```{r, fig.width=4, fig.height=3.5}
-plot_evaluation(model.spatial, notch = TRUE)
+plot_evaluation(model.spatial.tuned, notch = TRUE)
 ```
 
 The plot shows that the spatial model does a lousy job in predicting over unseen data. 
@@ -497,11 +499,13 @@ The plot shows that the spatial model does a lousy job in predicting over unseen
 
 The function `rf_evaluate()` only assesses the predictive performance on unseen data of one model at a time. If the goal is to compare two models, `rf_evaluate()` can be indeed ran twice, but `spatialRF` offers a more convenient option named [`rf_compare()`](https://blasbenito.github.io/spatialRF/reference/rf_compare.html). It takes as input a named list with as many models as the user needs to compare.
 
-```{r, fig.width=4, fig.height=3.5}
+```{r, fig.width=4, fig.height=5}
 comparison <- rf_compare(
   models = list(
-    `Non-spatial` = model.non.spatial.tuned,
-    `Spatial` = model.spatial.tuned
+    `Non-spatial` = model.non.spatial,
+    `Non-spatial tuned` = model.non.spatial.tuned,
+    `Spatial` = model.spatial,
+    `Spatial tuned` = model.spatial.tuned
   ),
   xy = plant_richness_df[, c("x", "y")],
   metrics = c("r.squared", "rmse"),

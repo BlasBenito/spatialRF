@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Principal Components Analysis — pca • spatialRF</title>
+<title>Prepares variable importance objects for spatial models — prepare_importance_spatial • spatialRF</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,8 @@
 
 
 
-<meta property="og:title" content="Principal Components Analysis — pca" />
-<meta property="og:description" content="Extracts all factors of a principal component analysis of a matrix or data frame. Just a convenient wrapper for prcomp." />
+<meta property="og:title" content="Prepares variable importance objects for spatial models — prepare_importance_spatial" />
+<meta property="og:description" content="Prepares variable importance data frames and plots for models fitted with rf_spatial()." />
 
 
 
@@ -111,54 +111,50 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Principal Components Analysis</h1>
-    <small class="dont-index">Source: <a href='https://github.com/BlasBenito/spatialRF/blob/master/R/pca.R'><code>R/pca.R</code></a></small>
-    <div class="hidden name"><code>pca.Rd</code></div>
+    <h1>Prepares variable importance objects for spatial models</h1>
+    <small class="dont-index">Source: <a href='https://github.com/BlasBenito/spatialRF/blob/master/R/prepare_importance_spatial.R'><code>R/prepare_importance_spatial.R</code></a></small>
+    <div class="hidden name"><code>prepare_importance_spatial.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Extracts all factors of a principal component analysis of a matrix or data frame. Just a convenient wrapper for <a href='https://rdrr.io/r/stats/prcomp.html'>prcomp</a>.</p>
+    <p>Prepares variable importance data frames and plots for models fitted with <code><a href='rf_spatial.html'>rf_spatial()</a></code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>pca</span>(
-  <span class='kw'>x</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>colnames.prefix</span> <span class='kw'>=</span> <span class='st'>"pca_factor"</span>
-)</pre>
+    <pre class="usage"><span class='fu'>prepare_importance_spatial</span>(<span class='no'>x</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>x</th>
-      <td><p>numeric matrix or data frame, Default: NULL</p></td>
-    </tr>
-    <tr>
-      <th>colnames.prefix</th>
-      <td><p>character, name prefix for the output columns, Default: 'pca_factor'</p></td>
+      <td><p>An importance data frame with spatial predictors.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A data frame with the PCA factors of <code>x</code>.</p>
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
-
-    <p>Columns in <code>x</code> with zero variance are removed before computing the PCA.</p>
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
-
-    <div class='dont-index'><p><code><a href='pca_multithreshold.html'>pca_multithreshold()</a></code></p></div>
+    <p>A list with importance data frames in different formats depending on whether the model was fitted with <code><a href='rf.html'>rf()</a></code> or <code><a href='rf_repeat.html'>rf_repeat()</a></code>.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='co'># \donttest{</span>
+    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
 <span class='kw'>if</span>(<span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span>()){
 
  <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>distance_matrix</span>)
+ <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>plant_richness_df</span>)
 
- <span class='no'>out</span> <span class='kw'>&lt;-</span> <span class='fu'>pca</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>distance_matrix</span>)
- <span class='no'>out</span>
+ <span class='no'>model</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='rf_spatial.html'>rf_spatial</a></span>(
+   <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>plant_richness_df</span>,
+   <span class='kw'>dependent.variable.name</span> <span class='kw'>=</span> <span class='st'>"richness_species_vascular"</span>,
+   <span class='kw'>predictor.variable.names</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span>(<span class='no'>plant_richness_df</span>)[<span class='fl'>5</span>:<span class='fl'>21</span>],
+   <span class='kw'>distance.matrix</span> <span class='kw'>=</span> <span class='no'>distance_matrix</span>,
+   <span class='kw'>distance.thresholds</span> <span class='kw'>=</span>  <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0</span>, <span class='fl'>500</span>, <span class='fl'>1000</span>)
+ )
 
-}
-<span class='co'># }</span></div></pre>
+ <span class='no'>importance</span> <span class='kw'>&lt;-</span> <span class='fu'>prepare_importance_spatial</span>(<span class='no'>model</span>)
+ <span class='fu'><a href='https://rdrr.io/r/base/names.html'>names</a></span>(<span class='no'>importance</span>)
+
+ }
+}</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

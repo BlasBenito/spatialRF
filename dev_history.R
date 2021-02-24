@@ -56,7 +56,7 @@ usethis::use_github_action_check_standard()
 #https://www.rostrum.blog/2020/08/09/ghactions-pkgs/
 # usethis::use_pkgdown()
 # usethis::use_github_action("pkgdown")
-knitr::render(input = "README.Rmd")
+rmarkdown::render(input = "README.Rmd")
 pkgdown::build_site()
 system("cp -avr README_files docs")
 
