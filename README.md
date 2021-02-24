@@ -382,14 +382,14 @@ model.non.spatial.tuned <- rf_tuning(
 
     ##   - min.node.size: 5
 
-    ## R squared gain: 0.06432
+    ## R squared gain: 0.06124
 
 ![](README_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
 
 The function `rf_tuning()` returns a model fitted with the same data as
 the original model, but using the best hyperparameters found during
 tuning. Model tuning has helped to a very small improvement in
-performance measures (+ 0.064 R squared), so from here, we can keep
+performance measures (+ 0.061 R squared), so from here, we can keep
 working with `model.non.spatial.tuned`.
 
 ### Fitting a spatial model
@@ -457,16 +457,16 @@ If we take a look to the ten most important variables in
 
 | variable                                   | importance |
 |:-------------------------------------------|-----------:|
-| climate\_bio1\_average\_X\_bias\_area\_km2 |      0.405 |
-| climate\_bio1\_average                     |      0.345 |
-| spatial\_predictor\_0\_2                   |      0.334 |
-| climate\_hypervolume                       |      0.328 |
-| bias\_species\_per\_record                 |      0.151 |
-| spatial\_predictor\_0\_6                   |      0.126 |
-| spatial\_predictor\_0\_1                   |      0.125 |
-| spatial\_predictor\_0\_5                   |      0.103 |
-| human\_population\_density                 |      0.095 |
+| climate\_bio1\_average\_X\_bias\_area\_km2 |      0.427 |
+| climate\_hypervolume                       |      0.366 |
+| spatial\_predictor\_0\_2                   |      0.347 |
+| climate\_bio1\_average                     |      0.334 |
+| bias\_species\_per\_record                 |      0.193 |
+| spatial\_predictor\_0\_6                   |      0.128 |
+| spatial\_predictor\_0\_1                   |      0.112 |
+| spatial\_predictor\_0\_5                   |      0.092 |
 | neighbors\_count                           |      0.091 |
+| human\_population\_density                 |      0.085 |
 
 Spatial predictors are named `spatial_predictor_X_Y`, where `X` is the
 neighborhood distance at which the predictor has been generated, and `Y`
@@ -569,10 +569,10 @@ comparison <- rf_compare(
 
 | Model       | Metric    |     Mean |
 |:------------|:----------|---------:|
-| Non-spatial | r.squared |    0.487 |
-| Spatial     | r.squared |    0.415 |
-| Non-spatial | rmse      | 2450.496 |
-| Spatial     | rmse      | 2694.532 |
+| Non-spatial | r.squared |    0.488 |
+| Spatial     | r.squared |    0.435 |
+| Non-spatial | rmse      | 2445.728 |
+| Spatial     | rmse      | 2635.627 |
 
 The comparison shows that the non-spatial model performed slightly
 better than the spatial on, but with overlapping notches, indicating
