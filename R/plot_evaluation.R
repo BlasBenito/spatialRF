@@ -47,6 +47,9 @@ plot_evaluation <- function(x, verbose = TRUE, notch = TRUE){
   model <- NULL
   value <- NULL
 
+  #getting metrics
+
+
   #stop if no evaluation slot
   if(!inherits(x, "rf_evaluate")){
     stop("Object 'x' does not have an 'evaluation' slot.")
