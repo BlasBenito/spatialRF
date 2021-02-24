@@ -89,4 +89,6 @@ plot_tuning <- function(x, verbose = TRUE){
     suppressWarnings(suppressMessages(print(p)))
   }
 
+  return(p)
+
 }

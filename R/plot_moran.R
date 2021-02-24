@@ -70,9 +70,10 @@ plot_moran <- function(x, verbose = TRUE){
   #adding binary p.value
   x$p.value.binary <- "< 0.05"
   x[x$p.value >= 0.05, "p.value.binary"] <- ">= 0.05"
+  x$p.value.binary <- factor(x$p.value.binary, levels = c("< 0.05", ">= 0.05"))
 
   #plotting rf
-  if(sum(c("model", "repetition") %in% colnames(x)) == 0){
+  if(!("repetition" %in% colnames(x))){
 
     p <- ggplot2::ggplot(data = x) +
       ggplot2::aes(
@@ -88,6 +89,12 @@ plot_moran <- function(x, verbose = TRUE){
       ) +
       ggplot2::geom_point(color = "#440154FF") +
       ggplot2::geom_line(size = 1, color = "#440154FF") +
+      ggplot2::scale_size_manual(
+        breaks = c("< 0.05", ">= 0.05"),
+        values = c(1, 5),
+        drop = FALSE
+        ) +
+      ggplot2::scale_x_continuous(breaks = x$distance.threshold) +
       ggplot2::xlab("Distance thresholds") +
       ggplot2::ylab("Moran's I of residuals") +
       ggplot2::ggtitle("Multiscale Moran's I") +
@@ -98,7 +105,7 @@ plot_moran <- function(x, verbose = TRUE){
   }
 
   #plotting rf_repeat
-  if("repetition" %in% colnames(x) & !("model" %in% colnames(x))){
+  if("repetition" %in% colnames(x)){
 
     p <- ggplot2::ggplot(data = x) +
       ggplot2::aes(
@@ -122,85 +129,18 @@ plot_moran <- function(x, verbose = TRUE){
         color = "#440154FF",
         alpha = 0.7
         ) +
+      ggplot2::scale_size_manual(
+        breaks = c("< 0.05", ">= 0.05"),
+        values = c(1, 5),
+        drop = FALSE
+      ) +
+      ggplot2::scale_x_continuous(breaks = x$distance.threshold) +
       ggplot2::xlab("Distance thresholds") +
       ggplot2::ylab("Moran's I of residuals") +
       ggplot2::ggtitle("Moran's I of the residuals") +
       ggplot2::theme_bw() +
       ggplot2::theme(legend.position = "bottom") +
       ggplot2::labs(color = "Model", size = "Moran's I p-value")
-
-  }
-
-  #plotting rf_spatial with rf
-  if("model" %in% colnames(x) & !("repetition" %in% colnames(x))){
-
-    p <- ggplot2::ggplot(data = x) +
-      ggplot2::aes(
-        x = distance.threshold,
-        y = moran.i,
-        color = model,
-        size = p.value.binary
-      ) +
-      ggplot2::geom_hline(
-        yintercept = 0,
-        col = "gray10",
-        size = 0.7,
-        linetype = "dashed"
-      ) +
-      ggplot2::geom_point(alpha = 0.7) +
-      ggplot2::geom_line(
-        size = 1,
-        alpha = 0.7
-        ) +
-      ggplot2::theme_bw() +
-      ggplot2::scale_colour_manual(values = c("#440154FF", "#35B779FF")) +
-      ggplot2::xlab("Distance thresholds") +
-      ggplot2::ylab("Moran's I of residuals") +
-      ggplot2::ggtitle("Residuals' Moran's I of the spatial and non-spatial models") +
-      ggplot2::theme(legend.position = "bottom") +
-      ggplot2::labs(
-        color = "Model",
-        size = "Moran's I p-value"
-        )
-
-  }
-
-  #plotting rf_spatial with rf_repeat
-  if(sum(c("model", "repetition") %in% colnames(x)) == 2){
-
-    p <- ggplot2::ggplot(data = x) +
-      ggplot2::aes(
-        x = distance.threshold,
-        y = moran.i,
-        color = model,
-        size = p.value.binary,
-        group = interaction(repetition, model)
-      ) +
-      ggplot2::geom_hline(
-        yintercept = 0,
-        col = "gray10",
-        size = 0.7,
-        linetype = "dashed"
-      ) +
-      ggplot2::geom_point(alpha = 0.7) +
-      ggplot2::geom_line(
-        size = 1,
-        alpha = 0.7
-        ) +
-      ggplot2::scale_colour_manual(
-        values = c(
-          "#440154FF",
-          "#35B779FF")
-        ) +
-      ggplot2::theme_bw() +
-      ggplot2::xlab("Distance thresholds") +
-      ggplot2::ylab("Moran's I of residuals") +
-      ggplot2::ggtitle("Residuals' Moran's I of the spatial and non-spatial models") +
-      ggplot2::theme(legend.position = "bottom") +
-      ggplot2::labs(
-        color = "Model",
-        size = "Moran's I p-value"
-        )
 
   }
 

@@ -139,6 +139,7 @@ rf_repeat <- function(
   ranger.arguments$importance <- importance <- "permutation"
   ranger.arguments$local.importance <- local.importance <- FALSE
   ranger.arguments$num.threads <- 1
+  ranger.arguments$seed <- NULL
 
   #setup of parallel execution
   if(is.null(n.cores)){
@@ -348,6 +349,10 @@ rf_repeat <- function(
 
     m.curves$variable.importance <- list()
     m.curves$variable.importance$per.variable <- variable.importance.per.variable
+    m.curves$variable.importance$per.variable.plot <- plot_importance(
+      variable.importance.per.variable,
+      verbose = FALSE
+      )
     m.curves$variable.importance$per.repetition <- variable.importance.per.repetition
     m.curves$variable.importance$plot <- plot_importance(
       x = variable.importance.per.repetition,

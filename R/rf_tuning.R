@@ -1,6 +1,6 @@
 #' @title Tuning of random forest hyperparameters
 #' @description Tunes the random forest hyperparameters `num.trees`, `mtry`, and `min.node.size` via grid search by maximizing the model's R squared. Two methods are available: out-of-bag (`oob`), and spatial cross-validation performed with [rf_evaluate()].
-#' @param model A model fitted with [rf()]. If provided, the training data is taken directly from the model definition (stored in `model$ranger.arguments`). It is not recommended to tune models fitted with [rf_spatial()]. Default: `NULL`
+#' @param model A model fitted with [rf()]. If provided, the training data is taken directly from the model definition (stored in `model$ranger.arguments`). Default: `NULL`
 #' @param method Character, "oob" to use RMSE values computed on the out-of-bag data to guide the tuning, and "spatial.cv", to use RMSE values from a spatial cross-validation on independent spatial folds done via [rf_evaluate()]. Default: `"oob"`
 #' @param num.trees Numeric integer vector with the number of trees to fit on each model repetition. Default: `c(500, 1000, 2000)`.
 #' @param mtry Numeric integer vector, number of predictors to randomly select from the complete pool of predictors on each tree split. Default: `floor(seq(1, length(predictor.variable.names), length.out = 4))`
@@ -68,14 +68,8 @@ rf_tuning <- function(
   if(is.null(model)){
     stop("The argument 'model' is empty, there is no model to tune.")
   }
-  if("rf_spatial" %in% class(model)){
-    warning("Model tuning is not recommended for models fitted with rf_spatial().")
-  }
 
   if(is.null(repetitions)){
-    if(method == "oob"){
-      repetitions <- 5
-    }
     if(method == "spatial.cv"){
       repetitions <- 30
     }
@@ -89,6 +83,11 @@ rf_tuning <- function(
   distance.matrix <- ranger.arguments$distance.matrix
   distance.thresholds <- ranger.arguments$distance.thresholds
   model.class <- class(model)
+
+  #saving slots if it's an rf_spatial model
+  if(inherits(model, "rf_spatial")){
+    selection.spatial.predictors <- model$selection.spatial.predictors
+  }
 
   #mtry
   if(is.null(mtry)){
@@ -241,25 +240,51 @@ rf_tuning <- function(
     ranger.arguments.i$importance <- "none"
     ranger.arguments.i$num.threads <- 1
 
-    #using out of bag
-    if(method == "oob"){
+    #computing Moran's I if the model is rf_spatial
+    if(inherits(model, "rf_spatial")){
 
       #fit model
       m.i <- spatialRF::rf_repeat(
         data = data,
         dependent.variable.name = dependent.variable.name,
         predictor.variable.names = predictor.variable.names,
+        distance.matrix = distance.matrix,
+        distance.thresholds = distance.thresholds,
         ranger.arguments = ranger.arguments.i,
         scaled.importance = FALSE,
         verbose = FALSE,
-        repetitions = repetitions,
+        repetitions = 10,
         n.cores = 1
       )
+
+      moran.i.interpretation <- m.i$spatial.correlation.residuals$per.distance$interpretation[1]
+
+    }
+
+    #using out of bag
+    if(method == "oob"){
+
+      #do not run if the model is already fitted
+      if(!inherits(model, "rf_spatial")){
+
+        #fit model
+        m.i <- spatialRF::rf_repeat(
+          data = data,
+          dependent.variable.name = dependent.variable.name,
+          predictor.variable.names = predictor.variable.names,
+          ranger.arguments = ranger.arguments.i,
+          scaled.importance = FALSE,
+          verbose = FALSE,
+          repetitions = 10,
+          n.cores = 1
+        )
+
+      }
 
       #get performance measures
       m.i.performance <- spatialRF::get_performance(m.i)[, 1:2]
 
-    }
+    }#end of oob
 
     #using rf_evaluate
     if(method == "spatial.cv"){
@@ -289,12 +314,19 @@ rf_tuning <- function(
       m.i.performance <- spatialRF::get_evaluation(m.i)
       m.i.performance <- m.i.performance[m.i.performance$model == "Testing", c("metric", "mean")]
 
-    }
+    }#end of spatial.cv
 
     #gathering into data frame
-    m.i.performance <- data.frame(
-      r.squared = m.i.performance[m.i.performance$metric == "r.squared", "mean"]
-    )
+    if(inherits(model, "rf_spatial")){
+      m.i.performance <- data.frame(
+        r.squared = m.i.performance[m.i.performance$metric == "r.squared", "mean"],
+        moran.i.interpretation = moran.i.interpretation
+      )
+    } else {
+      m.i.performance <- data.frame(
+        r.squared = m.i.performance[m.i.performance$metric == "r.squared", "mean"]
+      )
+    }
 
     return(m.i.performance)
 
@@ -312,22 +344,71 @@ rf_tuning <- function(
   tuning.list$method <- method
   tuning.list$tuning.df <- tuning
 
-  #preparing ranger arguments
-  ranger.arguments <- list()
+
+  #subset if rf_spatial
+  if(inherits(model, "rf_spatial")){
+
+    #remove results yielding
+     tuning <- dplyr::filter(
+      tuning,
+      moran.i.interpretation == "No spatial correlation"
+    )
+
+     #stop if all results increase spatial autocorrelation of the residuals
+     if(nrow(tuning) == 0){
+
+       message("This spatial model cannot be tuned, all possible results increase spatial autocorrelation of the residuals")
+       stop()
+     }
+
+  }
+
+  #best hyperparameters into ranger arguments
   ranger.arguments$num.trees <- tuning[1, "num.trees"]
   ranger.arguments$mtry <- tuning[1, "mtry"]
   ranger.arguments$min.node.size <- tuning[1, "min.node.size"]
 
-  #fitting tuned model
-  model.tuned <- rf(
-    data = data,
-    dependent.variable.name = dependent.variable.name,
-    predictor.variable.names = predictor.variable.names,
-    ranger.arguments = ranger.arguments,
-    distance.matrix = distance.matrix,
-    distance.thresholds = distance.thresholds,
-    verbose = FALSE
-  )
+  #fitting tuned model with rf
+  if(!inherits(model, "rf_repeat")){
+
+    model.tuned <- rf(
+      data = data,
+      dependent.variable.name = dependent.variable.name,
+      predictor.variable.names = predictor.variable.names,
+      ranger.arguments = ranger.arguments,
+      distance.matrix = distance.matrix,
+      distance.thresholds = distance.thresholds,
+      verbose = FALSE
+    )
+
+  }
+
+  #fitting tuned model with rf repeat
+  if(inherits(model, "rf_repeat")){
+
+    repetitions <- model$ranger.arguments$repetitions
+    if(is.null(repetitions)){repetitions <- 10}
+
+    model.tuned <- rf_repeat(
+      data = data,
+      dependent.variable.name = dependent.variable.name,
+      predictor.variable.names = predictor.variable.names,
+      ranger.arguments = ranger.arguments,
+      distance.matrix = distance.matrix,
+      distance.thresholds = distance.thresholds,
+      repetitions = repetitions,
+      verbose = FALSE,
+      n.cores = n.cores,
+      cluster.ips = cluster.ips,
+      cluster.cores = cluster.cores,
+      cluster.user = cluster.user,
+      cluster.port = cluster.port
+    )
+
+  }
+
+  #keeping class
+  class(model.tuned) <- unique(c(class(model.tuned), model.class))
 
   #adding tuning slot
   model.tuned$tuning <- tuning.list
@@ -338,8 +419,10 @@ rf_tuning <- function(
     verbose = FALSE
   )
 
-  #keeping class
-  class(model.tuned) <- unique(c(class(model.tuned), model.class))
+  #adding the variable importance slot if rf_spatial
+  if(inherits(model, "rf_spatial")){
+    model.tuned$variable.importance <- prepare_importance_spatial(model.tuned)
+  }
 
   #comparing r squared of model and tuning
 
@@ -381,9 +464,22 @@ rf_tuning <- function(
     )
 
     #extract r.squared values
-    tuning.r.squared <- model.tuned$evaluation$aggregated[model.tuned$evaluation$aggregated$model == "Testing" & model.tuned$evaluation$aggregated$metric == "r.squared", "mean"]
-    model.r.squared <- model$evaluation$aggregated[model$evaluation$aggregated$model == "Testing" & model$evaluation$aggregated$metric == "r.squared", "mean"]
-
+    tuning.r.squared <- round(
+      model.tuned$evaluation$aggregated
+      [model.tuned$evaluation$aggregated$model == "Testing" &
+          model.tuned$evaluation$aggregated$metric == "r.squared",
+        "mean"
+        ],
+      3
+      )
+    model.r.squared <- round(
+      model$evaluation$aggregated[
+        model$evaluation$aggregated$model == "Testing" &
+          model$evaluation$aggregated$metric == "r.squared",
+        "mean"
+        ],
+      3
+      )
   }
 
   #if there is r-squared gain
@@ -402,18 +498,23 @@ rf_tuning <- function(
     #adding r squared gain
     model.tuned$tuning$r.squared.gain <- tuning.r.squared - model.r.squared
 
+    #adding selection of spatial predictors
+    if(inherits(model, "rf_spatial")){
+      model.tuned$selection.spatial.predictors <- selection.spatial.predictors
+    }
+
     return(model.tuned)
 
     #tuned model worse than original one
   } else {
 
-    warning(
+    message(
       paste0(
-        "The R squared of the tuned model (",
+        "The tuned model (R2: ",
         tuning.r.squared,
-        ") is lower than the R squared of the original model (",
+        ") performs worse than the original one (R2: ",
         model.r.squared,
-        "), no tuning required, returning the original model."
+        "). Tuning not required, returning the original model."
       )
     )
 
@@ -425,10 +526,6 @@ rf_tuning <- function(
       x = model,
       verbose = FALSE
     )
-
-    if(verbose == TRUE){
-      plot_tuning(model)
-    }
 
     #adding r squared gain
     model$tuning$r.squared.gain <- tuning.r.squared - model.r.squared

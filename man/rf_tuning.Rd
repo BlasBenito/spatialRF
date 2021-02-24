@@ -22,7 +22,7 @@ rf_tuning(
 )
 }
 \arguments{
-\item{model}{A model fitted with \code{\link[=rf]{rf()}}. If provided, the training data is taken directly from the model definition (stored in \code{model$ranger.arguments}). It is not recommended to tune models fitted with \code{\link[=rf_spatial]{rf_spatial()}}. Default: \code{NULL}}
+\item{model}{A model fitted with \code{\link[=rf]{rf()}}. If provided, the training data is taken directly from the model definition (stored in \code{model$ranger.arguments}). Default: \code{NULL}}
 
 \item{method}{Character, "oob" to use RMSE values computed on the out-of-bag data to guide the tuning, and "spatial.cv", to use RMSE values from a spatial cross-validation on independent spatial folds done via \code{\link[=rf_evaluate]{rf_evaluate()}}. Default: \code{"oob"}}
 

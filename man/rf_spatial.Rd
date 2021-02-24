@@ -94,7 +94,6 @@ A ranger model with several new slots:
 \item \code{variable.importance}: A list containing the vector of variable importance as originally returned by ranger (scaled or not depending on the value of 'scaled.importance'), a data frame with the predictors ordered by their importance, and a ggplot showing the importance values.
 \item \code{performance}: With the out-of-bag R squared, pseudo R squared, RMSE and NRMSE of the model.
 \item \code{spatial.correlation.residuals}: Result of \code{\link[=moran_multithreshold]{moran_multithreshold()}} applied in the model residuals.
-\item \code{performance.comparison}:  A data frame with the R-squared, rmse, nrmse, and Moran's I of the residuals of the non-spatial and the spatial model.
 \item \code{selection.spatial.predictors}: A list with four slots:
 \itemize{
 \item \code{method}: Character, method used to generate, rank, and select spatial predictors.

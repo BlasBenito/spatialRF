@@ -79,20 +79,6 @@ print.rf <- function(x, ...) {
       print_moran(x)
     }
 
-    if("performance.comparison" %in% names(x)){
-      cat("\n")
-      cat("Comparing performance (spatial vs. non-spatial model): \n")
-      comparison.df <- x$performance.comparison
-      colnames(comparison.df) <- c("Model", "R squared", "RMSE", "NRMSE", "Max. Moran's I")
-      comparison.hux <-
-        huxtable::hux(comparison.df) %>%
-        huxtable::set_bold(row = 1, col = huxtable::everywhere, value = TRUE) %>%
-        huxtable::set_bold(col = 1, row = huxtable::everywhere, value = TRUE) %>%
-        huxtable::set_all_borders(TRUE)
-      huxtable::number_format(comparison.hux)[2:3, 2:5] <- 3
-      huxtable::print_screen(comparison.hux, colnames = FALSE)
-    }
-
     if("variable.importance" %in% names(x)){
       cat("\n")
       cat("Variable importance: \n")

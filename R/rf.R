@@ -392,7 +392,7 @@ rf <- function(
       dplyr::mutate(importance = round(importance, 3)) %>%
       as.data.frame()
 
-    m$variable.importance$plot <- plot_importance(
+    m$variable.importance$per.variable.plot <- plot_importance(
       x = m$variable.importance$per.variable,
       verbose = verbose
     )

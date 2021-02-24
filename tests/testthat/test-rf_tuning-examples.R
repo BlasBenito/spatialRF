@@ -11,6 +11,9 @@ test_that("`rf_tuning()` works", {
   out <- rf_tuning(
     model = out,
     method = "oob",
+    num.trees = c(500, 1000),
+    mtry = seq(2, 14, by = 2),
+    min.node.size = c(5, 10, 20),
     n.cores = 1,
     verbose = FALSE)
   expect_s3_class(out$tuning$tuning.df, "data.frame")
