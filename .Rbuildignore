@@ -19,3 +19,4 @@ _config.yml
 ^pkgdown$
 ^\.github$
 tests
+README.html
