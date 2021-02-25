@@ -75,6 +75,7 @@
 <a href="#spatialrf-easy-spatial-regression-with-random-forest" class="anchor"></a><code>spatialRF</code>: easy spatial regression with Random Forest</h1></div>
 <ul>
 <li><a href="#introduction">Introduction</a></li>
+<li><a href="#applications">Applications</a></li>
 <li><a href="#install">Install</a></li>
 <li>
 <a href="#working-with-spatialrf">Working with <code>spatialRF</code></a>
@@ -104,6 +105,21 @@
   <span class="kw">distance.matrix</span> <span class="kw">=</span> <span class="no">your_distance_matrix</span>
   )</pre></div>
 <p>The package, that uses the <code>ranger</code> package under the hood <a href="https://arxiv.org/abs/1508.04409">(Wright and Ziegler 2017)</a>, also provides tools to identify potentially interesting variable interactions, tune random forest hyperparameters, assess model performance on spatially independent data folds, and examine the resulting models via importance plots, response curves, and response surfaces.</p>
+</div>
+<div id="applications" class="section level1">
+<h1 class="hasAnchor">
+<a href="#applications" class="anchor"></a>Applications</h1>
+<p>The goal of <code>spatialRF</code> is to help fitting <em>explanatory spatial regression</em>, where the target is to understand how a set of predictors and the spatial structure of the data influences a response variable. Therefore, the analyses implemented in the package can be applied to any spatial dataset, regular or irregular, with a sample size between ~100 and ~5000 cases (the higher end will depend on the RAM memory available), a quantitative response variable, and a more or less large set of predictive variables.</p>
+<p>Due to the special nature of the spatial predictors it uses to represent the spatial structure of the training data, there are many things this package <strong>cannot do</strong>:</p>
+<ul>
+<li><p>Predict model results over raster data.</p></li>
+<li><p>Predict a model result over another region with a different spatial structure.</p></li>
+<li><p>Work with “big data”, whatever that means.</p></li>
+<li><p>Fit species distribution models (can deal with abundance modeling though).</p></li>
+<li><p>Imputation or extrapolation (it can be done, but models based on spatial predictors are hardly transferable).</p></li>
+<li><p>Take temporal autocorrelation into account (but this is something that might be implemented later on).</p></li>
+</ul>
+<p>If after considering these limitations you are still interested, follow me, I will show you how it works.</p>
 </div>
 <div id="install" class="section level1">
 <h1 class="hasAnchor">
@@ -158,20 +174,18 @@
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="do">## 3 potential interactions identified.</span></span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="do">##    ┌────────────────────┬────────────────────┬────────────────┐</span></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="do">##    │ Interaction        │   Importance (% of │ R2 improvement │</span></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="do">##    │                    │               max) │                │</span></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="do">##    ├────────────────────┼────────────────────┼────────────────┤</span></span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="do">##    │ human_population_X │               72.1 │         0.017  │</span></span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="do">##    │ _bias_area_km2     │                    │                │</span></span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="do">##    ├────────────────────┼────────────────────┼────────────────┤</span></span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="do">##    │ climate_bio1_avera │               72.6 │         0.010  │</span></span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="do">##    │ ge_X_bias_area_km2 │                    │                │</span></span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="do">##    ├────────────────────┼────────────────────┼────────────────┤</span></span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="do">##    │ bias_area_km2_X_bi │               59   │         0.0374 │</span></span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="do">##    │ as_species_per_rec │                    │                │</span></span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a><span class="do">##    │ ord                │                    │                │</span></span>
-<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a><span class="do">##    └────────────────────┴────────────────────┴────────────────┘</span></span></code></pre></div>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="do">##     ┌────────────────────────┬───────────────────────┬────────────────┐</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="do">##     │ Interaction            │ Importance (% of max) │ R2 improvement │</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="do">##     ├────────────────────────┼───────────────────────┼────────────────┤</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="do">##     │ human_population_X_bia │                  72.1 │         0.017  │</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="do">##     │ s_area_km2             │                       │                │</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="do">##     ├────────────────────────┼───────────────────────┼────────────────┤</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="do">##     │ climate_bio1_average_X │                  72.6 │         0.010  │</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="do">##     │ _bias_area_km2         │                       │                │</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="do">##     ├────────────────────────┼───────────────────────┼────────────────┤</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="do">##     │ bias_area_km2_X_bias_s │                  59   │         0.0374 │</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="do">##     │ pecies_per_record      │                       │                │</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="do">##     └────────────────────────┴───────────────────────┴────────────────┘</span></span></code></pre></div>
 <p><img src="README_files/figure-gfm/unnamed-chunk-7-1.png"><!-- --></p>
 <p>Here <code><a href="reference/rf_interactions.html">rf_interactions()</a></code> suggests several candidate interactions ordered by their impact on the model. The function cannot say whether an interaction <em>makes sense</em>, and it is up to the user to choose wisely whether to select an interaction or not.</p>
 <p>For the sake of the example, I will choose <code>climate_bio1_average_X_bias_area_km2</code>, hypothesizing that ecoregions with higher area (bias_area_km2) and energy (represented by the annual temperature, climate_bio1_average) will have more species of vascular plants (this is just an example, many other rationales are possible when choosing between candidate interactions). The data required to add the interaction to the training data is in the output of <code><a href="reference/rf_interactions.html">rf_interactions()</a></code>.</p>

@@ -2,6 +2,7 @@
 ================
 
 -   [Introduction](#introduction)
+-   [Applications](#applications)
 -   [Install](#install)
 -   [Working with `spatialRF`](#working-with-spatialrf)
     -   [The example data](#the-example-data)
@@ -53,6 +54,40 @@ identify potentially interesting variable interactions, tune random
 forest hyperparameters, assess model performance on spatially
 independent data folds, and examine the resulting models via importance
 plots, response curves, and response surfaces.
+
+# Applications
+
+The goal of `spatialRF` is to help fitting *explanatory spatial
+regression*, where the target is to understand how a set of predictors
+and the spatial structure of the data influences a response variable.
+Therefore, the analyses implemented in the package can be applied to any
+spatial dataset, regular or irregular, with a sample size between \~100
+and \~5000 cases (the higher end will depend on the RAM memory
+available), a quantitative response variable, and a more or less large
+set of predictive variables.
+
+Due to the special nature of the spatial predictors it uses to represent
+the spatial structure of the training data, there are many things this
+package **cannot do**:
+
+-   Predict model results over raster data.
+
+-   Predict a model result over another region with a different spatial
+    structure.
+
+-   Work with “big data”, whatever that means.
+
+-   Fit species distribution models (can deal with abundance modeling
+    though).
+
+-   Imputation or extrapolation (it can be done, but models based on
+    spatial predictors are hardly transferable).
+
+-   Take temporal autocorrelation into account (but this is something
+    that might be implemented later on).
+
+If after considering these limitations you are still interested, follow
+me, I will show you how it works.
 
 # Install
 
@@ -147,20 +182,18 @@ interactions <- rf_interactions(
 
     ## 3 potential interactions identified.
 
-    ##    ┌────────────────────┬────────────────────┬────────────────┐
-    ##    │ Interaction        │   Importance (% of │ R2 improvement │
-    ##    │                    │               max) │                │
-    ##    ├────────────────────┼────────────────────┼────────────────┤
-    ##    │ human_population_X │               72.1 │         0.017  │
-    ##    │ _bias_area_km2     │                    │                │
-    ##    ├────────────────────┼────────────────────┼────────────────┤
-    ##    │ climate_bio1_avera │               72.6 │         0.010  │
-    ##    │ ge_X_bias_area_km2 │                    │                │
-    ##    ├────────────────────┼────────────────────┼────────────────┤
-    ##    │ bias_area_km2_X_bi │               59   │         0.0374 │
-    ##    │ as_species_per_rec │                    │                │
-    ##    │ ord                │                    │                │
-    ##    └────────────────────┴────────────────────┴────────────────┘
+    ##     ┌────────────────────────┬───────────────────────┬────────────────┐
+    ##     │ Interaction            │ Importance (% of max) │ R2 improvement │
+    ##     ├────────────────────────┼───────────────────────┼────────────────┤
+    ##     │ human_population_X_bia │                  72.1 │         0.017  │
+    ##     │ s_area_km2             │                       │                │
+    ##     ├────────────────────────┼───────────────────────┼────────────────┤
+    ##     │ climate_bio1_average_X │                  72.6 │         0.010  │
+    ##     │ _bias_area_km2         │                       │                │
+    ##     ├────────────────────────┼───────────────────────┼────────────────┤
+    ##     │ bias_area_km2_X_bias_s │                  59   │         0.0374 │
+    ##     │ pecies_per_record      │                       │                │
+    ##     └────────────────────────┴───────────────────────┴────────────────┘
 
 ![](README_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
