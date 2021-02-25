@@ -80,7 +80,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
+    <span class="fas fa fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -94,7 +94,7 @@
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/BlasBenito/spatialRF/">
-    <span class="fab fa-github fa-lg"></span>
+    <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -120,13 +120,13 @@
     <p>Applies <code><a href='make_spatial_fold.html'>make_spatial_fold()</a></code> to every record in a data frame <code>xy.selected</code> to generate as many spatially independent folds over the dataset <code>xy</code> as rows are in <code>xy.selected</code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>make_spatial_folds</span><span class='op'>(</span>
-  xy.selected <span class='op'>=</span> <span class='cn'>NULL</span>,
-  xy <span class='op'>=</span> <span class='cn'>NULL</span>,
-  distance.step <span class='op'>=</span> <span class='cn'>NULL</span>,
-  training.fraction <span class='op'>=</span> <span class='fl'>0.6</span>,
-  n.cores <span class='op'>=</span> <span class='cn'>NULL</span>
-<span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>make_spatial_folds</span>(
+  <span class='kw'>xy.selected</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>xy</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>distance.step</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>training.fraction</span> <span class='kw'>=</span> <span class='fl'>0.6</span>,
+  <span class='kw'>n.cores</span> <span class='kw'>=</span> <span class='kw'>NULL</span>
+)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -162,37 +162,36 @@
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># \donttest{</span>
-<span class='kw'>if</span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span><span class='op'>{</span>
+<span class='kw'>if</span>(<span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span>()){
 
- <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='va'>plant_richness_df</span><span class='op'>)</span>
+ <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>plant_richness_df</span>)
 
- <span class='va'>xy</span> <span class='op'>&lt;-</span> <span class='va'>plant_richness_df</span><span class='op'>[</span>, <span class='fl'>1</span><span class='op'>:</span><span class='fl'>3</span><span class='op'>]</span>
- <span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span><span class='op'>(</span><span class='va'>xy</span><span class='op'>)</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"id"</span>, <span class='st'>"x"</span>, <span class='st'>"y"</span><span class='op'>)</span>
- <span class='va'>xy.selected</span> <span class='op'>&lt;-</span> <span class='fu'><a href='thinning_til_n.html'>thinning_til_n</a></span><span class='op'>(</span>
-   xy <span class='op'>=</span> <span class='va'>xy</span>,
-   n <span class='op'>=</span> <span class='fl'>20</span>
-   <span class='op'>)</span>
+ <span class='no'>xy</span> <span class='kw'>&lt;-</span> <span class='no'>plant_richness_df</span>[, <span class='fl'>1</span>:<span class='fl'>3</span>]
+ <span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span>(<span class='no'>xy</span>) <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"id"</span>, <span class='st'>"x"</span>, <span class='st'>"y"</span>)
+ <span class='no'>xy.selected</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='thinning_til_n.html'>thinning_til_n</a></span>(
+   <span class='kw'>xy</span> <span class='kw'>=</span> <span class='no'>xy</span>,
+   <span class='kw'>n</span> <span class='kw'>=</span> <span class='fl'>20</span>
+   )
 
- <span class='va'>out</span> <span class='op'>&lt;-</span> <span class='fu'>make_spatial_folds</span><span class='op'>(</span>
-   xy.selected <span class='op'>=</span> <span class='va'>xy.selected</span>,
-   xy <span class='op'>=</span> <span class='va'>xy</span>,
-   distance.step <span class='op'>=</span> <span class='fl'>0.05</span>, <span class='co'>#degrees</span>
-   training.fraction <span class='op'>=</span> <span class='fl'>0.6</span>,
-   n.cores <span class='op'>=</span> <span class='fl'>1</span>
- <span class='op'>)</span>
+ <span class='no'>out</span> <span class='kw'>&lt;-</span> <span class='fu'>make_spatial_folds</span>(
+   <span class='kw'>xy.selected</span> <span class='kw'>=</span> <span class='no'>xy.selected</span>,
+   <span class='kw'>xy</span> <span class='kw'>=</span> <span class='no'>xy</span>,
+   <span class='kw'>distance.step</span> <span class='kw'>=</span> <span class='fl'>0.05</span>, <span class='co'>#degrees</span>
+   <span class='kw'>training.fraction</span> <span class='kw'>=</span> <span class='fl'>0.6</span>,
+   <span class='kw'>n.cores</span> <span class='kw'>=</span> <span class='fl'>1</span>
+ )
 
- <span class='fu'><a href='https://rdrr.io/r/base/length.html'>length</a></span><span class='op'>(</span><span class='va'>out</span><span class='op'>)</span>
+ <span class='fu'><a href='https://rdrr.io/r/base/length.html'>length</a></span>(<span class='no'>out</span>)
 
- <span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span><span class='op'>(</span><span class='va'>xy</span><span class='op'>[</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"x"</span>, <span class='st'>"y"</span><span class='op'>)</span><span class='op'>]</span>, type <span class='op'>=</span> <span class='st'>"n"</span>, xlab <span class='op'>=</span> <span class='st'>""</span>, ylab <span class='op'>=</span> <span class='st'>""</span><span class='op'>)</span>
+ <span class='fu'><a href='https://rdrr.io/r/base/plot.html'>plot</a></span>(<span class='no'>xy</span>[ <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"x"</span>, <span class='st'>"y"</span>)], <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"n"</span>, <span class='kw'>xlab</span> <span class='kw'>=</span> <span class='st'>""</span>, <span class='kw'>ylab</span> <span class='kw'>=</span> <span class='st'>""</span>)
  <span class='co'>#plots training points</span>
- <span class='fu'><a href='https://rdrr.io/r/graphics/points.html'>points</a></span><span class='op'>(</span><span class='va'>xy</span><span class='op'>[</span><span class='va'>out</span><span class='op'>[[</span><span class='fl'>10</span><span class='op'>]</span><span class='op'>]</span><span class='op'>$</span><span class='va'>training</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"x"</span>, <span class='st'>"y"</span><span class='op'>)</span><span class='op'>]</span>, col <span class='op'>=</span> <span class='st'>"red4"</span>, pch <span class='op'>=</span> <span class='fl'>15</span><span class='op'>)</span>
+ <span class='fu'><a href='https://rdrr.io/r/graphics/points.html'>points</a></span>(<span class='no'>xy</span>[<span class='no'>out</span><span class='kw'>[[</span><span class='fl'>10</span>]]$<span class='no'>training</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"x"</span>, <span class='st'>"y"</span>)], <span class='kw'>col</span> <span class='kw'>=</span> <span class='st'>"red4"</span>, <span class='kw'>pch</span> <span class='kw'>=</span> <span class='fl'>15</span>)
  <span class='co'>#plots testing points</span>
- <span class='fu'><a href='https://rdrr.io/r/graphics/points.html'>points</a></span><span class='op'>(</span><span class='va'>xy</span><span class='op'>[</span><span class='va'>out</span><span class='op'>[[</span><span class='fl'>10</span><span class='op'>]</span><span class='op'>]</span><span class='op'>$</span><span class='va'>testing</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"x"</span>, <span class='st'>"y"</span><span class='op'>)</span><span class='op'>]</span>, col <span class='op'>=</span> <span class='st'>"blue4"</span>, pch <span class='op'>=</span> <span class='fl'>15</span><span class='op'>)</span>
+ <span class='fu'><a href='https://rdrr.io/r/graphics/points.html'>points</a></span>(<span class='no'>xy</span>[<span class='no'>out</span><span class='kw'>[[</span><span class='fl'>10</span>]]$<span class='no'>testing</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"x"</span>, <span class='st'>"y"</span>)], <span class='kw'>col</span> <span class='kw'>=</span> <span class='st'>"blue4"</span>, <span class='kw'>pch</span> <span class='kw'>=</span> <span class='fl'>15</span>)
  <span class='co'>#plots xy.i</span>
- <span class='fu'><a href='https://rdrr.io/r/graphics/points.html'>points</a></span><span class='op'>(</span><span class='va'>xy</span><span class='op'>[</span><span class='fl'>10</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"x"</span>, <span class='st'>"y"</span><span class='op'>)</span><span class='op'>]</span>, col <span class='op'>=</span> <span class='st'>"black"</span>, pch <span class='op'>=</span> <span class='fl'>15</span>, cex <span class='op'>=</span> <span class='fl'>2</span><span class='op'>)</span>
-<span class='op'>}</span>
-<span class='co'># }</span>
-</div></pre>
+ <span class='fu'><a href='https://rdrr.io/r/graphics/points.html'>points</a></span>(<span class='no'>xy</span>[<span class='fl'>10</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"x"</span>, <span class='st'>"y"</span>)], <span class='kw'>col</span> <span class='kw'>=</span> <span class='st'>"black"</span>, <span class='kw'>pch</span> <span class='kw'>=</span> <span class='fl'>15</span>, <span class='kw'>cex</span> <span class='kw'>=</span> <span class='fl'>2</span>)
+}
+<span class='co'># }</span></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -208,7 +207,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
 </div>
 
       </footer>

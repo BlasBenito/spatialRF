@@ -80,7 +80,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
+    <span class="fas fa fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -94,7 +94,7 @@
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/BlasBenito/spatialRF/">
-    <span class="fab fa-github fa-lg"></span>
+    <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -120,12 +120,12 @@
     <p>Computes the correlation matrix among a set of predictors, orders the correlation matrix according to a user-defined preference order, and removes variables one by one, taking into account the preference order, until the remaining ones are below a given Pearson correlation threshold. <strong>Warning</strong>: variables in <code>preference.order</code> not in <code><a href='https://rdrr.io/r/base/colnames.html'>colnames(x)</a></code>, columns with zero variance, and non-numeric columns are removed silently from <code>x</code> and <code>preference.order</code>. The same happens with rows having NA values (<code><a href='https://rdrr.io/r/stats/na.fail.html'>na.omit()</a></code> is applied).</p>
     </div>
 
-    <pre class="usage"><span class='fu'>auto_cor</span><span class='op'>(</span>
-  x <span class='op'>=</span> <span class='cn'>NULL</span>,
-  preference.order <span class='op'>=</span> <span class='cn'>NULL</span>,
-  cor.threshold <span class='op'>=</span> <span class='fl'>0.75</span>,
-  verbose <span class='op'>=</span> <span class='cn'>TRUE</span>
-<span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>auto_cor</span>(
+  <span class='kw'>x</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>preference.order</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>cor.threshold</span> <span class='kw'>=</span> <span class='fl'>0.75</span>,
+  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
+)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -165,26 +165,25 @@
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># \donttest{</span>
-<span class='kw'>if</span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span><span class='op'>{</span>
+<span class='kw'>if</span>(<span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span>()){
 
- <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='va'>plant_richness_df</span><span class='op'>)</span>
+ <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>plant_richness_df</span>)
 
  <span class='co'>#on a data frame</span>
- <span class='va'>out</span> <span class='op'>&lt;-</span> <span class='fu'>auto_cor</span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>plant_richness_df</span><span class='op'>[</span>, <span class='fl'>4</span><span class='op'>:</span><span class='fl'>21</span><span class='op'>]</span><span class='op'>)</span>
- <span class='va'>out</span><span class='op'>$</span><span class='va'>selected.variables</span>
+ <span class='no'>out</span> <span class='kw'>&lt;-</span> <span class='fu'>auto_cor</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>plant_richness_df</span>[, <span class='fl'>4</span>:<span class='fl'>21</span>])
+ <span class='no'>out</span>$<span class='no'>selected.variables</span>
 
  <span class='co'>#on the result of auto_vif</span>
- <span class='va'>out</span> <span class='op'>&lt;-</span> <span class='fu'><a href='auto_vif.html'>auto_vif</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>plant_richness_df</span><span class='op'>[</span>, <span class='fl'>5</span><span class='op'>:</span><span class='fl'>20</span><span class='op'>]</span><span class='op'>)</span>
- <span class='va'>out</span> <span class='op'>&lt;-</span> <span class='fu'>auto_cor</span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>out</span><span class='op'>)</span>
+ <span class='no'>out</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='auto_vif.html'>auto_vif</a></span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>plant_richness_df</span>[, <span class='fl'>5</span>:<span class='fl'>20</span>])
+ <span class='no'>out</span> <span class='kw'>&lt;-</span> <span class='fu'>auto_cor</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>out</span>)
 
  <span class='co'>#with pipes (cor and vif thresholds are arbitrary)</span>
- <span class='va'>out</span> <span class='op'>&lt;-</span> <span class='va'>plant_richness_df</span><span class='op'>[</span>, <span class='fl'>5</span><span class='op'>:</span><span class='fl'>20</span><span class='op'>]</span> <span class='op'>%&gt;%</span>
- <span class='fu'><a href='auto_vif.html'>auto_vif</a></span><span class='op'>(</span>vif.threshold <span class='op'>=</span> <span class='fl'>2.5</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
- <span class='fu'>auto_cor</span><span class='op'>(</span>cor.threshold <span class='op'>=</span> <span class='fl'>0.4</span><span class='op'>)</span>
+ <span class='no'>out</span> <span class='kw'>&lt;-</span> <span class='no'>plant_richness_df</span>[, <span class='fl'>5</span>:<span class='fl'>20</span>] <span class='kw'>%&gt;%</span>
+ <span class='fu'><a href='auto_vif.html'>auto_vif</a></span>(<span class='kw'>vif.threshold</span> <span class='kw'>=</span> <span class='fl'>2.5</span>) <span class='kw'>%&gt;%</span>
+ <span class='fu'>auto_cor</span>(<span class='kw'>cor.threshold</span> <span class='kw'>=</span> <span class='fl'>0.4</span>)
 
- <span class='op'>}</span>
-<span class='co'># }</span>
-</div></pre>
+ }
+<span class='co'># }</span></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -200,7 +199,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
 </div>
 
       </footer>
