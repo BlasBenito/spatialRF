@@ -354,7 +354,7 @@ rf_repeat <- function(
       verbose = FALSE
       )
     m.curves$variable.importance$per.repetition <- variable.importance.per.repetition
-    m.curves$variable.importance$plot <- plot_importance(
+    m.curves$variable.importance$per.repetition.plot <- plot_importance(
       x = variable.importance.per.repetition,
       verbose = verbose
     )

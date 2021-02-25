@@ -58,7 +58,6 @@ plot_importance <- function(x, verbose = TRUE){
 
   }
 
-
   #find duplicates in "variable"
   variable.duplicated <- duplicated(x$variable)
 
@@ -87,19 +86,18 @@ plot_importance <- function(x, verbose = TRUE){
     #no "spatial_predictors" in variable, rf_repeat
     if(!("spatial_predictors" %in% x$variable)){
 
-      median <- NULL
       p <- ggplot2::ggplot(data = x) +
         ggplot2::aes(
           x = importance,
           y = reorder(
             variable,
             importance,
-            FUN = median
+            FUN = stats::median
           ),
           fill = reorder(
             variable,
             importance,
-            FUN = median
+            FUN = stats::median
           )
         ) +
         ggplot2::geom_boxplot() +
