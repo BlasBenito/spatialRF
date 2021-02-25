@@ -15,6 +15,4 @@
 statistical_mode <- function(x){
   x.unique <- unique(x)
   x.unique[which.max(tabulate(match(x, x.unique)))]
-  x.unique <- unlist(x.unique[1])
-  x.unique
 }
