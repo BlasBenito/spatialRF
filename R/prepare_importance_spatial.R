@@ -23,6 +23,7 @@
 #'  }
 #' }
 #' @rdname prepare_importance_spatial
+#' @importFrom stats median
 #' @export
 prepare_importance_spatial <- function(x){
 

@@ -1,3 +1,6 @@
+## Version 1.0.3 (25/2/2021)
+
+  + Removed the function scale_robust() from rf(), and replaced it with scale(). It was giving more troubles than benefits.
 
 ## Version 1.0.2 (24/2/2021)
 

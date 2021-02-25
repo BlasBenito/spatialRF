@@ -202,6 +202,7 @@ select_spatial_predictors_sequential <- function(
 
   }
 
+  #parallelized loop
   spatial.predictors.i <- NULL
   optimization.df <- foreach::foreach(
     spatial.predictors.i = seq(1, length(spatial.predictors.ranking)),
@@ -225,7 +226,7 @@ select_spatial_predictors_sequential <- function(
     )
 
     #fitting model i
-    m.i <- spatialRF::rf(
+    m.i <- rf(
       data = data.i,
       dependent.variable.name = dependent.variable.name,
       predictor.variable.names = predictor.variable.names.i,

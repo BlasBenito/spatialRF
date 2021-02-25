@@ -46,7 +46,7 @@ rf_spatial(
 
 \item{ranger.arguments}{Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.}
 
-\item{scaled.importance}{Logical. If \code{TRUE}, and 'importance = "permutation', the function scales 'data' with \code{\link[=scale_robust]{scale_robust()}} and fits a new model to compute scaled variable importance scores. Default: \code{TRUE}}
+\item{scaled.importance}{Logical. If \code{TRUE}, and 'importance = "permutation', the function scales 'data' with \link[base]{scale} and fits a new model to compute scaled variable importance scores. Default: \code{TRUE}}
 
 \item{repetitions}{Integer, number of repetitions. If 1, \code{\link[=rf]{rf()}} is used to fit the non-spatial and spatial models. If higher than one, \code{\link[=rf_repeat]{rf_repeat()}} is used instead. Notice that using more than one repetition can get computationally costly if the selected method generated a large number of spatial predictors, as it is the case of the "hengl" method. Default: \code{1}}
 

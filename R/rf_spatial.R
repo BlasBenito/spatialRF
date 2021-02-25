@@ -7,7 +7,7 @@
 #' @param distance.matrix Squared matrix with the distances among the records in `data`. The number of rows of `distance.matrix` and `data` must be the same. If not provided, the computation of the Moran's I of the residuals is omitted. Default: `NULL`
 #' @param distance.thresholds Numeric vector, distances below each value are set to 0 on separated copies of the distance matrix for the computation of Moran's I at different neighborhood distances. If `NULL`, it defaults to `seq(0, max(distance.matrix)/4, length.out = 2)`. Default: `NULL`
 #' @param ranger.arguments Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.
-#' @param scaled.importance Logical. If `TRUE`, and 'importance = "permutation', the function scales 'data' with [scale_robust()] and fits a new model to compute scaled variable importance scores. Default: `TRUE`
+#' @param scaled.importance Logical. If `TRUE`, and 'importance = "permutation', the function scales 'data' with \link[base]{scale} and fits a new model to compute scaled variable importance scores. Default: `TRUE`
 #' @param repetitions Integer, number of repetitions. If 1, [rf()] is used to fit the non-spatial and spatial models. If higher than one, [rf_repeat()] is used instead. Notice that using more than one repetition can get computationally costly if the selected method generated a large number of spatial predictors, as it is the case of the "hengl" method. Default: `1`
 #' @param keep.models Logical. If `TRUE`, the fitted models are returned in the "models" slot. If `repetitions` is very high and `method` is "hengl",
 #' setting `keep.models` to `TRUE` may cause memory issues. Default: `FALSE`
@@ -348,7 +348,7 @@ rf_spatial <- function(
       ranger.arguments = ranger.arguments,
       spatial.predictors.df = spatial.predictors.df,
       ranking.method = ranking.method,
-      reference.moran.i = model$spatial.correlation.residuals$max.moran,
+      reference.moran.i = 1,
       verbose = FALSE,
       n.cores = n.cores,
       cluster.ips = cluster.ips,
@@ -374,7 +374,7 @@ rf_spatial <- function(
   ){
 
     if(verbose == TRUE){
-      message("Selecting spatial predictors in the order of the ranking (sequentially)")
+      message("Sequential selection of spatial predictors.")
     }
 
     #selecting spatial predictors sequentially
@@ -412,7 +412,7 @@ rf_spatial <- function(
   ){
 
     if(verbose == TRUE){
-      message("Selecting spatial predictors by optimizing their joint effect on the Moran's I of the model's residuals")
+      message("Recursive selection of spatial predictors.")
     }
 
     #selecting spatial predictors by maximizing their joint effect

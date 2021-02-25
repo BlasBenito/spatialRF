@@ -87,6 +87,7 @@ plot_importance <- function(x, verbose = TRUE){
     #no "spatial_predictors" in variable, rf_repeat
     if(!("spatial_predictors" %in% x$variable)){
 
+      median <- NULL
       p <- ggplot2::ggplot(data = x) +
         ggplot2::aes(
           x = importance,
