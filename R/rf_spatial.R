@@ -219,7 +219,7 @@ rf_spatial <- function(
     stop("The distance matrix is missing.")
   }
 
-  if(is.null(distance.thresholds) == TRUE){
+  if(is.null(distance.thresholds)){
     distance.thresholds <- floor(
       seq(
         0,
@@ -377,16 +377,6 @@ rf_spatial <- function(
       message("Selecting spatial predictors in the order of the ranking (sequentially)")
     }
 
-    #setting default weights
-    if(is.null(weight.r.squared)){weight.r.squared <- 0.75}
-    if(is.null(weight.penalization.n.predictors)){weight.penalization.n.predictors <- 0.25}
-
-    #setting specific weights
-    if(method %in% c("pca.moran.sequential", "pca.effect.sequential")){
-      weight.penalization.n.predictors <- 0.1
-      weight.r.squared <- 0.5
-    }
-
     #selecting spatial predictors sequentially
     spatial.predictors.selection <- select_spatial_predictors_sequential(
       data = data,
@@ -424,10 +414,6 @@ rf_spatial <- function(
     if(verbose == TRUE){
       message("Selecting spatial predictors by optimizing their joint effect on the Moran's I of the model's residuals")
     }
-
-    #setting weights
-    if(is.null(weight.r.squared)){weight.r.squared <- 0.25}
-    if(is.null(weight.penalization.n.predictors)){weight.penalization.n.predictors <- 0}
 
     #selecting spatial predictors by maximizing their joint effect
     spatial.predictors.selection <- select_spatial_predictors_recursive(
