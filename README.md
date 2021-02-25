@@ -11,7 +11,7 @@
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/BlasBenito/spatialRF/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/BlasBenito/spatialRF/actions/workflows/R-CMD-check.yaml)
-[![Devel-version](https://img.shields.io/badge/devel%20version-1.0.2-blue.svg)](https://github.com/blasbenito/spatialRF)
+[![Devel-version](https://img.shields.io/badge/devel%20version-1.0.3-blue.svg)](https://github.com/blasbenito/spatialRF)
 [![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html)
 [![CRAN](https://img.shields.io/badge/CRAN-not_published_yet-red)](https://github.com/blasbenito/spatialRF)
 [![License](https://img.shields.io/badge/licence-GPL--3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
@@ -182,18 +182,18 @@ interactions <- rf_interactions(
 
     ## 3 potential interactions identified.
 
-    ##     ┌────────────────────────┬───────────────────────┬────────────────┐
-    ##     │ Interaction            │ Importance (% of max) │ R2 improvement │
-    ##     ├────────────────────────┼───────────────────────┼────────────────┤
-    ##     │ human_population_X_bia │                  72.1 │         0.017  │
-    ##     │ s_area_km2             │                       │                │
-    ##     ├────────────────────────┼───────────────────────┼────────────────┤
-    ##     │ climate_bio1_average_X │                  72.6 │         0.010  │
-    ##     │ _bias_area_km2         │                       │                │
-    ##     ├────────────────────────┼───────────────────────┼────────────────┤
-    ##     │ bias_area_km2_X_bias_s │                  59   │         0.0374 │
-    ##     │ pecies_per_record      │                       │                │
-    ##     └────────────────────────┴───────────────────────┴────────────────┘
+    ##       ┌─────────────────────────┬───────────────────────┬────────────────┐
+    ##       │ Interaction             │ Importance (% of max) │ R2 improvement │
+    ##       ├─────────────────────────┼───────────────────────┼────────────────┤
+    ##       │ human_population_X_bias │                  72.1 │         0.017  │
+    ##       │ _area_km2               │                       │                │
+    ##       ├─────────────────────────┼───────────────────────┼────────────────┤
+    ##       │ climate_bio1_average_X_ │                  72.6 │         0.010  │
+    ##       │ bias_area_km2           │                       │                │
+    ##       ├─────────────────────────┼───────────────────────┼────────────────┤
+    ##       │ bias_area_km2_X_bias_sp │                  59   │         0.0374 │
+    ##       │ ecies_per_record        │                       │                │
+    ##       └─────────────────────────┴───────────────────────┴────────────────┘
 
 ![](README_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
@@ -517,16 +517,16 @@ we will see that a few of them are spatial predictors.
 
 | variable                                   | importance |
 |:-------------------------------------------|-----------:|
-| spatial\_predictor\_0\_2                   |      0.329 |
-| climate\_bio1\_average\_X\_bias\_area\_km2 |      0.313 |
-| climate\_hypervolume                       |      0.295 |
-| climate\_bio1\_average                     |      0.288 |
-| bias\_species\_per\_record                 |      0.155 |
-| spatial\_predictor\_0\_1                   |      0.135 |
-| spatial\_predictor\_3000\_1                |      0.110 |
-| spatial\_predictor\_0\_6                   |      0.107 |
-| spatial\_predictor\_0\_5                   |      0.095 |
-| spatial\_predictor\_1500\_1                |      0.083 |
+| climate\_bio1\_average\_X\_bias\_area\_km2 |      0.169 |
+| spatial\_predictor\_0\_2                   |      0.148 |
+| climate\_hypervolume                       |      0.139 |
+| climate\_bio1\_average                     |      0.134 |
+| bias\_species\_per\_record                 |      0.075 |
+| spatial\_predictor\_0\_1                   |      0.070 |
+| spatial\_predictor\_3000\_1                |      0.051 |
+| spatial\_predictor\_0\_6                   |      0.050 |
+| spatial\_predictor\_0\_5                   |      0.038 |
+| neighbors\_count                           |      0.035 |
 
 Spatial predictors are named `spatial_predictor_X_Y`, where `X` is the
 neighborhood distance at which the predictor has been generated, and `Y`
@@ -587,11 +587,11 @@ model.spatial.tuned <- rf_tuning(
 
     ##   - num.trees:     1000
 
-    ##   - mtry:          47
+    ##   - mtry:          38
 
     ##   - min.node.size: 5
 
-    ## R squared gain: 0.015
+    ## R squared gain: 0.018
 
 ![](README_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
 
@@ -682,12 +682,12 @@ comparison <- rf_compare(
 |:------------------|:----------|---------:|
 | Non-spatial       | r.squared |    0.483 |
 | Non-spatial tuned | r.squared |    0.492 |
-| Spatial           | r.squared |    0.478 |
-| Spatial tuned     | r.squared |    0.458 |
+| Spatial           | r.squared |    0.477 |
+| Spatial tuned     | r.squared |    0.475 |
 | Non-spatial       | rmse      | 2496.102 |
 | Non-spatial tuned | rmse      | 2333.807 |
-| Spatial           | rmse      | 2503.165 |
-| Spatial tuned     | rmse      | 2504.872 |
+| Spatial           | rmse      | 2506.763 |
+| Spatial tuned     | rmse      | 2469.194 |
 
 The comparison shows that the non-spatial models performed slightly
 better than the spatial ones, but with overlapping notches, indicating
