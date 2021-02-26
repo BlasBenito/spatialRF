@@ -228,7 +228,7 @@ select_spatial_predictors_sequential <- function(
     )
 
     #fitting model i
-    m.i <- rf(
+    m.i <- spatialRF::rf(
       data = data.i,
       dependent.variable.name = dependent.variable.name,
       predictor.variable.names = predictor.variable.names.i,

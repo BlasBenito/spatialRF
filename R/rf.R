@@ -381,6 +381,7 @@ rf <- function(
 
   #importance dataframe
   if(importance == "permutation"){
+
     m$variable.importance <- list()
     m$variable.importance$per.variable <- data.frame(
       variable = names(m.scaled$variable.importance),
@@ -395,6 +396,7 @@ rf <- function(
       x = m$variable.importance$per.variable,
       verbose = verbose
     )
+
   }
 
   #getting residuals
