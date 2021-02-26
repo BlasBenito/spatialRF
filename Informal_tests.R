@@ -16,8 +16,22 @@ rf.model <- rf(
   verbose = FALSE
 )
 
+plot_response_curves(rf.model)
+
 #with repetitions
-rf.repeat <- rf_repeat(model = rf.model, verbose = FALSE, keep.models = TRUE)
+rf.repeat <- rf_repeat(
+  model = rf.model,
+  verbose = FALSE,
+  keep.models = TRUE
+  )
+
+rf.repeat <- rf_repeat(
+  model = rf.model,
+  verbose = FALSE,
+  keep.models = FALSE
+)
+
+plot_response_curves(rf.repeat)
 
 #spatial model
 rf.spatial <- rf_spatial(model = rf.model, verbose = FALSE)

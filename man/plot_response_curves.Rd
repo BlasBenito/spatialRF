@@ -8,7 +8,7 @@ plot_response_curves(
   x = NULL,
   variables = NULL,
   quantiles = c(0.1, 0.5, 0.9),
-  grid.resolution = 100,
+  grid.resolution = 200,
   show.data = FALSE,
   verbose = TRUE
 )
@@ -33,7 +33,7 @@ A list with slots named after the selected \code{variables}, with one ggplot eac
 Plots the response curves of models fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or  \code{\link[=rf_spatial]{rf_spatial()}}.
 }
 \details{
-All variables that are not plotted in a particular response curve are set to the values of their respective quantiles, and the response curve for each one of these quantiles is shown in the plot. The output list can be plotted all at once with \code{patchwork::wrap_plots(p)} or \code{cowplot::plot_grid(plotlist = p)}, or one by one by extracting each plot from the list.
+All variables that are not plotted in a particular response curve are set to the values of their respective quantiles, and the response curve for each one of these quantiles is shown in the plot. When the input model was fitted with \code{\link[=rf_repeat]{rf_repeat()}} with \code{keep.models = TRUE}, then the plot shows the median of all model runs, and each model run separately as a thinner line. The output list can be plotted all at once with \code{patchwork::wrap_plots(p)} or \code{cowplot::plot_grid(plotlist = p)}, or one by one by extracting each plot from the list.
 }
 \examples{
 \donttest{
