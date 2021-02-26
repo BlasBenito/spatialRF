@@ -13,6 +13,9 @@
 #' @rdname statistical_mode
 #' @export
 statistical_mode <- function(x){
+
   x.unique <- unique(x)
+
   x.unique[which.max(tabulate(match(x, x.unique)))]
+
 }
