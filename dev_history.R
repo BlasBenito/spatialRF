@@ -58,6 +58,7 @@ usethis::use_github_action_check_standard()
 # usethis::use_github_action("pkgdown")
 rmarkdown::render(input = "README.Rmd")
 pkgdown::build_site()
+unlink("docs/README_files", recursive = TRUE)
 system("cp -avr README_files docs")
 
 #build documentation

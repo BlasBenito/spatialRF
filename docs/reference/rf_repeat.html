@@ -130,7 +130,7 @@
   <span class='kw'>ranger.arguments</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>scaled.importance</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>repetitions</span> <span class='kw'>=</span> <span class='fl'>5</span>,
-  <span class='kw'>keep.models</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>keep.models</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>n.cores</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>cluster.ips</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
@@ -180,7 +180,7 @@
     </tr>
     <tr>
       <th>keep.models</th>
-      <td><p>Logical, if <code>TRUE</code>, the fitted models are returned in the <code>models</code> slot. Default: <code>FALSE</code>.</p></td>
+      <td><p>Logical, if <code>TRUE</code>, the fitted models are returned in the <code>models</code> slot. Set to <code>FALSE</code> if the accumulation of models is creating issues with the RAM memory available. Default: <code>TRUE</code>.</p></td>
     </tr>
     <tr>
       <th>verbose</th>
