@@ -9,7 +9,7 @@
 #' @param ranger.arguments Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.
 #' @param scaled.importance Logical. If `TRUE`, and 'importance = "permutation', the function scales 'data' with \link[base]{scale} and fits a new model to compute scaled variable importance scores. Default: `TRUE`
 #' @param repetitions Integer, number of random forest models to fit. Default: `5`
-#' @param keep.models Logical, if `TRUE`, the fitted models are returned in the `models` slot. Default: `FALSE`.
+#' @param keep.models Logical, if `TRUE`, the fitted models are returned in the `models` slot. Set to `FALSE` if the accumulation of models is creating issues with the RAM memory available. Default: `TRUE`.
 #' @param verbose Logical, ff `TRUE`, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
 #' @param n.cores Integer, number of cores to use during computations. If `NULL`, all cores but one are used, unless a cluster is used. Default = `NULL`
 #' @param cluster.ips Character vector with the IPs of the machines in a cluster. The machine with the first IP will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.
@@ -96,7 +96,7 @@ rf_repeat <- function(
   ranger.arguments = NULL,
   scaled.importance = TRUE,
   repetitions = 5,
-  keep.models = FALSE,
+  keep.models = TRUE,
   verbose = TRUE,
   n.cores = NULL,
   cluster.ips = NULL,
@@ -140,6 +140,10 @@ rf_repeat <- function(
   ranger.arguments$local.importance <- local.importance <- FALSE
   ranger.arguments$num.threads <- 1
   ranger.arguments$seed <- NULL
+
+  if(keep.models == TRUE){
+    ranger.arguments$write.forest <- TRUE
+  }
 
   #setup of parallel execution
   if(is.null(n.cores)){
@@ -257,6 +261,8 @@ rf_repeat <- function(
     out$nrmse <- m.i$performance$nrmse
     out$residuals <- m.i$residuals
     out$spatial.correlation.residuals <- m.i$spatial.correlation.residuals
+
+    #saving model
     if(keep.models == TRUE){
       out$model <- m.i
     }
@@ -501,7 +507,13 @@ rf_repeat <- function(
 
   #gathering models
   if(keep.models == TRUE){
-    m.curves$models <- repeated.models
+
+    m.curves$models <-    lapply(
+      repeated.models,
+      "[[",
+      "model"
+    )
+
   }
 
   #adding repetitions to ranger.arguments

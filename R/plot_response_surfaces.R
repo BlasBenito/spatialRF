@@ -46,10 +46,6 @@ plot_response_surfaces <- function(
   if(is.null(x)){
     stop("Argument 'x' must not be empty.")
   }
-  #add ranger class if rf
-  if(inherits(x, "rf")){
-    class(x) <- c(class(x), "ranger")
-  }
 
   grid.resolution <- floor(grid.resolution)
   if(grid.resolution > 500){grid.resolution <- 500}

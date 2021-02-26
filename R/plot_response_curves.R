@@ -40,10 +40,6 @@ plot_response_curves <- function(
   if(is.null(x)){
     stop("Argument 'x' must not be empty.")
   }
-  #add ranger class if rf
-  if(inherits(x, "rf")){
-    class(x) <- c(class(x), "ranger")
-  }
 
   grid.resolution <- floor(grid.resolution)
   if(grid.resolution > 500){grid.resolution <- 500}
@@ -57,17 +53,24 @@ plot_response_curves <- function(
   #getting the response variable
   response.variable <- x$ranger.arguments$dependent.variable.name
   predictors <- x$ranger.arguments$predictor.variable.names
+
   if(inherits(x, "rf_spatial")){
+
     predictors <- predictors[!(predictors %in% x$selection.spatial.predictors$names)]
+
   }
 
   #default values for variables
   if(is.null(variables)){
+
     variables <- x$variable.importance$per.variable[x$variable.importance$per.variable$variable %in% predictors, "variable"][1:floor(length(predictors) / 2)]
+
   }
 
   if(sum(variables %in% colnames(data)) != length(variables)){
+
     stop("Variable names in 'variables' must be column names of x$ranger.arguments$data.")
+
   }
 
   #list to store plots
@@ -100,7 +103,9 @@ plot_response_curves <- function(
 
       #iterating through variables
       for(variable.j in other.variables){
+
         variable.i.grid.copy[, variable.j] <- quantile(data[, variable.j], quantile.i)
+
       }
 
       #predicting
