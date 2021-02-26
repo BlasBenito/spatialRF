@@ -1,4 +1,4 @@
-#' @title Plots the response curves of a random forest x
+#' @title Plots the response curves of a model.
 #' @description Plots the response curves of models fitted with [rf()], [rf_repeat()], or  [rf_spatial()].
 #' @param x A model fitted with [rf()], [rf_repeat()], or [rf_spatial()].
 #' @param variables Character vector, names of predictors to plot. If `NULL`, the most important variables (importance higher than the median) in `x` are selected. Default: `NULL`.
@@ -180,6 +180,7 @@ plot_response_curves <- function(
       several.models <- TRUE
 
       #computing the median of each curve
+      id <- NULL
       variable.i.df.median <- variable.i.df %>%
         dplyr::group_by(quantile, id) %>%
         dplyr::summarise_at(
@@ -224,8 +225,8 @@ plot_response_curves <- function(
             group = interaction(variable.i.df$model, variable.i.df$quantile),
             color = "quantile"
           ),
-          size = ifelse(several.models, 0.4, 1),
-          alpha = ifelse(several.models, 0.5, 1)
+          size = ifelse(several.models, 0.2, 1),
+          alpha = ifelse(several.models, 0.4, 1)
         )  +
         ggplot2::geom_path(
           data = variable.i.df.median,
@@ -260,8 +261,8 @@ plot_response_curves <- function(
             group = interaction(variable.i.df$model, variable.i.df$quantile),
             color = "quantile"
           ),
-          size = ifelse(several.models, 0.4, 1),
-          alpha = ifelse(several.models, 0.5, 1)
+          size = ifelse(several.models, 0.2, 1),
+          alpha = ifelse(several.models, 0.4, 1)
         )  +
         ggplot2::geom_path(
           data = variable.i.df.median,

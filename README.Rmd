@@ -242,7 +242,7 @@ plot_response_surfaces(
 
 In this response surface, the predictors that are not shown are set to their medians (but other quantiles are possible).
 
-```{r, fig.width = 4.5, fig.height=4.5}
+```{r, fig.width = 6, fig.height=4.5}
 plot_importance(model.non.spatial, verbose = FALSE)
 ```
 
@@ -273,6 +273,27 @@ plot_importance(model.non.spatial.repeat, verbose = FALSE)
 ```
 
 After 30 model repetitions it is clear that the difference in importance between `climate_hypervolume` and `climate_bio1_average_X_bias_area_km2` is not the result of chance.
+
+The response curves of models fitted with `rf_repeat()` can be plotted with `plot_response_curves()` as well. The median prediction is shown with a thicker line.
+
+
+```{r, fig.width = 12, fig.height=7.5}
+plot_response_curves(model.non.spatial.repeat)
+```
+The function `get_response_curves()` returns a data frame with the data required to make custom plots of the response curves.
+
+```{r}
+plot.df <- get_response_curves(model.non.spatial.repeat)
+```
+
+```{r, echo = FALSE, warning = FALSE, message=FALSE}
+kableExtra::kbl(
+  head(plot.df, n = 10),
+  format = "markdown"
+) %>%
+  kableExtra::kable_paper("hover", full_width = F)
+```
+
 
 ### Tuning Random Forest hyperparameters
 

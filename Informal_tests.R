@@ -31,7 +31,7 @@ rf.repeat <- rf_repeat(
   keep.models = FALSE
 )
 
-plot_response_curves(rf.repeat)
+p <- get_response_curves(rf.repeat)
 
 #spatial model
 rf.spatial <- rf_spatial(model = rf.model, verbose = FALSE)

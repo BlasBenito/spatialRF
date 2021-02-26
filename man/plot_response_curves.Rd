@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_response_curves.R
 \name{plot_response_curves}
 \alias{plot_response_curves}
-\title{Plots the response curves of a random forest x}
+\title{Plots the response curves of a model.}
 \usage{
 plot_response_curves(
   x = NULL,
