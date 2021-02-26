@@ -14,7 +14,7 @@ rf_repeat(
   ranger.arguments = NULL,
   scaled.importance = TRUE,
   repetitions = 5,
-  keep.models = FALSE,
+  keep.models = TRUE,
   verbose = TRUE,
   n.cores = NULL,
   cluster.ips = NULL,
@@ -42,7 +42,7 @@ rf_repeat(
 
 \item{repetitions}{Integer, number of random forest models to fit. Default: \code{5}}
 
-\item{keep.models}{Logical, if \code{TRUE}, the fitted models are returned in the \code{models} slot. Default: \code{FALSE}.}
+\item{keep.models}{Logical, if \code{TRUE}, the fitted models are returned in the \code{models} slot. Set to \code{FALSE} if the accumulation of models is creating issues with the RAM memory available. Default: \code{TRUE}.}
 
 \item{verbose}{Logical, ff \code{TRUE}, messages and plots generated during the execution of the function are displayed, Default: \code{TRUE}}
 
