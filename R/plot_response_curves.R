@@ -240,7 +240,7 @@ plot_response_curves <- function(
           alpha = ifelse(several.models, 1, 0)
         )  +
         ggplot2::scale_color_viridis_d(
-          end = 0.8,
+          end = ifelse(length(quantiles) == 1, 0.1, 0.8),
           direction = -1
         ) +
         ggplot2::theme_bw() +
@@ -276,7 +276,7 @@ plot_response_curves <- function(
           alpha = ifelse(several.models, 1, 0)
         )  +
         ggplot2::scale_color_viridis_d(
-          end = 0.8,
+          end = ifelse(length(quantiles) == 1, 0.1, 0.8),
           direction = -1
         ) +
         ggplot2::theme_bw() +

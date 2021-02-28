@@ -156,7 +156,9 @@ plot_response_surfaces <- function(
   }
 
   if(verbose == TRUE){
-    print(ab.grid.quantiles)
+    ab.grid.quantiles
   }
+
+  ab.grid.quantiles
 
 }
