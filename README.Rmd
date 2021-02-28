@@ -78,9 +78,8 @@ library(rnaturalearth)
 library(rnaturalearthdata)
 ```
 
-# Working with `spatialRF`
 
-## The example data
+# Example data
 
 The package includes an example dataset named [`plant_richness_df`](https://blasbenito.github.io/spatialRF/reference/plant_richness_df.html), a data frame with plant species richness and predictors for 227 ecoregions in the Americas, and a distance matrix among the ecoregion edges named, well, [`distance_matrix`](https://blasbenito.github.io/spatialRF/reference/distance_matrix.html).
 
@@ -143,11 +142,7 @@ for(variable in predictor.variable.names){
 patchwork::wrap_plots(plot.list, ncol = 3)
 ```
 
-## The workflow
-
-In this section I describe, step-by-step, a typical workflow built with `spatialRF`.
-
-### Completing the training dataset: finding relevant variable interactions
+# Finding promising variable interactions
 
 Random Forests already takes into account variable interactions of the form "variable `a` becomes important when `b` is higher than x". However, Random Forest can also take advantage of variable interactions of the form `a * b`, as they are commonly defined in regression models.
 
@@ -173,7 +168,7 @@ plant_richness_df[, "climate_bio1_average_X_bias_area_km2"] <- interactions$colu
 predictor.variable.names <- c(predictor.variable.names, "climate_bio1_average_X_bias_area_km2")
 ```
 
-### Reducing multicollinearity in the predictors
+# Reducing multicollinearity in the predictors
 
 The functions [`auto_cor()`](https://blasbenito.github.io/spatialRF/reference/auto_cor.html) and [`auto_vif()`](https://blasbenito.github.io/spatialRF/reference/auto_vif.html) help reduce redundancy in the predictors by using different criteria (bivariate R squared vs. [variance inflation factor](https://www.statisticshowto.com/variance-inflation-factor/)), while allowing the user to define an *order of preference*, which can be based either on domain expertise or on a quantitative assessment. The preference order is defined as a character vector in the `preference.order` argument of both functions, and does not need to include the names of all predictors, but just the ones the user would like to keep in the analysis.
 
@@ -204,7 +199,7 @@ predictor.variable.names <- auto_cor(
 
 The output of `auto_cor()` or `auto_vif()` is of the class "variable_selection", that can be used as input for the argument `predictor.variable.names` of any modeling function within the package. An example is shown in the next section.
 
-### Fitting a non-spatial Random Forest model
+# Fitting a non-spatial Random Forest model
 
 To fit basic Random Forest models `spatialRF` provides the [`rf()`](https://blasbenito.github.io/spatialRF/reference/rf.html) function. It takes the training data, the names of the response and the predictors, and optionally (to assess the spatial autocorrelation of the residuals), the distance matrix, and a vector of distance thresholds (in the same units as the distances in **distance_matrix**).
 
@@ -295,7 +290,7 @@ kableExtra::kbl(
 ```
 
 
-### Tuning Random Forest hyperparameters
+# Tuning Random Forest hyperparameters
 
 The model fitted above was based on the default hyperparameter values provided by `ranger()`, and those might not be the most adequate ones for a given dataset. The function [`rf_tuning()`](https://blasbenito.github.io/spatialRF/reference/rf_tuning.html) helps the user to choose sensible values for three Random Forest hyperparameters that are critical to model performance:
 
@@ -323,7 +318,7 @@ model.non.spatial.tuned <- rf_tuning(
 
 The function `rf_tuning()` returns a model fitted with the same data as the original model, but using the best hyperparameters found during tuning. Model tuning has helped to a very small improvement in performance measures (+ `r round(model.non.spatial.tuned$tuning$r.squared.gain, 3)` R squared), so from here, we can keep working with `model.non.spatial.tuned`.
 
-### Fitting a spatial model
+# Fitting a spatial model
 
 The spatial autocorrelation of the residuals of `model.non.spatial`, measured with [Moran's I](https://en.wikipedia.org/wiki/Moran%27s_I), can be plotted with [`plot_moran()`](https://blasbenito.github.io/spatialRF/reference/plot_moran.html).
 
@@ -456,7 +451,7 @@ model.spatial.tuned <- rf_tuning(
 )
 ```
 
-### Assessing model performance on spatially independent folds
+# Assessing model performance on spatially independent folds
 
 The function [`rf_evaluate()`](https://blasbenito.github.io/spatialRF/reference/rf_evaluate.html) separates the training data into a number of spatially independent training and testing folds, fits a model on each training fold, predicts over each testing fold, and computes performance measures, to finally aggregate them across model repetitions. Let's see how it works.
 
@@ -535,7 +530,7 @@ plot_evaluation(model.spatial.tuned, notch = TRUE)
 
 The plot shows that the spatial model does a lousy job in predicting over unseen data.
 
-### Comparing several models
+# Comparing several models
 
 The function `rf_evaluate()` only assesses the predictive performance on unseen data of one model at a time. If the goal is to compare two models, `rf_evaluate()` can be indeed ran twice, but `spatialRF` offers a more convenient option named [`rf_compare()`](https://blasbenito.github.io/spatialRF/reference/rf_compare.html). It takes as input a named list with as many models as the user needs to compare.
 

@@ -4,9 +4,19 @@
 -   [Introduction](#introduction)
 -   [Applications](#applications)
 -   [Install](#install)
--   [Working with `spatialRF`](#working-with-spatialrf)
-    -   [The example data](#the-example-data)
-    -   [The workflow](#the-workflow)
+-   [Example data](#example-data)
+-   [Finding promising variable
+    interactions](#finding-promising-variable-interactions)
+-   [Reducing multicollinearity in the
+    predictors](#reducing-multicollinearity-in-the-predictors)
+-   [Fitting a non-spatial Random Forest
+    model](#fitting-a-non-spatial-random-forest-model)
+-   [Tuning Random Forest
+    hyperparameters](#tuning-random-forest-hyperparameters)
+-   [Fitting a spatial model](#fitting-a-spatial-model)
+-   [Assessing model performance on spatially independent
+    folds](#assessing-model-performance-on-spatially-independent-folds)
+-   [Comparing several models](#comparing-several-models)
 
 <!-- badges: start -->
 
@@ -113,9 +123,7 @@ library(rnaturalearth)
 library(rnaturalearthdata)
 ```
 
-# Working with `spatialRF`
-
-## The example data
+# Example data
 
 The package includes an example dataset named
 [`plant_richness_df`](https://blasbenito.github.io/spatialRF/reference/plant_richness_df.html),
@@ -150,12 +158,7 @@ variable (y axis) against each predictor (x axis).
 
 ![](README_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
-## The workflow
-
-In this section I describe, step-by-step, a typical workflow built with
-`spatialRF`.
-
-### Completing the training dataset: finding relevant variable interactions
+# Finding promising variable interactions
 
 Random Forests already takes into account variable interactions of the
 form “variable `a` becomes important when `b` is higher than x”.
@@ -219,7 +222,7 @@ plant_richness_df[, "climate_bio1_average_X_bias_area_km2"] <- interactions$colu
 predictor.variable.names <- c(predictor.variable.names, "climate_bio1_average_X_bias_area_km2")
 ```
 
-### Reducing multicollinearity in the predictors
+# Reducing multicollinearity in the predictors
 
 The functions
 [`auto_cor()`](https://blasbenito.github.io/spatialRF/reference/auto_cor.html)
@@ -279,7 +282,7 @@ The output of `auto_cor()` or `auto_vif()` is of the class
 `predictor.variable.names` of any modeling function within the package.
 An example is shown in the next section.
 
-### Fitting a non-spatial Random Forest model
+# Fitting a non-spatial Random Forest model
 
 To fit basic Random Forest models `spatialRF` provides the
 [`rf()`](https://blasbenito.github.io/spatialRF/reference/rf.html)
@@ -423,7 +426,7 @@ plot.df <- get_response_curves(model.non.spatial.repeat)
 | 1347.937 | -165.3426 | 0.1      |     1 | climate\_bio1\_average | richness\_species\_vascular |
 | 1347.937 | -163.0343 | 0.1      |     1 | climate\_bio1\_average | richness\_species\_vascular |
 
-### Tuning Random Forest hyperparameters
+# Tuning Random Forest hyperparameters
 
 The model fitted above was based on the default hyperparameter values
 provided by `ranger()`, and those might not be the most adequate ones
@@ -477,7 +480,7 @@ tuning. Model tuning has helped to a very small improvement in
 performance measures (+ 0.061 R squared), so from here, we can keep
 working with `model.non.spatial.tuned`.
 
-### Fitting a spatial model
+# Fitting a spatial model
 
 The spatial autocorrelation of the residuals of `model.non.spatial`,
 measured with [Moran’s I](https://en.wikipedia.org/wiki/Moran%27s_I),
@@ -624,7 +627,7 @@ model.spatial.tuned <- rf_tuning(
 
 ![](README_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->
 
-### Assessing model performance on spatially independent folds
+# Assessing model performance on spatially independent folds
 
 The function
 [`rf_evaluate()`](https://blasbenito.github.io/spatialRF/reference/rf_evaluate.html)
@@ -681,7 +684,7 @@ plot_evaluation(model.spatial.tuned, notch = TRUE)
 The plot shows that the spatial model does a lousy job in predicting
 over unseen data.
 
-### Comparing several models
+# Comparing several models
 
 The function `rf_evaluate()` only assesses the predictive performance on
 unseen data of one model at a time. If the goal is to compare two

@@ -77,13 +77,14 @@
 <li><a href="#introduction">Introduction</a></li>
 <li><a href="#applications">Applications</a></li>
 <li><a href="#install">Install</a></li>
-<li>
-<a href="#working-with-spatialrf">Working with <code>spatialRF</code></a>
-<ul>
-<li><a href="#the-example-data">The example data</a></li>
-<li><a href="#the-workflow">The workflow</a></li>
-</ul>
-</li>
+<li><a href="#example-data">Example data</a></li>
+<li><a href="#finding-promising-variable-interactions">Finding promising variable interactions</a></li>
+<li><a href="#reducing-multicollinearity-in-the-predictors">Reducing multicollinearity in the predictors</a></li>
+<li><a href="#fitting-a-non-spatial-random-forest-model">Fitting a non-spatial Random Forest model</a></li>
+<li><a href="#tuning-random-forest-hyperparameters">Tuning Random Forest hyperparameters</a></li>
+<li><a href="#fitting-a-spatial-model">Fitting a spatial model</a></li>
+<li><a href="#assessing-model-performance-on-spatially-independent-folds">Assessing model performance on spatially independent folds</a></li>
+<li><a href="#comparing-several-models">Comparing several models</a></li>
 </ul>
 <!-- badges: start -->
 <!-- badges: end -->
@@ -137,13 +138,9 @@
 <span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">rnaturalearth</span>)
 <span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">rnaturalearthdata</span>)</pre></div>
 </div>
-<div id="working-with-spatialrf" class="section level1">
+<div id="example-data" class="section level1">
 <h1 class="hasAnchor">
-<a href="#working-with-spatialrf" class="anchor"></a>Working with <code>spatialRF</code>
-</h1>
-<div id="the-example-data" class="section level2">
-<h2 class="hasAnchor">
-<a href="#the-example-data" class="anchor"></a>The example data</h2>
+<a href="#example-data" class="anchor"></a>Example data</h1>
 <p>The package includes an example dataset named <a href="https://blasbenito.github.io/spatialRF/reference/plant_richness_df.html"><code>plant_richness_df</code></a>, a data frame with plant species richness and predictors for 227 ecoregions in the Americas, and a distance matrix among the ecoregion edges named, well, <a href="https://blasbenito.github.io/spatialRF/reference/distance_matrix.html"><code>distance_matrix</code></a>.</p>
 <div class="sourceCode" id="cb4"><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="no">plant_richness_df</span>)
 <span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="no">distance_matrix</span>)
@@ -156,13 +153,9 @@
 <p>The predictors (columns 5 to 21) represent diverse factors that may influence plant richness such as sampling bias, the area of the ecoregion, climatic variables, human presence and impact, topography, geographical fragmentation, and features of the neighbors of each ecoregion. The figure below shows the scatterplots of the response variable (y axis) against each predictor (x axis).</p>
 <p><img src="README_files/figure-gfm/unnamed-chunk-6-1.png"><!-- --></p>
 </div>
-<div id="the-workflow" class="section level2">
-<h2 class="hasAnchor">
-<a href="#the-workflow" class="anchor"></a>The workflow</h2>
-<p>In this section I describe, step-by-step, a typical workflow built with <code>spatialRF</code>.</p>
-<div id="completing-the-training-dataset-finding-relevant-variable-interactions" class="section level3">
-<h3 class="hasAnchor">
-<a href="#completing-the-training-dataset-finding-relevant-variable-interactions" class="anchor"></a>Completing the training dataset: finding relevant variable interactions</h3>
+<div id="finding-promising-variable-interactions" class="section level1">
+<h1 class="hasAnchor">
+<a href="#finding-promising-variable-interactions" class="anchor"></a>Finding promising variable interactions</h1>
 <p>Random Forests already takes into account variable interactions of the form “variable <code>a</code> becomes important when <code>b</code> is higher than x”. However, Random Forest can also take advantage of variable interactions of the form <code>a * b</code>, as they are commonly defined in regression models.</p>
 <p>The function <a href="https://blasbenito.github.io/spatialRF/reference/rf_interactions.html"><code><a href="reference/rf_interactions.html">rf_interactions()</a></code></a> tests all possible interactions among predictors by using each one of them in a separate model, and suggesting the ones with the higher potential contribution to the model’s R squared and the higher relative importance (presented as a percentage of the maximum importance of a variable in the model).</p>
 <div class="sourceCode" id="cb5"><pre class="r"><span class="no">interactions</span> <span class="kw">&lt;-</span> <span class="fu"><a href="reference/rf_interactions.html">rf_interactions</a></span>(
@@ -195,9 +188,9 @@
 <span class="co">#adding interaction name to predictor.variable.names</span>
 <span class="no">predictor.variable.names</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="no">predictor.variable.names</span>, <span class="st">"climate_bio1_average_X_bias_area_km2"</span>)</pre></div>
 </div>
-<div id="reducing-multicollinearity-in-the-predictors" class="section level3">
-<h3 class="hasAnchor">
-<a href="#reducing-multicollinearity-in-the-predictors" class="anchor"></a>Reducing multicollinearity in the predictors</h3>
+<div id="reducing-multicollinearity-in-the-predictors" class="section level1">
+<h1 class="hasAnchor">
+<a href="#reducing-multicollinearity-in-the-predictors" class="anchor"></a>Reducing multicollinearity in the predictors</h1>
 <p>The functions <a href="https://blasbenito.github.io/spatialRF/reference/auto_cor.html"><code><a href="reference/auto_cor.html">auto_cor()</a></code></a> and <a href="https://blasbenito.github.io/spatialRF/reference/auto_vif.html"><code><a href="reference/auto_vif.html">auto_vif()</a></code></a> help reduce redundancy in the predictors by using different criteria (bivariate R squared vs. <a href="https://www.statisticshowto.com/variance-inflation-factor/">variance inflation factor</a>), while allowing the user to define an <em>order of preference</em>, which can be based either on domain expertise or on a quantitative assessment. The preference order is defined as a character vector in the <code>preference.order</code> argument of both functions, and does not need to include the names of all predictors, but just the ones the user would like to keep in the analysis.</p>
 <p>In the example below I give preference to the interaction suggested by <code><a href="reference/rf_interactions.html">rf_interactions()</a></code> over it’s two components, and prioritize climate over other types of predictors (any other choice would be valid, it just depends on the scope of the study). These rules are applied to both <code><a href="reference/auto_cor.html">auto_cor()</a></code> and <code><a href="reference/auto_vif.html">auto_vif()</a></code>, that are executed sequentially by using the <code><a href="https://rdrr.io/pkg/kableExtra/man/reexports.html">%&gt;%</a></code> pipe from the <a href="https://magrittr.tidyverse.org/">magrittr</a> package.</p>
 <p>Notice that I have set <code>cor.threshold</code> and <code>vif.threshold</code> to low values because the predictors in <code>plant_richness_df</code> already have little multicollinearity,. The default values (<code>cor.threshold = 0.75</code> and <code>vif.threshold = 5</code>) should work well when combined together for any other set of predictors.</p>
@@ -224,9 +217,9 @@
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="do">## [auto_vif()]: Removed variables: human_population</span></span></code></pre></div>
 <p>The output of <code><a href="reference/auto_cor.html">auto_cor()</a></code> or <code><a href="reference/auto_vif.html">auto_vif()</a></code> is of the class “variable_selection”, that can be used as input for the argument <code>predictor.variable.names</code> of any modeling function within the package. An example is shown in the next section.</p>
 </div>
-<div id="fitting-a-non-spatial-random-forest-model" class="section level3">
-<h3 class="hasAnchor">
-<a href="#fitting-a-non-spatial-random-forest-model" class="anchor"></a>Fitting a non-spatial Random Forest model</h3>
+<div id="fitting-a-non-spatial-random-forest-model" class="section level1">
+<h1 class="hasAnchor">
+<a href="#fitting-a-non-spatial-random-forest-model" class="anchor"></a>Fitting a non-spatial Random Forest model</h1>
 <p>To fit basic Random Forest models <code>spatialRF</code> provides the <a href="https://blasbenito.github.io/spatialRF/reference/rf.html"><code><a href="reference/rf.html">rf()</a></code></a> function. It takes the training data, the names of the response and the predictors, and optionally (to assess the spatial autocorrelation of the residuals), the distance matrix, and a vector of distance thresholds (in the same units as the distances in <strong>distance_matrix</strong>).</p>
 <p>These distance thresholds are the neighborhoods at which the model will check the spatial autocorrelation of the residuals. Their values may depend on the spatial scale of the data, and the ecological system under study.</p>
 <p>Notice that here I plug the object <code>predictor.variable.names</code>, output of <code><a href="reference/auto_cor.html">auto_cor()</a></code> and <code><a href="reference/auto_vif.html">auto_vif()</a></code>, directly into the <code>predictor.variable.names</code> argument.</p>
@@ -367,9 +360,9 @@
 </tbody>
 </table>
 </div>
-<div id="tuning-random-forest-hyperparameters" class="section level3">
-<h3 class="hasAnchor">
-<a href="#tuning-random-forest-hyperparameters" class="anchor"></a>Tuning Random Forest hyperparameters</h3>
+<div id="tuning-random-forest-hyperparameters" class="section level1">
+<h1 class="hasAnchor">
+<a href="#tuning-random-forest-hyperparameters" class="anchor"></a>Tuning Random Forest hyperparameters</h1>
 <p>The model fitted above was based on the default hyperparameter values provided by <code>ranger()</code>, and those might not be the most adequate ones for a given dataset. The function <a href="https://blasbenito.github.io/spatialRF/reference/rf_tuning.html"><code><a href="reference/rf_tuning.html">rf_tuning()</a></code></a> helps the user to choose sensible values for three Random Forest hyperparameters that are critical to model performance:</p>
 <ul>
 <li>
@@ -407,9 +400,9 @@
 <p><img src="README_files/figure-gfm/unnamed-chunk-19-1.png"><!-- --></p>
 <p>The function <code><a href="reference/rf_tuning.html">rf_tuning()</a></code> returns a model fitted with the same data as the original model, but using the best hyperparameters found during tuning. Model tuning has helped to a very small improvement in performance measures (+ 0.061 R squared), so from here, we can keep working with <code>model.non.spatial.tuned</code>.</p>
 </div>
-<div id="fitting-a-spatial-model" class="section level3">
-<h3 class="hasAnchor">
-<a href="#fitting-a-spatial-model" class="anchor"></a>Fitting a spatial model</h3>
+<div id="fitting-a-spatial-model" class="section level1">
+<h1 class="hasAnchor">
+<a href="#fitting-a-spatial-model" class="anchor"></a>Fitting a spatial model</h1>
 <p>The spatial autocorrelation of the residuals of <code>model.non.spatial</code>, measured with <a href="https://en.wikipedia.org/wiki/Moran%27s_I">Moran’s I</a>, can be plotted with <a href="https://blasbenito.github.io/spatialRF/reference/plot_moran.html"><code><a href="reference/plot_moran.html">plot_moran()</a></code></a>.</p>
 <div class="sourceCode" id="cb20"><pre class="r"><span class="fu"><a href="reference/plot_moran.html">plot_moran</a></span>(<span class="no">model.non.spatial.tuned</span>, <span class="kw">verbose</span> <span class="kw">=</span> <span class="fl">FALSE</span>)</pre></div>
 <p><img src="README_files/figure-gfm/unnamed-chunk-20-1.png"><!-- --></p>
@@ -518,9 +511,9 @@
 <span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a><span class="do">## R squared gain: 0.015</span></span></code></pre></div>
 <p><img src="README_files/figure-gfm/unnamed-chunk-27-1.png"><!-- --></p>
 </div>
-<div id="assessing-model-performance-on-spatially-independent-folds" class="section level3">
-<h3 class="hasAnchor">
-<a href="#assessing-model-performance-on-spatially-independent-folds" class="anchor"></a>Assessing model performance on spatially independent folds</h3>
+<div id="assessing-model-performance-on-spatially-independent-folds" class="section level1">
+<h1 class="hasAnchor">
+<a href="#assessing-model-performance-on-spatially-independent-folds" class="anchor"></a>Assessing model performance on spatially independent folds</h1>
 <p>The function <a href="https://blasbenito.github.io/spatialRF/reference/rf_evaluate.html"><code><a href="reference/rf_evaluate.html">rf_evaluate()</a></code></a> separates the training data into a number of spatially independent training and testing folds, fits a model on each training fold, predicts over each testing fold, and computes performance measures, to finally aggregate them across model repetitions. Let’s see how it works.</p>
 <div class="sourceCode" id="cb26"><pre class="r"><span class="no">model.spatial.tuned</span> <span class="kw">&lt;-</span> <span class="fu"><a href="reference/rf_evaluate.html">rf_evaluate</a></span>(
   <span class="kw">model</span> <span class="kw">=</span> <span class="no">model.spatial.tuned</span>,
@@ -540,9 +533,9 @@
 <p><img src="README_files/figure-gfm/unnamed-chunk-31-1.png"><!-- --></p>
 <p>The plot shows that the spatial model does a lousy job in predicting over unseen data.</p>
 </div>
-<div id="comparing-several-models" class="section level3">
-<h3 class="hasAnchor">
-<a href="#comparing-several-models" class="anchor"></a>Comparing several models</h3>
+<div id="comparing-several-models" class="section level1">
+<h1 class="hasAnchor">
+<a href="#comparing-several-models" class="anchor"></a>Comparing several models</h1>
 <p>The function <code><a href="reference/rf_evaluate.html">rf_evaluate()</a></code> only assesses the predictive performance on unseen data of one model at a time. If the goal is to compare two models, <code><a href="reference/rf_evaluate.html">rf_evaluate()</a></code> can be indeed ran twice, but <code>spatialRF</code> offers a more convenient option named <a href="https://blasbenito.github.io/spatialRF/reference/rf_compare.html"><code><a href="reference/rf_compare.html">rf_compare()</a></code></a>. It takes as input a named list with as many models as the user needs to compare.</p>
 <div class="sourceCode" id="cb30"><pre class="r"><span class="no">comparison</span> <span class="kw">&lt;-</span> <span class="fu"><a href="reference/rf_compare.html">rf_compare</a></span>(
   <span class="kw">models</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(
@@ -606,8 +599,6 @@
 </tbody>
 </table>
 <p>The comparison shows that the non-spatial models performed slightly better than the spatial ones, but with overlapping notches, indicating that the medians of the R squared and RMSE distributions are not statistically different. That is a small trade-off, considering that the spatial model incorporates information about the spatial structure of the data, and its residuals are not spatially correlated.</p>
-</div>
-</div>
 </div>
 
   </div>
