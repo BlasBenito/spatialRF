@@ -254,9 +254,9 @@ rf <- function(
     as.data.frame()
 
   #check if there are NaN
-  if(sum(apply(data.scaled, 2, is.nan)) > 0){
+  if(sum(apply(data.scaled, 2, is.nan)) > 0 | sum(apply(data.scaled, 2, is.infinite)) > 0){
     scaled.importance <- FALSE
-    warning("The training data yields NaN when scaled, setting scaled.importance to FALSE.")
+    warning("The training data yields NaN or Inf when scaled, setting scaled.importance to FALSE.")
   }
 
   #ranger model for r-squared and predictions
