@@ -249,6 +249,16 @@ rf <- function(
   #subset data
   data <- data[, c(dependent.variable.name, predictor.variable.names)]
 
+  #scaling the data
+  data.scaled <- scale(x = data) %>%
+    as.data.frame()
+
+  #check if there are NaN
+  if(sum(apply(data.scaled, 2, is.nan)) > 0){
+    scaled.importance <- FALSE
+    warning("The training data yields NaN when scaled, setting scaled.importance to FALSE.")
+  }
+
   #ranger model for r-squared and predictions
   m <- ranger::ranger(
     data = data,
@@ -289,10 +299,6 @@ rf <- function(
 
   #if scaled.importance is TRUE
   if(scaled.importance == TRUE){
-
-    #scaling to the data
-    data.scaled <- scale(x = data) %>%
-      as.data.frame()
 
     #ranger model for variable importance
     m.scaled <- ranger::ranger(

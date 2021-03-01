@@ -140,6 +140,7 @@ rf_repeat <- function(
   ranger.arguments$local.importance <- local.importance <- FALSE
   ranger.arguments$num.threads <- 1
   ranger.arguments$seed <- NULL
+  ranger.arguments$scaled.importance <- scaled.importance
 
   if(keep.models == TRUE){
     ranger.arguments$write.forest <- TRUE

@@ -63,12 +63,6 @@ rf_interactions <- function(
   #fitting model if absent
   if(is.null(model)){
 
-    #subsetting data
-    # data <- data[, c(
-    #   dependent.variable.name,
-    #   predictor.variable.names
-    # )]
-
     #fitting model
     model <- rf_repeat(
       data = data,
