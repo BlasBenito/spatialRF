@@ -20,3 +20,4 @@ _config.yml
 ^\.github$
 tests
 README.html
+data_Blas.Rdata

@@ -2,8 +2,10 @@
 ================
 
 -   [Introduction](#introduction)
+-   [Development](#development)
 -   [Applications](#applications)
 -   [Install](#install)
+-   [Data requirements](#data-requirements)
 -   [Example data](#example-data)
 -   [Finding promising variable
     interactions](#finding-promising-variable-interactions)
@@ -65,6 +67,24 @@ forest hyperparameters, assess model performance on spatially
 independent data folds, and examine the resulting models via importance
 plots, response curves, and response surfaces.
 
+# Development
+
+This package is reaching its final form, and big changes are not
+expected at this stage. However, it has many functions, and even though
+all them have been tested, only one dataset has been used for those
+tests. You will find bugs, and something will go wrong almost surely. If
+you have time to report bugs, please, do so in any of the following
+ways:
+
+-   Open a new issue in the [Issues GitHub page of the
+    package](https://github.com/BlasBenito/spatialRF/issues).
+-   Send me an email explaining the issue and the error messages with
+    enough detail at blasbenito at gmail dot com.
+-   Send a direct message to [my twitter
+    account](https://twitter.com/blasbenito) explaining the issue.
+
+I will do my best to solve any issues ASAP!
+
 # Applications
 
 The goal of `spatialRF` is to help fitting *explanatory spatial
@@ -123,11 +143,44 @@ library(rnaturalearth)
 library(rnaturalearthdata)
 ```
 
+# Data requirements
+
+The data required to fit random forest models with `spatialRF` must
+fulfill several conditions:
+
+-   **The number of rows must be somewhere between 100 and \~5000**, but
+    that will depend on the RAM available in your system. However, this
+    limitation only affects spatial analyses performed with
+    `rf_spatial()`, while all other modeling and plotting functions
+    should work without a distance matrix (if they don’t tell me, that’d
+    be a bug!), and therefore analyses in large datasets can still be
+    done with the package.
+-   **The number of predictors should be larger than 3**, fitting a
+    Random Forest model is moot otherwise.
+-   **Factors in the response or the predictors are not explicitly
+    supported in the package**, they may work, or they won’t, but in any
+    case, I designed this package for quantitative data alone.
+-   **Must be free of `NA`**. You can check if there are NA records with
+    `sum(apply(df, 2, is.na))`. If the result is larger than 0, then
+    just execute `df <- na.omit(df)` to remove rows with empty cells.
+-   **Columns cannot have zero variance**. This condition can be checked
+    with `apply(df, 2, var) == 0`. Columns yielding TRUE should be
+    removed.
+-   **Columns must not yield `NaN` or `Inf` when scaled**. You can check
+    each condition with `sum(apply(scale(df), 2, is.nan))` and
+    `sum(apply(scale(df), 2, is.infinite))`. If higher than 0, you can
+    find what columns are giving issues with
+    `sapply(df, function(x)any(is.nan(x)))` and
+    `sapply(df, function(x)any(is.infinite(x)))`. Any column yielding
+    `TRUE` will generate issues while trying to fit models with
+    `spatialRF`.
+
 # Example data
 
-The package includes an example dataset named
-[`plant_richness_df`](https://blasbenito.github.io/spatialRF/reference/plant_richness_df.html),
-a data frame with plant species richness and predictors for 227
+The package includes an example dataset that fulfills the conditions
+mentioned above, named
+[`plant_richness_df`](https://blasbenito.github.io/spatialRF/reference/plant_richness_df.html).
+It is a data frame with plant species richness and predictors for 227
 ecoregions in the Americas, and a distance matrix among the ecoregion
 edges named, well,
 [`distance_matrix`](https://blasbenito.github.io/spatialRF/reference/distance_matrix.html).

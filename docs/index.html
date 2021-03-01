@@ -75,8 +75,10 @@
 <a href="#spatialrf-easy-spatial-regression-with-random-forest" class="anchor"></a><code>spatialRF</code>: easy spatial regression with Random Forest</h1></div>
 <ul>
 <li><a href="#introduction">Introduction</a></li>
+<li><a href="#development">Development</a></li>
 <li><a href="#applications">Applications</a></li>
 <li><a href="#install">Install</a></li>
+<li><a href="#data-requirements">Data requirements</a></li>
 <li><a href="#example-data">Example data</a></li>
 <li><a href="#finding-promising-variable-interactions">Finding promising variable interactions</a></li>
 <li><a href="#reducing-multicollinearity-in-the-predictors">Reducing multicollinearity in the predictors</a></li>
@@ -106,6 +108,17 @@
   <span class="kw">distance.matrix</span> <span class="kw">=</span> <span class="no">your_distance_matrix</span>
   )</pre></div>
 <p>The package, that uses the <code>ranger</code> package under the hood <a href="https://arxiv.org/abs/1508.04409">(Wright and Ziegler 2017)</a>, also provides tools to identify potentially interesting variable interactions, tune random forest hyperparameters, assess model performance on spatially independent data folds, and examine the resulting models via importance plots, response curves, and response surfaces.</p>
+</div>
+<div id="development" class="section level1">
+<h1 class="hasAnchor">
+<a href="#development" class="anchor"></a>Development</h1>
+<p>This package is reaching its final form, and big changes are not expected at this stage. However, it has many functions, and even though all them have been tested, only one dataset has been used for those tests. You will find bugs, and something will go wrong almost surely. If you have time to report bugs, please, do so in any of the following ways:</p>
+<ul>
+<li>Open a new issue in the <a href="https://github.com/BlasBenito/spatialRF/issues">Issues GitHub page of the package</a>.</li>
+<li>Send me an email explaining the issue and the error messages with enough detail at blasbenito at gmail dot com.</li>
+<li>Send a direct message to <a href="https://twitter.com/blasbenito">my twitter account</a> explaining the issue.</li>
+</ul>
+<p>I will do my best to solve any issues ASAP!</p>
 </div>
 <div id="applications" class="section level1">
 <h1 class="hasAnchor">
@@ -138,10 +151,29 @@
 <span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">rnaturalearth</span>)
 <span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">rnaturalearthdata</span>)</pre></div>
 </div>
+<div id="data-requirements" class="section level1">
+<h1 class="hasAnchor">
+<a href="#data-requirements" class="anchor"></a>Data requirements</h1>
+<p>The data required to fit random forest models with <code>spatialRF</code> must fulfill several conditions:</p>
+<ul>
+<li>
+<strong>The number of rows must be somewhere between 100 and ~5000</strong>, but that will depend on the RAM available in your system. However, this limitation only affects spatial analyses performed with <code><a href="reference/rf_spatial.html">rf_spatial()</a></code>, while all other modeling and plotting functions should work without a distance matrix (if they don’t tell me, that’d be a bug!), and therefore analyses in large datasets can still be done with the package.</li>
+<li>
+<strong>The number of predictors should be larger than 3</strong>, fitting a Random Forest model is moot otherwise.</li>
+<li>
+<strong>Factors in the response or the predictors are not explicitly supported in the package</strong>, they may work, or they won’t, but in any case, I designed this package for quantitative data alone.</li>
+<li>
+<strong>Must be free of <code>NA</code></strong>. You can check if there are NA records with <code><a href="https://rdrr.io/r/base/sum.html">sum(apply(df, 2, is.na))</a></code>. If the result is larger than 0, then just execute <code>df &lt;- na.omit(df)</code> to remove rows with empty cells.</li>
+<li>
+<strong>Columns cannot have zero variance</strong>. This condition can be checked with <code>apply(df, 2, var) == 0</code>. Columns yielding TRUE should be removed.</li>
+<li>
+<strong>Columns must not yield <code>NaN</code> or <code>Inf</code> when scaled</strong>. You can check each condition with <code><a href="https://rdrr.io/r/base/sum.html">sum(apply(scale(df), 2, is.nan))</a></code> and <code><a href="https://rdrr.io/r/base/sum.html">sum(apply(scale(df), 2, is.infinite))</a></code>. If higher than 0, you can find what columns are giving issues with <code><a href="https://rdrr.io/r/base/lapply.html">sapply(df, function(x)any(is.nan(x)))</a></code> and <code><a href="https://rdrr.io/r/base/lapply.html">sapply(df, function(x)any(is.infinite(x)))</a></code>. Any column yielding <code>TRUE</code> will generate issues while trying to fit models with <code>spatialRF</code>.</li>
+</ul>
+</div>
 <div id="example-data" class="section level1">
 <h1 class="hasAnchor">
 <a href="#example-data" class="anchor"></a>Example data</h1>
-<p>The package includes an example dataset named <a href="https://blasbenito.github.io/spatialRF/reference/plant_richness_df.html"><code>plant_richness_df</code></a>, a data frame with plant species richness and predictors for 227 ecoregions in the Americas, and a distance matrix among the ecoregion edges named, well, <a href="https://blasbenito.github.io/spatialRF/reference/distance_matrix.html"><code>distance_matrix</code></a>.</p>
+<p>The package includes an example dataset that fulfills the conditions mentioned above, named <a href="https://blasbenito.github.io/spatialRF/reference/plant_richness_df.html"><code>plant_richness_df</code></a>. It is a data frame with plant species richness and predictors for 227 ecoregions in the Americas, and a distance matrix among the ecoregion edges named, well, <a href="https://blasbenito.github.io/spatialRF/reference/distance_matrix.html"><code>distance_matrix</code></a>.</p>
 <div class="sourceCode" id="cb4"><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="no">plant_richness_df</span>)
 <span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="no">distance_matrix</span>)
 
