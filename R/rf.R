@@ -118,6 +118,13 @@ rf <- function(
   verbose = TRUE
 ){
 
+  #giving priority to data not from ranger.arguments
+  if(!is.null(data) & !is.null(ranger.arguments)){
+    ranger.arguments$data <- NULL
+    ranger.arguments$dependent.variable.name <- NULL
+    ranger.arguments$predictor.variable.names <- NULL
+  }
+
   #default ranger arguments
   num.trees <- 500
   mtry <- NULL
