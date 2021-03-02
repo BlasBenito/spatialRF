@@ -1,3 +1,7 @@
+## Version 1.0.4 (2/3/2021)
+
+  + Fixed an issue where rf() applied the wrong is.numeric check to the response variable and the predictors that caused issues with tibbles.
+
 ## Version 1.0.3 (25/2/2021)
 
   + Removed the function scale_robust() from rf(), and replaced it with scale(). It was giving more troubles than benefits.

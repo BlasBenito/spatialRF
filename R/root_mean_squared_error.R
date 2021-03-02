@@ -28,9 +28,6 @@
 #' @export
 root_mean_squared_error <- function(o, p, normalization = c("rmse", "all", "mean", "sd", "maxmin", "iq")) {
 
-  if(!is.vector(o) | !is.vector(p) | length(o) != length(p)){
-    stop("o and p must be numeric vectors of the same length.")
-  }
   normalization <- match.arg(normalization)
 
   #computes rmse

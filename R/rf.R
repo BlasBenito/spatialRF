@@ -151,49 +151,31 @@ rf <- function(
   save.memory <- FALSE
   classification <- NULL
 
-  #creating ranger arguments if it does not exist
-  if(is.null(ranger.arguments)){
-    ranger.arguments <- list()
+  #putting ranger arguments in the environment
+  if(!is.null(ranger.arguments)){
+    list2env(ranger.arguments, envir=environment())
   }
 
-  #were are data, dependent.variable.name, and predictor.variable.names coming from?
-  if(is.null(data)){
-    if("data" %in% names(ranger.arguments)){
-      data <- ranger.arguments$data
-    } else {
-      stop("Argument 'data' not found.")
-    }
-  } else {
-    if(!is.null(ranger.arguments)){
-      ranger.arguments$data <- NULL
-    }
+  #coerce to data frame if tibble
+  if(inherits(data, "tbl_df") | inherits(data, "tbl")){
+    data <- as.data.frame(data)
   }
 
-  if(is.null(dependent.variable.name)){
-    if("dependent.variable.name" %in% names(ranger.arguments)){
-      dependent.variable.name <- ranger.arguments$dependent.variable.name
-    } else {
-      stop("Argument 'dependent.variable.name' not found.")
-    }
+  #predictor.variable.names comes from auto_vif or auto_cor
+  if(inherits(predictor.variable.names, "variable_selection")){
+    predictor.variable.names <- predictor.variable.names$selected.variables
   } else {
-    if(!is.null(ranger.arguments)){
-      ranger.arguments$dependent.variable.name <- NULL
-    }
-  }
-
-  if(is.null(predictor.variable.names)){
-    if("predictor.variable.names" %in% names(ranger.arguments)){
-      predictor.variable.names <- ranger.arguments$predictor.variable.names
-    } else {
-      stop("Argument 'predictor.variable.names' not found.")
-    }
-  } else {
-    if(!is.null(ranger.arguments)){
-      ranger.arguments$predictor.variable.names <- NULL
-    }
-    #predictor.variable.names comes from auto_vif or auto_cor
-    if(inherits(predictor.variable.names, "variable_selection")){
-      predictor.variable.names <- predictor.variable.names$selected.variables
+    if(sum(predictor.variable.names %in% colnames(data)) < length(predictor.variable.names)){
+      stop(
+        paste0(
+          "The predictor.variable.names ",
+          paste0(
+            predictor.variable.names[!(predictor.variable.names %in% colnames(data))],
+            collapse(", ")
+          ),
+          " are missing from 'data'"
+        )
+      )
     }
   }
 
@@ -204,59 +186,29 @@ rf <- function(
         "The dependent.variable.name ",
         dependent.variable.name,
         " is not a column of 'data'."
-        )
-      )
-  } else {
-    if(!is.numeric(data[, dependent.variable.name])){
-      stop(
-        paste0(
-          "The dependent.variable.name ",
-          dependent.variable.name,
-          " is not numeric."
-        )
-      )
-    }
-  }
-  if(sum(predictor.variable.names %in% colnames(data)) < length(predictor.variable.names)){
-    stop(
-      paste0(
-        "The predictor.variable.names ",
-        predictor.variable.names[!(predictor.variable.names %in% colnames(data))],
-        " are missing from 'data'"
-        )
-      )
-  }
-  if(sum(apply(X = data[, predictor.variable.names], MARGIN = 2, FUN = is.numeric)) < length(predictor.variable.names)){
-    stop(
-      paste0(
-        "The predictor.variable.names ",
-        predictor.variable.names[!apply(X = data[, predictor.variable.names], MARGIN = 2, FUN = is.numeric)],
-        " are not numeric."
       )
     )
   }
 
-  #putting ranger arguments in the environment
-  if(!is.null(ranger.arguments)){
-    list2env(ranger.arguments, envir=environment())
-  }
+  #subset data
+  data <- data[, c(dependent.variable.name, predictor.variable.names)]
 
   #setting up seed if available
   if(!is.null(seed)){
     set.seed(seed)
   }
 
-  #subset data
-  data <- data[, c(dependent.variable.name, predictor.variable.names)]
+  #scaling the data if required
+  if(scaled.importance == FALSE){
 
-  #scaling the data
-  data.scaled <- scale(x = data) %>%
-    as.data.frame()
+    data.scaled <-  as.data.frame(scale(x = data))
 
-  #check if there are NaN
-  if(sum(apply(data.scaled, 2, is.nan)) > 0 | sum(apply(data.scaled, 2, is.infinite)) > 0){
-    scaled.importance <- FALSE
-    warning("The training data yields NaN or Inf when scaled, setting scaled.importance to FALSE.")
+    #check if there are NaN
+    if(sum(apply(data.scaled, 2, is.nan)) > 0 | sum(apply(data.scaled, 2, is.infinite)) > 0){
+      scaled.importance <- FALSE
+      warning("The training data yields NaN or Inf when scaled, setting scaled.importance to FALSE.")
+    }
+
   }
 
   #ranger model for r-squared and predictions
@@ -435,7 +387,6 @@ rf <- function(
 
   #residuals
   m$residuals <- observed - predicted
-
 
   #compute moran I of residuals if distance.matrix is provided
   if(!is.null(distance.matrix)){
