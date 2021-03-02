@@ -462,6 +462,11 @@ rf_spatial <- function(
     spatial.predictors.selected
   )
 
+  #removing data from ranger arguments
+  ranger.arguments$data <- NULL
+  ranger.arguments$dependent.variable.name <- NULL
+  ranger.arguments$predictor.variable.names <- NULL
+
   #fitting spatial model
   if(repetitions == 1){
 
