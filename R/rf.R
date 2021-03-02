@@ -199,7 +199,7 @@ rf <- function(
   }
 
   #scaling the data if required
-  if(scaled.importance == FALSE){
+  if(scaled.importance == TRUE){
 
     data.scaled <-  as.data.frame(scale(x = data))
 
