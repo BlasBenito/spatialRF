@@ -171,7 +171,7 @@ rf <- function(
           "The predictor.variable.names ",
           paste0(
             predictor.variable.names[!(predictor.variable.names %in% colnames(data))],
-            collapse(", ")
+            collapse = ", "
           ),
           " are missing from 'data'"
         )
