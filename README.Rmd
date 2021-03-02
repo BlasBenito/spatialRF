@@ -20,7 +20,7 @@ The package **spatialRF** facilitates fitting spatial regression models on regul
 
 Two main methods to generate *spatial predictors* from the distance matrix of the data points are implemented in the package:
 
--   Principal coordinate analysis of neighbor matrices [(Dray, Legendre, and Peres-Neto 2006)](https://www.sciencedirect.com/science/article/abs/pii/S0304380006000925).
+-   Moran's Eigenvector Maps [(Dray, Legendre, and Peres-Neto 2006)](https://www.sciencedirect.com/science/article/abs/pii/S0304380006000925).
 -   Distance matrix columns as explanatory variables [(Hengl et al. 2018)](https://peerj.com/articles/5518/).
 
 The package is designed to minimize the amount of code required to fit a spatial model from a training dataset, the names of the response and the predictors, and a distance matrix, as the example below shows.
@@ -92,6 +92,7 @@ library(rnaturalearthdata)
 
 The data required to fit random forest models with `spatialRF` must fulfill several conditions:
 
+  + **The input format is data.frame**. At the moment, tibbles are not fully supported.
   + **The number of rows must be somewhere between 100 and ~5000**, but that will depend on the RAM available in your system. However, this limitation only affects spatial analyses performed with `rf_spatial()`, while all other modeling and plotting functions should work without a distance matrix (if they don't tell me, that'd be a bug!), and therefore analyses in large datasets can still be done with the package.
   + **The number of predictors should be larger than 3**, fitting a Random Forest model is moot otherwise.
   + **Factors in the response or the predictors are not explicitly supported in the package**, they may work, or they won't, but in any case, I designed this package for quantitative data alone.
@@ -543,7 +544,7 @@ p2 <- ggplot2::ggplot() +
 p1 | p2
 ```
 
-The functions [`plot_evaluation()`](https://blasbenito.github.io/spatialRF/reference/plot_evaluation.html) and [`print_evaluation()`](https://blasbenito.github.io/spatialRF/reference/print_evaluation.html) allow to check the evaluation results as a plot or as a table. The boxplot below shows the original performance scores of the "Full" model (`model.spatial.tuned`), and the distribution of performance scores of the model fitted on the training data ("Training"), its prediction over the "Testing" data. From these performance scores, only the ones labeled as "Testing" represent model performance on unseen data.
+The functions [`plot_evaluation()`](https://blasbenito.github.io/spatialRF/reference/plot_evaluation.html) and [`print_evaluation()`](https://blasbenito.github.io/spatialRF/reference/print_evaluation.html) allow to check the evaluation results as a plot or as a table. The boxplot below shows the original performance scores of the "Full" model (`model.spatial.tuned`), and the distribution of performance scores of the model fitted on the training data ("Training"), its prediction over the "Testing" data. From these performance scores, only the ones labeled as "Testing" represent model performance on *unseen* data.
 
 ```{r, fig.width=4, fig.height=3.5}
 plot_evaluation(model.spatial.tuned, notch = TRUE)

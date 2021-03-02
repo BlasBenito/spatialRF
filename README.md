@@ -23,10 +23,10 @@
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/BlasBenito/spatialRF/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/BlasBenito/spatialRF/actions/workflows/R-CMD-check.yaml)
-[![Devel-version](https://img.shields.io/badge/devel%20version-1.0.3-blue.svg)](https://github.com/blasbenito/spatialRF)
+[![Devel-version](https://img.shields.io/badge/devel%20version-1.0.4-blue.svg)](https://github.com/blasbenito/spatialRF)
 [![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html)
 [![CRAN](https://img.shields.io/badge/CRAN-not_published_yet-red)](https://github.com/blasbenito/spatialRF)
-[![License](https://img.shields.io/badge/licence-GPL--3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
+[![License](https://img.shields.io/badge/license-GPL--3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
 
 <!-- badges: end -->
 
@@ -41,8 +41,7 @@ autocorrelation of the model residuals as much as possible.
 Two main methods to generate *spatial predictors* from the distance
 matrix of the data points are implemented in the package:
 
--   Principal coordinate analysis of neighbor matrices [(Dray, Legendre,
-    and
+-   Moran’s Eigenvector Maps [(Dray, Legendre, and
     Peres-Neto 2006)](https://www.sciencedirect.com/science/article/abs/pii/S0304380006000925).
 -   Distance matrix columns as explanatory variables [(Hengl et
     al. 2018)](https://peerj.com/articles/5518/).
@@ -148,6 +147,8 @@ library(rnaturalearthdata)
 The data required to fit random forest models with `spatialRF` must
 fulfill several conditions:
 
+-   **The input format is data.frame**. At the moment, tibbles are not
+    fully supported.
 -   **The number of rows must be somewhere between 100 and \~5000**, but
     that will depend on the RAM available in your system. However, this
     limitation only affects spatial analyses performed with
@@ -234,21 +235,27 @@ interactions <- rf_interactions(
   )
 ```
 
-    ## Testing 36 candidate interactions.
+    ## Testing 10 candidate interactions.
 
-    ## 3 potential interactions identified.
+    ## 5 potential interactions identified.
 
     ##       ┌─────────────────────────┬───────────────────────┬────────────────┐
     ##       │ Interaction             │ Importance (% of max) │ R2 improvement │
     ##       ├─────────────────────────┼───────────────────────┼────────────────┤
-    ##       │ human_population_X_bias │                  72.1 │         0.017  │
+    ##       │ human_population_X_bias │                  76.5 │         0.017  │
     ##       │ _area_km2               │                       │                │
     ##       ├─────────────────────────┼───────────────────────┼────────────────┤
-    ##       │ climate_bio1_average_X_ │                  72.6 │         0.010  │
+    ##       │ climate_bio1_average_X_ │                  76.2 │         0.011  │
     ##       │ bias_area_km2           │                       │                │
     ##       ├─────────────────────────┼───────────────────────┼────────────────┤
-    ##       │ bias_area_km2_X_bias_sp │                  59   │         0.0374 │
-    ##       │ ecies_per_record        │                       │                │
+    ##       │ climate_hypervolume_X_b │                  66.3 │         0.001  │
+    ##       │ ias_area_km2            │                       │                │
+    ##       ├─────────────────────────┼───────────────────────┼────────────────┤
+    ##       │ climate_hypervolume_X_c │                  58.2 │         0.004  │
+    ##       │ limate_bio1_average     │                       │                │
+    ##       ├─────────────────────────┼───────────────────────┼────────────────┤
+    ##       │ bias_area_km2_X_neighbo │                  57.9 │         0.0012 │
+    ##       │ rs_count                │                       │                │
     ##       └─────────────────────────┴───────────────────────┴────────────────┘
 
 ![](README_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
@@ -360,7 +367,7 @@ model.non.spatial <- rf(
   predictor.variable.names = predictor.variable.names,
   distance.matrix = distance_matrix,
   distance.thresholds = c(0, 1500, 3000),
-  seed = 100, #just for reproducibility
+  seed = 100, #for reproducibility
   verbose = FALSE
 )
 ```
@@ -455,7 +462,7 @@ with `plot_response_curves()` as well. The median prediction is shown
 with a thicker line.
 
 ``` r
-plot_response_curves(model.non.spatial.repeat)
+plot_response_curves(model.non.spatial.repeat, quantiles = 0.5)
 ```
 
 ![](README_files/figure-gfm/unnamed-chunk-16-1.png)<!-- --> The function
@@ -559,7 +566,8 @@ that by default uses the Moran’s Eigenvector Maps method.
 model.spatial <- rf_spatial(
   model = model.non.spatial.tuned,
   method = "mem.moran.sequential", #default method
-  verbose = FALSE
+  verbose = FALSE,
+  seed = 100
   )
 ```
 
@@ -704,10 +712,11 @@ The function generates a new slot in the model named “evaluation” with
 several objects that summarize the spatial cross-validation results.
 
 ``` r
-names(model.spatial$evaluation)
+names(model.spatial.tuned$evaluation)
 ```
 
-    ## NULL
+    ## [1] "training.fraction" "spatial.folds"     "per.fold"         
+    ## [4] "per.fold.long"     "per.model"         "aggregated"
 
 The slot “spatial.folds”, produced by
 [`make_spatial_folds()`](https://blasbenito.github.io/spatialRF/reference/make_spatial_folds.html),
@@ -726,7 +735,7 @@ boxplot below shows the original performance scores of the “Full” model
 (`model.spatial.tuned`), and the distribution of performance scores of
 the model fitted on the training data (“Training”), its prediction over
 the “Testing” data. From these performance scores, only the ones labeled
-as “Testing” represent model performance on unseen data.
+as “Testing” represent model performance on *unseen* data.
 
 ``` r
 plot_evaluation(model.spatial.tuned, notch = TRUE)

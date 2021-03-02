@@ -74,7 +74,7 @@ Users should not use the suggested variable interactions hastily. Most likely, o
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">spatialRF</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.4</span>
       </span>
     </div>
 
@@ -131,13 +131,13 @@ Users should not use the suggested variable interactions hastily. Most likely, o
   <span class='kw'>predictor.variable.names</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>ranger.arguments</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>importance.threshold</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>repetitions</span> <span class='kw'>=</span> <span class='fl'>10</span>,
+  <span class='kw'>repetitions</span> <span class='kw'>=</span> <span class='fl'>5</span>,
   <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>n.cores</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>cluster.ips</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>cluster.cores</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>cluster.user</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Sys.info.html'>Sys.info</a></span>()<span class='kw'>[[</span><span class='st'>"user"</span>]],
-  <span class='kw'>cluster.port</span> <span class='kw'>=</span> <span class='fl'>11000</span>
+  <span class='kw'>cluster.port</span> <span class='kw'>=</span> <span class='st'>"11000"</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -165,11 +165,11 @@ Users should not use the suggested variable interactions hastily. Most likely, o
     </tr>
     <tr>
       <th>importance.threshold</th>
-      <td><p>Value of variable importance from <code>model</code> used as threshold to select variables to generate candidate interactions. Default: Median of the variable importance in <code>model</code>.</p></td>
+      <td><p>Value of variable importance from <code>model</code> used as threshold to select variables to generate candidate interactions. Default: Quantile 0.75 of the variable importance in <code>model</code>.</p></td>
     </tr>
     <tr>
       <th>repetitions</th>
-      <td><p>Integer, number of random forest models to fit in order to assess the importance of the interaction. Default: <code>10</code></p></td>
+      <td><p>Integer, number of random forest models to fit in order to assess the importance of the interaction. Default: <code>5</code></p></td>
     </tr>
     <tr>
       <th>verbose</th>
