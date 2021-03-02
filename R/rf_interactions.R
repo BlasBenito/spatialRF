@@ -235,6 +235,7 @@ rf_interactions <- function(
       ranger.arguments = ranger.arguments.i,
       scaled.importance = FALSE,
       verbose = FALSE,
+      keep.models = FALSE,
       repetitions = repetitions,
       n.cores = 1
     )

@@ -11,13 +11,13 @@ rf_interactions(
   predictor.variable.names = NULL,
   ranger.arguments = NULL,
   importance.threshold = NULL,
-  repetitions = 10,
+  repetitions = 5,
   verbose = TRUE,
   n.cores = NULL,
   cluster.ips = NULL,
   cluster.cores = NULL,
   cluster.user = Sys.info()[["user"]],
-  cluster.port = 11000
+  cluster.port = "11000"
 )
 }
 \arguments{
@@ -31,9 +31,9 @@ rf_interactions(
 
 \item{ranger.arguments}{Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.}
 
-\item{importance.threshold}{Value of variable importance from \code{model} used as threshold to select variables to generate candidate interactions. Default: Median of the variable importance in \code{model}.}
+\item{importance.threshold}{Value of variable importance from \code{model} used as threshold to select variables to generate candidate interactions. Default: Quantile 0.75 of the variable importance in \code{model}.}
 
-\item{repetitions}{Integer, number of random forest models to fit in order to assess the importance of the interaction. Default: \code{10}}
+\item{repetitions}{Integer, number of random forest models to fit in order to assess the importance of the interaction. Default: \code{5}}
 
 \item{verbose}{Logical If \code{TRUE}, messages and plots generated during the execution of the function are displayed, Default: \code{TRUE}}
 
