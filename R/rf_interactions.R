@@ -53,7 +53,7 @@ rf_interactions <- function(
   cluster.ips = NULL,
   cluster.cores = NULL,
   cluster.user = Sys.info()[["user"]],
-  cluster.port = 11000
+  cluster.port = "11000"
   ){
 
   #declaring variables
@@ -86,6 +86,12 @@ rf_interactions <- function(
   dependent.variable.name <- ranger.arguments$dependent.variable.name
   predictor.variable.names <- ranger.arguments$predictor.variable.names
 
+  #ranger.arguments.i
+  ranger.arguments.i <- ranger.arguments
+  ranger.arguments.i$data <- NULL
+  ranger.arguments.i$dependent.variable.name <- NULL
+  ranger.arguments.i$predictor.variable.names <- NULL
+
   #select variables to test
   if(is.null(importance.threshold)){
     importance.threshold <- quantile(model$variable.importance$per.variable$importance, 0.50)
@@ -99,9 +105,6 @@ rf_interactions <- function(
 
   #pairs of variables
   variables.pairs <- as.data.frame(t(utils::combn(variables.to.test, 2)))
-
-  #ranger.arguments.i
-  ranger.arguments.i <- ranger.arguments
 
   if(verbose == TRUE){
     message(paste0("Testing ", nrow(variables.pairs), " candidate interactions."))
@@ -210,7 +213,6 @@ rf_interactions <- function(
       new.min = 1,
       new.max = 100
       )
-
 
     #prepare data.i
     data.i <- data.frame(
