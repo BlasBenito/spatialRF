@@ -61,7 +61,7 @@ print_importance <- function(x, verbose = TRUE){
 
       #get spatial.predictor.stats if too many spatial predictors
       if(length.spatial.predictors >= length.non.spatial.predictors){
-        x <- x$variable.importance$spatial.predictor.stats
+        x <- x$variable.importance$spatial.predictors.stats
       } else {
         x <- x$variable.importance$per.variable
       }
