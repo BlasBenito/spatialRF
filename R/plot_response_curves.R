@@ -55,11 +55,13 @@ plot_response_curves <- function(
 
   #getting the response variable
   response.variable <- x$ranger.arguments$dependent.variable.name
+
+  #getting the predictors
   predictors <- x$ranger.arguments$predictor.variable.names
+
+  #removing spatial predictors
   if(inherits(x, "rf_spatial")){
-
     predictors <- predictors[!(predictors %in% x$selection.spatial.predictors$names)]
-
   }
 
   #default values for variables

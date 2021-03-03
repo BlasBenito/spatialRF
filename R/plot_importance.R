@@ -14,7 +14,7 @@
 #' if(interactive()){
 #'
 #' data(plant_richness_df)
-#' data(distance.matrix)
+#' data(distance_matrix)
 #'
 #' rf.model <- rf(
 #'   data = plant_richness_df,
