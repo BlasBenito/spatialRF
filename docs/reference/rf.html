@@ -209,17 +209,13 @@
  <span class='no'>out</span>$<span class='no'>variable.importance</span>$<span class='no'>per.variable</span>
 
  <span class='co'>#variable importance plot</span>
- <span class='no'>out</span>$<span class='no'>variable.importance</span>$<span class='no'>plot</span>
+ <span class='no'>out</span>$<span class='no'>variable.importance</span>$<span class='no'>per.variable.plot</span>
 
- <span class='co'>#pseudo R-squared</span>
- <span class='no'>out</span>$<span class='no'>pseudo.r.squared</span>
+ <span class='co'>#performance</span>
+ <span class='no'>out</span>$<span class='no'>performance</span>
 
- <span class='co'>#rmse and nrmse</span>
- <span class='no'>out</span>$<span class='no'>rmse</span>
- <span class='no'>out</span>$<span class='no'>nrmse</span>
-
- <span class='co'>#spatial correlation of the residuals for different distance thresholds</span>
- <span class='no'>out</span>$<span class='no'>spatial.correlation.residuals</span>$<span class='no'>df</span>
+ <span class='co'>#spatial correlation of the residuals</span>
+ <span class='no'>out</span>$<span class='no'>spatial.correlation.residuals</span>$<span class='no'>per.distance</span>
 
  <span class='co'>#plot of the Moran's I of the residuals for different distance thresholds</span>
  <span class='no'>out</span>$<span class='no'>spatial.correlation.residuals</span>$<span class='no'>plot</span>
@@ -242,29 +238,6 @@
  <span class='no'>my.arguments</span>$<span class='no'>distance.matrix</span> <span class='kw'>&lt;-</span> <span class='no'>distance_matrix</span>
  <span class='no'>my.arguments</span>$<span class='no'>distance.thresholds</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0</span>, <span class='fl'>100</span>, <span class='fl'>1000</span>)
  <span class='no'>out</span> <span class='kw'>&lt;-</span> <span class='fu'>rf</span>(<span class='kw'>ranger.arguments</span> <span class='kw'>=</span> <span class='no'>my.arguments</span>)
-
- <span class='co'>#the formula input method of ranger is supported (requires 'data')</span>
- <span class='co'>#variable interactions are not supported by this interface</span>
- <span class='no'>out</span> <span class='kw'>&lt;-</span> <span class='fu'>rf</span>(
-   <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>plant_richness_df</span>,
-   <span class='kw'>ranger.arguments</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(
-     <span class='kw'>formula</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/stats/formula.html'>as.formula</a></span>(
-     <span class='st'>"richness_species_vascular ~
-     climate_hypervolume +
-     climate_velocity_lgm_average +
-     neighbors_count +
-     neighbors_percent_shared_edge"</span>
-     )
-   )
- )
-
- <span class='co'>#the x and y interface is also supported (the name of the response variable is converted to "y")</span>
- <span class='no'>out</span> <span class='kw'>&lt;-</span> <span class='fu'>rf</span>(
-   <span class='kw'>ranger.arguments</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(
-     <span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>plant_richness_df</span>$<span class='no'>richness_species_vascular</span>,
-     <span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>plant_richness_df</span>[, <span class='fl'>5</span>:<span class='fl'>21</span>]
-     )
-   )
 
 }
 <span class='co'># }</span></div></pre>

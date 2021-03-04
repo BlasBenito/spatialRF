@@ -41,9 +41,9 @@
 
 <meta property="og:title" content="Finds optimal combinations of spatial predictors — select_spatial_predictors_recursive" />
 <meta property="og:description" content="Selects spatial predictors following these steps:
-Gets the best spatial predictor yielded by rank_spatial_predictors() and fits a model of the form y ~ predictors + best_spatial_predictor_1. The Moran's I of the residuals of this model are used as reference value for the next step.
+Gets the spatial predictors ranked by rank_spatial_predictors() and fits a model of the form y ~ predictors + best_spatial_predictor_1. The Moran's I of the residuals of this model is used as reference value for the next step.
 The remaining spatial predictors are introduced again into rank_spatial_predictors(), and the spatial predictor with the highest ranking is introduced in a new model of the form y ~  predictors + best_spatial_predictor_1 + best_spatial_predictor_2.
-Steps 1 and 2 are repeated until there are no more spatial predictors left.
+Steps 1 and 2 are repeated until the Moran's I doesn't improve for a number of repetitions equal to the 20 percent of the total number of spatial predictors introduced in the function.
 This method allows to select the smallest set of spatial predictors that have the largest joint effect in reducing the spatial correlation of the model residuals, while maintaining the model's R-squared as high as possible. As a consequence of running rank_spatial_predictors() on each iteration, this method includes in the final model less spatial predictors than the sequential method implemented in select_spatial_predictors_sequential() would do, while minimizing spatial correlation and maximizing the R squared of the model as much as possible." />
 
 
@@ -122,9 +122,9 @@ This method allows to select the smallest set of spatial predictors that have th
 
     <div class="ref-description">
     <p>Selects spatial predictors following these steps:</p><ol>
-<li><p>Gets the best spatial predictor yielded by <code><a href='rank_spatial_predictors.html'>rank_spatial_predictors()</a></code> and fits a model of the form <code>y ~ predictors + best_spatial_predictor_1</code>. The Moran's I of the residuals of this model are used as reference value for the next step.</p></li>
+<li><p>Gets the spatial predictors ranked by <code><a href='rank_spatial_predictors.html'>rank_spatial_predictors()</a></code> and fits a model of the form <code>y ~ predictors + best_spatial_predictor_1</code>. The Moran's I of the residuals of this model is used as reference value for the next step.</p></li>
 <li><p>The remaining spatial predictors are introduced again into <code><a href='rank_spatial_predictors.html'>rank_spatial_predictors()</a></code>, and the spatial predictor with the highest ranking is introduced in a new model of the form <code>y ~  predictors + best_spatial_predictor_1 + best_spatial_predictor_2</code>.</p></li>
-<li><p>Steps 1 and 2 are repeated until there are no more spatial predictors left.</p></li>
+<li><p>Steps 1 and 2 are repeated until the Moran's I doesn't improve for a number of repetitions equal to the 20 percent of the total number of spatial predictors introduced in the function.</p></li>
 </ol><p>This method allows to select the smallest set of spatial predictors that have the largest joint effect in reducing the spatial correlation of the model residuals, while maintaining the model's R-squared as high as possible. As a consequence of running <code><a href='rank_spatial_predictors.html'>rank_spatial_predictors()</a></code> on each iteration, this method includes in the final model less spatial predictors than the sequential method implemented in <code><a href='select_spatial_predictors_sequential.html'>select_spatial_predictors_sequential()</a></code> would do, while minimizing spatial correlation and maximizing the R squared of the model as much as possible.</p>
     </div>
 
@@ -274,6 +274,7 @@ This method allows to select the smallest set of spatial predictors that have th
 
 <span class='no'>selection</span>$<span class='no'>optimization</span>
 <span class='no'>selection</span>$<span class='no'>best.spatial.predictors</span>
+<span class='fu'><a href='plot_optimization.html'>plot_optimization</a></span>(<span class='no'>selection</span>$<span class='no'>optimization</span>)
 
 }
 <span class='co'># }</span></div></pre>

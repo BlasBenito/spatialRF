@@ -60,6 +60,7 @@ Users should not use the suggested variable interactions hastily. Most likely, o
 \examples{
 \donttest{
 if(interactive()){
+
  data(plant_richness_df)
 
  interactions <- rf_interactions(

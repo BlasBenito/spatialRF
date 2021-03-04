@@ -71,6 +71,7 @@
 #'
 #' selection$optimization
 #' selection$best.spatial.predictors
+#' plot_optimization(selection$optimization)
 #'
 #' }
 #' }

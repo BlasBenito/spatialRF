@@ -75,23 +75,25 @@ This function has been designed to be used internally by \code{\link[=rf_spatial
 \examples{
 \donttest{
 if(interactive()){
+
  data("distance_matrix")
 
- spatial.predictors.df <- pca_distance_matrix(
-   x = distance_matrix[1:50, 1:50],
-   distance.thresholds = c(0, 100, 1000)
- )
+mem.df <- mem(
+ x = distance_matrix[1:50, 1:50],
+ distance.threshold = 0
+)
 
- #ranking by the Moran's I of the spatial predictor
- rank <- rank_spatial_predictors(
-   distance.matrix = distance_matrix[1:50, 1:50],
-   distance.thresholds = c(0, 100, 1000),
-   spatial.predictors.df = spatial.predictors.df,
-   ranking.method = "effect",
-   n.cores = 1
- )
- rank$ranking.criteria
- rank$ranking
+#ranking by the Moran's I of the spatial predictor
+rank <- rank_spatial_predictors(
+ distance.matrix = distance_matrix[1:50, 1:50],
+ distance.thresholds = 0,
+ spatial.predictors.df = mem.df,
+ ranking.method = "moran",
+ n.cores = 1
+)
+rank$criteria
+rank$ranking
+
  }
 }
 }

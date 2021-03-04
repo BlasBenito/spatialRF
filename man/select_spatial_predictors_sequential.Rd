@@ -117,6 +117,7 @@ selection <- select_spatial_predictors_sequential(
 
 selection$optimization
 selection$best.spatial.predictors
+plot_optimization(selection$optimization)
 
 }
 }

@@ -66,13 +66,23 @@ if(interactive()){
 data(plant_richness_df)
 data(distance_matrix)
 
-tuning <- rf_tuning(
+#fitting model to tune
+out <- rf(
   data = plant_richness_df,
   dependent.variable.name = "richness_species_vascular",
   predictor.variable.names = colnames(plant_richness_df)[5:21],
+  distance.matrix = distance_matrix,
+  distance.thresholds = c(0, 100, 1000, 10000)
+)
+
+#model tuning
+tuning <- rf_tuning(
+  model = out,
   method = "oob",
-  n.cores = 1,
-  verbose = FALSE
+  num.trees = c(100, 500),
+  mtry = c(2, 8),
+  min.node.size = c(5, 10),
+  n.cores = 1
 )
 
 }

@@ -73,17 +73,13 @@ if(interactive()){
  out$variable.importance$per.variable
 
  #variable importance plot
- out$variable.importance$plot
+ out$variable.importance$per.variable.plot
 
- #pseudo R-squared
- out$pseudo.r.squared
+ #performance
+ out$performance
 
- #rmse and nrmse
- out$rmse
- out$nrmse
-
- #spatial correlation of the residuals for different distance thresholds
- out$spatial.correlation.residuals$df
+ #spatial correlation of the residuals
+ out$spatial.correlation.residuals$per.distance
 
  #plot of the Moran's I of the residuals for different distance thresholds
  out$spatial.correlation.residuals$plot
@@ -106,29 +102,6 @@ if(interactive()){
  my.arguments$distance.matrix <- distance_matrix
  my.arguments$distance.thresholds <- c(0, 100, 1000)
  out <- rf(ranger.arguments = my.arguments)
-
- #the formula input method of ranger is supported (requires 'data')
- #variable interactions are not supported by this interface
- out <- rf(
-   data = plant_richness_df,
-   ranger.arguments = list(
-     formula = as.formula(
-     "richness_species_vascular ~
-     climate_hypervolume +
-     climate_velocity_lgm_average +
-     neighbors_count +
-     neighbors_percent_shared_edge"
-     )
-   )
- )
-
- #the x and y interface is also supported (the name of the response variable is converted to "y")
- out <- rf(
-   ranger.arguments = list(
-     y = plant_richness_df$richness_species_vascular,
-     x = plant_richness_df[, 5:21]
-     )
-   )
 
 }
 }

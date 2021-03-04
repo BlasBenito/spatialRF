@@ -233,7 +233,7 @@
    <span class='kw'>predictor.variable.names</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span>(<span class='no'>plant_richness_df</span>)[<span class='fl'>5</span>:<span class='fl'>21</span>],
    <span class='kw'>distance.matrix</span> <span class='kw'>=</span> <span class='no'>distance_matrix</span>,
    <span class='kw'>distance.thresholds</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0</span>, <span class='fl'>100</span>, <span class='fl'>1000</span>, <span class='fl'>10000</span>),
-   <span class='kw'>repetitions</span> <span class='kw'>=</span> <span class='fl'>10</span>,
+   <span class='kw'>repetitions</span> <span class='kw'>=</span> <span class='fl'>5</span>,
    <span class='kw'>n.cores</span> <span class='kw'>=</span> <span class='fl'>1</span>
  )
 
@@ -246,17 +246,14 @@
  <span class='no'>out</span>$<span class='no'>variable.importance</span>$<span class='no'>per.repetition</span>
 
  <span class='co'>#variable importance plot</span>
- <span class='no'>out</span>$<span class='no'>variable.importance</span>$<span class='no'>plot</span>
+ <span class='no'>out</span>$<span class='no'>variable.importance</span>$<span class='no'>per.repetition.plot</span>
 
- <span class='co'>#pseudo R-squared</span>
- <span class='no'>out</span>$<span class='no'>pseudo.r.squared</span>
+ <span class='co'>#performance</span>
+ <span class='no'>out</span>$<span class='no'>performance</span>
 
- <span class='co'>#rmse and nrmse</span>
- <span class='no'>out</span>$<span class='no'>rmse</span>
- <span class='no'>out</span>$<span class='no'>nrmse</span>
 
  <span class='co'>#spatial correlation of the residuals for different distance thresholds</span>
- <span class='no'>out</span>$<span class='no'>spatial.correlation.residuals</span>$<span class='no'>df</span>
+ <span class='no'>out</span>$<span class='no'>spatial.correlation.residuals</span>$<span class='no'>per.distance</span>
 
  <span class='co'>#plot of the Moran's I of the residuals for different distance thresholds</span>
  <span class='no'>out</span>$<span class='no'>spatial.correlation.residuals</span>$<span class='no'>plot</span>
@@ -269,12 +266,10 @@
    <span class='kw'>distance.matrix</span> <span class='kw'>=</span> <span class='no'>distance_matrix</span>,
    <span class='kw'>distance.thresholds</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0</span>, <span class='fl'>1000</span>, <span class='fl'>2000</span>)
    )
- <span class='no'>rf.model</span>$<span class='no'>performance</span>
- <span class='no'>rf.model</span>$<span class='no'>variable.importance</span>$<span class='no'>plot</span>
 
  <span class='no'>rf.repeat</span> <span class='kw'>&lt;-</span> <span class='fu'>rf_repeat</span>(<span class='kw'>model</span> <span class='kw'>=</span> <span class='no'>rf.model</span>)
  <span class='no'>rf.repeat</span>$<span class='no'>performance</span>
- <span class='no'>rf.repeat</span>$<span class='no'>variable.importance</span>$<span class='no'>plot</span>
+ <span class='no'>rf.repeat</span>$<span class='no'>variable.importance</span>$<span class='no'>per.repetition.plot</span>
 
 }
 <span class='co'># }</span></div></pre>

@@ -83,7 +83,7 @@ if(interactive()){
    predictor.variable.names = colnames(plant_richness_df)[5:21],
    distance.matrix = distance_matrix,
    distance.thresholds = c(0, 100, 1000, 10000),
-   repetitions = 10,
+   repetitions = 5,
    n.cores = 1
  )
 
@@ -96,17 +96,14 @@ if(interactive()){
  out$variable.importance$per.repetition
 
  #variable importance plot
- out$variable.importance$plot
+ out$variable.importance$per.repetition.plot
 
- #pseudo R-squared
- out$pseudo.r.squared
+ #performance
+ out$performance
 
- #rmse and nrmse
- out$rmse
- out$nrmse
 
  #spatial correlation of the residuals for different distance thresholds
- out$spatial.correlation.residuals$df
+ out$spatial.correlation.residuals$per.distance
 
  #plot of the Moran's I of the residuals for different distance thresholds
  out$spatial.correlation.residuals$plot
@@ -119,12 +116,10 @@ if(interactive()){
    distance.matrix = distance_matrix,
    distance.thresholds = c(0, 1000, 2000)
    )
- rf.model$performance
- rf.model$variable.importance$plot
 
  rf.repeat <- rf_repeat(model = rf.model)
  rf.repeat$performance
- rf.repeat$variable.importance$plot
+ rf.repeat$variable.importance$per.repetition.plot
 
 }
 }

@@ -21,6 +21,7 @@
 #' @examples
 #' \donttest{
 #' if(interactive()){
+#'
 #'  data(plant_richness_df)
 #'
 #'  interactions <- rf_interactions(

@@ -1,9 +1,9 @@
 #' @title Finds optimal combinations of spatial predictors
 #' @description Selects spatial predictors following these steps:
 #' \enumerate{
-#'   \item Gets the best spatial predictor yielded by [rank_spatial_predictors()] and fits a model of the form `y ~ predictors + best_spatial_predictor_1`. The Moran's I of the residuals of this model are used as reference value for the next step.
+#'   \item Gets the spatial predictors ranked by [rank_spatial_predictors()] and fits a model of the form `y ~ predictors + best_spatial_predictor_1`. The Moran's I of the residuals of this model is used as reference value for the next step.
 #'   \item The remaining spatial predictors are introduced again into [rank_spatial_predictors()], and the spatial predictor with the highest ranking is introduced in a new model of the form `y ~  predictors + best_spatial_predictor_1 + best_spatial_predictor_2`.
-#'   \item Steps 1 and 2 are repeated until there are no more spatial predictors left.
+#'   \item Steps 1 and 2 are repeated until the Moran's I doesn't improve for a number of repetitions equal to the 20 percent of the total number of spatial predictors introduced in the function.
 #' }
 #' This method allows to select the smallest set of spatial predictors that have the largest joint effect in reducing the spatial correlation of the model residuals, while maintaining the model's R-squared as high as possible. As a consequence of running [rank_spatial_predictors()] on each iteration, this method includes in the final model less spatial predictors than the sequential method implemented in [select_spatial_predictors_sequential()] would do, while minimizing spatial correlation and maximizing the R squared of the model as much as possible.
 #' @param data Data frame with a response variable and a set of predictors. Default: `NULL`
@@ -79,6 +79,7 @@
 #'
 #' selection$optimization
 #' selection$best.spatial.predictors
+#' plot_optimization(selection$optimization)
 #'
 #' }
 #' }
@@ -215,7 +216,7 @@ select_spatial_predictors_recursive <- function(
     recursive.index.tracking[i] <- optimization.df[which.max(optimization.df$optimization), "spatial.predictor.index"]
 
     #finding repetitions in the maximum value of recursive index
-    if(sum(recursive.index.tracking == max(recursive.index.tracking)) > floor(nrow(optimization.df)/10)){
+    if(sum(recursive.index.tracking == max(recursive.index.tracking)) > floor(nrow(optimization.df)/5)){
       break
     }
 

@@ -113,7 +113,7 @@
 #'  rf.spatial$spatial.correlation.residuals$plot
 #'
 #'  #fitting an rf_spatial model from an rf_repeat model
-#'  rf.repeat <- rf_repat(
+#'  rf.repeat <- rf_repeat(
 #'    data = plant_richness_df,
 #'    dependent.variable.name = "richness_species_vascular",
 #'    predictor.variable.names = colnames(plant_richness_df)[5:21],

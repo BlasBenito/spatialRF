@@ -53,6 +53,7 @@ Uses \code{\link[=rf_evaluate]{rf_evaluate()}} to compare the performance of sev
 \examples{
 \donttest{
 if(interactive()){
+
  data(distance_matrix)
  data(plant_richness_df)
 
@@ -66,13 +67,15 @@ if(interactive()){
 
  rf.spatial <- rf_spatial(model = rf.model)
 
- comparison <- rf_compare(
-   a = rf.model,
-   b = rf.spatial,
-   a.name = "Non spatial",
-   b.name = "Spatial",
-   xy = plant_richness_df[, c("x", "y")],
-   )
+comparison <- rf_compare(
+ models = list(
+   `Non spatial` = rf.model,
+   Spatial = rf.spatial
+ ),
+ xy = plant_richness_df[, c("x", "y")],
+ metrics = c("r.squared", "rmse")
+)
+
  }
 }
 }
