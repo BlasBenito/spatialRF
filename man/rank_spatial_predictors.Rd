@@ -37,7 +37,7 @@ rank_spatial_predictors(
 
 \item{spatial.predictors.df}{Data frame of spatial predictors.}
 
-\item{ranking.method}{Character, method used by to rank spatial predictors. The method "effect" ranks spatial predictors according how much each predictor reduces Moran's I of the model residuals, while the method "moran" ranks them by their own Moran's I.}
+\item{ranking.method}{Character, method used by to rank spatial predictors. The method "effect" ranks spatial predictors according how much each predictor reduces Moran's I of the model residuals, while the method "moran" ranks them by their own Moran's I. Default: \code{"moran"}.}
 
 \item{reference.moran.i}{Moran's I of the residuals of the model without spatial predictors. Default: \code{1}}
 
