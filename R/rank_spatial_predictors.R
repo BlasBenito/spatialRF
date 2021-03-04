@@ -61,7 +61,7 @@ rank_spatial_predictors <- function(
   distance.thresholds = NULL,
   ranger.arguments = NULL,
   spatial.predictors.df = NULL,
-  ranking.method = c("effect", "moran"),
+  ranking.method = c("moran", "effect"),
   reference.moran.i = 1,
   verbose = FALSE,
   n.cores = NULL,
@@ -74,7 +74,7 @@ rank_spatial_predictors <- function(
   #testing method argument
   ranking.method <- match.arg(
     arg = ranking.method,
-    choices = c("effect", "moran"),
+    choices = c("moran", "effect"),
     several.ok = FALSE
     )
 
@@ -172,6 +172,11 @@ rank_spatial_predictors <- function(
     doParallel::registerDoParallel(cl = temp.cluster)
     on.exit(parallel::stopCluster(cl = temp.cluster))
 
+  }
+
+  #default value for distance threshold
+  if(is.null(distance.thresholds)){
+    distance.thresholds <- 0
   }
 
   #parallelized loop

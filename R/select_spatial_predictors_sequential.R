@@ -49,7 +49,7 @@
 
 #' #ranking spatial predictors by their Moran's I (faster option)
 #' spatial.predictors.ranking <- rank_spatial_predictors(
-#'   ranking.method = "mem",
+#'   ranking.method = "moran",
 #'   spatial.predictors.df = spatial.predictors,
 #'   reference.moran.i = model$spatial.correlation.residuals$max.moran,
 #'   distance.matrix = distance.matrix,
