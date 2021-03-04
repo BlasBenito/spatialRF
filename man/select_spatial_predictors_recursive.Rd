@@ -103,7 +103,7 @@ spatial.predictors.ranking <- rank_spatial_predictors(
   dependent.variable.name = dependent.variable.name,
   predictor.variable.names = predictor.variable.names,
   spatial.predictors.df = spatial.predictors,
-  ranking.method = "moran.i.reduction",
+  ranking.method = "moran",
   reference.moran.i = model$spatial.correlation.residuals$max.moran,
   distance.matrix = distance.matrix,
   distance.thresholds = distance.thresholds,

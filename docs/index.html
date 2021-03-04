@@ -87,6 +87,7 @@
 <li><a href="#fitting-a-spatial-model">Fitting a spatial model</a></li>
 <li><a href="#assessing-model-performance-on-spatially-independent-folds">Assessing model performance on spatially independent folds</a></li>
 <li><a href="#comparing-several-models">Comparing several models</a></li>
+<li><a href="#generating-spatial-predictors-for-other-models">Generating spatial predictors for other models</a></li>
 </ul>
 <!-- badges: start -->
 <!-- badges: end -->
@@ -641,6 +642,215 @@
 </tbody>
 </table>
 <p>The comparison shows that the non-spatial models performed slightly better than the spatial ones, but with overlapping notches, indicating that the medians of the R squared and RMSE distributions are not statistically different. That is a small trade-off, considering that the spatial model incorporates information about the spatial structure of the data, and its residuals are not spatially correlated.</p>
+</div>
+<div id="generating-spatial-predictors-for-other-models" class="section level1">
+<h1 class="hasAnchor">
+<a href="#generating-spatial-predictors-for-other-models" class="anchor"></a>Generating spatial predictors for other models</h1>
+<p>You might not love Random Forest, but <code>spatialRF</code> loves you, and as such, it gives you tools to generate spatial predictors for other models anyway.</p>
+<p>The first step requires generating Moran’s Eigenvector Maps (MEMs) from the distance matrix. Here there are two options, computing MEMs for a single neighborhood distance with <a href="https://blasbenito.github.io/spatialRF/reference/mem.html"><code><a href="reference/mem.html">mem()</a></code></a>, and computing MEMs for several neighborhood distances at once with <a href="https://blasbenito.github.io/spatialRF/reference/mem_multithreshold.html"><code><a href="reference/mem_multithreshold.html">mem_multithreshold()</a></code></a>.</p>
+<div class="sourceCode" id="cb31"><pre class="r"><span class="co">#single distance (0km by default)</span>
+<span class="no">mems</span> <span class="kw">&lt;-</span> <span class="fu"><a href="reference/mem.html">mem</a></span>(<span class="kw">x</span> <span class="kw">=</span> <span class="no">distance_matrix</span>)
+
+<span class="co">#several distances</span>
+<span class="no">mems</span> <span class="kw">&lt;-</span> <span class="fu"><a href="reference/mem_multithreshold.html">mem_multithreshold</a></span>(
+  <span class="kw">x</span> <span class="kw">=</span> <span class="no">distance_matrix</span>,
+  <span class="kw">distance.thresholds</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0</span>, <span class="fl">1000</span>, <span class="fl">2000</span>)
+)</pre></div>
+<p>In either case the result is a data frame with Moran’s Eigenvector Maps (“just” the positive eigenvectors of the double-centerd distance matrix).</p>
+<table class="table">
+<colgroup>
+<col width="25%">
+<col width="25%">
+<col width="25%">
+<col width="25%">
+</colgroup>
+<thead><tr class="header">
+<th align="right">spatial_predictor_0_1</th>
+<th align="right">spatial_predictor_0_2</th>
+<th align="right">spatial_predictor_0_3</th>
+<th align="right">spatial_predictor_0_4</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="right">0.0259217</td>
+<td align="right">0.0052203</td>
+<td align="right">0.0416969</td>
+<td align="right">-0.0363324</td>
+</tr>
+<tr class="even">
+<td align="right">0.0996679</td>
+<td align="right">0.0539713</td>
+<td align="right">0.1324480</td>
+<td align="right">0.3826928</td>
+</tr>
+<tr class="odd">
+<td align="right">0.0010477</td>
+<td align="right">-0.0143046</td>
+<td align="right">-0.0443602</td>
+<td align="right">-0.0031386</td>
+</tr>
+<tr class="even">
+<td align="right">0.0165695</td>
+<td align="right">0.0047991</td>
+<td align="right">0.0307457</td>
+<td align="right">0.0005170</td>
+</tr>
+<tr class="odd">
+<td align="right">0.0225761</td>
+<td align="right">0.0019595</td>
+<td align="right">0.0230368</td>
+<td align="right">-0.0524239</td>
+</tr>
+<tr class="even">
+<td align="right">0.0155252</td>
+<td align="right">0.0023742</td>
+<td align="right">0.0197953</td>
+<td align="right">-0.0338956</td>
+</tr>
+<tr class="odd">
+<td align="right">0.0229197</td>
+<td align="right">0.0039860</td>
+<td align="right">0.0312561</td>
+<td align="right">-0.0416697</td>
+</tr>
+<tr class="even">
+<td align="right">-0.2436009</td>
+<td align="right">-0.1155295</td>
+<td align="right">0.0791452</td>
+<td align="right">0.0189996</td>
+</tr>
+<tr class="odd">
+<td align="right">0.0150725</td>
+<td align="right">-0.0158684</td>
+<td align="right">-0.1010284</td>
+<td align="right">0.0095590</td>
+</tr>
+<tr class="even">
+<td align="right">-0.1187381</td>
+<td align="right">-0.0471879</td>
+<td align="right">0.0359881</td>
+<td align="right">0.0065211</td>
+</tr>
+</tbody>
+</table>
+<p>But not all MEMs are made equal, and you will need to rank them by their Moran’s I. The function <a href="https://blasbenito.github.io/spatialRF/reference/rank_spatial_predictors.html"><code><a href="reference/rank_spatial_predictors.html">rank_spatial_predictors()</a></code></a> will help you do so.</p>
+<div class="sourceCode" id="cb32"><pre class="r"><span class="no">mem.rank</span> <span class="kw">&lt;-</span> <span class="fu"><a href="reference/rank_spatial_predictors.html">rank_spatial_predictors</a></span>(
+  <span class="kw">distance.matrix</span> <span class="kw">=</span> <span class="no">distance_matrix</span>,
+  <span class="kw">spatial.predictors.df</span> <span class="kw">=</span> <span class="no">mems</span>
+)</pre></div>
+<p>The output of <code><a href="reference/rank_spatial_predictors.html">rank_spatial_predictors()</a></code> is a list with three slots: “method”, a character string with the name of the ranking method; “criteria”, an ordered data frame with the criteria used to rank the spatial predictors; and “ranking”, a character vector with the names of the spatial predictors in the order of their ranking (it is just the first column of the “criteria” data frame). We can use this “ranking” object to reorder or <code>mems</code> data frame.</p>
+<div class="sourceCode" id="cb33"><pre class="r"><span class="no">mems</span> <span class="kw">&lt;-</span> <span class="no">mems</span>[, <span class="no">mem.rank</span>$<span class="no">ranking</span>]</pre></div>
+<p>From here, spatial predictors can be included in any model one by one, in the order of the ranking, until the spatial autocorrelation of the residuals is gone, or our model gets totally defaced. A little example with a linear model follows.</p>
+<div class="sourceCode" id="cb34"><pre class="r"><span class="co">#model definition</span>
+<span class="no">predictors</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(
+  <span class="st">"climate_aridity_index_average "</span>,
+  <span class="st">"climate_bio1_average"</span>,
+  <span class="st">"bias_species_per_record"</span>,
+  <span class="st">"human_population_density"</span>,
+  <span class="st">"topography_elevation_average"</span>,
+  <span class="st">"fragmentation_division"</span>
+)
+<span class="no">model.formula</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/formula.html">as.formula</a></span>(
+  <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span>(
+    <span class="no">dependent.variable.name</span>,
+    <span class="st">" ~ "</span>,
+    <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span>(
+      <span class="no">predictors</span>,
+      <span class="kw">collapse</span> <span class="kw">=</span> <span class="st">" + "</span>
+    )
+  )
+)
+
+<span class="co">#scaling the data</span>
+<span class="no">model.data</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/scale.html">scale</a></span>(<span class="no">plant_richness_df</span>) <span class="kw">%&gt;%</span>
+  <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span>()
+
+<span class="co">#fitting the model</span>
+<span class="no">m</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html">lm</a></span>(<span class="no">model.formula</span>, <span class="kw">data</span> <span class="kw">=</span> <span class="no">plant_richness_df</span>)
+
+<span class="co">#Moran's I test of the residuals</span>
+<span class="no">moran.test</span> <span class="kw">&lt;-</span> <span class="fu"><a href="reference/moran.html">moran</a></span>(
+  <span class="kw">x</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/residuals.html">residuals</a></span>(<span class="no">m</span>),
+  <span class="kw">distance.matrix</span> <span class="kw">=</span> <span class="no">distance_matrix</span>,
+)
+<span class="no">moran.test</span></pre></div>
+<div class="sourceCode" id="cb35"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="do">##   moran.i p.value               interpretation</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="do">## 1    0.21       0 Positive spatial correlation</span></span></code></pre></div>
+<p>According to the Moran’s I test, the model residuals show spatial autocorrelation. Let’s introduce MEMs one by one until the problem is solved.</p>
+<div class="sourceCode" id="cb36"><pre class="r"><span class="co">#add mems to the data and applies scale()</span>
+<span class="no">model.data</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span>(
+  <span class="no">plant_richness_df</span>,
+  <span class="no">mems</span>
+) <span class="kw">%&gt;%</span>
+  <span class="fu"><a href="https://rdrr.io/r/base/scale.html">scale</a></span>() <span class="kw">%&gt;%</span>
+  <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span>()
+
+<span class="co">#initialize predictors.i</span>
+<span class="no">predictors.i</span> <span class="kw">&lt;-</span> <span class="no">predictors</span>
+
+<span class="co">#iterating through MEMs</span>
+<span class="kw">for</span>(<span class="no">mem.i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span>(<span class="no">mems</span>)){
+
+  <span class="co">#add mem name to model definintion</span>
+  <span class="no">predictors.i</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="no">predictors.i</span>, <span class="no">mem.i</span>)
+
+  <span class="co">#generate model formula with the new spatial predictor</span>
+  <span class="no">model.formula.i</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/formula.html">as.formula</a></span>(
+    <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span>(
+      <span class="no">dependent.variable.name</span>,
+      <span class="st">" ~ "</span>,
+      <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span>(
+        <span class="no">predictors.i</span>,
+        <span class="kw">collapse</span> <span class="kw">=</span> <span class="st">" + "</span>
+      )
+    )
+  )
+
+  <span class="co">#fit model</span>
+  <span class="no">m.i</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html">lm</a></span>(<span class="no">model.formula.i</span>, <span class="kw">data</span> <span class="kw">=</span> <span class="no">model.data</span>)
+
+  <span class="co">#Moran's I test</span>
+  <span class="no">moran.test.i</span> <span class="kw">&lt;-</span> <span class="fu"><a href="reference/moran.html">moran</a></span>(
+    <span class="kw">x</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/residuals.html">residuals</a></span>(<span class="no">m.i</span>),
+    <span class="kw">distance.matrix</span> <span class="kw">=</span> <span class="no">distance_matrix</span>,
+  )
+
+  <span class="co">#stop if no autocorrelation</span>
+  <span class="kw">if</span>(<span class="no">moran.test.i</span>$<span class="no">interpretation</span> <span class="kw">!=</span> <span class="st">"Positive spatial correlation"</span>){
+    <span class="kw">break</span>
+  }
+
+}<span class="co">#end of loop</span></pre></div>
+<p>Now we can compare the model without spatial predictors <code>m</code> and the model with spatial predictors <code>m.i</code>.</p>
+<table class="table">
+<thead><tr class="header">
+<th align="left">Model</th>
+<th align="right">Predictors</th>
+<th align="right">R_squared</th>
+<th align="right">AIC</th>
+<th align="right">BIC</th>
+<th align="right">Moran.I</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">Non-spatial</td>
+<td align="right">6</td>
+<td align="right">0.38</td>
+<td align="right">4238</td>
+<td align="right">4266</td>
+<td align="right">0.21</td>
+</tr>
+<tr class="even">
+<td align="left">Spatial</td>
+<td align="right">21</td>
+<td align="right">0.50</td>
+<td align="right">530</td>
+<td align="right">608</td>
+<td align="right">0.06</td>
+</tr>
+</tbody>
+</table>
+<p>According to the model comparison, it can be concluded that the addition of spatial predictors, in spite of the increase in complexity, has improved the model. In any case, this is just a simple demonstration of how spatial predictors generated with functions of the <code>spatialRF</code> package can still help you fit spatial models with other modeling methods.</p>
 </div>
 
   </div>

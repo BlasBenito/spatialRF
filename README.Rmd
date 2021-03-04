@@ -669,7 +669,7 @@ moran.test
 According to the Moran's I test, the model residuals show spatial autocorrelation. Let's introduce MEMs one by one until the problem is solved.
 
 ```{r}
-#add mems to the data
+#add mems to the data and applies scale()
 model.data <- data.frame(
   plant_richness_df,
   mems
@@ -717,7 +717,7 @@ for(mem.i in colnames(mems)){
 
 Now we can compare the model without spatial predictors `m` and the model with spatial predictors `m.i`.
 
-```{r}
+```{r, echo = FALSE, warning = FALSE, message=FALSE}
 comparison.df <- data.frame(
   Model = c("Non-spatial", "Spatial"),
   Predictors = c(length(predictors), length(predictors.i)),
@@ -726,9 +726,7 @@ comparison.df <- data.frame(
   BIC = round(c(BIC(m), BIC(m.i)), 0),
   `Moran I` = round(c(moran.test$moran.i, moran.test.i$moran.i), 2)
 )
-```
 
-```{r, echo = FALSE, warning = FALSE, message=FALSE}
 kableExtra::kbl(
   comparison.df,
   format = "markdown"

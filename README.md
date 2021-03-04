@@ -19,6 +19,8 @@
 -   [Assessing model performance on spatially independent
     folds](#assessing-model-performance-on-spatially-independent-folds)
 -   [Comparing several models](#comparing-several-models)
+-   [Generating spatial predictors for other
+    models](#generating-spatial-predictors-for-other-models)
 
 <!-- badges: start -->
 
@@ -789,3 +791,178 @@ that the medians of the R squared and RMSE distributions are not
 statistically different. That is a small trade-off, considering that the
 spatial model incorporates information about the spatial structure of
 the data, and its residuals are not spatially correlated.
+
+# Generating spatial predictors for other models
+
+You might not love Random Forest, but `spatialRF` loves you, and as
+such, it gives you tools to generate spatial predictors for other models
+anyway.
+
+The first step requires generating Moran’s Eigenvector Maps (MEMs) from
+the distance matrix. Here there are two options, computing MEMs for a
+single neighborhood distance with
+[`mem()`](https://blasbenito.github.io/spatialRF/reference/mem.html),
+and computing MEMs for several neighborhood distances at once with
+[`mem_multithreshold()`](https://blasbenito.github.io/spatialRF/reference/mem_multithreshold.html).
+
+``` r
+#single distance (0km by default)
+mems <- mem(x = distance_matrix)
+
+#several distances
+mems <- mem_multithreshold(
+  x = distance_matrix,
+  distance.thresholds = c(0, 1000, 2000)
+)
+```
+
+In either case the result is a data frame with Moran’s Eigenvector Maps
+(“just” the positive eigenvectors of the double-centerd distance
+matrix).
+
+| spatial\_predictor\_0\_1 | spatial\_predictor\_0\_2 | spatial\_predictor\_0\_3 | spatial\_predictor\_0\_4 |
+|-------------------------:|-------------------------:|-------------------------:|-------------------------:|
+|                0.0259217 |                0.0052203 |                0.0416969 |               -0.0363324 |
+|                0.0996679 |                0.0539713 |                0.1324480 |                0.3826928 |
+|                0.0010477 |               -0.0143046 |               -0.0443602 |               -0.0031386 |
+|                0.0165695 |                0.0047991 |                0.0307457 |                0.0005170 |
+|                0.0225761 |                0.0019595 |                0.0230368 |               -0.0524239 |
+|                0.0155252 |                0.0023742 |                0.0197953 |               -0.0338956 |
+|                0.0229197 |                0.0039860 |                0.0312561 |               -0.0416697 |
+|               -0.2436009 |               -0.1155295 |                0.0791452 |                0.0189996 |
+|                0.0150725 |               -0.0158684 |               -0.1010284 |                0.0095590 |
+|               -0.1187381 |               -0.0471879 |                0.0359881 |                0.0065211 |
+
+But not all MEMs are made equal, and you will need to rank them by their
+Moran’s I. The function
+[`rank_spatial_predictors()`](https://blasbenito.github.io/spatialRF/reference/rank_spatial_predictors.html)
+will help you do so.
+
+``` r
+mem.rank <- rank_spatial_predictors(
+  distance.matrix = distance_matrix,
+  spatial.predictors.df = mems
+)
+```
+
+The output of `rank_spatial_predictors()` is a list with three slots:
+“method”, a character string with the name of the ranking method;
+“criteria”, an ordered data frame with the criteria used to rank the
+spatial predictors; and “ranking”, a character vector with the names of
+the spatial predictors in the order of their ranking (it is just the
+first column of the “criteria” data frame). We can use this “ranking”
+object to reorder or `mems` data frame.
+
+``` r
+mems <- mems[, mem.rank$ranking]
+```
+
+From here, spatial predictors can be included in any model one by one,
+in the order of the ranking, until the spatial autocorrelation of the
+residuals is gone, or our model gets totally defaced. A little example
+with a linear model follows.
+
+``` r
+#model definition
+predictors <- c(
+  "climate_aridity_index_average ",
+  "climate_bio1_average",
+  "bias_species_per_record",
+  "human_population_density",
+  "topography_elevation_average",
+  "fragmentation_division"
+)
+model.formula <- as.formula(
+  paste(
+    dependent.variable.name,
+    " ~ ",
+    paste(
+      predictors,
+      collapse = " + "
+    )
+  )
+)
+
+#scaling the data
+model.data <- scale(plant_richness_df) %>% 
+  as.data.frame()
+
+#fitting the model
+m <- lm(model.formula, data = plant_richness_df)
+
+#Moran's I test of the residuals
+moran.test <- moran(
+  x = residuals(m),
+  distance.matrix = distance_matrix,
+)
+moran.test
+```
+
+    ##   moran.i p.value               interpretation
+    ## 1    0.21       0 Positive spatial correlation
+
+According to the Moran’s I test, the model residuals show spatial
+autocorrelation. Let’s introduce MEMs one by one until the problem is
+solved.
+
+``` r
+#add mems to the data and applies scale()
+model.data <- data.frame(
+  plant_richness_df,
+  mems
+) %>%
+  scale() %>%
+  as.data.frame()
+
+#initialize predictors.i
+predictors.i <- predictors
+
+#iterating through MEMs
+for(mem.i in colnames(mems)){
+  
+  #add mem name to model definintion
+  predictors.i <- c(predictors.i, mem.i)
+  
+  #generate model formula with the new spatial predictor
+  model.formula.i <- as.formula(
+    paste(
+      dependent.variable.name,
+      " ~ ",
+      paste(
+        predictors.i,
+        collapse = " + "
+      )
+    )
+  )
+  
+  #fit model
+  m.i <- lm(model.formula.i, data = model.data)
+  
+  #Moran's I test
+  moran.test.i <- moran(
+    x = residuals(m.i),
+    distance.matrix = distance_matrix,
+  )
+  
+  #stop if no autocorrelation
+  if(moran.test.i$interpretation != "Positive spatial correlation"){
+    break
+  }
+  
+}#end of loop
+```
+
+Now we can compare the model without spatial predictors `m` and the
+model with spatial predictors `m.i`.
+
+| Model       | Predictors | R\_squared |  AIC |  BIC | Moran.I |
+|:------------|-----------:|-----------:|-----:|-----:|--------:|
+| Non-spatial |          6 |       0.38 | 4238 | 4266 |    0.21 |
+| Spatial     |         21 |       0.50 |  530 |  608 |    0.06 |
+
+According to the model comparison, it can be concluded that the addition
+of spatial predictors, in spite of the increase in complexity, has
+improved the model. In any case, this is just a simple demonstration of
+how spatial predictors generated with functions of the `spatialRF`
+package can still help you fit spatial models with other modeling
+methods.

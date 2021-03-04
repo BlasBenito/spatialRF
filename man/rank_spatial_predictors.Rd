@@ -12,7 +12,7 @@ rank_spatial_predictors(
   distance.thresholds = NULL,
   ranger.arguments = NULL,
   spatial.predictors.df = NULL,
-  ranking.method = c("effect", "moran"),
+  ranking.method = c("moran", "effect"),
   reference.moran.i = 1,
   verbose = FALSE,
   n.cores = NULL,

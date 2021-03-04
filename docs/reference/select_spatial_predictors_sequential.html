@@ -245,7 +245,7 @@
 )
 <span class='co'>#ranking spatial predictors by their Moran's I (faster option)</span>
 <span class='no'>spatial.predictors.ranking</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='rank_spatial_predictors.html'>rank_spatial_predictors</a></span>(
-  <span class='kw'>ranking.method</span> <span class='kw'>=</span> <span class='st'>"mem"</span>,
+  <span class='kw'>ranking.method</span> <span class='kw'>=</span> <span class='st'>"moran"</span>,
   <span class='kw'>spatial.predictors.df</span> <span class='kw'>=</span> <span class='no'>spatial.predictors</span>,
   <span class='kw'>reference.moran.i</span> <span class='kw'>=</span> <span class='no'>model</span>$<span class='no'>spatial.correlation.residuals</span>$<span class='no'>max.moran</span>,
   <span class='kw'>distance.matrix</span> <span class='kw'>=</span> <span class='no'>distance.matrix</span>,

@@ -25,7 +25,7 @@ Plots variable importance scores of \code{\link[=rf]{rf()}}, \code{\link[=rf_rep
 if(interactive()){
 
 data(plant_richness_df)
-data(distance.matrix)
+data(distance_matrix)
 
 rf.model <- rf(
   data = plant_richness_df,
