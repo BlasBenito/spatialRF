@@ -61,6 +61,7 @@ print_evaluation <- function(x){
   #evaluation data frames
   model <- x
   x <- model$evaluation$aggregated
+  metrics <- model$evaluation$metrics
   x.rmse <- .to_huxtable(x, measure = "rmse")
   x.nrmse <- .to_huxtable(x, measure = "nrmse")
   x.r.squared <- .to_huxtable(x, measure = "r.squared")
@@ -72,16 +73,24 @@ print_evaluation <- function(x){
   cat("Spatial evaluation \n")
   cat("  - Training fraction:             ", model$evaluation$training.fraction, "\n", sep="")
   cat("  - Spatial folds:                 ", length(model$evaluation$spatial.folds), "\n", sep="")
-  cat("  - R squared: \n")
-  huxtable::print_screen(x.r.squared, colnames = FALSE)
-  cat("\n")
-  cat("  - Pseudo R squared: \n")
-  huxtable::print_screen(x.pseudo.r.squared, colnames = FALSE)
-  cat("\n")
-  cat("  - RMSE: \n")
-  huxtable::print_screen(x.rmse, colnames = FALSE)
-  cat("\n")
-  cat("  - NRMSE: \n")
-  huxtable::print_screen(x.nrmse, colnames = FALSE)
+  if("r.squared" %in% metrics){
+    cat("  - R squared: \n")
+    huxtable::print_screen(x.r.squared, colnames = FALSE)
+  }
+  if("pseudo.r.squared" %in% metrics){
+    cat("\n")
+    cat("  - Pseudo R squared: \n")
+    huxtable::print_screen(x.pseudo.r.squared, colnames = FALSE)
+  }
+  if("rmse" %in% metrics){
+    cat("\n")
+    cat("  - RMSE: \n")
+    huxtable::print_screen(x.rmse, colnames = FALSE)
+  }
+  if("nrmse" %in% metrics){
+    cat("\n")
+    cat("  - NRMSE: \n")
+    huxtable::print_screen(x.nrmse, colnames = FALSE)
+  }
 
 }

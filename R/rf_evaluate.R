@@ -144,15 +144,12 @@ rf_evaluate <- function(
     xy.reference.records <- xy
   }
 
-  #computing distance step for spatial folds
-  distance.step <- min(dist(xy)) / 2
-
   #generates spatial folds
   ####################################
   spatial.folds <- spatialRF::make_spatial_folds(
     xy.selected = xy.reference.records,
     xy = xy,
-    distance.step = distance.step,
+    distance.step = min(dist(xy)) / 2,
     training.fraction = training.fraction,
     n.cores = n.cores
   )
@@ -384,6 +381,7 @@ rf_evaluate <- function(
     model$evaluation <- NULL
   }
   model$evaluation <- list()
+  model$evaluation$metrics <- metrics
   model$evaluation$training.fraction <- training.fraction
   model$evaluation$spatial.folds <- spatial.folds
   model$evaluation$per.fold <- evaluation.df
