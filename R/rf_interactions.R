@@ -6,7 +6,7 @@
 #' Users should not use the suggested variable interactions hastily. Most likely, only one or a few of the suggested interactions may make sense from a domain expertise standpoint.
 #' @param model A model fitted with [rf()]. If used, the data is taken directly from the model definition and no other data-related arguments are required. Default: `NULL`
 #' @param data Data frame with a response variable and a set of predictors. Default: `NULL`
-#' @param dependent.variable.name Character string with the name of the response variable. Must be in the column names of `data`. Default: `NULL`
+#' @param dependent.variable.name Character string with the name of the response variable. Must be in the column names of `data`. If the dependent variable is binary with values 1 and 0, the argument `case.weights` of `ranger` is populated by the function [case_weights()]. Default: `NULL`
 #' @param predictor.variable.names Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Default: `NULL`
 #' @param ranger.arguments Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.
 #' @param importance.threshold Value of variable importance from `model` used as threshold to select variables to generate candidate interactions. Default: Quantile 0.75 of the variable importance in `model`.

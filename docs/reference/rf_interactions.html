@@ -74,7 +74,7 @@ Users should not use the suggested variable interactions hastily. Most likely, o
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">spatialRF</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.5</span>
       </span>
     </div>
 
@@ -153,7 +153,7 @@ Users should not use the suggested variable interactions hastily. Most likely, o
     </tr>
     <tr>
       <th>dependent.variable.name</th>
-      <td><p>Character string with the name of the response variable. Must be in the column names of <code>data</code>. Default: <code>NULL</code></p></td>
+      <td><p>Character string with the name of the response variable. Must be in the column names of <code>data</code>. If the dependent variable is binary with values 1 and 0, the argument <code>case.weights</code> of <code>ranger</code> is populated by the function <code><a href='case_weights.html'>case_weights()</a></code>. Default: <code>NULL</code></p></td>
     </tr>
     <tr>
       <th>predictor.variable.names</th>

@@ -156,6 +156,8 @@ usethis::use_build_ignore("functions.R")
 usethis::use_build_ignore("optimization_sequential.R")
 
 #adding functions
+sinew::makeOxygen(is_binary)
+sinew::makeOxygen(case_weights)
 
 #moran
 usethis::use_r("moran")

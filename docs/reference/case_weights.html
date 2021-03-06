@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Moran's I test on a numeric vector for different neighborhoods — moran_multithreshold • spatialRF</title>
+<title>Generates case weights for binary data — case_weights • spatialRF</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,8 @@
 
 
 
-<meta property="og:title" content="Moran's I test on a numeric vector for different neighborhoods — moran_multithreshold" />
-<meta property="og:description" content="Applies moran() to different distance thresholds at the same time." />
+<meta property="og:title" content="Generates case weights for binary data — case_weights" />
+<meta property="og:description" content="When the data is binary, setting the ranager argument case.weights helps to minimize the issues produced by class imbalance. This function takes a binary response variable and returns a vector of weights populated with the values 1/#zeros and 1/#ones. It is used internally by the function rf()." />
 
 
 
@@ -111,76 +111,49 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Moran's I test on a numeric vector for different neighborhoods</h1>
-    <small class="dont-index">Source: <a href='https://github.com/BlasBenito/spatialRF/blob/master/R/moran_multithreshold.R'><code>R/moran_multithreshold.R</code></a></small>
-    <div class="hidden name"><code>moran_multithreshold.Rd</code></div>
+    <h1>Generates case weights for binary data</h1>
+    <small class="dont-index">Source: <a href='https://github.com/BlasBenito/spatialRF/blob/master/R/case_weights.R'><code>R/case_weights.R</code></a></small>
+    <div class="hidden name"><code>case_weights.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Applies <code><a href='moran.html'>moran()</a></code> to different distance thresholds at the same time.</p>
+    <p>When the data is binary, setting the <code>ranager</code> argument <code>case.weights</code> helps to minimize the issues produced by class imbalance. This function takes a binary response variable and returns a vector of weights populated with the values <code>1/#zeros</code> and <code>1/#ones</code>. It is used internally by the function <code><a href='rf.html'>rf()</a></code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>moran_multithreshold</span>(
-  <span class='kw'>x</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>distance.matrix</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>distance.thresholds</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
-)</pre>
+    <pre class="usage"><span class='fu'>case_weights</span>(<span class='kw'>data</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>dependent.variable.name</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>x</th>
-      <td><p>Numeric vector, generally model residuals, Default: <code>NULL</code></p></td>
+      <th>data</th>
+      <td><p>Data frame with a response variable and a set of predictors. Default: <code>NULL</code></p></td>
     </tr>
     <tr>
-      <th>distance.matrix</th>
-      <td><p>Distance matrix among cases in <code>x</code>. The number of rows of this matrix must be equal to the length of <code>x</code>. Default: <code>NULL</code></p></td>
-    </tr>
-    <tr>
-      <th>distance.thresholds</th>
-      <td><p>Numeric vector, distances below each value are set to 0 on separated copies of the distance matrix for the computation of Moran's I at different neighborhood distances. If <code>NULL</code>, it defaults to <code><a href='https://rdrr.io/r/base/seq.html'>seq(0, max(distance.matrix)/4, length.out = 2)</a></code>. Default: <code>NULL</code></p></td>
-    </tr>
-    <tr>
-      <th>verbose</th>
-      <td><p>Logical, if <code>TRUE</code>, plots Moran's I values for each distance threshold. Default: <code>TRUE</code></p></td>
+      <th>dependent.variable.name</th>
+      <td><p>Character string with the name of the response variable. Must be in the column names of <code>data</code>. Default: <code>NULL</code></p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A named list with the slots:</p><ul>
-<li><p><code>df</code>: Data frame with the results of <a href='moran.html'>moran</a> per distance threshold.</p></li>
-<li><p><code>plot</code>: A plot of Moran's I across distance thresholds.</p></li>
-<li><p><code>max.moran</code>: Maximum value of Moran's I across thresholds.</p></li>
-<li><p><code>max.moran.distance.threshold</code>: Distance threshold with the maximum Moran's I value.</p></li>
-</ul>
-
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
-
-    <p>Using different distance thresholds helps to take into account the uncertainty about what "neighborhood" means in ecological systems (1000km in geological time means little, but 100m might be quite a long distance for a tree to disperse seeds over), and allows to explore spatial autocorrelation of model residuals for several minimum-distance criteria at once.</p>
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
-
-    <div class='dont-index'><p><code><a href='moran.html'>moran()</a></code></p></div>
+    <p>A vector with a length equal to <code><a href='https://rdrr.io/r/base/nrow.html'>nrow(data)</a></code> with the respective weights of the cases.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='co'># \donttest{</span>
+    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
 <span class='kw'>if</span>(<span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span>()){
 
- <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>distance_matrix</span>)
- <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>plant_richness</span>)
+ <span class='no'>data</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span>(
+   <span class='kw'>response</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>1</span>, <span class='fl'>1</span>)
+ )
 
- <span class='no'>out</span> <span class='kw'>&lt;-</span> <span class='fu'>moran_multithreshold</span>(
-   <span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>plant_richness</span>$<span class='no'>richness_species_vascular</span>,
-   <span class='kw'>distance.matrix</span> <span class='kw'>=</span> <span class='no'>distance_matrix</span>,
-   <span class='kw'>distance.thresholds</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0</span>, <span class='fl'>100</span>, <span class='fl'>1000</span>, <span class='fl'>10000</span>),
-   <span class='kw'>plot</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
-   )
- <span class='no'>out</span>
+ <span class='fu'>case_weights</span>(
+   <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>data</span>,
+   <span class='kw'>dependent.variable.name</span> <span class='kw'>=</span> <span class='st'>"response"</span>
+ )
 
-}
-<span class='co'># }</span></div></pre>
+ }
+}</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

@@ -1,4 +1,4 @@
-`spatialRF`: easy spatial regression with Random Forest
+`spatialRF`: Easy Spatial Regression with Random Forest
 ================
 
 -   [Introduction](#introduction)
@@ -25,7 +25,7 @@
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/BlasBenito/spatialRF/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/BlasBenito/spatialRF/actions/workflows/R-CMD-check.yaml)
-[![Devel-version](https://img.shields.io/badge/devel%20version-1.0.4-blue.svg)](https://github.com/blasbenito/spatialRF)
+[![Devel-version](https://img.shields.io/badge/devel%20version-1.0.5-blue.svg)](https://github.com/blasbenito/spatialRF)
 [![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html)
 [![CRAN](https://img.shields.io/badge/CRAN-not_published_yet-red)](https://github.com/blasbenito/spatialRF)
 [![License](https://img.shields.io/badge/license-GPL--3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
@@ -90,16 +90,23 @@ I will do my best to solve any issues ASAP!
 
 The goal of `spatialRF` is to help fitting *explanatory spatial
 regression*, where the target is to understand how a set of predictors
-and the spatial structure of the data influences a response variable.
-Therefore, the analyses implemented in the package can be applied to any
-spatial dataset, regular or irregular, with a sample size between \~100
-and \~5000 cases (the higher end will depend on the RAM memory
-available), a quantitative response variable, and a more or less large
-set of predictive variables.
+and the spatial structure of the data influences response variable.
+Therefore, the spatial analyses implemented in the package can be
+applied to any spatial dataset, regular or irregular, with a sample size
+between \~100 and \~5000 cases (the higher end will depend on the RAM
+memory available), a quantitative or binary (values 0 and 1) response
+variable, and a more or less large set of predictive variables.
 
-Due to the special nature of the spatial predictors it uses to represent
-the spatial structure of the training data, there are many things this
-package **cannot do**:
+All functions but `rf_spatial()` work with non-spatial data as well if
+the arguments `distance.matrix` and `distance.thresholds` are ignored.
+In such case, the number of cases is no longer limited by the size of
+the distance matrix, and models can be trained with hundreds of
+thousands of rows.
+
+However, **when the focus is on fitting spatial models**, and due to the
+nature of the *spatial predictors* used to represent the spatial
+structure of the training data, **there are many things this package
+cannot do**:
 
 -   Predict model results over raster data.
 
@@ -107,9 +114,6 @@ package **cannot do**:
     structure.
 
 -   Work with “big data”, whatever that means.
-
--   Fit species distribution models (can deal with abundance modeling
-    though).
 
 -   Imputation or extrapolation (it can be done, but models based on
     spatial predictors are hardly transferable).
@@ -241,24 +245,26 @@ interactions <- rf_interactions(
 
     ## 5 potential interactions identified.
 
-    ##       ┌─────────────────────────┬───────────────────────┬────────────────┐
-    ##       │ Interaction             │ Importance (% of max) │ R2 improvement │
-    ##       ├─────────────────────────┼───────────────────────┼────────────────┤
-    ##       │ human_population_X_bias │                  76.5 │         0.017  │
-    ##       │ _area_km2               │                       │                │
-    ##       ├─────────────────────────┼───────────────────────┼────────────────┤
-    ##       │ climate_bio1_average_X_ │                  76.2 │         0.011  │
-    ##       │ bias_area_km2           │                       │                │
-    ##       ├─────────────────────────┼───────────────────────┼────────────────┤
-    ##       │ climate_hypervolume_X_b │                  66.3 │         0.001  │
-    ##       │ ias_area_km2            │                       │                │
-    ##       ├─────────────────────────┼───────────────────────┼────────────────┤
-    ##       │ climate_hypervolume_X_c │                  58.2 │         0.004  │
-    ##       │ limate_bio1_average     │                       │                │
-    ##       ├─────────────────────────┼───────────────────────┼────────────────┤
-    ##       │ bias_area_km2_X_neighbo │                  57.9 │         0.0012 │
-    ##       │ rs_count                │                       │                │
-    ##       └─────────────────────────┴───────────────────────┴────────────────┘
+    ##    ┌─────────────────────┬─────────────────────┬────────────────┐
+    ##    │ Interaction         │    Importance (% of │ R2 improvement │
+    ##    │                     │                max) │                │
+    ##    ├─────────────────────┼─────────────────────┼────────────────┤
+    ##    │ human_population_X_ │                76.5 │         0.017  │
+    ##    │ bias_area_km2       │                     │                │
+    ##    ├─────────────────────┼─────────────────────┼────────────────┤
+    ##    │ climate_bio1_averag │                76.2 │         0.011  │
+    ##    │ e_X_bias_area_km2   │                     │                │
+    ##    ├─────────────────────┼─────────────────────┼────────────────┤
+    ##    │ climate_hypervolume │                66.3 │         0.001  │
+    ##    │ _X_bias_area_km2    │                     │                │
+    ##    ├─────────────────────┼─────────────────────┼────────────────┤
+    ##    │ climate_hypervolume │                58.2 │         0.004  │
+    ##    │ _X_climate_bio1_ave │                     │                │
+    ##    │ rage                │                     │                │
+    ##    ├─────────────────────┼─────────────────────┼────────────────┤
+    ##    │ bias_area_km2_X_nei │                57.9 │         0.0012 │
+    ##    │ ghbors_count        │                     │                │
+    ##    └─────────────────────┴─────────────────────┴────────────────┘
 
 ![](README_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
@@ -717,8 +723,9 @@ several objects that summarize the spatial cross-validation results.
 names(model.spatial.tuned$evaluation)
 ```
 
-    ## [1] "training.fraction" "spatial.folds"     "per.fold"         
-    ## [4] "per.fold.long"     "per.model"         "aggregated"
+    ## [1] "metrics"           "training.fraction" "spatial.folds"    
+    ## [4] "per.fold"          "per.fold.long"     "per.model"        
+    ## [7] "aggregated"
 
 The slot “spatial.folds”, produced by
 [`make_spatial_folds()`](https://blasbenito.github.io/spatialRF/reference/make_spatial_folds.html),
@@ -817,7 +824,7 @@ mems <- mem_multithreshold(
 ```
 
 In either case the result is a data frame with Moran’s Eigenvector Maps
-(“just” the positive eigenvectors of the double-centerd distance
+(“just” the positive eigenvectors of the double-centered distance
 matrix).
 
 | spatial\_predictor\_0\_1 | spatial\_predictor\_0\_2 | spatial\_predictor\_0\_3 | spatial\_predictor\_0\_4 |

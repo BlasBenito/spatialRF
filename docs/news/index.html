@@ -71,7 +71,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">spatialRF</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.5</span>
       </span>
     </div>
 
@@ -114,35 +114,32 @@
       <small>Source: <a href='https://github.com/BlasBenito/spatialRF/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
+    <div id="version-105-632021" class="section level2">
+<h2 class="hasAnchor">
+<a href="#version-105-632021" class="anchor"></a>Version 1.0.5 (6/3/2021)</h2>
+<p>Added support for binary data (0 and 1). The function <code><a href="../reference/rf.html">rf()</a></code> now tests if the data is binary, and if so, it populates the <code>case.weights</code> argument of <code>ranger</code> with the new function <code><a href="../reference/case_weights.html">case_weights()</a></code> to minimize the side effects of unbalanced data.</p>
+</div>
     <div id="version-104-232021" class="section level2">
 <h2 class="hasAnchor">
 <a href="#version-104-232021" class="anchor"></a>Version 1.0.4 (2/3/2021)</h2>
-<ul>
-<li>Fixed an issue where rf() applied the wrong is.numeric check to the response variable and the predictors that caused issues with tibbles.</li>
-</ul>
+<p>Fixed an issue where rf() applied the wrong is.numeric check to the response variable and the predictors that caused issues with tibbles.</p>
 </div>
     <div id="version-103-2522021" class="section level2">
 <h2 class="hasAnchor">
 <a href="#version-103-2522021" class="anchor"></a>Version 1.0.3 (25/2/2021)</h2>
-<ul>
-<li>Removed the function scale_robust() from rf(), and replaced it with scale(). It was giving more troubles than benefits.</li>
-</ul>
+<p>Removed the function scale_robust() from rf(), and replaced it with scale(). It was giving more troubles than benefits.</p>
 </div>
     <div id="version-102-2422021" class="section level2">
 <h2 class="hasAnchor">
 <a href="#version-102-2422021" class="anchor"></a>Version 1.0.2 (24/2/2021)</h2>
-<ul>
-<li>Simplified rf_spatial().</li>
-<li>Modified rf_tuning() to better tune models fitted with rf_spatial().</li>
-<li>Minor fixes in several other functions.</li>
-</ul>
+<p>Simplified rf_spatial().</p>
+<p>Modified rf_tuning() to better tune models fitted with rf_spatial().</p>
+<p>Minor fixes in several other functions.</p>
 </div>
     <div id="version-101-2222021" class="section level2">
 <h2 class="hasAnchor">
 <a href="#version-101-2222021" class="anchor"></a>Version 1.0.1 (22/2/2021)</h2>
-<ul>
-<li>All ‘sf’ dependencies removed from the package.</li>
-</ul>
+<p>All ‘sf’ dependencies removed from the package.</p>
 </div>
     <div id="version-100-is-ready" class="section level2">
 <h2 class="hasAnchor">
