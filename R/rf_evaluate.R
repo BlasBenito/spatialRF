@@ -135,19 +135,6 @@ rf_evaluate <- function(
   data$id <- xy$id <- seq(1, nrow(data))
 
   #finding out if data is binary
-  if(sort(
-    unique(data[, dependent.variable.name])
-    )[1] == 0 &
-    sort(
-      unique(data[, dependent.variable.name]))[2] == 1
-    ){
-    binomial.data <- TRUE
-    xy <- xy[data[, dependent.variable.name] == 1, ]
-  } else {
-    binomial.data <- FALSE
-  }
-
-  #finding out if data is binary
   is.binary <- is_binary(
     data = data,
     dependent.variable.name = dependent.variable.name
@@ -155,13 +142,13 @@ rf_evaluate <- function(
 
   #subsetting xy if data is binary so 1s are the reference points
   if(is.binary == TRUE){
-    xy <- xy[data[, dependent.variable.name] == 1, ]
+    xy.reference.records <- xy[data[, dependent.variable.name] == 1, ]
   }
 
   #thinning coordinates to get a systematic sample of reference points
-  if(repetitions < nrow(xy)){
+  if(repetitions < nrow(xy.reference.records)){
     xy.reference.records <- thinning_til_n(
-      xy = xy,
+      xy = xy.reference.records,
       n = repetitions
     )
   } else {
