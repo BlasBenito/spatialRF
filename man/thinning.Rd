@@ -28,7 +28,7 @@ if(interactive()){
 
  plant_richness.thin <- thinning(
    x = plant_richness_df,
-   minimum.distance = 5 #oints separated by at least 5 degrees
+   minimum.distance = 5 #points separated by at least 5 degrees
    )
 
  plant_richness.thin
