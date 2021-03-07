@@ -149,6 +149,9 @@ rf_evaluate <- function(
 
   #thinning coordinates to get a systematic sample of reference points
   if(repetitions < nrow(xy.reference.records)){
+    if(verbose == TRUE){
+      message("Selecting pairs of coordinates to grow training folds from.")
+    }
     xy.reference.records <- thinning_til_n(
       xy = xy.reference.records,
       n = repetitions
@@ -159,6 +162,9 @@ rf_evaluate <- function(
 
   #generates spatial folds
   ####################################
+  if(verbose == TRUE){
+    message("Generating spatial folds.")
+  }
   spatial.folds <- spatialRF::make_spatial_folds(
     xy.selected = xy.reference.records,
     xy = xy,
