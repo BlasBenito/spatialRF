@@ -2,7 +2,7 @@
 #' @description Applies [make_spatial_fold()] to every record in a data frame `xy.selected` to generate as many spatially independent folds over the dataset `xy` as rows are in `xy.selected`.
 #' @param xy.selected Data frame with at least three columns: "x" (longitude), "y" (latitude), and "id" (integer, id of the record). Usually a subset of `xy`. Usually the result of applying [thinning()] or [thinning_til_n()] to 'xy' Default: `NULL`.
 #' @param xy data frame with at least three columns: "x" (longitude), "y" (latitude), and "id" (integer, index of the record). Default: `NULL`.
-#' @param distance.step numeric, distance the buffer around xy.i is grown on each iteration. If NULL, it defaults to the minimum distance between points in `xy` divided by 2. Default: `NULL`.
+#' @param distance.step Numeric, distance step used during the thinning iterations. If `NULL`, the one percent of the maximum distance among points in `xy` is used. Default: `NULL`
 #' @param training.fraction numeric, fraction of the data to be included in the growing buffer as training data, Default: 0.6
 #' @param n.cores number of cores to use to generate spatial folds in parallel. Default: `NULL`.
 #' @return A list with as many slots as rows are in `xy.selected`. Each slot has two slots named `training` and `testing`, with the former having the indices of the training records selected from xy, and the latter having the indices of the testing records.

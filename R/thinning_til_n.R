@@ -5,9 +5,9 @@
 #'   xy,
 #'   n = 30
 #' )
-#' @param xy A data frame with columns named "x" and "y" representing geographic coordinates.
+#' @param xy A data frame with columns named "x" and "y" representing geographic coordinates. Default: `NULL`
 #' @param n Integer, number of samples to obtain. Must be lower than `nrow(xy)`. Default: `30`
-#' @param distance.step Numeric, distance step used during the thinning iterations. Larger numbers speed up the function.
+#' @param distance.step Numeric, distance step used during the thinning iterations. If `NULL`, the one percent of the maximum distance among points in `xy` is used. Default: `NULL`
 #' @return A data frame with the same columns as xy with a row number close to n.
 #' @seealso [thinning()]
 #' @examples
@@ -28,9 +28,14 @@
 #' @rdname thinning_til_n
 #' @importFrom stats dist
 #' @export
-thinning_til_n <- function(xy, n = 30, distance.step = NULL){
+thinning_til_n <- function(
+  xy = NULL,
+  n = 30,
+  distance.step = NULL
+  ){
 
-  if(!is.data.frame(xy)){
+
+  if(!is.data.frame(xy) | is.null(xy)){
     stop("xy must be a data frame.")
   }
   if(!("x" %in% colnames(xy))){
@@ -42,13 +47,26 @@ thinning_til_n <- function(xy, n = 30, distance.step = NULL){
   if(!is.numeric(n)){
     stop("'n' is not a number.")
   }
+  if(length(distance))
 
   #initiating distances
   if(is.null(distance.step)){
-    xy.distances <- dist(xy)
-    min.distance <- distance.i <- min(xy.distances) / 2
+
+    #getting all distances among points
+    xy.distances <- sort(as.vector(dist(xy[, c("x", "y")])))
+
+    #remove zero distances
+    xy.distances <- xy.distances[xy.distances != 0]
+
+    #getting the minimum
+    # min.distance <- distance.i <- min(xy.distances)
+
+    #getting the 1%
+    min.distance <- distance.i <- max(xy.distances) / 100
+
     rm(xy.distances)
   } else {
+    #user defined value
     min.distance <- distance.i <- distance.step
   }
 

@@ -17,7 +17,7 @@ make_spatial_folds(
 
 \item{xy}{data frame with at least three columns: "x" (longitude), "y" (latitude), and "id" (integer, index of the record). Default: \code{NULL}.}
 
-\item{distance.step}{numeric, distance the buffer around xy.i is grown on each iteration. If NULL, it defaults to the minimum distance between points in \code{xy} divided by 2. Default: \code{NULL}.}
+\item{distance.step}{Numeric, distance step used during the thinning iterations. If \code{NULL}, the one percent of the maximum distance among points in \code{xy} is used. Default: \code{NULL}}
 
 \item{training.fraction}{numeric, fraction of the data to be included in the growing buffer as training data, Default: 0.6}
 

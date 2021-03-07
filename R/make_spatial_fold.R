@@ -2,7 +2,7 @@
 #' @description Used internally by [make_spatial_folds()] and [rf_evaluate()]. Uses the coordinates of a point `xy.i` to generate two spatially independent data folds from the data frame `xy`. It does so by growing a rectangular buffer from `xy.i` until a number of records defined by `training.fraction` is inside the buffer. The indices of these records are then stored as "training" in the output list. The indices of the remaining records outside of the buffer are stored as "testing". These training and testing records can be then used to evaluate a model on independent data via cross-validation.
 #' @param xy.i One row data frame with at least three columns: "x" (longitude), "y" (latitude), and "id" (integer, id of the record). Can be a row of `xy`. Default: `NULL`.
 #' @param xy A data frame with at least three columns: "x" (longitude), "y" (latitude), and "id" (integer, index of the record). Default: `NULL`.
-#' @param distance.step Numeric, distance the buffer around `xy.i` is grown on each iteration. If `NULL`, it defaults to the minimum distance between points in `xy` divided by 2. Default: `NULL`.
+#' @param distance.step Numeric, distance step used during the thinning iterations. If `NULL`, the one percent of the maximum distance among points in `xy` is used. Default: `NULL`
 #' @param training.fraction Numeric, fraction of the data to be included in the training fold, Default: `0.6`.
 #' @return A list with two slots named `training` and `testing` with the former having the indices of the training records selected from `xy`, and the latter having the indices of the testing records.
 #' @seealso [make_spatial_folds()], [rf_evaluate()]
@@ -52,8 +52,25 @@ make_spatial_fold <- function(
   if(training.fraction >= 1){
     stop("training.fraction should be a number between 0.1 and 0.9")
   }
+  #initiating distances
   if(is.null(distance.step)){
-    distance.step <- min(dist(xy[, c("x", "y")])) / 2
+
+    #getting all distances among points
+    xy.distances <- sort(as.vector(dist(xy[, c("x", "y")])))
+
+    #remove zero distances
+    xy.distances <- xy.distances[xy.distances != 0]
+
+    #getting the minimum
+    # min.distance <- distance.i <- min(xy.distances)
+
+    #getting the 1%
+    min.distance <- distance.i <- max(xy.distances) / 100
+
+    rm(xy.distances)
+  } else {
+    #user defined value
+    min.distance <- distance.i <- distance.step
   }
 
   #getting details of xy.i

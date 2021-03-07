@@ -10,11 +10,11 @@ thinning_til_n(
 )
 }
 \arguments{
-\item{xy}{A data frame with columns named "x" and "y" representing geographic coordinates.}
+\item{xy}{A data frame with columns named "x" and "y" representing geographic coordinates. Default: \code{NULL}}
 
 \item{n}{Integer, number of samples to obtain. Must be lower than \code{nrow(xy)}. Default: \code{30}}
 
-\item{distance.step}{Numeric, distance step used during the thinning iterations. Larger numbers speed up the function.}
+\item{distance.step}{Numeric, distance step used during the thinning iterations. If \code{NULL}, the one percent of the maximum distance among points in \code{xy} is used. Default: \code{NULL}}
 }
 \value{
 A data frame with the same columns as xy with a row number close to n.

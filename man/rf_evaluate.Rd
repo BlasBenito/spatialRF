@@ -9,6 +9,7 @@ rf_evaluate(
   xy = NULL,
   repetitions = 30,
   training.fraction = 0.8,
+  distance.step = NULL,
   metrics = c("r.squared", "pseudo.r.squared", "rmse", "nrmse"),
   verbose = TRUE,
   n.cores = NULL,
@@ -26,6 +27,8 @@ rf_evaluate(
 \item{repetitions}{Integer, must be lower than the total number of rows available in the model's data. Default: \code{30}}
 
 \item{training.fraction}{Proportion between 0.5 and 0.9 indicating the number of records to be used in model training. Default: \code{0.8}}
+
+\item{distance.step}{Numeric, distance step used during the thinning iterations. If \code{NULL}, the one percent of the maximum distance among points in \code{xy} is used. Default: \code{NULL}}
 
 \item{metrics}{Character vector, names of the performance metrics selected. The possible values are: "r.squared" (\code{cor(obs, pred) ^ 2}), "pseudo.r.squared" (\code{cor(obs, pred)}), "rmse" (\code{sqrt(sum((obs - pred)^2)/length(obs))}), "nrmse" (\code{rmse/(quantile(obs, 0.75) - quantile(obs, 0.25))}). Default: \code{c("r.squared", "pseudo.r.squared", "rmse", "nrmse")}}
 
