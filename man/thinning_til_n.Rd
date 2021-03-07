@@ -6,7 +6,8 @@
 \usage{
 thinning_til_n(
   xy,
-  n = 30
+  n = 30,
+  distance.step = NULL
 )
 }
 \arguments{

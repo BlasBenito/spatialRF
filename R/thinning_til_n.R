@@ -3,7 +3,8 @@
 #' @usage
 #' thinning_til_n(
 #'   xy,
-#'   n = 30
+#'   n = 30,
+#'   distance.step = NULL
 #' )
 #' @param xy A data frame with columns named "x" and "y" representing geographic coordinates. Default: `NULL`
 #' @param n Integer, number of samples to obtain. Must be lower than `nrow(xy)`. Default: `30`
@@ -47,7 +48,10 @@ thinning_til_n <- function(
   if(!is.numeric(n)){
     stop("'n' is not a number.")
   }
-  if(length(distance))
+  #in case raster::res() is used to get the distance
+  if(length(distance.step) > 1){
+    distance.step <- distance.step[1]
+  }
 
   #initiating distances
   if(is.null(distance.step)){
