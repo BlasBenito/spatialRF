@@ -328,11 +328,12 @@ exampletestr::make_test_shell_fun("rf_tuning", open = FALSE)
 #to check function dependencies
 dep <- DependenciesGraphs::funDependencies(
   'package:spatialRF',
-  "rf"
+  "rf_spatial"
   )
 plot(dep)
 
-
+dep <- envirDependencies("package:spatialRF")
+plot(dep,block=TRUE)
 
 #writing functions into the R folder
 

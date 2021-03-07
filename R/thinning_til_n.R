@@ -7,6 +7,7 @@
 #' )
 #' @param xy A data frame with columns named "x" and "y" representing geographic coordinates.
 #' @param n Integer, number of samples to obtain. Must be lower than `nrow(xy)`. Default: `30`
+#' @param distance.step Numeric, distance step used during the thinning iterations. Larger numbers speed up the function.
 #' @return A data frame with the same columns as xy with a row number close to n.
 #' @seealso [thinning()]
 #' @examples
@@ -27,7 +28,7 @@
 #' @rdname thinning_til_n
 #' @importFrom stats dist
 #' @export
-thinning_til_n <- function(xy, n = 30){
+thinning_til_n <- function(xy, n = 30, distance.step = NULL){
 
   if(!is.data.frame(xy)){
     stop("xy must be a data frame.")
@@ -38,11 +39,18 @@ thinning_til_n <- function(xy, n = 30){
   if(!("y" %in% colnames(xy))){
     stop("column y is missing from xy.")
   }
+  if(!is.numeric(n)){
+    stop("'n' is not a number.")
+  }
 
   #initiating distances
-  xy.distances <- dist(xy)
-  min.distance <- distance.i <- min(xy.distances) / 2
-  rm(xy.distances)
+  if(is.null(distance.step)){
+    xy.distances <- dist(xy)
+    min.distance <- distance.i <- min(xy.distances) / 2
+    rm(xy.distances)
+  } else {
+    min.distance <- distance.i <- distance.step
+  }
 
   #initiating xy.thin
   xy.thin <- xy
