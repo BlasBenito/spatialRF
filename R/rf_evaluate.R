@@ -145,6 +145,8 @@ rf_evaluate <- function(
   #subsetting xy if data is binary so 1s are the reference points
   if(is.binary == TRUE){
     xy.reference.records <- xy[data[, dependent.variable.name] == 1, c("x", "y", "id")]
+  } else {
+    xy.reference.records <- xy[, c("x", "y", "id")]
   }
 
   #thinning coordinates to get a systematic sample of reference points
