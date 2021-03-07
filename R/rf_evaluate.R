@@ -158,8 +158,6 @@ rf_evaluate <- function(
       xy = xy.reference.records,
       n = repetitions
     )
-  } else {
-    xy.reference.records <- xy
   }
 
   #generates spatial folds

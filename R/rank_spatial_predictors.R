@@ -277,6 +277,7 @@ rank_spatial_predictors <- function(
   out.list$method <- ranking.method
   out.list$criteria <- spatial.predictors.order
   out.list$ranking <- spatial.predictors.order$spatial.predictors.name
+  out.list$spatial.predictors.df <- spatial.predictors.df[, spatial.predictors.order$spatial.predictors.name]
 
   #returning output list
   out.list

@@ -626,6 +626,9 @@ The output of `rank_spatial_predictors()` is a list with three slots: "method", 
 
 ```{r}
 mems <- mems[, mem.rank$ranking]
+
+#also:
+#mems <- mem.rank$spatial.predictors.df
 ```
 
 From here, spatial predictors can be included in any model one by one, in the order of the ranking, until the spatial autocorrelation of the residuals is gone, or our model gets totally defaced. A little example with a linear model follows.

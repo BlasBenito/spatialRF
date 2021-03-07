@@ -58,6 +58,12 @@ root_mean_squared_error <- function(o, p, normalization = c("rmse", "all", "mean
       rmse <- rmse[names(rmse) == normalization]
     }
   }
+
+  #return NA if no number is returned
+  if(length(rmse) == 0){
+    rmse <- NA
+  }
+
   rmse
 }
 
