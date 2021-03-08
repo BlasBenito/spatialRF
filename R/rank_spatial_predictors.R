@@ -85,11 +85,10 @@ rank_spatial_predictors <- function(
   if(is.null(ranger.arguments)){
     ranger.arguments <- list()
   }
-  ranger.arguments$write.forest <- FALSE
+  ranger.arguments$write.forest <- TRUE
   ranger.arguments$importance <- "none"
   ranger.arguments$local.importance <- FALSE
   ranger.arguments$keep.inbag <- FALSE
-  ranger.arguments$write.forest <- FALSE
   ranger.arguments$num.trees <- 500
 
   #reference.moran.i
