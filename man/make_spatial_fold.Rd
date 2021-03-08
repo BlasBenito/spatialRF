@@ -5,6 +5,8 @@
 \title{Makes one training and one testing spatial folds}
 \usage{
 make_spatial_fold(
+  data = NULL,
+  dependent.variable.name = NULL,
   xy.i = NULL,
   xy = NULL,
   distance.step = NULL,
@@ -12,11 +14,15 @@ make_spatial_fold(
 )
 }
 \arguments{
+\item{data}{Data frame with a response variable and a set of predictors. Default: \code{NULL}}
+
+\item{dependent.variable.name}{Character string with the name of the response variable. Must be in the column names of \code{data}. Default: \code{NULL}}
+
 \item{xy.i}{One row data frame with at least three columns: "x" (longitude), "y" (latitude), and "id" (integer, id of the record). Can be a row of \code{xy}. Default: \code{NULL}.}
 
 \item{xy}{A data frame with at least three columns: "x" (longitude), "y" (latitude), and "id" (integer, index of the record). Default: \code{NULL}.}
 
-\item{distance.step}{Numeric, distance step used during the thinning iterations. If \code{NULL}, the one percent of the maximum distance among points in \code{xy} is used. Default: \code{NULL}}
+\item{distance.step}{Numeric, distance step used during the thinning iterations. If \code{NULL}, the minimum distance between two points in \code{xy} is used. Default: \code{NULL}}
 
 \item{training.fraction}{Numeric, fraction of the data to be included in the training fold, Default: \code{0.6}.}
 }

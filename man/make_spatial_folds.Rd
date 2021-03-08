@@ -5,6 +5,8 @@
 \title{Makes training and testing spatial folds}
 \usage{
 make_spatial_folds(
+  data = NULL,
+  dependent.variable.name = NULL,
   xy.selected = NULL,
   xy = NULL,
   distance.step = NULL,
@@ -13,11 +15,15 @@ make_spatial_folds(
 )
 }
 \arguments{
+\item{data}{Data frame with a response variable and a set of predictors. Default: \code{NULL}}
+
+\item{dependent.variable.name}{Character string with the name of the response variable. Must be in the column names of \code{data}. Default: \code{NULL}}
+
 \item{xy.selected}{Data frame with at least three columns: "x" (longitude), "y" (latitude), and "id" (integer, id of the record). Usually a subset of \code{xy}. Usually the result of applying \code{\link[=thinning]{thinning()}} or \code{\link[=thinning_til_n]{thinning_til_n()}} to 'xy' Default: \code{NULL}.}
 
 \item{xy}{data frame with at least three columns: "x" (longitude), "y" (latitude), and "id" (integer, index of the record). Default: \code{NULL}.}
 
-\item{distance.step}{Numeric, distance step used during the thinning iterations. If \code{NULL}, the one percent of the maximum distance among points in \code{xy} is used. Default: \code{NULL}}
+\item{distance.step}{Numeric, distance step used during the thinning iterations. If \code{NULL}, the minimum distance between two points in \code{xy} is used. Default: \code{NULL}}
 
 \item{training.fraction}{numeric, fraction of the data to be included in the growing buffer as training data, Default: 0.6}
 
