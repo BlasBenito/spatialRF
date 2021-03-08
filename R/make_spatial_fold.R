@@ -4,7 +4,7 @@
 #' @param dependent.variable.name Character string with the name of the response variable. Must be in the column names of `data`. Default: `NULL`
 #' @param xy.i One row data frame with at least three columns: "x" (longitude), "y" (latitude), and "id" (integer, id of the record). Can be a row of `xy`. Default: `NULL`.
 #' @param xy A data frame with at least three columns: "x" (longitude), "y" (latitude), and "id" (integer, index of the record). Default: `NULL`.
-#' @param distance.step Numeric, distance step used during the thinning iterations. If `NULL`, the minimum distance between two points in `xy` is used. Default: `NULL`
+#' @param distance.step Numeric, distance step used during the thinning iterations. If `NULL`, the maximum distance between two points in `xy` divided by 1000 is used. Default: `NULL`
 #' @param training.fraction Numeric, fraction of the data to be included in the training fold, Default: `0.6`.
 #' @return A list with two slots named `training` and `testing` with the former having the indices of the training records selected from `xy`, and the latter having the indices of the testing records.
 #' @seealso [make_spatial_folds()], [rf_evaluate()]

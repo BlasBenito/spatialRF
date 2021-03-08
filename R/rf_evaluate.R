@@ -4,7 +4,7 @@
 #' @param xy Data frame or matrix with two columns containing coordinates and named "x" and "y". If `NULL`, the function will throw an error. Default: `NULL`
 #' @param repetitions Integer, must be lower than the total number of rows available in the model's data. Default: `30`
 #' @param training.fraction Proportion between 0.5 and 0.9 indicating the number of records to be used in model training. Default: `0.8`
-#' @param distance.step Numeric, distance step used during the thinning iterations. If `NULL`, the minimum distance between two points in `xy` is used. Default: `NULL`
+#' @param distance.step Numeric, distance step used during the thinning iterations. If `NULL`, the maximum distance between two points in `xy` divided by 1000 is used. Default: `NULL`
 #' @param metrics Character vector, names of the performance metrics selected. The possible values are: "r.squared" (`cor(obs, pred) ^ 2`), "pseudo.r.squared" (`cor(obs, pred)`), "rmse" (`sqrt(sum((obs - pred)^2)/length(obs))`), "nrmse" (`rmse/(quantile(obs, 0.75) - quantile(obs, 0.25))`). Default: `c("r.squared", "pseudo.r.squared", "rmse", "nrmse")`
 #' @param verbose Logical. If `TRUE`, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
 #' @param n.cores Integer, number of cores to use during computations. If `NULL`, all cores but one are used, unless a cluster is used. Default = `NULL`
@@ -332,7 +332,8 @@ rf_evaluate <- function(
   performance.training <- dplyr::select(
     evaluation.df,
     dplyr::contains("training")
-    )
+    ) %>%
+    na.omit()
   performance.training[, 1] <- NULL
   performance.training$model <- "Training"
 
@@ -401,8 +402,8 @@ rf_evaluate <- function(
     dplyr::group_by(model, metric) %>%
     dplyr::summarise(
       median = median(value),
-      q1 = quantile(value, 0.25),
-      q3 = quantile(value, 0.75),
+      q1 = quantile(value, 0.25, na.rm = TRUE),
+      q3 = quantile(value, 0.75, na.rm = TRUE),
       mean = mean(value),
       se = standard_error(value),
       sd = sd(value),

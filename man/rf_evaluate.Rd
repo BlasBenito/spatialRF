@@ -28,7 +28,7 @@ rf_evaluate(
 
 \item{training.fraction}{Proportion between 0.5 and 0.9 indicating the number of records to be used in model training. Default: \code{0.8}}
 
-\item{distance.step}{Numeric, distance step used during the thinning iterations. If \code{NULL}, the minimum distance between two points in \code{xy} is used. Default: \code{NULL}}
+\item{distance.step}{Numeric, distance step used during the thinning iterations. If \code{NULL}, the maximum distance between two points in \code{xy} divided by 1000 is used. Default: \code{NULL}}
 
 \item{metrics}{Character vector, names of the performance metrics selected. The possible values are: "r.squared" (\code{cor(obs, pred) ^ 2}), "pseudo.r.squared" (\code{cor(obs, pred)}), "rmse" (\code{sqrt(sum((obs - pred)^2)/length(obs))}), "nrmse" (\code{rmse/(quantile(obs, 0.75) - quantile(obs, 0.25))}). Default: \code{c("r.squared", "pseudo.r.squared", "rmse", "nrmse")}}
 
