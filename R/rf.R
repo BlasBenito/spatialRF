@@ -349,12 +349,15 @@ rf <- function(
 
   }
 
-  #predicted data
-  predicted <- stats::predict(
-    object = m,
-    data = data,
-    type = "response"
-  )$predictions
+  #predicted from model
+  predicted <- m$predictions
+
+  #computing predictions
+  # predicted <- stats::predict(
+  #   object = m,
+  #   data = data,
+  #   type = "response"
+  # )$predictions
 
   #getting observed data
   observed <- data[, dependent.variable.name]
