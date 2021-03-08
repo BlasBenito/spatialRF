@@ -36,6 +36,9 @@ thinning <- function(xy, minimum.distance = NULL){
   if(is.null(minimum.distance)){
     stop("minimum.distance is empty.")
   }
+  if(length(minimum.distance) > 1){
+    minimum.distance <- minimum.distance[1]
+  }
 
   #count rows
   row.i <- 1
