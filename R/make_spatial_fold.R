@@ -66,10 +66,10 @@ make_spatial_fold <- function(
     xy.distances <- xy.distances[xy.distances != 0]
 
     #getting the minimum
-    distance.step <- min(xy.distances)
+    # distance.step <- min(xy.distances)
 
     #getting the 1%
-    # distance.step <- max(xy.distances) / 100
+    distance.step <- max(xy.distances) / 1000
 
     rm(xy.distances)
   }
