@@ -352,7 +352,11 @@ rf <- function(
   #getting residuals
 
   #predicted data
-  predicted <- m$predictions
+  predicted <- stats::predict(
+    object = m,
+    data = data,
+    type = "response"
+  )$predictions
 
   #getting observed data
   observed <- data[, dependent.variable.name]
@@ -364,18 +368,23 @@ rf <- function(
     observed,
     predicted
   ), 3)
-  m$performance$rmse <- round(root_mean_squared_error(
-    o = observed,
-    p = predicted,
-    normalization = "rmse"
-  ), 3)
-  names(m$performance$rmse) <- NULL
-  m$performance$nrmse <- round(root_mean_squared_error(
-    o = observed,
-    p = predicted,
-    normalization = "iq"
-  ), 3)
-  names(m$performance$nrmse) <- NULL
+  if(is.binary == FALSE){
+    m$performance$rmse <- round(root_mean_squared_error(
+      o = observed,
+      p = predicted,
+      normalization = "rmse"
+    ), 3)
+    names(m$performance$rmse) <- NULL
+    m$performance$nrmse <- round(root_mean_squared_error(
+      o = observed,
+      p = predicted,
+      normalization = "iq"
+    ), 3)
+    names(m$performance$nrmse) <- NULL
+  } else {
+    m$performance$rmse <- NA
+    m$performance$nrmse <- NA
+  }
 
   #residuals
   m$residuals <- observed - predicted
