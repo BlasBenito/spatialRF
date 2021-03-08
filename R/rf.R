@@ -349,8 +349,6 @@ rf <- function(
 
   }
 
-  #getting residuals
-
   #predicted data
   predicted <- stats::predict(
     object = m,

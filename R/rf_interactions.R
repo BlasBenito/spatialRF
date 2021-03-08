@@ -70,7 +70,7 @@ rf_interactions <- function(
       dependent.variable.name = dependent.variable.name,
       predictor.variable.names = predictor.variable.names,
       ranger.arguments = ranger.arguments,
-      scaled.importance = FALSE,
+      scaled.importance = TRUE,
       repetitions = repetitions,
       verbose = FALSE,
       n.cores = n.cores,
@@ -95,7 +95,10 @@ rf_interactions <- function(
 
   #select variables to test
   if(is.null(importance.threshold)){
-    importance.threshold <- quantile(model$variable.importance$per.variable$importance, 0.75)
+    importance.threshold <- quantile(
+      x = model$variable.importance$per.variable$importance,
+      probs = 0.75
+      )
   }
   variables.to.test <- model$variable.importance$per.variable[model$variable.importance$per.variable$importance >= importance.threshold, "variable"]
 
@@ -105,7 +108,14 @@ rf_interactions <- function(
   }
 
   #pairs of variables
-  variables.pairs <- as.data.frame(t(utils::combn(variables.to.test, 2)))
+  variables.pairs <- as.data.frame(
+    t(
+      utils::combn(
+        variables.to.test,
+        2
+        )
+      )
+    )
 
   if(verbose == TRUE){
     message(paste0("Testing ", nrow(variables.pairs), " candidate interactions."))
@@ -234,7 +244,7 @@ rf_interactions <- function(
       dependent.variable.name = dependent.variable.name,
       predictor.variable.names = predictor.variable.names.i,
       ranger.arguments = ranger.arguments.i,
-      scaled.importance = FALSE,
+      scaled.importance = TRUE,
       verbose = FALSE,
       keep.models = FALSE,
       repetitions = repetitions,
@@ -264,8 +274,8 @@ rf_interactions <- function(
 
   #adding column of selected interactions
   interaction.screening$selected <- ifelse(
-    interaction.screening$interaction.r.squared.gain > 0.001 &
-    interaction.screening$interaction.importance > 50,
+    interaction.screening$interaction.r.squared.gain >= 0 &
+    interaction.screening$interaction.importance > 75,
     TRUE,
     FALSE
   )
