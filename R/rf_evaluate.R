@@ -5,7 +5,7 @@
 #' @param repetitions Integer, must be lower than the total number of rows available in the model's data. Default: `30`
 #' @param training.fraction Proportion between 0.5 and 0.9 indicating the number of records to be used in model training. Default: `0.8`
 #' @param distance.step Numeric, distance step used during the thinning iterations. If `NULL`, the maximum distance between two points in `xy` divided by 1000 is used. Default: `NULL`
-#' @param metrics Character vector, names of the performance metrics selected. The possible values are: "r.squared" (`cor(obs, pred) ^ 2`), "pseudo.r.squared" (`cor(obs, pred)`), "rmse" (`sqrt(sum((obs - pred)^2)/length(obs))`), "nrmse" (`rmse/(quantile(obs, 0.75) - quantile(obs, 0.25))`). Default: `c("r.squared", "pseudo.r.squared", "rmse", "nrmse")`
+#' @param metrics Character vector, names of the performance metrics selected. The possible values are: "r.squared" (`cor(obs, pred) ^ 2`), "pseudo.r.squared" (`cor(obs, pred)`), "rmse" (`sqrt(sum((obs - pred)^2)/length(obs))`), "nrmse" (`rmse/(quantile(obs, 0.75) - quantile(obs, 0.25))`), and "auc" (only for binary responses with values 1 and 0). Default: `c("r.squared", "pseudo.r.squared", "rmse", "nrmse")`
 #' @param verbose Logical. If `TRUE`, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
 #' @param n.cores Integer, number of cores to use during computations. If `NULL`, all cores but one are used, unless a cluster is used. Default = `NULL`
 #' @param cluster.ips Character vector with the IPs of the machines in a cluster. The machine with the first IP will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.
@@ -63,7 +63,7 @@ rf_evaluate <- function(
   repetitions = 30,
   training.fraction = 0.8,
   distance.step = NULL,
-  metrics = c("r.squared", "pseudo.r.squared", "rmse", "nrmse"),
+  metrics = c("r.squared", "pseudo.r.squared", "rmse", "nrmse", "auc"),
   verbose = TRUE,
   n.cores = NULL,
   cluster.ips = NULL,
@@ -86,7 +86,7 @@ rf_evaluate <- function(
   #testing method argument
   metrics <- match.arg(
     arg = metrics,
-    choices = c("r.squared", "pseudo.r.squared", "rmse", "nrmse"),
+    choices = c("r.squared", "pseudo.r.squared", "rmse", "nrmse", "auc"),
     several.ok = TRUE
   )
 
@@ -268,7 +268,7 @@ rf_evaluate <- function(
     data.testing <- data[data$id %in% spatial.folds[[i]]$testing, ]
 
     #training model
-    m.training <- spatialRF::rf(
+    m.training <- rf(
       data = data.training,
       dependent.variable.name = dependent.variable.name,
       predictor.variable.names = predictor.variable.names,
@@ -283,6 +283,8 @@ rf_evaluate <- function(
       type = "response",
       num.threads = 1
     )$predictions
+
+    #getting observed data
     observed <- data.testing[, dependent.variable.name]
 
     #computing evaluation scores
@@ -312,6 +314,9 @@ rf_evaluate <- function(
         p = predicted,
         normalization = NULL
       ), 3)
+      if(is.na(out.df$training.rmse)){
+        out.df$testing.rmse <- NA
+      }
     }
     if("nrmse" %in% metrics){
       out.df$training.nrmse = m.training$performance$nrmse
@@ -320,6 +325,19 @@ rf_evaluate <- function(
         p = predicted,
         normalization = "iq"
       ), 3)
+      if(is.na(out.df$training.nrmse)){
+        out.df$testing.nrmse <- NA
+      }
+    }
+    if("auc" %in% metrics){
+      out.df$training.auc = m.training$performance$auc
+      out.df$testing.auc = round(auc(
+        o = observed,
+        p = predicted
+      ), 3)
+      if(is.na(out.df$training.auc)){
+        out.df$testing.auc <- NA
+      }
     }
     rownames(out.df) <- NULL
 
@@ -350,6 +368,7 @@ rf_evaluate <- function(
   pseudo.r.squared <- model$performance$pseudo.r.squared
   rmse <- model$performance$rmse
   nrmse <- model$performance$nrmse
+  auc <- model$performance$auc
 
   #check lengths
   if(length(r.squared) == 0){
@@ -364,6 +383,9 @@ rf_evaluate <- function(
   if(length(nrmse) == 0){
     nrmse <- NA
   }
+  if(length(auc) == 0){
+    auc <- NA
+  }
 
   #full model
   performance.full <- data.frame(
@@ -371,6 +393,7 @@ rf_evaluate <- function(
     pseudo.r.squared = pseudo.r.squared,
     rmse = rmse,
     nrmse = nrmse,
+    auc = auc,
     model = "Full"
   )
   performance.full <- performance.full[, c(metrics, "model")]

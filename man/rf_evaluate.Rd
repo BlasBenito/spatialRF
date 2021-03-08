@@ -10,7 +10,7 @@ rf_evaluate(
   repetitions = 30,
   training.fraction = 0.8,
   distance.step = NULL,
-  metrics = c("r.squared", "pseudo.r.squared", "rmse", "nrmse"),
+  metrics = c("r.squared", "pseudo.r.squared", "rmse", "nrmse", "auc"),
   verbose = TRUE,
   n.cores = NULL,
   cluster.ips = NULL,
@@ -30,7 +30,7 @@ rf_evaluate(
 
 \item{distance.step}{Numeric, distance step used during the thinning iterations. If \code{NULL}, the maximum distance between two points in \code{xy} divided by 1000 is used. Default: \code{NULL}}
 
-\item{metrics}{Character vector, names of the performance metrics selected. The possible values are: "r.squared" (\code{cor(obs, pred) ^ 2}), "pseudo.r.squared" (\code{cor(obs, pred)}), "rmse" (\code{sqrt(sum((obs - pred)^2)/length(obs))}), "nrmse" (\code{rmse/(quantile(obs, 0.75) - quantile(obs, 0.25))}). Default: \code{c("r.squared", "pseudo.r.squared", "rmse", "nrmse")}}
+\item{metrics}{Character vector, names of the performance metrics selected. The possible values are: "r.squared" (\code{cor(obs, pred) ^ 2}), "pseudo.r.squared" (\code{cor(obs, pred)}), "rmse" (\code{sqrt(sum((obs - pred)^2)/length(obs))}), "nrmse" (\code{rmse/(quantile(obs, 0.75) - quantile(obs, 0.25))}), and "auc" (only for binary responses with values 1 and 0). Default: \code{c("r.squared", "pseudo.r.squared", "rmse", "nrmse")}}
 
 \item{verbose}{Logical. If \code{TRUE}, messages and plots generated during the execution of the function are displayed, Default: \code{TRUE}}
 

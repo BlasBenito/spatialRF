@@ -369,6 +369,7 @@ rf <- function(
     predicted
   ), 3)
   if(is.binary == FALSE){
+
     m$performance$rmse <- round(root_mean_squared_error(
       o = observed,
       p = predicted,
@@ -381,9 +382,19 @@ rf <- function(
       normalization = "iq"
     ), 3)
     names(m$performance$nrmse) <- NULL
+    m$performance$auc <- NA
+
   } else {
+
     m$performance$rmse <- NA
     m$performance$nrmse <- NA
+
+    #compute AUC
+    m$performance$auc <- auc(
+      o = observed,
+      p = predicted
+    )
+
   }
 
   #residuals

@@ -255,6 +255,7 @@ rf_repeat <- function(
     out$pseudo.r.squared <- m.i$performance$pseudo.r.squared
     out$rmse <- m.i$performance$rmse
     out$nrmse <- m.i$performance$nrmse
+    out$auc <- m.i$performance$auc
     out$residuals <- m.i$residuals
     out$spatial.correlation.residuals <- m.i$spatial.correlation.residuals
 
@@ -411,6 +412,16 @@ rf_repeat <- function(
     )
   )
   names(m.curves$performance$nrmse) <- NULL
+
+  #gathering auc
+  m.curves$performance$auc <- unlist(
+    lapply(
+      repeated.models,
+      "[[",
+      "auc"
+    )
+  )
+  names(m.curves$performance$auc) <- NULL
 
   #gathering spatial.correlation.residuals
   if(!is.null(distance.matrix)){

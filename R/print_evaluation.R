@@ -62,6 +62,7 @@ print_evaluation <- function(x){
   model <- x
   x <- model$evaluation$aggregated
   metrics <- model$evaluation$metrics
+  x.auc <- .to_huxtable(x, measure = "auc")
   x.rmse <- .to_huxtable(x, measure = "rmse")
   x.nrmse <- .to_huxtable(x, measure = "nrmse")
   x.r.squared <- .to_huxtable(x, measure = "r.squared")
@@ -91,6 +92,11 @@ print_evaluation <- function(x){
     cat("\n")
     cat("  - NRMSE: \n")
     huxtable::print_screen(x.nrmse, colnames = FALSE)
+  }
+  if("auc" %in% metrics){
+    cat("\n")
+    cat("  - AUC: \n")
+    huxtable::print_screen(x.auc, colnames = FALSE)
   }
 
 }
