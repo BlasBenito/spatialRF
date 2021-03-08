@@ -342,12 +342,32 @@ rf_evaluate <- function(
   performance.testing[, 1] <- NULL
   performance.testing$model <- "Testing"
 
+  #getting performance values
+  r.squared <- model$performance$r.squared
+  pseudo.r.squared <- model$performance$pseudo.r.squared
+  rmse <- model$performance$rmse
+  nrmse <- model$performance$nrmse
+
+  #check lengths
+  if(length(r.squared) == 0){
+    r.squared <- NA
+  }
+  if(length(pseudo.r.squared) == 0){
+    pseudo.r.squared <- NA
+  }
+  if(length(rmse) == 0){
+    rmse <- NA
+  }
+  if(length(nrmse) == 0){
+    nrmse <- NA
+  }
+
   #full model
   performance.full <- data.frame(
-    r.squared = model$performance$r.squared,
-    pseudo.r.squared = model$performance$pseudo.r.squared,
-    rmse = model$performance$rmse,
-    nrmse = model$performance$nrmse,
+    r.squared = r.squared,
+    pseudo.r.squared = pseudo.r.squared,
+    rmse = rmse,
+    nrmse = nrmse,
     model = "Full"
   )
   performance.full <- performance.full[, c(metrics, "model")]

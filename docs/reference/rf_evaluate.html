@@ -125,6 +125,7 @@
   <span class='kw'>xy</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>repetitions</span> <span class='kw'>=</span> <span class='fl'>30</span>,
   <span class='kw'>training.fraction</span> <span class='kw'>=</span> <span class='fl'>0.8</span>,
+  <span class='kw'>distance.step</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>metrics</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"r.squared"</span>, <span class='st'>"pseudo.r.squared"</span>, <span class='st'>"rmse"</span>, <span class='st'>"nrmse"</span>),
   <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>n.cores</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
@@ -152,6 +153,10 @@
     <tr>
       <th>training.fraction</th>
       <td><p>Proportion between 0.5 and 0.9 indicating the number of records to be used in model training. Default: <code>0.8</code></p></td>
+    </tr>
+    <tr>
+      <th>distance.step</th>
+      <td><p>Numeric, distance step used during the thinning iterations. If <code>NULL</code>, the one percent of the maximum distance among points in <code>xy</code> is used. Default: <code>NULL</code></p></td>
     </tr>
     <tr>
       <th>metrics</th>

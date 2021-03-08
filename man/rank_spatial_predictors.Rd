@@ -54,11 +54,12 @@ rank_spatial_predictors(
 \item{cluster.port}{Character, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: \code{"11000"}}
 }
 \value{
-A list with three slots:
+A list with four slots:
 \itemize{
 \item \code{method}: Character, name of the method used to rank the spatial predictors.
 \item \code{criteria}: Data frame with two different configurations depending on the ranking method. If \code{ranking.method = "effect"}, the columns contain the names of the spatial predictors, the r-squared of the model, the Moran's I of the model residuals, the difference between the Moran's I of the model including the given spatial predictor, and the Moran's I of the model fitted without spatial predictors, and the interpretation of the Moran's I value. If \code{ranking.method = "moran"}, only the name of the spatial predictor and it's Moran's I are in the output data frame.
 \item \code{ranking}: Ordered character vector with the names of the spatial predictors selected.
+\item \code{spatial.predictors.df}: data frame with the selected spatial predictors in the order of the ranking.
 }
 }
 \description{

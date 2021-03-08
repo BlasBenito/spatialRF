@@ -245,26 +245,24 @@ interactions <- rf_interactions(
 
     ## 5 potential interactions identified.
 
-    ##    ┌─────────────────────┬─────────────────────┬────────────────┐
-    ##    │ Interaction         │    Importance (% of │ R2 improvement │
-    ##    │                     │                max) │                │
-    ##    ├─────────────────────┼─────────────────────┼────────────────┤
-    ##    │ human_population_X_ │                76.5 │         0.017  │
-    ##    │ bias_area_km2       │                     │                │
-    ##    ├─────────────────────┼─────────────────────┼────────────────┤
-    ##    │ climate_bio1_averag │                76.2 │         0.011  │
-    ##    │ e_X_bias_area_km2   │                     │                │
-    ##    ├─────────────────────┼─────────────────────┼────────────────┤
-    ##    │ climate_hypervolume │                66.3 │         0.001  │
-    ##    │ _X_bias_area_km2    │                     │                │
-    ##    ├─────────────────────┼─────────────────────┼────────────────┤
-    ##    │ climate_hypervolume │                58.2 │         0.004  │
-    ##    │ _X_climate_bio1_ave │                     │                │
-    ##    │ rage                │                     │                │
-    ##    ├─────────────────────┼─────────────────────┼────────────────┤
-    ##    │ bias_area_km2_X_nei │                57.9 │         0.0012 │
-    ##    │ ghbors_count        │                     │                │
-    ##    └─────────────────────┴─────────────────────┴────────────────┘
+    ##       ┌─────────────────────────┬───────────────────────┬────────────────┐
+    ##       │ Interaction             │ Importance (% of max) │ R2 improvement │
+    ##       ├─────────────────────────┼───────────────────────┼────────────────┤
+    ##       │ human_population_X_bias │                  76.5 │         0.017  │
+    ##       │ _area_km2               │                       │                │
+    ##       ├─────────────────────────┼───────────────────────┼────────────────┤
+    ##       │ climate_bio1_average_X_ │                  76.2 │         0.011  │
+    ##       │ bias_area_km2           │                       │                │
+    ##       ├─────────────────────────┼───────────────────────┼────────────────┤
+    ##       │ climate_hypervolume_X_b │                  66.3 │         0.001  │
+    ##       │ ias_area_km2            │                       │                │
+    ##       ├─────────────────────────┼───────────────────────┼────────────────┤
+    ##       │ climate_hypervolume_X_c │                  58.2 │         0.004  │
+    ##       │ limate_bio1_average     │                       │                │
+    ##       ├─────────────────────────┼───────────────────────┼────────────────┤
+    ##       │ bias_area_km2_X_neighbo │                  57.9 │         0.0012 │
+    ##       │ rs_count                │                       │                │
+    ##       └─────────────────────────┴───────────────────────┴────────────────┘
 
 ![](README_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
@@ -538,14 +536,14 @@ model.non.spatial.tuned <- rf_tuning(
 
     ##   - min.node.size: 5
 
-    ## R squared gain: 0.061
+    ## R squared gain: 0.042
 
 ![](README_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
 
 The function `rf_tuning()` returns a model fitted with the same data as
 the original model, but using the best hyperparameters found during
 tuning. Model tuning has helped to a very small improvement in
-performance measures (+ 0.061 R squared), so from here, we can keep
+performance measures (+ 0.042 R squared), so from here, we can keep
 working with `model.non.spatial.tuned`.
 
 # Fitting a spatial model
@@ -692,7 +690,7 @@ model.spatial.tuned <- rf_tuning(
 
     ##   - min.node.size: 5
 
-    ## R squared gain: 0.015
+    ## R squared gain: 0.02
 
 ![](README_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->
 
@@ -783,12 +781,12 @@ comparison <- rf_compare(
 
 | Model             | Metric    |     Mean |
 |:------------------|:----------|---------:|
-| Non-spatial       | r.squared |    0.483 |
-| Non-spatial tuned | r.squared |    0.492 |
-| Spatial           | r.squared |    0.478 |
+| Non-spatial       | r.squared |    0.496 |
+| Non-spatial tuned | r.squared |    0.491 |
+| Spatial           | r.squared |    0.483 |
 | Spatial tuned     | r.squared |    0.458 |
-| Non-spatial       | rmse      | 2496.102 |
-| Non-spatial tuned | rmse      | 2333.807 |
+| Non-spatial       | rmse      | 2479.810 |
+| Non-spatial tuned | rmse      | 2325.606 |
 | Spatial           | rmse      | 2503.165 |
 | Spatial tuned     | rmse      | 2504.872 |
 
@@ -862,6 +860,9 @@ object to reorder or `mems` data frame.
 
 ``` r
 mems <- mems[, mem.rank$ranking]
+
+#also:
+#mems <- mem.rank$spatial.predictors.df
 ```
 
 From here, spatial predictors can be included in any model one by one,

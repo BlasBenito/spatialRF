@@ -213,10 +213,11 @@ This function has been designed to be used internally by rf_spatial() rather tha
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A list with three slots:</p><ul>
+    <p>A list with four slots:</p><ul>
 <li><p><code>method</code>: Character, name of the method used to rank the spatial predictors.</p></li>
 <li><p><code>criteria</code>: Data frame with two different configurations depending on the ranking method. If <code>ranking.method = "effect"</code>, the columns contain the names of the spatial predictors, the r-squared of the model, the Moran's I of the model residuals, the difference between the Moran's I of the model including the given spatial predictor, and the Moran's I of the model fitted without spatial predictors, and the interpretation of the Moran's I value. If <code>ranking.method = "moran"</code>, only the name of the spatial predictor and it's Moran's I are in the output data frame.</p></li>
 <li><p><code>ranking</code>: Ordered character vector with the names of the spatial predictors selected.</p></li>
+<li><p><code>spatial.predictors.df</code>: data frame with the selected spatial predictors in the order of the ranking.</p></li>
 </ul>
 
 
