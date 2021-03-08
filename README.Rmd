@@ -169,7 +169,7 @@ Random Forests already takes into account variable interactions of the form "var
 
 The function [`rf_interactions()`](https://blasbenito.github.io/spatialRF/reference/rf_interactions.html) tests all possible interactions among predictors by using each one of them in a separate model, and suggesting the ones with the higher potential contribution to the model's R squared and the higher relative importance (presented as a percentage of the maximum importance of a variable in the model).
 
-```{r, fig.width=12, fig.height=7}
+```{r, fig.width=8, fig.height=4}
 interactions <- rf_interactions(
   data = plant_richness_df,
   dependent.variable.name = dependent.variable.name,

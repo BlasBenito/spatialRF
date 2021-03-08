@@ -345,13 +345,15 @@ rf_evaluate <- function(
 
   }#end of parallelized loop
 
+  #removing columns with NA
+  # evaluation.df <- evaluation.df[, colSums(is.na(evaluation.df)) != nrow(evaluation.df)]
+
   #preparing data frames for plotting and printing
   #select columns with "training"
   performance.training <- dplyr::select(
     evaluation.df,
     dplyr::contains("training")
-    ) %>%
-    na.omit()
+    )
   performance.training[, 1] <- NULL
   performance.training$model <- "Training"
 
