@@ -98,7 +98,7 @@ The data required to fit random forest models with `spatialRF` must fulfill seve
   + **Factors in the response or the predictors are not explicitly supported in the package**, they may work, or they won't, but in any case, I designed this package for quantitative data alone.
   + **Must be free of `NA`**. You can check if there are NA records with `sum(apply(df, 2, is.na))`. If the result is larger than 0, then just execute `df <- na.omit(df)` to remove rows with empty cells.
   + **Columns cannot have zero variance**. This condition can be checked with `apply(df, 2, var) == 0`. Columns yielding TRUE should be removed.
-  + **Columns must not yield `NaN` or `Inf` when scaled**. You can check each condition with `sum(apply(scale(df), 2, is.nan))` and `sum(apply(scale(df), 2, is.infinite))`. If higher than 0, you can find what columns are giving issues with `sapply(df, function(x)any(is.nan(x)))` and `sapply(df, function(x)any(is.infinite(x)))`. Any column yielding `TRUE` will generate issues while trying to fit models with `spatialRF`.
+  + **Columns must not yield `NaN` or `Inf` when scaled**. You can check each condition with `sum(apply(scale(df), 2, is.nan))` and `sum(apply(scale(df), 2, is.infinite))`. If higher than 0, you can find what columns are giving issues with `sapply(as.data.frame(scale(df)), function(x)any(is.nan(x)))` and `sapply(as.data.frame(scale(df)), function(x)any(is.infinite(x)))`. Any column yielding `TRUE` will generate issues while trying to fit models with `spatialRF`.
 
 # Example data
 

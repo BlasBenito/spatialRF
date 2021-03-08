@@ -170,7 +170,7 @@
 <li>
 <strong>Columns cannot have zero variance</strong>. This condition can be checked with <code>apply(df, 2, var) == 0</code>. Columns yielding TRUE should be removed.</li>
 <li>
-<strong>Columns must not yield <code>NaN</code> or <code>Inf</code> when scaled</strong>. You can check each condition with <code><a href="https://rdrr.io/r/base/sum.html">sum(apply(scale(df), 2, is.nan))</a></code> and <code><a href="https://rdrr.io/r/base/sum.html">sum(apply(scale(df), 2, is.infinite))</a></code>. If higher than 0, you can find what columns are giving issues with <code><a href="https://rdrr.io/r/base/lapply.html">sapply(df, function(x)any(is.nan(x)))</a></code> and <code><a href="https://rdrr.io/r/base/lapply.html">sapply(df, function(x)any(is.infinite(x)))</a></code>. Any column yielding <code>TRUE</code> will generate issues while trying to fit models with <code>spatialRF</code>.</li>
+<strong>Columns must not yield <code>NaN</code> or <code>Inf</code> when scaled</strong>. You can check each condition with <code><a href="https://rdrr.io/r/base/sum.html">sum(apply(scale(df), 2, is.nan))</a></code> and <code><a href="https://rdrr.io/r/base/sum.html">sum(apply(scale(df), 2, is.infinite))</a></code>. If higher than 0, you can find what columns are giving issues with <code><a href="https://rdrr.io/r/base/lapply.html">sapply(as.data.frame(scale(df)), function(x)any(is.nan(x)))</a></code> and <code><a href="https://rdrr.io/r/base/lapply.html">sapply(as.data.frame(scale(df)), function(x)any(is.infinite(x)))</a></code>. Any column yielding <code>TRUE</code> will generate issues while trying to fit models with <code>spatialRF</code>.</li>
 </ul>
 </div>
 <div id="example-data" class="section level1">

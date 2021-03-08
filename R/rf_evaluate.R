@@ -387,6 +387,7 @@ rf_evaluate <- function(
     auc <- NA
   }
 
+
   #full model
   performance.full <- data.frame(
     r.squared = r.squared,

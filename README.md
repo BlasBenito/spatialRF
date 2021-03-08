@@ -177,8 +177,7 @@ fulfill several conditions:
     each condition with `sum(apply(scale(df), 2, is.nan))` and
     `sum(apply(scale(df), 2, is.infinite))`. If higher than 0, you can
     find what columns are giving issues with
-    `sapply(df, function(x)any(is.nan(x)))` and
-    `sapply(df, function(x)any(is.infinite(x)))`. Any column yielding
+    `sapply(as.data.frame(scale(df)), function(x)any(is.nan(x)))` and `sapply(as.data.frame(scale(df)), function(x)any(is.infinite(x)))`. Any column yielding
     `TRUE` will generate issues while trying to fit models with
     `spatialRF`.
 
