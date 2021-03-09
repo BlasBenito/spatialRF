@@ -728,27 +728,29 @@ The functions
 [`plot_evaluation()`](https://blasbenito.github.io/spatialRF/reference/plot_evaluation.html)
 and
 [`print_evaluation()`](https://blasbenito.github.io/spatialRF/reference/print_evaluation.html)
-allow to check the evaluation results as a plot or as a table. The
-boxplot below shows the original performance scores of the “Full” model
-(`model.spatial.tuned`), and the distribution of performance scores of
-the model fitted on the training data (“Training”), its prediction over
-the “Testing” data. From these performance scores, only the ones labeled
-as “Testing” represent model performance on *unseen* data.
+allow to check the evaluation results as a plot or as a table.
 
 ``` r
-plot_evaluation(model.spatial.tuned, notch = TRUE)
+print_evaluation(model.spatial.tuned)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-31-1.png)<!-- -->
+    ## 
+    ## Spatial evaluation 
+    ##   - Training fraction:             0.8
+    ##   - Spatial folds:                 25
+    ## 
+    ##     Metric     Mean Standard deviation  Minimum  Maximum
+    ##  r.squared    0.250              0.159    0.080    0.601
+    ##       rmse 3223.499            810.886 2285.215 4748.118
 
-The evaluation shows that the spatial model is hard to transfer outside
-of the training space. Models based on a spatial structure like the ones
-fitted with `rf_spatial()` do not work well when transferred to a
-different place (that is what `rf_compare()` does), because spatial
-structures are not transferable when the data is irregularly
-distributed, as it is the case with `plant_richness_df`. The comparison
-below shows how non-spatial models may show better (not bad, not great)
-evaluation scores on independent spatial folds.
+The low R squared yielded by the model evaluation shows that the spatial
+model is hard to transfer outside of the training space. Models based on
+a spatial structure like the ones fitted with `rf_spatial()` do not work
+well when transferred to a different place (that is what `rf_compare()`
+does), because spatial structures are not transferable when the data is
+irregularly distributed, as it is the case with `plant_richness_df`. The
+comparison below shows how non-spatial models may show better (not bad,
+not great) evaluation scores on independent spatial folds.
 
 # Comparing several models
 
