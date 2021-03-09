@@ -12,7 +12,7 @@
 #' @param cluster.cores Numeric integer vector, number of cores to use on each machine.
 #' @param cluster.user Character string, name of the user (should be the same throughout machines). Defaults to the current system user.
 #' @param cluster.port Character, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: `"11000"`
-#' @return A list with three slots: `df.long`, with the performance metrics for each model across repetitions; `df.aggregated`, with aggregated stats per model and performance metrics; `plot`, with a boxplot built from `df.long`.
+#' @return A list with three slots: `comparison.df`, a data frame with one performance value per spatial fold, metric, and model; `spatial.folds`, a list with the indices of the training and testing records for each evaluation repetition; `plot` a boxplot of `comparison.df`.
 #' @examples
 #' \donttest{
 #' if(interactive()){
@@ -62,6 +62,8 @@ rf_compare <- function(
   #declaring variables
   model <- NULL
   value <- NULL
+  model.name <- NULL
+  metric <- NULL
 
   #capturing user options
   user.options <- options()
@@ -107,7 +109,7 @@ rf_compare <- function(
 
     #getting evaluation data frame
     evaluation.df.i <- models[[model.i]]$evaluation$per.fold.long
-    evaluation.df.i$model <- model.i
+    evaluation.df.i$model.name <- model.i
 
     #adding it to the evaluation list
     evaluation.list[[model.i]] <- evaluation.df.i
@@ -117,6 +119,20 @@ rf_compare <- function(
   #binding data frames
   evaluation.df <- do.call("rbind", evaluation.list)
   rownames(evaluation.df) <- NULL
+
+  #remove non testing models
+  evaluation.df <- dplyr::filter(
+    evaluation.df,
+    model == "Testing"
+  ) %>%
+    dplyr::select(
+      metric,
+      value,
+      model.name
+    ) %>%
+    dplyr::rename(
+      model = model.name
+    )
 
   #df to plot
   x <- evaluation.df
@@ -160,6 +176,7 @@ rf_compare <- function(
   #out list
   out.list <- list()
   out.list$comparison.df <- evaluation.df
+  out.list$spatial.folds <- models[[model.i]]$evaluation$spatial.folds
   out.list$plot <- p
 
   if(verbose == TRUE){

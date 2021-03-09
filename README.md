@@ -177,9 +177,10 @@ fulfill several conditions:
     each condition with `sum(apply(scale(df), 2, is.nan))` and
     `sum(apply(scale(df), 2, is.infinite))`. If higher than 0, you can
     find what columns are giving issues with
-    `sapply(as.data.frame(scale(df)), function(x)any(is.nan(x)))` and `sapply(as.data.frame(scale(df)), function(x)any(is.infinite(x)))`. Any column yielding
-    `TRUE` will generate issues while trying to fit models with
-    `spatialRF`.
+    `sapply(as.data.frame(scale(df)), function(x)any(is.nan(x)))` and
+    `sapply(as.data.frame(scale(df)), function(x)any(is.infinite(x)))`.
+    Any column yielding `TRUE` will generate issues while trying to fit
+    models with `spatialRF`.
 
 # Example data
 
@@ -242,25 +243,16 @@ interactions <- rf_interactions(
 
     ## Testing 10 candidate interactions.
 
-    ## 5 potential interactions identified.
+    ## 2 potential interactions identified.
 
     ##       ┌─────────────────────────┬───────────────────────┬────────────────┐
     ##       │ Interaction             │ Importance (% of max) │ R2 improvement │
     ##       ├─────────────────────────┼───────────────────────┼────────────────┤
-    ##       │ human_population_X_bias │                  76.5 │         0.017  │
+    ##       │ human_population_X_bias │                 100.0 │          0.002 │
     ##       │ _area_km2               │                       │                │
     ##       ├─────────────────────────┼───────────────────────┼────────────────┤
-    ##       │ climate_bio1_average_X_ │                  76.2 │         0.011  │
+    ##       │ climate_bio1_average_X_ │                  81.7 │          0     │
     ##       │ bias_area_km2           │                       │                │
-    ##       ├─────────────────────────┼───────────────────────┼────────────────┤
-    ##       │ climate_hypervolume_X_b │                  66.3 │         0.001  │
-    ##       │ ias_area_km2            │                       │                │
-    ##       ├─────────────────────────┼───────────────────────┼────────────────┤
-    ##       │ climate_hypervolume_X_c │                  58.2 │         0.004  │
-    ##       │ limate_bio1_average     │                       │                │
-    ##       ├─────────────────────────┼───────────────────────┼────────────────┤
-    ##       │ bias_area_km2_X_neighbo │                  57.9 │         0.0012 │
-    ##       │ rs_count                │                       │                │
     ##       └─────────────────────────┴───────────────────────┴────────────────┘
 
 ![](README_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
@@ -535,14 +527,14 @@ model.non.spatial.tuned <- rf_tuning(
 
     ##   - min.node.size: 5
 
-    ## R squared gain: 0.042
+    ## R squared gain: 0.029
 
 ![](README_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
 
 The function `rf_tuning()` returns a model fitted with the same data as
 the original model, but using the best hyperparameters found during
 tuning. Model tuning has helped to a very small improvement in
-performance measures (+ 0.042 R squared), so from here, we can keep
+performance measures (+ 0.029 R squared), so from here, we can keep
 working with `model.non.spatial.tuned`.
 
 # Fitting a spatial model
@@ -615,16 +607,16 @@ we will see that a few of them are spatial predictors.
 
 | variable                                   | importance |
 |:-------------------------------------------|-----------:|
-| spatial\_predictor\_0\_2                   |      0.152 |
-| climate\_bio1\_average\_X\_bias\_area\_km2 |      0.142 |
-| climate\_hypervolume                       |      0.137 |
-| climate\_bio1\_average                     |      0.131 |
-| bias\_species\_per\_record                 |      0.073 |
-| spatial\_predictor\_0\_1                   |      0.060 |
-| spatial\_predictor\_0\_6                   |      0.047 |
-| spatial\_predictor\_3000\_1                |      0.047 |
+| climate\_bio1\_average\_X\_bias\_area\_km2 |      0.151 |
+| spatial\_predictor\_0\_2                   |      0.147 |
+| climate\_hypervolume                       |      0.140 |
+| climate\_bio1\_average                     |      0.132 |
+| bias\_species\_per\_record                 |      0.080 |
+| spatial\_predictor\_0\_1                   |      0.064 |
+| spatial\_predictor\_3000\_1                |      0.057 |
+| spatial\_predictor\_0\_6                   |      0.053 |
 | spatial\_predictor\_0\_5                   |      0.045 |
-| neighbors\_count                           |      0.038 |
+| human\_population\_density                 |      0.041 |
 
 Spatial predictors are named `spatial_predictor_X_Y`, where `X` is the
 neighborhood distance at which the predictor has been generated, and `Y`
@@ -689,7 +681,7 @@ model.spatial.tuned <- rf_tuning(
 
     ##   - min.node.size: 5
 
-    ## R squared gain: 0.02
+    ## R squared gain: 0.016
 
 ![](README_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->
 
@@ -749,8 +741,14 @@ plot_evaluation(model.spatial.tuned, notch = TRUE)
 
 ![](README_files/figure-gfm/unnamed-chunk-31-1.png)<!-- -->
 
-The plot shows that the spatial model does a lousy job in predicting
-over unseen data.
+The evaluation shows that the spatial model is hard to transfer outside
+of the training space. Models based on a spatial structure like the ones
+fitted with `rf_spatial()` do not work well when transferred to a
+different place (that is what `rf_compare()` does), because spatial
+structures are not transferable when the data is irregularly
+distributed, as it is the case with `plant_richness_df`. The comparison
+below shows how non-spatial models may show better (not bad, not great)
+evaluation scores on independent spatial folds.
 
 # Comparing several models
 
@@ -771,6 +769,8 @@ comparison <- rf_compare(
     `Spatial tuned` = model.spatial.tuned
   ),
   xy = plant_richness_df[, c("x", "y")],
+  repetitions = 30,
+  training.fraction = 0.8,
   metrics = c("r.squared", "rmse"),
   notch = TRUE
   )
@@ -780,21 +780,14 @@ comparison <- rf_compare(
 
 | Model             | Metric    |     Mean |
 |:------------------|:----------|---------:|
-| Non-spatial       | r.squared |    0.496 |
-| Non-spatial tuned | r.squared |    0.491 |
-| Spatial           | r.squared |    0.483 |
-| Spatial tuned     | r.squared |    0.458 |
-| Non-spatial       | rmse      | 2479.810 |
-| Non-spatial tuned | rmse      | 2325.606 |
-| Spatial           | rmse      | 2503.165 |
-| Spatial tuned     | rmse      | 2504.872 |
-
-The comparison shows that the non-spatial models performed slightly
-better than the spatial ones, but with overlapping notches, indicating
-that the medians of the R squared and RMSE distributions are not
-statistically different. That is a small trade-off, considering that the
-spatial model incorporates information about the spatial structure of
-the data, and its residuals are not spatially correlated.
+| Non-spatial       | r.squared |    0.939 |
+| Non-spatial tuned | r.squared |    0.925 |
+| Spatial           | r.squared |    0.945 |
+| Spatial tuned     | r.squared |    0.941 |
+| Non-spatial       | rmse      | 1117.040 |
+| Non-spatial tuned | rmse      | 1031.109 |
+| Spatial           | rmse      | 1040.077 |
+| Spatial tuned     | rmse      | 1005.982 |
 
 # Generating spatial predictors for other models
 
