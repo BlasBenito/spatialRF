@@ -190,7 +190,7 @@
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A list with three slots: <code>df.long</code>, with the performance metrics for each model across repetitions; <code>df.aggregated</code>, with aggregated stats per model and performance metrics; <code>plot</code>, with a boxplot built from <code>df.long</code>.</p>
+    <p>A list with three slots: <code>comparison.df</code>, a data frame with one performance value per spatial fold, metric, and model; <code>spatial.folds</code>, a list with the indices of the training and testing records for each evaluation repetition; <code>plot</code> a boxplot of <code>comparison.df</code>.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code><a href='rf_evaluate.html'>rf_evaluate()</a></code></p></div>

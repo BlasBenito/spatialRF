@@ -780,14 +780,14 @@ comparison <- rf_compare(
 
 | Model             | Metric    |     Mean |
 |:------------------|:----------|---------:|
-| Non-spatial       | r.squared |    0.939 |
-| Non-spatial tuned | r.squared |    0.925 |
-| Spatial           | r.squared |    0.945 |
-| Spatial tuned     | r.squared |    0.941 |
-| Non-spatial       | rmse      | 1117.040 |
-| Non-spatial tuned | rmse      | 1031.109 |
-| Spatial           | rmse      | 1040.077 |
-| Spatial tuned     | rmse      | 1005.982 |
+| Non-spatial       | r.squared |    0.336 |
+| Non-spatial tuned | r.squared |    0.412 |
+| Spatial           | r.squared |    0.167 |
+| Spatial tuned     | r.squared |    0.217 |
+| Non-spatial       | rmse      | 2817.225 |
+| Non-spatial tuned | rmse      | 2329.933 |
+| Spatial           | rmse      | 3086.170 |
+| Spatial tuned     | rmse      | 2930.469 |
 
 # Generating spatial predictors for other models
 
