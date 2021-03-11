@@ -116,17 +116,17 @@ plot_moran <- function(x, verbose = TRUE){
       ) +
       ggplot2::geom_hline(
         yintercept = 0,
-        col = "gray10",
+        col = "red4",
         size = 0.7,
         linetype = "dashed"
       ) +
       ggplot2::geom_point(
-        color = "#440154FF",
+        color = "black",
         alpha = 0.7
         ) +
       ggplot2::geom_line(
         size = 1,
-        color = "#440154FF",
+        color = "black",
         alpha = 0.7
         ) +
       ggplot2::scale_size_manual(
