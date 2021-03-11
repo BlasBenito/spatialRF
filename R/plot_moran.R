@@ -82,7 +82,7 @@ plot_moran <- function(x, verbose = TRUE){
         size = p.value.binary
       ) +
       ggplot2::geom_point(color = "black") +
-      ggplot2::geom_line(size = 1, color = "#black") +
+      ggplot2::geom_line(size = 1, color = "black") +
       ggplot2::geom_hline(
         yintercept = 0,
         col = "red4",
