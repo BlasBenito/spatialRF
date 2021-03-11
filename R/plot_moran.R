@@ -81,8 +81,8 @@ plot_moran <- function(x, verbose = TRUE){
         y = moran.i,
         size = p.value.binary
       ) +
-      ggplot2::geom_point(color = "black") +
-      ggplot2::geom_line(size = 1, color = "black") +
+      ggplot2::geom_point(color = "gray25") +
+      ggplot2::geom_line(size = 1, color = "gray25") +
       ggplot2::geom_hline(
         yintercept = 0,
         col = "red4",
@@ -91,7 +91,7 @@ plot_moran <- function(x, verbose = TRUE){
       ) +
       ggplot2::scale_size_manual(
         breaks = c("< 0.05", ">= 0.05"),
-        values = c(1, 5),
+        values = c(2, 5),
         drop = FALSE
         ) +
       ggplot2::scale_x_continuous(breaks = x$distance.threshold) +
@@ -115,12 +115,12 @@ plot_moran <- function(x, verbose = TRUE){
         size = p.value.binary
       ) +
       ggplot2::geom_point(
-        color = "black",
+        color = "gray25",
         alpha = 0.7
         ) +
       ggplot2::geom_line(
         size = 1,
-        color = "black",
+        color = "gray25",
         alpha = 0.7
         ) +
       ggplot2::geom_hline(
@@ -131,7 +131,7 @@ plot_moran <- function(x, verbose = TRUE){
       ) +
       ggplot2::scale_size_manual(
         breaks = c("< 0.05", ">= 0.05"),
-        values = c(1, 5),
+        values = c(2, 5),
         drop = FALSE
       ) +
       ggplot2::scale_x_continuous(breaks = x$distance.threshold) +
