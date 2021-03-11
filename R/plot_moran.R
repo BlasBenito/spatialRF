@@ -81,14 +81,14 @@ plot_moran <- function(x, verbose = TRUE){
         y = moran.i,
         size = p.value.binary
       ) +
+      ggplot2::geom_point(color = "black") +
+      ggplot2::geom_line(size = 1, color = "#black") +
       ggplot2::geom_hline(
         yintercept = 0,
-        col = "gray10",
+        col = "red4",
         size = 0.7,
         linetype = "dashed"
       ) +
-      ggplot2::geom_point(color = "#440154FF") +
-      ggplot2::geom_line(size = 1, color = "#440154FF") +
       ggplot2::scale_size_manual(
         breaks = c("< 0.05", ">= 0.05"),
         values = c(1, 5),
