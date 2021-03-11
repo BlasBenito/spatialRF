@@ -114,12 +114,6 @@ plot_moran <- function(x, verbose = TRUE){
         group = repetition,
         size = p.value.binary
       ) +
-      ggplot2::geom_hline(
-        yintercept = 0,
-        col = "red4",
-        size = 0.7,
-        linetype = "dashed"
-      ) +
       ggplot2::geom_point(
         color = "black",
         alpha = 0.7
@@ -129,6 +123,12 @@ plot_moran <- function(x, verbose = TRUE){
         color = "black",
         alpha = 0.7
         ) +
+      ggplot2::geom_hline(
+        yintercept = 0,
+        col = "red4",
+        size = 0.7,
+        linetype = "dashed"
+      ) +
       ggplot2::scale_size_manual(
         breaks = c("< 0.05", ">= 0.05"),
         values = c(1, 5),
