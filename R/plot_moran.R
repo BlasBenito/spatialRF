@@ -91,7 +91,7 @@ plot_moran <- function(x, verbose = TRUE){
       ) +
       ggplot2::scale_size_manual(
         breaks = c("< 0.05", ">= 0.05"),
-        values = c(2, 5),
+        values = c(2.5, 5),
         drop = FALSE
         ) +
       ggplot2::scale_x_continuous(breaks = x$distance.threshold) +
@@ -131,7 +131,7 @@ plot_moran <- function(x, verbose = TRUE){
       ) +
       ggplot2::scale_size_manual(
         breaks = c("< 0.05", ">= 0.05"),
-        values = c(2, 5),
+        values = c(2.5, 5),
         drop = FALSE
       ) +
       ggplot2::scale_x_continuous(breaks = x$distance.threshold) +
