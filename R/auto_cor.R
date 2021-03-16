@@ -1,5 +1,5 @@
 #' @title Multicollinearity reduction via Pearson correlation
-#' @description Computes the correlation matrix among a set of predictors, orders the correlation matrix according to a user-defined preference order, and removes variables one by one, taking into account the preference order, until the remaining ones are below a given Pearson correlation threshold. \strong{Warning}: variables in `preference.order` not in `colnames(x)`, columns with zero variance, and non-numeric columns are removed silently from `x` and `preference.order`. The same happens with rows having NA values ([na.omit()] is applied).
+#' @description Computes the correlation matrix among a set of predictors, orders the correlation matrix according to a user-defined preference order, and removes variables one by one, taking into account the preference order, until the remaining ones are below a given Pearson correlation threshold. \strong{Warning}: variables in `preference.order` not in `colnames(x)`, and non-numeric columns are removed silently from `x` and `preference.order`. The same happens with rows having NA values ([na.omit()] is applied). The function issues a warning if zero-variance columns are found.
 #' @param x A data frame with predictors, or the result of [auto_vif()] Default: `NULL`.
 #' @param preference.order Character vector indicating the user's order of preference to keep variables. Doesn't need to contain If not provided, variables in `x` are prioritised by their column order. Default: `NULL`.
 #' @param cor.threshold Numeric between 0 and 1, with recommended values between 0.5 and 0.9. Maximum Pearson correlation between any pair of the selected variables. Default: `0.75`
@@ -62,17 +62,16 @@ auto_cor <- function(
     x <- x[, !(colnames(x) %in% non.numeric.columns)]
   }
 
-  #finding and removing zero variance columns
+  #finding zero variance columns
   zero.variance.columns <- colnames(x)[round(apply(x, 2, var), 4) == 0]
   if(length(zero.variance.columns) > 0){
     warning(
-      "These columns are non-numeric and will be removed: ",
+      "These columns have zero variance and might cause issues: ",
       paste(
         zero.variance.columns,
         collapse = ", "
       )
     )
-    x <- x[, !(colnames(x) %in% zero.variance.columns)]
   }
 
 
@@ -83,16 +82,22 @@ auto_cor <- function(
   diag(x.cor) <- 0
 
   #completing preference order
+
   if(!is.null(preference.order)){
     #subset preference.order to colnames(x)
     preference.order <- preference.order[preference.order %in% colnames(x)]
+
     #if there are variables not in preference.order, add them in any order
     if(length(preference.order) < ncol(x)){
+
       not.in.preference.order <- colnames(x)[!(colnames(x) %in% preference.order)]
       preference.order <- c(preference.order, not.in.preference.order)
+
     }
+
     #organize the matrix according to preference.order
     x.cor <- x.cor[preference.order, preference.order]
+
   }
 
 

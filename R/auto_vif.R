@@ -1,6 +1,6 @@
 #' @title Multicollinearity reduction via Variance Inflation Factor
 #'
-#' @description Selects predictors that are not linear combinations of other predictors by using computing their variance inflation factors (VIF). Allows the user to define an order of preference for the selection of predictors. \strong{Warning}: variables in `preference.order` not in `colnames(x)`, columns with zero variance, and non-numeric columns are removed silently from `x` and `preference.order`. The same happens with rows having NA values ([na.omit()] is applied).
+#' @description Selects predictors that are not linear combinations of other predictors by using computing their variance inflation factors (VIF). Allows the user to define an order of preference for the selection of predictors. \strong{Warning}: variables in `preference.order` not in `colnames(x)`, and non-numeric columns are removed silently from `x` and `preference.order`. The same happens with rows having NA values ([na.omit()] is applied). The function issues a warning if zero-variance columns are found.
 #' @usage
 #' auto_vif(
 #'   x = NULL,
@@ -77,17 +77,16 @@ auto_vif <- function(
     x <- x[, !(colnames(x) %in% non.numeric.columns)]
   }
 
-  #finding and removing zero variance columns
+  #finding zero variance columns
   zero.variance.columns <- colnames(x)[round(apply(x, 2, var), 4) == 0]
   if(length(zero.variance.columns) > 0){
     warning(
-      "These columns are non-numeric and will be removed: ",
+      "These columns have zero variance and might cause issues: ",
       paste(
         zero.variance.columns,
         collapse = ", "
       )
     )
-    x <- x[, !(colnames(x) %in% zero.variance.columns)]
   }
 
   #AND preference.order IS NOT PROVIDED

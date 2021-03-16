@@ -29,7 +29,7 @@ List with three slots:
 }
 }
 \description{
-Computes the correlation matrix among a set of predictors, orders the correlation matrix according to a user-defined preference order, and removes variables one by one, taking into account the preference order, until the remaining ones are below a given Pearson correlation threshold. \strong{Warning}: variables in \code{preference.order} not in \code{colnames(x)}, columns with zero variance, and non-numeric columns are removed silently from \code{x} and \code{preference.order}. The same happens with rows having NA values (\code{\link[=na.omit]{na.omit()}} is applied).
+Computes the correlation matrix among a set of predictors, orders the correlation matrix according to a user-defined preference order, and removes variables one by one, taking into account the preference order, until the remaining ones are below a given Pearson correlation threshold. \strong{Warning}: variables in \code{preference.order} not in \code{colnames(x)}, and non-numeric columns are removed silently from \code{x} and \code{preference.order}. The same happens with rows having NA values (\code{\link[=na.omit]{na.omit()}} is applied). The function issues a warning if zero-variance columns are found.
 }
 \details{
 Can be chained together with \code{\link[=auto_vif]{auto_vif()}} through pipes, see the examples below.

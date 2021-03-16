@@ -13,7 +13,7 @@ vif(x)
 A data frame with two columns having the name of the variables in 'x' and their respective VIF values.
 }
 \description{
-Computes the variance inflation factor (VIF) of the colums in a data frame.
+Computes the variance inflation factor (VIF) of the colums in a data frame. \strong{Warning}: variables in \code{preference.order} not in \code{colnames(x)}, and non-numeric columns are removed silently from \code{x} and \code{preference.order}. The same happens with rows having NA values (\code{\link[=na.omit]{na.omit()}} is applied). The function issues a warning if zero-variance columns are found.
 }
 \examples{
 \donttest{
