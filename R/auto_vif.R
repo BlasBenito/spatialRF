@@ -61,9 +61,34 @@ auto_vif <- function(
   }
 
   #removing non-numeric and zero variance columns
+  #removing NA
   x <- na.omit(x)
-  x <- x[sapply(x, is.numeric)]
-  x <- x[ , which(round(apply(x, 2, var), 4) != 0)]
+
+  #finding and removing non-numeric columns
+  non.numeric.columns <- colnames(x)[!sapply(x, is.numeric)]
+  if(length(non.numeric.columns) > 0){
+    warning(
+      "These columns are non-numeric and will be removed: ",
+      paste(
+        non.numeric.columns,
+        collapse = ", "
+      )
+    )
+    x <- x[, !(colnames(x) %in% non.numeric.columns)]
+  }
+
+  #finding and removing zero variance columns
+  zero.variance.columns <- colnames(x)[round(apply(x, 2, var), 4) == 0]
+  if(length(zero.variance.columns) > 0){
+    warning(
+      "These columns are non-numeric and will be removed: ",
+      paste(
+        zero.variance.columns,
+        collapse = ", "
+      )
+    )
+    x <- x[, !(colnames(x) %in% zero.variance.columns)]
+  }
 
   #AND preference.order IS NOT PROVIDED
   if(is.null(preference.order)){
