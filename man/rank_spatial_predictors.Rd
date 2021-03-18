@@ -15,6 +15,7 @@ rank_spatial_predictors(
   ranking.method = c("moran", "effect"),
   reference.moran.i = 1,
   verbose = FALSE,
+  cluster = NULL,
   n.cores = NULL,
   cluster.ips = NULL,
   cluster.cores = NULL,
@@ -42,6 +43,8 @@ rank_spatial_predictors(
 \item{reference.moran.i}{Moran's I of the residuals of the model without spatial predictors. Default: \code{1}}
 
 \item{verbose}{Logical, ff \code{TRUE}, messages and plots generated during the execution of the function are displayed, Default: \code{TRUE}}
+
+\item{cluster}{A cluster definition made with \code{parallel::makeCluster()}.}
 
 \item{n.cores}{Integer, number of cores to use during computations. If \code{NULL}, all cores but one are used, unless a cluster is used. Default = \code{NULL}}
 

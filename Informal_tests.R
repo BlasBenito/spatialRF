@@ -513,6 +513,155 @@ tuning <- rf_spatial(
   predictor.variable.names = colnames(plant_richness_df)[5:21],
   method = "mem.moran.sequential",
   distance.matrix = distance_matrix,
+  distance.thresholds = c(0, 1000, 10000),
+  cluster.ips = c(
+    "10.42.0.1",
+    "10.42.0.34",
+    "10.42.0.104"
+  ),
+  cluster.cores = c(7, 4, 4)
+)
+
+
+#rf spatial methods
+tuning <- rf_spatial(
+  data = plant_richness_df,
+  dependent.variable.name = "richness_species_vascular",
+  predictor.variable.names = colnames(plant_richness_df)[5:21],
+  method = "mem.effect.sequential",
+  distance.matrix = distance_matrix,
+  distance.thresholds = c(0, 1000, 10000),
+  cluster.ips = c(
+    "10.42.0.1",
+    "10.42.0.34",
+    "10.42.0.104"
+  ),
+  cluster.cores = c(7, 4, 4)
+)
+
+#rf spatial methods
+tuning <- rf_spatial(
+  data = plant_richness_df,
+  dependent.variable.name = "richness_species_vascular",
+  predictor.variable.names = colnames(plant_richness_df)[5:21],
+  method = "mem.effect.recursive",
+  distance.matrix = distance_matrix,
+  distance.thresholds = c(0, 1000, 10000),
+  cluster.ips = c(
+    "10.42.0.1",
+    "10.42.0.34",
+    "10.42.0.104"
+  ),
+  cluster.cores = c(7, 4, 4)
+)
+
+
+#rf spatial methods
+tuning <- rf_spatial(
+  data = plant_richness_df,
+  dependent.variable.name = "richness_species_vascular",
+  predictor.variable.names = colnames(plant_richness_df)[5:21],
+  method = "hengl",
+  distance.matrix = distance_matrix,
+  distance.thresholds = c(0, 1000, 10000),
+  cluster.ips = c(
+    "10.42.0.1",
+    "10.42.0.34",
+    "10.42.0.104"
+  ),
+  cluster.cores = c(7, 4, 4)
+)
+
+
+#rf spatial methods
+tuning <- rf_spatial(
+  data = plant_richness_df,
+  dependent.variable.name = "richness_species_vascular",
+  predictor.variable.names = colnames(plant_richness_df)[5:21],
+  method = "hengl.moran.sequential",
+  distance.matrix = distance_matrix,
+  distance.thresholds = c(0, 1000, 10000),
+  cluster.ips = c(
+    "10.42.0.1",
+    "10.42.0.34",
+    "10.42.0.104"
+  ),
+  cluster.cores = c(7, 4, 4)
+)
+
+#rf spatial methods
+tuning <- rf_spatial(
+  data = plant_richness_df,
+  dependent.variable.name = "richness_species_vascular",
+  predictor.variable.names = colnames(plant_richness_df)[5:21],
+  method = "hengl.effect.sequential",
+  distance.matrix = distance_matrix,
+  distance.thresholds = c(0, 1000, 10000),
+  cluster.ips = c(
+    "10.42.0.1",
+    "10.42.0.34",
+    "10.42.0.104"
+  ),
+  cluster.cores = c(7, 4, 4)
+)
+
+#rf spatial methods
+tuning <- rf_spatial(
+  data = plant_richness_df,
+  dependent.variable.name = "richness_species_vascular",
+  predictor.variable.names = colnames(plant_richness_df)[5:21],
+  method = "hengl.effect.recursive",
+  distance.matrix = distance_matrix,
+  distance.thresholds = c(0, 1000, 10000),
+  cluster.ips = c(
+    "10.42.0.1",
+    "10.42.0.34",
+    "10.42.0.104"
+  ),
+  cluster.cores = c(7, 4, 4)
+)
+
+#rf spatial methods
+tuning <- rf_spatial(
+  data = plant_richness_df,
+  dependent.variable.name = "richness_species_vascular",
+  predictor.variable.names = colnames(plant_richness_df)[5:21],
+  method = "pca.moran.sequential",
+  distance.matrix = distance_matrix,
+  distance.thresholds = c(0, 1000, 10000),
+  cluster.ips = c(
+    "10.42.0.1",
+    "10.42.0.34",
+    "10.42.0.104"
+  ),
+  cluster.cores = c(7, 4, 4)
+)
+
+
+#rf spatial methods
+tuning <- rf_spatial(
+  data = plant_richness_df,
+  dependent.variable.name = "richness_species_vascular",
+  predictor.variable.names = colnames(plant_richness_df)[5:21],
+  method = "pca.effect.sequential",
+  distance.matrix = distance_matrix,
+  distance.thresholds = c(0, 1000, 10000),
+  cluster.ips = c(
+    "10.42.0.1",
+    "10.42.0.34",
+    "10.42.0.104"
+  ),
+  cluster.cores = c(7, 4, 4)
+)
+
+#rf spatial methods
+tuning <- rf_spatial(
+  data = plant_richness_df,
+  dependent.variable.name = "richness_species_vascular",
+  predictor.variable.names = colnames(plant_richness_df)[5:21],
+  method = "pca.effect.recursive",
+  distance.matrix = distance_matrix,
+  distance.thresholds = c(0, 1000, 10000),
   cluster.ips = c(
     "10.42.0.1",
     "10.42.0.34",

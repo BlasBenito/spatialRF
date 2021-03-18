@@ -216,7 +216,7 @@ rank_spatial_predictors <- function(
       predictor.variable.names.i <- c(predictor.variable.names, spatial.predictors.name.i)
 
       #fitting model I
-      m.i <- spatialRF::rf(
+      m.i <- rf(
         data = data.i,
         dependent.variable.name = dependent.variable.name,
         predictor.variable.names = predictor.variable.names.i,
@@ -243,7 +243,7 @@ rank_spatial_predictors <- function(
     if(ranking.method == "moran"){
 
       #moran's I of spatial predictor
-      m.i <- spatialRF::moran(
+      m.i <- moran(
         x = spatial.predictors.df[, spatial.predictors.i],
         distance.matrix = distance.matrix,
         distance.threshold = distance.thresholds[1]
