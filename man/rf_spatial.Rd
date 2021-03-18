@@ -71,7 +71,7 @@ setting \code{keep.models} to \code{TRUE} may cause memory issues. Default: \cod
 
 \item{weight.r.squared}{Numeric between 0 and 1, weight of R-squared in the selection of spatial components. See Details, Default: \code{NULL}}
 
-\item{weight.penalization.n.predictors}{Numeric between 0 and 1, weight of the penalization for adding an increasing number of spatial predictors during selection. Default: \code{1000}}
+\item{weight.penalization.n.predictors}{Numeric between 0 and 1, weight of the penalization for adding an increasing number of spatial predictors during selection. Default: \code{NULL}}
 
 \item{seed}{Integer, random seed to facilitate reproducibility. If set to a given number, the returned model is always the same. Only relevant if \code{repetitions = 1}. Default: \code{NULL}}
 

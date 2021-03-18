@@ -114,7 +114,8 @@ rf_interactions <- function(
         variables.to.test,
         2
         )
-      )
+      ),
+    stringsAsFactors = FALSE
     )
 
   if(verbose == TRUE){
@@ -260,7 +261,8 @@ rf_interactions <- function(
       interaction.importance = round((model.i.importance[model.i.importance$variable == pair.i.name, "importance"] * 100) / max(model.i.importance$importance), 3),
       interaction.r.squared.gain = mean(model.i$performance$r.squared) - mean(model$performance$r.squared),
       variable.a.name = pair.i[1],
-      variable.b.name = pair.i[2]
+      variable.b.name = pair.i[2],
+      stringsAsFactors = FALSE
     )
 
     return(out.df)
@@ -268,7 +270,7 @@ rf_interactions <- function(
   }#end of parallelized loop
 
   if(nrow(interaction.screening) == 0){
-    message("No promising interactions found.")
+    message("No promising interactions found. \n")
     stop()
   }
 
@@ -281,7 +283,7 @@ rf_interactions <- function(
   )
 
   if(sum(interaction.screening$selected) == 0){
-    message("No promising interactions found.")
+    message("No promising interactions found. \n")
     stop()
   }
 
