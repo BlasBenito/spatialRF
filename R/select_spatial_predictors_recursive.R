@@ -16,6 +16,7 @@
 #' @param spatial.predictors.ranking Ranking of predictors returned by [rank_spatial_predictors()].
 #' @param weight.r.squared Numeric between 0 and 1, weight of R-squared in the optimization index. Default: `0.25`
 #' @param weight.penalization.n.predictors Numeric between 0 and 1, weight of the penalization for the number of spatial predictors added in the optimization index. Default: `0`
+#' @param cluster A cluster definition made with `parallel::makeCluster()`.
 #' @param n.cores Integer, number of cores to use during computations. If `NULL`, all cores but one are used, unless a cluster is used. Default = `NULL`
 #' @param cluster.ips Character vector with the IPs of the machines in a cluster. The machine with the first IP will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.
 #' @param cluster.cores Numeric integer vector, number of cores to use on each machine.
@@ -96,6 +97,7 @@ select_spatial_predictors_recursive <- function(
   spatial.predictors.ranking = NULL,
   weight.r.squared = 0.25,
   weight.penalization.n.predictors = 0,
+  cluster = NULL,
   n.cores = NULL,
   cluster.ips = NULL,
   cluster.cores = NULL,
@@ -187,6 +189,7 @@ select_spatial_predictors_recursive <- function(
       ranking.method = "effect",
       reference.moran.i = reference.moran.i,
       verbose = FALSE,
+      cluster = cluster,
       n.cores = n.cores,
       cluster.ips = cluster.ips,
       cluster.cores = cluster.cores,

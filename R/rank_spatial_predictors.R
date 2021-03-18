@@ -18,6 +18,7 @@
 #' @param spatial.predictors.df Data frame of spatial predictors.
 #' @param ranking.method Character, method used by to rank spatial predictors. The method "effect" ranks spatial predictors according how much each predictor reduces Moran's I of the model residuals, while the method "moran" ranks them by their own Moran's I. Default: `"moran"`.
 #' @param verbose Logical, ff `TRUE`, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
+#' @param cluster A cluster definition made with `parallel::makeCluster()`.
 #' @param n.cores Integer, number of cores to use during computations. If `NULL`, all cores but one are used, unless a cluster is used. Default = `NULL`
 #' @param cluster.ips Character vector with the IPs of the machines in a cluster. The machine with the first IP will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.
 #' @param cluster.cores Numeric integer vector, number of cores to use on each machine.
@@ -67,6 +68,7 @@ rank_spatial_predictors <- function(
   ranking.method = c("moran", "effect"),
   reference.moran.i = 1,
   verbose = FALSE,
+  cluster = NULL,
   n.cores = NULL,
   cluster.ips = NULL,
   cluster.cores = NULL,
@@ -94,86 +96,93 @@ rank_spatial_predictors <- function(
   #reference.moran.i
   if(is.null(reference.moran.i)){reference.moran.i <- 1}
 
-  #setup of parallel execution
-  if(is.null(n.cores)){
+  #if no cluster definition is provided
+  if(is.null(cluster)){
 
-    n.cores <- parallel::detectCores() - 1
-    `%dopar%` <- foreach::`%dopar%`
+    #setup of parallel execution
+    if(is.null(n.cores)){
 
-  } else {
-
-    #only one core, no cluster
-    if(n.cores == 1){
-
-      #replaces dopar (parallel) by do (serial)
-      `%dopar%` <- foreach::`%do%`
-      on.exit(`%dopar%` <- foreach::`%dopar%`)
-
-    } else {
-
+      n.cores <- parallel::detectCores() - 1
       `%dopar%` <- foreach::`%dopar%`
 
-    }
-
-  }
-
-  #local cluster
-  if(is.null(cluster.ips) & n.cores > 1){
-
-    if(.Platform$OS.type == "windows"){
-      temp.cluster <- parallel::makeCluster(
-        n.cores,
-        type = "PSOCK"
-      )
     } else {
-      temp.cluster <- parallel::makeCluster(
-        n.cores,
-        type = "FORK"
-      )
-    }
 
-    #register cluster and close on exit
-    doParallel::registerDoParallel(cl = temp.cluster)
-    on.exit(parallel::stopCluster(cl = temp.cluster))
+      #only one core, no cluster
+      if(n.cores == 1){
 
-  }
+        #replaces dopar (parallel) by do (serial)
+        `%dopar%` <- foreach::`%do%`
+        on.exit(`%dopar%` <- foreach::`%dopar%`)
 
-  #beowulf cluster
-  if(!is.null(cluster.ips)){
-
-
-    #cluster port
-    Sys.setenv(R_PARALLEL_PORT = cluster.port)
-
-    #preparing the cluster specification
-    cluster.spec <- cluster_specification(
-      cluster.ips = cluster.ips,
-      cluster.cores = cluster.cores,
-      cluster.user = cluster.user
-    )
-
-    #cluster setup
-    if(verbose == TRUE){
-      outfile <- ""
-    } else {
-      if(.Platform$OS.type == "windows"){
-        outfile <- "nul:"
       } else {
-        outfile <- "/dev/null"
+
+        `%dopar%` <- foreach::`%dopar%`
+
       }
+
     }
-    temp.cluster <- parallel::makeCluster(
-      master = cluster.ips[1],
-      spec = cluster.spec,
-      port = cluster.port,
-      outfile = outfile,
-      homogeneous = TRUE
-    )
 
-    #register cluster and close on exit
-    doParallel::registerDoParallel(cl = temp.cluster)
-    on.exit(parallel::stopCluster(cl = temp.cluster))
+    #local cluster
+    if(is.null(cluster.ips) & n.cores > 1){
 
+      if(.Platform$OS.type == "windows"){
+        temp.cluster <- parallel::makeCluster(
+          n.cores,
+          type = "PSOCK"
+        )
+      } else {
+        temp.cluster <- parallel::makeCluster(
+          n.cores,
+          type = "FORK"
+        )
+      }
+
+      #register cluster and close on exit
+      doParallel::registerDoParallel(cl = temp.cluster)
+      on.exit(parallel::stopCluster(cl = temp.cluster))
+
+    }
+
+    #beowulf cluster
+    if(!is.null(cluster.ips)){
+
+
+      #cluster port
+      Sys.setenv(R_PARALLEL_PORT = cluster.port)
+
+      #preparing the cluster specification
+      cluster.spec <- cluster_specification(
+        cluster.ips = cluster.ips,
+        cluster.cores = cluster.cores,
+        cluster.user = cluster.user
+      )
+
+      #cluster setup
+      if(verbose == TRUE){
+        outfile <- ""
+      } else {
+        if(.Platform$OS.type == "windows"){
+          outfile <- "nul:"
+        } else {
+          outfile <- "/dev/null"
+        }
+      }
+      temp.cluster <- parallel::makeCluster(
+        master = cluster.ips[1],
+        spec = cluster.spec,
+        port = cluster.port,
+        outfile = outfile,
+        homogeneous = TRUE
+      )
+
+      #register cluster and close on exit
+      doParallel::registerDoParallel(cl = temp.cluster)
+      on.exit(parallel::stopCluster(cl = temp.cluster))
+
+    }
+
+  } else {
+    temp.cluster <- cluster
   }
 
   #default value for distance threshold

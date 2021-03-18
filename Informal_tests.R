@@ -504,3 +504,19 @@ tuning <- rf_tuning(
   ),
   cluster.cores = c(7, 4, 4)
 )
+
+
+#rf spatial methods
+tuning <- rf_spatial(
+  data = plant_richness_df,
+  dependent.variable.name = "richness_species_vascular",
+  predictor.variable.names = colnames(plant_richness_df)[5:21],
+  method = "mem.moran.sequential",
+  distance.matrix = distance_matrix,
+  cluster.ips = c(
+    "10.42.0.1",
+    "10.42.0.34",
+    "10.42.0.104"
+  ),
+  cluster.cores = c(7, 4, 4)
+)

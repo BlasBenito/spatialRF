@@ -229,6 +229,90 @@ rf_spatial <- function(
     )
   }
 
+  #CREATING CLUSTER FOR THE CURRENT SESSION
+  ########################################################
+  #setup of parallel execution
+  if(is.null(n.cores)){
+
+    n.cores <- parallel::detectCores() - 1
+    `%dopar%` <- foreach::`%dopar%`
+
+  } else {
+
+    #only one core, no cluster
+    if(n.cores == 1){
+
+      #replaces dopar (parallel) by do (serial)
+      `%dopar%` <- foreach::`%do%`
+      on.exit(`%dopar%` <- foreach::`%dopar%`)
+
+    } else {
+
+      `%dopar%` <- foreach::`%dopar%`
+
+    }
+
+  }
+
+  #local cluster
+  if(is.null(cluster.ips) & n.cores > 1){
+
+    if(.Platform$OS.type == "windows"){
+      temp.cluster <- parallel::makeCluster(
+        n.cores,
+        type = "PSOCK"
+      )
+    } else {
+      temp.cluster <- parallel::makeCluster(
+        n.cores,
+        type = "FORK"
+      )
+    }
+
+    #register cluster and close on exit
+    doParallel::registerDoParallel(cl = temp.cluster)
+    on.exit(parallel::stopCluster(cl = temp.cluster))
+
+  }
+
+  #beowulf cluster
+  if(!is.null(cluster.ips)){
+
+
+    #cluster port
+    Sys.setenv(R_PARALLEL_PORT = cluster.port)
+
+    #preparing the cluster specification
+    cluster.spec <- cluster_specification(
+      cluster.ips = cluster.ips,
+      cluster.cores = cluster.cores,
+      cluster.user = cluster.user
+    )
+
+    #cluster setup
+    if(verbose == TRUE){
+      outfile <- ""
+    } else {
+      if(.Platform$OS.type == "windows"){
+        outfile <- "nul:"
+      } else {
+        outfile <- "/dev/null"
+      }
+    }
+    temp.cluster <- parallel::makeCluster(
+      master = cluster.ips[1],
+      spec = cluster.spec,
+      port = cluster.port,
+      outfile = outfile,
+      homogeneous = TRUE
+    )
+
+    #register cluster and close on exit
+    doParallel::registerDoParallel(cl = temp.cluster)
+    on.exit(parallel::stopCluster(cl = temp.cluster))
+
+  }
+
 
   #GENERATING SPATIAL PREDICTORS
   #########################################################
@@ -350,11 +434,7 @@ rf_spatial <- function(
       ranking.method = ranking.method,
       reference.moran.i = 1,
       verbose = FALSE,
-      n.cores = n.cores,
-      cluster.ips = cluster.ips,
-      cluster.cores = cluster.cores,
-      cluster.user = cluster.user,
-      cluster.port = cluster.port
+      cluster = temp.cluster
     )
 
   }
@@ -390,11 +470,7 @@ rf_spatial <- function(
       weight.r.squared = weight.r.squared,
       weight.penalization.n.predictors = weight.penalization.n.predictors,
       verbose = FALSE,
-      n.cores = n.cores,
-      cluster.ips = cluster.ips,
-      cluster.cores = cluster.cores,
-      cluster.user = cluster.user,
-      cluster.port = cluster.port
+      cluster = temp.cluster
     )
 
     #broadcast spatial.predictors.selected downstream
@@ -427,11 +503,7 @@ rf_spatial <- function(
       spatial.predictors.ranking = spatial.predictors.ranking,
       weight.r.squared = weight.r.squared,
       weight.penalization.n.predictors = weight.penalization.n.predictors,
-      n.cores = n.cores,
-      cluster.ips = cluster.ips,
-      cluster.cores = cluster.cores,
-      cluster.user = cluster.user,
-      cluster.port = cluster.port
+      cluster = temp.cluster
     )
 
     #broadcast spatial.predictors.selected
