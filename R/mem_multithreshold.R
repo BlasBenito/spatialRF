@@ -26,6 +26,8 @@ mem_multithreshold <- function(
   max.spatial.predictors = NULL
 ){
 
+  #remove scientific notation
+
   #list to store mems
   mem.list <- list()
 
@@ -37,7 +39,10 @@ mem_multithreshold <- function(
       distance.threshold = distance.threshold.i,
       colnames.prefix = paste0(
         "spatial_predictor_",
-        distance.threshold.i
+        format(
+          distance.threshold.i,
+          scientific = FALSE
+          )
       )
     )
 

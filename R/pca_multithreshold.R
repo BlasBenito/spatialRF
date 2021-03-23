@@ -42,7 +42,10 @@ pca_multithreshold <- function(
       x = x.i,
       colnames.prefix = paste0(
         "spatial_predictor_",
-        distance.threshold.i
+        format(
+          distance.threshold.i,
+          scientific = FALSE
+        )
       )
     )
 

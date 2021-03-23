@@ -37,7 +37,12 @@ pca <- function(
 
   #getting pca factors
   x.pca.factors <- as.data.frame(x.pca$x)
-  colnames(x.pca.factors) <- paste(colnames.prefix, seq(1, ncol(x.pca.factors)), sep = "_")
+  colnames(x.pca.factors) <- paste(
+    colnames.prefix,
+    seq(1, ncol(x.pca.factors)
+        ),
+    sep = "_"
+    )
 
   #returning output
   x.pca.factors
