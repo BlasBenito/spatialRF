@@ -14,6 +14,7 @@ always_allow_html: yes
 
 <!-- badges: end -->
 
+
 # Introduction
 
 The package **spatialRF** facilitates fitting spatial regression models on regular or irregular data with Random Forest by generating *spatial predictors* that allow the model to take into account the spatial structure of the training data. The end goal is minimizing the spatial autocorrelation of the model residuals as much as possible.
