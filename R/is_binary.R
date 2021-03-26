@@ -24,16 +24,14 @@ is_binary <- function(
   data = NULL,
   dependent.variable.name = NULL
 ){
-  if(sort(
-    unique(data[, dependent.variable.name])
-  )[1] == 0 &
-  sort(
-    unique(data[, dependent.variable.name])
-  )[2] == 1
-  ){
-    binary.data <- TRUE
-  } else {
-    binary.data <- FALSE
-  }
+  if(
+    sort(unique(data[, dependent.variable.name]))[1] == 0 &
+    sort(unique(data[, dependent.variable.name]))[2] == 1 &
+    length(unique(data[, dependent.variable.name])) == 2
+    ){
+      binary.data <- TRUE
+    } else {
+      binary.data <- FALSE
+    }
   binary.data
 }
