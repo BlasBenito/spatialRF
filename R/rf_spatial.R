@@ -194,8 +194,12 @@ rf_spatial <- function(
     data <- ranger.arguments$data
     dependent.variable.name <- ranger.arguments$dependent.variable.name
     predictor.variable.names <- ranger.arguments$predictor.variable.names
-    distance.matrix <- ranger.arguments$distance.matrix
-    distance.thresholds <- ranger.arguments$distance.thresholds
+    if(!is.null(distance.matrix)){
+      distance.matrix <- ranger.arguments$distance.matrix
+    }
+    if(!is.null(distance.thresholds)){
+      distance.thresholds <- ranger.arguments$distance.thresholds
+    }
     scaled.importance <- ranger.arguments$scaled.importance
 
     if(!is.null(ranger.arguments$repetitions)){
