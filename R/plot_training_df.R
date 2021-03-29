@@ -17,10 +17,10 @@
 #'      )
 #'  }
 #' }
-#' @rdname plot_training_df
-#' @export
 #' @importFrom ggplot2 ggplot aes_string geom_point scale_color_viridis_c theme_bw theme geom_smooth
 #' @importFrom patchwork wrap_plots
+#' @rdname plot_training_df
+#' @export
 plot_training_df <- function(
   data = NULL,
   dependent.variable.name = NULL,
