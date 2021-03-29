@@ -112,7 +112,11 @@ plot_training_df_moran <- function(
 
   #plotting moran's i
   p <- ggplot2::ggplot(data = plot.df) +
-    ggplot2::scale_fill_viridis_c(alpha = 0.9) +
+    ggplot2::scale_fill_viridis_c(
+      alpha = 0.9,
+      begin = 0.05,
+      end = 0.95
+      ) +
     ggplot2::geom_tile(
       ggplot2::aes(
         x = factor(distance.threshold),
