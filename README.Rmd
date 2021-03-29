@@ -96,7 +96,7 @@ The data required to fit random forest models with `spatialRF` must fulfill seve
   + **The input format is data.frame**. At the moment, tibbles are not fully supported.
   + **The number of rows must be somewhere between 100 and ~5000**, but that will depend on the RAM available in your system. However, this limitation only affects spatial analyses performed with `rf_spatial()`, while all other modeling and plotting functions should work without a distance matrix (if they don't tell me, that'd be a bug!), and therefore analyses in large datasets can still be done with the package.
   + **The number of predictors should be larger than 3**, fitting a Random Forest model is moot otherwise.
-  + **Factors in the response or the predictors are not explicitly supported in the package**, they may work, or they won't, but in any case, I designed this package for quantitative data alone.
+  + **Factors in the response or the predictors are not explicitly supported in the package**, they may work, or they won't, but in any case, I designed this package for quantitative data alone. However, binary data with values 0 and 1 in the response variable are supported.
   + **Must be free of `NA`**. You can check if there are NA records with `sum(apply(df, 2, is.na))`. If the result is larger than 0, then just execute `df <- na.omit(df)` to remove rows with empty cells.
   + **Columns cannot have zero variance**. This condition can be checked with `apply(df, 2, var) == 0`. Columns yielding TRUE should be removed.
   + **Columns must not yield `NaN` or `Inf` when scaled**. You can check each condition with `sum(apply(scale(df), 2, is.nan))` and `sum(apply(scale(df), 2, is.infinite))`. If higher than 0, you can find what columns are giving issues with `sapply(as.data.frame(scale(df)), function(x)any(is.nan(x)))` and `sapply(as.data.frame(scale(df)), function(x)any(is.infinite(x)))`. Any column yielding `TRUE` will generate issues while trying to fit models with `spatialRF`.
@@ -146,13 +146,28 @@ ggplot2::ggplot() +
 The predictors (columns 5 to 21) represent diverse factors that may influence plant richness such as sampling bias, the area of the ecoregion, climatic variables, human presence and impact, topography, geographical fragmentation, and features of the neighbors of each ecoregion. The figure below shows the scatterplots of the response variable (y axis) against each predictor (x axis).
 
 ```{r, echo = FALSE, fig.width=10, fig.height=14}
-plot_training_data(
+plot_training_df(
   data = plant_richness_df,
   dependent.variable.name = dependent.variable.name,
   predictor.variable.names = predictor.variable.names,
   ncol = 3
   )
 ```
+
+The function `plot_training_df_moran()` helps to check the spatial autocorrelation of the response variable and the predictors. 
+
+```{r, echo = FALSE, fig.width=10, fig.height=5}
+plot_training_df_moran(
+  data = plant_richness_df,
+  dependent.variable.name = dependent.variable.name,
+  predictor.variable.names = predictor.variable.names,
+  distance.matrix = distance_matrix,
+  distance.thresholds = c(
+    0, 1000, 2000, 4000, 8000
+  )
+)
+```
+
 
 # Finding promising variable interactions
 

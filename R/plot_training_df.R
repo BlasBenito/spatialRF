@@ -54,7 +54,9 @@ plot_training_df <- function(
       ggplot2::geom_smooth(
         method = method,
         col = "gray20",
-        formula = y ~ x
+        formula = y ~ x,
+        se = FALSE,
+        alpha = 0.5
       )
   }
 
