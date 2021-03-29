@@ -22,9 +22,11 @@
 -   [Generating spatial predictors for other
     models](#generating-spatial-predictors-for-other-models)
 
+<!---
+[![R-CMD-check](https://github.com/BlasBenito/spatialRF/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/BlasBenito/spatialRF/actions/workflows/R-CMD-check.yaml)
+-->
 <!-- badges: start -->
 
-[![R-CMD-check](https://github.com/BlasBenito/spatialRF/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/BlasBenito/spatialRF/actions/workflows/R-CMD-check.yaml)
 [![Devel-version](https://img.shields.io/badge/devel%20version-1.0.7-blue.svg)](https://github.com/blasbenito/spatialRF)
 [![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html)
 [![CRAN](https://img.shields.io/badge/CRAN-not_published_yet-red)](https://github.com/blasbenito/spatialRF)
@@ -252,15 +254,16 @@ interactions <- rf_interactions(
 
     ## 2 potential interactions identified.
 
-    ##       ┌─────────────────────────┬───────────────────────┬────────────────┐
-    ##       │ Interaction             │ Importance (% of max) │ R2 improvement │
-    ##       ├─────────────────────────┼───────────────────────┼────────────────┤
-    ##       │ human_population_X_bias │                 100.0 │          0.002 │
-    ##       │ _area_km2               │                       │                │
-    ##       ├─────────────────────────┼───────────────────────┼────────────────┤
-    ##       │ climate_bio1_average_X_ │                  81.7 │          0     │
-    ##       │ bias_area_km2           │                       │                │
-    ##       └─────────────────────────┴───────────────────────┴────────────────┘
+    ##   ┌─────────────────────┬─────────────────────┬────────────────┐
+    ##   │ Interaction         │    Importance (% of │ R2 improvement │
+    ##   │                     │                max) │                │
+    ##   ├─────────────────────┼─────────────────────┼────────────────┤
+    ##   │ human_population_X_ │               100.0 │          0.002 │
+    ##   │ bias_area_km2       │                     │                │
+    ##   ├─────────────────────┼─────────────────────┼────────────────┤
+    ##   │ climate_bio1_averag │                81.7 │          0     │
+    ##   │ e_X_bias_area_km2   │                     │                │
+    ##   └─────────────────────┴─────────────────────┴────────────────┘
 
 ![](README_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
