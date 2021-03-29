@@ -155,6 +155,8 @@ usethis::use_r("distance_matrix")
 usethis::use_build_ignore("functions.R")
 usethis::use_build_ignore("optimization_sequential.R")
 
+sinew::makeOxygen(plot_training_data)
+
 #adding functions
 sinew::makeOxygen(is_binary)
 sinew::makeOxygen(case_weights)

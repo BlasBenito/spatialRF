@@ -10,7 +10,7 @@ always_allow_html: yes
 
 <!-- badges: start -->
 
-[![R-CMD-check](https://github.com/BlasBenito/spatialRF/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/BlasBenito/spatialRF/actions/workflows/R-CMD-check.yaml) [![Devel-version](https://img.shields.io/badge/devel%20version-1.0.6-blue.svg)](https://github.com/blasbenito/spatialRF) [![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html) [![CRAN](https://img.shields.io/badge/CRAN-not_published_yet-red)](https://github.com/blasbenito/spatialRF) [![License](https://img.shields.io/badge/license-GPL--3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
+[![R-CMD-check](https://github.com/BlasBenito/spatialRF/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/BlasBenito/spatialRF/actions/workflows/R-CMD-check.yaml) [![Devel-version](https://img.shields.io/badge/devel%20version-1.0.7-blue.svg)](https://github.com/blasbenito/spatialRF) [![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html) [![CRAN](https://img.shields.io/badge/CRAN-not_published_yet-red)](https://github.com/blasbenito/spatialRF) [![License](https://img.shields.io/badge/license-GPL--3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
 
 <!-- badges: end -->
 
@@ -146,22 +146,12 @@ ggplot2::ggplot() +
 The predictors (columns 5 to 21) represent diverse factors that may influence plant richness such as sampling bias, the area of the ecoregion, climatic variables, human presence and impact, topography, geographical fragmentation, and features of the neighbors of each ecoregion. The figure below shows the scatterplots of the response variable (y axis) against each predictor (x axis).
 
 ```{r, echo = FALSE, fig.width=10, fig.height=14}
-plot.list <- list()
-for(variable in predictor.variable.names){
-  plot.list[[variable]] <- ggplot2::ggplot(
-    data = plant_richness_df,
-    ggplot2::aes_string(
-      x = variable,
-      y = "richness_species_vascular",
-      color = "richness_species_vascular"
-    )
-    ) +
-    ggplot2::geom_point() +
-    ggplot2::scale_color_viridis_c(direction = -1) + 
-    ggplot2::theme_bw() + 
-    ggplot2::theme(legend.position = "none")
-}
-patchwork::wrap_plots(plot.list, ncol = 3)
+plot_training_data(
+  data = plant_richness_df,
+  dependent.variable.name = dependent.variable.name,
+  predictor.variable.names = predictor.variable.names,
+  ncol = 3
+  )
 ```
 
 # Finding promising variable interactions

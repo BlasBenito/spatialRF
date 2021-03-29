@@ -56,11 +56,13 @@ moran_multithreshold <- function(
 
   #creating distance thresholds
   if(is.null(distance.thresholds) == TRUE){
-    distance.thresholds <- floor(
-      seq(
-        0,
-        max(distance.matrix)/4,
-        length.out = 2
+    distance.thresholds <- pretty(
+      floor(
+        seq(
+          0,
+          max(distance.matrix)/2,
+          length.out = 8
+        )
       )
     )
   }
