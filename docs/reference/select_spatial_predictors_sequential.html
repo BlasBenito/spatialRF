@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">spatialRF</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.6</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.7</span>
       </span>
     </div>
 
@@ -132,6 +132,7 @@
   <span class='kw'>weight.r.squared</span> <span class='kw'>=</span> <span class='fl'>0.75</span>,
   <span class='kw'>weight.penalization.n.predictors</span> <span class='kw'>=</span> <span class='fl'>0.25</span>,
   <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>cluster</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>n.cores</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>cluster.ips</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>cluster.cores</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
@@ -185,6 +186,10 @@
     <tr>
       <th>verbose</th>
       <td><p>Logical, ff <code>TRUE</code>, messages and plots generated during the execution of the function are displayed, Default: <code>TRUE</code></p></td>
+    </tr>
+    <tr>
+      <th>cluster</th>
+      <td><p>A cluster definition made with <code><a href='https://rdrr.io/r/parallel/makeCluster.html'>parallel::makeCluster()</a></code>.</p></td>
     </tr>
     <tr>
       <th>n.cores</th>

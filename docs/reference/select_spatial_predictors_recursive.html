@@ -76,7 +76,7 @@ This method allows to select the smallest set of spatial predictors that have th
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">spatialRF</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.6</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.7</span>
       </span>
     </div>
 
@@ -139,6 +139,7 @@ This method allows to select the smallest set of spatial predictors that have th
   <span class='kw'>spatial.predictors.ranking</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>weight.r.squared</span> <span class='kw'>=</span> <span class='fl'>0.25</span>,
   <span class='kw'>weight.penalization.n.predictors</span> <span class='kw'>=</span> <span class='fl'>0</span>,
+  <span class='kw'>cluster</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>n.cores</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>cluster.ips</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>cluster.cores</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
@@ -188,6 +189,10 @@ This method allows to select the smallest set of spatial predictors that have th
     <tr>
       <th>weight.penalization.n.predictors</th>
       <td><p>Numeric between 0 and 1, weight of the penalization for the number of spatial predictors added in the optimization index. Default: <code>0</code></p></td>
+    </tr>
+    <tr>
+      <th>cluster</th>
+      <td><p>A cluster definition made with <code><a href='https://rdrr.io/r/parallel/makeCluster.html'>parallel::makeCluster()</a></code>.</p></td>
     </tr>
     <tr>
       <th>n.cores</th>

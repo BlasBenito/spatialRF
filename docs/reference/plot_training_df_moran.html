@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Gets the spatial predictors of a spatial model — get_spatial_predictors • spatialRF</title>
+<title>Moran's I plots of a training data frame — plot_training_df_moran • spatialRF</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,8 @@
 
 
 
-<meta property="og:title" content="Gets the spatial predictors of a spatial model — get_spatial_predictors" />
-<meta property="og:description" content="Returns spatial predictors from a model fitted with rf_spatial() in order of importance." />
+<meta property="og:title" content="Moran's I plots of a training data frame — plot_training_df_moran" />
+<meta property="og:description" content="Plots the the Moran's I test of the response and the predictors in a training data frame." />
 
 
 
@@ -111,51 +111,72 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Gets the spatial predictors of a spatial model</h1>
-    <small class="dont-index">Source: <a href='https://github.com/BlasBenito/spatialRF/blob/master/R/get_spatial_predictors.R'><code>R/get_spatial_predictors.R</code></a></small>
-    <div class="hidden name"><code>get_spatial_predictors.Rd</code></div>
+    <h1>Moran's I plots of a training data frame</h1>
+    <small class="dont-index">Source: <a href='https://github.com/BlasBenito/spatialRF/blob/master/R/plot_training_df_moran.R'><code>R/plot_training_df_moran.R</code></a></small>
+    <div class="hidden name"><code>plot_training_df_moran.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Returns spatial predictors from a model fitted with <code><a href='rf_spatial.html'>rf_spatial()</a></code> in order of importance.</p>
+    <p>Plots the the Moran's I test of the response and the predictors in a training data frame.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>get_spatial_predictors</span>(<span class='no'>x</span>)</pre>
+    <pre class="usage"><span class='fu'>plot_training_df_moran</span>(
+  <span class='kw'>data</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>dependent.variable.name</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>predictor.variable.names</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>distance.matrix</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>distance.thresholds</span> <span class='kw'>=</span> <span class='kw'>NULL</span>
+)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>x</th>
-      <td><p>A model fitted with <code><a href='rf_spatial.html'>rf_spatial()</a></code>.</p></td>
+      <th>data</th>
+      <td><p>Data frame with a response variable and a set of predictors. Default: <code>NULL</code></p></td>
+    </tr>
+    <tr>
+      <th>dependent.variable.name</th>
+      <td><p>Character string with the name of the response variable. Must be in the column names of <code>data</code>. If the dependent variable is binary with values 1 and 0, the argument <code>case.weights</code> of <code>ranger</code> is populated by the function <code><a href='case_weights.html'>case_weights()</a></code>. Default: <code>NULL</code></p></td>
+    </tr>
+    <tr>
+      <th>predictor.variable.names</th>
+      <td><p>Character vector with the names of the predictive variables. Every element of this vector must be in the column names of <code>data</code>. Optionally, the result of <code><a href='auto_cor.html'>auto_cor()</a></code> or <code><a href='auto_vif.html'>auto_vif()</a></code> Default: <code>NULL</code></p></td>
+    </tr>
+    <tr>
+      <th>distance.matrix</th>
+      <td><p>Squared matrix with the distances among the records in <code>data</code>. The number of rows of <code>distance.matrix</code> and <code>data</code> must be the same. If not provided, the computation of the Moran's I of the residuals is omitted. Default: <code>NULL</code></p></td>
+    </tr>
+    <tr>
+      <th>distance.thresholds</th>
+      <td><p>Numeric vector, distances below each value are set to 0 on separated copies of the distance matrix for the computation of Moran's I at different neighborhood distances. If <code>NULL</code>, it defaults to <code><a href='https://rdrr.io/r/base/seq.html'>seq(0, max(distance.matrix)/4, length.out = 2)</a></code>. Default: <code>NULL</code></p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A data frame with the spatial predictors included in the model.</p>
+    <p>A ggplot2 object.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='co'># \donttest{</span>
+    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
 <span class='kw'>if</span>(<span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span>()){
-
- <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>distance_matrix</span>)
- <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>plant_richness_df</span>)
-
-
- <span class='no'>model</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='rf_spatial.html'>rf_spatial</a></span>(
-   <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>plant_richness_df</span>,
-   <span class='kw'>dependent.variable.name</span> <span class='kw'>=</span> <span class='st'>"richness_species_vascular"</span>,
-   <span class='kw'>predictor.variable.names</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span>(<span class='no'>plant_richness_df</span>)[<span class='fl'>5</span>:<span class='fl'>21</span>],
-   <span class='kw'>distance.matrix</span> <span class='kw'>=</span> <span class='no'>distance_matrix</span>,
-   <span class='kw'>distance.thresholds</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0</span>, <span class='fl'>500</span>, <span class='fl'>1000</span>),
-   <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"mem.moran.sequential"</span>
- )
-
-<span class='no'>spatial.predictors</span> <span class='kw'>&lt;-</span> <span class='fu'>get_spatial_predictors</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>model</span>)
-<span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span>(<span class='no'>spatial.predictors</span>)
-}
-<span class='co'># }</span></div></pre>
+   <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>plant_richness_df</span>)
+   <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>distance_matrix</span>)
+   <span class='fu'>plot_moran_training_data</span>(
+     <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>plant_richness_df</span>,
+     <span class='kw'>dependent.variable.name</span> <span class='kw'>=</span> <span class='st'>"richness_species_vascular"</span>,
+     <span class='kw'>predictor.variable.names</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span>(<span class='no'>plant_richness_df</span>)[<span class='fl'>5</span>:<span class='fl'>21</span>],
+     <span class='kw'>distance.matrix</span> <span class='kw'>=</span> <span class='no'>distance_matrix</span>,
+     <span class='kw'>distance.thresholds</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(
+       <span class='fl'>0</span>,
+       <span class='fl'>2000</span>,
+       <span class='fl'>4000</span>,
+       <span class='fl'>6000</span>,
+       <span class='fl'>8000</span>
+       )
+     )
+ }
+}</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

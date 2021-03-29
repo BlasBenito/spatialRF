@@ -40,7 +40,7 @@
 
 
 <meta property="og:title" content="Multicollinearity reduction via Variance Inflation Factor — auto_vif" />
-<meta property="og:description" content="Selects predictors that are not linear combinations of other predictors by using computing their variance inflation factors (VIF). Allows the user to define an order of preference for the selection of predictors. Warning: variables in preference.order not in colnames(x), columns with zero variance, and non-numeric columns are removed silently from x and preference.order. The same happens with rows having NA values (na.omit() is applied)." />
+<meta property="og:description" content="Selects predictors that are not linear combinations of other predictors by using computing their variance inflation factors (VIF). Allows the user to define an order of preference for the selection of predictors. Warning: variables in preference.order not in colnames(x), and non-numeric columns are removed silently from x and preference.order. The same happens with rows having NA values (na.omit() is applied). The function issues a warning if zero-variance columns are found." />
 
 
 
@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">spatialRF</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.6</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.7</span>
       </span>
     </div>
 
@@ -117,7 +117,7 @@
     </div>
 
     <div class="ref-description">
-    <p>Selects predictors that are not linear combinations of other predictors by using computing their variance inflation factors (VIF). Allows the user to define an order of preference for the selection of predictors. <strong>Warning</strong>: variables in <code>preference.order</code> not in <code><a href='https://rdrr.io/r/base/colnames.html'>colnames(x)</a></code>, columns with zero variance, and non-numeric columns are removed silently from <code>x</code> and <code>preference.order</code>. The same happens with rows having NA values (<code><a href='https://rdrr.io/r/stats/na.fail.html'>na.omit()</a></code> is applied).</p>
+    <p>Selects predictors that are not linear combinations of other predictors by using computing their variance inflation factors (VIF). Allows the user to define an order of preference for the selection of predictors. <strong>Warning</strong>: variables in <code>preference.order</code> not in <code><a href='https://rdrr.io/r/base/colnames.html'>colnames(x)</a></code>, and non-numeric columns are removed silently from <code>x</code> and <code>preference.order</code>. The same happens with rows having NA values (<code><a href='https://rdrr.io/r/stats/na.fail.html'>na.omit()</a></code> is applied). The function issues a warning if zero-variance columns are found.</p>
     </div>
 
     <pre class="usage"><span class='fu'>auto_vif</span>(

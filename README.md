@@ -25,7 +25,7 @@
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/BlasBenito/spatialRF/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/BlasBenito/spatialRF/actions/workflows/R-CMD-check.yaml)
-[![Devel-version](https://img.shields.io/badge/devel%20version-1.0.6-blue.svg)](https://github.com/blasbenito/spatialRF)
+[![Devel-version](https://img.shields.io/badge/devel%20version-1.0.7-blue.svg)](https://github.com/blasbenito/spatialRF)
 [![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html)
 [![CRAN](https://img.shields.io/badge/CRAN-not_published_yet-red)](https://github.com/blasbenito/spatialRF)
 [![License](https://img.shields.io/badge/license-GPL--3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
@@ -166,7 +166,9 @@ fulfill several conditions:
     Random Forest model is moot otherwise.
 -   **Factors in the response or the predictors are not explicitly
     supported in the package**, they may work, or they won’t, but in any
-    case, I designed this package for quantitative data alone.
+    case, I designed this package for quantitative data alone. However,
+    binary data with values 0 and 1 in the response variable are
+    supported.
 -   **Must be free of `NA`**. You can check if there are NA records with
     `sum(apply(df, 2, is.na))`. If the result is larger than 0, then
     just execute `df <- na.omit(df)` to remove rows with empty cells.
@@ -218,6 +220,11 @@ variable (y axis) against each predictor (x axis).
 
 ![](README_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
+The function `plot_training_df_moran()` helps to check the spatial
+autocorrelation of the response variable and the predictors.
+
+![](README_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+
 # Finding promising variable interactions
 
 Random Forests already takes into account variable interactions of the
@@ -255,7 +262,7 @@ interactions <- rf_interactions(
     ##       │ bias_area_km2           │                       │                │
     ##       └─────────────────────────┴───────────────────────┴────────────────┘
 
-![](README_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
 Here `rf_interactions()` suggests several candidate interactions ordered
 by their impact on the model. The function cannot say whether an
@@ -386,7 +393,7 @@ among many others.
 plot_response_curves(model.non.spatial)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
 
 In the response curves above, the other predictors are set to their
 quantiles 0.1, 0.5, and 0.8, but the user can change this behavior by
@@ -400,7 +407,7 @@ plot_response_surfaces(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
 
 In this response surface, the predictors that are not shown are set to
 their medians (but other quantiles are possible).
@@ -409,7 +416,7 @@ their medians (but other quantiles are possible).
 plot_importance(model.non.spatial, verbose = FALSE)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
 
 **Predicting onto new data**
 
@@ -448,7 +455,7 @@ model.non.spatial.repeat <- rf_repeat(
 plot_importance(model.non.spatial.repeat, verbose = FALSE)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
 
 After 30 model repetitions it is clear that the difference in importance
 between `climate_hypervolume` and `climate_bio1_average_X_bias_area_km2`
@@ -462,7 +469,7 @@ with a thicker line.
 plot_response_curves(model.non.spatial.repeat, quantiles = 0.5)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-16-1.png)<!-- --> The function
+![](README_files/figure-gfm/unnamed-chunk-17-1.png)<!-- --> The function
 `get_response_curves()` returns a data frame with the data required to
 make custom plots of the response curves.
 
@@ -529,7 +536,7 @@ model.non.spatial.tuned <- rf_tuning(
 
     ## R squared gain: 0.029
 
-![](README_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
 
 The function `rf_tuning()` returns a model fitted with the same data as
 the original model, but using the best hyperparameters found during
@@ -548,7 +555,7 @@ can be plotted with
 plot_moran(model.non.spatial.tuned, verbose = FALSE)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
 
 According to the plot, the spatial autocorrelation of the residuals is
 highly positive for a neighborhood of 0 km, while it becomes
@@ -578,7 +585,7 @@ every neighborhood distance.
 plot_moran(model.spatial, verbose = FALSE)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
 
 If we compare the variable importance plots of both models, we can see
 that the spatial model has an additional set of dots under the name
@@ -600,7 +607,7 @@ p2 <- plot_importance(
 p1 | p2 
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
 
 If we take a look to the ten most important variables in `model.spatial`
 we will see that a few of them are spatial predictors.
@@ -625,7 +632,7 @@ is the index of the predictor.
 Spatial predictors, as shown below, are smooth surfaces representing
 neighborhood among records at different spatial scales.
 
-![](README_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
 
 The spatial predictors in the spatial model have been generated using
 the method “mem.moran.sequential” (function’s default), that mimics the
@@ -646,7 +653,7 @@ linked by lines represent the selected spatial predictors). The
 selection procedure is performed by the function
 [`select_spatial_predictors_sequential()`](https://blasbenito.github.io/spatialRF/reference/select_spatial_predictors_sequential.html).
 
-![](README_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->
 
 **Tuning spatial models**
 
@@ -683,7 +690,7 @@ model.spatial.tuned <- rf_tuning(
 
     ## R squared gain: 0.016
 
-![](README_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-28-1.png)<!-- -->
 
 # Assessing model performance on spatially independent folds
 
@@ -722,7 +729,7 @@ contains the indices of the training and testing cases for each
 cross-validation repetition. The maps below show two sets of training
 and testing spatial folds.
 
-![](README_files/figure-gfm/unnamed-chunk-30-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-31-1.png)<!-- -->
 
 The functions
 [`plot_evaluation()`](https://blasbenito.github.io/spatialRF/reference/plot_evaluation.html)
@@ -778,7 +785,7 @@ comparison <- rf_compare(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-32-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-33-1.png)<!-- -->
 
 | Model             | Metric    |     Mean |
 |:------------------|:----------|---------:|

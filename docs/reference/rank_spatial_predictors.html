@@ -76,7 +76,7 @@ This function has been designed to be used internally by rf_spatial() rather tha
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">spatialRF</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.6</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.7</span>
       </span>
     </div>
 
@@ -139,6 +139,7 @@ This function has been designed to be used internally by rf_spatial() rather tha
   <span class='kw'>ranking.method</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"moran"</span>, <span class='st'>"effect"</span>),
   <span class='kw'>reference.moran.i</span> <span class='kw'>=</span> <span class='fl'>1</span>,
   <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>cluster</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>n.cores</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>cluster.ips</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>cluster.cores</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
@@ -188,6 +189,10 @@ This function has been designed to be used internally by rf_spatial() rather tha
     <tr>
       <th>verbose</th>
       <td><p>Logical, ff <code>TRUE</code>, messages and plots generated during the execution of the function are displayed, Default: <code>TRUE</code></p></td>
+    </tr>
+    <tr>
+      <th>cluster</th>
+      <td><p>A cluster definition made with <code><a href='https://rdrr.io/r/parallel/makeCluster.html'>parallel::makeCluster()</a></code>.</p></td>
     </tr>
     <tr>
       <th>n.cores</th>
