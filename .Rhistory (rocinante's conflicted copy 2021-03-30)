@@ -1,0 +1,512 @@
+ggplot2::coord_cartesian(expand = FALSE) +
+ggplot2::ylab("") +
+ggplot2::xlab("Distance threshold") +
+ggplot2::labs(
+fill = "Moran's I",
+size = "p-value"
+)
+#variable as factor
+plot.df$variable <- factor(
+plot.df$variable,
+levels = c(
+dependent.variable.name,
+predictor.variable.names
+)
+)
+#plotting moran's i
+ggplot2::ggplot(data = plot.df) +
+ggplot2::scale_fill_viridis_c(alpha = 0.9) +
+ggplot2::geom_tile(
+ggplot2::aes(
+x = factor(distance.threshold),
+y = variable,
+fill = moran.i
+)
+) +
+ggplot2::geom_point(
+ggplot2::aes(
+x = factor(distance.threshold),
+y = variable,
+size = p.value.binary
+),
+pch = 1
+) +
+ggplot2::scale_size_manual(
+breaks = c("< 0.05", ">= 0.05"),
+values = c(2.5, 5),
+drop = FALSE
+) +
+ggplot2::coord_cartesian(expand = FALSE) +
+ggplot2::ylab("") +
+ggplot2::xlab("Distance threshold") +
+ggplot2::labs(
+fill = "Moran's I",
+size = "p-value"
+)
+#variable as factor
+plot.df$variable <- factor(
+plot.df$variable,
+levels = c(
+rev(predictor.variable.names)
+dependent.variable.name,
+)
+)
+#variable as factor
+plot.df$variable <- factor(
+plot.df$variable,
+levels = c(
+rev(predictor.variable.names),
+dependent.variable.name,
+)
+)
+#iterating through variables in the training data frame
+df.list <- list()
+for(variable in c(
+dependent.variable.name,
+predictor.variable.names
+)
+){
+#computing moran for different distance thresholds
+temp.df <- moran_multithreshold(
+x = as.vector(data[, variable]),
+distance.matrix = distance.matrix,
+distance.thresholds = distance.thresholds,
+verbose = FALSE
+)$per.distance
+#adding the variable name to the data frame
+temp.df$variable <- variable
+df.list[[variable]] <- temp.df
+}
+#to data frame
+plot.df <- do.call("rbind", df.list)
+rownames(plot.df) <- NULL
+#adding binary p.value
+plot.df$p.value.binary <- "< 0.05"
+plot.df[plot.df$p.value >= 0.05, "p.value.binary"] <- ">= 0.05"
+plot.df$p.value.binary <- factor(
+plot.df$p.value.binary,
+levels = c("< 0.05", ">= 0.05")
+)
+#variable as factor
+plot.df$variable <- factor(
+plot.df$variable,
+levels = c(
+rev(predictor.variable.names),
+dependent.variable.name,
+)
+)
+#variable as factor
+plot.df$variable <- factor(
+plot.df$variable,
+levels = c(
+rev(predictor.variable.names),
+dependent.variable.name
+)
+)
+#plotting moran's i
+ggplot2::ggplot(data = plot.df) +
+ggplot2::scale_fill_viridis_c(alpha = 0.9) +
+ggplot2::geom_tile(
+ggplot2::aes(
+x = factor(distance.threshold),
+y = variable,
+fill = moran.i
+)
+) +
+ggplot2::geom_point(
+ggplot2::aes(
+x = factor(distance.threshold),
+y = variable,
+size = p.value.binary
+),
+pch = 1
+) +
+ggplot2::scale_size_manual(
+breaks = c("< 0.05", ">= 0.05"),
+values = c(2.5, 5),
+drop = FALSE
+) +
+ggplot2::coord_cartesian(expand = FALSE) +
+ggplot2::ylab("") +
+ggplot2::xlab("Distance threshold") +
+ggplot2::labs(
+fill = "Moran's I",
+size = "p-value"
+)
+attachment::att_from_description()
+devtools::document()
+devtools::check()
+attachment::att_from_description()
+devtools::document()
+devtools::check()
+attachment::att_from_description()
+devtools::document()
+devtools::check()
+attachment::att_from_description()
+devtools::document()
+devtools::check()
+remotes::install_github(
+repo = "blasbenito/spatialRF",
+ref = "experimental_features",
+force = TRUE,
+quiet = TRUE
+)
+library(spatialRF)
+library(kableExtra)
+library(rnaturalearth)
+library(rnaturalearthdata)
+data(plant_richness_df)
+data(distance_matrix)
+#names of the response variable and the predictors
+dependent.variable.name <- "richness_species_vascular"
+predictor.variable.names <- colnames(plant_richness_df)[5:21]
+world <- rnaturalearth::ne_countries(
+scale = "medium",
+returnclass = "sf"
+)
+ggplot2::ggplot() +
+ggplot2::geom_sf(data = world, fill = "white") +
+ggplot2::geom_point(
+data = plant_richness_df,
+ggplot2::aes(
+x = x,
+y = y,
+color = richness_species_vascular
+),
+size = 2.5
+) +
+ggplot2::scale_color_viridis_c(direction = -1) +
+ggplot2::theme_bw() +
+ggplot2::labs(color = "Plant richness") +
+ggplot2::scale_x_continuous(limits = c(-170, -30)) +
+ggplot2::scale_y_continuous(limits = c(-58, 80))  +
+ggplot2::ggtitle("Plant richness of the American ecoregions") +
+ggplot2::xlab("Longitude") +
+ggplot2::ylab("Latitude")
+plot_training_data(
+data = plant_richness_df,
+dependent.variable.name = dependent.variable.name,
+predictor.variable.names = predictor.variable.names,
+ncol = 3
+)
+plot_training_df(
+data = plant_richness_df,
+dependent.variable.name = dependent.variable.name,
+predictor.variable.names = predictor.variable.names,
+ncol = 3
+)
+plot_training_df_moran(
+data = plant_richness_df,
+dependent.variable.name = dependent.variable.name,
+predictor.variable.names = predictor.variable.names,
+distance.matrix = distance_matrix,
+distance.thresholds = c(
+0, 1000, 2000, 4000, 8000
+)
+)
+plot_training_df_moran(
+data = plant_richness_df,
+dependent.variable.name = dependent.variable.name,
+predictor.variable.names = predictor.variable.names,
+distance.matrix = distance_matrix,
+distance.thresholds = c(
+0, 1000, 2000, 4000, 8000
+)
+)
+source('~/Dropbox/GITHUB/R_packages/spatialRF/R/plot_training_df.R')
+plot_training_df(
+data = plant_richness_df,
+dependent.variable.name = dependent.variable.name,
+predictor.variable.names = predictor.variable.names,
+ncol = 3
+)
+remotes::install_github(
+repo = "blasbenito/spatialRF",
+ref = "experimental_features",
+force = TRUE,
+quiet = TRUE
+)
+library(spatialRF)
+library(kableExtra)
+library(rnaturalearth)
+library(rnaturalearthdata)
+data(plant_richness_df)
+data(distance_matrix)
+#names of the response variable and the predictors
+dependent.variable.name <- "richness_species_vascular"
+predictor.variable.names <- colnames(plant_richness_df)[5:21]
+world <- rnaturalearth::ne_countries(
+scale = "medium",
+returnclass = "sf"
+)
+ggplot2::ggplot() +
+ggplot2::geom_sf(data = world, fill = "white") +
+ggplot2::geom_point(
+data = plant_richness_df,
+ggplot2::aes(
+x = x,
+y = y,
+color = richness_species_vascular
+),
+size = 2.5
+) +
+ggplot2::scale_color_viridis_c(direction = -1) +
+ggplot2::theme_bw() +
+ggplot2::labs(color = "Plant richness") +
+ggplot2::scale_x_continuous(limits = c(-170, -30)) +
+ggplot2::scale_y_continuous(limits = c(-58, 80))  +
+ggplot2::ggtitle("Plant richness of the American ecoregions") +
+ggplot2::xlab("Longitude") +
+ggplot2::ylab("Latitude")
+plot_training_df(
+data = plant_richness_df,
+dependent.variable.name = dependent.variable.name,
+predictor.variable.names = predictor.variable.names,
+ncol = 3
+)
+source('~/Dropbox/GITHUB/R_packages/spatialRF/R/plot_training_df.R')
+plot_training_df(
+data = plant_richness_df,
+dependent.variable.name = dependent.variable.name,
+predictor.variable.names = predictor.variable.names,
+ncol = 3
+)
+library(spatialRF)
+remotes::install_github(
+repo = "blasbenito/spatialRF",
+ref = "experimental_features",
+force = TRUE,
+quiet = TRUE
+)
+library(spatialRF)
+library(kableExtra)
+library(rnaturalearth)
+library(rnaturalearthdata)
+data(plant_richness_df)
+data(distance_matrix)
+#names of the response variable and the predictors
+dependent.variable.name <- "richness_species_vascular"
+predictor.variable.names <- colnames(plant_richness_df)[5:21]
+world <- rnaturalearth::ne_countries(
+scale = "medium",
+returnclass = "sf"
+)
+ggplot2::ggplot() +
+ggplot2::geom_sf(data = world, fill = "white") +
+ggplot2::geom_point(
+data = plant_richness_df,
+ggplot2::aes(
+x = x,
+y = y,
+color = richness_species_vascular
+),
+size = 2.5
+) +
+ggplot2::scale_color_viridis_c(direction = -1) +
+ggplot2::theme_bw() +
+ggplot2::labs(color = "Plant richness") +
+ggplot2::scale_x_continuous(limits = c(-170, -30)) +
+ggplot2::scale_y_continuous(limits = c(-58, 80))  +
+ggplot2::ggtitle("Plant richness of the American ecoregions") +
+ggplot2::xlab("Longitude") +
+ggplot2::ylab("Latitude")
+plot_training_df(
+data = plant_richness_df,
+dependent.variable.name = dependent.variable.name,
+predictor.variable.names = predictor.variable.names,
+ncol = 3
+)
+spatialRF::plot_training_df
+attachment::att_from_description()
+devtools::document()
+devtools::check()
+remotes::install_github(
+repo = "blasbenito/spatialRF",
+ref = "experimental_features",
+force = TRUE,
+quiet = TRUE
+)
+library(spatialRF)
+library(kableExtra)
+library(rnaturalearth)
+library(rnaturalearthdata)
+data(plant_richness_df)
+data(distance_matrix)
+#names of the response variable and the predictors
+dependent.variable.name <- "richness_species_vascular"
+predictor.variable.names <- colnames(plant_richness_df)[5:21]
+world <- rnaturalearth::ne_countries(
+scale = "medium",
+returnclass = "sf"
+)
+ggplot2::ggplot() +
+ggplot2::geom_sf(data = world, fill = "white") +
+ggplot2::geom_point(
+data = plant_richness_df,
+ggplot2::aes(
+x = x,
+y = y,
+color = richness_species_vascular
+),
+size = 2.5
+) +
+ggplot2::scale_color_viridis_c(direction = -1) +
+ggplot2::theme_bw() +
+ggplot2::labs(color = "Plant richness") +
+ggplot2::scale_x_continuous(limits = c(-170, -30)) +
+ggplot2::scale_y_continuous(limits = c(-58, 80))  +
+ggplot2::ggtitle("Plant richness of the American ecoregions") +
+ggplot2::xlab("Longitude") +
+ggplot2::ylab("Latitude")
+plot_training_df(
+data = plant_richness_df,
+dependent.variable.name = dependent.variable.name,
+predictor.variable.names = predictor.variable.names,
+ncol = 3
+)
+plot_training_df_moran(
+data = plant_richness_df,
+dependent.variable.name = dependent.variable.name,
+predictor.variable.names = predictor.variable.names,
+distance.matrix = distance_matrix,
+distance.thresholds = c(
+0, 1000, 2000, 4000, 8000
+)
+)
+library(spatialRF)
+plot_training_df_moran(
+data = plant_richness_df,
+dependent.variable.name = dependent.variable.name,
+predictor.variable.names = predictor.variable.names,
+distance.matrix = distance_matrix,
+distance.thresholds = c(
+0, 1000, 2000, 4000, 8000
+)
+)
+plot_training_df(
+data = plant_richness_df,
+dependent.variable.name = dependent.variable.name,
+predictor.variable.names = predictor.variable.names,
+ncol = 3
+)
+remotes::install_github(
+repo = "blasbenito/spatialRF",
+ref = "experimental_features",
+force = TRUE,
+quiet = TRUE
+)
+library(spatialRF)
+remotes::install_github(
+repo = "blasbenito/spatialRF",
+ref = "experimental_features",
+force = TRUE,
+quiet = TRUE
+)
+library(spatialRF)
+library(kableExtra)
+library(rnaturalearth)
+library(rnaturalearthdata)
+data(plant_richness_df)
+data(distance_matrix)
+#names of the response variable and the predictors
+dependent.variable.name <- "richness_species_vascular"
+predictor.variable.names <- colnames(plant_richness_df)[5:21]
+world <- rnaturalearth::ne_countries(
+scale = "medium",
+returnclass = "sf"
+)
+ggplot2::ggplot() +
+ggplot2::geom_sf(data = world, fill = "white") +
+ggplot2::geom_point(
+data = plant_richness_df,
+ggplot2::aes(
+x = x,
+y = y,
+color = richness_species_vascular
+),
+size = 2.5
+) +
+ggplot2::scale_color_viridis_c(direction = -1) +
+ggplot2::theme_bw() +
+ggplot2::labs(color = "Plant richness") +
+ggplot2::scale_x_continuous(limits = c(-170, -30)) +
+ggplot2::scale_y_continuous(limits = c(-58, 80))  +
+ggplot2::ggtitle("Plant richness of the American ecoregions") +
+ggplot2::xlab("Longitude") +
+ggplot2::ylab("Latitude")
+plot_training_df(
+data = plant_richness_df,
+dependent.variable.name = dependent.variable.name,
+predictor.variable.names = predictor.variable.names,
+ncol = 3
+)
+spatialRF::plot_training_df(
+data = plant_richness_df,
+dependent.variable.name = dependent.variable.name,
+predictor.variable.names = predictor.variable.names,
+ncol = 3
+)
+plot_training_df_moran(
+data = plant_richness_df,
+dependent.variable.name = dependent.variable.name,
+predictor.variable.names = predictor.variable.names,
+distance.matrix = distance_matrix,
+distance.thresholds = c(
+0, 1000, 2000, 4000, 8000
+)
+)
+interactions <- rf_interactions(
+data = plant_richness_df,
+dependent.variable.name = dependent.variable.name,
+predictor.variable.names = predictor.variable.names
+)
+remotes::install_github(
+repo = "blasbenito/spatialRF",
+ref = "experimental_features",
+force = TRUE,
+quiet = TRUE
+)
+library(spatialRF)
+library(kableExtra)
+library(rnaturalearth)
+library(rnaturalearthdata)
+data(plant_richness_df)
+data(distance_matrix)
+#names of the response variable and the predictors
+dependent.variable.name <- "richness_species_vascular"
+predictor.variable.names <- colnames(plant_richness_df)[5:21]
+world <- rnaturalearth::ne_countries(
+scale = "medium",
+returnclass = "sf"
+)
+ggplot2::ggplot() +
+ggplot2::geom_sf(data = world, fill = "white") +
+ggplot2::geom_point(
+data = plant_richness_df,
+ggplot2::aes(
+x = x,
+y = y,
+color = richness_species_vascular
+),
+size = 2.5
+) +
+ggplot2::scale_color_viridis_c(direction = -1) +
+ggplot2::theme_bw() +
+ggplot2::labs(color = "Plant richness") +
+ggplot2::scale_x_continuous(limits = c(-170, -30)) +
+ggplot2::scale_y_continuous(limits = c(-58, 80))  +
+ggplot2::ggtitle("Plant richness of the American ecoregions") +
+ggplot2::xlab("Longitude") +
+ggplot2::ylab("Latitude")
+plot_training_df(
+data = plant_richness_df,
+dependent.variable.name = dependent.variable.name,
+predictor.variable.names = predictor.variable.names,
+ncol = 3
+)
+spatialRF::plot_training_df(
+data = plant_richness_df,
+dependent.variable.name = dependent.variable.name,
+predictor.variable.names = predictor.variable.names,
+ncol = 3
+)

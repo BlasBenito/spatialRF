@@ -61,7 +61,7 @@ moran_multithreshold <- function(
         seq(
           0,
           max(distance.matrix)/2,
-          length.out = 8
+          length.out = 4
         )
       )
     )

@@ -224,11 +224,13 @@ rf_spatial <- function(
   }
 
   if(is.null(distance.thresholds)){
-    distance.thresholds <- floor(
-      seq(
-        0,
-        max(distance.matrix)/4,
-        length.out = 2
+    distance.thresholds <- pretty(
+      floor(
+        seq(
+          0,
+          max(distance.matrix)/2,
+          length.out = 4
+        )
       )
     )
   }
