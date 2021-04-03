@@ -86,12 +86,6 @@ make_spatial_fold <- function(
     )
   }
 
-  #selecting ones if binary
-  if(is.binary == TRUE){
-    xy.all <- xy
-    xy <- xy[data[, dependent.variable.name] == 1, ]
-  }
-
   #number of records to select
   records.to.select <- floor(training.fraction * nrow(xy))
 
