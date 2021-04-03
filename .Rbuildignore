@@ -21,3 +21,4 @@ _config.yml
 tests
 README.html
 data_Blas.Rdata
+.Rhistory
