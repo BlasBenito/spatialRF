@@ -99,7 +99,7 @@ make_spatial_folds <- function(
     i = seq(1, nrow(xy.selected), by = 1)
   ) %dopar% {
 
-    spatial.fold.i <- make_spatial_fold(
+    spatial.fold.i <- spatialRF::make_spatial_fold(
       data = data,
       dependent.variable.name = dependent.variable.name,
       xy.i = xy.selected[i, ],

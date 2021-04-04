@@ -139,7 +139,7 @@ rf_evaluate <- function(
   #thinning coordinates to get a systematic sample of reference points
   if(repetitions < nrow(xy)){
     if(verbose == TRUE){
-      message("Selecting pairs of coordinates to grow training folds from.")
+      message("Selecting pairs of coordinates as trainnig fold origins.")
     }
     xy.reference.records <- thinning_til_n(
       xy = xy,
@@ -249,7 +249,7 @@ rf_evaluate <- function(
   #loop to evaluate models
   #####################################
   evaluation.df <- foreach::foreach(
-    i = seq(1, length(spatial.folds)),
+    i = seq(1, length(spatial.folds), by = 1),
     .combine = "rbind"
     ) %dopar% {
 
@@ -321,10 +321,13 @@ rf_evaluate <- function(
     }
     if("auc" %in% metrics){
       out.df$training.auc = m.training$performance$auc
-      out.df$testing.auc = round(auc(
-        o = observed,
-        p = predicted
-      ), 3)
+      out.df$testing.auc = round(
+        spatialRF::auc(
+          o = observed,
+          p = predicted
+        ),
+        3
+      )
       if(is.na(out.df$training.auc)){
         out.df$testing.auc <- NA
       }
