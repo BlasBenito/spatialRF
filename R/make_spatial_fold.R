@@ -4,7 +4,7 @@
 #' @param dependent.variable.name Character string with the name of the response variable. Must be in the column names of `data`. Default: `NULL`
 #' @param xy.i One row data frame with at least three columns: "x" (longitude), "y" (latitude), and "id" (integer, id of the record). Can be a row of `xy`. Default: `NULL`.
 #' @param xy A data frame with at least three columns: "x" (longitude), "y" (latitude), and "id" (integer, index of the record). Default: `NULL`.
-#' @param distance.step Numeric, distance step used during the thinning iterations. If `NULL`, the maximum distance between two points in `xy` divided by 1000 is used. Default: `NULL`
+#' @param distance.step Numeric, distance step used during the thinning iterations. If `NULL`, the maximum distance between two points in `xy` divided by 100 is used. Default: `NULL`
 #' @param training.fraction Numeric, fraction of the data to be included in the training fold, Default: `0.6`.
 #' @return A list with two slots named `training` and `testing` with the former having the indices of the training records selected from `xy`, and the latter having the indices of the testing records.
 #' @seealso [make_spatial_folds()], [rf_evaluate()]
@@ -72,6 +72,14 @@ make_spatial_fold <- function(
     distance.step <- max(xy.distances) / 1000
 
     rm(xy.distances)
+
+  } else {
+
+    #in case it comes from raster::res()
+    if(length(distance.step) > 1){
+      distance.step <- distance.step[1]
+    }
+
   }
 
   #getting details of xy.i
@@ -87,7 +95,11 @@ make_spatial_fold <- function(
   }
 
   #number of records to select
-  records.to.select <- floor(training.fraction * nrow(xy))
+  if(is.binary == TRUE){
+    records.to.select <- floor(training.fraction * sum(data[, dependent.variable.name]))
+  } else {
+    records.to.select <- floor(training.fraction * nrow(xy))
+  }
 
   #generating first buffer
   old.buffer.x.min <- xy.i.x - distance.step
@@ -120,7 +132,7 @@ make_spatial_fold <- function(
 
     #subset ones if it's binary
     if(is.binary == TRUE){
-      records.selected <- records.selected[records.selected[, dependent.variable.name] == 1, ]
+      records.selected <- records.selected[data[data$id %in% records.selected$id, dependent.variable.name] == 1, ]
     }
 
     #resetting old.buffer

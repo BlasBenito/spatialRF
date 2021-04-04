@@ -4,7 +4,7 @@
 #' @param dependent.variable.name Character string with the name of the response variable. Must be in the column names of `data`. Default: `NULL`
 #' @param xy.selected Data frame with at least three columns: "x" (longitude), "y" (latitude), and "id" (integer, id of the record). Usually a subset of `xy`. Usually the result of applying [thinning()] or [thinning_til_n()] to 'xy' Default: `NULL`.
 #' @param xy data frame with at least three columns: "x" (longitude), "y" (latitude), and "id" (integer, index of the record). Default: `NULL`.
-#' @param distance.step Numeric, distance step used during the thinning iterations. If `NULL`, the maximum distance between two points in `xy` divided by 1000 is used. Default: `NULL`
+#' @param distance.step Numeric, distance step used during the thinning iterations. If `NULL`, the maximum distance between two points in `xy` divided by 100 is used. Default: `NULL`
 #' @param training.fraction numeric, fraction of the data to be included in the growing buffer as training data, Default: 0.6
 #' @param n.cores number of cores to use to generate spatial folds in parallel. Default: `NULL`.
 #' @return A list with as many slots as rows are in `xy.selected`. Each slot has two slots named `training` and `testing`, with the former having the indices of the training records selected from xy, and the latter having the indices of the testing records.
@@ -54,13 +54,52 @@ make_spatial_folds <- function(
   n.cores = NULL
 ){
 
+  #setup of parallel execution
+  if(is.null(n.cores)){
+
+    n.cores <- parallel::detectCores() - 1
+    `%dopar%` <- foreach::`%dopar%`
+
+  } else {
+
+    #only one core, no cluster
+    if(n.cores == 1){
+
+      #replaces dopar (parallel) by do (serial)
+      `%dopar%` <- foreach::`%do%`
+      on.exit(`%dopar%` <- foreach::`%dopar%`)
+
+    } else {
+
+      `%dopar%` <- foreach::`%dopar%`
+
+    }
+
+  }
+
+  if(.Platform$OS.type == "windows"){
+    temp.cluster <- parallel::makeCluster(
+      n.cores,
+      type = "PSOCK"
+    )
+  } else {
+    temp.cluster <- parallel::makeCluster(
+      n.cores,
+      type = "FORK"
+    )
+  }
+
+  #register cluster and close on exit
+  doParallel::registerDoParallel(cl = temp.cluster)
+  on.exit(parallel::stopCluster(cl = temp.cluster))
+
   #parallelized loop
   i <- NULL
   spatial.folds <- foreach::foreach(
     i = seq(1, nrow(xy.selected), by = 1)
-  ) %do% {
+  ) %dopar% {
 
-    spatial.fold.i <- spatialRF::make_spatial_fold(
+    spatial.fold.i <- make_spatial_fold(
       data = data,
       dependent.variable.name = dependent.variable.name,
       xy.i = xy.selected[i, ],

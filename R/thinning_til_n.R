@@ -59,24 +59,27 @@ thinning_til_n <- function(
     #getting all distances among points
     xy.distances <- sort(as.vector(dist(xy[, c("x", "y")])))
 
-    #remove zero distances
-    xy.distances <- xy.distances[xy.distances != 0]
-
-    #getting the minimum
-    # min.distance <- distance.i <- min(xy.distances)
-
     #getting the 1%
     min.distance <- distance.i <- max(xy.distances) / 100
 
     rm(xy.distances)
+
   } else {
+
+    #in case it comes from raster::res()
+    if(length(distance.step) > 1){
+      distance.step <- distance.step[1]
+    }
+
     #user defined value
     min.distance <- distance.i <- distance.step
+
   }
 
   #initiating xy.thin
   xy.thin <- xy
 
+  #apply thinning iteratively
   while(nrow(xy.thin) > n){
     distance.i <- distance.i + min.distance
     xy.thin <- thinning(xy, minimum.distance = distance.i)
