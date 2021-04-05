@@ -127,7 +127,6 @@ rf_repeat <- function(
     scaled.importance <- ranger.arguments$scaled.importance
     importance <- ranger.arguments$importance
     local.importance <- ranger.arguments$local.importance
-    ranger.arguments$seed <- seed
   }
 
   if(is.null(ranger.arguments)){
