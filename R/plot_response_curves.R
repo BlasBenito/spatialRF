@@ -4,6 +4,7 @@
 #' @param variables Character vector, names of predictors to plot. If `NULL`, the most important variables (importance higher than the median) in `x` are selected. Default: `NULL`.
 #' @param quantiles Numeric vector with values between 0 and 1, argument `probs` of \link[stats]{quantile}. Quantiles to set the other variables to. Default: `c(0.1, 0.5, 0.9)`
 #' @param grid.resolution Integer between 20 and 500. Resolution of the plotted curve Default: `100`
+#' @param ncol Integer, argument of \link[patchwork]{wrap_plots}. Defaults to the rounded squared root of the number of plots.
 #' @param show.data Logical, if `TRUE`, the observed data is plotted along with the response curves. Default. `FALSE`
 #' @param verbose Logical, if TRUE the plot is printed. Default: `TRUE`
 #' @return A list with slots named after the selected `variables`, with one ggplot each.
@@ -33,6 +34,7 @@ plot_response_curves <- function(
   variables = NULL,
   quantiles = c(0.1, 0.5, 0.9),
   grid.resolution = 200,
+  ncol = NULL,
   show.data = FALSE,
   verbose = TRUE
 ){
@@ -293,10 +295,15 @@ plot_response_curves <- function(
 
   }#end of plotting
 
+  #computing ncol if NULL
+  if(is.null(ncol)){
+    ncol <- floor(sqrt(length(variables.plots)))
+  }
 
   variables.plots.out <- patchwork::wrap_plots(
     variables.plots,
-    guides = "collect"
+    guides = "collect",
+    ncol = ncol
   )
 
   if(verbose == TRUE){

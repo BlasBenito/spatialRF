@@ -9,6 +9,7 @@ plot_response_curves(
   variables = NULL,
   quantiles = c(0.1, 0.5, 0.9),
   grid.resolution = 200,
+  ncol = NULL,
   show.data = FALSE,
   verbose = TRUE
 )
@@ -21,6 +22,8 @@ plot_response_curves(
 \item{quantiles}{Numeric vector with values between 0 and 1, argument \code{probs} of \link[stats]{quantile}. Quantiles to set the other variables to. Default: \code{c(0.1, 0.5, 0.9)}}
 
 \item{grid.resolution}{Integer between 20 and 500. Resolution of the plotted curve Default: \code{100}}
+
+\item{ncol}{Integer, argument of \link[patchwork]{wrap_plots}. Defaults to the rounded squared root of the number of plots.}
 
 \item{show.data}{Logical, if \code{TRUE}, the observed data is plotted along with the response curves. Default. \code{FALSE}}
 

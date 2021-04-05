@@ -69,6 +69,9 @@ thinning <- function(xy, minimum.distance = NULL){
     message("minimum distance was likely too high, returning very few rows!")
   }
 
+  #removing duplicates
+  xy <- dplyr::distinct(xy)
+
   xy
 
 }

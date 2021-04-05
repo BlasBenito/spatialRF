@@ -5,17 +5,18 @@
 \title{Plots the response surfaces of a random forest model}
 \usage{
 plot_response_surfaces(
-  x = NULL,
+  model = NULL,
   a = NULL,
   b = NULL,
   quantiles = 0.5,
   grid.resolution = 100,
   point.size.range = c(0.5, 2.5),
+  point.alpha = 1,
   verbose = TRUE
 )
 }
 \arguments{
-\item{x}{A model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}. Default \code{NULL}}
+\item{model}{A model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}. Default \code{NULL}}
 
 \item{a}{Character string, name of a model predictor. If \code{NULL}, the most important variable in \code{model} is selected. Default: \code{NULL}}
 
@@ -25,7 +26,9 @@ plot_response_surfaces(
 
 \item{grid.resolution}{Integer between 20 and 500. Resolution of the plotted surface Default: \code{100}}
 
-\item{point.size.range}{Numeric vector of length 2 with the range of point sizes used by \link[ggplot2]{geom_point}, Default: \code{c(0.5, 2.5)}}
+\item{point.size.range}{Numeric vector of length 2 with the range of point sizes used by \link[ggplot2]{geom_point}. Using \code{c(-1, -1)} removes the points. Default: \code{c(0.5, 2.5)}}
+
+\item{point.alpha}{Numeric between 0 and 1, transparency of the points. Setting it to \code{0} removes all points. Default: \code{1}.}
 
 \item{verbose}{Logical, if TRUE the plot is printed. Default: \code{TRUE}}
 }

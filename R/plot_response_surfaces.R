@@ -1,11 +1,12 @@
 #' @title Plots the response surfaces of a random forest model
 #' @description Plots response surfaces for any given pair of predictors in a [rf()], [rf_repeat()], or [rf_spatial()] model.
-#' @param x A model fitted with [rf()], [rf_repeat()], or [rf_spatial()]. Default `NULL`
+#' @param model A model fitted with [rf()], [rf_repeat()], or [rf_spatial()]. Default `NULL`
 #' @param a Character string, name of a model predictor. If `NULL`, the most important variable in `model` is selected. Default: `NULL`
 #' @param b Character string, name of a model predictor. If `NULL`, the second most important variable in `model` is selected. Default: `NULL`
 #' @param quantiles Numeric vector between 0 and 1. Argument `probs` of the function \link[stats]{quantile}. Quantiles to set the other variables to. Default: `0.5`
 #' @param grid.resolution Integer between 20 and 500. Resolution of the plotted surface Default: `100`
-#' @param point.size.range Numeric vector of length 2 with the range of point sizes used by \link[ggplot2]{geom_point}, Default: `c(0.5, 2.5)`
+#' @param point.size.range Numeric vector of length 2 with the range of point sizes used by \link[ggplot2]{geom_point}. Using `c(-1, -1)` removes the points. Default: `c(0.5, 2.5)`
+#' @param point.alpha Numeric between 0 and 1, transparency of the points. Setting it to `0` removes all points. Default: `1`.
 #' @param verbose Logical, if TRUE the plot is printed. Default: `TRUE`
 #' @return A list with slots named after the selected `quantiles`, each one with a ggplot.
 #' @details All variables that are not `a` or `b` in a response curve are set to the values of their respective quantiles to plot the response surfaces. The output list can be plotted all at once with `patchwork::wrap_plots(p)` or `cowplot::plot_grid(plotlist = p)`, or one by one by extracting each plot from the list.
@@ -34,16 +35,17 @@
 #' @importFrom viridis scale_fill_viridis
 #' @importFrom patchwork wrap_plots
 plot_response_surfaces <- function(
-  x = NULL,
+  model = NULL,
   a = NULL,
   b = NULL,
   quantiles = 0.5,
   grid.resolution = 100,
   point.size.range = c(0.5, 2.5),
+  point.alpha = 1,
   verbose = TRUE
   ){
 
-  if(is.null(x)){
+  if(is.null(model)){
     stop("Argument 'x' must not be empty.")
   }
 
@@ -54,21 +56,21 @@ plot_response_surfaces <- function(
   quantiles <- quantiles[quantiles >= 0]
   quantiles <- quantiles[quantiles <= 1]
 
-  data <- x$ranger.arguments$data
+  data <- model$ranger.arguments$data
 
   #response variable and predictors
-  response.variable <- x$ranger.arguments$dependent.variable.name
-  predictors <- x$ranger.arguments$predictor.variable.names
-  if(inherits(x, "rf_spatial")){
-    predictors <- predictors[!(predictors %in% x$selection.spatial.predictors$names)]
+  response.variable <- model$ranger.arguments$dependent.variable.name
+  predictors <- model$ranger.arguments$predictor.variable.names
+  if(inherits(model, "rf_spatial")){
+    predictors <- predictors[!(predictors %in% model$selection.spatial.predictors$names)]
   }
 
   #default values for a and b
   if(is.null(a)){
-    a <- x$variable.importance$per.variable[x$variable.importance$per.variable$variable %in% predictors, "variable"][1]
+    a <- model$variable.importance$per.variable[model$variable.importance$per.variable$variable %in% predictors, "variable"][1]
   }
   if(is.null(b)){
-    b <- x$variable.importance$per.variable[x$variable.importance$per.variable$variable %in% predictors, "variable"][2]
+    b <- model$variable.importance$per.variable[model$variable.importance$per.variable$variable %in% predictors, "variable"][2]
   }
 
   if(!(a %in% colnames(data))){
@@ -79,7 +81,7 @@ plot_response_surfaces <- function(
   }
 
   #names of the other variables
-  other.variables <- setdiff(x$ranger.arguments$predictor.variable.names, c(a, b))
+  other.variables <- setdiff(model$ranger.arguments$predictor.variable.names, c(a, b))
 
   #generating grid
   ab.grid <- expand.grid(
@@ -111,11 +113,10 @@ plot_response_surfaces <- function(
 
     #predicting the response
     ab.grid.i[, response.variable] <- predict(
-      x,
+      model,
       ab.grid.i)$predictions
 
-    #heatmap
-    #saving output
+    #saving plot
     ab.grid.quantiles[[as.character(quantile.i)]] <- ggplot2::ggplot(data = ab.grid.i) +
       ggplot2::geom_tile(
         ggplot2::aes_string(
@@ -125,7 +126,7 @@ plot_response_surfaces <- function(
           )
         ) +
       viridis::scale_fill_viridis(
-        direction = -1,
+        direction = 1,
         begin = 0.1
       ) +
       ggplot2::theme_bw() +
@@ -137,9 +138,10 @@ plot_response_surfaces <- function(
           size = response.variable
         ),
         shape = 21,
-        alpha = 0.5
+        alpha = point.alpha
       ) +
       ggplot2::scale_size_continuous(range = point.size.range) +
+      ggplot2::coord_cartesian(expand = FALSE) +
       ggplot2::labs(
         fill = "Predicted",
         size = "Observed"
