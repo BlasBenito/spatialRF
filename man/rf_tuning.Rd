@@ -13,6 +13,7 @@ rf_tuning(
   xy = NULL,
   repetitions = NULL,
   training.fraction = 0.8,
+  seed = NULL,
   verbose = TRUE,
   n.cores = NULL,
   cluster.ips = NULL,
@@ -37,6 +38,8 @@ rf_tuning(
 \item{repetitions}{Integer, number of repetitions to compute the R squared from. If \code{method = "oob"}, number of repetitions to be used in \code{\link[=rf_repeat]{rf_repeat()}} to fit models for each combination of hyperparameters. If \code{method = "spatial.cv"}, number of independent spatial folds to use during the cross-validation. Default: \code{NULL} (which yields 30 for "spatial.cv" and 5 for "oob").}
 
 \item{training.fraction}{Proportion between 0.2 and 0.8 indicating the number of records to be used in model training. Default: \code{0.8}}
+
+\item{seed}{Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same.}
 
 \item{verbose}{Logical. If TRUE, messages and plots generated during the execution of the function are displayed, Default: \code{TRUE}}
 

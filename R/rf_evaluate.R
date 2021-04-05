@@ -6,6 +6,7 @@
 #' @param training.fraction Proportion between 0.5 and 0.9 indicating the number of records to be used in model training. Default: `0.8`
 #' @param distance.step Numeric, distance step used during the thinning iterations. Argument of [thinning_til_n()], [make_spatial_folds()], and [make_spatial_fold()]. If `NULL`, the maximum distance between two points in `xy` divided by 100 is used. Default: `NULL`
 #' @param metrics Character vector, names of the performance metrics selected. The possible values are: "r.squared" (`cor(obs, pred) ^ 2`), "pseudo.r.squared" (`cor(obs, pred)`), "rmse" (`sqrt(sum((obs - pred)^2)/length(obs))`), "nrmse" (`rmse/(quantile(obs, 0.75) - quantile(obs, 0.25))`), and "auc" (only for binary responses with values 1 and 0). Default: `c("r.squared", "pseudo.r.squared", "rmse", "nrmse")`
+#' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same.
 #' @param verbose Logical. If `TRUE`, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
 #' @param n.cores Integer, number of cores to use during computations. If `NULL`, all cores but one are used, unless a cluster is used. Default = `NULL`
 #' @param cluster.ips Character vector with the IPs of the machines in a cluster. The machine with the first IP will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.
@@ -63,7 +64,14 @@ rf_evaluate <- function(
   repetitions = 30,
   training.fraction = 0.8,
   distance.step = NULL,
-  metrics = c("r.squared", "pseudo.r.squared", "rmse", "nrmse", "auc"),
+  metrics = c(
+    "r.squared",
+    "pseudo.r.squared",
+    "rmse",
+    "nrmse",
+    "auc"
+    ),
+  seed = NULL,
   verbose = TRUE,
   n.cores = NULL,
   cluster.ips = NULL,
@@ -117,6 +125,7 @@ rf_evaluate <- function(
   ranger.arguments$scaled.importance <- FALSE
   ranger.arguments$distance.matrix <- NULL
   ranger.arguments$num.threads <- 1
+  ranger.arguments$seed <- ifelse(is.null(ranger.arguments$seed), seed, NULL)
 
   #preparing xy
   #if null, stop
@@ -263,6 +272,7 @@ rf_evaluate <- function(
       dependent.variable.name = dependent.variable.name,
       predictor.variable.names = predictor.variable.names,
       ranger.arguments = ranger.arguments,
+      seed = seed,
       verbose = FALSE
     )
 

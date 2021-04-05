@@ -8,6 +8,7 @@
 #' @param xy Data frame or matrix with two columns containing coordinates and named "x" and "y". If `NULL`, the function will throw an error. Default: `NULL`
 #' @param repetitions Integer, number of repetitions to compute the R squared from. If `method = "oob"`, number of repetitions to be used in [rf_repeat()] to fit models for each combination of hyperparameters. If `method = "spatial.cv"`, number of independent spatial folds to use during the cross-validation. Default: `NULL` (which yields 30 for "spatial.cv" and 5 for "oob").
 #' @param training.fraction Proportion between 0.2 and 0.8 indicating the number of records to be used in model training. Default: `0.8`
+#' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same.
 #' @param verbose Logical. If TRUE, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
 #' @param n.cores Integer, number of cores to use during computations. If `NULL`, all cores but one are used, unless a cluster is used. Default = `NULL`
 #' @param cluster.ips Character vector with the IPs of the machines in a cluster. The machine with the first IP will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.
@@ -55,6 +56,7 @@ rf_tuning <- function(
   xy = NULL,
   repetitions = NULL,
   training.fraction = 0.8,
+  seed = NULL,
   verbose = TRUE,
   n.cores = NULL,
   cluster.ips = NULL,
@@ -83,6 +85,9 @@ rf_tuning <- function(
     if(method == "spatial.cv"){
       repetitions <- 30
     }
+    if(method == "oob"){
+      repetitions <- 5
+    }
   }
 
   #getting arguments from model rather than ranger.arguments
@@ -93,6 +98,17 @@ rf_tuning <- function(
   distance.matrix <- ranger.arguments$distance.matrix
   distance.thresholds <- ranger.arguments$distance.thresholds
   model.class <- class(model)
+
+  #testing if the data is binary
+  is.binary <- is_binary(
+    data = data,
+    dependent.variable.name = dependent.variable.name
+  )
+  if(is.binary == TRUE){
+    metric <- "auc"
+  } else {
+    metric <- "r.squared"
+  }
 
   #saving slots if it's an rf_spatial model
   if(inherits(model, "rf_spatial")){
@@ -254,7 +270,7 @@ rf_tuning <- function(
     if(inherits(model, "rf_spatial")){
 
       #fit model
-      m.i <- spatialRF::rf_repeat(
+      m.i <- spatialRF::rf(
         data = data,
         dependent.variable.name = dependent.variable.name,
         predictor.variable.names = predictor.variable.names,
@@ -262,9 +278,8 @@ rf_tuning <- function(
         distance.thresholds = distance.thresholds,
         ranger.arguments = ranger.arguments.i,
         scaled.importance = FALSE,
-        verbose = FALSE,
-        repetitions = 10,
-        n.cores = 1
+        seed = seed,
+        verbose = FALSE
       )
 
       moran.i.interpretation <- m.i$spatial.correlation.residuals$per.distance$interpretation[1]
@@ -278,21 +293,21 @@ rf_tuning <- function(
       if(!inherits(model, "rf_spatial")){
 
         #fit model
-        m.i <- spatialRF::rf_repeat(
+        m.i <- spatialRF::rf(
           data = data,
           dependent.variable.name = dependent.variable.name,
           predictor.variable.names = predictor.variable.names,
           ranger.arguments = ranger.arguments.i,
           scaled.importance = FALSE,
-          verbose = FALSE,
-          repetitions = 10,
-          n.cores = 1
+          seed = seed,
+          verbose = FALSE
         )
 
       }
 
       #get performance measures
-      m.i.performance <- spatialRF::get_performance(m.i)[, 1:2]
+      m.i.performance <- spatialRF::get_performance(m.i)
+      m.i.performance <- m.i.performance[m.i.performance$metric == metric, c("metric", "mean")]
 
     }#end of oob
 
@@ -306,7 +321,7 @@ rf_tuning <- function(
         predictor.variable.names = predictor.variable.names,
         ranger.arguments = ranger.arguments.i,
         scaled.importance = FALSE,
-        seed = 100,
+        seed = seed,
         verbose = FALSE
       )
 
@@ -316,6 +331,8 @@ rf_tuning <- function(
         xy = xy,
         repetitions = repetitions,
         training.fraction = training.fraction,
+        metrics = metric,
+        seed = seed,
         verbose = FALSE,
         n.cores = 1
       )
@@ -329,14 +346,15 @@ rf_tuning <- function(
     #gathering into data frame
     if(inherits(model, "rf_spatial")){
       m.i.performance <- data.frame(
-        r.squared = m.i.performance[m.i.performance$metric == "r.squared", "mean"],
+        r.squared = m.i.performance[m.i.performance$metric == metric, "mean"],
         moran.i.interpretation = moran.i.interpretation
       )
     } else {
       m.i.performance <- data.frame(
-        r.squared = m.i.performance[m.i.performance$metric == "r.squared", "mean"]
+        metric = m.i.performance[m.i.performance$metric == metric, "mean"]
       )
     }
+    colnames(m.i.performance)[1] <- metric
 
     return(m.i.performance)
 
@@ -347,7 +365,7 @@ rf_tuning <- function(
     combinations,
     tuning
   ) %>%
-    dplyr::arrange(dplyr::desc(r.squared))
+    dplyr::arrange(dplyr::desc(!!dplyr::sym(metric)))
 
   #preparing tuning list
   tuning.list <- list()
@@ -388,6 +406,7 @@ rf_tuning <- function(
       ranger.arguments = ranger.arguments,
       distance.matrix = distance.matrix,
       distance.thresholds = distance.thresholds,
+      seed = seed,
       verbose = FALSE
     )
 
@@ -407,6 +426,7 @@ rf_tuning <- function(
       distance.matrix = distance.matrix,
       distance.thresholds = distance.thresholds,
       repetitions = repetitions,
+      seed = seed,
       verbose = FALSE,
       n.cores = n.cores,
       cluster.ips = cluster.ips,
@@ -453,6 +473,7 @@ rf_tuning <- function(
       xy = xy,
       repetitions = repetitions,
       training.fraction = training.fraction,
+      seed = seed,
       verbose = FALSE,
       n.cores = n.cores,
       cluster.ips = cluster.ips,
@@ -467,6 +488,7 @@ rf_tuning <- function(
       xy = xy,
       repetitions = repetitions,
       training.fraction = training.fraction,
+      seed = seed,
       verbose = FALSE,
       n.cores = n.cores,
       cluster.ips = cluster.ips,
