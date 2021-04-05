@@ -399,7 +399,7 @@ rf_tuning <- function(
   #fitting tuned model with rf
   if(!inherits(model, "rf_repeat")){
 
-    model.tuned <- rf(
+    model.tuned <- spatialRF::rf(
       data = data,
       dependent.variable.name = dependent.variable.name,
       predictor.variable.names = predictor.variable.names,
@@ -418,7 +418,7 @@ rf_tuning <- function(
     repetitions <- model$ranger.arguments$repetitions
     if(is.null(repetitions)){repetitions <- 10}
 
-    model.tuned <- rf_repeat(
+    model.tuned <- spatialRF::rf_repeat(
       data = data,
       dependent.variable.name = dependent.variable.name,
       predictor.variable.names = predictor.variable.names,
