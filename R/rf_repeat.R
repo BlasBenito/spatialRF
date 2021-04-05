@@ -217,6 +217,7 @@ rf_repeat <- function(
       homogeneous = TRUE
     )
 
+
     #register cluster and close on exit
     doParallel::registerDoParallel(cl = temp.cluster)
     on.exit(parallel::stopCluster(cl = temp.cluster))
