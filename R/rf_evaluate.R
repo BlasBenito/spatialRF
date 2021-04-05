@@ -125,7 +125,6 @@ rf_evaluate <- function(
   ranger.arguments$scaled.importance <- FALSE
   ranger.arguments$distance.matrix <- NULL
   ranger.arguments$num.threads <- 1
-  ranger.arguments$seed <- ifelse(is.null(ranger.arguments$seed), seed, NULL)
 
   #preparing xy
   #if null, stop
