@@ -136,7 +136,7 @@ rf_repeat <- function(
   ranger.arguments$importance <- importance <- "permutation"
   ranger.arguments$local.importance <- local.importance <- FALSE
   ranger.arguments$num.threads <- 1
-  ranger.arguments$seed <- seed
+  ranger.arguments$seed <- NULL
   ranger.arguments$scaled.importance <- scaled.importance
 
   if(keep.models == TRUE){
