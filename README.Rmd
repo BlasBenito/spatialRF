@@ -261,7 +261,7 @@ In the response curves above, the other predictors are set to their quantiles 0.
 
 ```{r, fig.height = 3.2, fig.width=4.5}
 plot_response_surfaces(
-  x = model.non.spatial,
+  model.non.spatial,
   a = "climate_bio1_average",
   b = "neighbors_count"
   )

@@ -85,9 +85,6 @@ rf_tuning <- function(
     if(method == "spatial.cv"){
       repetitions <- 30
     }
-    if(method == "oob"){
-      repetitions <- 5
-    }
   }
 
   #getting arguments from model rather than ranger.arguments
@@ -265,12 +262,13 @@ rf_tuning <- function(
     ranger.arguments.i$min.node.size <- min.node.size.i
     ranger.arguments.i$importance <- "none"
     ranger.arguments.i$num.threads <- 1
+    ranger.arguments.i$save.memory <- TRUE
 
     #computing Moran's I if the model is rf_spatial
     if(inherits(model, "rf_spatial")){
 
-      #fit model
-      m.i <- spatialRF::rf(
+      #fit model to find out its moran's I
+      m.i <- spatialRF::rf_repeat(
         data = data,
         dependent.variable.name = dependent.variable.name,
         predictor.variable.names = predictor.variable.names,
@@ -278,8 +276,9 @@ rf_tuning <- function(
         distance.thresholds = distance.thresholds,
         ranger.arguments = ranger.arguments.i,
         scaled.importance = FALSE,
-        seed = seed,
-        verbose = FALSE
+        verbose = FALSE,
+        repetitions = 10,
+        n.cores = 1
       )
 
       moran.i.interpretation <- m.i$spatial.correlation.residuals$per.distance$interpretation[1]
@@ -365,11 +364,15 @@ rf_tuning <- function(
     combinations,
     tuning
   ) %>%
-    dplyr::arrange(dplyr::desc(!!dplyr::sym(metric)))
+    dplyr::arrange(dplyr::desc(!!sym(metric)))
+
+  #getting metric name
+  metric.name <- colnames(tuning)[!(colnames(tuning) %in% c("num.trees", "mtry", "min.node.size"))]
 
   #preparing tuning list
   tuning.list <- list()
   tuning.list$method <- method
+  tuning.list$metric <- metric.name
   tuning.list$tuning.df <- tuning
 
 
@@ -377,17 +380,17 @@ rf_tuning <- function(
   if(inherits(model, "rf_spatial")){
 
     #remove results yielding
-     tuning <- dplyr::filter(
+    tuning <- dplyr::filter(
       tuning,
       moran.i.interpretation == "No spatial correlation"
     )
 
-     #stop if all results increase spatial autocorrelation of the residuals
-     if(nrow(tuning) == 0){
+    #stop if all results increase spatial autocorrelation of the residuals
+    if(nrow(tuning) == 0){
 
-       message("This spatial model cannot be tuned, all possible results increase spatial autocorrelation of the residuals")
-       stop()
-     }
+      message("This spatial model cannot be tuned, all possible results increase spatial autocorrelation of the residuals")
+      stop()
+    }
 
   }
 
@@ -399,14 +402,13 @@ rf_tuning <- function(
   #fitting tuned model with rf
   if(!inherits(model, "rf_repeat")){
 
-    model.tuned <- spatialRF::rf(
+    model.tuned <- rf(
       data = data,
       dependent.variable.name = dependent.variable.name,
       predictor.variable.names = predictor.variable.names,
       ranger.arguments = ranger.arguments,
       distance.matrix = distance.matrix,
       distance.thresholds = distance.thresholds,
-      seed = seed,
       verbose = FALSE
     )
 
@@ -418,7 +420,7 @@ rf_tuning <- function(
     repetitions <- model$ranger.arguments$repetitions
     if(is.null(repetitions)){repetitions <- 10}
 
-    model.tuned <- spatialRF::rf_repeat(
+    model.tuned <- rf_repeat(
       data = data,
       dependent.variable.name = dependent.variable.name,
       predictor.variable.names = predictor.variable.names,
@@ -426,7 +428,6 @@ rf_tuning <- function(
       distance.matrix = distance.matrix,
       distance.thresholds = distance.thresholds,
       repetitions = repetitions,
-      seed = seed,
       verbose = FALSE,
       n.cores = n.cores,
       cluster.ips = cluster.ips,
@@ -443,12 +444,6 @@ rf_tuning <- function(
   #adding tuning slot
   model.tuned$tuning <- tuning.list
 
-  #adding plot to the tunning slot
-  model.tuned$tuning$plot <- plot_tuning(
-    x = model.tuned,
-    verbose = FALSE
-  )
-
   #adding the variable importance slot if rf_spatial
   if(inherits(model, "rf_spatial")){
 
@@ -460,8 +455,8 @@ rf_tuning <- function(
 
   #if oob
   if(method == "oob"){
-    tuning.r.squared <- model.tuned$performance$r.squared
-    model.r.squared <- model$performance$r.squared
+    new.performance <- mean(model.tuned$performance[[metric.name]])
+    old.performance <- mean(model$performance[[metric.name]])
   }
 
   #if spatial cross-validation
@@ -498,27 +493,27 @@ rf_tuning <- function(
     )
 
     #extract r.squared values
-    tuning.r.squared <- round(
+    new.performance <- round(
       model.tuned$evaluation$aggregated
       [model.tuned$evaluation$aggregated$model == "Testing" &
-          model.tuned$evaluation$aggregated$metric == "r.squared",
+          model.tuned$evaluation$aggregated$metric == metric.name,
         "mean"
-        ],
+      ],
       3
-      )
-    model.r.squared <- round(
+    )
+    old.performance <- round(
       model$evaluation$aggregated[
         model$evaluation$aggregated$model == "Testing" &
-          model$evaluation$aggregated$metric == "r.squared",
+          model$evaluation$aggregated$metric == metric.name,
         "mean"
-        ],
+      ],
       3
-      )
+    )
 
   }
 
   #if there is r-squared gain
-  if(tuning.r.squared > model.r.squared){
+  if(new.performance > old.performance){
 
     #plot tuning
     if(verbose == TRUE){
@@ -527,11 +522,17 @@ rf_tuning <- function(
       message(paste0("  - num.trees:     ", tuning[1, "num.trees"]))
       message(paste0("  - mtry:          ", tuning[1, "mtry"]))
       message(paste0("  - min.node.size: ", tuning[1, "min.node.size"]))
-      message(paste0("R squared gain: ", tuning.r.squared - model.r.squared))
+      message(paste0(
+        "gain in ",
+        metric.name,
+        ": ",
+        new.performance - old.performance
+      )
+      )
     }
 
-    #adding r squared gain
-    model.tuned$tuning$r.squared.gain <- tuning.r.squared - model.r.squared
+    #adding gain
+    model.tuned$tuning$metric.gain <- new.performance - old.performance
 
     #adding selection of spatial predictors
     if(inherits(model, "rf_spatial")){
@@ -547,10 +548,14 @@ rf_tuning <- function(
 
     message(
       paste0(
-        "The tuned model (R2: ",
-        tuning.r.squared,
-        ") performs worse than the original one (R2: ",
-        model.r.squared,
+        "The tuned model (",
+        metric.name,
+        " = ",
+        new.performance,
+        ") performs worse than the original one (",
+        metric.name,
+        " = ",
+        old.performance,
         "). Tuning not required, returning the original model."
       )
     )
@@ -565,7 +570,7 @@ rf_tuning <- function(
     )
 
     #adding r squared gain
-    model$tuning$r.squared.gain <- tuning.r.squared - model.r.squared
+    model$tuning$metric.gain <- new.performance - old.performance
 
     return(model)
 

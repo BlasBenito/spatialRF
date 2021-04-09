@@ -31,7 +31,7 @@
 plot_tuning <- function(x, verbose = TRUE){
 
   #declaring variables
-  r.squared <- NULL
+  metric <- NULL
   value <- NULL
 
   if(!("tuning" %in% names(x))){
@@ -40,6 +40,12 @@ plot_tuning <- function(x, verbose = TRUE){
 
   #extracting tuning data frame
   tuning <- x$tuning$tuning.df
+
+  #getting metric name
+  metric.name <- x$tuning$metric
+
+  #changing name of metric column
+  colnames(tuning)[colnames(tuning) == metric.name] <- "metric"
 
   #to long format
   tuning.long <- tidyr::pivot_longer(
@@ -54,9 +60,9 @@ plot_tuning <- function(x, verbose = TRUE){
   p <- ggplot2::ggplot(
     data = tuning.long,
     ggplot2::aes(
-      y = r.squared,
+      y = metric,
       x = value,
-      fill = r.squared
+      fill = metric
     )) +
     ggplot2::geom_smooth(
       se = TRUE,
@@ -77,13 +83,13 @@ plot_tuning <- function(x, verbose = TRUE){
     ggplot2::theme_bw() +
     ggplot2::theme(legend.position = "none") +
     ggplot2::xlab("") +
-    ggplot2::ylab(
-      paste0(
-        "R squared (method: ",
-        x$tuning$method,
-        ")"
+    ggplot2::ylab(metric.name) +
+    ggplot2::ggtitle(
+      paste0("Method: ",
+        x$tuning$method
         )
       )
+
 
   if(verbose == TRUE){
     suppressWarnings(suppressMessages(print(p)))
