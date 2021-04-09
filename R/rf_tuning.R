@@ -45,6 +45,7 @@
 #'
 #' }
 #' }
+#' @importFrom rlang sym
 #' @rdname rf_tuning
 #' @export
 rf_tuning <- function(
@@ -364,7 +365,7 @@ rf_tuning <- function(
     combinations,
     tuning
   ) %>%
-    dplyr::arrange(dplyr::desc(!!sym(metric)))
+    dplyr::arrange(dplyr::desc(!!rlang::sym(metric)))
 
   #getting metric name
   metric.name <- colnames(tuning)[!(colnames(tuning) %in% c("num.trees", "mtry", "min.node.size"))]
