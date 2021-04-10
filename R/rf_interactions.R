@@ -1,10 +1,9 @@
 #' @title Suggest variable interactions for random forest models
-#' @description Suggests candidate variable interactions by selecting the variables above a given importance threshold (given by the argument `importance.threshold`, or the median importance if not provided) from a model and combining them in pairs through multiplication (`a * b`). The interacting variables are scaled between 1 and 100 before multiplication to avoid artifacts when a variable has 0 somewhere in the middle of its range (i.e. temperature).
+#' @description Suggests candidate variable interactions by selecting the variables above a given variable importance threshold (given by the argument `importance.threshold`) from a model and combining them in pairs through multiplication (`a * b`). The interacting variables are scaled between 1 and 100 before multiplication to avoid artifacts when a variable has 0 somewhere in the middle of its range (i.e. temperature).
 #'
 #' For each variable interaction, a model including all the predictors plus the interaction is fitted, and it's R squared is compared with the R squared of the model without interactions. This model without interactions can either be provided through the argument `model`, or is fitted on the fly with [rf_repeat()] if the user provides the data.
 #'
 #' Users should not use the suggested variable interactions hastily. Most likely, only one or a few of the suggested interactions may make sense from a domain expertise standpoint.
-#' @param model A model fitted with [rf()]. If used, the data is taken directly from the model definition and no other data-related arguments are required. Default: `NULL`
 #' @param data Data frame with a response variable and a set of predictors. Default: `NULL`
 #' @param dependent.variable.name Character string with the name of the response variable. Must be in the column names of `data`. If the dependent variable is binary with values 1 and 0, the argument `case.weights` of `ranger` is populated by the function [case_weights()]. Default: `NULL`
 #' @param predictor.variable.names Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Default: `NULL`
@@ -42,7 +41,6 @@
 #' @rdname rf_interactions
 #' @export
 rf_interactions <- function(
-  model = NULL,
   data = NULL,
   dependent.variable.name = NULL,
   predictor.variable.names = NULL,
@@ -61,9 +59,6 @@ rf_interactions <- function(
   variable <- NULL
   y <- NULL
 
-  #fitting model if absent
-  if(is.null(model)){
-
     #fitting model
     model <- rf(
       data = data,
@@ -81,8 +76,6 @@ rf_interactions <- function(
     dependent.variable.name <- ranger.arguments$dependent.variable.name
     predictor.variable.names <- ranger.arguments$predictor.variable.names
 
-  }
-
   #ranger.arguments.i
   ranger.arguments.i <- ranger.arguments
   ranger.arguments.i$data <- NULL
@@ -97,11 +90,6 @@ rf_interactions <- function(
       )
   }
   variables.to.test <- model$variable.importance$per.variable[model$variable.importance$per.variable$importance >= importance.threshold, "variable"]
-
-  #remove spatial_predictors
-  if(inherits(model, "rf_spatial")){
-    variables.to.test <- variables.to.test[!grepl('spatial_predictor', variables.to.test)]
-  }
 
   #pairs of variables
   variables.pairs <- as.data.frame(
