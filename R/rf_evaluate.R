@@ -267,7 +267,7 @@ rf_evaluate <- function(
     data.testing <- data[data$id %in% spatial.folds[[i]]$testing, ]
 
     #training model
-    m.training <- rf(
+    m.training <- spatialRF::rf(
       data = data.training,
       dependent.variable.name = dependent.variable.name,
       predictor.variable.names = predictor.variable.names,

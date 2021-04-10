@@ -166,7 +166,7 @@ rf_repeat <- function(
   }
 
   #local cluster
-  if(is.null(cluster.ips)){
+  if(is.null(cluster.ips) & n.cores > 1){
 
     if(.Platform$OS.type == "windows"){
       temp.cluster <- parallel::makeCluster(

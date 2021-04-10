@@ -79,13 +79,13 @@ rf_interactions <- function(
       cluster.port = cluster.port
     )
 
-  }
+    #getting model arguments
+    ranger.arguments <- model$ranger.arguments
+    data <- ranger.arguments$data
+    dependent.variable.name <- ranger.arguments$dependent.variable.name
+    predictor.variable.names <- ranger.arguments$predictor.variable.names
 
-  #getting model arguments
-  ranger.arguments <- model$ranger.arguments
-  data <- ranger.arguments$data
-  dependent.variable.name <- ranger.arguments$dependent.variable.name
-  predictor.variable.names <- ranger.arguments$predictor.variable.names
+  }
 
   #ranger.arguments.i
   ranger.arguments.i <- ranger.arguments
@@ -121,6 +121,7 @@ rf_interactions <- function(
   if(verbose == TRUE){
     message(paste0("Testing ", nrow(variables.pairs), " candidate interactions."))
   }
+
 
   #setup of parallel execution
   if(is.null(n.cores)){
@@ -215,12 +216,12 @@ rf_interactions <- function(
     pair.i.name <- paste(pair.i, collapse = "_X_")
 
     #get interaction values
-    pair.i.1 <- rescale_vector(
+    pair.i.1 <- spatialRF::rescale_vector(
       x = data[, pair.i[1]],
       new.min = 1,
       new.max = 100
       )
-    pair.i.2 <- rescale_vector(
+    pair.i.2 <- spatialRF::rescale_vector(
       x = data[, pair.i[2]],
       new.min = 1,
       new.max = 100
@@ -268,6 +269,8 @@ rf_interactions <- function(
     return(out.df)
 
   }#end of parallelized loop
+
+
 
   if(nrow(interaction.screening) == 0){
     message("No promising interactions found. \n")

@@ -258,7 +258,7 @@ rf_tuning <- function(
     ranger.arguments.i$save.memory <- TRUE
 
     #fit model with new hyperparameters
-    m.i <- rf(
+    m.i <- spatialRF::rf(
       data = data,
       dependent.variable.name = dependent.variable.name,
       predictor.variable.names = predictor.variable.names,
@@ -271,7 +271,7 @@ rf_tuning <- function(
     )
 
     #evaluate with spatial cross-validation
-    m.i <- rf_evaluate(
+    m.i <- spatialRF::rf_evaluate(
       model = m.i,
       xy = xy,
       repetitions = repetitions,
