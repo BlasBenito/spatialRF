@@ -147,6 +147,15 @@ rf_repeat <- function(
 
     n.cores <- parallel::detectCores() - 1
     `%dopar%` <- foreach::`%dopar%`
+    if(verbose == TRUE){
+      message(
+        paste0(
+          "Using ",
+          n.cores,
+          " cores for parallel execution."
+        )
+      )
+    }
 
   } else {
 
@@ -156,6 +165,10 @@ rf_repeat <- function(
       #replaces dopar (parallel) by do (serial)
       `%dopar%` <- foreach::`%do%`
       on.exit(`%dopar%` <- foreach::`%dopar%`)
+
+      if(verbose == TRUE){
+        message("Using 1 core (sequential execution)")
+      }
 
     } else {
 
@@ -168,21 +181,10 @@ rf_repeat <- function(
   #local cluster
   if(is.null(cluster.ips) & n.cores > 1){
 
-    if(.Platform$OS.type == "windows"){
-      temp.cluster <- parallel::makeCluster(
-        n.cores,
-        type = "PSOCK"
-      )
-    } else {
-      temp.cluster <- parallel::makeCluster(
-        n.cores,
-        type = "FORK"
-      )
-    }
-
-    #register cluster and close on exit
-    doParallel::registerDoParallel(cl = temp.cluster)
-    on.exit(parallel::stopCluster(cl = temp.cluster))
+    temp.cluster <- parallel::makeCluster(
+      n.cores,
+      type = "PSOCK"
+    )
 
   }
 
@@ -217,13 +219,11 @@ rf_repeat <- function(
       homogeneous = TRUE
     )
 
-
-    #register cluster and close on exit
-    doParallel::registerDoParallel(cl = temp.cluster)
-    on.exit(parallel::stopCluster(cl = temp.cluster))
-
   }
 
+  #register cluster and close on exit
+  doParallel::registerDoParallel(cl = temp.cluster)
+  on.exit(parallel::stopCluster(cl = temp.cluster))
   #executing repetitions
   i <- NULL
   repeated.models <- foreach::foreach(

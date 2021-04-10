@@ -3,7 +3,7 @@
 #' @param model Model fitted with [rf()], [rf_repeat()], or [rf_spatial()].
 #' @param xy Data frame or matrix with two columns containing coordinates and named "x" and "y". If `NULL`, the function will throw an error. Default: `NULL`
 #' @param repetitions Integer, must be lower than the total number of rows available in the model's data. Default: `30`
-#' @param training.fraction Proportion between 0.5 and 0.9 indicating the number of records to be used in model training. Default: `0.8`
+#' @param training.fraction Proportion between 0.5 and 0.9 indicating the number of records to be used in model training. Default: `0.75`
 #' @param distance.step Numeric, distance step used during the thinning iterations. Argument of [thinning_til_n()], [make_spatial_folds()], and [make_spatial_fold()]. If `NULL`, the maximum distance between two points in `xy` divided by 100 is used. Default: `NULL`
 #' @param metrics Character vector, names of the performance metrics selected. The possible values are: "r.squared" (`cor(obs, pred) ^ 2`), "pseudo.r.squared" (`cor(obs, pred)`), "rmse" (`sqrt(sum((obs - pred)^2)/length(obs))`), "nrmse" (`rmse/(quantile(obs, 0.75) - quantile(obs, 0.25))`), and "auc" (only for binary responses with values 1 and 0). Default: `c("r.squared", "pseudo.r.squared", "rmse", "nrmse")`
 #' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same.
@@ -62,7 +62,7 @@ rf_evaluate <- function(
   model = NULL,
   xy = NULL,
   repetitions = 30,
-  training.fraction = 0.8,
+  training.fraction = 0.75,
   distance.step = NULL,
   metrics = c(
     "r.squared",
@@ -105,8 +105,8 @@ rf_evaluate <- function(
   }
 
   #training fraction limits
-  if(training.fraction < 0.5){
-    training.fraction <- 0.5
+  if(training.fraction < 0.2){
+    training.fraction <- 0.2
   }
   if(training.fraction > 0.9){
     training.fraction <- 0.9
@@ -178,6 +178,15 @@ rf_evaluate <- function(
 
     n.cores <- parallel::detectCores() - 1
     `%dopar%` <- foreach::`%dopar%`
+    if(verbose == TRUE){
+      message(
+        paste0(
+          "Using ",
+          n.cores,
+          " cores for parallel execution."
+        )
+      )
+    }
 
   } else {
 
@@ -187,6 +196,10 @@ rf_evaluate <- function(
       #replaces dopar (parallel) by do (serial)
       `%dopar%` <- foreach::`%do%`
       on.exit(`%dopar%` <- foreach::`%dopar%`)
+
+      if(verbose == TRUE){
+        message("Using 1 core (sequential execution)")
+      }
 
     } else {
 
@@ -199,21 +212,10 @@ rf_evaluate <- function(
   #local cluster
   if(is.null(cluster.ips) & n.cores > 1){
 
-    if(.Platform$OS.type == "windows"){
-      temp.cluster <- parallel::makeCluster(
-        n.cores,
-        type = "PSOCK"
-      )
-    } else {
-      temp.cluster <- parallel::makeCluster(
-        n.cores,
-        type = "FORK"
-      )
-    }
-
-    #register cluster and close on exit
-    doParallel::registerDoParallel(cl = temp.cluster)
-    on.exit(parallel::stopCluster(cl = temp.cluster))
+    temp.cluster <- parallel::makeCluster(
+      n.cores,
+      type = "PSOCK"
+    )
 
   }
 
@@ -248,12 +250,11 @@ rf_evaluate <- function(
       homogeneous = TRUE
     )
 
-    #register cluster and close on exit
-    doParallel::registerDoParallel(cl = temp.cluster)
-    on.exit(parallel::stopCluster(cl = temp.cluster))
-
   }
 
+  #register cluster and close on exit
+  doParallel::registerDoParallel(cl = temp.cluster)
+  on.exit(parallel::stopCluster(cl = temp.cluster))
   #loop to evaluate models
   #####################################
   evaluation.df <- foreach::foreach(

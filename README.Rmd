@@ -231,6 +231,11 @@ predictor.variable.names <- auto_cor(
 
 The output of `auto_cor()` or `auto_vif()` is of the class "variable_selection", that can be used as input for the argument `predictor.variable.names` of any modeling function within the package. An example is shown in the next section.
 
+```{r}
+names(predictor.variable.names)
+```
+
+
 # Fitting a non-spatial Random Forest model
 
 To fit basic Random Forest models `spatialRF` provides the [`rf()`](https://blasbenito.github.io/spatialRF/reference/rf.html) function. It takes the training data, the names of the response and the predictors, and optionally (to assess the spatial autocorrelation of the residuals), the distance matrix, and a vector of distance thresholds (in the same units as the distances in **distance_matrix**).
@@ -253,7 +258,7 @@ model.non.spatial <- rf(
 
 The model output can be printed or plotted with a plethora of functions such as [`print()`](https://blasbenito.github.io/spatialRF/reference/print.html), [`print_importance()`](https://blasbenito.github.io/spatialRF/reference/print_importance.html), [`print_performance()`](https://blasbenito.github.io/spatialRF/reference/print_performance.html), [`plot_importance()`](https://blasbenito.github.io/spatialRF/reference/plot_importance.html), [`print_moran()`](https://blasbenito.github.io/spatialRF/reference/print_moran.html), [`plot_moran()`](https://blasbenito.github.io/spatialRF/reference/plot_moran.html), [`plot_response_curves()`](https://blasbenito.github.io/spatialRF/reference/plot_response_curves.html), or [`plot_response_surfaces)`](https://blasbenito.github.io/spatialRF/reference/plot_response_surfaces.html), among many others.
 
-```{r, fig.width = 12, fig.height=7.5}
+```{r, fig.width = 9, fig.height=10}
 plot_response_curves(model.non.spatial)
 ```
 
@@ -304,8 +309,11 @@ After 30 model repetitions it is clear that the difference in importance between
 The response curves of models fitted with `rf_repeat()` can be plotted with `plot_response_curves()` as well. The median prediction is shown with a thicker line.
 
 
-```{r, fig.width = 12, fig.height=7.5}
-plot_response_curves(model.non.spatial.repeat, quantiles = 0.5)
+```{r, fig.width = 9, fig.height=10}
+plot_response_curves(
+  model.non.spatial.repeat, 
+  quantiles = 0.5
+  )
 ```
 The function `get_response_curves()` returns a data frame with the data required to make custom plots of the response curves.
 
@@ -330,14 +338,14 @@ The model fitted above was based on the default hyperparameter values provided b
 -   `mtry`: number of variables to choose from on each tree split.
 -   `min.node.size`: minimum number of cases on a terminal node.
 
-Model tuning can be done on out-of-bag (`method = "oob"`) or spatial cross-validation (`method = "spatial.cv"`) R squared values. The example below shows the out-of-bag approach because I will explain spatial cross-validation with `rf_evaluate()` later in this document.
+Model tuning is done via spatial cross-validation, to ensure that the selected combination of hyperparameters maximizes the ability of the model to predict data not used to train it.
 
 ```{r, fig.width=6, fig.height=4.5}
 model.non.spatial.tuned <- rf_tuning(
   model = model.non.spatial,
-  method = "spatial.cv",
   xy = plant_richness_df[, c("x", "y")],
   repetitions = 30,
+  training.fraction = 0.75,
   num.trees = c(500, 1000),
   mtry = seq(
     2, 
@@ -345,10 +353,10 @@ model.non.spatial.tuned <- rf_tuning(
     by = 3
     ),
   min.node.size = c(5, 10, 20)
-)
+) 
 ```
 
-The function `rf_tuning()` returns a model fitted with the same data as the original model, but using the best hyperparameters found during tuning. Model tuning has helped to a very small improvement in performance measures (+ `r round(model.non.spatial.tuned$tuning$r.squared.gain, 3)` R squared), so from here, we can keep working with `model.non.spatial.tuned`.
+The function `rf_tuning()` returns a model fitted with the same data as the original model, but using the best hyperparameters found during tuning. Model tuning has helped to a very small improvement in performance measures (+ `r round(model.non.spatial.tuned$tuning$metric.gain, 3)` R squared), so from here, we can keep working with `model.non.spatial.tuned`.
 
 # Fitting a spatial model
 

@@ -2,17 +2,16 @@
 % Please edit documentation in R/rf_tuning.R
 \name{rf_tuning}
 \alias{rf_tuning}
-\title{Tuning of random forest hyperparameters}
+\title{Tuning of random forest hyperparameters via spatial cross-validation}
 \usage{
 rf_tuning(
   model = NULL,
-  method = c("oob", "spatial.cv"),
   num.trees = NULL,
   mtry = NULL,
   min.node.size = NULL,
   xy = NULL,
-  repetitions = NULL,
-  training.fraction = 0.8,
+  repetitions = 30,
+  training.fraction = 0.75,
   seed = NULL,
   verbose = TRUE,
   n.cores = NULL,
@@ -25,8 +24,6 @@ rf_tuning(
 \arguments{
 \item{model}{A model fitted with \code{\link[=rf]{rf()}}. If provided, the training data is taken directly from the model definition (stored in \code{model$ranger.arguments}). Default: \code{NULL}}
 
-\item{method}{Character, "oob" to use RMSE values computed on the out-of-bag data to guide the tuning, and "spatial.cv", to use RMSE values from a spatial cross-validation on independent spatial folds done via \code{\link[=rf_evaluate]{rf_evaluate()}}. Default: \code{"oob"}}
-
 \item{num.trees}{Numeric integer vector with the number of trees to fit on each model repetition. Default: \code{c(500, 1000, 2000)}.}
 
 \item{mtry}{Numeric integer vector, number of predictors to randomly select from the complete pool of predictors on each tree split. Default: \code{floor(seq(1, length(predictor.variable.names), length.out = 4))}}
@@ -35,9 +32,9 @@ rf_tuning(
 
 \item{xy}{Data frame or matrix with two columns containing coordinates and named "x" and "y". If \code{NULL}, the function will throw an error. Default: \code{NULL}}
 
-\item{repetitions}{Integer, number of repetitions to compute the R squared from. If \code{method = "oob"}, number of repetitions to be used in \code{\link[=rf_repeat]{rf_repeat()}} to fit models for each combination of hyperparameters. If \code{method = "spatial.cv"}, number of independent spatial folds to use during the cross-validation. Default: \code{NULL} (which yields 30 for "spatial.cv" and 5 for "oob").}
+\item{repetitions}{Integer, number of independent spatial folds to use during the cross-validation. Default: \code{30}.}
 
-\item{training.fraction}{Proportion between 0.2 and 0.8 indicating the number of records to be used in model training. Default: \code{0.8}}
+\item{training.fraction}{Proportion between 0.2 and 0.9 indicating the number of records to be used in model training. Default: \code{0.75}}
 
 \item{seed}{Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same.}
 
@@ -57,10 +54,7 @@ rf_tuning(
 A list with four slots: \code{tuning} data frame with the results of the tuning analysis; \code{tuning.long}, a long version of the previous data frame; \code{tuning.plot}, ggplot of \code{tuning.long}; \code{ranger.arguments}, a list ready to be used as the argument \code{ranger.arguments} in \code{\link[=rf_repeat]{rf_repeat()}} or \code{\link[=rf_spatial]{rf_spatial()}}.
 }
 \description{
-Tunes the random forest hyperparameters \code{num.trees}, \code{mtry}, and \code{min.node.size} via grid search by maximizing the model's R squared. Two methods are available: out-of-bag (\code{oob}), and spatial cross-validation performed with \code{\link[=rf_evaluate]{rf_evaluate()}}.
-}
-\details{
-The tuning method "oob" uses as reference the RMSE computed on the out-of-bag data, while the method "spatial.cv" uses RMSE computed on spatially independent data unseen by the model. The RMSE values of the latter method will always be higher, but inform better about the capacity of the combinations of hyperparameters to yield more general models.
+Finds the optimal set of random forest hyperparameters \code{num.trees}, \code{mtry}, and \code{min.node.size} via grid search by maximizing the model's R squared, or AUC, if the response variable is binomial, via spatial cross-validation performed with \code{\link[=rf_evaluate]{rf_evaluate()}}.
 }
 \examples{
 \donttest{
@@ -81,13 +75,16 @@ out <- rf(
 #model tuning
 tuning <- rf_tuning(
   model = out,
-  method = "oob",
   num.trees = c(100, 500),
   mtry = c(2, 8),
   min.node.size = c(5, 10),
+  xy = plant_richness_df[, c("x", "y")],
   n.cores = 1
 )
 
 }
 }
+}
+\seealso{
+\code{\link[=rf_evaluate]{rf_evaluate()}}
 }

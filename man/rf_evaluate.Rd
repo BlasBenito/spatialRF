@@ -8,7 +8,7 @@ rf_evaluate(
   model = NULL,
   xy = NULL,
   repetitions = 30,
-  training.fraction = 0.8,
+  training.fraction = 0.75,
   distance.step = NULL,
   metrics = c("r.squared", "pseudo.r.squared", "rmse", "nrmse", "auc"),
   seed = NULL,
@@ -27,7 +27,7 @@ rf_evaluate(
 
 \item{repetitions}{Integer, must be lower than the total number of rows available in the model's data. Default: \code{30}}
 
-\item{training.fraction}{Proportion between 0.5 and 0.9 indicating the number of records to be used in model training. Default: \code{0.8}}
+\item{training.fraction}{Proportion between 0.5 and 0.9 indicating the number of records to be used in model training. Default: \code{0.75}}
 
 \item{distance.step}{Numeric, distance step used during the thinning iterations. Argument of \code{\link[=thinning_til_n]{thinning_til_n()}}, \code{\link[=make_spatial_folds]{make_spatial_folds()}}, and \code{\link[=make_spatial_fold]{make_spatial_fold()}}. If \code{NULL}, the maximum distance between two points in \code{xy} divided by 100 is used. Default: \code{NULL}}
 

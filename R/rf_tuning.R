@@ -1,13 +1,12 @@
-#' @title Tuning of random forest hyperparameters
-#' @description Tunes the random forest hyperparameters `num.trees`, `mtry`, and `min.node.size` via grid search by maximizing the model's R squared. Two methods are available: out-of-bag (`oob`), and spatial cross-validation performed with [rf_evaluate()].
+#' @title Tuning of random forest hyperparameters via spatial cross-validation
+#' @description Finds the optimal set of random forest hyperparameters `num.trees`, `mtry`, and `min.node.size` via grid search by maximizing the model's R squared, or AUC, if the response variable is binomial, via spatial cross-validation performed with [rf_evaluate()].
 #' @param model A model fitted with [rf()]. If provided, the training data is taken directly from the model definition (stored in `model$ranger.arguments`). Default: `NULL`
-#' @param method Character, "oob" to use RMSE values computed on the out-of-bag data to guide the tuning, and "spatial.cv", to use RMSE values from a spatial cross-validation on independent spatial folds done via [rf_evaluate()]. Default: `"oob"`
 #' @param num.trees Numeric integer vector with the number of trees to fit on each model repetition. Default: `c(500, 1000, 2000)`.
 #' @param mtry Numeric integer vector, number of predictors to randomly select from the complete pool of predictors on each tree split. Default: `floor(seq(1, length(predictor.variable.names), length.out = 4))`
 #' @param min.node.size Numeric integer, minimal number of cases in a terminal node. Default: `c(5, 10, 20, 40)`
 #' @param xy Data frame or matrix with two columns containing coordinates and named "x" and "y". If `NULL`, the function will throw an error. Default: `NULL`
-#' @param repetitions Integer, number of repetitions to compute the R squared from. If `method = "oob"`, number of repetitions to be used in [rf_repeat()] to fit models for each combination of hyperparameters. If `method = "spatial.cv"`, number of independent spatial folds to use during the cross-validation. Default: `NULL` (which yields 30 for "spatial.cv" and 5 for "oob").
-#' @param training.fraction Proportion between 0.2 and 0.8 indicating the number of records to be used in model training. Default: `0.8`
+#' @param repetitions Integer, number of independent spatial folds to use during the cross-validation. Default: `30`.
+#' @param training.fraction Proportion between 0.2 and 0.9 indicating the number of records to be used in model training. Default: `0.75`
 #' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same.
 #' @param verbose Logical. If TRUE, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
 #' @param n.cores Integer, number of cores to use during computations. If `NULL`, all cores but one are used, unless a cluster is used. Default = `NULL`
@@ -16,7 +15,7 @@
 #' @param cluster.user Character string, name of the user (should be the same throughout machines). Defaults to the current system user.
 #' @param cluster.port Character, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: `"11000"`
 #' @return A list with four slots: `tuning` data frame with the results of the tuning analysis; `tuning.long`, a long version of the previous data frame; `tuning.plot`, ggplot of `tuning.long`; `ranger.arguments`, a list ready to be used as the argument `ranger.arguments` in [rf_repeat()] or [rf_spatial()].
-#' @details The tuning method "oob" uses as reference the RMSE computed on the out-of-bag data, while the method "spatial.cv" uses RMSE computed on spatially independent data unseen by the model. The RMSE values of the latter method will always be higher, but inform better about the capacity of the combinations of hyperparameters to yield more general models.
+#' @seealso [rf_evaluate()]
 #' @examples
 #' \donttest{
 #' if(interactive()){
@@ -36,10 +35,10 @@
 #' #model tuning
 #' tuning <- rf_tuning(
 #'   model = out,
-#'   method = "oob",
 #'   num.trees = c(100, 500),
 #'   mtry = c(2, 8),
 #'   min.node.size = c(5, 10),
+#'   xy = plant_richness_df[, c("x", "y")],
 #'   n.cores = 1
 #' )
 #'
@@ -50,13 +49,12 @@
 #' @export
 rf_tuning <- function(
   model = NULL,
-  method = c("oob", "spatial.cv"),
   num.trees = NULL,
   mtry = NULL,
   min.node.size = NULL,
   xy = NULL,
-  repetitions = NULL,
-  training.fraction = 0.8,
+  repetitions = 30,
+  training.fraction = 0.75,
   seed = NULL,
   verbose = TRUE,
   n.cores = NULL,
@@ -67,25 +65,17 @@ rf_tuning <- function(
 ){
 
   #declaring variables
-  r.squared <- NULL
+  metric <- NULL
   num.trees.i <- NULL
   mtry.i <- NULL
   min.node.size.i <- NULL
-
-  #matching arguments
-  method <- match.arg(
-    method,
-    choices = c("oob", "spatial.cv")
-  )
 
   if(is.null(model)){
     stop("The argument 'model' is empty, there is no model to tune.")
   }
 
-  if(is.null(repetitions)){
-    if(method == "spatial.cv"){
-      repetitions <- 30
-    }
+  if(is.null(xy)){
+    stop("The argument 'xy' is required for spatial cross-validation.")
   }
 
   #getting arguments from model rather than ranger.arguments
@@ -172,6 +162,15 @@ rf_tuning <- function(
 
     n.cores <- parallel::detectCores() - 1
     `%dopar%` <- foreach::`%dopar%`
+    if(verbose == TRUE){
+      message(
+        paste0(
+          "Using ",
+          n.cores,
+          " cores for parallel execution."
+        )
+      )
+    }
 
   } else {
 
@@ -181,6 +180,10 @@ rf_tuning <- function(
       #replaces dopar (parallel) by do (serial)
       `%dopar%` <- foreach::`%do%`
       on.exit(`%dopar%` <- foreach::`%dopar%`)
+
+      if(verbose == TRUE){
+        message("Using 1 core (sequential execution)")
+      }
 
     } else {
 
@@ -193,21 +196,10 @@ rf_tuning <- function(
   #local cluster
   if(is.null(cluster.ips) & n.cores > 1){
 
-    if(.Platform$OS.type == "windows"){
-      temp.cluster <- parallel::makeCluster(
-        n.cores,
-        type = "PSOCK"
-      )
-    } else {
-      temp.cluster <- parallel::makeCluster(
-        n.cores,
-        type = "FORK"
-      )
-    }
-
-    #register cluster and close on exit
-    doParallel::registerDoParallel(cl = temp.cluster)
-    on.exit(parallel::stopCluster(cl = temp.cluster))
+    temp.cluster <- parallel::makeCluster(
+      n.cores,
+      type = "PSOCK"
+    )
 
   }
 
@@ -242,14 +234,14 @@ rf_tuning <- function(
       homogeneous = TRUE
     )
 
-    #register cluster and close on exit
-    doParallel::registerDoParallel(cl = temp.cluster)
-    on.exit(parallel::stopCluster(cl = temp.cluster))
-
   }
 
+  #register cluster and close on exit
+  doParallel::registerDoParallel(cl = temp.cluster)
+  on.exit(parallel::stopCluster(cl = temp.cluster))
+
   #looping through combinations
-  tuning <- foreach(
+  tuning <- foreach::foreach(
     num.trees.i = combinations$num.trees,
     mtry.i = combinations$mtry,
     min.node.size.i = combinations$min.node.size,
@@ -265,100 +257,61 @@ rf_tuning <- function(
     ranger.arguments.i$num.threads <- 1
     ranger.arguments.i$save.memory <- TRUE
 
-    #computing Moran's I if the model is rf_spatial
+    #fit model with new hyperparameters
+    m.i <- spatialRF::rf(
+      data = data,
+      dependent.variable.name = dependent.variable.name,
+      predictor.variable.names = predictor.variable.names,
+      distance.matrix = distance.matrix,
+      distance.thresholds = distance.thresholds,
+      ranger.arguments = ranger.arguments.i,
+      scaled.importance = FALSE,
+      seed = seed,
+      verbose = FALSE
+    )
+
+    #evaluate with spatial cross-validation
+    m.i <- spatialRF::rf_evaluate(
+      model = m.i,
+      xy = xy,
+      repetitions = repetitions,
+      training.fraction = training.fraction,
+      metrics = metric,
+      seed = seed,
+      verbose = FALSE,
+      n.cores = 1
+    )
+
+    #getting performance measures
+    m.i.performance <- spatialRF::get_evaluation(m.i)
+    m.i.performance <- m.i.performance[m.i.performance$model == "Testing", c("metric", "mean")]
+
+    #if the model is spatial
     if(inherits(model, "rf_spatial")){
 
-      #fit model to find out its moran's I
-      m.i <- spatialRF::rf_repeat(
-        data = data,
-        dependent.variable.name = dependent.variable.name,
-        predictor.variable.names = predictor.variable.names,
-        distance.matrix = distance.matrix,
-        distance.thresholds = distance.thresholds,
-        ranger.arguments = ranger.arguments.i,
-        scaled.importance = FALSE,
-        verbose = FALSE,
-        repetitions = 10,
-        n.cores = 1
-      )
-
+      #getting interpretation of Moran's I if the model is rf_spatial
       moran.i.interpretation <- m.i$spatial.correlation.residuals$per.distance$interpretation[1]
 
-    }
-
-    #using out of bag
-    if(method == "oob"){
-
-      #do not run if the model is already fitted
-      if(!inherits(model, "rf_spatial")){
-
-        #fit model
-        m.i <- spatialRF::rf(
-          data = data,
-          dependent.variable.name = dependent.variable.name,
-          predictor.variable.names = predictor.variable.names,
-          ranger.arguments = ranger.arguments.i,
-          scaled.importance = FALSE,
-          seed = seed,
-          verbose = FALSE
-        )
-
-      }
-
-      #get performance measures
-      m.i.performance <- spatialRF::get_performance(m.i)
-      m.i.performance <- m.i.performance[m.i.performance$metric == metric, c("metric", "mean")]
-
-    }#end of oob
-
-    #using rf_evaluate
-    if(method == "spatial.cv"){
-
-      #fit model
-      m.i <- spatialRF::rf(
-        data = data,
-        dependent.variable.name = dependent.variable.name,
-        predictor.variable.names = predictor.variable.names,
-        ranger.arguments = ranger.arguments.i,
-        scaled.importance = FALSE,
-        seed = seed,
-        verbose = FALSE
-      )
-
-      #evaluate
-      m.i <- spatialRF::rf_evaluate(
-        model = m.i,
-        xy = xy,
-        repetitions = repetitions,
-        training.fraction = training.fraction,
-        metrics = metric,
-        seed = seed,
-        verbose = FALSE,
-        n.cores = 1
-      )
-
-      #getting performance measures
-      m.i.performance <- spatialRF::get_evaluation(m.i)
-      m.i.performance <- m.i.performance[m.i.performance$model == "Testing", c("metric", "mean")]
-
-    }#end of spatial.cv
-
-    #gathering into data frame
-    if(inherits(model, "rf_spatial")){
+      #getting performance
       m.i.performance <- data.frame(
         r.squared = m.i.performance[m.i.performance$metric == metric, "mean"],
         moran.i.interpretation = moran.i.interpretation
       )
+
     } else {
+
+      #performance without Moran's I for non-spatial models
       m.i.performance <- data.frame(
         metric = m.i.performance[m.i.performance$metric == metric, "mean"]
       )
+
     }
     colnames(m.i.performance)[1] <- metric
 
     return(m.i.performance)
 
-  }#end of loop
+  }#end of parallelized loop
+
 
   #binding with combinations
   tuning <- cbind(
@@ -372,7 +325,6 @@ rf_tuning <- function(
 
   #preparing tuning list
   tuning.list <- list()
-  tuning.list$method <- method
   tuning.list$metric <- metric.name
   tuning.list$tuning.df <- tuning
 
@@ -418,9 +370,6 @@ rf_tuning <- function(
   #fitting tuned model with rf repeat
   if(inherits(model, "rf_repeat")){
 
-    repetitions <- model$ranger.arguments$repetitions
-    if(is.null(repetitions)){repetitions <- 10}
-
     model.tuned <- rf_repeat(
       data = data,
       dependent.variable.name = dependent.variable.name,
@@ -428,7 +377,7 @@ rf_tuning <- function(
       ranger.arguments = ranger.arguments,
       distance.matrix = distance.matrix,
       distance.thresholds = distance.thresholds,
-      repetitions = repetitions,
+      repetitions = model$ranger.arguments$repetitions,
       verbose = FALSE,
       n.cores = n.cores,
       cluster.ips = cluster.ips,
@@ -452,69 +401,61 @@ rf_tuning <- function(
 
   }
 
-  #comparing r squared of model and tuning
+  #comparing metric of the old model and the tuned one
 
-  #if oob
-  if(method == "oob"){
-    new.performance <- mean(model.tuned$performance[[metric.name]])
-    old.performance <- mean(model$performance[[metric.name]])
-  }
+  #evaluate model
+  model <- spatialRF::rf_evaluate(
+    model = model,
+    xy = xy,
+    repetitions = repetitions,
+    training.fraction = training.fraction,
+    seed = seed,
+    verbose = FALSE,
+    n.cores = n.cores,
+    cluster.ips = cluster.ips,
+    cluster.cores = cluster.cores,
+    cluster.user = cluster.user,
+    cluster.port = cluster.port
+  )
 
-  #if spatial cross-validation
-  if(method == "spatial.cv"){
+  #evaluate model tuned
+  model.tuned <- spatialRF::rf_evaluate(
+    model = model.tuned,
+    xy = xy,
+    repetitions = repetitions,
+    training.fraction = training.fraction,
+    seed = seed,
+    verbose = FALSE,
+    n.cores = n.cores,
+    cluster.ips = cluster.ips,
+    cluster.cores = cluster.cores,
+    cluster.user = cluster.user,
+    cluster.port = cluster.port
+  )
 
-    #evaluate model
-    model <- spatialRF::rf_evaluate(
-      model = model,
-      xy = xy,
-      repetitions = repetitions,
-      training.fraction = training.fraction,
-      seed = seed,
-      verbose = FALSE,
-      n.cores = n.cores,
-      cluster.ips = cluster.ips,
-      cluster.cores = cluster.cores,
-      cluster.user = cluster.user,
-      cluster.port = cluster.port
-    )
+  #extract r.squared values
+  new.performance <- round(
+    model.tuned$evaluation$aggregated
+    [model.tuned$evaluation$aggregated$model == "Testing" &
+        model.tuned$evaluation$aggregated$metric == metric.name,
+      "mean"
+    ],
+    3
+  )
+  old.performance <- round(
+    model$evaluation$aggregated[
+      model$evaluation$aggregated$model == "Testing" &
+        model$evaluation$aggregated$metric == metric.name,
+      "mean"
+    ],
+    3
+  )
 
-    #evaluate model tuned
-    model.tuned <- spatialRF::rf_evaluate(
-      model = model.tuned,
-      xy = xy,
-      repetitions = repetitions,
-      training.fraction = training.fraction,
-      seed = seed,
-      verbose = FALSE,
-      n.cores = n.cores,
-      cluster.ips = cluster.ips,
-      cluster.cores = cluster.cores,
-      cluster.user = cluster.user,
-      cluster.port = cluster.port
-    )
-
-    #extract r.squared values
-    new.performance <- round(
-      model.tuned$evaluation$aggregated
-      [model.tuned$evaluation$aggregated$model == "Testing" &
-          model.tuned$evaluation$aggregated$metric == metric.name,
-        "mean"
-      ],
-      3
-    )
-    old.performance <- round(
-      model$evaluation$aggregated[
-        model$evaluation$aggregated$model == "Testing" &
-          model$evaluation$aggregated$metric == metric.name,
-        "mean"
-      ],
-      3
-    )
-
-  }
+  #performance difference
+  performance.gain <- new.performance - old.performance
 
   #if there is r-squared gain
-  if(new.performance > old.performance){
+  if(performance.gain > 0){
 
     #plot tuning
     if(verbose == TRUE){
@@ -527,13 +468,13 @@ rf_tuning <- function(
         "gain in ",
         metric.name,
         ": ",
-        new.performance - old.performance
+        performance.gain
       )
       )
     }
 
     #adding gain
-    model.tuned$tuning$metric.gain <- new.performance - old.performance
+    model.tuned$tuning$performance.gain <- performance.gain
 
     #adding selection of spatial predictors
     if(inherits(model, "rf_spatial")){
@@ -571,7 +512,7 @@ rf_tuning <- function(
     )
 
     #adding r squared gain
-    model$tuning$metric.gain <- new.performance - old.performance
+    model$tuning$performance.gain <- performance.gain
 
     return(model)
 
