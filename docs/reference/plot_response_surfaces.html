@@ -121,12 +121,13 @@
     </div>
 
     <pre class="usage"><span class='fu'>plot_response_surfaces</span>(
-  <span class='kw'>x</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>model</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>a</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>b</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>quantiles</span> <span class='kw'>=</span> <span class='fl'>0.5</span>,
   <span class='kw'>grid.resolution</span> <span class='kw'>=</span> <span class='fl'>100</span>,
   <span class='kw'>point.size.range</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.5</span>, <span class='fl'>2.5</span>),
+  <span class='kw'>point.alpha</span> <span class='kw'>=</span> <span class='fl'>1</span>,
   <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
 )</pre>
 
@@ -134,7 +135,7 @@
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>x</th>
+      <th>model</th>
       <td><p>A model fitted with <code><a href='rf.html'>rf()</a></code>, <code><a href='rf_repeat.html'>rf_repeat()</a></code>, or <code><a href='rf_spatial.html'>rf_spatial()</a></code>. Default <code>NULL</code></p></td>
     </tr>
     <tr>
@@ -155,7 +156,11 @@
     </tr>
     <tr>
       <th>point.size.range</th>
-      <td><p>Numeric vector of length 2 with the range of point sizes used by <a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point</a>, Default: <code><a href='https://rdrr.io/r/base/c.html'>c(0.5, 2.5)</a></code></p></td>
+      <td><p>Numeric vector of length 2 with the range of point sizes used by <a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point</a>. Using <code><a href='https://rdrr.io/r/base/c.html'>c(-1, -1)</a></code> removes the points. Default: <code><a href='https://rdrr.io/r/base/c.html'>c(0.5, 2.5)</a></code></p></td>
+    </tr>
+    <tr>
+      <th>point.alpha</th>
+      <td><p>Numeric between 0 and 1, transparency of the points. Setting it to <code>0</code> removes all points. Default: <code>1</code>.</p></td>
     </tr>
     <tr>
       <th>verbose</th>

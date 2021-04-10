@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Tuning of random forest hyperparameters — rf_tuning • spatialRF</title>
+<title>Tuning of random forest hyperparameters via spatial cross-validation — rf_tuning • spatialRF</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,8 @@
 
 
 
-<meta property="og:title" content="Tuning of random forest hyperparameters — rf_tuning" />
-<meta property="og:description" content="Tunes the random forest hyperparameters num.trees, mtry, and min.node.size via grid search by maximizing the model's R squared. Two methods are available: out-of-bag (oob), and spatial cross-validation performed with rf_evaluate()." />
+<meta property="og:title" content="Tuning of random forest hyperparameters via spatial cross-validation — rf_tuning" />
+<meta property="og:description" content="Finds the optimal set of random forest hyperparameters num.trees, mtry, and min.node.size via grid search by maximizing the model's R squared, or AUC, if the response variable is binomial, via spatial cross-validation performed with rf_evaluate()." />
 
 
 
@@ -111,26 +111,26 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Tuning of random forest hyperparameters</h1>
+    <h1>Tuning of random forest hyperparameters via spatial cross-validation</h1>
     <small class="dont-index">Source: <a href='https://github.com/BlasBenito/spatialRF/blob/master/R/rf_tuning.R'><code>R/rf_tuning.R</code></a></small>
     <div class="hidden name"><code>rf_tuning.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Tunes the random forest hyperparameters <code>num.trees</code>, <code>mtry</code>, and <code>min.node.size</code> via grid search by maximizing the model's R squared. Two methods are available: out-of-bag (<code>oob</code>), and spatial cross-validation performed with <code><a href='rf_evaluate.html'>rf_evaluate()</a></code>.</p>
+    <p>Finds the optimal set of random forest hyperparameters <code>num.trees</code>, <code>mtry</code>, and <code>min.node.size</code> via grid search by maximizing the model's R squared, or AUC, if the response variable is binomial, via spatial cross-validation performed with <code><a href='rf_evaluate.html'>rf_evaluate()</a></code>.</p>
     </div>
 
     <pre class="usage"><span class='fu'>rf_tuning</span>(
   <span class='kw'>model</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>method</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"oob"</span>, <span class='st'>"spatial.cv"</span>),
   <span class='kw'>num.trees</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>mtry</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>min.node.size</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>xy</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>repetitions</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>training.fraction</span> <span class='kw'>=</span> <span class='fl'>0.8</span>,
+  <span class='kw'>repetitions</span> <span class='kw'>=</span> <span class='fl'>30</span>,
+  <span class='kw'>training.fraction</span> <span class='kw'>=</span> <span class='fl'>0.75</span>,
+  <span class='kw'>seed</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>n.cores</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>n.cores</span> <span class='kw'>=</span> <span class='kw pkg'>parallel</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/r/parallel/detectCores.html'>detectCores</a></span>() - <span class='fl'>1</span>,
   <span class='kw'>cluster.ips</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>cluster.cores</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>cluster.user</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Sys.info.html'>Sys.info</a></span>()<span class='kw'>[[</span><span class='st'>"user"</span>]],
@@ -143,10 +143,6 @@
     <tr>
       <th>model</th>
       <td><p>A model fitted with <code><a href='rf.html'>rf()</a></code>. If provided, the training data is taken directly from the model definition (stored in <code>model$ranger.arguments</code>). Default: <code>NULL</code></p></td>
-    </tr>
-    <tr>
-      <th>method</th>
-      <td><p>Character, "oob" to use RMSE values computed on the out-of-bag data to guide the tuning, and "spatial.cv", to use RMSE values from a spatial cross-validation on independent spatial folds done via <code><a href='rf_evaluate.html'>rf_evaluate()</a></code>. Default: <code>"oob"</code></p></td>
     </tr>
     <tr>
       <th>num.trees</th>
@@ -166,11 +162,15 @@
     </tr>
     <tr>
       <th>repetitions</th>
-      <td><p>Integer, number of repetitions to compute the R squared from. If <code>method = "oob"</code>, number of repetitions to be used in <code><a href='rf_repeat.html'>rf_repeat()</a></code> to fit models for each combination of hyperparameters. If <code>method = "spatial.cv"</code>, number of independent spatial folds to use during the cross-validation. Default: <code>NULL</code> (which yields 30 for "spatial.cv" and 5 for "oob").</p></td>
+      <td><p>Integer, number of independent spatial folds to use during the cross-validation. Default: <code>30</code>.</p></td>
     </tr>
     <tr>
       <th>training.fraction</th>
-      <td><p>Proportion between 0.2 and 0.8 indicating the number of records to be used in model training. Default: <code>0.8</code></p></td>
+      <td><p>Proportion between 0.2 and 0.9 indicating the number of records to be used in model training. Default: <code>0.75</code></p></td>
+    </tr>
+    <tr>
+      <th>seed</th>
+      <td><p>Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same.</p></td>
     </tr>
     <tr>
       <th>verbose</th>
@@ -178,7 +178,7 @@
     </tr>
     <tr>
       <th>n.cores</th>
-      <td><p>Integer, number of cores to use during computations. If <code>NULL</code>, all cores but one are used, unless a cluster is used. Default = <code>NULL</code></p></td>
+      <td><p>Integer, number of cores to use. Default = <code>parallel::detectCores() - 1</code></p></td>
     </tr>
     <tr>
       <th>cluster.ips</th>
@@ -201,9 +201,9 @@
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>A list with four slots: <code>tuning</code> data frame with the results of the tuning analysis; <code>tuning.long</code>, a long version of the previous data frame; <code>tuning.plot</code>, ggplot of <code>tuning.long</code>; <code>ranger.arguments</code>, a list ready to be used as the argument <code>ranger.arguments</code> in <code><a href='rf_repeat.html'>rf_repeat()</a></code> or <code><a href='rf_spatial.html'>rf_spatial()</a></code>.</p>
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <p>The tuning method "oob" uses as reference the RMSE computed on the out-of-bag data, while the method "spatial.cv" uses RMSE computed on spatially independent data unseen by the model. The RMSE values of the latter method will always be higher, but inform better about the capacity of the combinations of hyperparameters to yield more general models.</p>
+    <div class='dont-index'><p><code><a href='rf_evaluate.html'>rf_evaluate()</a></code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># \donttest{</span>
@@ -224,10 +224,10 @@
 <span class='co'>#model tuning</span>
 <span class='no'>tuning</span> <span class='kw'>&lt;-</span> <span class='fu'>rf_tuning</span>(
   <span class='kw'>model</span> <span class='kw'>=</span> <span class='no'>out</span>,
-  <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"oob"</span>,
   <span class='kw'>num.trees</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>100</span>, <span class='fl'>500</span>),
   <span class='kw'>mtry</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>2</span>, <span class='fl'>8</span>),
   <span class='kw'>min.node.size</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>5</span>, <span class='fl'>10</span>),
+  <span class='kw'>xy</span> <span class='kw'>=</span> <span class='no'>plant_richness_df</span>[, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"x"</span>, <span class='st'>"y"</span>)],
   <span class='kw'>n.cores</span> <span class='kw'>=</span> <span class='fl'>1</span>
 )
 

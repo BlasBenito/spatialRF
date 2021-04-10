@@ -40,7 +40,7 @@
 
 
 <meta property="og:title" content="Suggest variable interactions for random forest models — rf_interactions" />
-<meta property="og:description" content="Suggests candidate variable interactions by selecting the variables above a given importance threshold (given by the argument importance.threshold, or the median importance if not provided) from a model and combining them in pairs through multiplication (a * b). The interacting variables are scaled between 1 and 100 before multiplication to avoid artifacts when a variable has 0 somewhere in the middle of its range (i.e. temperature).
+<meta property="og:description" content="Suggests candidate variable interactions by selecting the variables above a given variable importance threshold (given by the argument importance.threshold) from a model and combining them in pairs through multiplication (a * b). The interacting variables are scaled between 1 and 100 before multiplication to avoid artifacts when a variable has 0 somewhere in the middle of its range (i.e. temperature).
 For each variable interaction, a model including all the predictors plus the interaction is fitted, and it's R squared is compared with the R squared of the model without interactions. This model without interactions can either be provided through the argument model, or is fitted on the fly with rf_repeat() if the user provides the data.
 Users should not use the suggested variable interactions hastily. Most likely, only one or a few of the suggested interactions may make sense from a domain expertise standpoint." />
 
@@ -119,21 +119,20 @@ Users should not use the suggested variable interactions hastily. Most likely, o
     </div>
 
     <div class="ref-description">
-    <p>Suggests candidate variable interactions by selecting the variables above a given importance threshold (given by the argument <code>importance.threshold</code>, or the median importance if not provided) from a model and combining them in pairs through multiplication (<code>a * b</code>). The interacting variables are scaled between 1 and 100 before multiplication to avoid artifacts when a variable has 0 somewhere in the middle of its range (i.e. temperature).</p>
+    <p>Suggests candidate variable interactions by selecting the variables above a given variable importance threshold (given by the argument <code>importance.threshold</code>) from a model and combining them in pairs through multiplication (<code>a * b</code>). The interacting variables are scaled between 1 and 100 before multiplication to avoid artifacts when a variable has 0 somewhere in the middle of its range (i.e. temperature).</p>
 <p>For each variable interaction, a model including all the predictors plus the interaction is fitted, and it's R squared is compared with the R squared of the model without interactions. This model without interactions can either be provided through the argument <code>model</code>, or is fitted on the fly with <code><a href='rf_repeat.html'>rf_repeat()</a></code> if the user provides the data.</p>
 <p>Users should not use the suggested variable interactions hastily. Most likely, only one or a few of the suggested interactions may make sense from a domain expertise standpoint.</p>
     </div>
 
     <pre class="usage"><span class='fu'>rf_interactions</span>(
-  <span class='kw'>model</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>data</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>dependent.variable.name</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>predictor.variable.names</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>ranger.arguments</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>importance.threshold</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>repetitions</span> <span class='kw'>=</span> <span class='fl'>5</span>,
+  <span class='kw'>seed</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>n.cores</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>n.cores</span> <span class='kw'>=</span> <span class='kw pkg'>parallel</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/r/parallel/detectCores.html'>detectCores</a></span>() - <span class='fl'>1</span>,
   <span class='kw'>cluster.ips</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>cluster.cores</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>cluster.user</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Sys.info.html'>Sys.info</a></span>()<span class='kw'>[[</span><span class='st'>"user"</span>]],
@@ -143,10 +142,6 @@ Users should not use the suggested variable interactions hastily. Most likely, o
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
-    <tr>
-      <th>model</th>
-      <td><p>A model fitted with <code><a href='rf.html'>rf()</a></code>. If used, the data is taken directly from the model definition and no other data-related arguments are required. Default: <code>NULL</code></p></td>
-    </tr>
     <tr>
       <th>data</th>
       <td><p>Data frame with a response variable and a set of predictors. Default: <code>NULL</code></p></td>
@@ -168,8 +163,8 @@ Users should not use the suggested variable interactions hastily. Most likely, o
       <td><p>Value of variable importance from <code>model</code> used as threshold to select variables to generate candidate interactions. Default: Quantile 0.75 of the variable importance in <code>model</code>.</p></td>
     </tr>
     <tr>
-      <th>repetitions</th>
-      <td><p>Integer, number of random forest models to fit in order to assess the importance of the interaction. Default: <code>5</code></p></td>
+      <th>seed</th>
+      <td><p>Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same.</p></td>
     </tr>
     <tr>
       <th>verbose</th>
@@ -177,7 +172,7 @@ Users should not use the suggested variable interactions hastily. Most likely, o
     </tr>
     <tr>
       <th>n.cores</th>
-      <td><p>Integer, number of cores to use during computations. If <code>NULL</code>, all cores but one are used, unless a cluster is used. Default = <code>NULL</code></p></td>
+      <td><p>Integer, number of cores to use. Default = <code>parallel::detectCores() - 1</code></p></td>
     </tr>
     <tr>
       <th>cluster.ips</th>

@@ -239,6 +239,12 @@ The output of `auto_cor()` or `auto_vif()` is of the class "variable_selection",
 names(predictor.variable.names)
 ```
 
+The slot `selected.variables` contains the names of the selected predictors.
+
+```{r}
+predictor.variable.names$selected.variables
+```
+
 
 # Fitting a non-spatial Random Forest model
 
