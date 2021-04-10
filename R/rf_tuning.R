@@ -9,7 +9,7 @@
 #' @param training.fraction Proportion between 0.2 and 0.9 indicating the number of records to be used in model training. Default: `0.75`
 #' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same.
 #' @param verbose Logical. If TRUE, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
-#' @param n.cores Integer, number of cores to use during computations. If `NULL`, all cores but one are used, unless a cluster is used. Default = `NULL`
+#' @param n.cores Integer, number of cores to use. Default = `parallel::detectCores() - 1`
 #' @param cluster.ips Character vector with the IPs of the machines in a cluster. The machine with the first IP will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.
 #' @param cluster.cores Numeric integer vector, number of cores to use on each machine.
 #' @param cluster.user Character string, name of the user (should be the same throughout machines). Defaults to the current system user.
@@ -57,7 +57,7 @@ rf_tuning <- function(
   training.fraction = 0.75,
   seed = NULL,
   verbose = TRUE,
-  n.cores = NULL,
+  n.cores = parallel::detectCores() - 1,
   cluster.ips = NULL,
   cluster.cores = NULL,
   cluster.user = Sys.info()[["user"]],
@@ -157,52 +157,33 @@ rf_tuning <- function(
     )
   }
 
-  #setup of parallel execution
-  if(is.null(n.cores)){
+  #CLUSTER SETUP
+  #if no cluster.ips, local cluster
+  if(is.null(cluster.ips)){
 
-    n.cores <- parallel::detectCores() - 1
-    `%dopar%` <- foreach::`%dopar%`
-
-  } else {
-
-    #only one core, no cluster
+    #sequential execution
     if(n.cores == 1){
 
       #replaces dopar (parallel) by do (serial)
       `%dopar%` <- foreach::`%do%`
       on.exit(`%dopar%` <- foreach::`%dopar%`)
 
+      #sets other cluster values to NULL
+      cluster.ips <- NULL
+
+      #parallel execution
     } else {
 
-      `%dopar%` <- foreach::`%dopar%`
-
-    }
-
-  }
-
-  #local cluster
-  if(is.null(cluster.ips)){
-
-    if(.Platform$OS.type == "windows"){
-      temp.cluster <- parallel::makeCluster(
-        n.cores,
-        type = "PSOCK"
-      )
-    } else {
+      #creates and registers cluster
       temp.cluster <- parallel::makeCluster(
         n.cores,
         type = "FORK"
       )
+
     }
 
-    #register cluster and close on exit
-    doParallel::registerDoParallel(cl = temp.cluster)
-    on.exit(parallel::stopCluster(cl = temp.cluster))
-
-  }
-
-  #beowulf cluster
-  if(!is.null(cluster.ips)){
+    #beowulf cluster
+  } else {
 
     #cluster port
     Sys.setenv(R_PARALLEL_PORT = cluster.port)
@@ -232,11 +213,11 @@ rf_tuning <- function(
       homogeneous = TRUE
     )
 
+  }
 
-    #register cluster and close on exit
+  #registering cluster if it exists
+  if(exists("temp.cluster")){
     doParallel::registerDoParallel(cl = temp.cluster)
-    on.exit(parallel::stopCluster(cl = temp.cluster))
-
   }
 
 
@@ -312,6 +293,9 @@ rf_tuning <- function(
 
   }#end of parallelized loop
 
+  if(exists("temp.cluster")){
+    parallel::stopCluster(cl = temp.cluster)
+  }
 
   #binding with combinations
   tuning <- cbind(
@@ -321,7 +305,7 @@ rf_tuning <- function(
     dplyr::arrange(dplyr::desc(!!rlang::sym(metric)))
 
   #getting metric name
-  metric.name <- colnames(tuning)[!(colnames(tuning) %in% c("num.trees", "mtry", "min.node.size"))]
+  metric.name <- colnames(tuning)[!(colnames(tuning) %in% c("num.trees", "mtry", "min.node.size", "moran.i.interpretation"))]
 
   #preparing tuning list
   tuning.list <- list()
@@ -342,7 +326,9 @@ rf_tuning <- function(
     if(nrow(tuning) == 0){
 
       message("This spatial model cannot be tuned, all possible results increase spatial autocorrelation of the residuals")
-      stop()
+
+      return(model)
+
     }
 
   }
@@ -435,8 +421,7 @@ rf_tuning <- function(
 
   #extract r.squared values
   new.performance <- round(
-    model.tuned$evaluation$aggregated
-    [model.tuned$evaluation$aggregated$model == "Testing" &
+    model.tuned$evaluation$aggregated[model.tuned$evaluation$aggregated$model == "Testing" &
         model.tuned$evaluation$aggregated$metric == metric.name,
       "mean"
     ],

@@ -362,7 +362,7 @@ model.non.spatial.tuned <- spatialRF::rf_tuning(
 ) 
 ```
 
-The function `rf_tuning()` returns a model fitted with the same data as the original model, but using the best hyperparameters found during tuning. Model tuning has helped to a very small improvement in performance measures (+ `r round(model.non.spatial.tuned$tuning$metric.gain, 3)` R squared), so from here, we can keep working with `model.non.spatial.tuned`.
+The function `rf_tuning()` returns a model fitted with the same data as the original model, but using the best hyperparameters found during tuning. Model tuning has helped to a very small improvement in performance measures (+ `r round(model.non.spatial.tuned$tuning$performance.gain, 3)` R squared), so from here, we can keep working with `model.non.spatial.tuned`.
 
 # Fitting a spatial model
 
@@ -490,9 +490,8 @@ p <- spatialRF::plot_optimization(model.spatial)
 Spatial models fitted with `rf_spatial()` can be tuned as well with `rf_tuning()`. However, tuning may in some cases increase the spatial autocorrelation of the model residuals. In that case, the function will return a message explaining the situation, and the original model without any sort of tuning applied
 
 ```{r, fig.width=6, fig.height=4.5}
-model.spatial.tuned <- spatialRF::rf_tuning(
+model.spatial.tuned <- rf_tuning(
   model = model.spatial,
-  method = "spatial.cv",
   xy = plant_richness_df[, c("x", "y")],
   repetitions = 30,
   num.trees = c(500, 1000),

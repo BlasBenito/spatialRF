@@ -17,7 +17,7 @@ rf_repeat(
   keep.models = TRUE,
   seed = NULL,
   verbose = TRUE,
-  n.cores = NULL,
+  n.cores = parallel::detectCores() - 1,
   cluster.ips = NULL,
   cluster.cores = NULL,
   cluster.user = Sys.info()[["user"]],
@@ -49,7 +49,7 @@ rf_repeat(
 
 \item{verbose}{Logical, ff \code{TRUE}, messages and plots generated during the execution of the function are displayed, Default: \code{TRUE}}
 
-\item{n.cores}{Integer, number of cores to use during computations. If \code{NULL}, all cores but one are used, unless a cluster is used. Default = \code{NULL}}
+\item{n.cores}{Integer, number of cores to use. Default = \code{parallel::detectCores() - 1}}
 
 \item{cluster.ips}{Character vector with the IPs of the machines in a cluster. The machine with the first IP will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.}
 
