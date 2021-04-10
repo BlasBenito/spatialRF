@@ -162,15 +162,6 @@ rf_tuning <- function(
 
     n.cores <- parallel::detectCores() - 1
     `%dopar%` <- foreach::`%dopar%`
-    if(verbose == TRUE){
-      message(
-        paste0(
-          "Using ",
-          n.cores,
-          " cores for parallel execution."
-        )
-      )
-    }
 
   } else {
 
@@ -181,10 +172,6 @@ rf_tuning <- function(
       `%dopar%` <- foreach::`%do%`
       on.exit(`%dopar%` <- foreach::`%dopar%`)
 
-      if(verbose == TRUE){
-        message("Using 1 core (sequential execution)")
-      }
-
     } else {
 
       `%dopar%` <- foreach::`%dopar%`
@@ -194,12 +181,23 @@ rf_tuning <- function(
   }
 
   #local cluster
-  if(is.null(cluster.ips) & n.cores > 1){
+  if(is.null(cluster.ips)){
 
-    temp.cluster <- parallel::makeCluster(
-      n.cores,
-      type = "PSOCK"
-    )
+    if(.Platform$OS.type == "windows"){
+      temp.cluster <- parallel::makeCluster(
+        n.cores,
+        type = "PSOCK"
+      )
+    } else {
+      temp.cluster <- parallel::makeCluster(
+        n.cores,
+        type = "FORK"
+      )
+    }
+
+    #register cluster and close on exit
+    doParallel::registerDoParallel(cl = temp.cluster)
+    on.exit(parallel::stopCluster(cl = temp.cluster))
 
   }
 
@@ -234,11 +232,13 @@ rf_tuning <- function(
       homogeneous = TRUE
     )
 
+
+    #register cluster and close on exit
+    doParallel::registerDoParallel(cl = temp.cluster)
+    on.exit(parallel::stopCluster(cl = temp.cluster))
+
   }
 
-  #register cluster and close on exit
-  doParallel::registerDoParallel(cl = temp.cluster)
-  on.exit(parallel::stopCluster(cl = temp.cluster))
 
   #looping through combinations
   tuning <- foreach::foreach(
@@ -258,7 +258,7 @@ rf_tuning <- function(
     ranger.arguments.i$save.memory <- TRUE
 
     #fit model with new hyperparameters
-    m.i <- spatialRF::rf(
+    m.i <- rf(
       data = data,
       dependent.variable.name = dependent.variable.name,
       predictor.variable.names = predictor.variable.names,
@@ -271,7 +271,7 @@ rf_tuning <- function(
     )
 
     #evaluate with spatial cross-validation
-    m.i <- spatialRF::rf_evaluate(
+    m.i <- rf_evaluate(
       model = m.i,
       xy = xy,
       repetitions = repetitions,
