@@ -11,6 +11,7 @@ rf_compare(
   training.fraction = 0.8,
   metrics = c("r.squared", "pseudo.r.squared", "rmse", "nrmse"),
   notch = TRUE,
+  seed = NULL,
   verbose = TRUE,
   n.cores = NULL,
   cluster.ips = NULL,
@@ -31,6 +32,8 @@ rf_compare(
 \item{metrics}{Character vector, names of the performance metrics selected. The possible values are: "r.squared" (\code{cor(obs, pred) ^ 2}), "pseudo.r.squared" (\code{cor(obs, pred)}), "rmse" (\code{sqrt(sum((obs - pred)^2)/length(obs))}), "nrmse" (\code{rmse/(quantile(obs, 0.75) - quantile(obs, 0.25))}). Default: \code{c("r.squared", "pseudo.r.squared", "rmse", "nrmse")}}
 
 \item{notch}{Logical, if \code{TRUE}, boxplot notches are plotted. Default: \code{TRUE}}
+
+\item{seed}{Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same.}
 
 \item{verbose}{Logical. If \code{TRUE}, messages and plots generated during the execution of the function are displayed, Default: \code{TRUE}}
 

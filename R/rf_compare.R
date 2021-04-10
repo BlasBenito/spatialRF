@@ -6,6 +6,7 @@
 #' @param training.fraction Proportion between 0.5 and 0.9 indicating the number of records to be used in model training. Default: `0.8`
 #' @param metrics Character vector, names of the performance metrics selected. The possible values are: "r.squared" (`cor(obs, pred) ^ 2`), "pseudo.r.squared" (`cor(obs, pred)`), "rmse" (`sqrt(sum((obs - pred)^2)/length(obs))`), "nrmse" (`rmse/(quantile(obs, 0.75) - quantile(obs, 0.25))`). Default: `c("r.squared", "pseudo.r.squared", "rmse", "nrmse")`
 #' @param notch Logical, if `TRUE`, boxplot notches are plotted. Default: `TRUE`
+#' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same.
 #' @param verbose Logical. If `TRUE`, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
 #' @param n.cores Integer, number of cores to use during computations. If `NULL`, all cores but one are used, unless a cluster is used. Default = `NULL`
 #' @param cluster.ips Character vector with the IPs of the machines in a cluster. The machine with the first IP will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.
@@ -51,6 +52,7 @@ rf_compare <- function(
   training.fraction = 0.8,
   metrics = c("r.squared", "pseudo.r.squared", "rmse", "nrmse"),
   notch = TRUE,
+  seed = NULL,
   verbose = TRUE,
   n.cores = NULL,
   cluster.ips = NULL,
@@ -99,6 +101,7 @@ rf_compare <- function(
       repetitions = repetitions,
       training.fraction = training.fraction,
       metrics = metrics,
+      seed = seed,
       verbose = FALSE,
       n.cores = n.cores,
       cluster.ips = cluster.ips,

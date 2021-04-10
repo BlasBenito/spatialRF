@@ -10,7 +10,7 @@
 #' @param predictor.variable.names Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Default: `NULL`
 #' @param ranger.arguments Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.
 #' @param importance.threshold Value of variable importance from `model` used as threshold to select variables to generate candidate interactions. Default: Quantile 0.75 of the variable importance in `model`.
-#' @param repetitions Integer, number of random forest models to fit in order to assess the importance of the interaction. Default: `5`
+#' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same.
 #' @param verbose Logical If `TRUE`, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
 #' @param n.cores Integer, number of cores to use during computations. If `NULL`, all cores but one are used, unless a cluster is used. Default = `NULL`
 #' @param cluster.ips Character vector with the IPs of the machines in a cluster. The machine with the first IP will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.
@@ -48,7 +48,7 @@ rf_interactions <- function(
   predictor.variable.names = NULL,
   ranger.arguments = NULL,
   importance.threshold = NULL,
-  repetitions = 5,
+  seed = NULL,
   verbose = TRUE,
   n.cores = NULL,
   cluster.ips = NULL,
@@ -65,18 +65,14 @@ rf_interactions <- function(
   if(is.null(model)){
 
     #fitting model
-    model <- rf_repeat(
+    model <- rf(
       data = data,
       dependent.variable.name = dependent.variable.name,
       predictor.variable.names = predictor.variable.names,
       ranger.arguments = ranger.arguments,
       scaled.importance = TRUE,
-      repetitions = repetitions,
-      verbose = FALSE,
-      n.cores = n.cores,
-      cluster.cores = cluster.cores,
-      cluster.user = cluster.user,
-      cluster.port = cluster.port
+      seed = seed,
+      verbose = FALSE
     )
 
     #getting model arguments
@@ -241,16 +237,14 @@ rf_interactions <- function(
     )
 
     #fitting model
-    model.i <- spatialRF::rf_repeat(
+    model.i <- spatialRF::rf(
       data = data.i,
       dependent.variable.name = dependent.variable.name,
       predictor.variable.names = predictor.variable.names.i,
       ranger.arguments = ranger.arguments.i,
       scaled.importance = TRUE,
-      verbose = FALSE,
-      keep.models = FALSE,
-      repetitions = repetitions,
-      n.cores = 1
+      seed = seed,
+      verbose = FALSE
     )
 
     #importance data frames
@@ -287,7 +281,7 @@ rf_interactions <- function(
 
   if(sum(interaction.screening$selected) == 0){
     message("No promising interactions found. \n")
-    stop()
+    return(NA)
   }
 
   #compute order

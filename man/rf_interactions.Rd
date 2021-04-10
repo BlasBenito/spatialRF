@@ -11,7 +11,7 @@ rf_interactions(
   predictor.variable.names = NULL,
   ranger.arguments = NULL,
   importance.threshold = NULL,
-  repetitions = 5,
+  seed = NULL,
   verbose = TRUE,
   n.cores = NULL,
   cluster.ips = NULL,
@@ -33,7 +33,7 @@ rf_interactions(
 
 \item{importance.threshold}{Value of variable importance from \code{model} used as threshold to select variables to generate candidate interactions. Default: Quantile 0.75 of the variable importance in \code{model}.}
 
-\item{repetitions}{Integer, number of random forest models to fit in order to assess the importance of the interaction. Default: \code{5}}
+\item{seed}{Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same.}
 
 \item{verbose}{Logical If \code{TRUE}, messages and plots generated during the execution of the function are displayed, Default: \code{TRUE}}
 
