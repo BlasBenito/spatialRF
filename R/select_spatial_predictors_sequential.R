@@ -203,7 +203,11 @@ select_spatial_predictors_sequential <- function(
 
   } else {
     temp.cluster <- cluster
+
+    doParallel::registerDoParallel(cl = temp.cluster)
+    on.exit(parallel::stopCluster(cl = temp.cluster))
   }
+
   #parallelized loop
   spatial.predictors.i <- NULL
   optimization.df <- foreach::foreach(

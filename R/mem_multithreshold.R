@@ -22,11 +22,22 @@
 #' @export
 mem_multithreshold <- function(
   x = NULL,
-  distance.thresholds = 0,
+  distance.thresholds = NULL,
   max.spatial.predictors = NULL
 ){
 
-  #remove scientific notation
+  #creating distance thresholds
+  if(is.null(distance.thresholds) == TRUE){
+    distance.thresholds <- pretty(
+      floor(
+        seq(
+          0,
+          max(distance.matrix)/2,
+          length.out = 4
+        )
+      )
+    )
+  }
 
   #list to store mems
   mem.list <- list()
