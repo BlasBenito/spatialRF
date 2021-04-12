@@ -13,6 +13,14 @@ library(pkgdown)
 library(lintr)
 library(knitr)
 
+#TO CHECK
+########################################
+usethis::use_spell_check()
+attachment::att_from_description()
+devtools::document()
+devtools::check()
+########################################
+
 #check in different platforms
 rhub::validate_email()
 platforms <- rhub::platforms()
@@ -68,13 +76,7 @@ devtools::build_manual()
 #lintr
 lintr::lint_dir("R")
 
-#TO CHECK
-########################################
-usethis::use_spell_check()
-attachment::att_from_description()
-devtools::document()
-devtools::check()
-########################################
+
 
 #load all functions
 devtools::load_all()
