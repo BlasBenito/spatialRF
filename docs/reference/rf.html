@@ -178,8 +178,7 @@
     <p>A ranger model with several new slots:</p><ul>
 <li><p><code>ranger.arguments</code>: Stores the values of the arguments used to fit the ranger model.</p></li>
 <li><p><code>variable.importance</code>: A list containing a data frame with the predictors ordered by their importance, and a ggplot showing the importance values.</p></li>
-<li><p><code>performance</code>: out-of-bag performance scores: R squared, pseudo R squared, RMSE, and normalized RMSE (NRMSE).</p></li>
-<li><p><code>pseudo.r.squared</code>: computed as the correlation between the observations and the predictions.</p></li>
+<li><p><code>performance</code>: performance scores: R squared on out-of-bag data, R squared (cor(observed, predicted) ^ 2), pseudo R squared (cor(observed, predicted)), RMSE, and normalized RMSE (NRMSE).</p></li>
 <li><p><code>residuals</code>: computed as observations minus predictions.</p></li>
 <li><p><code>spatial.correlation.residuals</code>: the result of <code><a href='moran_multithreshold.html'>moran_multithreshold()</a></code> applied to the model results.</p></li>
 </ul>
