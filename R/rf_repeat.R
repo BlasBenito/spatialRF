@@ -163,7 +163,7 @@ rf_repeat <- function(
       #creates and registers cluster
       temp.cluster <- parallel::makeCluster(
         n.cores,
-        type = "FORK"
+        type = "PSOCK"
       )
 
     }

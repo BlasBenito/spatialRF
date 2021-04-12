@@ -194,7 +194,7 @@ rf_evaluate <- function(
       #creates and registers cluster
       temp.cluster <- parallel::makeCluster(
         n.cores,
-        type = "FORK"
+        type = "PSOCK"
       )
 
     }

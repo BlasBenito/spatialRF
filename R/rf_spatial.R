@@ -255,7 +255,7 @@ rf_spatial <- function(
       #creates and registers cluster
       temp.cluster <- parallel::makeCluster(
         n.cores,
-        type = "FORK"
+        type = "PSOCK"
       )
 
     }
@@ -567,7 +567,7 @@ rf_spatial <- function(
 
   #stopping cluster
   if(exists("temp.cluster")){
-    parallel::stopCluster(cl = temp.cluster)
+    parallel::stopCluster(temp.cluster)
   }
 
   #add moran's I plot
