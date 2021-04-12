@@ -134,10 +134,15 @@ must be installed from GitHub as follows.
 ``` r
 remotes::install_github(
   repo = "blasbenito/spatialRF", 
-  ref = "main",
-  force = TRUE,
-  quiet = TRUE
+  ref = "development",
+  force = TRUE
   )
+```
+
+    ## Error in utils::download.file(url, path, method = method, quiet = quiet,  : 
+    ##   download from 'https://api.github.com/repos/blasbenito/spatialRF/tarball/development' failed
+
+``` r
 library(spatialRF)
 ```
 
@@ -470,6 +475,101 @@ predicted <- stats::predict(
   )$predictions
 ```
 
+**verbose = TRUE**
+
+Executing the model with the argument `verbose` set to `TRUE` (its
+default value) prints and plots most of the information required to
+interpret the model output.
+
+``` r
+model.non.spatial <- spatialRF::rf(
+  data = plant_richness_df,
+  dependent.variable.name = dependent.variable.name,
+  predictor.variable.names = predictor.variable.names,
+  distance.matrix = distance_matrix,
+  distance.thresholds = c(0, 1500, 3000),
+  seed = random.seed
+)
+```
+
+![](README_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->![](README_files/figure-gfm/unnamed-chunk-18-2.png)<!-- -->
+
+    ## Model type
+    ##   - Fitted with:                     ranger()
+    ##   - Response variable:               richness_species_vascular
+    ## 
+    ## Random forest parameters
+    ##   - Type:                            Regression
+    ##   - Number of trees:                 500
+    ##   - Sample size:                     227
+    ##   - Number of predictors:            15
+    ##   - Mtry:                            3
+    ##   - Minimum node size:               5
+    ## 
+    ## 
+    ## Model performance 
+    ##   - R squared (OOB):                 0.954
+    ##   - Pseudo R squared:                0.977
+    ##   - RMSE:                            961.388
+    ##   - Normalized RMSE:                 0.278
+    ## 
+    ## Model residuals 
+    ##   - Stats: 
+    ##           ┌──────────┬─────────┬─────────┬────────┬────────┬─────────┐
+    ##           │ Min.     │ 1st Q.  │ Median  │ Mean   │ 3rd Q. │ Max.    │
+    ##           ├──────────┼─────────┼─────────┼────────┼────────┼─────────┤
+    ##           │ -1974.48 │ -473.90 │ -177.07 │ -20.23 │ 148.60 │ 7594.40 │
+    ##           └──────────┴─────────┴─────────┴────────┴────────┴─────────┘
+    ## 
+    ##   - Spatial autocorrelation: 
+    ##              ┌──────────┬───────────┬─────────┬──────────────────┐
+    ##              │ Distance │ Moran's I │ P value │ Interpretation   │
+    ##              ├──────────┼───────────┼─────────┼──────────────────┤
+    ##              │      0.0 │     0.156 │   0.000 │ Positive spatial │
+    ##              │          │           │         │ correlation      │
+    ##              ├──────────┼───────────┼─────────┼──────────────────┤
+    ##              │   1500.0 │     0.040 │   0.000 │ Positive spatial │
+    ##              │          │           │         │ correlation      │
+    ##              ├──────────┼───────────┼─────────┼──────────────────┤
+    ##              │   3000.0 │     0.009 │   0.063 │ No spatial       │
+    ##              │          │           │         │ correlation      │
+    ##              └──────────┴───────────┴─────────┴──────────────────┘
+    ## 
+    ## Variable importance: 
+    ##              ┌──────────────────────────────────────┬────────────┐
+    ##              │ Variable                             │ Importance │
+    ##              ├──────────────────────────────────────┼────────────┤
+    ##              │ climate_bio1_average                 │      0.285 │
+    ##              ├──────────────────────────────────────┼────────────┤
+    ##              │ climate_bio1_average_X_bias_area_km2 │      0.228 │
+    ##              ├──────────────────────────────────────┼────────────┤
+    ##              │ climate_hypervolume                  │      0.205 │
+    ##              ├──────────────────────────────────────┼────────────┤
+    ##              │ human_population_density             │      0.105 │
+    ##              ├──────────────────────────────────────┼────────────┤
+    ##              │ neighbors_count                      │      0.090 │
+    ##              ├──────────────────────────────────────┼────────────┤
+    ##              │ bias_species_per_record              │      0.054 │
+    ##              ├──────────────────────────────────────┼────────────┤
+    ##              │ neighbors_area                       │      0.046 │
+    ##              ├──────────────────────────────────────┼────────────┤
+    ##              │ fragmentation_cohesion               │      0.045 │
+    ##              ├──────────────────────────────────────┼────────────┤
+    ##              │ climate_velocity_lgm_average         │      0.043 │
+    ##              ├──────────────────────────────────────┼────────────┤
+    ##              │ topography_elevation_average         │      0.038 │
+    ##              ├──────────────────────────────────────┼────────────┤
+    ##              │ climate_aridity_index_average        │      0.034 │
+    ##              ├──────────────────────────────────────┼────────────┤
+    ##              │ neighbors_percent_shared_edge        │      0.028 │
+    ##              ├──────────────────────────────────────┼────────────┤
+    ##              │ fragmentation_division               │      0.025 │
+    ##              ├──────────────────────────────────────┼────────────┤
+    ##              │ climate_bio15_minimum                │      0.023 │
+    ##              ├──────────────────────────────────────┼────────────┤
+    ##              │ landcover_herbs_percent_average      │      0.007 │
+    ##              └──────────────────────────────────────┴────────────┘
+
 **Repeating a model execution**
 
 Random Forest is an stochastic algorithm that yields slightly different
@@ -491,10 +591,13 @@ model.non.spatial.repeat <- spatialRF::rf_repeat(
   verbose = FALSE
 )
 
-plot_importance(model.non.spatial.repeat, verbose = FALSE)
+plot_importance(
+  model.non.spatial.repeat, 
+  verbose = FALSE
+  )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
 
 After 30 model repetitions it is clear that the difference in importance
 between `climate_hypervolume` and `climate_bio1_average_X_bias_area_km2`
@@ -511,12 +614,12 @@ spatialRF::plot_response_curves(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-19-1.png)<!-- --> The function
+![](README_files/figure-gfm/unnamed-chunk-20-1.png)<!-- --> The function
 `get_response_curves()` returns a data frame with the data required to
 make custom plots of the response curves.
 
 ``` r
-plot.df <- spatialRF::get_response_curves(model.non.spatial.repeat)
+reponse.curves.df <- spatialRF::get_response_curves(model.non.spatial.repeat)
 ```
 
 | response | predictor | quantile | model | predictor.name         | response.name               |
@@ -550,7 +653,7 @@ selected combination of hyperparameters maximizes the ability of the
 model to predict data not used to train it.
 
 ``` r
-model.non.spatial.tuned <- spatialRF::rf_tuning(
+model.non.spatial.tuned <- rf_tuning(
   model = model.non.spatial,
   xy = plant_richness_df[, c("x", "y")],
   repetitions = 30,
@@ -561,12 +664,12 @@ model.non.spatial.tuned <- spatialRF::rf_tuning(
     14, #equal or lower than the number of predictors
     by = 3
     ),
-  min.node.size = c(5, 10, 20),
+  min.node.size = c(5, 15),
   seed = random.seed
 ) 
 ```
 
-    ## Exploring 30 combinations of hyperparameters.
+    ## Exploring 20 combinations of hyperparameters.
 
     ## Best hyperparameters:
 
@@ -578,7 +681,7 @@ model.non.spatial.tuned <- spatialRF::rf_tuning(
 
     ## gain in r.squared: 0.033
 
-![](README_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
 
 The function `rf_tuning()` returns a model fitted with the same data as
 the original model, but using the best hyperparameters found during
@@ -600,7 +703,7 @@ spatialRF::plot_moran(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
 
 According to the plot, the spatial autocorrelation of the residuals is
 highly positive for a neighborhood of 0 km, while it becomes
@@ -633,7 +736,7 @@ spatialRF::plot_moran(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
 
 If we compare the variable importance plots of both models, we can see
 that the spatial model has an additional set of dots under the name
@@ -655,23 +758,23 @@ p2 <- spatialRF::plot_importance(
 p1 | p2 
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->
 
 If we take a look to the ten most important variables in `model.spatial`
 we will see that a few of them are spatial predictors.
 
 | variable                                   | importance |
 |:-------------------------------------------|-----------:|
-| climate\_bio1\_average\_X\_bias\_area\_km2 |      0.151 |
-| spatial\_predictor\_0\_2                   |      0.147 |
-| climate\_hypervolume                       |      0.140 |
-| climate\_bio1\_average                     |      0.132 |
-| bias\_species\_per\_record                 |      0.080 |
-| spatial\_predictor\_0\_1                   |      0.064 |
-| spatial\_predictor\_3000\_1                |      0.057 |
-| spatial\_predictor\_0\_6                   |      0.053 |
-| spatial\_predictor\_0\_5                   |      0.045 |
-| human\_population\_density                 |      0.041 |
+| climate\_bio1\_average\_X\_bias\_area\_km2 |      0.166 |
+| spatial\_predictor\_0\_2                   |      0.148 |
+| climate\_hypervolume                       |      0.146 |
+| climate\_bio1\_average                     |      0.131 |
+| bias\_species\_per\_record                 |      0.075 |
+| spatial\_predictor\_0\_1                   |      0.068 |
+| spatial\_predictor\_3000\_1                |      0.054 |
+| spatial\_predictor\_0\_6                   |      0.048 |
+| spatial\_predictor\_0\_5                   |      0.043 |
+| neighbors\_count                           |      0.040 |
 
 Spatial predictors are named `spatial_predictor_X_Y`, where `X` is the
 neighborhood distance at which the predictor has been generated, and `Y`
@@ -680,7 +783,7 @@ is the index of the predictor.
 Spatial predictors, as shown below, are smooth surfaces representing
 neighborhood among records at different spatial scales.
 
-![](README_files/figure-gfm/unnamed-chunk-28-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-29-1.png)<!-- -->
 
 The spatial predictors in the spatial model have been generated using
 the method “mem.moran.sequential” (function’s default), that mimics the
@@ -701,7 +804,7 @@ linked by lines represent the selected spatial predictors). The
 selection procedure is performed by the function
 [`select_spatial_predictors_sequential()`](https://blasbenito.github.io/spatialRF/reference/select_spatial_predictors_sequential.html).
 
-![](README_files/figure-gfm/unnamed-chunk-29-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-30-1.png)<!-- -->
 
 **Tuning spatial models**
 
@@ -721,7 +824,7 @@ model.spatial.tuned <- rf_tuning(
     2,
     length(model.spatial$ranger.arguments$predictor.variable.names),
     by = 9),
-  min.node.size = c(5, 20),
+  min.node.size = c(5, 15),
   seed = random.seed
 )
 ```
@@ -730,15 +833,15 @@ model.spatial.tuned <- rf_tuning(
 
     ## Best hyperparameters:
 
-    ##   - num.trees:     1000
+    ##   - num.trees:     500
 
     ##   - mtry:          47
 
     ##   - min.node.size: 5
 
-    ## gain in r.squared: 0.024
+    ## gain in r.squared: 0.025
 
-![](README_files/figure-gfm/unnamed-chunk-30-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-31-1.png)<!-- -->
 
 # Assessing model performance on spatially independent folds
 
@@ -778,7 +881,7 @@ contains the indices of the training and testing cases for each
 cross-validation repetition. The maps below show two sets of training
 and testing spatial folds.
 
-![](README_files/figure-gfm/unnamed-chunk-33-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-34-1.png)<!-- -->
 
 The functions
 [`plot_evaluation()`](https://blasbenito.github.io/spatialRF/reference/plot_evaluation.html)
@@ -796,8 +899,8 @@ spatialRF::print_evaluation(model.spatial.tuned)
     ##   - Spatial folds:                 25
     ## 
     ##     Metric     Mean Standard deviation  Minimum  Maximum
-    ##  r.squared    0.250              0.159    0.080    0.601
-    ##       rmse 3223.499            810.886 2285.215 4748.118
+    ##  r.squared    0.252              0.163    0.076    0.615
+    ##       rmse 3196.160            819.998 2267.920 4741.310
 
 The low R squared yielded by the model evaluation shows that the spatial
 model is hard to transfer outside of the training space. Models based on
@@ -835,18 +938,18 @@ comparison <- spatialRF::rf_compare(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-35-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-36-1.png)<!-- -->
 
 | Model             | Metric    |     Mean |
 |:------------------|:----------|---------:|
 | Non-spatial       | r.squared |    0.336 |
 | Non-spatial tuned | r.squared |    0.412 |
-| Spatial           | r.squared |    0.167 |
-| Spatial tuned     | r.squared |    0.217 |
+| Spatial           | r.squared |    0.163 |
+| Spatial tuned     | r.squared |    0.222 |
 | Non-spatial       | rmse      | 2817.225 |
 | Non-spatial tuned | rmse      | 2329.933 |
-| Spatial           | rmse      | 3086.170 |
-| Spatial tuned     | rmse      | 2930.469 |
+| Spatial           | rmse      | 3083.346 |
+| Spatial tuned     | rmse      | 2847.590 |
 
 # Generating spatial predictors for other models
 
@@ -957,8 +1060,10 @@ moran.test <- spatialRF::moran(
 moran.test
 ```
 
-    ##   moran.i p.value               interpretation
-    ## 1    0.21       0 Positive spatial correlation
+    ##   distance.threshold moran.i.null  moran.i      p.value
+    ## 1                  0 -0.004424779 0.209955 2.081346e-09
+    ##                 interpretation
+    ## 1 Positive spatial correlation
 
 According to the Moran’s I test, the model residuals show spatial
 autocorrelation. Let’s introduce MEMs one by one until the problem is
@@ -1017,7 +1122,7 @@ model with spatial predictors `m.i`.
 | Model       | Predictors | R\_squared |  AIC |  BIC | Moran.I |
 |:------------|-----------:|-----------:|-----:|-----:|--------:|
 | Non-spatial |          6 |       0.38 | 4238 | 4266 |    0.21 |
-| Spatial     |         21 |       0.50 |  530 |  608 |    0.06 |
+| Spatial     |         21 |       0.51 |  529 |  608 |    0.06 |
 
 According to the model comparison, it can be concluded that the addition
 of spatial predictors, in spite of the increase in complexity, has
