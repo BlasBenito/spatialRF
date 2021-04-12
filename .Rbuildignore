@@ -22,3 +22,5 @@ tests
 README.html
 data_Blas.Rdata
 .Rhistory
+comparison_with_other_methods.R
+understanding_lmmorantest.R

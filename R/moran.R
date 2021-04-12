@@ -50,37 +50,41 @@ moran <- function(
   }
 
   #extracting weights from distance matrix
-  x.weights <- weights_from_distance_matrix(
+  x.distance.weights <- weights_from_distance_matrix(
     x = distance.matrix,
     distance.threshold = distance.threshold
   )
 
   #computing expected Moran I
-  n <- length(x)
-  expected.moran <- round(-1/(n - 1), 4)
+  x.length <- length(x)
+  moran.expected <- round(-1/(x.length - 1), 4)
 
   #computing observed Moran I
-  s <- sum(x.weights)
-  m <- mean(x)
-  y <- x - m #centering x
-  cv <- sum(x.weights * y %o% y)
-  v <- sum(y^2)
-  observed.moran <- (n/s) * (cv/v)
-  i.max <- (n/s) * (sd(rowSums(x.weights) * y)/sqrt(v/(n - 1)))
+  sum.x.distance.weights <- sum(x.distance.weights)
+
+  #centering x
+  x.mean <- mean(x)
+  x.centered <- x - x.mean #centering x
+
+
+  cv <- sum(x.distance.weights * x.centered %o% x.centered)
+  v <- sum(x.centered^2)
+  observed.moran <- (x.length/sum.x.distance.weights) * (cv/v)
+  i.max <- (x.length/sum.x.distance.weights) * (sd(rowSums(x.distance.weights) * x.centered)/sqrt(v/(x.length - 1)))
   observed.moran <- round(observed.moran/i.max, 4)
 
   #computing p-value
-  s1 <- 0.5 * sum((x.weights + t(x.weights))^2)
-  s2 <- sum((apply(x.weights, 1, sum) + apply(x.weights, 2, sum))^2)
-  s.sq <- s^2
-  k <- (sum(y^4)/n) / (v/n)^2
+  s1 <- 0.5 * sum((x.distance.weights + t(x.distance.weights))^2)
+  s2 <- sum((apply(x.distance.weights, 1, sum) + apply(x.distance.weights, 2, sum))^2)
+  s.sq <- sum.x.distance.weights^2
+  k <- (sum(x.centered^4)/x.length) / (v/x.length)^2
   expected.standard.deviation <- sqrt(
-    (n*((n^2 - 3*n + 3)*s1 - n*s2 + 3*s.sq) -
-       k*(n*(n - 1)*s1 - 2*n*s2 + 6*s.sq)) /
-      ((n - 1)*(n - 2)*(n - 3)*s.sq) - 1/((n - 1)^2)
+    (x.length*((x.length^2 - 3*x.length + 3)*s1 - x.length*s2 + 3*s.sq) -
+       k*(x.length*(x.length - 1)*s1 - 2*x.length*s2 + 6*s.sq)) /
+      ((x.length - 1)*(x.length - 2)*(x.length - 3)*s.sq) - 1/((x.length - 1)^2)
   )
-  p.value <- pnorm(observed.moran, mean = expected.moran, sd = expected.standard.deviation)
-  p.value <- if (observed.moran <= expected.moran) 2*p.value else 2*(1 - p.value)
+  p.value <- pnorm(observed.moran, mean = moran.expected, sd = expected.standard.deviation)
+  p.value <- if (observed.moran <= moran.expected) 2*p.value else 2*(1 - p.value)
   p.value <- round(p.value, 4)
 
   #adding interpretation
