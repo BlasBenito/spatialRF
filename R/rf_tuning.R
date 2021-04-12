@@ -177,8 +177,11 @@ rf_tuning <- function(
       #creates and registers cluster
       temp.cluster <- parallel::makeCluster(
         n.cores,
-        type = "FORK"
+        type = "PSOCK"
       )
+
+      #sets dopar in case it was not setup
+      `%dopar%` <- foreach::`%dopar%`
 
     }
 
@@ -292,6 +295,7 @@ rf_tuning <- function(
     return(m.i.performance)
 
   }#end of parallelized loop
+
 
   if(exists("temp.cluster")){
     parallel::stopCluster(cl = temp.cluster)

@@ -80,8 +80,7 @@ The package is not yet in the CRAN repositories, so at the moment it must be ins
 remotes::install_github(
   repo = "blasbenito/spatialRF", 
   ref = "development",
-  force = TRUE,
-  quiet = TRUE
+  force = TRUE
   )
 library(spatialRF)
 ```
@@ -332,12 +331,12 @@ spatialRF::plot_response_curves(
 The function `get_response_curves()` returns a data frame with the data required to make custom plots of the response curves.
 
 ```{r}
-plot.df <- spatialRF::get_response_curves(model.non.spatial.repeat)
+reponse.curves.df <- spatialRF::get_response_curves(model.non.spatial.repeat)
 ```
 
 ```{r, echo = FALSE, warning = FALSE, message=FALSE}
 kableExtra::kbl(
-  head(plot.df, n = 10),
+  head(reponse.curves.df, n = 10),
   format = "markdown"
 ) %>%
   kableExtra::kable_paper("hover", full_width = F)
@@ -353,7 +352,7 @@ The model fitted above was based on the default hyperparameter values provided b
 Model tuning is done via spatial cross-validation, to ensure that the selected combination of hyperparameters maximizes the ability of the model to predict data not used to train it.
 
 ```{r, fig.width=6, fig.height=4.5}
-model.non.spatial.tuned <- spatialRF::rf_tuning(
+model.non.spatial.tuned <- rf_tuning(
   model = model.non.spatial,
   xy = plant_richness_df[, c("x", "y")],
   repetitions = 30,
@@ -506,7 +505,7 @@ model.spatial.tuned <- rf_tuning(
     2,
     length(model.spatial$ranger.arguments$predictor.variable.names),
     by = 9),
-  min.node.size = c(5, 20),
+  min.node.size = c(5, 15),
   seed = random.seed
 )
 ```
