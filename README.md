@@ -134,12 +134,16 @@ must be installed from GitHub as follows.
 ``` r
 remotes::install_github(
   repo = "blasbenito/spatialRF", 
-  ref = "development",
+  ref = "main",
   force = TRUE
   )
 ```
 
+<<<<<<< HEAD
     ##      checking for file ‘/tmp/RtmpLOVV1E/remotes6f8cf2cb93a29/BlasBenito-spatialRF-55b7656/DESCRIPTION’ ...  ✓  checking for file ‘/tmp/RtmpLOVV1E/remotes6f8cf2cb93a29/BlasBenito-spatialRF-55b7656/DESCRIPTION’
+=======
+    ##      checking for file ‘/tmp/RtmphQKJks/remotesde949212427/BlasBenito-spatialRF-f7f1e94/DESCRIPTION’ ...  ✓  checking for file ‘/tmp/RtmphQKJks/remotesde949212427/BlasBenito-spatialRF-f7f1e94/DESCRIPTION’
+>>>>>>> development
     ##   ─  preparing ‘spatialRF’:
     ##    checking DESCRIPTION meta-information ...  ✓  checking DESCRIPTION meta-information
     ##   ─  checking for LF line-endings in source and make files and shell scripts
@@ -269,6 +273,7 @@ interactions <- spatialRF::rf_interactions(
 
     ## 3 potential interactions identified.
 
+<<<<<<< HEAD
     ## ┌────────────┬────────────┬────────────┐
     ## │ Interactio │ Importance │         R2 │
     ## │ n          │ (% of max) │ improvemen │
@@ -292,6 +297,29 @@ interactions <- spatialRF::rf_interactions(
     ## └────────────┴────────────┴────────────┘
 
 ![](README_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->
+=======
+    ## ┌──────────────┬──────────────┐
+    ## │ Interaction  │   Importance │
+    ## │              │   (% of max) │
+    ## ├──────────────┼──────────────┤
+    ## │ human_popula │         93.2 │
+    ## │ tion_X_bias_ │              │
+    ## │ area_km2     │              │
+    ## ├──────────────┼──────────────┤
+    ## │ human_popula │         82.8 │
+    ## │ tion_X_human │              │
+    ## │ _population_ │              │
+    ## │ density      │              │
+    ## ├──────────────┼──────────────┤
+    ## │ climate_bio1 │         77.9 │
+    ## │ _average_X_b │              │
+    ## │ ias_area_km2 │              │
+    ## └──────────────┴──────────────┘
+    ## 
+    ## 2/3 columns shown.
+
+![](README_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+>>>>>>> development
 
 Here `rf_interactions()` suggests several candidate interactions ordered
 by their impact on the model. The function cannot say whether an
@@ -532,6 +560,7 @@ model.non.spatial <- spatialRF::rf(
     ## 
     ## Model residuals 
     ##   - Stats: 
+<<<<<<< HEAD
     ##     ┌──────────┬─────────┬─────────┐
     ##     │ Min.     │ 1st Q.  │ Median  │
     ##     ├──────────┼─────────┼─────────┤
@@ -599,6 +628,82 @@ model.non.spatial <- spatialRF::rf(
     ##    │ landcover_herbs_ │      0.007 │
     ##    │ percent_average  │            │
     ##    └──────────────────┴────────────┘
+=======
+    ##      ┌──────────┬─────────┐
+    ##      │ Min.     │ 1st Q.  │
+    ##      ├──────────┼─────────┤
+    ##      │ -1974.48 │ -473.90 │
+    ##      └──────────┴─────────┘
+    ## 
+    ## 2/6 columns shown.
+    ##   - Spatial autocorrelation: 
+    ##     ┌──────────┬───────────┐
+    ##     │ Distance │ Moran's I │
+    ##     ├──────────┼───────────┤
+    ##     │      0.0 │     0.156 │
+    ##     ├──────────┼───────────┤
+    ##     │   1500.0 │     0.040 │
+    ##     ├──────────┼───────────┤
+    ##     │   3000.0 │     0.009 │
+    ##     └──────────┴───────────┘
+    ## 
+    ## 2/4 columns shown.
+    ## Variable importance: 
+    ##  ┌──────────────┬────────────┐
+    ##  │ Variable     │ Importance │
+    ##  ├──────────────┼────────────┤
+    ##  │ climate_bio1 │      0.285 │
+    ##  │ _average     │            │
+    ##  ├──────────────┼────────────┤
+    ##  │ climate_bio1 │      0.228 │
+    ##  │ _average_X_b │            │
+    ##  │ ias_area_km2 │            │
+    ##  ├──────────────┼────────────┤
+    ##  │ climate_hype │      0.205 │
+    ##  │ rvolume      │            │
+    ##  ├──────────────┼────────────┤
+    ##  │ human_popula │      0.105 │
+    ##  │ tion_density │            │
+    ##  ├──────────────┼────────────┤
+    ##  │ neighbors_co │      0.090 │
+    ##  │ unt          │            │
+    ##  ├──────────────┼────────────┤
+    ##  │ bias_species │      0.054 │
+    ##  │ _per_record  │            │
+    ##  ├──────────────┼────────────┤
+    ##  │ neighbors_ar │      0.046 │
+    ##  │ ea           │            │
+    ##  ├──────────────┼────────────┤
+    ##  │ fragmentatio │      0.045 │
+    ##  │ n_cohesion   │            │
+    ##  ├──────────────┼────────────┤
+    ##  │ climate_velo │      0.043 │
+    ##  │ city_lgm_ave │            │
+    ##  │ rage         │            │
+    ##  ├──────────────┼────────────┤
+    ##  │ topography_e │      0.038 │
+    ##  │ levation_ave │            │
+    ##  │ rage         │            │
+    ##  ├──────────────┼────────────┤
+    ##  │ climate_arid │      0.034 │
+    ##  │ ity_index_av │            │
+    ##  │ erage        │            │
+    ##  ├──────────────┼────────────┤
+    ##  │ neighbors_pe │      0.028 │
+    ##  │ rcent_shared │            │
+    ##  │ _edge        │            │
+    ##  ├──────────────┼────────────┤
+    ##  │ fragmentatio │      0.025 │
+    ##  │ n_division   │            │
+    ##  ├──────────────┼────────────┤
+    ##  │ climate_bio1 │      0.023 │
+    ##  │ 5_minimum    │            │
+    ##  ├──────────────┼────────────┤
+    ##  │ landcover_he │      0.007 │
+    ##  │ rbs_percent_ │            │
+    ##  │ average      │            │
+    ##  └──────────────┴────────────┘
+>>>>>>> development
 
 **Repeating a model execution**
 
@@ -795,16 +900,16 @@ we will see that a few of them are spatial predictors.
 
 | variable                                   | importance |
 |:-------------------------------------------|-----------:|
-| climate\_bio1\_average\_X\_bias\_area\_km2 |      0.166 |
-| spatial\_predictor\_0\_2                   |      0.148 |
-| climate\_hypervolume                       |      0.146 |
+| climate\_bio1\_average\_X\_bias\_area\_km2 |      0.169 |
+| climate\_hypervolume                       |      0.148 |
+| spatial\_predictor\_0\_2                   |      0.145 |
 | climate\_bio1\_average                     |      0.131 |
-| bias\_species\_per\_record                 |      0.075 |
-| spatial\_predictor\_0\_1                   |      0.068 |
-| spatial\_predictor\_3000\_1                |      0.054 |
-| spatial\_predictor\_0\_6                   |      0.048 |
-| spatial\_predictor\_0\_5                   |      0.043 |
-| neighbors\_count                           |      0.040 |
+| bias\_species\_per\_record                 |      0.073 |
+| spatial\_predictor\_0\_1                   |      0.065 |
+| spatial\_predictor\_3000\_1                |      0.052 |
+| spatial\_predictor\_0\_6                   |      0.050 |
+| spatial\_predictor\_0\_5                   |      0.040 |
+| spatial\_predictor\_1500\_1                |      0.038 |
 
 Spatial predictors are named `spatial_predictor_X_Y`, where `X` is the
 neighborhood distance at which the predictor has been generated, and `Y`
@@ -869,7 +974,7 @@ model.spatial.tuned <- rf_tuning(
 
     ##   - min.node.size: 5
 
-    ## gain in r.squared: 0.025
+    ## gain in r.squared: 0.024
 
 ![](README_files/figure-gfm/unnamed-chunk-48-1.png)<!-- -->
 
@@ -932,12 +1037,24 @@ spatialRF::print_evaluation(model.spatial.tuned)
     ##   - Training fraction:             0.8
     ##   - Spatial folds:                 25
     ## 
+<<<<<<< HEAD
     ##     Metric     Mean Standard deviation
     ##  r.squared    0.252              0.163
     ##       rmse 3196.160            819.998
     ##   Minimum  Maximum
     ##     0.076    0.615
     ##  2267.920 4741.310
+=======
+    ##     Metric     Mean
+    ##  r.squared    0.251
+    ##       rmse 3199.209
+    ##  Standard deviation  Minimum
+    ##               0.163    0.075
+    ##             818.574 2264.616
+    ##   Maximum
+    ##     0.612
+    ##  4744.346
+>>>>>>> development
 
 The low R squared yielded by the model evaluation shows that the spatial
 model is hard to transfer outside of the training space. Models based on
@@ -981,12 +1098,12 @@ comparison <- spatialRF::rf_compare(
 |:------------------|:----------|---------:|
 | Non-spatial       | r.squared |    0.336 |
 | Non-spatial tuned | r.squared |    0.412 |
-| Spatial           | r.squared |    0.163 |
-| Spatial tuned     | r.squared |    0.222 |
+| Spatial           | r.squared |    0.160 |
+| Spatial tuned     | r.squared |    0.221 |
 | Non-spatial       | rmse      | 2817.225 |
 | Non-spatial tuned | rmse      | 2329.933 |
-| Spatial           | rmse      | 3083.346 |
-| Spatial tuned     | rmse      | 2847.590 |
+| Spatial           | rmse      | 3094.314 |
+| Spatial tuned     | rmse      | 2848.684 |
 
 # Generating spatial predictors for other models
 
@@ -1097,10 +1214,19 @@ moran.test <- spatialRF::moran(
 moran.test
 ```
 
+<<<<<<< HEAD
     ##   distance.threshold moran.i.null
     ## 1                  0 -0.004424779
     ##    moran.i      p.value
     ## 1 0.209955 2.081346e-09
+=======
+    ##   distance.threshold
+    ## 1                  0
+    ##   moran.i.null  moran.i
+    ## 1 -0.004424779 0.209955
+    ##        p.value
+    ## 1 2.081346e-09
+>>>>>>> development
     ##                 interpretation
     ## 1 Positive spatial correlation
 
