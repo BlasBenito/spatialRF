@@ -312,7 +312,10 @@ model.non.spatial.repeat <- spatialRF::rf_repeat(
   verbose = FALSE
 )
 
-plot_importance(model.non.spatial.repeat, verbose = FALSE)
+plot_importance(
+  model.non.spatial.repeat, 
+  verbose = FALSE
+  )
 ```
 
 After 30 model repetitions it is clear that the difference in importance between `climate_hypervolume` and `climate_bio1_average_X_bias_area_km2` is not the result of chance.

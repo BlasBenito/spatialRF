@@ -42,6 +42,9 @@ print_moran <- function(x, caption = NULL, verbose = TRUE){
       x <- x$spatial.correlation.residuals$per.distance
   }
 
+  #subsetting columns
+  x <- x[, c("distance.threshold", "moran.i", "p.value", "interpretation")]
+
     #for models rf and rf_repeat
     if(!("model" %in% colnames(x))){
 

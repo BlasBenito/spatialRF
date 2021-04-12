@@ -252,6 +252,11 @@ rf_repeat <- function(
 
   }#end of parallelized loop
 
+  #stopping cluster
+  if(exists("temp.cluster")){
+    parallel::stopCluster(cl = temp.cluster)
+  }
+
   #fitting model to allow plotting partial dependence curves
   m.curves <- rf(
     data = data,
