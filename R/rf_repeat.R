@@ -235,6 +235,7 @@ rf_repeat <- function(
     }
     out$variable.importance <- m.i$variable.importance$per.variable
     out$prediction.error <- m.i$prediction.error
+    out$r.squared.oob <- m.i$performance$r.squared.oob
     out$r.squared <- m.i$performance$r.squared
     out$pseudo.r.squared <- m.i$performance$pseudo.r.squared
     out$rmse <- m.i$performance$rmse
@@ -364,6 +365,15 @@ rf_repeat <- function(
 
   #gathering r.squared
   m.curves$performance <- list()
+
+  m.curves$performance$r.squared.oob <- unlist(
+    lapply(
+      repeated.models,
+      "[[",
+      "r.squared.oob"
+    )
+  )
+
   m.curves$performance$r.squared <- unlist(
     lapply(
       repeated.models,
@@ -371,7 +381,6 @@ rf_repeat <- function(
       "r.squared"
     )
   )
-  m.curves$performance$r.squared <- round(m.curves$performance$r.squared, 3)
 
   #gathering pseudo R squared
   m.curves$performance$pseudo.r.squared <- unlist(
