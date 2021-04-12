@@ -202,10 +202,7 @@ select_spatial_predictors_sequential <- function(
     }
 
   } else {
-    temp.cluster <- cluster
-
-    doParallel::registerDoParallel(cl = temp.cluster)
-    on.exit(parallel::stopCluster(cl = temp.cluster))
+    doParallel::registerDoParallel(cl = cluster)
   }
 
   #parallelized loop

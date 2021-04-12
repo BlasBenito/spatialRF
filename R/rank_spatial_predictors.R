@@ -132,6 +132,7 @@ rank_spatial_predictors <- function(
 
       #register cluster and close on exit
       doParallel::registerDoParallel(cl = temp.cluster)
+      on.exit(parallel::stopCluster(cl = temp.cluster))
 
     }
 
@@ -174,7 +175,7 @@ rank_spatial_predictors <- function(
     }
 
   } else {
-    temp.cluster <- cluster
+    doParallel::registerDoParallel(cl = cluster)
   }
 
   #default value for distance threshold
@@ -254,11 +255,6 @@ rank_spatial_predictors <- function(
     return(out.i)
 
   } #end of parallelized loop
-
-  #stopping cluster
-  if(exists("temp.cluster")){
-    parallel::stopCluster(cl = temp.cluster)
-  }
 
   #variables to avoid check complaints
   ranking.criteria <- NULL
