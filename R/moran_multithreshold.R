@@ -39,10 +39,6 @@ moran_multithreshold <- function(
   verbose = TRUE
 ){
 
-  #declaring variables to avoid check complaints
-  # distance.threshold <- NULL
-  # moran.i <- NULL
-
   #check x and distance matrix
   if(is.null(x) | !is.vector(x)){
     stop("Argument 'x' must be a numeric vector.")
@@ -75,6 +71,7 @@ moran_multithreshold <- function(
   out.df <- data.frame(
     distance.threshold = distance.thresholds,
     moran.i = NA,
+    moran.i.null = NA,
     p.value = NA,
     interpretation = NA
   )
@@ -90,6 +87,7 @@ moran_multithreshold <- function(
     )
 
     out.df[i, "moran.i"] <- moran.out["moran.i"]
+    out.df[i, "moran.i.null"] <- moran.out["moran.i.null"]
     out.df[i, "p.value"] <- moran.out["p.value"]
     out.df[i, "interpretation"] <- moran.out["interpretation"]
 

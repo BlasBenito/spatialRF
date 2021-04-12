@@ -1,5 +1,5 @@
 #' @title Plots a Moran's I test of model residuals
-#' @description Plots the results of spatial autocorrelation tests for a variety of functions within the package.
+#' @description Plots the results of spatial autocorrelation tests for a variety of functions within the package. The x axis represents the Moran's I estimate, the y axis contains the values of the distance thresholds, the dot sizes represent the p-values of the Moran's I estimate, and the red dashed line represents the theoretical null value of the Moran's I estimate.
 #' @usage
 #' plot_moran(
 #'   x,
@@ -38,6 +38,7 @@ plot_moran <- function(x, verbose = TRUE){
   #declaring variables
   distance.threshold <- NULL
   moran.i <- NULL
+  moran.i.null <- NULL
   p.value.binary <- NULL
   repetition <- NULL
   model <- NULL
@@ -85,6 +86,12 @@ plot_moran <- function(x, verbose = TRUE){
       ggplot2::geom_line(size = 1, color = "gray25") +
       ggplot2::geom_hline(
         yintercept = 0,
+        col = "gray50",
+        size = 0.5,
+        linetype = "dotted"
+      ) +
+      ggplot2::geom_hline(
+        yintercept = x$moran.i.null[1],
         col = "red4",
         size = 0.7,
         linetype = "dashed"

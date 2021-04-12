@@ -41,57 +41,73 @@ moran <- function(
   distance.threshold = 0
 ){
 
-  #check x and distance matrix
-  if(is.null(x) | !is.vector(x)){
-    stop("x must be a numeric vector.")
-  }
-  if(nrow(distance.matrix) != length(x)){
-    stop("length(x) and nrow(distance.matrix) must be equal.")
-  }
-
   #extracting weights from distance matrix
   x.distance.weights <- weights_from_distance_matrix(
     x = distance.matrix,
     distance.threshold = distance.threshold
   )
 
-  #computing expected Moran I
+  #length of the input vector
   x.length <- length(x)
-  moran.expected <- round(-1/(x.length - 1), 4)
 
-  #computing observed Moran I
-  sum.x.distance.weights <- sum(x.distance.weights)
+  #computing expected Moran I
+  moran.i.expected <- -1/(x.length - 1)
+
+  #sum of weights
+  x.distance.weights.sum <- sum(x.distance.weights)
 
   #centering x
   x.mean <- mean(x)
-  x.centered <- x - x.mean #centering x
+  x.centered <- x - x.mean
 
+  #upper term of the Moran's I equation
+  #sum of cross-products of the lags
+  #x.centered %o% x.centered equals (xi - x.mean) * (xj - x.mean)
+  cross.product.sum <- sum(x.distance.weights * x.centered %o% x.centered)
 
-  cv <- sum(x.distance.weights * x.centered %o% x.centered)
-  v <- sum(x.centered^2)
-  observed.moran <- (x.length/sum.x.distance.weights) * (cv/v)
-  i.max <- (x.length/sum.x.distance.weights) * (sd(rowSums(x.distance.weights) * x.centered)/sqrt(v/(x.length - 1)))
-  observed.moran <- round(observed.moran/i.max, 4)
+  #lower term of the Moran's I equation
+  #variance of the centered x
+  x.centered.variance <- sum(x.centered^2)
 
-  #computing p-value
+  #observed Moran's I
+  moran.i.observed <- (x.length / x.distance.weights.sum) * (cross.product.sum/x.centered.variance)
+
+  #components of the expected standard deviation
   s1 <- 0.5 * sum((x.distance.weights + t(x.distance.weights))^2)
+
   s2 <- sum((apply(x.distance.weights, 1, sum) + apply(x.distance.weights, 2, sum))^2)
-  s.sq <- sum.x.distance.weights^2
-  k <- (sum(x.centered^4)/x.length) / (v/x.length)^2
+
+  s3 <- x.distance.weights.sum^2
+
+  s4 <- (sum(x.centered^4) / x.length) /
+    (x.centered.variance / x.length)^2
+
   expected.standard.deviation <- sqrt(
-    (x.length*((x.length^2 - 3*x.length + 3)*s1 - x.length*s2 + 3*s.sq) -
-       k*(x.length*(x.length - 1)*s1 - 2*x.length*s2 + 6*s.sq)) /
-      ((x.length - 1)*(x.length - 2)*(x.length - 3)*s.sq) - 1/((x.length - 1)^2)
+    (x.length *
+       ((x.length^2 - 3 * x.length + 3) * s1 - x.length * s2 + 3 * s3) -
+       s4 *
+       (x.length * (x.length - 1) * s1 - 2 * x.length*s2 + 6 * s3)) /
+      ((x.length - 1) * (x.length - 2) * (x.length - 3) * s3) - 1 /
+      ((x.length - 1)^2)
   )
-  p.value <- pnorm(observed.moran, mean = moran.expected, sd = expected.standard.deviation)
-  p.value <- if (observed.moran <= moran.expected) 2*p.value else 2*(1 - p.value)
-  p.value <- round(p.value, 4)
+
+  #p.value
+  p.value <- pnorm(
+    moran.i.observed,
+    mean = moran.i.expected,
+    sd = expected.standard.deviation
+  )
+  p.value <- ifelse(
+    moran.i.observed <= moran.i.expected,
+    2 * p.value,
+    2 * (1 - p.value)
+  )
 
   #adding interpretation
-  if(observed.moran > 0 & p.value <= 0.05){
+  if(moran.i.observed > moran.i.expected & p.value <= 0.05){
     interpretation <- "Positive spatial correlation"
   }
-  if(observed.moran < 0 & p.value <= 0.05){
+  if(moran.i.observed < moran.i.expected & p.value <= 0.05){
     interpretation <- "Negative spatial correlation"
   }
   if(p.value > 0.05){
@@ -100,7 +116,9 @@ moran <- function(
 
   #preparing output
   out <- data.frame(
-    moran.i = observed.moran,
+    distance.threshold = distance.threshold,
+    moran.i.null = moran.i.expected,
+    moran.i = moran.i.observed,
     p.value = p.value,
     interpretation = interpretation
   )

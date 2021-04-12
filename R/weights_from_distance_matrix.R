@@ -29,29 +29,23 @@ weights_from_distance_matrix <- function(
   distance.threshold = 0
   ){
 
-  #checking matrix dimensions
-  if(!is.matrix(x) | ncol(x) != nrow(x)){
-    stop("x must be a symmetric square matrix.")
-  }
-
-  if(!is.null(distance.threshold) & !is.numeric(distance.threshold) & distance.threshold > 0){
-    stop("distance.threshold must be numeric and >= 0.")
-  }
-
   #thresholding distance matrix
-  if(distance.threshold > 0){
-    x[x < distance.threshold] <- 0
-  }
+  x[x <= distance.threshold] <- 1
+  diag(x) <- NA
 
   #computing weights
   x.weights <- 1/x
-  x.weights[is.infinite(x.weights)] <- 1
-  diag(x.weights) <- 0
 
   #normalizing weights
-  weight.rowsums <- rowSums(x.weights)
-  weight.rowsums[weight.rowsums == 0] <- 1
+  weight.rowsums <- rowSums(
+    x.weights,
+    na.rm = TRUE
+    )
   x.weights <- x.weights/weight.rowsums
+
+  #fixing Inf and diag
+  x.weights[x.weights == Inf] <- 0
+  diag(x.weights) <- 0
 
   #returning output
   x.weights

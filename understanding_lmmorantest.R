@@ -70,7 +70,7 @@ model = m.lm
   #model residuals
   x <- residuals(model)
 
-  #makes list of weights simmetric
+  #makes list of weights symmetric
   listw.symmetric <- listw2U(listw)
 
   #sum of weights
