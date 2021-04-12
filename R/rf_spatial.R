@@ -565,6 +565,11 @@ rf_spatial <- function(
 
   }
 
+  #stopping cluster
+  if(exists("temp.cluster")){
+    parallel::stopCluster(cl = temp.cluster)
+  }
+
   #add moran's I plot
   model.spatial$spatial.correlation.residuals$plot <- plot_moran(
     x = model.spatial,

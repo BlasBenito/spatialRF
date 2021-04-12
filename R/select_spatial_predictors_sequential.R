@@ -153,21 +153,13 @@ select_spatial_predictors_sequential <- function(
     #local cluster
     if(is.null(cluster.ips) & n.cores > 1){
 
-      if(.Platform$OS.type == "windows"){
-        temp.cluster <- parallel::makeCluster(
-          n.cores,
-          type = "PSOCK"
-        )
-      } else {
-        temp.cluster <- parallel::makeCluster(
-          n.cores,
-          type = "FORK"
-        )
-      }
+      temp.cluster <- parallel::makeCluster(
+        n.cores,
+        type = "PSOCK"
+      )
 
       #register cluster and close on exit
       doParallel::registerDoParallel(cl = temp.cluster)
-      on.exit(parallel::stopCluster(cl = temp.cluster))
 
     }
 
@@ -258,6 +250,11 @@ select_spatial_predictors_sequential <- function(
     return(out.df)
 
   }#end of parallelized loop
+
+  #stopping cluster
+  if(exists("temp.cluster")){
+    parallel::stopCluster(cl = temp.cluster)
+  }
 
   #preparing optimization df
   optimization.df <- data.frame(

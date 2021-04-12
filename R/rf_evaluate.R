@@ -235,7 +235,6 @@ rf_evaluate <- function(
   #registering cluster if it exists
   if(exists("temp.cluster")){
     doParallel::registerDoParallel(cl = temp.cluster)
-    on.exit(parallel::stopCluster(cl = temp.cluster))
   }
 
   #loop to evaluate models
@@ -330,6 +329,11 @@ rf_evaluate <- function(
     return(out.df)
 
   }#end of parallelized loop
+
+  #stopping cluster
+  if(exists("temp.cluster")){
+    parallel::stopCluster(cl = temp.cluster)
+  }
 
   #removing columns with NA
   # evaluation.df <- evaluation.df[, colSums(is.na(evaluation.df)) != nrow(evaluation.df)]
@@ -449,6 +453,6 @@ rf_evaluate <- function(
     print_evaluation(model)
   }
 
-  return(model)
+  model
 
 }

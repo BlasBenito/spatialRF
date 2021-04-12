@@ -342,8 +342,6 @@ kableExtra::kbl(
 ) %>%
   kableExtra::kable_paper("hover", full_width = F)
 ```
-
-
 # Tuning Random Forest hyperparameters
 
 The model fitted above was based on the default hyperparameter values provided by `ranger()`, and those might not be the most adequate ones for a given dataset. The function [`rf_tuning()`](https://blasbenito.github.io/spatialRF/reference/rf_tuning.html) helps the user to choose sensible values for three Random Forest hyperparameters that are critical to model performance:
@@ -366,7 +364,7 @@ model.non.spatial.tuned <- spatialRF::rf_tuning(
     14, #equal or lower than the number of predictors
     by = 3
     ),
-  min.node.size = c(5, 10, 20),
+  min.node.size = c(5, 15),
   seed = random.seed
 ) 
 ```
