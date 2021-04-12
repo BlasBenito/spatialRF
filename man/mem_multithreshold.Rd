@@ -6,14 +6,14 @@
 \usage{
 mem_multithreshold(
   x = NULL,
-  distance.thresholds = 0,
+  distance.thresholds = NULL,
   max.spatial.predictors = NULL
 )
 }
 \arguments{
 \item{x}{x Numeric matrix or data frame, generally a distance matrix. Default: \code{NULL}.}
 
-\item{distance.thresholds}{Numeric vector with distance thresholds defining neighborhood in the distance matrix, Default: \code{0}.}
+\item{distance.thresholds}{Numeric vector with distance thresholds defining neighborhood in the distance matrix, Default: \code{NULL}.}
 
 \item{max.spatial.predictors}{Maximum number of spatial predictors to generate. Only useful to save memory when the distance matrix \code{x} is very large. Default: \code{NULL}.}
 }

@@ -134,13 +134,19 @@ must be installed from GitHub as follows.
 ``` r
 remotes::install_github(
   repo = "blasbenito/spatialRF", 
-  ref = "development",
+  ref = "main",
   force = TRUE
   )
 ```
 
-    ## Error in utils::download.file(url, path, method = method, quiet = quiet,  : 
-    ##   download from 'https://api.github.com/repos/blasbenito/spatialRF/tarball/development' failed
+    ##      checking for file ‘/tmp/RtmphQKJks/remotesde949212427/BlasBenito-spatialRF-f7f1e94/DESCRIPTION’ ...  ✓  checking for file ‘/tmp/RtmphQKJks/remotesde949212427/BlasBenito-spatialRF-f7f1e94/DESCRIPTION’
+    ##   ─  preparing ‘spatialRF’:
+    ##    checking DESCRIPTION meta-information ...  ✓  checking DESCRIPTION meta-information
+    ##   ─  checking for LF line-endings in source and make files and shell scripts
+    ##   ─  checking for empty or unneeded directories
+    ##   ─  building ‘spatialRF_1.0.7.tar.gz’
+    ##      
+    ## 
 
 ``` r
 library(spatialRF)
@@ -263,18 +269,25 @@ interactions <- spatialRF::rf_interactions(
 
     ## 3 potential interactions identified.
 
-    ##       ┌─────────────────────────┬───────────────────────┬────────────────┐
-    ##       │ Interaction             │ Importance (% of max) │ R2 improvement │
-    ##       ├─────────────────────────┼───────────────────────┼────────────────┤
-    ##       │ human_population_X_bias │                  93.2 │          0.002 │
-    ##       │ _area_km2               │                       │                │
-    ##       ├─────────────────────────┼───────────────────────┼────────────────┤
-    ##       │ human_population_X_huma │                  82.8 │          0.000 │
-    ##       │ n_population_density    │                       │                │
-    ##       ├─────────────────────────┼───────────────────────┼────────────────┤
-    ##       │ climate_bio1_average_X_ │                  77.9 │          0     │
-    ##       │ bias_area_km2           │                       │                │
-    ##       └─────────────────────────┴───────────────────────┴────────────────┘
+    ## ┌──────────────┬──────────────┐
+    ## │ Interaction  │   Importance │
+    ## │              │   (% of max) │
+    ## ├──────────────┼──────────────┤
+    ## │ human_popula │         93.2 │
+    ## │ tion_X_bias_ │              │
+    ## │ area_km2     │              │
+    ## ├──────────────┼──────────────┤
+    ## │ human_popula │         82.8 │
+    ## │ tion_X_human │              │
+    ## │ _population_ │              │
+    ## │ density      │              │
+    ## ├──────────────┼──────────────┤
+    ## │ climate_bio1 │         77.9 │
+    ## │ _average_X_b │              │
+    ## │ ias_area_km2 │              │
+    ## └──────────────┴──────────────┘
+    ## 
+    ## 2/3 columns shown.
 
 ![](README_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
@@ -364,7 +377,9 @@ An example is shown in the next section.
 names(predictor.variable.names)
 ```
 
-    ## [1] "vif"                   "selected.variables"    "selected.variables.df"
+    ## [1] "vif"                  
+    ## [2] "selected.variables"   
+    ## [3] "selected.variables.df"
 
 The slot `selected.variables` contains the names of the selected
 predictors.
@@ -515,60 +530,80 @@ model.non.spatial <- spatialRF::rf(
     ## 
     ## Model residuals 
     ##   - Stats: 
-    ##           ┌──────────┬─────────┬─────────┬────────┬────────┬─────────┐
-    ##           │ Min.     │ 1st Q.  │ Median  │ Mean   │ 3rd Q. │ Max.    │
-    ##           ├──────────┼─────────┼─────────┼────────┼────────┼─────────┤
-    ##           │ -1974.48 │ -473.90 │ -177.07 │ -20.23 │ 148.60 │ 7594.40 │
-    ##           └──────────┴─────────┴─────────┴────────┴────────┴─────────┘
+    ##      ┌──────────┬─────────┐
+    ##      │ Min.     │ 1st Q.  │
+    ##      ├──────────┼─────────┤
+    ##      │ -1974.48 │ -473.90 │
+    ##      └──────────┴─────────┘
     ## 
+    ## 2/6 columns shown.
     ##   - Spatial autocorrelation: 
-    ##              ┌──────────┬───────────┬─────────┬──────────────────┐
-    ##              │ Distance │ Moran's I │ P value │ Interpretation   │
-    ##              ├──────────┼───────────┼─────────┼──────────────────┤
-    ##              │      0.0 │     0.156 │   0.000 │ Positive spatial │
-    ##              │          │           │         │ correlation      │
-    ##              ├──────────┼───────────┼─────────┼──────────────────┤
-    ##              │   1500.0 │     0.040 │   0.000 │ Positive spatial │
-    ##              │          │           │         │ correlation      │
-    ##              ├──────────┼───────────┼─────────┼──────────────────┤
-    ##              │   3000.0 │     0.009 │   0.063 │ No spatial       │
-    ##              │          │           │         │ correlation      │
-    ##              └──────────┴───────────┴─────────┴──────────────────┘
+    ##     ┌──────────┬───────────┐
+    ##     │ Distance │ Moran's I │
+    ##     ├──────────┼───────────┤
+    ##     │      0.0 │     0.156 │
+    ##     ├──────────┼───────────┤
+    ##     │   1500.0 │     0.040 │
+    ##     ├──────────┼───────────┤
+    ##     │   3000.0 │     0.009 │
+    ##     └──────────┴───────────┘
     ## 
+    ## 2/4 columns shown.
     ## Variable importance: 
-    ##              ┌──────────────────────────────────────┬────────────┐
-    ##              │ Variable                             │ Importance │
-    ##              ├──────────────────────────────────────┼────────────┤
-    ##              │ climate_bio1_average                 │      0.285 │
-    ##              ├──────────────────────────────────────┼────────────┤
-    ##              │ climate_bio1_average_X_bias_area_km2 │      0.228 │
-    ##              ├──────────────────────────────────────┼────────────┤
-    ##              │ climate_hypervolume                  │      0.205 │
-    ##              ├──────────────────────────────────────┼────────────┤
-    ##              │ human_population_density             │      0.105 │
-    ##              ├──────────────────────────────────────┼────────────┤
-    ##              │ neighbors_count                      │      0.090 │
-    ##              ├──────────────────────────────────────┼────────────┤
-    ##              │ bias_species_per_record              │      0.054 │
-    ##              ├──────────────────────────────────────┼────────────┤
-    ##              │ neighbors_area                       │      0.046 │
-    ##              ├──────────────────────────────────────┼────────────┤
-    ##              │ fragmentation_cohesion               │      0.045 │
-    ##              ├──────────────────────────────────────┼────────────┤
-    ##              │ climate_velocity_lgm_average         │      0.043 │
-    ##              ├──────────────────────────────────────┼────────────┤
-    ##              │ topography_elevation_average         │      0.038 │
-    ##              ├──────────────────────────────────────┼────────────┤
-    ##              │ climate_aridity_index_average        │      0.034 │
-    ##              ├──────────────────────────────────────┼────────────┤
-    ##              │ neighbors_percent_shared_edge        │      0.028 │
-    ##              ├──────────────────────────────────────┼────────────┤
-    ##              │ fragmentation_division               │      0.025 │
-    ##              ├──────────────────────────────────────┼────────────┤
-    ##              │ climate_bio15_minimum                │      0.023 │
-    ##              ├──────────────────────────────────────┼────────────┤
-    ##              │ landcover_herbs_percent_average      │      0.007 │
-    ##              └──────────────────────────────────────┴────────────┘
+    ##  ┌──────────────┬────────────┐
+    ##  │ Variable     │ Importance │
+    ##  ├──────────────┼────────────┤
+    ##  │ climate_bio1 │      0.285 │
+    ##  │ _average     │            │
+    ##  ├──────────────┼────────────┤
+    ##  │ climate_bio1 │      0.228 │
+    ##  │ _average_X_b │            │
+    ##  │ ias_area_km2 │            │
+    ##  ├──────────────┼────────────┤
+    ##  │ climate_hype │      0.205 │
+    ##  │ rvolume      │            │
+    ##  ├──────────────┼────────────┤
+    ##  │ human_popula │      0.105 │
+    ##  │ tion_density │            │
+    ##  ├──────────────┼────────────┤
+    ##  │ neighbors_co │      0.090 │
+    ##  │ unt          │            │
+    ##  ├──────────────┼────────────┤
+    ##  │ bias_species │      0.054 │
+    ##  │ _per_record  │            │
+    ##  ├──────────────┼────────────┤
+    ##  │ neighbors_ar │      0.046 │
+    ##  │ ea           │            │
+    ##  ├──────────────┼────────────┤
+    ##  │ fragmentatio │      0.045 │
+    ##  │ n_cohesion   │            │
+    ##  ├──────────────┼────────────┤
+    ##  │ climate_velo │      0.043 │
+    ##  │ city_lgm_ave │            │
+    ##  │ rage         │            │
+    ##  ├──────────────┼────────────┤
+    ##  │ topography_e │      0.038 │
+    ##  │ levation_ave │            │
+    ##  │ rage         │            │
+    ##  ├──────────────┼────────────┤
+    ##  │ climate_arid │      0.034 │
+    ##  │ ity_index_av │            │
+    ##  │ erage        │            │
+    ##  ├──────────────┼────────────┤
+    ##  │ neighbors_pe │      0.028 │
+    ##  │ rcent_shared │            │
+    ##  │ _edge        │            │
+    ##  ├──────────────┼────────────┤
+    ##  │ fragmentatio │      0.025 │
+    ##  │ n_division   │            │
+    ##  ├──────────────┼────────────┤
+    ##  │ climate_bio1 │      0.023 │
+    ##  │ 5_minimum    │            │
+    ##  ├──────────────┼────────────┤
+    ##  │ landcover_he │      0.007 │
+    ##  │ rbs_percent_ │            │
+    ##  │ average      │            │
+    ##  └──────────────┴────────────┘
 
 **Repeating a model execution**
 
@@ -765,16 +800,16 @@ we will see that a few of them are spatial predictors.
 
 | variable                                   | importance |
 |:-------------------------------------------|-----------:|
-| climate\_bio1\_average\_X\_bias\_area\_km2 |      0.166 |
-| spatial\_predictor\_0\_2                   |      0.148 |
-| climate\_hypervolume                       |      0.146 |
+| climate\_bio1\_average\_X\_bias\_area\_km2 |      0.169 |
+| climate\_hypervolume                       |      0.148 |
+| spatial\_predictor\_0\_2                   |      0.145 |
 | climate\_bio1\_average                     |      0.131 |
-| bias\_species\_per\_record                 |      0.075 |
-| spatial\_predictor\_0\_1                   |      0.068 |
-| spatial\_predictor\_3000\_1                |      0.054 |
-| spatial\_predictor\_0\_6                   |      0.048 |
-| spatial\_predictor\_0\_5                   |      0.043 |
-| neighbors\_count                           |      0.040 |
+| bias\_species\_per\_record                 |      0.073 |
+| spatial\_predictor\_0\_1                   |      0.065 |
+| spatial\_predictor\_3000\_1                |      0.052 |
+| spatial\_predictor\_0\_6                   |      0.050 |
+| spatial\_predictor\_0\_5                   |      0.040 |
+| spatial\_predictor\_1500\_1                |      0.038 |
 
 Spatial predictors are named `spatial_predictor_X_Y`, where `X` is the
 neighborhood distance at which the predictor has been generated, and `Y`
@@ -839,7 +874,7 @@ model.spatial.tuned <- rf_tuning(
 
     ##   - min.node.size: 5
 
-    ## gain in r.squared: 0.025
+    ## gain in r.squared: 0.024
 
 ![](README_files/figure-gfm/unnamed-chunk-31-1.png)<!-- -->
 
@@ -871,8 +906,12 @@ several objects that summarize the spatial cross-validation results.
 names(model.spatial.tuned$evaluation)
 ```
 
-    ## [1] "metrics"           "training.fraction" "spatial.folds"    
-    ## [4] "per.fold"          "per.fold.long"     "per.model"        
+    ## [1] "metrics"          
+    ## [2] "training.fraction"
+    ## [3] "spatial.folds"    
+    ## [4] "per.fold"         
+    ## [5] "per.fold.long"    
+    ## [6] "per.model"        
     ## [7] "aggregated"
 
 The slot “spatial.folds”, produced by
@@ -898,9 +937,15 @@ spatialRF::print_evaluation(model.spatial.tuned)
     ##   - Training fraction:             0.8
     ##   - Spatial folds:                 25
     ## 
-    ##     Metric     Mean Standard deviation  Minimum  Maximum
-    ##  r.squared    0.252              0.163    0.076    0.615
-    ##       rmse 3196.160            819.998 2267.920 4741.310
+    ##     Metric     Mean
+    ##  r.squared    0.251
+    ##       rmse 3199.209
+    ##  Standard deviation  Minimum
+    ##               0.163    0.075
+    ##             818.574 2264.616
+    ##   Maximum
+    ##     0.612
+    ##  4744.346
 
 The low R squared yielded by the model evaluation shows that the spatial
 model is hard to transfer outside of the training space. Models based on
@@ -944,12 +989,12 @@ comparison <- spatialRF::rf_compare(
 |:------------------|:----------|---------:|
 | Non-spatial       | r.squared |    0.336 |
 | Non-spatial tuned | r.squared |    0.412 |
-| Spatial           | r.squared |    0.163 |
-| Spatial tuned     | r.squared |    0.222 |
+| Spatial           | r.squared |    0.160 |
+| Spatial tuned     | r.squared |    0.221 |
 | Non-spatial       | rmse      | 2817.225 |
 | Non-spatial tuned | rmse      | 2329.933 |
-| Spatial           | rmse      | 3083.346 |
-| Spatial tuned     | rmse      | 2847.590 |
+| Spatial           | rmse      | 3094.314 |
+| Spatial tuned     | rmse      | 2848.684 |
 
 # Generating spatial predictors for other models
 
@@ -1060,8 +1105,12 @@ moran.test <- spatialRF::moran(
 moran.test
 ```
 
-    ##   distance.threshold moran.i.null  moran.i      p.value
-    ## 1                  0 -0.004424779 0.209955 2.081346e-09
+    ##   distance.threshold
+    ## 1                  0
+    ##   moran.i.null  moran.i
+    ## 1 -0.004424779 0.209955
+    ##        p.value
+    ## 1 2.081346e-09
     ##                 interpretation
     ## 1 Positive spatial correlation
 

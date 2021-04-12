@@ -1,7 +1,7 @@
 #' @title Moran's Eigenvector Maps for different distance thresholds
 #' @description Computes Moran's Eigenvector Maps of a distance matrix (using [mem()]) over different distance thresholds.
 #' @param x x Numeric matrix or data frame, generally a distance matrix. Default: `NULL`.
-#' @param distance.thresholds Numeric vector with distance thresholds defining neighborhood in the distance matrix, Default: `0`.
+#' @param distance.thresholds Numeric vector with distance thresholds defining neighborhood in the distance matrix, Default: `NULL`.
 #' @param max.spatial.predictors Maximum number of spatial predictors to generate. Only useful to save memory when the distance matrix `x` is very large. Default: `NULL`.
 #' @return A data frame with as many rows as the distance matrix `x` containing positive Moran's Eigenvector Maps. The data frame columns are named "spatial_predictor_DISTANCE_COLUMN", where DISTANCE is the given distance threshold, and COLUMN is the column index of the given spatial predictor.
 #' @details The function takes the distance matrix `x`, computes its weights at difference distance thresholds, double-centers the resulting weight matrices with [double_center_distance_matrix()], applies \link[base]{eigen} to each double-centered matrix, and returns eigenvectors with positive normalized eigenvalues for different distance thresholds.
@@ -25,6 +25,8 @@ mem_multithreshold <- function(
   distance.thresholds = NULL,
   max.spatial.predictors = NULL
 ){
+
+  distance.matrix <- NULL
 
   #creating distance thresholds
   if(is.null(distance.thresholds) == TRUE){
