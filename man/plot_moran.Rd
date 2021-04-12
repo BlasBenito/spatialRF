@@ -18,7 +18,7 @@ plot_moran(
 A ggplot.
 }
 \description{
-Plots the results of spatial autocorrelation tests for a variety of functions within the package.
+Plots the results of spatial autocorrelation tests for a variety of functions within the package. The x axis represents the Moran's I estimate, the y axis contains the values of the distance thresholds, the dot sizes represent the p-values of the Moran's I estimate, and the red dashed line represents the theoretical null value of the Moran's I estimate.
 }
 \examples{
 \donttest{
