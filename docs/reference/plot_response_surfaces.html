@@ -80,7 +80,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
+    <span class="fas fa fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -94,7 +94,7 @@
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/BlasBenito/spatialRF/">
-    <span class="fab fa-github fa-lg"></span>
+    <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -120,16 +120,16 @@
     <p>Plots response surfaces for any given pair of predictors in a <code><a href='rf.html'>rf()</a></code>, <code><a href='rf_repeat.html'>rf_repeat()</a></code>, or <code><a href='rf_spatial.html'>rf_spatial()</a></code> model.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>plot_response_surfaces</span><span class='op'>(</span>
-  model <span class='op'>=</span> <span class='cn'>NULL</span>,
-  a <span class='op'>=</span> <span class='cn'>NULL</span>,
-  b <span class='op'>=</span> <span class='cn'>NULL</span>,
-  quantiles <span class='op'>=</span> <span class='fl'>0.5</span>,
-  grid.resolution <span class='op'>=</span> <span class='fl'>100</span>,
-  point.size.range <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0.5</span>, <span class='fl'>2.5</span><span class='op'>)</span>,
-  point.alpha <span class='op'>=</span> <span class='fl'>1</span>,
-  verbose <span class='op'>=</span> <span class='cn'>TRUE</span>
-<span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>plot_response_surfaces</span>(
+  <span class='kw'>model</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>a</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>b</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>quantiles</span> <span class='kw'>=</span> <span class='fl'>0.5</span>,
+  <span class='kw'>grid.resolution</span> <span class='kw'>=</span> <span class='fl'>100</span>,
+  <span class='kw'>point.size.range</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.5</span>, <span class='fl'>2.5</span>),
+  <span class='kw'>point.alpha</span> <span class='kw'>=</span> <span class='fl'>1</span>,
+  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
+)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -173,30 +173,29 @@
     <p>A list with slots named after the selected <code>quantiles</code>, each one with a ggplot.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>All variables that are not <code>a</code> or <code>b</code> in a response curve are set to the values of their respective quantiles to plot the response surfaces. The output list can be plotted all at once with <code><a href='https://patchwork.data-imaginist.com/reference/wrap_plots.html'>patchwork::wrap_plots(p)</a></code> or <code><a href='https://wilkelab.org/cowplot/reference/plot_grid.html'>cowplot::plot_grid(plotlist = p)</a></code>, or one by one by extracting each plot from the list.</p>
+    <p>All variables that are not <code>a</code> or <code>b</code> in a response curve are set to the values of their respective quantiles to plot the response surfaces. The output list can be plotted all at once with <code><a href='https://patchwork.data-imaginist.com/reference/wrap_plots.html'>patchwork::wrap_plots(p)</a></code> or <code><a href='https://rdrr.io/pkg/cowplot/man/plot_grid.html'>cowplot::plot_grid(plotlist = p)</a></code>, or one by one by extracting each plot from the list.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code><a href='plot_response_curves.html'>plot_response_curves()</a></code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># \donttest{</span>
-<span class='kw'>if</span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span><span class='op'>{</span>
+<span class='kw'>if</span>(<span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span>()){
 
-<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='va'>plant_richness_df</span><span class='op'>)</span>
+<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>plant_richness_df</span>)
 
-<span class='va'>out</span> <span class='op'>&lt;-</span> <span class='fu'><a href='rf.html'>rf</a></span><span class='op'>(</span>
- data <span class='op'>=</span> <span class='va'>plant_richness_df</span>,
- dependent.variable.name <span class='op'>=</span> <span class='st'>"richness_species_vascular"</span>,
- predictor.variable.names <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span><span class='op'>(</span><span class='va'>plant_richness_df</span><span class='op'>)</span><span class='op'>[</span><span class='fl'>5</span><span class='op'>:</span><span class='fl'>21</span><span class='op'>]</span>,
- verbose <span class='op'>=</span> <span class='cn'>FALSE</span>
-<span class='op'>)</span>
+<span class='no'>out</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='rf.html'>rf</a></span>(
+ <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>plant_richness_df</span>,
+ <span class='kw'>dependent.variable.name</span> <span class='kw'>=</span> <span class='st'>"richness_species_vascular"</span>,
+ <span class='kw'>predictor.variable.names</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span>(<span class='no'>plant_richness_df</span>)[<span class='fl'>5</span>:<span class='fl'>21</span>],
+ <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
+)
 
-<span class='va'>p</span> <span class='op'>&lt;-</span> <span class='fu'>plot_response_surfaces</span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>out</span><span class='op'>)</span>
-<span class='va'>p</span>
+<span class='no'>p</span> <span class='kw'>&lt;-</span> <span class='fu'>plot_response_surfaces</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>out</span>)
+<span class='no'>p</span>
 
-<span class='op'>}</span>
-<span class='co'># }</span>
-</div></pre>
+}
+<span class='co'># }</span></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -212,7 +211,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
 </div>
 
       </footer>

@@ -139,7 +139,7 @@ remotes::install_github(
   )
 ```
 
-    ##          checking for file ‘/tmp/RtmpCMlJ6C/remotes9e6916dc8cd6/BlasBenito-spatialRF-c547323/DESCRIPTION’ ...  ✓  checking for file ‘/tmp/RtmpCMlJ6C/remotes9e6916dc8cd6/BlasBenito-spatialRF-c547323/DESCRIPTION’
+    ##      checking for file ‘/tmp/RtmpGvru2p/remotes13e715b271f6d/BlasBenito-spatialRF-cae5fbb/DESCRIPTION’ ...  ✓  checking for file ‘/tmp/RtmpGvru2p/remotes13e715b271f6d/BlasBenito-spatialRF-cae5fbb/DESCRIPTION’
     ##   ─  preparing ‘spatialRF’:
     ##    checking DESCRIPTION meta-information ...  ✓  checking DESCRIPTION meta-information
     ##   ─  checking for LF line-endings in source and make files and shell scripts
@@ -225,7 +225,7 @@ species found on each ecoregion. The figure below shows the centroids of
 each ecoregion along with their associated value of the response
 variable.
 
-![](README_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-31-1.png)<!-- -->
 
 The predictors (columns 5 to 21) represent diverse factors that may
 influence plant richness such as sampling bias, the area of the
@@ -234,12 +234,12 @@ geographical fragmentation, and features of the neighbors of each
 ecoregion. The figure below shows the scatterplots of the response
 variable (y axis) against each predictor (x axis).
 
-![](README_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-32-1.png)<!-- -->
 
 The function `plot_training_df_moran()` helps to check the spatial
 autocorrelation of the response variable and the predictors.
 
-![](README_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-33-1.png)<!-- -->
 
 # Finding promising variable interactions
 
@@ -269,23 +269,30 @@ interactions <- spatialRF::rf_interactions(
 
     ## 3 potential interactions identified.
 
-    ##   ┌───────────────────┬───────────────────┬────────────────┐
-    ##   │ Interaction       │  Importance (% of │ R2 improvement │
-    ##   │                   │              max) │                │
-    ##   ├───────────────────┼───────────────────┼────────────────┤
-    ##   │ human_population_ │              93.2 │          0.002 │
-    ##   │ X_bias_area_km2   │                   │                │
-    ##   ├───────────────────┼───────────────────┼────────────────┤
-    ##   │ human_population_ │              82.8 │          0.000 │
-    ##   │ X_human_populatio │                   │                │
-    ##   │ n_density         │                   │                │
-    ##   ├───────────────────┼───────────────────┼────────────────┤
-    ##   │ climate_bio1_aver │              77.9 │          0     │
-    ##   │ age_X_bias_area_k │                   │                │
-    ##   │ m2                │                   │                │
-    ##   └───────────────────┴───────────────────┴────────────────┘
+    ##  ┌───────────┬───────────┬───────────┐
+    ##  │ Interacti │ Importanc │        R2 │
+    ##  │ on        │         e │ improveme │
+    ##  │           │     (% of │        nt │
+    ##  │           │      max) │           │
+    ##  ├───────────┼───────────┼───────────┤
+    ##  │ human_pop │      93.2 │     0.002 │
+    ##  │ ulation_X │           │           │
+    ##  │ _bias_are │           │           │
+    ##  │ a_km2     │           │           │
+    ##  ├───────────┼───────────┼───────────┤
+    ##  │ human_pop │      82.8 │     0.000 │
+    ##  │ ulation_X │           │           │
+    ##  │ _human_po │           │           │
+    ##  │ pulation_ │           │           │
+    ##  │ density   │           │           │
+    ##  ├───────────┼───────────┼───────────┤
+    ##  │ climate_b │      77.9 │     0     │
+    ##  │ io1_avera │           │           │
+    ##  │ ge_X_bias │           │           │
+    ##  │ _area_km2 │           │           │
+    ##  └───────────┴───────────┴───────────┘
 
-![](README_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-34-1.png)<!-- -->
 
 Here `rf_interactions()` suggests several candidate interactions ordered
 by their impact on the model. The function cannot say whether an
@@ -373,7 +380,8 @@ An example is shown in the next section.
 names(predictor.variable.names)
 ```
 
-    ## [1] "vif"                   "selected.variables"   
+    ## [1] "vif"                  
+    ## [2] "selected.variables"   
     ## [3] "selected.variables.df"
 
 The slot `selected.variables` contains the names of the selected
@@ -446,7 +454,7 @@ among many others.
 spatialRF::plot_response_curves(model.non.spatial)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-40-1.png)<!-- -->
 
 In the response curves above, the other predictors are set to their
 quantiles 0.1, 0.5, and 0.8, but the user can change this behavior by
@@ -460,7 +468,7 @@ spatialRF::plot_response_surfaces(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-41-1.png)<!-- -->
 
 In this response surface, the predictors that are not shown are set to
 their medians (but other quantiles are possible).
@@ -469,7 +477,7 @@ their medians (but other quantiles are possible).
 spatialRF::plot_importance(model.non.spatial, verbose = FALSE)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-42-1.png)<!-- -->
 
 **Predicting onto new data**
 
@@ -502,7 +510,7 @@ model.non.spatial <- spatialRF::rf(
 )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->![](README_files/figure-gfm/unnamed-chunk-18-2.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-44-1.png)<!-- -->![](README_files/figure-gfm/unnamed-chunk-44-2.png)<!-- -->
 
     ## Model type
     ##   - Fitted with:                     ranger()
@@ -526,70 +534,73 @@ model.non.spatial <- spatialRF::rf(
     ## 
     ## Model residuals 
     ##   - Stats: 
-    ##       ┌──────────┬─────────┬─────────┬────────┬────────┐
-    ##       │ Min.     │ 1st Q.  │ Median  │ Mean   │ 3rd Q. │
-    ##       ├──────────┼─────────┼─────────┼────────┼────────┤
-    ##       │ -1974.48 │ -473.90 │ -177.07 │ -20.23 │ 148.60 │
-    ##       └──────────┴─────────┴─────────┴────────┴────────┘
+    ##    ┌──────────┬─────────┬─────────┐
+    ##    │ Min.     │ 1st Q.  │ Median  │
+    ##    ├──────────┼─────────┼─────────┤
+    ##    │ -1974.48 │ -473.90 │ -177.07 │
+    ##    └──────────┴─────────┴─────────┘
     ## 
-    ## 5/6 columns shown.
+    ## 3/6 columns shown.
     ##   - Spatial autocorrelation: 
-    ##       ┌──────────┬───────────┬─────────┬──────────────┐
-    ##       │ Distance │ Moran's I │ P value │ Interpretati │
-    ##       │          │           │         │ on           │
-    ##       ├──────────┼───────────┼─────────┼──────────────┤
-    ##       │      0.0 │     0.156 │   0.000 │ Positive     │
-    ##       │          │           │         │ spatial      │
-    ##       │          │           │         │ correlation  │
-    ##       ├──────────┼───────────┼─────────┼──────────────┤
-    ##       │   1500.0 │     0.040 │   0.000 │ Positive     │
-    ##       │          │           │         │ spatial      │
-    ##       │          │           │         │ correlation  │
-    ##       ├──────────┼───────────┼─────────┼──────────────┤
-    ##       │   3000.0 │     0.009 │   0.063 │ No spatial   │
-    ##       │          │           │         │ correlation  │
-    ##       └──────────┴───────────┴─────────┴──────────────┘
+    ##   ┌──────────┬───────────┬─────────┐
+    ##   │ Distance │ Moran's I │ P value │
+    ##   ├──────────┼───────────┼─────────┤
+    ##   │      0.0 │     0.156 │   0.000 │
+    ##   ├──────────┼───────────┼─────────┤
+    ##   │   1500.0 │     0.040 │   0.000 │
+    ##   ├──────────┼───────────┼─────────┤
+    ##   │   3000.0 │     0.009 │   0.063 │
+    ##   └──────────┴───────────┴─────────┘
     ## 
+    ## 3/4 columns shown.
     ## Variable importance: 
-    ##          ┌─────────────────────────────┬────────────┐
-    ##          │ Variable                    │ Importance │
-    ##          ├─────────────────────────────┼────────────┤
-    ##          │ climate_bio1_average        │      0.285 │
-    ##          ├─────────────────────────────┼────────────┤
-    ##          │ climate_bio1_average_X_bias │      0.228 │
-    ##          │ _area_km2                   │            │
-    ##          ├─────────────────────────────┼────────────┤
-    ##          │ climate_hypervolume         │      0.205 │
-    ##          ├─────────────────────────────┼────────────┤
-    ##          │ human_population_density    │      0.105 │
-    ##          ├─────────────────────────────┼────────────┤
-    ##          │ neighbors_count             │      0.090 │
-    ##          ├─────────────────────────────┼────────────┤
-    ##          │ bias_species_per_record     │      0.054 │
-    ##          ├─────────────────────────────┼────────────┤
-    ##          │ neighbors_area              │      0.046 │
-    ##          ├─────────────────────────────┼────────────┤
-    ##          │ fragmentation_cohesion      │      0.045 │
-    ##          ├─────────────────────────────┼────────────┤
-    ##          │ climate_velocity_lgm_averag │      0.043 │
-    ##          │ e                           │            │
-    ##          ├─────────────────────────────┼────────────┤
-    ##          │ topography_elevation_averag │      0.038 │
-    ##          │ e                           │            │
-    ##          ├─────────────────────────────┼────────────┤
-    ##          │ climate_aridity_index_avera │      0.034 │
-    ##          │ ge                          │            │
-    ##          ├─────────────────────────────┼────────────┤
-    ##          │ neighbors_percent_shared_ed │      0.028 │
-    ##          │ ge                          │            │
-    ##          ├─────────────────────────────┼────────────┤
-    ##          │ fragmentation_division      │      0.025 │
-    ##          ├─────────────────────────────┼────────────┤
-    ##          │ climate_bio15_minimum       │      0.023 │
-    ##          ├─────────────────────────────┼────────────┤
-    ##          │ landcover_herbs_percent_ave │      0.007 │
-    ##          │ rage                        │            │
-    ##          └─────────────────────────────┴────────────┘
+    ##    ┌──────────────────┬────────────┐
+    ##    │ Variable         │ Importance │
+    ##    ├──────────────────┼────────────┤
+    ##    │ climate_bio1_ave │      0.285 │
+    ##    │ rage             │            │
+    ##    ├──────────────────┼────────────┤
+    ##    │ climate_bio1_ave │      0.228 │
+    ##    │ rage_X_bias_area │            │
+    ##    │ _km2             │            │
+    ##    ├──────────────────┼────────────┤
+    ##    │ climate_hypervol │      0.205 │
+    ##    │ ume              │            │
+    ##    ├──────────────────┼────────────┤
+    ##    │ human_population │      0.105 │
+    ##    │ _density         │            │
+    ##    ├──────────────────┼────────────┤
+    ##    │ neighbors_count  │      0.090 │
+    ##    ├──────────────────┼────────────┤
+    ##    │ bias_species_per │      0.054 │
+    ##    │ _record          │            │
+    ##    ├──────────────────┼────────────┤
+    ##    │ neighbors_area   │      0.046 │
+    ##    ├──────────────────┼────────────┤
+    ##    │ fragmentation_co │      0.045 │
+    ##    │ hesion           │            │
+    ##    ├──────────────────┼────────────┤
+    ##    │ climate_velocity │      0.043 │
+    ##    │ _lgm_average     │            │
+    ##    ├──────────────────┼────────────┤
+    ##    │ topography_eleva │      0.038 │
+    ##    │ tion_average     │            │
+    ##    ├──────────────────┼────────────┤
+    ##    │ climate_aridity_ │      0.034 │
+    ##    │ index_average    │            │
+    ##    ├──────────────────┼────────────┤
+    ##    │ neighbors_percen │      0.028 │
+    ##    │ t_shared_edge    │            │
+    ##    ├──────────────────┼────────────┤
+    ##    │ fragmentation_di │      0.025 │
+    ##    │ vision           │            │
+    ##    ├──────────────────┼────────────┤
+    ##    │ climate_bio15_mi │      0.023 │
+    ##    │ nimum            │            │
+    ##    ├──────────────────┼────────────┤
+    ##    │ landcover_herbs_ │      0.007 │
+    ##    │ percent_average  │            │
+    ##    └──────────────────┴────────────┘
 
 **Repeating a model execution**
 
@@ -618,7 +629,7 @@ plot_importance(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-45-1.png)<!-- -->
 
 After 30 model repetitions it is clear that the difference in importance
 between `climate_hypervolume` and `climate_bio1_average_X_bias_area_km2`
@@ -635,7 +646,7 @@ spatialRF::plot_response_curves(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-20-1.png)<!-- --> The function
+![](README_files/figure-gfm/unnamed-chunk-46-1.png)<!-- --> The function
 `get_response_curves()` returns a data frame with the data required to
 make custom plots of the response curves.
 
@@ -702,7 +713,7 @@ model.non.spatial.tuned <- rf_tuning(
 
     ## gain in r.squared: 0.033
 
-![](README_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-49-1.png)<!-- -->
 
 The function `rf_tuning()` returns a model fitted with the same data as
 the original model, but using the best hyperparameters found during
@@ -724,7 +735,20 @@ spatialRF::plot_moran(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-50-1.png)<!-- -->
+
+**Note:** The function `spatialRF::plot_moran()` can also plot a more
+classical “Moran’s scatterplot” by adding the argument `option = 2`.
+
+``` r
+spatialRF::plot_moran(
+  model.non.spatial.tuned, 
+  option = 2,
+  verbose = FALSE
+  )
+```
+
+![](README_files/figure-gfm/unnamed-chunk-51-1.png)<!-- -->
 
 According to the plot, the spatial autocorrelation of the residuals is
 highly positive for a neighborhood of 0 km, while it becomes
@@ -757,7 +781,7 @@ spatialRF::plot_moran(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-53-1.png)<!-- -->
 
 If we compare the variable importance plots of both models, we can see
 that the spatial model has an additional set of dots under the name
@@ -779,23 +803,23 @@ p2 <- spatialRF::plot_importance(
 p1 | p2 
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-54-1.png)<!-- -->
 
 If we take a look to the ten most important variables in `model.spatial`
 we will see that a few of them are spatial predictors.
 
 | variable                                   | importance |
 |:-------------------------------------------|-----------:|
-| climate\_bio1\_average\_X\_bias\_area\_km2 |      0.169 |
-| climate\_hypervolume                       |      0.148 |
-| spatial\_predictor\_0\_2                   |      0.145 |
+| climate\_bio1\_average\_X\_bias\_area\_km2 |      0.166 |
+| spatial\_predictor\_0\_2                   |      0.148 |
+| climate\_hypervolume                       |      0.146 |
 | climate\_bio1\_average                     |      0.131 |
-| bias\_species\_per\_record                 |      0.073 |
-| spatial\_predictor\_0\_1                   |      0.065 |
-| spatial\_predictor\_3000\_1                |      0.052 |
-| spatial\_predictor\_0\_6                   |      0.050 |
-| spatial\_predictor\_0\_5                   |      0.040 |
-| spatial\_predictor\_1500\_1                |      0.038 |
+| bias\_species\_per\_record                 |      0.075 |
+| spatial\_predictor\_0\_1                   |      0.068 |
+| spatial\_predictor\_3000\_1                |      0.054 |
+| spatial\_predictor\_0\_6                   |      0.048 |
+| spatial\_predictor\_0\_5                   |      0.043 |
+| neighbors\_count                           |      0.040 |
 
 Spatial predictors are named `spatial_predictor_X_Y`, where `X` is the
 neighborhood distance at which the predictor has been generated, and `Y`
@@ -804,7 +828,7 @@ is the index of the predictor.
 Spatial predictors, as shown below, are smooth surfaces representing
 neighborhood among records at different spatial scales.
 
-![](README_files/figure-gfm/unnamed-chunk-29-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-56-1.png)<!-- -->
 
 The spatial predictors in the spatial model have been generated using
 the method “mem.moran.sequential” (function’s default), that mimics the
@@ -825,7 +849,7 @@ linked by lines represent the selected spatial predictors). The
 selection procedure is performed by the function
 [`select_spatial_predictors_sequential()`](https://blasbenito.github.io/spatialRF/reference/select_spatial_predictors_sequential.html).
 
-![](README_files/figure-gfm/unnamed-chunk-30-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-57-1.png)<!-- -->
 
 **Tuning spatial models**
 
@@ -860,9 +884,9 @@ model.spatial.tuned <- rf_tuning(
 
     ##   - min.node.size: 5
 
-    ## gain in r.squared: 0.024
+    ## gain in r.squared: 0.025
 
-![](README_files/figure-gfm/unnamed-chunk-31-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-58-1.png)<!-- -->
 
 # Assessing model performance on spatially independent folds
 
@@ -892,9 +916,12 @@ several objects that summarize the spatial cross-validation results.
 names(model.spatial.tuned$evaluation)
 ```
 
-    ## [1] "metrics"           "training.fraction"
-    ## [3] "spatial.folds"     "per.fold"         
-    ## [5] "per.fold.long"     "per.model"        
+    ## [1] "metrics"          
+    ## [2] "training.fraction"
+    ## [3] "spatial.folds"    
+    ## [4] "per.fold"         
+    ## [5] "per.fold.long"    
+    ## [6] "per.model"        
     ## [7] "aggregated"
 
 The slot “spatial.folds”, produced by
@@ -903,7 +930,7 @@ contains the indices of the training and testing cases for each
 cross-validation repetition. The maps below show two sets of training
 and testing spatial folds.
 
-![](README_files/figure-gfm/unnamed-chunk-34-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-61-1.png)<!-- -->
 
 The functions
 [`plot_evaluation()`](https://blasbenito.github.io/spatialRF/reference/plot_evaluation.html)
@@ -920,9 +947,12 @@ spatialRF::print_evaluation(model.spatial.tuned)
     ##   - Training fraction:             0.8
     ##   - Spatial folds:                 25
     ## 
-    ##     Metric     Mean Standard deviation  Minimum  Maximum
-    ##  r.squared    0.251              0.163    0.075    0.612
-    ##       rmse 3199.209            818.574 2264.616 4744.346
+    ##     Metric     Mean Standard deviation
+    ##  r.squared    0.252              0.163
+    ##       rmse 3196.160            819.998
+    ##   Minimum  Maximum
+    ##     0.076    0.615
+    ##  2267.920 4741.310
 
 The low R squared yielded by the model evaluation shows that the spatial
 model is hard to transfer outside of the training space. Models based on
@@ -960,18 +990,18 @@ comparison <- spatialRF::rf_compare(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-36-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-63-1.png)<!-- -->
 
 | Model             | Metric    |     Mean |
 |:------------------|:----------|---------:|
 | Non-spatial       | r.squared |    0.336 |
 | Non-spatial tuned | r.squared |    0.412 |
-| Spatial           | r.squared |    0.160 |
-| Spatial tuned     | r.squared |    0.221 |
+| Spatial           | r.squared |    0.163 |
+| Spatial tuned     | r.squared |    0.222 |
 | Non-spatial       | rmse      | 2817.225 |
 | Non-spatial tuned | rmse      | 2329.933 |
-| Spatial           | rmse      | 3094.314 |
-| Spatial tuned     | rmse      | 2848.684 |
+| Spatial           | rmse      | 3083.346 |
+| Spatial tuned     | rmse      | 2847.590 |
 
 # Generating spatial predictors for other models
 
@@ -1082,8 +1112,10 @@ moran.test <- spatialRF::moran(
 moran.test
 ```
 
-    ##   distance.threshold moran.i.null  moran.i      p.value
-    ## 1                  0 -0.004424779 0.209955 2.081346e-09
+    ##   distance.threshold moran.i.null
+    ## 1                  0 -0.004424779
+    ##    moran.i      p.value
+    ## 1 0.209955 2.081346e-09
     ##                 interpretation
     ## 1 Positive spatial correlation
 

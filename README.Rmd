@@ -399,7 +399,7 @@ spatialRF::plot_moran(
 
 **Note:** The function `spatialRF::plot_moran()` can also plot a more classical "Moran's scatterplot" by adding the argument `option = 2`.
 
-```{r, fig.width=6, fig.height=3, message=FALSE, warning=FALSE}
+```{r, fig.width=6, fig.height=5.5, message=FALSE, warning=FALSE}
 spatialRF::plot_moran(
   model.non.spatial.tuned, 
   option = 2,
