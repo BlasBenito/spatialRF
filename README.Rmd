@@ -397,6 +397,16 @@ spatialRF::plot_moran(
   )
 ```
 
+**Note:** The function `spatialRF::plot_moran()` can also plot a more classical "Moran's scatterplot" by adding the argument `option = 2`.
+
+```{r, fig.width=6, fig.height=3, message=FALSE, warning=FALSE}
+spatialRF::plot_moran(
+  model.non.spatial.tuned, 
+  option = 2,
+  verbose = FALSE
+  )
+```
+
 According to the plot, the spatial autocorrelation of the residuals is highly positive for a neighborhood of 0 km, while it becomes non-significant (p-value \> 0.05, whatever that means) at 1500 and 3000 km. To reduce the spatial autocorrelation of the residuals as much as possible, the non-spatial tuned model fitted above can be converted into a spatial model easily with [`rf_spatial()`](https://blasbenito.github.io/spatialRF/reference/rf_spatial.html), that by default uses the Moran's Eigenvector Maps method.
 
 ```{r}

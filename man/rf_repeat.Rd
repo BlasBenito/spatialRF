@@ -12,7 +12,7 @@ rf_repeat(
   distance.matrix = NULL,
   distance.thresholds = NULL,
   ranger.arguments = NULL,
-  scaled.importance = TRUE,
+  scaled.importance = FALSE,
   repetitions = 5,
   keep.models = TRUE,
   seed = NULL,
@@ -39,7 +39,7 @@ rf_repeat(
 
 \item{ranger.arguments}{Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.}
 
-\item{scaled.importance}{Logical. If \code{TRUE}, and 'importance = "permutation', the function scales 'data' with \link[base]{scale} and fits a new model to compute scaled variable importance scores. Default: \code{TRUE}}
+\item{scaled.importance}{Logical. If \code{TRUE}, and 'importance = "permutation', the function scales 'data' with \link[base]{scale} and fits a new model to compute scaled variable importance scores. Default: \code{FALSE}}
 
 \item{repetitions}{Integer, number of random forest models to fit. Default: \code{5}}
 
