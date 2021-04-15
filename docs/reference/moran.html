@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Moran's I test on a numeric vector — moran • spatialRF</title>
+<title>Moran's I test — moran • spatialRF</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,8 @@
 
 
 
-<meta property="og:title" content="Moran's I test on a numeric vector — moran" />
-<meta property="og:description" content="Computes the spatial correlation coefficient (Moran's I) of a vector given a distance matrix, and a distance threshold used to define neighborhood." />
+<meta property="og:title" content="Moran's I test — moran" />
+<meta property="og:description" content="Computes the spatial correlation coefficient (Moran's I) of a vector given a distance matrix, and a distance threshold used to define &quot;neighborhood&quot;." />
 
 
 
@@ -111,19 +111,20 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Moran's I test on a numeric vector</h1>
+    <h1>Moran's I test</h1>
     <small class="dont-index">Source: <a href='https://github.com/BlasBenito/spatialRF/blob/master/R/moran.R'><code>R/moran.R</code></a></small>
     <div class="hidden name"><code>moran.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Computes the spatial correlation coefficient (Moran's I) of a vector given a distance matrix, and a distance threshold used to define neighborhood.</p>
+    <p>Computes the spatial correlation coefficient (Moran's I) of a vector given a distance matrix, and a distance threshold used to define "neighborhood".</p>
     </div>
 
     <pre class="usage"><span class='fu'>moran</span>(
   <span class='kw'>x</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>distance.matrix</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>distance.threshold</span> <span class='kw'>=</span> <span class='fl'>0</span>
+  <span class='kw'>distance.threshold</span> <span class='kw'>=</span> <span class='fl'>0</span>,
+  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -141,14 +142,18 @@
       <th>distance.threshold</th>
       <td><p>numeric value in the range of values available in <code>distance.matrix</code>. Distances below such threshold are set to 0. Default: <code>0</code></p></td>
     </tr>
+    <tr>
+      <th>verbose</th>
+      <td><p>Logical, if <code>TRUE</code>, prints a Moran's I plot. Default: <code>TRUE</code></p></td>
+    </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>A list with three named slots:</p><ul>
-<li><p><code>moran.i</code>: Moran's I of <code>x</code>.</p></li>
-<li><p><code>p.value</code>: P-value of the Moran's I estimate.</p></li>
-<li><p><code>interpretation</code>: Interpretation of the Moran's I value according to the p-value. One of "Positive spatial correlation", "Negative spatial correlation", and "No spatial correlation".</p></li>
+<li><p><code>test</code>: Data frame with observed and expected Moran's I values, p-value, and interpretation.</p></li>
+<li><p><code>plot</code>: Moran's plot of the vector x against the spatial lags of x.</p></li>
+<li><p><code>plot.df</code>: Data used in the Moran's plot.</p></li>
 </ul>
 
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>

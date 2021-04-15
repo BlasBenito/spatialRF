@@ -22,7 +22,7 @@ always_allow_html: yes
 
 # Introduction
 
-The package **spatialRF** facilitates fitting spatial regression models on regular or irregular data with Random Forest by generating *spatial predictors* that allow the model to take into account the spatial structure of the training data. The end goal is minimizing the spatial autocorrelation of the model residuals as much as possible.
+The package **spatialRF** facilitates fitting spatial regression models on regular or irregular data with Random Forest. It does so by generating *spatial predictors* that help the model "understand" the spatial structure of the training data with the end goal of minimizing the spatial autocorrelation of the model residuals and offering honest ariable importance scores.
 
 Two main methods to generate *spatial predictors* from the distance matrix of the data points are implemented in the package:
 
@@ -40,7 +40,7 @@ spatial.model <- spatialRF::rf_spatial(
   )
 ```
 
-The package, that uses the `ranger` package under the hood [(Wright and Ziegler 2017)](https://arxiv.org/abs/1508.04409), also provides tools to identify potentially interesting variable interactions, tune random forest hyperparameters, assess model performance on spatially independent data folds, and examine the resulting models via importance plots, response curves, and response surfaces.
+**spatialRF** uses the fast and efficient `ranger` package under the hood [(Wright and Ziegler 2017)](https://arxiv.org/abs/1508.04409). It also provides tools to identify potentially interesting variable interactions, tune random forest hyperparameters, assess model performance on spatially independent data folds, and examine the resulting models via importance plots, response curves, and response surfaces.
 
 # Development
 
@@ -56,7 +56,7 @@ I will do my best to solve any issues ASAP!
 
 The goal of `spatialRF` is to help fitting *explanatory spatial regression*, where the target is to understand how a set of predictors and the spatial structure of the data influences response variable. Therefore, the spatial analyses implemented in the package can be applied to any spatial dataset, regular or irregular, with a sample size between \~100 and \~5000 cases (the higher end will depend on the RAM memory available), a quantitative or binary (values 0 and 1) response variable, and a more or less large set of predictive variables.
 
-All functions but `rf_spatial()` work with non-spatial data as well if the arguments `distance.matrix` and `distance.thresholds` are ignored. In such case, the number of cases is no longer limited by the size of the distance matrix, and models can be trained with hundreds of thousands of rows. 
+All functions but `rf_spatial()` work with non-spatial data as well if the arguments `distance.matrix` and `distance.thresholds` are ignored. In such case, the number of training cases is no longer limited by the size of the distance matrix, and models can be trained with hundreds of thousands of rows. 
 
 However, **when the focus is on fitting spatial models**, and due to the nature of the *spatial predictors* used to represent the spatial structure of the training data, **there are many things this package cannot do**:
 
@@ -98,9 +98,9 @@ library(rnaturalearthdata)
 The data required to fit random forest models with `spatialRF` must fulfill several conditions:
 
   + **The input format is data.frame**. At the moment, tibbles are not fully supported.
-  + **The number of rows must be somewhere between 100 and ~5000**, but that will depend on the RAM available in your system. However, this limitation only affects spatial analyses performed with `rf_spatial()`, while all other modeling and plotting functions should work without a distance matrix (if they don't tell me, that'd be a bug!), and therefore analyses in large datasets can still be done with the package.
-  + **The number of predictors should be larger than 3**, fitting a Random Forest model is moot otherwise.
-  + **Factors in the response or the predictors are not explicitly supported in the package**, they may work, or they won't, but in any case, I designed this package for quantitative data alone. However, binary data with values 0 and 1 in the response variable are supported.
+  + **The number of rows must be somewhere between 100 and ~5000**, at least if your target is fitting spatial models. This limitation comes from the fact that the distance matrix grows in size very fast with increasing number of training records, so for large datasets there might not be enough RAM memory in your machine.
+  + **The number of predictors should be larger than 3**. Fitting a Random Forest model is moot otherwise.
+  + **Factors in the response or the predictors are not explicitly supported in the package**. They may work, or they won't, but in any case, I designed this package for quantitative data alone. However, binary responses with values 0 and 1 are partially supported.
   + **Must be free of `NA`**. You can check if there are NA records with `sum(apply(df, 2, is.na))`. If the result is larger than 0, then just execute `df <- na.omit(df)` to remove rows with empty cells.
   + **Columns cannot have zero variance**. This condition can be checked with `apply(df, 2, var) == 0`. Columns yielding TRUE should be removed.
   + **Columns must not yield `NaN` or `Inf` when scaled**. You can check each condition with `sum(apply(scale(df), 2, is.nan))` and `sum(apply(scale(df), 2, is.infinite))`. If higher than 0, you can find what columns are giving issues with `sapply(as.data.frame(scale(df)), function(x)any(is.nan(x)))` and `sapply(as.data.frame(scale(df)), function(x)any(is.infinite(x)))`. Any column yielding `TRUE` will generate issues while trying to fit models with `spatialRF`.
@@ -303,7 +303,7 @@ predicted <- stats::predict(
 
 Executing the model with the argument `verbose` set to `TRUE` (its default value) prints and plots most of the information required to interpret the model output.
 
-```{r}
+```{r, fig.width = 6}
 model.non.spatial <- spatialRF::rf(
   data = plant_richness_df,
   dependent.variable.name = dependent.variable.name,
@@ -407,7 +407,7 @@ spatialRF::plot_moran(
   )
 ```
 
-According to the plot, the spatial autocorrelation of the residuals is highly positive for a neighborhood of 0 km, while it becomes non-significant (p-value \> 0.05, whatever that means) at 1500 and 3000 km. To reduce the spatial autocorrelation of the residuals as much as possible, the non-spatial tuned model fitted above can be converted into a spatial model easily with [`rf_spatial()`](https://blasbenito.github.io/spatialRF/reference/rf_spatial.html), that by default uses the Moran's Eigenvector Maps method.
+According to the plots, the spatial autocorrelation of the residuals is highly positive for a neighborhood of 0 km, while it becomes non-significant (p-value \> 0.05, whatever that means) at 1500 and 3000 km. To reduce the spatial autocorrelation of the residuals as much as possible, the non-spatial tuned model fitted above can be converted into a spatial model easily with [`rf_spatial()`](https://blasbenito.github.io/spatialRF/reference/rf_spatial.html), that by default uses the Moran's Eigenvector Maps method.
 
 ```{r}
 model.spatial <- spatialRF::rf_spatial(
@@ -660,7 +660,7 @@ The first step requires generating Moran's Eigenvector Maps (MEMs) from the dist
 
 ```{r}
 #single distance (0km by default)
-mems <- mem(x = distance_matrix)
+mems <- spatialRF::mem(x = distance_matrix)
 
 #several distances
 mems <- spatialRF::mem_multithreshold(
@@ -684,7 +684,8 @@ But not all MEMs are made equal, and you will need to rank them by their Moran's
 ```{r}
 mem.rank <- spatialRF::rank_spatial_predictors(
   distance.matrix = distance_matrix,
-  spatial.predictors.df = mems
+  spatial.predictors.df = mems,
+  ranking.method = "moran"
 )
 ```
 
@@ -699,7 +700,7 @@ mems <- mems[, mem.rank$ranking]
 
 From here, spatial predictors can be included in any model one by one, in the order of the ranking, until the spatial autocorrelation of the residuals is gone, or our model gets totally defaced. A little example with a linear model follows.
 
-```{r}
+```{r, fig.width = 6}
 #model definition
 predictors <- c(
   "climate_aridity_index_average ",
@@ -731,13 +732,14 @@ m <- lm(model.formula, data = plant_richness_df)
 moran.test <- spatialRF::moran(
   x = residuals(m),
   distance.matrix = distance_matrix,
+  verbose = FALSE
 )
-moran.test
+moran.test$plot
 ```
 
 According to the Moran's I test, the model residuals show spatial autocorrelation. Let's introduce MEMs one by one until the problem is solved.
 
-```{r}
+```{r, fig.width=6}
 #add mems to the data and applies scale()
 model.data <- data.frame(
   plant_richness_df,
@@ -774,14 +776,18 @@ for(mem.i in colnames(mems)){
   moran.test.i <- moran(
     x = residuals(m.i),
     distance.matrix = distance_matrix,
+    verbose = FALSE
   )
   
   #stop if no autocorrelation
-  if(moran.test.i$interpretation != "Positive spatial correlation"){
+  if(moran.test.i$test$interpretation != "Positive spatial correlation"){
     break
   }
   
 }#end of loop
+
+#last moran test
+moran.test.i$plot
 ```
 
 Now we can compare the model without spatial predictors `m` and the model with spatial predictors `m.i`.
@@ -793,7 +799,7 @@ comparison.df <- data.frame(
   R_squared = round(c(summary(m)$r.squared, summary(m.i)$r.squared), 2),
   AIC = round(c(AIC(m), AIC(m.i)), 0),
   BIC = round(c(BIC(m), BIC(m.i)), 0),
-  `Moran I` = round(c(moran.test$moran.i, moran.test.i$moran.i), 2)
+  `Moran I` = round(c(moran.test$test$moran.i, moran.test.i$test$moran.i), 2)
 )
 
 kableExtra::kbl(
