@@ -142,7 +142,7 @@ remotes::install_github(
 ```
 
     ## 
-    ##      checking for file ‘/tmp/RtmpI4YoUH/remotes26cd21a24e228/BlasBenito-spatialRF-bb04402/DESCRIPTION’ ...  ✓  checking for file ‘/tmp/RtmpI4YoUH/remotes26cd21a24e228/BlasBenito-spatialRF-bb04402/DESCRIPTION’
+    ##      checking for file ‘/tmp/RtmpxPQfCA/remotes33ef7377dc42d/BlasBenito-spatialRF-0fc6624/DESCRIPTION’ ...  ✓  checking for file ‘/tmp/RtmpxPQfCA/remotes33ef7377dc42d/BlasBenito-spatialRF-0fc6624/DESCRIPTION’
     ##   ─  preparing ‘spatialRF’:
     ##    checking DESCRIPTION meta-information ...  ✓  checking DESCRIPTION meta-information
     ##   ─  checking for LF line-endings in source and make files and shell scripts
@@ -1071,7 +1071,7 @@ model.data <- scale(plant_richness_df) %>%
   as.data.frame()
 
 #fitting the model
-m <- lm(model.formula, data = plant_richness_df)
+m <- lm(model.formula, data = model.data)
 
 #Moran's I test of the residuals
 moran.test <- spatialRF::moran(
@@ -1144,10 +1144,10 @@ moran.test.i$plot
 Now we can compare the model without spatial predictors `m` and the
 model with spatial predictors `m.i`.
 
-| Model       | Predictors | R\_squared |  AIC |  BIC | Moran.I |
-|:------------|-----------:|-----------:|-----:|-----:|--------:|
-| Non-spatial |          6 |       0.38 | 4238 | 4266 |    0.21 |
-| Spatial     |         21 |       0.51 |  529 |  608 |    0.06 |
+| Model       | Predictors | R\_squared | AIC | BIC | Moran.I |
+|:------------|-----------:|-----------:|----:|----:|--------:|
+| Non-spatial |          6 |       0.38 | 551 | 578 |    0.21 |
+| Spatial     |         21 |       0.51 | 529 | 608 |    0.06 |
 
 According to the model comparison, it can be concluded that the addition
 of spatial predictors, in spite of the increase in complexity, has

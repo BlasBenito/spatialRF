@@ -700,7 +700,7 @@ mems <- mems[, mem.rank$ranking]
 
 From here, spatial predictors can be included in any model one by one, in the order of the ranking, until the spatial autocorrelation of the residuals is gone, or our model gets totally defaced. A little example with a linear model follows.
 
-```{r, fig.width = 6}
+```{r, fig.width = 6, fig.height=2.5}
 #model definition
 predictors <- c(
   "climate_aridity_index_average ",
@@ -726,7 +726,7 @@ model.data <- scale(plant_richness_df) %>%
   as.data.frame()
 
 #fitting the model
-m <- lm(model.formula, data = plant_richness_df)
+m <- lm(model.formula, data = model.data)
 
 #Moran's I test of the residuals
 moran.test <- spatialRF::moran(
@@ -739,7 +739,7 @@ moran.test$plot
 
 According to the Moran's I test, the model residuals show spatial autocorrelation. Let's introduce MEMs one by one until the problem is solved.
 
-```{r, fig.width=6}
+```{r, fig.width=6, fig.height=2.5}
 #add mems to the data and applies scale()
 model.data <- data.frame(
   plant_richness_df,

@@ -21,6 +21,14 @@ devtools::document()
 devtools::check()
 ########################################
 
+#https://www.rostrum.blog/2020/08/09/ghactions-pkgs/
+# usethis::use_pkgdown()
+# usethis::use_github_action("pkgdown")
+rmarkdown::render(input = "README.Rmd")
+pkgdown::build_site()
+unlink("docs/README_files", recursive = TRUE)
+system("cp -avr README_files docs")
+
 #check in different platforms
 rhub::validate_email()
 platforms <- rhub::platforms()
@@ -61,13 +69,7 @@ usethis::use_github_action_check_standard()
 # git push origin gh-pages
 # git checkout main
 
-#https://www.rostrum.blog/2020/08/09/ghactions-pkgs/
-# usethis::use_pkgdown()
-# usethis::use_github_action("pkgdown")
-rmarkdown::render(input = "README.Rmd")
-pkgdown::build_site()
-unlink("docs/README_files", recursive = TRUE)
-system("cp -avr README_files docs")
+
 
 #build documentation
 devtools::document()

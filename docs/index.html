@@ -148,7 +148,7 @@
   <span class="kw">force</span> <span class="kw">=</span> <span class="fl">TRUE</span>
   )</pre></div>
 <div class="sourceCode" id="cb3"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="do">##      checking for file ‘/tmp/RtmpI4YoUH/remotes26cd21a24e228/BlasBenito-spatialRF-bb04402/DESCRIPTION’ ...  ✓  checking for file ‘/tmp/RtmpI4YoUH/remotes26cd21a24e228/BlasBenito-spatialRF-bb04402/DESCRIPTION’</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="do">##      checking for file ‘/tmp/RtmpxPQfCA/remotes33ef7377dc42d/BlasBenito-spatialRF-0fc6624/DESCRIPTION’ ...  ✓  checking for file ‘/tmp/RtmpxPQfCA/remotes33ef7377dc42d/BlasBenito-spatialRF-0fc6624/DESCRIPTION’</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="do">##   ─  preparing ‘spatialRF’:</span></span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="do">##    checking DESCRIPTION meta-information ...  ✓  checking DESCRIPTION meta-information</span></span>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="do">##   ─  checking for LF line-endings in source and make files and shell scripts</span></span>
@@ -918,7 +918,7 @@
   <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span>()
 
 <span class="co">#fitting the model</span>
-<span class="no">m</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html">lm</a></span>(<span class="no">model.formula</span>, <span class="kw">data</span> <span class="kw">=</span> <span class="no">plant_richness_df</span>)
+<span class="no">m</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html">lm</a></span>(<span class="no">model.formula</span>, <span class="kw">data</span> <span class="kw">=</span> <span class="no">model.data</span>)
 
 <span class="co">#Moran's I test of the residuals</span>
 <span class="no">moran.test</span> <span class="kw">&lt;-</span> <span class="kw pkg">spatialRF</span><span class="kw ns">::</span><span class="fu"><a href="reference/moran.html">moran</a></span>(
@@ -993,8 +993,8 @@
 <td align="left">Non-spatial</td>
 <td align="right">6</td>
 <td align="right">0.38</td>
-<td align="right">4238</td>
-<td align="right">4266</td>
+<td align="right">551</td>
+<td align="right">578</td>
 <td align="right">0.21</td>
 </tr>
 <tr class="even">
