@@ -2,12 +2,13 @@
 % Please edit documentation in R/moran.R
 \name{moran}
 \alias{moran}
-\title{Moran's I test on a numeric vector}
+\title{Moran's I test}
 \usage{
 moran(
   x = NULL,
   distance.matrix = NULL,
-  distance.threshold = 0
+  distance.threshold = 0,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -16,17 +17,19 @@ moran(
 \item{distance.matrix}{Distance matrix among cases in \code{x}. The number of rows of this matrix must be equal to the length of \code{x}. Default: \code{NULL}}
 
 \item{distance.threshold}{numeric value in the range of values available in \code{distance.matrix}. Distances below such threshold are set to 0. Default: \code{0}}
+
+\item{verbose}{Logical, if \code{TRUE}, prints a Moran's I plot. Default: \code{TRUE}}
 }
 \value{
 A list with three named slots:
 \itemize{
-\item \code{moran.i}: Moran's I of \code{x}.
-\item \code{p.value}: P-value of the Moran's I estimate.
-\item \code{interpretation}: Interpretation of the Moran's I value according to the p-value. One of "Positive spatial correlation", "Negative spatial correlation", and "No spatial correlation".
+\item \code{test}: Data frame with observed and expected Moran's I values, p-value, and interpretation.
+\item \code{plot}: Moran's plot of the vector x against the spatial lags of x.
+\item \code{plot.df}: Data used in the Moran's plot.
 }
 }
 \description{
-Computes the spatial correlation coefficient (Moran's I) of a vector given a distance matrix, and a distance threshold used to define neighborhood.
+Computes the spatial correlation coefficient (Moran's I) of a vector given a distance matrix, and a distance threshold used to define "neighborhood".
 }
 \details{
 Inspired in the \code{Moran.I()} function of the \href{https://cran.r-project.org/package=ape}{ape} package.

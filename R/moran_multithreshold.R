@@ -83,13 +83,14 @@ moran_multithreshold <- function(
     moran.out <- moran(
       x = x,
       distance.matrix = distance.matrix,
-      distance.threshold = out.df[i, "distance.threshold"]
+      distance.threshold = out.df[i, "distance.threshold"],
+      verbose = FALSE
     )
 
-    out.df[i, "moran.i"] <- moran.out["moran.i"]
-    out.df[i, "moran.i.null"] <- moran.out["moran.i.null"]
-    out.df[i, "p.value"] <- moran.out["p.value"]
-    out.df[i, "interpretation"] <- moran.out["interpretation"]
+    out.df[i, "moran.i"] <- moran.out$test$moran.i
+    out.df[i, "moran.i.null"] <- moran.out$test$moran.i.null
+    out.df[i, "p.value"] <- moran.out$test$p.value
+    out.df[i, "interpretation"] <- moran.out$test$interpretation
 
   }
 

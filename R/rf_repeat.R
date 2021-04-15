@@ -513,7 +513,7 @@ rf_repeat <- function(
   #gathering models
   if(keep.models == TRUE){
 
-    m.curves$models <-    lapply(
+    m.curves$models <- lapply(
       repeated.models,
       "[[",
       "model"
