@@ -245,8 +245,8 @@ rank_spatial_predictors <- function(
       #out.df
       out.i <- data.frame(
         spatial.predictors.name = spatial.predictors.name.i,
-        ranking.criteria = m.i$moran.i,
-        interpretation = m.i$interpretation
+        ranking.criteria = m.i$test$moran.i,
+        interpretation = m.i$test$interpretation
       )
 
     }
