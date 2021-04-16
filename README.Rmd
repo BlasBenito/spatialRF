@@ -76,7 +76,7 @@ If after considering these limitations you are still interested, follow me, I wi
 
 The package is not yet in the CRAN repositories, so at the moment it must be installed from GitHub as follows.
 
-```{r, message = FALSE, eval = FALSE}
+```{r, message = FALSE, eval = TRUE}
 remotes::install_github(
   repo = "blasbenito/spatialRF", 
   ref = "development",
@@ -542,7 +542,7 @@ p <- spatialRF::plot_optimization(model.spatial)
 Spatial models fitted with `rf_spatial()` can be tuned as well with `rf_tuning()`. However, tuning may in some cases increase the spatial autocorrelation of the model residuals. In that case, the function will return a message explaining the situation, and the original model without any sort of tuning applied
 
 ```{r, fig.width=6, fig.height=4.5}
-model.spatial.tuned <- rf_tuning(
+model.spatial.tuned <- spatialRF::rf_tuning(
   model = model.spatial,
   xy = plant_richness_df[, c("x", "y")],
   repetitions = 30,
@@ -681,14 +681,6 @@ mems <- spatialRF::mem(x = distance_matrix)
 mems <- spatialRF::mem_multithreshold(
   x = distance_matrix,
   distance.thresholds = c(0, 1000, 2000)
-)
-```
-
-When there are several `distance.thresholds`, multicollinearity arises between Moran's Eigenvector Maps computed for different neighborhood distances. Also, there may be MEMs that are collinear with the non-spatial predictors of the model. To reduce the redundancy of the MEMs we can use the function `filter_spatial_predictors()` as follows.
-
-```{r}
-mems <- spatialRF::filter_spatial_predictors(
-  data = 
 )
 ```
 

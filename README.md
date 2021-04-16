@@ -27,7 +27,7 @@
 -->
 <!-- badges: start -->
 
-[![Devel-version](https://img.shields.io/badge/devel%20version-1.0.7-blue.svg)](https://github.com/blasbenito/spatialRF)
+[![Devel-version](https://img.shields.io/badge/devel%20version-1.0.8-blue.svg)](https://github.com/blasbenito/spatialRF)
 [![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html)
 [![CRAN](https://img.shields.io/badge/CRAN-not_published_yet-red)](https://github.com/blasbenito/spatialRF)
 [![License](https://img.shields.io/badge/license-GPL--3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
@@ -136,18 +136,18 @@ must be installed from GitHub as follows.
 ``` r
 remotes::install_github(
   repo = "blasbenito/spatialRF", 
-  ref = "main",
+  ref = "development",
   force = TRUE
   )
 ```
 
     ## 
-    ##      checking for file ‘/tmp/RtmpxPQfCA/remotes33ef7377dc42d/BlasBenito-spatialRF-0fc6624/DESCRIPTION’ ...  ✓  checking for file ‘/tmp/RtmpxPQfCA/remotes33ef7377dc42d/BlasBenito-spatialRF-0fc6624/DESCRIPTION’
+    ##      checking for file ‘/tmp/RtmpgZcsDA/remotes137e3379cf9b5/BlasBenito-spatialRF-bbabf97/DESCRIPTION’ ...  ✓  checking for file ‘/tmp/RtmpgZcsDA/remotes137e3379cf9b5/BlasBenito-spatialRF-bbabf97/DESCRIPTION’
     ##   ─  preparing ‘spatialRF’:
     ##    checking DESCRIPTION meta-information ...  ✓  checking DESCRIPTION meta-information
     ##   ─  checking for LF line-endings in source and make files and shell scripts
     ##   ─  checking for empty or unneeded directories
-    ##   ─  building ‘spatialRF_1.0.7.tar.gz’
+    ##   ─  building ‘spatialRF_1.0.8.tar.gz’
     ##      
     ## 
 
@@ -438,15 +438,31 @@ or
 [`plot_response_surfaces)`](https://blasbenito.github.io/spatialRF/reference/plot_response_surfaces.html),
 among many others.
 
+The function
+[`plot_response_curves()`](https://blasbenito.github.io/spatialRF/reference/plot_response_curves.html)
+plots partial dependence curves for the predictors (by default, only the
+ones with an importance score above the median), by setting the other
+predictors to their quantiles 0.1, 0.5, and 0.9. This helps to
+understand how the response curve of a variable changes when all the
+other variables have low, median, or high values.
+
 ``` r
 spatialRF::plot_response_curves(model.non.spatial)
 ```
 
 ![](README_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
 
-In the response curves above, the other predictors are set to their
-quantiles 0.1, 0.5, and 0.8, but the user can change this behavior by
-modifying the values of the `quantiles` argument.
+Setting the argument `quantiles` to 0.5 accentuates the shape of the
+response curves.
+
+``` r
+spatialRF::plot_response_curves(
+  model.non.spatial,
+  quantiles = 0.5
+  )
+```
+
+![](README_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
 
 ``` r
 spatialRF::plot_response_surfaces(
@@ -456,7 +472,7 @@ spatialRF::plot_response_surfaces(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
 
 In this response surface, the predictors that are not shown are set to
 their medians (but other quantiles are possible).
@@ -465,7 +481,7 @@ their medians (but other quantiles are possible).
 spatialRF::plot_importance(model.non.spatial, verbose = FALSE)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
 
 **Predicting onto new data**
 
@@ -498,7 +514,7 @@ model.non.spatial <- spatialRF::rf(
 )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->![](README_files/figure-gfm/unnamed-chunk-18-2.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->![](README_files/figure-gfm/unnamed-chunk-19-2.png)<!-- -->
 
     ## Model type
     ##   - Fitted with:                     ranger()
@@ -597,14 +613,50 @@ model.non.spatial.repeat <- spatialRF::rf_repeat(
   seed = random.seed,
   verbose = FALSE
 )
+```
 
-plot_importance(
+Notice that the argument `model`, present in several functions of the
+package, takes a fitted model as input. Such fitted model already has
+the training data, the names of the response and the predictors, the
+distance matrix, the distance thresholds, and the hyperparameters used
+to fit the model, all stored in the slot `ranger.arguments`
+
+``` r
+names(model.non.spatial$ranger.arguments)
+```
+
+    ##  [1] "data"                         "dependent.variable.name"     
+    ##  [3] "predictor.variable.names"     "distance.matrix"             
+    ##  [5] "distance.thresholds"          "num.trees"                   
+    ##  [7] "mtry"                         "importance"                  
+    ##  [9] "scaled.importance"            "write.forest"                
+    ## [11] "probability"                  "min.node.size"               
+    ## [13] "max.depth"                    "replace"                     
+    ## [15] "sample.fraction"              "case.weights"                
+    ## [17] "class.weights"                "splitrule"                   
+    ## [19] "num.random.splits"            "alpha"                       
+    ## [21] "minprop"                      "split.select.weights"        
+    ## [23] "always.split.variables"       "respect.unordered.factors"   
+    ## [25] "scale.permutation.importance" "local.importance"            
+    ## [27] "regularization.factor"        "regularization.usedepth"     
+    ## [29] "keep.inbag"                   "inbag"                       
+    ## [31] "holdout"                      "quantreg"                    
+    ## [33] "oob.error"                    "num.threads"                 
+    ## [35] "save.memory"                  "seed"                        
+    ## [37] "classification"
+
+The importance scores of a model fitted with `rf_repeat()` are plotted
+as a boxplot, with the distribution of the importance scores of each
+predictor across repetitions.
+
+``` r
+spatialRF::plot_importance(
   model.non.spatial.repeat, 
   verbose = FALSE
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
 
 After 30 model repetitions it is clear that the difference in importance
 between `climate_hypervolume` and `climate_bio1_average_X_bias_area_km2`
@@ -621,9 +673,10 @@ spatialRF::plot_response_curves(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-20-1.png)<!-- --> The function
-`get_response_curves()` returns a data frame with the data required to
-make custom plots of the response curves.
+![](README_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
+
+The function `get_response_curves()` returns a data frame with the data
+required to make custom plots of the response curves.
 
 ``` r
 reponse.curves.df <- spatialRF::get_response_curves(model.non.spatial.repeat)
@@ -660,7 +713,7 @@ selected combination of hyperparameters maximizes the ability of the
 model to predict data not used to train it.
 
 ``` r
-model.non.spatial.tuned <- rf_tuning(
+model.non.spatial.tuned <- spatialRF::rf_tuning(
   model = model.non.spatial,
   xy = plant_richness_df[, c("x", "y")],
   repetitions = 30,
@@ -688,7 +741,7 @@ model.non.spatial.tuned <- rf_tuning(
 
     ## gain in r.squared: 0.033
 
-![](README_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
 
 The function `rf_tuning()` returns a model fitted with the same data as
 the original model, but using the best hyperparameters found during
@@ -710,7 +763,7 @@ spatialRF::plot_moran(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->
 
 **Note:** The function `spatialRF::plot_moran()` can also plot a more
 classical “Moran’s scatterplot” by adding the argument `option = 2`.
@@ -723,7 +776,7 @@ spatialRF::plot_moran(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-28-1.png)<!-- -->
 
 According to the plots, the spatial autocorrelation of the residuals is
 highly positive for a neighborhood of 0 km, while it becomes
@@ -756,7 +809,7 @@ spatialRF::plot_moran(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-30-1.png)<!-- -->
 
 If we compare the variable importance plots of both models, we can see
 that the spatial model has an additional set of dots under the name
@@ -778,23 +831,23 @@ p2 <- spatialRF::plot_importance(
 p1 | p2 
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-28-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-31-1.png)<!-- -->
 
 If we take a look to the ten most important variables in `model.spatial`
 we will see that a few of them are spatial predictors.
 
 | variable                                   | importance |
 |:-------------------------------------------|-----------:|
-| climate\_bio1\_average\_X\_bias\_area\_km2 |      0.166 |
-| spatial\_predictor\_0\_2                   |      0.148 |
-| climate\_hypervolume                       |      0.146 |
-| climate\_bio1\_average                     |      0.131 |
-| bias\_species\_per\_record                 |      0.075 |
-| spatial\_predictor\_0\_1                   |      0.068 |
-| spatial\_predictor\_3000\_1                |      0.054 |
-| spatial\_predictor\_0\_6                   |      0.048 |
-| spatial\_predictor\_0\_5                   |      0.043 |
-| neighbors\_count                           |      0.040 |
+| spatial\_predictor\_0\_2                   |      0.157 |
+| climate\_hypervolume                       |      0.154 |
+| climate\_bio1\_average                     |      0.151 |
+| climate\_bio1\_average\_X\_bias\_area\_km2 |      0.144 |
+| spatial\_predictor\_0\_1                   |      0.069 |
+| bias\_species\_per\_record                 |      0.066 |
+| spatial\_predictor\_0\_6                   |      0.056 |
+| neighbors\_count                           |      0.043 |
+| spatial\_predictor\_0\_5                   |      0.041 |
+| human\_population\_density                 |      0.032 |
 
 Spatial predictors are named `spatial_predictor_X_Y`, where `X` is the
 neighborhood distance at which the predictor has been generated, and `Y`
@@ -803,7 +856,7 @@ is the index of the predictor.
 Spatial predictors, as shown below, are smooth surfaces representing
 neighborhood among records at different spatial scales.
 
-![](README_files/figure-gfm/unnamed-chunk-30-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-33-1.png)<!-- -->
 
 The spatial predictors in the spatial model have been generated using
 the method “mem.moran.sequential” (function’s default), that mimics the
@@ -824,7 +877,7 @@ linked by lines represent the selected spatial predictors). The
 selection procedure is performed by the function
 [`select_spatial_predictors_sequential()`](https://blasbenito.github.io/spatialRF/reference/select_spatial_predictors_sequential.html).
 
-![](README_files/figure-gfm/unnamed-chunk-31-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-34-1.png)<!-- -->
 
 **Tuning spatial models**
 
@@ -835,7 +888,7 @@ return a message explaining the situation, and the original model
 without any sort of tuning applied
 
 ``` r
-model.spatial.tuned <- rf_tuning(
+model.spatial.tuned <- spatialRF::rf_tuning(
   model = model.spatial,
   xy = plant_richness_df[, c("x", "y")],
   repetitions = 30,
@@ -853,15 +906,15 @@ model.spatial.tuned <- rf_tuning(
 
     ## Best hyperparameters:
 
-    ##   - num.trees:     500
+    ##   - num.trees:     1000
 
     ##   - mtry:          47
 
-    ##   - min.node.size: 5
+    ##   - min.node.size: 15
 
-    ## gain in r.squared: 0.025
+    ## gain in r.squared: 0.032
 
-![](README_files/figure-gfm/unnamed-chunk-32-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-35-1.png)<!-- -->
 
 # Assessing model performance on spatially independent folds
 
@@ -880,9 +933,22 @@ model.spatial.tuned <- spatialRF::rf_evaluate(
   training.fraction = 0.8,               #training data fraction
   metrics = c("r.squared", "rmse"),
   seed = random.seed,
-  verbose = FALSE
+  verbose = TRUE
 )
 ```
+
+    ## Selecting pairs of coordinates as trainnig fold origins.
+
+    ## Generating spatial folds.
+
+    ## 
+    ## Spatial evaluation 
+    ##   - Training fraction:             0.8
+    ##   - Spatial folds:                 25
+    ## 
+    ##     Metric   Median     Mean  Minimum  Maximum
+    ##  r.squared    0.226    0.262    0.106    0.551
+    ##       rmse 2879.230 3209.655 2360.546 4466.451
 
 The function generates a new slot in the model named “evaluation” with
 several objects that summarize the spatial cross-validation results.
@@ -901,33 +967,12 @@ contains the indices of the training and testing cases for each
 cross-validation repetition. The maps below show two sets of training
 and testing spatial folds.
 
-![](README_files/figure-gfm/unnamed-chunk-35-1.png)<!-- -->
-
-The functions
-[`plot_evaluation()`](https://blasbenito.github.io/spatialRF/reference/plot_evaluation.html)
-and
-[`print_evaluation()`](https://blasbenito.github.io/spatialRF/reference/print_evaluation.html)
-allow to check the evaluation results as a plot or as a table.
-
-``` r
-spatialRF::print_evaluation(model.spatial.tuned)
-```
-
-    ## 
-    ## Spatial evaluation 
-    ##   - Training fraction:             0.8
-    ##   - Spatial folds:                 25
-    ## 
-    ##     Metric     Mean Standard deviation  Minimum  Maximum
-    ##  r.squared    0.252              0.163    0.076    0.615
-    ##       rmse 3196.160            819.998 2267.920 4741.310
+![](README_files/figure-gfm/unnamed-chunk-38-1.png)<!-- -->
 
 The low R squared yielded by the model evaluation shows that the spatial
-model is hard to transfer outside of the training space. Models based on
-a spatial structure like the ones fitted with `rf_spatial()` do not work
-well when transferred to a different place (that is what `rf_compare()`
-does), because spatial structures are not transferable when the data is
-irregularly distributed, as it is the case with `plant_richness_df`. The
+model is hard to transfer outside of the training space, because spatial
+structures are not transferable when the data is irregularly
+distributed, as it is the case with the dataset `plant_richness_df`. The
 comparison below shows how non-spatial models may show better (not bad,
 not great) evaluation scores on independent spatial folds.
 
@@ -942,7 +987,7 @@ It takes as input a named list with as many models as the user needs to
 compare.
 
 ``` r
-comparison <- spatialRF::rf_compare(
+comparison <- rf_compare(
   models = list(
     `Non-spatial` = model.non.spatial,
     `Non-spatial tuned` = model.non.spatial.tuned,
@@ -958,18 +1003,18 @@ comparison <- spatialRF::rf_compare(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-37-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-39-1.png)<!-- -->
 
 | Model             | Metric    |     Mean |
 |:------------------|:----------|---------:|
 | Non-spatial       | r.squared |    0.336 |
 | Non-spatial tuned | r.squared |    0.412 |
-| Spatial           | r.squared |    0.163 |
-| Spatial tuned     | r.squared |    0.222 |
+| Spatial           | r.squared |    0.189 |
+| Spatial tuned     | r.squared |    0.226 |
 | Non-spatial       | rmse      | 2817.225 |
 | Non-spatial tuned | rmse      | 2329.933 |
-| Spatial           | rmse      | 3083.346 |
-| Spatial tuned     | rmse      | 2847.590 |
+| Spatial           | rmse      | 3077.746 |
+| Spatial tuned     | rmse      | 2879.230 |
 
 # Generating spatial predictors for other models
 
@@ -1042,8 +1087,8 @@ mems <- mems[, mem.rank$ranking]
 
 From here, spatial predictors can be included in any model one by one,
 in the order of the ranking, until the spatial autocorrelation of the
-residuals is gone, or our model gets totally defaced. A little example
-with a linear model follows.
+residuals becomes neutral, if possible. A little example with a linear
+model follows.
 
 ``` r
 #model definition
@@ -1082,7 +1127,7 @@ moran.test <- spatialRF::moran(
 moran.test$plot
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-43-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-45-1.png)<!-- -->
 
 According to the Moran’s I test, the model residuals show spatial
 autocorrelation. Let’s introduce MEMs one by one until the problem is
@@ -1139,7 +1184,7 @@ for(mem.i in colnames(mems)){
 moran.test.i$plot
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-44-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-46-1.png)<!-- -->
 
 Now we can compare the model without spatial predictors `m` and the
 model with spatial predictors `m.i`.
