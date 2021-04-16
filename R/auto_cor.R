@@ -84,6 +84,7 @@ auto_cor <- function(
   #completing preference order
 
   if(!is.null(preference.order)){
+
     #subset preference.order to colnames(x)
     preference.order <- preference.order[preference.order %in% colnames(x)]
 
@@ -97,6 +98,10 @@ auto_cor <- function(
 
     #organize the matrix according to preference.order
     x.cor <- x.cor[preference.order, preference.order]
+
+  } else {
+
+    preference.order <- colnames(x)
 
   }
 

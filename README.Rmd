@@ -15,7 +15,7 @@ always_allow_html: yes
 
 <!-- badges: start -->
 
-[![Devel-version](https://img.shields.io/badge/devel%20version-1.0.7-blue.svg)](https://github.com/blasbenito/spatialRF) [![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html) [![CRAN](https://img.shields.io/badge/CRAN-not_published_yet-red)](https://github.com/blasbenito/spatialRF) [![License](https://img.shields.io/badge/license-GPL--3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
+[![Devel-version](https://img.shields.io/badge/devel%20version-1.0.8-blue.svg)](https://github.com/blasbenito/spatialRF) [![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html) [![CRAN](https://img.shields.io/badge/CRAN-not_published_yet-red)](https://github.com/blasbenito/spatialRF) [![License](https://img.shields.io/badge/license-GPL--3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
 
 <!-- badges: end -->
 
@@ -76,7 +76,7 @@ If after considering these limitations you are still interested, follow me, I wi
 
 The package is not yet in the CRAN repositories, so at the moment it must be installed from GitHub as follows.
 
-```{r, message = FALSE}
+```{r, message = FALSE, eval = FALSE}
 remotes::install_github(
   repo = "blasbenito/spatialRF", 
   ref = "main",
@@ -267,11 +267,20 @@ model.non.spatial <- spatialRF::rf(
 
 The model output can be printed or plotted with a plethora of functions such as [`print()`](https://blasbenito.github.io/spatialRF/reference/print.html), [`print_importance()`](https://blasbenito.github.io/spatialRF/reference/print_importance.html), [`print_performance()`](https://blasbenito.github.io/spatialRF/reference/print_performance.html), [`plot_importance()`](https://blasbenito.github.io/spatialRF/reference/plot_importance.html), [`print_moran()`](https://blasbenito.github.io/spatialRF/reference/print_moran.html), [`plot_moran()`](https://blasbenito.github.io/spatialRF/reference/plot_moran.html), [`plot_response_curves()`](https://blasbenito.github.io/spatialRF/reference/plot_response_curves.html), or [`plot_response_surfaces)`](https://blasbenito.github.io/spatialRF/reference/plot_response_surfaces.html), among many others.
 
+The function [`plot_response_curves()`](https://blasbenito.github.io/spatialRF/reference/plot_response_curves.html) plots partial dependence curves for the predictors (by default, only the ones with an importance score above the median), by setting the other predictors to their quantiles 0.1, 0.5, and 0.9. This helps to understand how the response curve of a variable changes when all the other variables have low, median, or high values.
+
 ```{r, fig.width = 9, fig.height=10}
 spatialRF::plot_response_curves(model.non.spatial)
 ```
 
-In the response curves above, the other predictors are set to their quantiles 0.1, 0.5, and 0.8, but the user can change this behavior by modifying the values of the `quantiles` argument.
+Setting the argument `quantiles` to 0.5 accentuates the shape of the response curves.
+
+```{r, fig.width = 9, fig.height=10}
+spatialRF::plot_response_curves(
+  model.non.spatial,
+  quantiles = 0.5
+  )
+```
 
 ```{r, fig.height = 3.2, fig.width=4.5}
 spatialRF::plot_response_surfaces(
@@ -325,7 +334,17 @@ model.non.spatial.repeat <- spatialRF::rf_repeat(
   seed = random.seed,
   verbose = FALSE
 )
+```
 
+Notice that the argument `model`, present in several functions of the package, takes a fitted model as input. Such fitted model already has the training data, the names of the response and the predictors, the distance matrix, the distance thresholds, and the hyperparameters used to fit the model, all stored in the slot `ranger.arguments`
+
+```{r}
+names(model.non.spatial$ranger.arguments)
+```
+
+The importance scores of a model fitted with `rf_repeat()` are plotted as a boxplot, with the distribution of the importance scores of each predictor across repetitions.
+
+```{r, fig.width = 6, fig.height=4.5}
 plot_importance(
   model.non.spatial.repeat, 
   verbose = FALSE
@@ -477,7 +496,7 @@ p1 <- ggplot2::ggplot() +
   ggplot2::labs(color = "Eigenvalue") +
   ggplot2::scale_x_continuous(limits = c(-170, -30)) +
   ggplot2::scale_y_continuous(limits = c(-58, 80))  +
-  ggplot2::ggtitle("Variable: spatial_predictor_0_2") + 
+  ggplot2::ggtitle("Variable: spatial_predictor_0_5") + 
   ggplot2::theme(legend.position = "bottom")+ 
   ggplot2::xlab("Longitude") + 
   ggplot2::ylab("Latitude")
@@ -489,7 +508,7 @@ p2 <- ggplot2::ggplot() +
     ggplot2::aes(
       x = x,
       y = y,
-      color = spatial_predictor_3000_1,
+      color = spatial_predictor_0_5,
     ),
     size = 2.5
   ) +
@@ -498,7 +517,7 @@ p2 <- ggplot2::ggplot() +
   ggplot2::labs(color = "Eigenvalue") +
   ggplot2::scale_x_continuous(limits = c(-170, -30)) +
   ggplot2::scale_y_continuous(limits = c(-58, 80))  +
-  ggplot2::ggtitle("Variable: spatial_predictor_3000_1") + 
+  ggplot2::ggtitle("Variable: spatial_predictor_0_5") + 
   ggplot2::theme(legend.position = "bottom") + 
   ggplot2::xlab("Longitude") + 
   ggplot2::ylab("")

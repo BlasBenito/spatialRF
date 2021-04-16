@@ -164,6 +164,7 @@ sinew::makeOxygen(plot_training_data)
 #adding functions
 sinew::makeOxygen(is_binary)
 sinew::makeOxygen(case_weights)
+sinew::makeOxygen(filter_spatial_predictors)
 
 #moran
 usethis::use_r("moran")

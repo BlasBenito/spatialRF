@@ -206,6 +206,13 @@ rf_spatial <- function(
       repetitions <- ranger.arguments$repetitions
     }
 
+    #reference Moran's I to rank spatial predictors
+    if(!is.null(model$spatial.correlation.residuals$max.moran)){
+      reference.moran.i <- model$spatial.correlation.residuals$max.moran
+    } else {
+      reference.moran.i <- 1
+    }
+
     seed <- NULL
     importance <- "permutation"
 
@@ -403,6 +410,16 @@ rf_spatial <- function(
     }
   }
 
+  #FILTERING SPATIAL PREDICTORS
+  #removes redundant spatial predictors
+  ######################################################
+  spatial.predictors.df <- filter_spatial_predictors(
+    data = data,
+    predictor.variable.names = predictor.variable.names,
+    spatial.predictors.df = spatial.predictors.df,
+    cor.threshold = 0.50
+  )
+
   #RANKING SPATIAL PREDICTORS (if method is not "hengl")
   ######################################################
   if(!is.null(ranking.method)){
@@ -417,7 +434,7 @@ rf_spatial <- function(
       ranger.arguments = ranger.arguments,
       spatial.predictors.df = spatial.predictors.df,
       ranking.method = ranking.method,
-      reference.moran.i = 1,
+      reference.moran.i = reference.moran.i,
       verbose = FALSE,
       cluster = temp.cluster
     )

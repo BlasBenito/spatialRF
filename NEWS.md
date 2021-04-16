@@ -1,3 +1,9 @@
+## Version 1.0.8 (16/4/2021)
+
+Added a new function named filter_spatial_predictors(), that removes redundant spatial predictors within rf_spatial(). It shouldn't lead to changes in the spatial models fitted with previous versions, but it will make them more parsimonious.
+
+Changed the style of the package's boxplots.
+
 ## Version 1.0.7 (9/3/2021)
 
 Added the functions plot_training_data() and plot_moran_training_data() to help explore the training data prior to modeling.
