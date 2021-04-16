@@ -79,7 +79,7 @@ The package is not yet in the CRAN repositories, so at the moment it must be ins
 ```{r, message = FALSE, eval = FALSE}
 remotes::install_github(
   repo = "blasbenito/spatialRF", 
-  ref = "main",
+  ref = "development",
   force = TRUE
   )
 library(spatialRF)
@@ -344,8 +344,8 @@ names(model.non.spatial$ranger.arguments)
 
 The importance scores of a model fitted with `rf_repeat()` are plotted as a boxplot, with the distribution of the importance scores of each predictor across repetitions.
 
-```{r, fig.width = 6, fig.height=4.5}
-plot_importance(
+```{r, fig.width = 6, fig.height=5}
+spatialRF::plot_importance(
   model.non.spatial.repeat, 
   verbose = FALSE
   )
@@ -362,6 +362,7 @@ spatialRF::plot_response_curves(
   quantiles = 0.5
   )
 ```
+
 The function `get_response_curves()` returns a data frame with the data required to make custom plots of the response curves.
 
 ```{r}
@@ -387,7 +388,7 @@ The model fitted above was based on the default hyperparameter values provided b
 Model tuning is done via spatial cross-validation, to ensure that the selected combination of hyperparameters maximizes the ability of the model to predict data not used to train it.
 
 ```{r, fig.width=6, fig.height=4.5}
-model.non.spatial.tuned <- rf_tuning(
+model.non.spatial.tuned <- spatialRF::rf_tuning(
   model = model.non.spatial,
   xy = plant_richness_df[, c("x", "y")],
   repetitions = 30,
@@ -477,7 +478,7 @@ Spatial predictors are named `spatial_predictor_X_Y`, where `X` is the neighborh
 Spatial predictors, as shown below, are smooth surfaces representing neighborhood among records at different spatial scales.
 
 ```{r, echo=FALSE, fig.width=12, fig.height=7}
-spatial.predictors <- get_spatial_predictors(model.spatial)
+spatial.predictors <- spatialRF::get_spatial_predictors(model.spatial)
 pr <- data.frame(spatial.predictors, plant_richness_df[, c("x", "y")])
 
 p1 <- ggplot2::ggplot() +
@@ -567,7 +568,7 @@ model.spatial.tuned <- spatialRF::rf_evaluate(
   training.fraction = 0.8,               #training data fraction
   metrics = c("r.squared", "rmse"),
   seed = random.seed,
-  verbose = FALSE
+  verbose = TRUE
 )
 ```
 
@@ -627,20 +628,15 @@ p2 <- ggplot2::ggplot() +
 p1 | p2
 ```
 
-The functions [`plot_evaluation()`](https://blasbenito.github.io/spatialRF/reference/plot_evaluation.html) and [`print_evaluation()`](https://blasbenito.github.io/spatialRF/reference/print_evaluation.html) allow to check the evaluation results as a plot or as a table.
 
-```{r, fig.width=4, fig.height=3.5}
-spatialRF::print_evaluation(model.spatial.tuned)
-```
-
-The low R squared yielded by the model evaluation shows that the spatial model is hard to transfer outside of the training space. Models based on a spatial structure like the ones fitted with `rf_spatial()` do not work well when transferred to a different place (that is what `rf_compare()` does), because spatial structures are not transferable when the data is irregularly distributed, as it is the case with `plant_richness_df`. The comparison below shows how non-spatial models may show better (not bad, not great) evaluation scores on independent spatial folds.
+The low R squared yielded by the model evaluation shows that the spatial model is hard to transfer outside of the training space, because spatial structures are not transferable when the data is irregularly distributed, as it is the case with the dataset `plant_richness_df`. The comparison below shows how non-spatial models may show better (not bad, not great) evaluation scores on independent spatial folds.
 
 # Comparing several models
 
 The function `rf_evaluate()` only assesses the predictive performance on unseen data of one model at a time. If the goal is to compare two models, `rf_evaluate()` can be indeed ran twice, but `spatialRF` offers a more convenient option named [`rf_compare()`](https://blasbenito.github.io/spatialRF/reference/rf_compare.html). It takes as input a named list with as many models as the user needs to compare.
 
 ```{r, fig.width=6, fig.height=5}
-comparison <- spatialRF::rf_compare(
+comparison <- rf_compare(
   models = list(
     `Non-spatial` = model.non.spatial,
     `Non-spatial tuned` = model.non.spatial.tuned,
@@ -688,6 +684,14 @@ mems <- spatialRF::mem_multithreshold(
 )
 ```
 
+When there are several `distance.thresholds`, multicollinearity arises between Moran's Eigenvector Maps computed for different neighborhood distances. Also, there may be MEMs that are collinear with the non-spatial predictors of the model. To reduce the redundancy of the MEMs we can use the function `filter_spatial_predictors()` as follows.
+
+```{r}
+mems <- spatialRF::filter_spatial_predictors(
+  data = 
+)
+```
+
 In either case the result is a data frame with Moran's Eigenvector Maps ("just" the positive eigenvectors of the double-centered distance matrix).
 
 ```{r, echo = FALSE, warning = FALSE, message=FALSE}
@@ -717,7 +721,7 @@ mems <- mems[, mem.rank$ranking]
 #mems <- mem.rank$spatial.predictors.df
 ```
 
-From here, spatial predictors can be included in any model one by one, in the order of the ranking, until the spatial autocorrelation of the residuals is gone, or our model gets totally defaced. A little example with a linear model follows.
+From here, spatial predictors can be included in any model one by one, in the order of the ranking, until the spatial autocorrelation of the residuals becomes neutral, if possible. A little example with a linear model follows.
 
 ```{r, fig.width = 6, fig.height=2.5}
 #model definition

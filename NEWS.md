@@ -4,6 +4,8 @@ Added a new function named filter_spatial_predictors(), that removes redundant s
 
 Changed the style of the package's boxplots.
 
+When using rf_repeat(), the median of the variable importance scores, performance scores, and Moran's I is reported, instead of the mean.
+
 ## Version 1.0.7 (9/3/2021)
 
 Added the functions plot_training_data() and plot_moran_training_data() to help explore the training data prior to modeling.

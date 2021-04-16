@@ -336,7 +336,7 @@ rf_repeat <- function(
     #mean
     variable.importance.per.variable <- variable.importance.per.repetition %>%
       dplyr::group_by(variable) %>%
-      dplyr::summarise(importance = mean(importance)) %>%
+      dplyr::summarise(importance = median(importance)) %>%
       dplyr::arrange(dplyr::desc(importance)) %>%
       as.data.frame()
 
@@ -447,8 +447,8 @@ rf_repeat <- function(
     spatial.correlation.residuals.mean <- spatial.correlation.residuals.per.repetition %>%
       dplyr::group_by(distance.threshold) %>%
       dplyr::summarise(
-        moran.i = mean(moran.i),
-        p.value = mean(p.value),
+        moran.i = median(moran.i),
+        p.value = median(p.value),
         interpretation = statistical_mode(interpretation)
       ) %>%
       as.data.frame()
@@ -461,7 +461,7 @@ rf_repeat <- function(
       verbose = verbose
     )
 
-    m.curves$spatial.correlation.residuals$max.moran <-  mean(
+    m.curves$spatial.correlation.residuals$max.moran <-  median(
       unlist(
         lapply(
           lapply(

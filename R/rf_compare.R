@@ -146,7 +146,7 @@ rf_compare <- function(
 
   #plot
   p <- ggplot2::ggplot() +
-    ggplot2::geom_boxplot(
+    ggplot2::geom_violin(
       data = x,
       ggplot2::aes(
         group = model,
@@ -154,7 +154,7 @@ rf_compare <- function(
         x = value,
         fill = model
       ),
-      notch = notch,
+      draw_quantiles = 0.5
     ) +
     ggplot2::facet_wrap(
       "metric",
@@ -166,7 +166,7 @@ rf_compare <- function(
     ggplot2::theme(legend.position = "none") +
     ggplot2::xlab("") +
     ggplot2::ylab("") +
-    ggplot2::scale_fill_viridis_d(end = 0.5, alpha = 0.75) +
+    ggplot2::scale_fill_viridis_d(end = 0.9, alpha = 0.5) +
     ggplot2::labs(fill = "Model") +
     ggplot2::ggtitle(
       paste0(

@@ -100,8 +100,11 @@ plot_importance <- function(x, verbose = TRUE){
             FUN = stats::median
           )
         ) +
-        ggplot2::geom_boxplot() +
-        ggplot2::scale_fill_viridis_d(direction = -1, alpha = 0.8) +
+        ggplot2::geom_violin(draw_quantiles = 0.5) +
+        ggplot2::scale_fill_viridis_d(
+          direction = -1,
+          alpha = 0.5
+          ) +
         ggplot2::ylab("") +
         ggplot2::xlab("Variable importance") +
         ggplot2::theme_bw() +
@@ -126,7 +129,7 @@ plot_importance <- function(x, verbose = TRUE){
             fill = importance
           ) +
           ggplot2::geom_point(size = 4, shape = 21) +
-          ggplot2::scale_fill_viridis_c(direction = -1, alpha = 0.8) +
+          ggplot2::scale_fill_viridis_c(direction = -1, alpha = 0.5) +
           ggplot2::ylab("") +
           ggplot2::xlab("Variable importance") +
           ggplot2::theme_bw() +
@@ -149,8 +152,9 @@ plot_importance <- function(x, verbose = TRUE){
               FUN = mean
             )
           ) +
-          ggplot2::geom_boxplot() +
-          ggplot2::scale_fill_viridis_d(direction = -1, alpha = 0.8) +
+          ggplot2::geom_violin(draw_quantiles = 0.5) +
+          ggplot2::geom_violin(trim=FALSE) +
+          ggplot2::scale_fill_viridis_d(direction = -1, alpha = 0.5) +
           ggplot2::ylab("") +
           ggplot2::xlab("Variable importance") +
           ggplot2::theme_bw() +

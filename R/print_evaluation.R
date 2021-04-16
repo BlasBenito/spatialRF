@@ -22,21 +22,21 @@ print_evaluation <- function(x){
       ) %>%
       dplyr::select(
         metric,
+        median,
         mean,
-        sd,
         min,
         max
       ) %>%
       dplyr::mutate(
+        median = round(median, 3),
         mean = round(mean, 3),
-        sd = round(sd, 3),
         min = round(min, 3),
         max = round(max, 3)
       ) %>%
       dplyr::rename(
         Metric = metric,
         Mean = mean,
-        `Standard deviation` = sd,
+        Median = median,
         Minimum = min,
         Maximum = max
       )

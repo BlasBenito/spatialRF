@@ -375,6 +375,17 @@ rf_spatial <- function(
   spatial.predictors.selected <- colnames(spatial.predictors.df)
 
 
+  #FILTERING SPATIAL PREDICTORS
+  #removes redundant spatial predictors
+  ######################################################
+  spatial.predictors.df <- filter_spatial_predictors(
+    data = data,
+    predictor.variable.names = predictor.variable.names,
+    spatial.predictors.df = spatial.predictors.df,
+    cor.threshold = 0.50
+  )
+
+
   #RANKING SPATIAL PREDICTORS
   ###########################################################
 
@@ -410,18 +421,7 @@ rf_spatial <- function(
     }
   }
 
-  #FILTERING SPATIAL PREDICTORS
-  #removes redundant spatial predictors
-  ######################################################
-  spatial.predictors.df <- filter_spatial_predictors(
-    data = data,
-    predictor.variable.names = predictor.variable.names,
-    spatial.predictors.df = spatial.predictors.df,
-    cor.threshold = 0.50
-  )
-
-  #RANKING SPATIAL PREDICTORS (if method is not "hengl")
-  ######################################################
+  #ranking
   if(!is.null(ranking.method)){
 
     #ranking spatial predictors
