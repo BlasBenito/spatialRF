@@ -5,13 +5,13 @@
 \title{Moran's Eigenvector Maps for different distance thresholds}
 \usage{
 mem_multithreshold(
-  x = NULL,
+  distance.matrix = NULL,
   distance.thresholds = NULL,
   max.spatial.predictors = NULL
 )
 }
 \arguments{
-\item{x}{x Numeric matrix or data frame, generally a distance matrix. Default: \code{NULL}.}
+\item{distance.matrix}{Distance matrix. Default: \code{NULL}.}
 
 \item{distance.thresholds}{Numeric vector with distance thresholds defining neighborhood in the distance matrix, Default: \code{NULL}.}
 
@@ -32,11 +32,11 @@ if(interactive()){
 
  data(distance_matrix)
 
- out <- mem_multithreshold(
-   x = distance_matrix,
+ mem.df <- mem_multithreshold(
+   distance.matrix = distance_matrix,
    distance.thresholds = c(0, 1000, 2000)
    )
- head(out)
+ head(mem.df)
 }
 }
 }

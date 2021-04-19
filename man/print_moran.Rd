@@ -5,13 +5,13 @@
 \title{Prints results of a Moran's I test}
 \usage{
 print_moran(
-  x,
+  model,
   caption = NULL,
   verbose = TRUE
 )
 }
 \arguments{
-\item{x}{A model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}.}
+\item{model}{A model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}.}
 
 \item{caption}{Character, caption of the output table, Default: \code{NULL}}
 

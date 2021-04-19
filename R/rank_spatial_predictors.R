@@ -38,7 +38,7 @@
 #'  data("distance_matrix")
 #'
 #'mem.df <- mem(
-#'  x = distance_matrix[1:50, 1:50],
+#'  distance_matrix = distance_matrix[1:50, 1:50],
 #'  distance.threshold = 0
 #')
 #'
@@ -178,11 +178,6 @@ rank_spatial_predictors <- function(
     doParallel::registerDoParallel(cl = cluster)
   }
 
-  #default value for distance threshold
-  if(is.null(distance.thresholds)){
-    distance.thresholds <- 0
-  }
-
   #parallelized loop
   spatial.predictors.i <- NULL
   spatial.predictors.order <- foreach::foreach(
@@ -209,7 +204,7 @@ rank_spatial_predictors <- function(
       predictor.variable.names.i <- c(predictor.variable.names, spatial.predictors.name.i)
 
       #fitting model I
-      m.i <- rf(
+      m.i <- spatialRF::rf(
         data = data.i,
         dependent.variable.name = dependent.variable.name,
         predictor.variable.names = predictor.variable.names.i,
@@ -236,10 +231,11 @@ rank_spatial_predictors <- function(
     if(ranking.method == "moran"){
 
       #moran's I of spatial predictor
-      m.i <- moran(
+      m.i <- spatialRF::moran(
         x = spatial.predictors.df[, spatial.predictors.i],
         distance.matrix = distance.matrix,
-        distance.threshold = distance.thresholds[1]
+        distance.threshold = distance.thresholds[1],
+        verbose = FALSE
       )
 
       #out.df

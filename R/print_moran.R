@@ -2,11 +2,11 @@
 #' @description Prints the results of a Moran's I test on the residuals of a model.
 #' @usage
 #' print_moran(
-#'   x,
+#'   model,
 #'   caption = NULL,
 #'   verbose = TRUE
 #' )
-#' @param x A model fitted with [rf()], [rf_repeat()], or [rf_spatial()].
+#' @param model A model fitted with [rf()], [rf_repeat()], or [rf_spatial()].
 #' @param caption Character, caption of the output table, Default: `NULL`
 #' @param verbose Logical, if `TRUE`, the resulting table is printed into the console, Default: `TRUE`
 #' @return Prints a table in the console using the \link[huxtable]{huxtable} package.
@@ -35,11 +35,11 @@
 #' @export
 #' @importFrom huxtable hux set_bold everywhere set_all_borders number_format caption print_screen
 #' @importFrom dplyr group_by summarise arrange
-print_moran <- function(x, caption = NULL, verbose = TRUE){
+print_moran <- function(model, caption = NULL, verbose = TRUE){
 
-  #if x is not a data frame
-  if(inherits(x, "rf") | inherits(x, "rf_repeat") | inherits(x, "rf_spatial")){
-      x <- x$spatial.correlation.residuals$per.distance
+  #if model is not a data frame
+  if(inherits(model, "rf") | inherits(model, "rf_repeat") | inherits(model, "rf_spatial")){
+      x <- model$spatial.correlation.residuals$per.distance
   }
 
   #subsetting columns

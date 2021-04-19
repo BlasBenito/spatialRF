@@ -7,7 +7,7 @@
 moran(
   x = NULL,
   distance.matrix = NULL,
-  distance.threshold = 0,
+  distance.threshold = NULL,
   verbose = TRUE
 )
 }
@@ -16,7 +16,7 @@ moran(
 
 \item{distance.matrix}{Distance matrix among cases in \code{x}. The number of rows of this matrix must be equal to the length of \code{x}. Default: \code{NULL}}
 
-\item{distance.threshold}{numeric value in the range of values available in \code{distance.matrix}. Distances below such threshold are set to 0. Default: \code{0}}
+\item{distance.threshold}{numeric value in the range of values available in \code{distance.matrix}. Distances below such threshold are set to 0. Default: \code{NULL} (which defaults to 0).}
 
 \item{verbose}{Logical, if \code{TRUE}, prints a Moran's I plot. Default: \code{TRUE}}
 }

@@ -168,6 +168,7 @@ rf_spatial <- function(
   #declaring variables
   moran.i <- NULL
   variable <- NULL
+  interpretation <- NULL
 
   #testing method argument
   method <- match.arg(
@@ -187,62 +188,9 @@ rf_spatial <- function(
     several.ok = FALSE
   )
 
-  #getting arguments from model rather than ranger.arguments
-  if(!is.null(model)){
-
-    ranger.arguments <- model$ranger.arguments
-    data <- ranger.arguments$data
-    dependent.variable.name <- ranger.arguments$dependent.variable.name
-    predictor.variable.names <- ranger.arguments$predictor.variable.names
-    if(is.null(distance.matrix)){
-      distance.matrix <- ranger.arguments$distance.matrix
-    }
-    if(is.null(distance.thresholds)){
-      distance.thresholds <- ranger.arguments$distance.thresholds
-    }
-    scaled.importance <- ranger.arguments$scaled.importance
-
-    if(!is.null(ranger.arguments$repetitions)){
-      repetitions <- ranger.arguments$repetitions
-    }
-
-    #reference Moran's I to rank spatial predictors
-    if(!is.null(model$spatial.correlation.residuals$max.moran)){
-      reference.moran.i <- model$spatial.correlation.residuals$max.moran
-    } else {
-      reference.moran.i <- 1
-    }
-
-    seed <- NULL
-    importance <- "permutation"
-
-  } else {
-
-    #predictor.variable.names comes from auto_vif or auto_cor
-    if(inherits(predictor.variable.names, "variable_selection")){
-      predictor.variable.names <- predictor.variable.names$selected.variables
-    }
-
-  }
-
-  #stopping if no distance matrix
-  if(is.null(distance.matrix)){
-    stop("The distance matrix is missing.")
-  }
-
-  if(is.null(distance.thresholds)){
-    distance.thresholds <- pretty(
-      floor(
-        seq(
-          0,
-          max(distance.matrix)/2,
-          length.out = 4
-        )
-      )
-    )
-  }
-
   #CLUSTER SETUP
+  ########################################
+
   #if no cluster.ips, local cluster
   if(is.null(cluster.ips)){
 
@@ -255,6 +203,7 @@ rf_spatial <- function(
 
       #sets other cluster values to NULL
       cluster.ips <- NULL
+      temp.cluster <- NULL
 
       #parallel execution
     } else {
@@ -303,8 +252,128 @@ rf_spatial <- function(
   #registering cluster if it exists
   if(exists("temp.cluster")){
     doParallel::registerDoParallel(cl = temp.cluster)
+  } else {
+    temp.cluster <- NULL
   }
 
+
+  # FITTING NON-SPATIAL model or
+  # GETTING ARGUMENTS FROM model
+  #####################################
+
+  #if model is not provided
+  if(is.null(model)){
+
+    #stopping if no data
+    if(is.null(data)){
+      stop("The argument 'data' is missing.")
+    }
+    #stopping if no distance matrix
+    if(is.null(distance.matrix)){
+      stop("The argument 'distance.matrix' is missing.")
+    }
+    #stopping if no dependent.variable.name
+    if(is.null(dependent.variable.name)){
+      stop("The argument 'dependent.variable.name' is missing.")
+    }
+    #stopping if no predictor.variable.names
+    if(is.null(predictor.variable.names)){
+      stop("The argument 'predictor.variable.names' is missing.")
+    } else {
+      #predictor.variable.names comes from auto_vif or auto_cor
+      if(inherits(predictor.variable.names, "variable_selection")){
+        predictor.variable.names <- predictor.variable.names$selected.variables
+      }
+    }
+
+    #controlling num.threads
+    ranger.arguments$num.threads <- n.cores
+
+    #fitting non-spatial model
+    model <- rf(
+      data = data,
+      dependent.variable.name = dependent.variable.name,
+      predictor.variable.names = predictor.variable.names,
+      distance.matrix = distance.matrix,
+      distance.thresholds = distance.thresholds,
+      ranger.arguments = ranger.arguments,
+      scaled.importance = FALSE,
+      seed = seed,
+      verbose = FALSE
+    )
+
+    } else {
+
+      #getting arguments from model
+      ranger.arguments <- model$ranger.arguments
+
+      data <- ranger.arguments$data
+
+      dependent.variable.name <- ranger.arguments$dependent.variable.name
+
+      predictor.variable.names <- ranger.arguments$predictor.variable.names
+
+      distance.matrix <- ranger.arguments$distance.matrix
+      if(is.null(distance.matrix)){
+        stop("The argument 'distance.matrix' is missing.")
+      }
+
+      distance.thresholds <- ranger.arguments$distance.thresholds
+      if(is.null(distance.thresholds)){
+        distance.thresholds <- default_distance_thresholds(distance.matrix = distance.matrix)
+      }
+
+      scaled.importance <- ranger.arguments$scaled.importance
+
+      if(is.null(repetitions)){
+        if(!is.null(ranger.arguments$repetitions)){
+          repetitions <- ranger.arguments$repetitions
+        } else {
+          repetitions <- 1
+        }
+      }
+
+      seed <- model$ranger.arguments$seed
+
+
+
+    }
+
+  #reference moran's I for selection of spatial predictors
+  if(!is.null(model$spatial.correlation.residuals$max.moran)){
+    reference.moran.i <- model$spatial.correlation.residuals$max.moran
+  } else {
+    reference.moran.i <- 1
+  }
+
+  #extracting autocorrelation of the residuals
+  model.moran.i <- model$spatial.correlation.residuals$per.distance %>%
+    dplyr::arrange(dplyr::desc(moran.i)) %>%
+    dplyr::filter(interpretation == "Positive spatial correlation")
+
+  #if residuals are not autocorrelated, return original model
+  if(nrow(model.moran.i) == 0){
+
+    if(verbose == TRUE){
+      message("The model residuals are not spatially correlated, there is no need to fit a spatial model")
+      suppressWarnings(print(model$spatial.correlation.residuals$plot))
+    }
+
+    return(model)
+
+  } else {
+    #if residuals are autocorrelated
+
+    if(verbose == TRUE){
+      message("The model residuals are spatially correlated, fitting a spatial model.")
+      suppressWarnings(print(model$spatial.correlation.residuals$plot))
+    }
+
+  }
+
+  #getting distance thresholds with positive AC
+  #used to generate spatial predictors for these thresholds alone
+  distance.thresholds.with.ac <- model.moran.i$distance.threshold
 
   #GENERATING SPATIAL PREDICTORS
   #########################################################
@@ -320,7 +389,14 @@ rf_spatial <- function(
 
     #change name of distance matrix
     spatial.predictors.df <- distance.matrix
-    colnames(spatial.predictors.df) <- rownames(spatial.predictors.df) <- paste0("spatial_predictor_", seq(1, ncol(distance.matrix)))
+    colnames(spatial.predictors.df) <- rownames(spatial.predictors.df) <- paste0(
+      "spatial_predictor_",
+      seq(
+        1,
+        ncol(distance.matrix)
+        )
+      )
+    spatial.predictors.selected <- colnames(spatial.predictors.df)
 
     if(verbose == TRUE){
       message("Using the distance matrix columns as spatial predictors.")
@@ -339,8 +415,8 @@ rf_spatial <- function(
 
     #computing pca factors for pca methods
     spatial.predictors.df <- pca_multithreshold(
-      x = distance.matrix,
-      distance.thresholds =  distance.thresholds,
+      distance.matrix = distance.matrix,
+      distance.thresholds =  distance.thresholds.with.ac,
       max.spatial.predictors = max.spatial.predictors
     )
 
@@ -360,8 +436,8 @@ rf_spatial <- function(
 
     #computing mem
     spatial.predictors.df <- mem_multithreshold(
-      x = distance.matrix,
-      distance.thresholds = distance.thresholds,
+      distance.matrix = distance.matrix,
+      distance.thresholds = distance.thresholds.with.ac,
       max.spatial.predictors = max.spatial.predictors
     )
 
@@ -370,21 +446,6 @@ rf_spatial <- function(
     }
 
   }
-
-  #selecting all column names of the distance matrix by default
-  spatial.predictors.selected <- colnames(spatial.predictors.df)
-
-
-  #FILTERING SPATIAL PREDICTORS
-  #removes redundant spatial predictors
-  ######################################################
-  spatial.predictors.df <- filter_spatial_predictors(
-    data = data,
-    predictor.variable.names = predictor.variable.names,
-    spatial.predictors.df = spatial.predictors.df,
-    cor.threshold = 0.50
-  )
-
 
   #RANKING SPATIAL PREDICTORS
   ###########################################################
@@ -424,6 +485,14 @@ rf_spatial <- function(
   #ranking
   if(!is.null(ranking.method)){
 
+    #removes redundant spatial predictors
+    spatial.predictors.df <- filter_spatial_predictors(
+      data = data,
+      predictor.variable.names = predictor.variable.names,
+      spatial.predictors.df = spatial.predictors.df,
+      cor.threshold = 0.50
+    )
+
     #ranking spatial predictors
     spatial.predictors.ranking <- rank_spatial_predictors(
       data = data,
@@ -436,7 +505,8 @@ rf_spatial <- function(
       ranking.method = ranking.method,
       reference.moran.i = reference.moran.i,
       verbose = FALSE,
-      cluster = temp.cluster
+      cluster = temp.cluster,
+      n.cores = n.cores
     )
 
   }
@@ -472,10 +542,11 @@ rf_spatial <- function(
       weight.r.squared = weight.r.squared,
       weight.penalization.n.predictors = weight.penalization.n.predictors,
       verbose = FALSE,
-      cluster = temp.cluster
+      cluster = temp.cluster,
+      n.cores = n.cores
     )
 
-    #broadcast spatial.predictors.selected downstream
+    #names of the selected spatial predictors
     spatial.predictors.selected <- as.character(spatial.predictors.selection$best.spatial.predictors)
 
   }
@@ -505,7 +576,8 @@ rf_spatial <- function(
       spatial.predictors.ranking = spatial.predictors.ranking,
       weight.r.squared = weight.r.squared,
       weight.penalization.n.predictors = weight.penalization.n.predictors,
-      cluster = temp.cluster
+      cluster = temp.cluster,
+      n.cores = n.cores
     )
 
     #broadcast spatial.predictors.selected
@@ -518,7 +590,9 @@ rf_spatial <- function(
   ######################
 
   #subsetting spatial predictors
-  spatial.predictors.df <- spatial.predictors.df[, spatial.predictors.selected]
+  if(method != "hengl"){
+    spatial.predictors.df <- spatial.predictors.df[, spatial.predictors.selected]
+  }
 
   #prepare training data with best spatial predictors
   data.spatial <- data.frame(
@@ -535,11 +609,6 @@ rf_spatial <- function(
     predictor.variable.names,
     spatial.predictors.selected
   )
-
-  #removing data from ranger arguments
-  ranger.arguments$data <- NULL
-  ranger.arguments$dependent.variable.name <- NULL
-  ranger.arguments$predictor.variable.names <- NULL
 
   #fitting spatial model
   if(repetitions == 1){
@@ -583,13 +652,13 @@ rf_spatial <- function(
   }
 
   #stopping cluster
-  if(exists("temp.cluster")){
+  if(exists("temp.cluster") & !is.null(temp.cluster)){
     parallel::stopCluster(temp.cluster)
   }
 
   #add moran's I plot
   model.spatial$spatial.correlation.residuals$plot <- plot_moran(
-    x = model.spatial,
+    model.spatial,
     verbose = FALSE
   )
 
@@ -603,7 +672,7 @@ rf_spatial <- function(
   if(exists("spatial.predictors.selection")){
     model.spatial$selection.spatial.predictors$optimization <- spatial.predictors.selection$optimization
     model.spatial$selection.spatial.predictors$plot <- plot_optimization(
-      x = spatial.predictors.selection$optimization,
+      spatial.predictors.selection$optimization,
       verbose = FALSE
     )
   }

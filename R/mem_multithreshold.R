@@ -1,6 +1,6 @@
 #' @title Moran's Eigenvector Maps for different distance thresholds
 #' @description Computes Moran's Eigenvector Maps of a distance matrix (using [mem()]) over different distance thresholds.
-#' @param x x Numeric matrix or data frame, generally a distance matrix. Default: `NULL`.
+#' @param distance.matrix Distance matrix. Default: `NULL`.
 #' @param distance.thresholds Numeric vector with distance thresholds defining neighborhood in the distance matrix, Default: `NULL`.
 #' @param max.spatial.predictors Maximum number of spatial predictors to generate. Only useful to save memory when the distance matrix `x` is very large. Default: `NULL`.
 #' @return A data frame with as many rows as the distance matrix `x` containing positive Moran's Eigenvector Maps. The data frame columns are named "spatial_predictor_DISTANCE_COLUMN", where DISTANCE is the given distance threshold, and COLUMN is the column index of the given spatial predictor.
@@ -11,34 +11,29 @@
 #'
 #'  data(distance_matrix)
 #'
-#'  out <- mem_multithreshold(
-#'    x = distance_matrix,
+#'  mem.df <- mem_multithreshold(
+#'    distance.matrix = distance_matrix,
 #'    distance.thresholds = c(0, 1000, 2000)
 #'    )
-#'  head(out)
+#'  head(mem.df)
 #' }
 #' }
 #' @rdname mem_multithreshold
 #' @export
 mem_multithreshold <- function(
-  x = NULL,
+  distance.matrix = NULL,
   distance.thresholds = NULL,
   max.spatial.predictors = NULL
 ){
 
-  distance.matrix <- NULL
+  #stopping if no distance matrix
+  if(is.null(distance.matrix)){
+    stop("The argument 'distance.matrix' is missing.")
+  }
 
   #creating distance thresholds
-  if(is.null(distance.thresholds) == TRUE){
-    distance.thresholds <- pretty(
-      floor(
-        seq(
-          0,
-          max(distance.matrix)/2,
-          length.out = 4
-        )
-      )
-    )
+  if(is.null(distance.thresholds)){
+    distance.thresholds <- default_distance_thresholds(distance.matrix = distance.matrix)
   }
 
   #list to store mems
@@ -48,7 +43,7 @@ mem_multithreshold <- function(
   for(distance.threshold.i in distance.thresholds){
 
     mem.list[[as.character(distance.threshold.i)]] <- mem(
-      x = x,
+      distance.matrix = distance.matrix,
       distance.threshold = distance.threshold.i,
       colnames.prefix = paste0(
         "spatial_predictor_",

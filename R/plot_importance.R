@@ -2,10 +2,10 @@
 #' @description Plots variable importance scores of [rf()], [rf_repeat()], and [rf_spatial()] models.
 #' @usage
 #' plot_importance(
-#'   x,
+#'   model,
 #'   verbose = TRUE
 #' )
-#' @param x A model fitted with [rf()], [rf_repeat()], or [rf_spatial()].
+#' @param model A model fitted with [rf()], [rf_repeat()], or [rf_spatial()].
 #' @param verbose Logical, if `TRUE`, the plot is printed. Default: `TRUE`
 #' @return A ggplot.
 #' @seealso [print_importance()], [get_importance()]
@@ -25,37 +25,42 @@
 #'  verbose = FALSE
 #' )
 #'
-#' plot_importance(x = rf.model)
+#' plot_importance(model = rf.model)
 #'
 #' }
 #' }
 #' @rdname plot_importance
 #' @export
 #' @importFrom ggplot2 ggplot aes geom_point scale_fill_viridis_c ylab xlab theme geom_boxplot scale_fill_viridis_d
-plot_importance <- function(x, verbose = TRUE){
+plot_importance <- function(
+  model,
+  verbose = TRUE
+  ){
 
   #declaring variables
   importance <- NULL
   variable <- NULL
 
   #if x is not a data frame
-  if(!is.data.frame(x)){
+  if(!is.data.frame(model)){
 
     #importance from rf
-    if(inherits(x, "rf") & !inherits(x, "rf_spatial") & !inherits(x, "rf_repeat")){
-      x <- x$variable.importance$per.variable
+    if(inherits(model, "rf") & !inherits(model, "rf_spatial") & !inherits(model, "rf_repeat")){
+      x <- model$variable.importance$per.variable
     }
 
     #importance from rf_repeat
-    if(inherits(x, "rf_repeat") & !inherits(x, "rf_spatial")){
-      x <- x$variable.importance$per.repetition
+    if(inherits(model, "rf_repeat") & !inherits(model, "rf_spatial")){
+      x <- model$variable.importance$per.repetition
     }
 
     #importance from rf_spatial and rf
-    if(inherits(x, "rf_spatial")){
-      x <- x$variable.importance$spatial.predictors
+    if(inherits(model, "rf_spatial")){
+      x <- model$variable.importance$spatial.predictors
     }
 
+  } else {
+    x <- model
   }
 
   #find duplicates in "variable"

@@ -18,7 +18,7 @@ test_that("`select_spatial_predictors_sequential()` works", {
   )
 
   spatial.predictors <- pca_multithreshold(
-    x = distance.matrix,
+    distance.matrix,
     distance.thresholds = distance.thresholds
   )
 

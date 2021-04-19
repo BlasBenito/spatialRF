@@ -4,10 +4,10 @@
 \alias{print_performance}
 \title{print_performance}
 \usage{
-print_performance(x)
+print_performance(model)
 }
 \arguments{
-\item{x}{Model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}.}
+\item{model}{Model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}.}
 }
 \description{
 Prints the performance slot of a model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}. For models fitted with \code{\link[=rf_repeat]{rf_repeat()}} it shows the mean and the standard error (computed with the function \code{\link[=standard_error]{standard_error()}}) of the mean of each performance measure.

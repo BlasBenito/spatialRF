@@ -5,14 +5,14 @@
 \title{Transforms a distance matrix into a matrix of weights}
 \usage{
 weights_from_distance_matrix(
-  x,
+  distance.matrix = NULL,
   distance.threshold = 0
 )
 }
 \arguments{
-\item{x}{Numeric squared and symmetric distance matrix.}
+\item{distance.matrix}{Distance matrix. Default: \code{NULL}.}
 
-\item{distance.threshold}{Numeric, positive, in the range of values of \code{distance.matrix}. Distances below this value in the distance matrix are set to 0., Default: 0}
+\item{distance.threshold}{Numeric, positive, in the range of values of \code{distance.matrix}. Distances below this value in the distance matrix are set to 0., Default: \code{0}.}
 }
 \value{
 A weighted distance matrix.
@@ -27,7 +27,7 @@ if(interactive()){
  data(distance_matrix)
 
  distance.matrix.weights <- weights_from_distance_matrix(
-   x = distance_matrix
+   distance.matrix = distance_matrix
    )
 
  distance.matrix.weights

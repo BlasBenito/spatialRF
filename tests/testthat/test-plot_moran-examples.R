@@ -11,6 +11,6 @@ test_that("`plot_moran()` works", {
      verbose = FALSE
    )
 
-   p <- plot_moran(x = rf.model, verbose = FALSE)
+   p <- plot_moran(rf.model, verbose = FALSE)
    expect_equal(inherits(p, "ggplot"), TRUE)
 })

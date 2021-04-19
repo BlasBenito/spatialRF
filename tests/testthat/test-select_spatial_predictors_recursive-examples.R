@@ -15,7 +15,7 @@ test_that("`select_spatial_predictors_recursive()` works", {
     verbose = FALSE
   )
   spatial.predictors <- pca_multithreshold(
-    x = distance.matrix,
+    distance.matrix,
     distance.thresholds = distance.thresholds
   )
   spatial.predictors.ranking <- rank_spatial_predictors(

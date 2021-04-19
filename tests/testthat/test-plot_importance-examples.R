@@ -11,6 +11,6 @@ test_that("`plot_importance()` works", {
     verbose = FALSE
   )
 
-  p <- plot_importance(x = rf.model, verbose = FALSE)
+  p <- plot_importance(rf.model, verbose = FALSE)
   expect_equal(inherits(p, "ggplot"), TRUE)
 })

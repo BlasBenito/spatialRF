@@ -4,12 +4,12 @@
 #' moran(
 #'   x = NULL,
 #'   distance.matrix = NULL,
-#'   distance.threshold = 0,
+#'   distance.threshold = NULL,
 #'   verbose = TRUE
 #' )
 #' @param x Numeric vector, generally model residuals, Default: `NULL`
 #' @param distance.matrix Distance matrix among cases in `x`. The number of rows of this matrix must be equal to the length of `x`. Default: `NULL`
-#' @param distance.threshold numeric value in the range of values available in `distance.matrix`. Distances below such threshold are set to 0. Default: `0`
+#' @param distance.threshold numeric value in the range of values available in `distance.matrix`. Distances below such threshold are set to 0. Default: `NULL` (which defaults to 0).
 #' @param verbose Logical, if `TRUE`, prints a Moran's I plot. Default: `TRUE`
 #' @return A list with three named slots:
 #'  \itemize{
@@ -40,13 +40,28 @@
 moran <- function(
   x = NULL,
   distance.matrix = NULL,
-  distance.threshold = 0,
+  distance.threshold = NULL,
   verbose = TRUE
 ){
 
+  #stopping if no x
+  if(is.null(x)){
+    stop("The argument 'x' is missing.")
+  }
+
+  #stopping if no distance matrix
+  if(is.null(distance.matrix)){
+    stop("The argument 'distance.matrix' is missing.")
+  }
+
+  #default for distance threshold
+  if(is.null(distance.threshold)){
+    distance.threshold <- 0
+  }
+
   #extracting weights from distance matrix
   x.distance.weights <- weights_from_distance_matrix(
-    x = distance.matrix,
+    distance.matrix = distance.matrix,
     distance.threshold = distance.threshold
   )
 

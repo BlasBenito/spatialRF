@@ -2,10 +2,10 @@
 #' @description Plots the tuning of the hyperparameters `num.trees`, `mtry`, and `min.node.size` performed by [rf_tuning()].
 #' @usage
 #' plot_tuning(
-#'   x,
+#'   model,
 #'   verbose = TRUE
 #' )
-#' @param x A model fitted with [rf_tuning()]. Default: `NULL`
+#' @param model A model fitted with [rf_tuning()]. Default: `NULL`
 #' @param verbose Logical, if `TRUE`, the plot is printed. Default: `TRUE`
 #' @return A ggplot.
 #' @seealso [rf_tuning()]
@@ -28,21 +28,21 @@
 #' }
 #' @rdname plot_tuning
 #' @export
-plot_tuning <- function(x, verbose = TRUE){
+plot_tuning <- function(model, verbose = TRUE){
 
   #declaring variables
   metric <- NULL
   value <- NULL
 
-  if(!("tuning" %in% names(x))){
+  if(!("tuning" %in% names(model))){
     stop("Object 'x' does not have a 'tuning' slot.")
   }
 
   #extracting tuning data frame
-  tuning <- x$tuning$tuning.df
+  tuning <- model$tuning$tuning.df
 
   #getting metric name
-  metric.name <- x$tuning$metric
+  metric.name <- model$tuning$metric
 
   #changing name of metric column
   colnames(tuning)[colnames(tuning) == metric.name] <- "metric"
@@ -86,7 +86,7 @@ plot_tuning <- function(x, verbose = TRUE){
     ggplot2::ylab(metric.name) +
     ggplot2::ggtitle(
       paste0("Method: ",
-        x$tuning$method
+        model$tuning$method
         )
       )
 

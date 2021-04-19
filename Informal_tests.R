@@ -1,4 +1,4 @@
-
+library(spatialRF)
 
 #BASIC MODELS TO TEST OTHER THINGIES
 #############################################
@@ -39,6 +39,18 @@ rf.spatial <- rf_spatial(model = rf.model, verbose = FALSE)
 #from repeat
 rf.spatial.repeat <- rf_spatial(model = rf.repeat, verbose = FALSE)
 
+#rf_spatial from data
+#basic model
+rf.model <- rf_spatial(
+  data = plant_richness_df,
+  dependent.variable.name = "richness_species_vascular",
+  predictor.variable.names = colnames(plant_richness_df)[5:21],
+  distance.matrix = distance_matrix,
+  distance.thresholds = c(0, 1000, 2000),
+  seed = 50,
+  verbose = FALSE
+)
+
 #trying rf_evaluate
 rf.model <- rf_evaluate(
   model = rf.model,
@@ -71,7 +83,7 @@ plot_evaluation(rf.spatial.repeat)
 #DETECTING INTERACTIONS
 ranger.arguments <- NULL
 #basic model
-rf.interaction <- suggest_interactions(
+rf.interaction <- rf_interactions(
   data = plant_richness_df,
   dependent.variable.name = "richness_species_vascular",
   predictor.variable.names = colnames(plant_richness_df)[5:21],
@@ -80,33 +92,29 @@ rf.interaction <- suggest_interactions(
 
 rf.interaction$selected
 
-rf.interaction <- suggest_interactions(model = rf.model)
-x <- rf.interaction$selected
-rf.interaction$df
-
 
 #RESPONSE SURFACES
-p <- response_surfaces(
+p <- plot_response_surfaces(
   model = rf.model
   )
 
-p <- response_curves(
+p <- plot_response_curves(
   model = rf.model
 )
 
-p <- response_surfaces(
+p <- plot_response_surfaces(
   model = rf.repeat
 )
 
-p <- response_curves(
+p <- plot_response_curves(
   model = rf.repeat
 )
 
-p <- response_surfaces(
+p <- plot_response_surfaces(
   model = rf.spatial
 )
 
-p <- response_curves(
+p <- plot_response_curves(
   model = rf.spatial
 )
 

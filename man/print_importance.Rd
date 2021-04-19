@@ -5,12 +5,12 @@
 \title{Prints variable importance}
 \usage{
 print_importance(
-  x,
+  model,
   verbose = TRUE
 )
 }
 \arguments{
-\item{x}{A model fitted with \link{rf}, \link{rf_repeat}, or \link{rf_spatial}.}
+\item{model}{A model fitted with \link{rf}, \link{rf_repeat}, or \link{rf_spatial}.}
 
 \item{verbose}{Logical, if \code{TRUE}, variable importance is returned. Default: \code{TRUE}}
 }
@@ -36,7 +36,7 @@ rf.model <- rf(
   verbose = FALSE
 )
 
-print_importance(x = rf.model)
+print_importance(model = rf.model)
 
 }
 }

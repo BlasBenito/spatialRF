@@ -1,6 +1,6 @@
 #' @title PCA of a distance matrix over distance thresholds
 #' @description Computes PCA factors of a distance matrix over different distance thresholds to generate spatial predictors for a model fitted with [rf_spatial()].
-#' @param x Distance matrix with the same number of columns and rows. Default: `NULL`
+#' @param distance.matrix Distance matrix. Default: `NULL`
 #' @param distance.thresholds Numeric vector with distance thresholds defining neighborhood in the distance matrix, Default: `0`
 #' @param max.spatial.predictors Integer, maximum number of spatial predictors to generate. Only useful when the distance matrix `x` is very large. Default: `NULL`
 #' @return A data frame with the PCA factors of the thresholded matrix. The data frame columns are named "spatial_predictor_DISTANCE_COLUMN", where DISTANCE is the given distance threshold, and COLUMN is the column index of the given predictor.
@@ -11,7 +11,7 @@
 #' if(interactive()){
 #'
 #'  x <- pca_multithreshold(
-#'    x = distance_matrix,
+#'    distance.matrix = distance_matrix,
 #'    distance.thresholds = c(0, 1000)
 #'    )
 #'  head(x)
@@ -20,10 +20,20 @@
 #' @rdname pca_multithreshold
 #' @export
 pca_multithreshold <- function(
-  x = NULL,
-  distance.thresholds = 0,
+  distance.matrix = NULL,
+  distance.thresholds = NULL,
   max.spatial.predictors = NULL
 ){
+
+  #stopping if no distance matrix
+  if(is.null(distance.matrix)){
+    stop("The argument 'distance.matrix' is missing.")
+  }
+
+  #creating distance thresholds
+  if(is.null(distance.thresholds)){
+    distance.thresholds <- default_distance_thresholds(distance.matrix = distance.matrix)
+  }
 
   #list to store pca factors
   pca.factors.list <- list()
@@ -33,7 +43,7 @@ pca_multithreshold <- function(
 
     #computing weighted distance matrix
     x.i <- weights_from_distance_matrix(
-      x = x,
+      distance.matrix = distance.matrix,
       distance.threshold = distance.threshold.i
     )
 

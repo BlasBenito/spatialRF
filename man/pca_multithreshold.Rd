@@ -5,13 +5,13 @@
 \title{PCA of a distance matrix over distance thresholds}
 \usage{
 pca_multithreshold(
-  x = NULL,
-  distance.thresholds = 0,
+  distance.matrix = NULL,
+  distance.thresholds = NULL,
   max.spatial.predictors = NULL
 )
 }
 \arguments{
-\item{x}{Distance matrix with the same number of columns and rows. Default: \code{NULL}}
+\item{distance.matrix}{Distance matrix. Default: \code{NULL}}
 
 \item{distance.thresholds}{Numeric vector with distance thresholds defining neighborhood in the distance matrix, Default: \code{0}}
 
@@ -31,7 +31,7 @@ The distance matrix is converted into weights with \code{\link[=weights_from_dis
 if(interactive()){
 
  x <- pca_multithreshold(
-   x = distance_matrix,
+   distance.matrix = distance_matrix,
    distance.thresholds = c(0, 1000)
    )
  head(x)

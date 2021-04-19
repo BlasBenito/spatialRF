@@ -5,12 +5,12 @@
 \title{Double centers a distance matrix}
 \usage{
 double_center_distance_matrix (
-  x = NULL,
+  distance.matrix = NULL,
   distance.threshold = 0
 )
 }
 \arguments{
-\item{x}{Numeric distance matrix. Default: \code{NULL}.}
+\item{distance.matrix}{Distance matrix. Default: \code{NULL}.}
 
 \item{distance.threshold}{Numeric, positive, in the range of values of \code{x}. Distances below this value in the distance matrix are set to 0.  Default: \code{0}.}
 }
@@ -27,7 +27,7 @@ if(interactive()){
  data(distance_matrix)
 
  x <- double_center_distance_matrix(
-   x = distance_matrix
+   distance.matrix = distance_matrix
  )
  x
 

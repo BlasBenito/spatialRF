@@ -65,9 +65,6 @@ make_spatial_fold <- function(
     #remove zero distances
     xy.distances <- xy.distances[xy.distances != 0]
 
-    #getting the minimum
-    # distance.step <- min(xy.distances)
-
     #getting the 1%
     distance.step <- max(xy.distances) / 1000
 
@@ -87,6 +84,7 @@ make_spatial_fold <- function(
   xy.i.y <- xy.i[1, "y"]
 
   #finding out if data is binary
+  is.binary <- FALSE
   if(!is.null(data) & !is.null(dependent.variable.name)){
     is.binary <- is_binary(
       data = data,

@@ -5,12 +5,12 @@
 \title{Plots a tuning object produced by \code{\link[=rf_tuning]{rf_tuning()}}}
 \usage{
 plot_tuning(
-  x,
+  model,
   verbose = TRUE
 )
 }
 \arguments{
-\item{x}{A model fitted with \code{\link[=rf_tuning]{rf_tuning()}}. Default: \code{NULL}}
+\item{model}{A model fitted with \code{\link[=rf_tuning]{rf_tuning()}}. Default: \code{NULL}}
 
 \item{verbose}{Logical, if \code{TRUE}, the plot is printed. Default: \code{TRUE}}
 }

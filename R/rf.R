@@ -342,7 +342,7 @@ rf <- function(
       as.data.frame()
 
     m$variable.importance$per.variable.plot <- plot_importance(
-      x = m$variable.importance$per.variable,
+      m$variable.importance$per.variable,
       verbose = verbose
     )
 

@@ -5,12 +5,12 @@
 \title{Plots the variable importance of a model}
 \usage{
 plot_importance(
-  x,
+  model,
   verbose = TRUE
 )
 }
 \arguments{
-\item{x}{A model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}.}
+\item{model}{A model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}.}
 
 \item{verbose}{Logical, if \code{TRUE}, the plot is printed. Default: \code{TRUE}}
 }
@@ -36,7 +36,7 @@ rf.model <- rf(
  verbose = FALSE
 )
 
-plot_importance(x = rf.model)
+plot_importance(model = rf.model)
 
 }
 }

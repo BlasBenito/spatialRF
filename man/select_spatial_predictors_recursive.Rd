@@ -95,8 +95,8 @@ model <- rf(
 )
 
 #preparing spatial predictors
-spatial.predictors <- pca_distance_matrix(
-  x = distance.matrix,
+spatial.predictors <- mem_multithreshold(
+  distance.matrix = distance.matrix,
   distance.thresholds = distance.thresholds
 )
 

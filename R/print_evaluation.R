@@ -1,22 +1,20 @@
 #' @title Prints cross-validation results
 #' @description Prints the results of an spatial cross-validation performed with [rf_evaluate()].
-#' @param x A model resulting from [rf_evaluate()].
+#' @param model A model resulting from [rf_evaluate()].
 #' @return A table printed to the standard output.
 #' @seealso [plot_evaluation()], [get_evaluation()]
 #' @rdname print_evaluation
 #' @export
-print_evaluation <- function(x){
+print_evaluation <- function(model){
 
   #stop if no evaluation slot
-  if(!inherits(x, "rf_evaluate")){
+  if(!inherits(model, "rf_evaluate")){
     stop("Object 'x' does not have an 'evaluation' slot.")
   }
 
   metric <- NULL
-  model <- x
-  x <- model$evaluation$aggregated
 
-    x <- x %>%
+    x <- model$evaluation$aggregated %>%
       dplyr::filter(
         model == "Testing"
       ) %>%

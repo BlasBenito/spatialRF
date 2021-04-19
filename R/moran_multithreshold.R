@@ -46,25 +46,9 @@ moran_multithreshold <- function(
   if(is.null(distance.matrix)){
     stop("Argument 'distance.matrix' is missing.`")
   }
-  if(nrow(distance.matrix) != length(x)){
-    stop("length(x) and nrow(distance.matrix) must be equal.")
-  }
-
   #creating distance thresholds
-  if(is.null(distance.thresholds) == TRUE){
-    distance.thresholds <- pretty(
-      floor(
-        seq(
-          0,
-          max(distance.matrix)/2,
-          length.out = 4
-        )
-      )
-    )
-  }
-
-  if(!is.null(distance.thresholds) & !is.vector(distance.thresholds)){
-    stop("distance.thresholds must be a numeric vector.")
+  if(is.null(distance.thresholds)){
+    distance.thresholds <- default_distance_thresholds(distance.matrix = distance.matrix)
   }
 
   #create output dataframe
@@ -97,13 +81,15 @@ moran_multithreshold <- function(
   #getting scale of max moran
   distance.threshold.max.moran <- out.df[which.max(out.df$moran.i), "distance.threshold"]
 
-
   #preparing output list
   out.list <- list()
   out.list$per.distance <- out.df
   out.list$max.moran <- max(out.df$moran.i)
   out.list$max.moran.distance.threshold <- distance.threshold.max.moran
-  out.list$plot <- plot_moran(x = out.df, verbose = verbose)
+  out.list$plot <- plot_moran(
+    model = out.df,
+    verbose = verbose
+    )
 
   out.list
 

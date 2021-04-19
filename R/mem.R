@@ -2,11 +2,11 @@
 #' @description Computes the positive Moran's Eigenvector Maps of a distance matrix.
 #' @usage
 #' mem(
-#'   x = NULL,
+#'   distance.matrix = NULL,
 #'   distance.threshold = 0,
 #'   colnames.prefix = "mem"
 #' )
-#' @param x Numeric distance matrix or data frame. Default: `NULL`.
+#' @param distance.matrix Distance matrix. Default: `NULL`.
 #' @param distance.threshold Numeric vector with distance thresholds defining different neighborhood extents within the distance matrix, Default: 0
 #' @param colnames.prefix Character, name prefix for the output columns. Default: `"mem"`
 #' @return A data frame with positive Moran's Eigenvector Maps.
@@ -26,19 +26,27 @@
 #' @rdname mem
 #' @export
 mem <- function(
-  x = NULL,
+  distance.matrix = NULL,
   distance.threshold = 0,
   colnames.prefix = "mem"
   ){
 
+  #stopping if no distance matrix
+  if(is.null(distance.matrix)){
+    stop("The argument 'distance.matrix' is missing.")
+  }
+
   #double center distance matrix
-  x <- double_center_distance_matrix(
-    x = x,
+  distance.matrix.double.centered <- double_center_distance_matrix(
+    distance.matrix = distance.matrix,
     distance.threshold = distance.threshold
     )
 
   #computes eigenvectors
-  mem <- eigen(x, symmetric = TRUE)
+  mem <- eigen(
+    distance.matrix.double.centered,
+    symmetric = TRUE
+    )
 
   #criteria to select mem
   mem.values.normalized <- mem$values/max(abs(mem$values))

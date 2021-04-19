@@ -10,7 +10,7 @@ test_that("`rf_tuning()` works", {
 
   out <- rf_tuning(
     model = out,
-    method = "oob",
+    xy = plant_richness_df[, c("x", "y")],
     num.trees = c(500, 1000),
     mtry = seq(2, 14, by = 2),
     min.node.size = c(5, 10, 20),

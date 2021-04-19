@@ -3,7 +3,7 @@
 #' @param data Data frame with a response variable and a set of predictors. Default: `NULL`
 #' @param predictor.variable.names Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Default: `NULL`
 #' @param spatial.predictors.df Data frame of spatial predictors.
-#' @param cor.threshold Numeric between 0 and 1, maximum Pearson correlation between any pair of the selected variables. Default: `0.75`
+#' @param cor.threshold Numeric between 0 and 1, maximum Pearson correlation between any pair of the selected variables. Default: `0.50`
 #' @return A data frame with non-redundant spatial predictors.
 #' @examples
 #' \dontrun{
@@ -13,7 +13,7 @@
 #' data("plant_richness_df")
 #'
 #' spatial.predictors.df <- mem_multithreshold(
-#'   x = distance_matrix,
+#'   distance_matrix = distance_matrix,
 #'   distance.thresholds = c(0, 100, 200, 1000, 2000)
 #'   )
 #'

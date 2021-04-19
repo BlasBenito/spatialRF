@@ -3,17 +3,17 @@
 #' and [select_spatial_predictors_recursive()].
 #' @usage
 #' plot_optimization(
-#'   x,
+#'   model,
 #'   verbose = TRUE
 #' )
-#' @param x A model produced by [rf_spatial()], or an optimization data frame produced by [select_spatial_predictors_sequential()] or [select_spatial_predictors_recursive()].
+#' @param model A model produced by [rf_spatial()], or an optimization data frame produced by [select_spatial_predictors_sequential()] or [select_spatial_predictors_recursive()].
 #' @param verbose Logical, if `TRUE` the plot is printed. Default: `TRUE`
 #' @details If the method used to fit a model with [rf_spatial()] is "hengl", the function returns nothing, as this method does not require optimization.
 #' @return A ggplot.
 #' @rdname plot_optimization
 #' @export
 #' @importFrom ggplot2 ggplot aes geom_point scale_color_viridis_c geom_path geom_vline labs xlab ylab ggtitle
-plot_optimization <- function(x, verbose = TRUE){
+plot_optimization <- function(model, verbose = TRUE){
 
   #declaring variables
   moran.i <- NULL
@@ -22,8 +22,10 @@ plot_optimization <- function(x, verbose = TRUE){
   spatial.predictor.index <- NULL
 
   #getting optimization df from the model
-  if(inherits(x, "rf_spatial")){
-    x <- x$selection.spatial.predictors$optimization
+  if(inherits(model, "rf_spatial")){
+    x <- model$selection.spatial.predictors$optimization
+  } else {
+    x <- model
   }
 
   #plot

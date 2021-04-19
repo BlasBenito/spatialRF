@@ -1,6 +1,6 @@
 #' @title Plots the response curves of a model.
 #' @description Plots the response curves of models fitted with [rf()], [rf_repeat()], or  [rf_spatial()].
-#' @param x A model fitted with [rf()], [rf_repeat()], or [rf_spatial()].
+#' @param model A model fitted with [rf()], [rf_repeat()], or [rf_spatial()].
 #' @param variables Character vector, names of predictors to plot. If `NULL`, the most important variables (importance higher than the median) in `x` are selected. Default: `NULL`.
 #' @param quantiles Numeric vector with values between 0 and 1, argument `probs` of \link[stats]{quantile}. Quantiles to set the other variables to. Default: `c(0.1, 0.5, 0.9)`
 #' @param grid.resolution Integer between 20 and 500. Resolution of the plotted curve Default: `100`
@@ -13,16 +13,17 @@
 #' @examples
 #' \donttest{
 #' if(interactive()){
+#'
 #'data(plant_richness_df)
 #'
-#'out <- rf(
+#'m <- rf(
 #'  data = plant_richness_df,
 #'  dependent.variable.name = "richness_species_vascular",
 #'  predictor.variable.names = colnames(plant_richness_df)[5:21],
  #'  verbose = FALSE
 #')
 #'
-#'p <- plot_response_curves(x = out)
+#'p <- plot_response_curves(model = m)
 #'p
 #'
 #' }
@@ -30,7 +31,7 @@
 #' @rdname plot_response_curves
 #' @export
 plot_response_curves <- function(
-  x = NULL,
+  model = NULL,
   variables = NULL,
   quantiles = c(0.1, 0.5, 0.9),
   grid.resolution = 200,
@@ -39,7 +40,7 @@ plot_response_curves <- function(
   verbose = TRUE
 ){
 
-  if(is.null(x)){
+  if(is.null(model)){
     stop("Argument 'x' must not be empty.")
   }
 
@@ -53,23 +54,23 @@ plot_response_curves <- function(
   quantiles <- quantiles[quantiles <= 1]
 
   #getting the training data
-  data <- x$ranger.arguments$data
+  data <- model$ranger.arguments$data
 
   #getting the response variable
-  response.variable <- x$ranger.arguments$dependent.variable.name
+  response.variable <- model$ranger.arguments$dependent.variable.name
 
   #getting the predictors
-  predictors <- x$ranger.arguments$predictor.variable.names
+  predictors <- model$ranger.arguments$predictor.variable.names
 
   #removing spatial predictors
-  if(inherits(x, "rf_spatial")){
-    predictors <- predictors[!(predictors %in% x$selection.spatial.predictors$names)]
+  if(inherits(model, "rf_spatial")){
+    predictors <- predictors[!(predictors %in% model$selection.spatial.predictors$names)]
   }
 
   #default values for variables
   if(is.null(variables)){
 
-    variables <- x$variable.importance$per.variable[x$variable.importance$per.variable$variable %in% predictors, "variable"][1:floor(length(predictors) / 2)]
+    variables <- model$variable.importance$per.variable[model$variable.importance$per.variable$variable %in% predictors, "variable"][1:floor(length(predictors) / 2)]
 
   }
 
@@ -88,7 +89,7 @@ plot_response_curves <- function(
   for(variable.i in variables){
 
     #names of the other variables
-    other.variables <- setdiff(x$ranger.arguments$predictor.variable.names, variable.i)
+    other.variables <- setdiff(model$ranger.arguments$predictor.variable.names, variable.i)
 
     #generating grid
     variable.i.grid <- data.frame(
@@ -141,11 +142,11 @@ plot_response_curves <- function(
   variables.plots <- list()
 
   #models
-  if("models" %in% names(x)){
-    models.list <- x$models
+  if("models" %in% names(model)){
+    models.list <- model$models
   } else {
     models.list <- list()
-    models.list[[1]] <- x
+    models.list[[1]] <- model
   }
 
   #iterating through variables to predict

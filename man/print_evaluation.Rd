@@ -4,10 +4,10 @@
 \alias{print_evaluation}
 \title{Prints cross-validation results}
 \usage{
-print_evaluation(x)
+print_evaluation(model)
 }
 \arguments{
-\item{x}{A model resulting from \code{\link[=rf_evaluate]{rf_evaluate()}}.}
+\item{model}{A model resulting from \code{\link[=rf_evaluate]{rf_evaluate()}}.}
 }
 \value{
 A table printed to the standard output.

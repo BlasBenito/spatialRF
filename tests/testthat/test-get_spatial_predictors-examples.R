@@ -6,10 +6,7 @@ test_that("`get_spatial_predictors()` works", {
     dependent.variable.name = "richness_species_vascular",
     predictor.variable.names = colnames(plant_richness_df)[5:21],
     distance.matrix = distance_matrix,
-    distance.thresholds = c(
-      0,
-      500, 1000
-    ),
+    distance.thresholds = c(0, 500, 1000),
     method = "mem.moran.sequential",
     verbose = FALSE,
     n.cores = 1

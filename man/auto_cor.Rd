@@ -7,7 +7,7 @@
 auto_cor(
   x = NULL,
   preference.order = NULL,
-  cor.threshold = 0.75,
+  cor.threshold = 0.5,
   verbose = TRUE
 )
 }
@@ -16,7 +16,7 @@ auto_cor(
 
 \item{preference.order}{Character vector indicating the user's order of preference to keep variables. Doesn't need to contain If not provided, variables in \code{x} are prioritised by their column order. Default: \code{NULL}.}
 
-\item{cor.threshold}{Numeric between 0 and 1, with recommended values between 0.5 and 0.9. Maximum Pearson correlation between any pair of the selected variables. Default: \code{0.75}}
+\item{cor.threshold}{Numeric between 0 and 1, with recommended values between 0.5 and 0.9. Maximum Pearson correlation between any pair of the selected variables. Default: \code{0.50}}
 
 \item{verbose}{Logical. if \code{TRUE}, describes the function operations to the user. Default:: \code{TRUE}}
 }

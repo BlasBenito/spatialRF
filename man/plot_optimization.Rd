@@ -5,12 +5,12 @@
 \title{Optimization plot of a selection of spatial predictors}
 \usage{
 plot_optimization(
-  x,
+  model,
   verbose = TRUE
 )
 }
 \arguments{
-\item{x}{A model produced by \code{\link[=rf_spatial]{rf_spatial()}}, or an optimization data frame produced by \code{\link[=select_spatial_predictors_sequential]{select_spatial_predictors_sequential()}} or \code{\link[=select_spatial_predictors_recursive]{select_spatial_predictors_recursive()}}.}
+\item{model}{A model produced by \code{\link[=rf_spatial]{rf_spatial()}}, or an optimization data frame produced by \code{\link[=select_spatial_predictors_sequential]{select_spatial_predictors_sequential()}} or \code{\link[=select_spatial_predictors_recursive]{select_spatial_predictors_recursive()}}.}
 
 \item{verbose}{Logical, if \code{TRUE} the plot is printed. Default: \code{TRUE}}
 }

@@ -1,7 +1,7 @@
 test_that("`mem_multithreshold()` works", {
   data(distance_matrix)
   x <- mem_multithreshold(
-    x = distance_matrix,
+    distance_matrix,
     distance.thresholds = c(0, 1000, 2000)
     )
   expect_s3_class(x, "data.frame")

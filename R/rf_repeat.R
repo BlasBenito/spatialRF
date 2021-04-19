@@ -348,7 +348,7 @@ rf_repeat <- function(
       )
     m.curves$variable.importance$per.repetition <- variable.importance.per.repetition
     m.curves$variable.importance$per.repetition.plot <- plot_importance(
-      x = variable.importance.per.repetition,
+      variable.importance.per.repetition,
       verbose = verbose
     )
 
@@ -457,7 +457,7 @@ rf_repeat <- function(
     m.curves$spatial.correlation.residuals$per.distance <- spatial.correlation.residuals.mean
     m.curves$spatial.correlation.residuals$per.repetition <- spatial.correlation.residuals.per.repetition
     m.curves$spatial.correlation.residuals$plot <- plot_moran(
-      x = spatial.correlation.residuals.per.repetition,
+      spatial.correlation.residuals.per.repetition,
       verbose = verbose
     )
 

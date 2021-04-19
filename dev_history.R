@@ -21,6 +21,9 @@ devtools::document()
 devtools::check()
 ########################################
 
+#test (takes half an hour)
+testthat::test_local()
+
 #https://www.rostrum.blog/2020/08/09/ghactions-pkgs/
 # usethis::use_pkgdown()
 # usethis::use_github_action("pkgdown")
@@ -165,6 +168,12 @@ sinew::makeOxygen(plot_training_data)
 sinew::makeOxygen(is_binary)
 sinew::makeOxygen(case_weights)
 sinew::makeOxygen(filter_spatial_predictors)
+sinew::makeOxygen(default_distance_thresholds)
+
+exampletestr::make_test_shell_fun("auc", open = FALSE)
+exampletestr::make_test_shell_fun("case_weights", open = FALSE)
+exampletestr::make_test_shell_fun("default_distance_thresholds", open = FALSE)
+exampletestr::make_test_shell_fun("is_binary", open = FALSE)
 
 #moran
 usethis::use_r("moran")

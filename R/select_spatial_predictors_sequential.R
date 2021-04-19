@@ -43,8 +43,8 @@
 #' )
 #'
 #' #preparing spatial predictors
-#' spatial.predictors <- pca_distance_matrix(
-#'   x = distance.matrix,
+#' spatial.predictors <- mem_multithreshold(
+#'   distance.matrix = distance.matrix,
 #'   distance.thresholds = distance.thresholds
 #' )
 
@@ -197,11 +197,11 @@ select_spatial_predictors_sequential <- function(
 
       #register cluster and close on exit
       doParallel::registerDoParallel(cl = temp.cluster)
-      on.exit(parallel::stopCluster(cl = temp.cluster))
 
     }
 
   } else {
+    #registering cluster from the cluster argument
     doParallel::registerDoParallel(cl = cluster)
   }
 
@@ -253,7 +253,7 @@ select_spatial_predictors_sequential <- function(
   }#end of parallelized loop
 
   #stopping cluster
-  if(exists("temp.cluster")){
+  if(is.null(cluster) & n.cores > 1){
     parallel::stopCluster(cl = temp.cluster)
   }
 

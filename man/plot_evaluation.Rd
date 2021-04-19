@@ -5,13 +5,13 @@
 \title{Plots the results of a spatial cross-validation}
 \usage{
 plot_evaluation(
-  x,
+  model,
   verbose = TRUE,
   notch = TRUE
 )
 }
 \arguments{
-\item{x}{A model resulting from \code{\link[=rf_evaluate]{rf_evaluate()}}.}
+\item{model}{A model resulting from \code{\link[=rf_evaluate]{rf_evaluate()}}.}
 
 \item{verbose}{Logical, if \code{TRUE} the plot is printed. Default: \code{TRUE}}
 

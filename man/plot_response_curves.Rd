@@ -5,7 +5,7 @@
 \title{Plots the response curves of a model.}
 \usage{
 plot_response_curves(
-  x = NULL,
+  model = NULL,
   variables = NULL,
   quantiles = c(0.1, 0.5, 0.9),
   grid.resolution = 200,
@@ -15,7 +15,7 @@ plot_response_curves(
 )
 }
 \arguments{
-\item{x}{A model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}.}
+\item{model}{A model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}.}
 
 \item{variables}{Character vector, names of predictors to plot. If \code{NULL}, the most important variables (importance higher than the median) in \code{x} are selected. Default: \code{NULL}.}
 
@@ -41,16 +41,17 @@ All variables that are not plotted in a particular response curve are set to the
 \examples{
 \donttest{
 if(interactive()){
+
 data(plant_richness_df)
 
-out <- rf(
+m <- rf(
  data = plant_richness_df,
  dependent.variable.name = "richness_species_vascular",
  predictor.variable.names = colnames(plant_richness_df)[5:21],
  verbose = FALSE
 )
 
-p <- plot_response_curves(x = out)
+p <- plot_response_curves(model = m)
 p
 
 }

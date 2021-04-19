@@ -18,7 +18,7 @@ filter_spatial_predictors(
 
 \item{spatial.predictors.df}{Data frame of spatial predictors.}
 
-\item{cor.threshold}{Numeric between 0 and 1, maximum Pearson correlation between any pair of the selected variables. Default: \code{0.75}}
+\item{cor.threshold}{Numeric between 0 and 1, maximum Pearson correlation between any pair of the selected variables. Default: \code{0.50}}
 }
 \value{
 A data frame with non-redundant spatial predictors.
@@ -34,7 +34,7 @@ data("distance_matrix")
 data("plant_richness_df")
 
 spatial.predictors.df <- mem_multithreshold(
-  x = distance_matrix,
+  distance_matrix = distance_matrix,
   distance.thresholds = c(0, 100, 200, 1000, 2000)
   )
 

@@ -2,11 +2,11 @@
 #' @description Plots the results of an spatial cross-validation performed with [rf_evaluate()].
 #' @usage
 #' plot_evaluation(
-#'   x,
+#'   model,
 #'   verbose = TRUE,
 #'   notch = TRUE
 #' )
-#' @param x A model resulting from [rf_evaluate()].
+#' @param model A model resulting from [rf_evaluate()].
 #' @param verbose Logical, if `TRUE` the plot is printed. Default: `TRUE`
 #' @param notch Logical, if `TRUE`, boxplot notches are plotted. Default: `TRUE`
 #' @return A ggplot.
@@ -41,7 +41,7 @@
 #' @rdname plot_evaluation
 #' @export
 #' @importFrom ggplot2 ggplot facet_wrap theme xlab ylab labs
-plot_evaluation <- function(x, verbose = TRUE, notch = TRUE){
+plot_evaluation <- function(model, verbose = TRUE, notch = TRUE){
 
   #declaring variable because of check BS
   model <- NULL
@@ -51,13 +51,13 @@ plot_evaluation <- function(x, verbose = TRUE, notch = TRUE){
 
 
   #stop if no evaluation slot
-  if(!inherits(x, "rf_evaluate")){
+  if(!inherits(model, "rf_evaluate")){
     stop("Object 'x' does not have an 'evaluation' slot.")
   }
 
   #getting plotting df
-  n.spatial.folds <- length(x$evaluation$spatial.folds)
-  x <- x$evaluation$per.fold.long
+  n.spatial.folds <- length(model$evaluation$spatial.folds)
+  x <- model$evaluation$per.fold.long
 
   #prettier labels
   x[x$metric == "r.squared", "metric"] <- "R squared"

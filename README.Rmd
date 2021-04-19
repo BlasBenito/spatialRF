@@ -76,7 +76,7 @@ If after considering these limitations you are still interested, follow me, I wi
 
 The package is not yet in the CRAN repositories, so at the moment it must be installed from GitHub as follows.
 
-```{r, message = FALSE, eval = TRUE}
+```{r, message = FALSE, eval = FALSE}
 remotes::install_github(
   repo = "blasbenito/spatialRF", 
   ref = "development",
@@ -84,6 +84,11 @@ remotes::install_github(
   )
 library(spatialRF)
 ```
+
+```{r}
+library(spatialRF)
+```
+
 
 There are a few other libraries that will be useful during this tutorial.
 
@@ -187,9 +192,18 @@ interactions <- spatialRF::rf_interactions(
   data = plant_richness_df,
   dependent.variable.name = dependent.variable.name,
   predictor.variable.names = predictor.variable.names,
-  seed = random.seed
+  seed = random.seed,
+  verbose = FALSE
   )
 ```
+
+```{r, echo = FALSE, fig.width = 10, fig.height = 3.5}
+kableExtra::kbl(
+  interactions$selected
+)
+patchwork::wrap_plots(interactions$plot)
+```
+
 
 Here `rf_interactions()` suggests several candidate interactions ordered by their impact on the model. The function cannot say whether an interaction *makes sense*, and it is up to the user to choose wisely whether to select an interaction or not.
 
@@ -293,7 +307,10 @@ spatialRF::plot_response_surfaces(
 In this response surface, the predictors that are not shown are set to their medians (but other quantiles are possible).
 
 ```{r, fig.width = 6, fig.height=4.5}
-spatialRF::plot_importance(model.non.spatial, verbose = FALSE)
+spatialRF::plot_importance(
+  model.non.spatial, 
+  verbose = FALSE
+  )
 ```
 
 **Predicting onto new data**
@@ -308,20 +325,6 @@ predicted <- stats::predict(
   )$predictions
 ```
 
-**verbose = TRUE**
-
-Executing the model with the argument `verbose` set to `TRUE` (its default value) prints and plots most of the information required to interpret the model output.
-
-```{r, fig.width = 6}
-model.non.spatial <- spatialRF::rf(
-  data = plant_richness_df,
-  dependent.variable.name = dependent.variable.name,
-  predictor.variable.names = predictor.variable.names,
-  distance.matrix = distance_matrix,
-  distance.thresholds = c(0, 1500, 3000),
-  seed = random.seed
-)
-```
 
 **Repeating a model execution**
 
@@ -675,11 +678,11 @@ The first step requires generating Moran's Eigenvector Maps (MEMs) from the dist
 
 ```{r}
 #single distance (0km by default)
-mems <- spatialRF::mem(x = distance_matrix)
+mems <- spatialRF::mem(distance.matrix = distance_matrix)
 
 #several distances
 mems <- spatialRF::mem_multithreshold(
-  x = distance_matrix,
+  distance.matrix = distance_matrix,
   distance.thresholds = c(0, 1000, 2000)
 )
 ```
@@ -795,7 +798,7 @@ for(mem.i in colnames(mems)){
   )
   
   #stop if no autocorrelation
-  if(moran.test.i$test$interpretation != "Positive spatial correlation"){
+  if(moran.test.i$test$interpretation == "No spatial correlation"){
     break
   }
   

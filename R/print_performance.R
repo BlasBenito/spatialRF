@@ -1,6 +1,6 @@
 #' @title print_performance
 #' @description Prints the performance slot of a model fitted with [rf()], [rf_repeat()], or [rf_spatial()]. For models fitted with [rf_repeat()] it shows the mean and the standard error (computed with the function [standard_error()]) of the mean of each performance measure.
-#' @param x Model fitted with [rf()], [rf_repeat()], or [rf_spatial()].
+#' @param model Model fitted with [rf()], [rf_repeat()], or [rf_spatial()].
 #' @seealso [print_performance()], [get_performance()]
 #' @examples
 #' \donttest{
@@ -24,9 +24,9 @@
 #' }
 #' @rdname print_performance
 #' @export
-print_performance <- function(x){
+print_performance <- function(model){
 
-  x <- x$performance
+  x <- model$performance
 
   if(length(x$r.squared) == 1){
     cat("\n")

@@ -83,7 +83,7 @@ if(interactive()){
  data("distance_matrix")
 
 mem.df <- mem(
- x = distance_matrix[1:50, 1:50],
+ distance_matrix = distance_matrix[1:50, 1:50],
  distance.threshold = 0
 )
 

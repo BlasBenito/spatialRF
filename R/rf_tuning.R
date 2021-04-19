@@ -496,7 +496,7 @@ rf_tuning <- function(
 
     #adding plot to the tunning slot
     model$tuning$plot <- plot_tuning(
-      x = model,
+      model,
       verbose = FALSE
     )
 

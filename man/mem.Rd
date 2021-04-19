@@ -5,13 +5,13 @@
 \title{Moran's Eigenvector Maps of a distance matrix}
 \usage{
 mem(
-  x = NULL,
+  distance.matrix = NULL,
   distance.threshold = 0,
   colnames.prefix = "mem"
 )
 }
 \arguments{
-\item{x}{Numeric distance matrix or data frame. Default: \code{NULL}.}
+\item{distance.matrix}{Distance matrix. Default: \code{NULL}.}
 
 \item{distance.threshold}{Numeric vector with distance thresholds defining different neighborhood extents within the distance matrix, Default: 0}
 

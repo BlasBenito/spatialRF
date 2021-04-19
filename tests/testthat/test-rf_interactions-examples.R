@@ -1,17 +1,11 @@
-test_that("`suggest_interactions()` works", {
+test_that("`rf_interactions()` works", {
   data(plant_richness_df)
   data(distance_matrix)
-  rf.model <- rf(
+  interactions <- rf_interactions(
     data = plant_richness_df, dependent.variable.name = "richness_species_vascular",
     predictor.variable.names = colnames(plant_richness_df)[5:21],
-    distance.matrix = distance_matrix, distance.thresholds = c(
-      0,
-      1000, 2000
-    ), verbose = FALSE
-  )
-  interactions <- rf_interactions(
-    model = rf.model,
-    n.cores = 1, verbose = FALSE
+    verbose = FALSE,
+    n.cores = 1
     )
   expect_type(interactions, "list")
   expect_s3_class(interactions$screening, "data.frame")
