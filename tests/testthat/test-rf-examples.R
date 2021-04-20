@@ -13,5 +13,5 @@ test_that("`rf()` works", {
   expect_s3_class(out$variable.importance$per.variable, "data.frame")
   expect_named(out$variable.importance$per.variable, c("variable", "importance"))
   expect_s3_class(out$spatial.correlation.residuals$per.distance, "data.frame")
-  expect_named(out$spatial.correlation.residuals$per.distance, c("distance.threshold", "moran.i", "p.value", "interpretation"))
+  expect_named(out$spatial.correlation.residuals$per.distance, c("distance.threshold", "moran.i", "moran.i.null", "p.value", "interpretation"))
 })
