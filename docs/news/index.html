@@ -71,7 +71,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">spatialRF</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.8</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.9</span>
       </span>
     </div>
 
@@ -114,6 +114,12 @@
       <small>Source: <a href='https://github.com/BlasBenito/spatialRF/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
+    <div id="version-109-2042021" class="section level2">
+<h2 class="hasAnchor">
+<a href="#version-109-2042021" class="anchor"></a>Version 1.0.9 (20/4/2021)</h2>
+<p>Changed the names of function arguments from ‘x’ to ‘model’ or ‘distance.matrix’ for consistency. This might break code written previously, but I hope argument names are more self-explanatory now.</p>
+<p>The function rf_spatial() now fits a non-spatial model first, and only generates spatial predictors for these distance.thresholds that show positive spatial autocorrelation.</p>
+</div>
     <div id="version-108-1642021" class="section level2">
 <h2 class="hasAnchor">
 <a href="#version-108-1642021" class="anchor"></a>Version 1.0.8 (16/4/2021)</h2>

@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">spatialRF</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.8</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.9</span>
       </span>
     </div>
 
@@ -144,7 +144,7 @@
     </tr>
     <tr>
       <th>cor.threshold</th>
-      <td><p>Numeric between 0 and 1, maximum Pearson correlation between any pair of the selected variables. Default: <code>0.75</code></p></td>
+      <td><p>Numeric between 0 and 1, maximum Pearson correlation between any pair of the selected variables. Default: <code>0.50</code></p></td>
     </tr>
     </table>
 
@@ -160,7 +160,7 @@
 <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='st'>"plant_richness_df"</span>)
 
 <span class='no'>spatial.predictors.df</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='mem_multithreshold.html'>mem_multithreshold</a></span>(
-  <span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>distance_matrix</span>,
+  <span class='kw'>distance_matrix</span> <span class='kw'>=</span> <span class='no'>distance_matrix</span>,
   <span class='kw'>distance.thresholds</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0</span>, <span class='fl'>100</span>, <span class='fl'>200</span>, <span class='fl'>1000</span>, <span class='fl'>2000</span>)
   )
 

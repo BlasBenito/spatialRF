@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">spatialRF</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.8</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.9</span>
       </span>
     </div>
 
@@ -148,7 +148,7 @@
   <span class="kw">force</span> <span class="kw">=</span> <span class="fl">TRUE</span>
   )</pre></div>
 <div class="sourceCode" id="cb3"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="do">##      checking for file ‘/tmp/RtmpgZcsDA/remotes137e3379cf9b5/BlasBenito-spatialRF-bbabf97/DESCRIPTION’ ...  ✓  checking for file ‘/tmp/RtmpgZcsDA/remotes137e3379cf9b5/BlasBenito-spatialRF-bbabf97/DESCRIPTION’</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="do">##      checking for file ‘/tmp/RtmpVNPpHp/remotes37f9cb62e76e53/BlasBenito-spatialRF-16382bb/DESCRIPTION’ ...  ✓  checking for file ‘/tmp/RtmpVNPpHp/remotes37f9cb62e76e53/BlasBenito-spatialRF-16382bb/DESCRIPTION’</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="do">##   ─  preparing ‘spatialRF’:</span></span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="do">##    checking DESCRIPTION meta-information ...  ✓  checking DESCRIPTION meta-information</span></span>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="do">##   ─  checking for LF line-endings in source and make files and shell scripts</span></span>
@@ -212,28 +212,72 @@
   <span class="kw">data</span> <span class="kw">=</span> <span class="no">plant_richness_df</span>,
   <span class="kw">dependent.variable.name</span> <span class="kw">=</span> <span class="no">dependent.variable.name</span>,
   <span class="kw">predictor.variable.names</span> <span class="kw">=</span> <span class="no">predictor.variable.names</span>,
-  <span class="kw">seed</span> <span class="kw">=</span> <span class="no">random.seed</span>
+  <span class="kw">seed</span> <span class="kw">=</span> <span class="no">random.seed</span>,
+  <span class="kw">verbose</span> <span class="kw">=</span> <span class="fl">FALSE</span>
   )</pre></div>
-<div class="sourceCode" id="cb8"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Testing 10 candidate interactions.</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="do">## 3 potential interactions identified.</span></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="do">##       ┌─────────────────────────┬───────────────────────┬────────────────┐</span></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="do">##       │ Interaction             │ Importance (% of max) │ R2 improvement │</span></span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="do">##       ├─────────────────────────┼───────────────────────┼────────────────┤</span></span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="do">##       │ human_population_X_bias │                  93.2 │          0.002 │</span></span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="do">##       │ _area_km2               │                       │                │</span></span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="do">##       ├─────────────────────────┼───────────────────────┼────────────────┤</span></span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="do">##       │ human_population_X_huma │                  82.8 │          0.000 │</span></span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="do">##       │ n_population_density    │                       │                │</span></span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="do">##       ├─────────────────────────┼───────────────────────┼────────────────┤</span></span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="do">##       │ climate_bio1_average_X_ │                  77.9 │          0     │</span></span>
-<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a><span class="do">##       │ bias_area_km2           │                       │                │</span></span>
-<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="do">##       └─────────────────────────┴───────────────────────┴────────────────┘</span></span></code></pre></div>
-<p><img src="README_files/figure-gfm/unnamed-chunk-8-1.png"><!-- --></p>
+<table class="table">
+<thead><tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:left;">
+interaction.name
+</th>
+<th style="text-align:right;">
+interaction.importance
+</th>
+<th style="text-align:right;">
+interaction.r.squared.gain
+</th>
+</tr></thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+3
+</td>
+<td style="text-align:left;">
+human_population_X_bias_area_km2
+</td>
+<td style="text-align:right;">
+93.19
+</td>
+<td style="text-align:right;">
+0.002
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+4
+</td>
+<td style="text-align:left;">
+human_population_X_human_population_density
+</td>
+<td style="text-align:right;">
+82.84
+</td>
+<td style="text-align:right;">
+0.000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+5
+</td>
+<td style="text-align:left;">
+climate_bio1_average_X_bias_area_km2
+</td>
+<td style="text-align:right;">
+77.86
+</td>
+<td style="text-align:right;">
+0.000
+</td>
+</tr>
+</tbody>
+</table>
+<p><img src="README_files/figure-gfm/unnamed-chunk-9-1.png"><!-- --></p>
 <p>Here <code><a href="reference/rf_interactions.html">rf_interactions()</a></code> suggests several candidate interactions ordered by their impact on the model. The function cannot say whether an interaction <em>makes sense</em>, and it is up to the user to choose wisely whether to select an interaction or not.</p>
 <p>For the sake of the example, I will choose <code>climate_bio1_average_X_bias_area_km2</code>, hypothesizing that ecoregions with higher area (bias_area_km2) and energy (represented by the annual temperature, climate_bio1_average) will have more species of vascular plants (this is just an example, many other rationales are possible when choosing between candidate interactions). The data required to add the interaction to the training data is in the output of <code><a href="reference/rf_interactions.html">rf_interactions()</a></code>.</p>
-<div class="sourceCode" id="cb9"><pre class="r"><span class="co">#adding interaction column to the training data</span>
+<div class="sourceCode" id="cb8"><pre class="r"><span class="co">#adding interaction column to the training data</span>
 <span class="no">plant_richness_df</span>[, <span class="st">"climate_bio1_average_X_bias_area_km2"</span>] <span class="kw">&lt;-</span> <span class="no">interactions</span>$<span class="no">columns</span>[, <span class="st">"climate_bio1_average_X_bias_area_km2"</span>]
 
 <span class="co">#adding interaction name to predictor.variable.names</span>
@@ -245,7 +289,7 @@
 <p>The functions <a href="https://blasbenito.github.io/spatialRF/reference/auto_cor.html"><code><a href="reference/auto_cor.html">auto_cor()</a></code></a> and <a href="https://blasbenito.github.io/spatialRF/reference/auto_vif.html"><code><a href="reference/auto_vif.html">auto_vif()</a></code></a> help reduce redundancy in the predictors by using different criteria (bivariate R squared vs. <a href="https://www.statisticshowto.com/variance-inflation-factor/">variance inflation factor</a>), while allowing the user to define an <em>order of preference</em>, which can be based either on domain expertise or on a quantitative assessment. The preference order is defined as a character vector in the <code>preference.order</code> argument of both functions, and does not need to include the names of all predictors, but just the ones the user would like to keep in the analysis.</p>
 <p>In the example below I give preference to the interaction suggested by <code><a href="reference/rf_interactions.html">rf_interactions()</a></code> over it’s two components, and prioritize climate over other types of predictors (any other choice would be valid, it just depends on the scope of the study). These rules are applied to both <code><a href="reference/auto_cor.html">auto_cor()</a></code> and <code><a href="reference/auto_vif.html">auto_vif()</a></code>, that are executed sequentially by using the <code><a href="https://rdrr.io/pkg/kableExtra/man/reexports.html">%&gt;%</a></code> pipe from the <a href="https://magrittr.tidyverse.org/">magrittr</a> package.</p>
 <p>Notice that I have set <code>cor.threshold</code> and <code>vif.threshold</code> to low values because the predictors in <code>plant_richness_df</code> already have little multicollinearity,. The default values (<code>cor.threshold = 0.75</code> and <code>vif.threshold = 5</code>) should work well when combined together for any other set of predictors.</p>
-<div class="sourceCode" id="cb10"><pre class="r"><span class="no">preference.order</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(
+<div class="sourceCode" id="cb9"><pre class="r"><span class="no">preference.order</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(
     <span class="st">"climate_bio1_average_X_bias_area_km2"</span>,
     <span class="st">"climate_aridity_index_average"</span>,
     <span class="st">"climate_hypervolume"</span>,
@@ -263,29 +307,29 @@
     <span class="kw">vif.threshold</span> <span class="kw">=</span> <span class="fl">2.5</span>,
     <span class="kw">preference.order</span> <span class="kw">=</span> <span class="no">preference.order</span>
   )</pre></div>
-<div class="sourceCode" id="cb11"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="do">## [auto_cor()]: Removed variables: bias_area_km2, human_footprint_average</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="do">## [auto_vif()]: Removed variables: human_population</span></span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="do">## [auto_cor()]: Removed variables: bias_area_km2, human_footprint_average</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="do">## [auto_vif()]: Removed variables: human_population</span></span></code></pre></div>
 <p>The output of <code><a href="reference/auto_cor.html">auto_cor()</a></code> or <code><a href="reference/auto_vif.html">auto_vif()</a></code> is of the class “variable_selection”, that can be used as input for the argument <code>predictor.variable.names</code> of any modeling function within the package. An example is shown in the next section.</p>
-<div class="sourceCode" id="cb12"><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span>(<span class="no">predictor.variable.names</span>)</pre></div>
-<div class="sourceCode" id="cb13"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] "vif"                   "selected.variables"    "selected.variables.df"</span></span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span>(<span class="no">predictor.variable.names</span>)</pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] "vif"                   "selected.variables"    "selected.variables.df"</span></span></code></pre></div>
 <p>The slot <code>selected.variables</code> contains the names of the selected predictors.</p>
-<div class="sourceCode" id="cb14"><pre class="r"><span class="no">predictor.variable.names</span>$<span class="no">selected.variables</span></pre></div>
-<div class="sourceCode" id="cb15"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="do">##  [1] "climate_bio1_average_X_bias_area_km2"</span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="do">##  [2] "climate_aridity_index_average"       </span></span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="do">##  [3] "climate_hypervolume"                 </span></span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="do">##  [4] "climate_bio1_average"                </span></span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="do">##  [5] "climate_bio15_minimum"               </span></span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="do">##  [6] "bias_species_per_record"             </span></span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="do">##  [7] "climate_velocity_lgm_average"        </span></span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="do">##  [8] "neighbors_count"                     </span></span>
-<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="do">##  [9] "neighbors_percent_shared_edge"       </span></span>
-<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="do">## [10] "human_population_density"            </span></span>
-<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="do">## [11] "topography_elevation_average"        </span></span>
-<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a><span class="do">## [12] "landcover_herbs_percent_average"     </span></span>
-<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a><span class="do">## [13] "fragmentation_cohesion"              </span></span>
-<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a><span class="do">## [14] "fragmentation_division"              </span></span>
-<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a><span class="do">## [15] "neighbors_area"</span></span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="r"><span class="no">predictor.variable.names</span>$<span class="no">selected.variables</span></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="do">##  [1] "climate_bio1_average_X_bias_area_km2"</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="do">##  [2] "climate_aridity_index_average"       </span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="do">##  [3] "climate_hypervolume"                 </span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="do">##  [4] "climate_bio1_average"                </span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="do">##  [5] "climate_bio15_minimum"               </span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="do">##  [6] "bias_species_per_record"             </span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="do">##  [7] "climate_velocity_lgm_average"        </span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="do">##  [8] "neighbors_count"                     </span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="do">##  [9] "neighbors_percent_shared_edge"       </span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a><span class="do">## [10] "human_population_density"            </span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a><span class="do">## [11] "topography_elevation_average"        </span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a><span class="do">## [12] "landcover_herbs_percent_average"     </span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a><span class="do">## [13] "fragmentation_cohesion"              </span></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a><span class="do">## [14] "fragmentation_division"              </span></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a><span class="do">## [15] "neighbors_area"</span></span></code></pre></div>
 </div>
 <div id="fitting-a-non-spatial-random-forest-model" class="section level1">
 <h1 class="hasAnchor">
@@ -293,7 +337,7 @@
 <p>To fit basic Random Forest models <code>spatialRF</code> provides the <a href="https://blasbenito.github.io/spatialRF/reference/rf.html"><code><a href="reference/rf.html">rf()</a></code></a> function. It takes the training data, the names of the response and the predictors, and optionally (to assess the spatial autocorrelation of the residuals), the distance matrix, and a vector of distance thresholds (in the same units as the distances in <strong>distance_matrix</strong>).</p>
 <p>These distance thresholds are the neighborhoods at which the model will check the spatial autocorrelation of the residuals. Their values may depend on the spatial scale of the data, and the ecological system under study.</p>
 <p>Notice that here I plug the object <code>predictor.variable.names</code>, output of <code><a href="reference/auto_cor.html">auto_cor()</a></code> and <code><a href="reference/auto_vif.html">auto_vif()</a></code>, directly into the <code>predictor.variable.names</code> argument.</p>
-<div class="sourceCode" id="cb16"><pre class="r"><span class="no">model.non.spatial</span> <span class="kw">&lt;-</span> <span class="kw pkg">spatialRF</span><span class="kw ns">::</span><span class="fu"><a href="reference/rf.html">rf</a></span>(
+<div class="sourceCode" id="cb15"><pre class="r"><span class="no">model.non.spatial</span> <span class="kw">&lt;-</span> <span class="kw pkg">spatialRF</span><span class="kw ns">::</span><span class="fu"><a href="reference/rf.html">rf</a></span>(
   <span class="kw">data</span> <span class="kw">=</span> <span class="no">plant_richness_df</span>,
   <span class="kw">dependent.variable.name</span> <span class="kw">=</span> <span class="no">dependent.variable.name</span>,
   <span class="kw">predictor.variable.names</span> <span class="kw">=</span> <span class="no">predictor.variable.names</span>,
@@ -304,161 +348,77 @@
 )</pre></div>
 <p>The model output can be printed or plotted with a plethora of functions such as <a href="https://blasbenito.github.io/spatialRF/reference/print.html"><code><a href="https://rdrr.io/r/base/print.html">print()</a></code></a>, <a href="https://blasbenito.github.io/spatialRF/reference/print_importance.html"><code><a href="reference/print_importance.html">print_importance()</a></code></a>, <a href="https://blasbenito.github.io/spatialRF/reference/print_performance.html"><code><a href="reference/print_performance.html">print_performance()</a></code></a>, <a href="https://blasbenito.github.io/spatialRF/reference/plot_importance.html"><code><a href="reference/plot_importance.html">plot_importance()</a></code></a>, <a href="https://blasbenito.github.io/spatialRF/reference/print_moran.html"><code><a href="reference/print_moran.html">print_moran()</a></code></a>, <a href="https://blasbenito.github.io/spatialRF/reference/plot_moran.html"><code><a href="reference/plot_moran.html">plot_moran()</a></code></a>, <a href="https://blasbenito.github.io/spatialRF/reference/plot_response_curves.html"><code><a href="reference/plot_response_curves.html">plot_response_curves()</a></code></a>, or <a href="https://blasbenito.github.io/spatialRF/reference/plot_response_surfaces.html"><code>plot_response_surfaces)</code></a>, among many others.</p>
 <p>The function <a href="https://blasbenito.github.io/spatialRF/reference/plot_response_curves.html"><code><a href="reference/plot_response_curves.html">plot_response_curves()</a></code></a> plots partial dependence curves for the predictors (by default, only the ones with an importance score above the median), by setting the other predictors to their quantiles 0.1, 0.5, and 0.9. This helps to understand how the response curve of a variable changes when all the other variables have low, median, or high values.</p>
-<div class="sourceCode" id="cb17"><pre class="r"><span class="kw pkg">spatialRF</span><span class="kw ns">::</span><span class="fu"><a href="reference/plot_response_curves.html">plot_response_curves</a></span>(<span class="no">model.non.spatial</span>)</pre></div>
-<p><img src="README_files/figure-gfm/unnamed-chunk-14-1.png"><!-- --></p>
+<div class="sourceCode" id="cb16"><pre class="r"><span class="kw pkg">spatialRF</span><span class="kw ns">::</span><span class="fu"><a href="reference/plot_response_curves.html">plot_response_curves</a></span>(<span class="no">model.non.spatial</span>)</pre></div>
+<p><img src="README_files/figure-gfm/unnamed-chunk-15-1.png"><!-- --></p>
 <p>Setting the argument <code>quantiles</code> to 0.5 accentuates the shape of the response curves.</p>
-<div class="sourceCode" id="cb18"><pre class="r"><span class="kw pkg">spatialRF</span><span class="kw ns">::</span><span class="fu"><a href="reference/plot_response_curves.html">plot_response_curves</a></span>(
+<div class="sourceCode" id="cb17"><pre class="r"><span class="kw pkg">spatialRF</span><span class="kw ns">::</span><span class="fu"><a href="reference/plot_response_curves.html">plot_response_curves</a></span>(
   <span class="no">model.non.spatial</span>,
   <span class="kw">quantiles</span> <span class="kw">=</span> <span class="fl">0.5</span>
   )</pre></div>
-<p><img src="README_files/figure-gfm/unnamed-chunk-15-1.png"><!-- --></p>
-<div class="sourceCode" id="cb19"><pre class="r"><span class="kw pkg">spatialRF</span><span class="kw ns">::</span><span class="fu"><a href="reference/plot_response_surfaces.html">plot_response_surfaces</a></span>(
+<p><img src="README_files/figure-gfm/unnamed-chunk-16-1.png"><!-- --></p>
+<div class="sourceCode" id="cb18"><pre class="r"><span class="kw pkg">spatialRF</span><span class="kw ns">::</span><span class="fu"><a href="reference/plot_response_surfaces.html">plot_response_surfaces</a></span>(
   <span class="no">model.non.spatial</span>,
   <span class="kw">a</span> <span class="kw">=</span> <span class="st">"climate_bio1_average"</span>,
   <span class="kw">b</span> <span class="kw">=</span> <span class="st">"neighbors_count"</span>
   )</pre></div>
-<p><img src="README_files/figure-gfm/unnamed-chunk-16-1.png"><!-- --></p>
-<p>In this response surface, the predictors that are not shown are set to their medians (but other quantiles are possible).</p>
-<div class="sourceCode" id="cb20"><pre class="r"><span class="kw pkg">spatialRF</span><span class="kw ns">::</span><span class="fu"><a href="reference/plot_importance.html">plot_importance</a></span>(<span class="no">model.non.spatial</span>, <span class="kw">verbose</span> <span class="kw">=</span> <span class="fl">FALSE</span>)</pre></div>
 <p><img src="README_files/figure-gfm/unnamed-chunk-17-1.png"><!-- --></p>
+<p>In this response surface, the predictors that are not shown are set to their medians (but other quantiles are possible).</p>
+<div class="sourceCode" id="cb19"><pre class="r"><span class="kw pkg">spatialRF</span><span class="kw ns">::</span><span class="fu"><a href="reference/plot_importance.html">plot_importance</a></span>(
+  <span class="no">model.non.spatial</span>,
+  <span class="kw">verbose</span> <span class="kw">=</span> <span class="fl">FALSE</span>
+  )</pre></div>
+<p><img src="README_files/figure-gfm/unnamed-chunk-18-1.png"><!-- --></p>
 <p><strong>Predicting onto new data</strong></p>
 <p>Models fitted with <code><a href="reference/rf.html">rf()</a></code> and other <code>rf_X()</code> functions within the package can be predicted onto new data just as it is done with <code>ranger()</code> models:</p>
-<div class="sourceCode" id="cb21"><pre class="r"><span class="no">predicted</span> <span class="kw">&lt;-</span> <span class="kw pkg">stats</span><span class="kw ns">::</span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html">predict</a></span>(
+<div class="sourceCode" id="cb20"><pre class="r"><span class="no">predicted</span> <span class="kw">&lt;-</span> <span class="kw pkg">stats</span><span class="kw ns">::</span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html">predict</a></span>(
   <span class="kw">object</span> <span class="kw">=</span> <span class="no">model.non.spatial</span>,
   <span class="kw">data</span> <span class="kw">=</span> <span class="no">plant_richness_df</span>,
   <span class="kw">type</span> <span class="kw">=</span> <span class="st">"response"</span>
   )$<span class="no">predictions</span></pre></div>
-<p><strong>verbose = TRUE</strong></p>
-<p>Executing the model with the argument <code>verbose</code> set to <code>TRUE</code> (its default value) prints and plots most of the information required to interpret the model output.</p>
-<div class="sourceCode" id="cb22"><pre class="r"><span class="no">model.non.spatial</span> <span class="kw">&lt;-</span> <span class="kw pkg">spatialRF</span><span class="kw ns">::</span><span class="fu"><a href="reference/rf.html">rf</a></span>(
-  <span class="kw">data</span> <span class="kw">=</span> <span class="no">plant_richness_df</span>,
-  <span class="kw">dependent.variable.name</span> <span class="kw">=</span> <span class="no">dependent.variable.name</span>,
-  <span class="kw">predictor.variable.names</span> <span class="kw">=</span> <span class="no">predictor.variable.names</span>,
-  <span class="kw">distance.matrix</span> <span class="kw">=</span> <span class="no">distance_matrix</span>,
-  <span class="kw">distance.thresholds</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0</span>, <span class="fl">1500</span>, <span class="fl">3000</span>),
-  <span class="kw">seed</span> <span class="kw">=</span> <span class="no">random.seed</span>
-)</pre></div>
-<p><img src="README_files/figure-gfm/unnamed-chunk-19-1.png"><!-- --><img src="README_files/figure-gfm/unnamed-chunk-19-2.png"><!-- --></p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Model type</span></span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="do">##   - Fitted with:                     ranger()</span></span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="do">##   - Response variable:               richness_species_vascular</span></span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="do">## Random forest parameters</span></span>
-<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a><span class="do">##   - Type:                            Regression</span></span>
-<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a><span class="do">##   - Number of trees:                 500</span></span>
-<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a><span class="do">##   - Sample size:                     227</span></span>
-<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a><span class="do">##   - Number of predictors:            15</span></span>
-<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a><span class="do">##   - Mtry:                            3</span></span>
-<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a><span class="do">##   - Minimum node size:               5</span></span>
-<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
-<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
-<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a><span class="do">## Model performance </span></span>
-<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a><span class="do">##   - R squared (oob):                 0.568</span></span>
-<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a><span class="do">##   - R squared (cor(obs, pred)^2):    0.954</span></span>
-<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a><span class="do">##   - Pseudo R squared(cor(obs, pred)):0.977</span></span>
-<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a><span class="do">##   - RMSE:                            961.388</span></span>
-<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a><span class="do">##   - Normalized RMSE:                 0.278</span></span>
-<span id="cb23-20"><a href="#cb23-20" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
-<span id="cb23-21"><a href="#cb23-21" aria-hidden="true" tabindex="-1"></a><span class="do">## Model residuals </span></span>
-<span id="cb23-22"><a href="#cb23-22" aria-hidden="true" tabindex="-1"></a><span class="do">##   - Stats: </span></span>
-<span id="cb23-23"><a href="#cb23-23" aria-hidden="true" tabindex="-1"></a><span class="do">##           ┌──────────┬─────────┬─────────┬────────┬────────┬─────────┐</span></span>
-<span id="cb23-24"><a href="#cb23-24" aria-hidden="true" tabindex="-1"></a><span class="do">##           │ Min.     │ 1st Q.  │ Median  │ Mean   │ 3rd Q. │ Max.    │</span></span>
-<span id="cb23-25"><a href="#cb23-25" aria-hidden="true" tabindex="-1"></a><span class="do">##           ├──────────┼─────────┼─────────┼────────┼────────┼─────────┤</span></span>
-<span id="cb23-26"><a href="#cb23-26" aria-hidden="true" tabindex="-1"></a><span class="do">##           │ -1974.48 │ -473.90 │ -177.07 │ -20.23 │ 148.60 │ 7594.40 │</span></span>
-<span id="cb23-27"><a href="#cb23-27" aria-hidden="true" tabindex="-1"></a><span class="do">##           └──────────┴─────────┴─────────┴────────┴────────┴─────────┘</span></span>
-<span id="cb23-28"><a href="#cb23-28" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
-<span id="cb23-29"><a href="#cb23-29" aria-hidden="true" tabindex="-1"></a><span class="do">##   - Spatial autocorrelation: </span></span>
-<span id="cb23-30"><a href="#cb23-30" aria-hidden="true" tabindex="-1"></a><span class="do">##              ┌──────────┬───────────┬─────────┬──────────────────┐</span></span>
-<span id="cb23-31"><a href="#cb23-31" aria-hidden="true" tabindex="-1"></a><span class="do">##              │ Distance │ Moran's I │ P value │ Interpretation   │</span></span>
-<span id="cb23-32"><a href="#cb23-32" aria-hidden="true" tabindex="-1"></a><span class="do">##              ├──────────┼───────────┼─────────┼──────────────────┤</span></span>
-<span id="cb23-33"><a href="#cb23-33" aria-hidden="true" tabindex="-1"></a><span class="do">##              │      0.0 │     0.156 │   0.000 │ Positive spatial │</span></span>
-<span id="cb23-34"><a href="#cb23-34" aria-hidden="true" tabindex="-1"></a><span class="do">##              │          │           │         │ correlation      │</span></span>
-<span id="cb23-35"><a href="#cb23-35" aria-hidden="true" tabindex="-1"></a><span class="do">##              ├──────────┼───────────┼─────────┼──────────────────┤</span></span>
-<span id="cb23-36"><a href="#cb23-36" aria-hidden="true" tabindex="-1"></a><span class="do">##              │   1500.0 │     0.040 │   0.000 │ Positive spatial │</span></span>
-<span id="cb23-37"><a href="#cb23-37" aria-hidden="true" tabindex="-1"></a><span class="do">##              │          │           │         │ correlation      │</span></span>
-<span id="cb23-38"><a href="#cb23-38" aria-hidden="true" tabindex="-1"></a><span class="do">##              ├──────────┼───────────┼─────────┼──────────────────┤</span></span>
-<span id="cb23-39"><a href="#cb23-39" aria-hidden="true" tabindex="-1"></a><span class="do">##              │   3000.0 │     0.009 │   0.063 │ No spatial       │</span></span>
-<span id="cb23-40"><a href="#cb23-40" aria-hidden="true" tabindex="-1"></a><span class="do">##              │          │           │         │ correlation      │</span></span>
-<span id="cb23-41"><a href="#cb23-41" aria-hidden="true" tabindex="-1"></a><span class="do">##              └──────────┴───────────┴─────────┴──────────────────┘</span></span>
-<span id="cb23-42"><a href="#cb23-42" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
-<span id="cb23-43"><a href="#cb23-43" aria-hidden="true" tabindex="-1"></a><span class="do">## Variable importance: </span></span>
-<span id="cb23-44"><a href="#cb23-44" aria-hidden="true" tabindex="-1"></a><span class="do">##              ┌──────────────────────────────────────┬────────────┐</span></span>
-<span id="cb23-45"><a href="#cb23-45" aria-hidden="true" tabindex="-1"></a><span class="do">##              │ Variable                             │ Importance │</span></span>
-<span id="cb23-46"><a href="#cb23-46" aria-hidden="true" tabindex="-1"></a><span class="do">##              ├──────────────────────────────────────┼────────────┤</span></span>
-<span id="cb23-47"><a href="#cb23-47" aria-hidden="true" tabindex="-1"></a><span class="do">##              │ climate_bio1_average                 │      0.285 │</span></span>
-<span id="cb23-48"><a href="#cb23-48" aria-hidden="true" tabindex="-1"></a><span class="do">##              ├──────────────────────────────────────┼────────────┤</span></span>
-<span id="cb23-49"><a href="#cb23-49" aria-hidden="true" tabindex="-1"></a><span class="do">##              │ climate_bio1_average_X_bias_area_km2 │      0.228 │</span></span>
-<span id="cb23-50"><a href="#cb23-50" aria-hidden="true" tabindex="-1"></a><span class="do">##              ├──────────────────────────────────────┼────────────┤</span></span>
-<span id="cb23-51"><a href="#cb23-51" aria-hidden="true" tabindex="-1"></a><span class="do">##              │ climate_hypervolume                  │      0.205 │</span></span>
-<span id="cb23-52"><a href="#cb23-52" aria-hidden="true" tabindex="-1"></a><span class="do">##              ├──────────────────────────────────────┼────────────┤</span></span>
-<span id="cb23-53"><a href="#cb23-53" aria-hidden="true" tabindex="-1"></a><span class="do">##              │ human_population_density             │      0.105 │</span></span>
-<span id="cb23-54"><a href="#cb23-54" aria-hidden="true" tabindex="-1"></a><span class="do">##              ├──────────────────────────────────────┼────────────┤</span></span>
-<span id="cb23-55"><a href="#cb23-55" aria-hidden="true" tabindex="-1"></a><span class="do">##              │ neighbors_count                      │      0.090 │</span></span>
-<span id="cb23-56"><a href="#cb23-56" aria-hidden="true" tabindex="-1"></a><span class="do">##              ├──────────────────────────────────────┼────────────┤</span></span>
-<span id="cb23-57"><a href="#cb23-57" aria-hidden="true" tabindex="-1"></a><span class="do">##              │ bias_species_per_record              │      0.054 │</span></span>
-<span id="cb23-58"><a href="#cb23-58" aria-hidden="true" tabindex="-1"></a><span class="do">##              ├──────────────────────────────────────┼────────────┤</span></span>
-<span id="cb23-59"><a href="#cb23-59" aria-hidden="true" tabindex="-1"></a><span class="do">##              │ neighbors_area                       │      0.046 │</span></span>
-<span id="cb23-60"><a href="#cb23-60" aria-hidden="true" tabindex="-1"></a><span class="do">##              ├──────────────────────────────────────┼────────────┤</span></span>
-<span id="cb23-61"><a href="#cb23-61" aria-hidden="true" tabindex="-1"></a><span class="do">##              │ fragmentation_cohesion               │      0.045 │</span></span>
-<span id="cb23-62"><a href="#cb23-62" aria-hidden="true" tabindex="-1"></a><span class="do">##              ├──────────────────────────────────────┼────────────┤</span></span>
-<span id="cb23-63"><a href="#cb23-63" aria-hidden="true" tabindex="-1"></a><span class="do">##              │ climate_velocity_lgm_average         │      0.043 │</span></span>
-<span id="cb23-64"><a href="#cb23-64" aria-hidden="true" tabindex="-1"></a><span class="do">##              ├──────────────────────────────────────┼────────────┤</span></span>
-<span id="cb23-65"><a href="#cb23-65" aria-hidden="true" tabindex="-1"></a><span class="do">##              │ topography_elevation_average         │      0.038 │</span></span>
-<span id="cb23-66"><a href="#cb23-66" aria-hidden="true" tabindex="-1"></a><span class="do">##              ├──────────────────────────────────────┼────────────┤</span></span>
-<span id="cb23-67"><a href="#cb23-67" aria-hidden="true" tabindex="-1"></a><span class="do">##              │ climate_aridity_index_average        │      0.034 │</span></span>
-<span id="cb23-68"><a href="#cb23-68" aria-hidden="true" tabindex="-1"></a><span class="do">##              ├──────────────────────────────────────┼────────────┤</span></span>
-<span id="cb23-69"><a href="#cb23-69" aria-hidden="true" tabindex="-1"></a><span class="do">##              │ neighbors_percent_shared_edge        │      0.028 │</span></span>
-<span id="cb23-70"><a href="#cb23-70" aria-hidden="true" tabindex="-1"></a><span class="do">##              ├──────────────────────────────────────┼────────────┤</span></span>
-<span id="cb23-71"><a href="#cb23-71" aria-hidden="true" tabindex="-1"></a><span class="do">##              │ fragmentation_division               │      0.025 │</span></span>
-<span id="cb23-72"><a href="#cb23-72" aria-hidden="true" tabindex="-1"></a><span class="do">##              ├──────────────────────────────────────┼────────────┤</span></span>
-<span id="cb23-73"><a href="#cb23-73" aria-hidden="true" tabindex="-1"></a><span class="do">##              │ climate_bio15_minimum                │      0.023 │</span></span>
-<span id="cb23-74"><a href="#cb23-74" aria-hidden="true" tabindex="-1"></a><span class="do">##              ├──────────────────────────────────────┼────────────┤</span></span>
-<span id="cb23-75"><a href="#cb23-75" aria-hidden="true" tabindex="-1"></a><span class="do">##              │ landcover_herbs_percent_average      │      0.007 │</span></span>
-<span id="cb23-76"><a href="#cb23-76" aria-hidden="true" tabindex="-1"></a><span class="do">##              └──────────────────────────────────────┴────────────┘</span></span></code></pre></div>
 <p><strong>Repeating a model execution</strong></p>
 <p>Random Forest is an stochastic algorithm that yields slightly different results on each run unless a random seed is set. This particularity has implications for the interpretation of variable importance scores. For example, in the plot above, the difference in importance between the predictors <code>climate_hypervolume</code> and <code>climate_bio1_average_X_bias_area_km2</code> could be just the result of chance. The function <a href="https://blasbenito.github.io/spatialRF/reference/rf_repeat.html"><code><a href="reference/rf_repeat.html">rf_repeat()</a></code></a> repeats a model execution and yields the distribution of importance scores of the predictors across executions.</p>
-<div class="sourceCode" id="cb24"><pre class="r"><span class="no">model.non.spatial.repeat</span> <span class="kw">&lt;-</span> <span class="kw pkg">spatialRF</span><span class="kw ns">::</span><span class="fu"><a href="reference/rf_repeat.html">rf_repeat</a></span>(
+<div class="sourceCode" id="cb21"><pre class="r"><span class="no">model.non.spatial.repeat</span> <span class="kw">&lt;-</span> <span class="kw pkg">spatialRF</span><span class="kw ns">::</span><span class="fu"><a href="reference/rf_repeat.html">rf_repeat</a></span>(
   <span class="kw">model</span> <span class="kw">=</span> <span class="no">model.non.spatial</span>,
   <span class="kw">repetitions</span> <span class="kw">=</span> <span class="fl">30</span>,
   <span class="kw">seed</span> <span class="kw">=</span> <span class="no">random.seed</span>,
   <span class="kw">verbose</span> <span class="kw">=</span> <span class="fl">FALSE</span>
 )</pre></div>
 <p>Notice that the argument <code>model</code>, present in several functions of the package, takes a fitted model as input. Such fitted model already has the training data, the names of the response and the predictors, the distance matrix, the distance thresholds, and the hyperparameters used to fit the model, all stored in the slot <code>ranger.arguments</code></p>
-<div class="sourceCode" id="cb25"><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span>(<span class="no">model.non.spatial</span>$<span class="no">ranger.arguments</span>)</pre></div>
-<div class="sourceCode" id="cb26"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="do">##  [1] "data"                         "dependent.variable.name"     </span></span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="do">##  [3] "predictor.variable.names"     "distance.matrix"             </span></span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="do">##  [5] "distance.thresholds"          "num.trees"                   </span></span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="do">##  [7] "mtry"                         "importance"                  </span></span>
-<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a><span class="do">##  [9] "scaled.importance"            "write.forest"                </span></span>
-<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a><span class="do">## [11] "probability"                  "min.node.size"               </span></span>
-<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a><span class="do">## [13] "max.depth"                    "replace"                     </span></span>
-<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a><span class="do">## [15] "sample.fraction"              "case.weights"                </span></span>
-<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a><span class="do">## [17] "class.weights"                "splitrule"                   </span></span>
-<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a><span class="do">## [19] "num.random.splits"            "alpha"                       </span></span>
-<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a><span class="do">## [21] "minprop"                      "split.select.weights"        </span></span>
-<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a><span class="do">## [23] "always.split.variables"       "respect.unordered.factors"   </span></span>
-<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a><span class="do">## [25] "scale.permutation.importance" "local.importance"            </span></span>
-<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a><span class="do">## [27] "regularization.factor"        "regularization.usedepth"     </span></span>
-<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a><span class="do">## [29] "keep.inbag"                   "inbag"                       </span></span>
-<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a><span class="do">## [31] "holdout"                      "quantreg"                    </span></span>
-<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a><span class="do">## [33] "oob.error"                    "num.threads"                 </span></span>
-<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a><span class="do">## [35] "save.memory"                  "seed"                        </span></span>
-<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a><span class="do">## [37] "classification"</span></span></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span>(<span class="no">model.non.spatial</span>$<span class="no">ranger.arguments</span>)</pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="do">##  [1] "data"                         "dependent.variable.name"     </span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="do">##  [3] "predictor.variable.names"     "distance.matrix"             </span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="do">##  [5] "distance.thresholds"          "num.trees"                   </span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="do">##  [7] "mtry"                         "importance"                  </span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="do">##  [9] "scaled.importance"            "write.forest"                </span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a><span class="do">## [11] "probability"                  "min.node.size"               </span></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a><span class="do">## [13] "max.depth"                    "replace"                     </span></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a><span class="do">## [15] "sample.fraction"              "case.weights"                </span></span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a><span class="do">## [17] "class.weights"                "splitrule"                   </span></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a><span class="do">## [19] "num.random.splits"            "alpha"                       </span></span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a><span class="do">## [21] "minprop"                      "split.select.weights"        </span></span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a><span class="do">## [23] "always.split.variables"       "respect.unordered.factors"   </span></span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a><span class="do">## [25] "scale.permutation.importance" "local.importance"            </span></span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a><span class="do">## [27] "regularization.factor"        "regularization.usedepth"     </span></span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a><span class="do">## [29] "keep.inbag"                   "inbag"                       </span></span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a><span class="do">## [31] "holdout"                      "quantreg"                    </span></span>
+<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a><span class="do">## [33] "oob.error"                    "num.threads"                 </span></span>
+<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a><span class="do">## [35] "save.memory"                  "seed"                        </span></span>
+<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a><span class="do">## [37] "classification"</span></span></code></pre></div>
 <p>The importance scores of a model fitted with <code><a href="reference/rf_repeat.html">rf_repeat()</a></code> are plotted as a boxplot, with the distribution of the importance scores of each predictor across repetitions.</p>
-<div class="sourceCode" id="cb27"><pre class="r"><span class="kw pkg">spatialRF</span><span class="kw ns">::</span><span class="fu"><a href="reference/plot_importance.html">plot_importance</a></span>(
+<div class="sourceCode" id="cb24"><pre class="r"><span class="kw pkg">spatialRF</span><span class="kw ns">::</span><span class="fu"><a href="reference/plot_importance.html">plot_importance</a></span>(
   <span class="no">model.non.spatial.repeat</span>,
   <span class="kw">verbose</span> <span class="kw">=</span> <span class="fl">FALSE</span>
   )</pre></div>
 <p><img src="README_files/figure-gfm/unnamed-chunk-22-1.png"><!-- --></p>
 <p>After 30 model repetitions it is clear that the difference in importance between <code>climate_hypervolume</code> and <code>climate_bio1_average_X_bias_area_km2</code> is not the result of chance.</p>
 <p>The response curves of models fitted with <code><a href="reference/rf_repeat.html">rf_repeat()</a></code> can be plotted with <code><a href="reference/plot_response_curves.html">plot_response_curves()</a></code> as well. The median prediction is shown with a thicker line.</p>
-<div class="sourceCode" id="cb28"><pre class="r"><span class="kw pkg">spatialRF</span><span class="kw ns">::</span><span class="fu"><a href="reference/plot_response_curves.html">plot_response_curves</a></span>(
+<div class="sourceCode" id="cb25"><pre class="r"><span class="kw pkg">spatialRF</span><span class="kw ns">::</span><span class="fu"><a href="reference/plot_response_curves.html">plot_response_curves</a></span>(
   <span class="no">model.non.spatial.repeat</span>,
   <span class="kw">quantiles</span> <span class="kw">=</span> <span class="fl">0.5</span>
   )</pre></div>
 <p><img src="README_files/figure-gfm/unnamed-chunk-23-1.png"><!-- --></p>
 <p>The function <code><a href="reference/get_response_curves.html">get_response_curves()</a></code> returns a data frame with the data required to make custom plots of the response curves.</p>
-<div class="sourceCode" id="cb29"><pre class="r"><span class="no">reponse.curves.df</span> <span class="kw">&lt;-</span> <span class="kw pkg">spatialRF</span><span class="kw ns">::</span><span class="fu"><a href="reference/get_response_curves.html">get_response_curves</a></span>(<span class="no">model.non.spatial.repeat</span>)</pre></div>
+<div class="sourceCode" id="cb26"><pre class="r"><span class="no">reponse.curves.df</span> <span class="kw">&lt;-</span> <span class="kw pkg">spatialRF</span><span class="kw ns">::</span><span class="fu"><a href="reference/get_response_curves.html">get_response_curves</a></span>(<span class="no">model.non.spatial.repeat</span>)</pre></div>
 <table class="table">
 <thead><tr class="header">
 <th align="right">response</th>
@@ -565,7 +525,7 @@
 <code>min.node.size</code>: minimum number of cases on a terminal node.</li>
 </ul>
 <p>Model tuning is done via spatial cross-validation, to ensure that the selected combination of hyperparameters maximizes the ability of the model to predict data not used to train it.</p>
-<div class="sourceCode" id="cb30"><pre class="r"><span class="no">model.non.spatial.tuned</span> <span class="kw">&lt;-</span> <span class="kw pkg">spatialRF</span><span class="kw ns">::</span><span class="fu"><a href="reference/rf_tuning.html">rf_tuning</a></span>(
+<div class="sourceCode" id="cb27"><pre class="r"><span class="no">model.non.spatial.tuned</span> <span class="kw">&lt;-</span> <span class="kw pkg">spatialRF</span><span class="kw ns">::</span><span class="fu"><a href="reference/rf_tuning.html">rf_tuning</a></span>(
   <span class="kw">model</span> <span class="kw">=</span> <span class="no">model.non.spatial</span>,
   <span class="kw">xy</span> <span class="kw">=</span> <span class="no">plant_richness_df</span>[, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"x"</span>, <span class="st">"y"</span>)],
   <span class="kw">repetitions</span> <span class="kw">=</span> <span class="fl">30</span>,
@@ -579,17 +539,17 @@
   <span class="kw">min.node.size</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">5</span>, <span class="fl">15</span>),
   <span class="kw">seed</span> <span class="kw">=</span> <span class="no">random.seed</span>
 )</pre></div>
-<div class="sourceCode" id="cb31"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Exploring 20 combinations of hyperparameters.</span></span>
-<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a><span class="do">## Best hyperparameters:</span></span>
-<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a><span class="do">##   - num.trees:     1000</span></span>
-<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a><span class="do">##   - mtry:          14</span></span>
-<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a><span class="do">##   - min.node.size: 5</span></span>
-<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a><span class="do">## gain in r.squared: 0.033</span></span></code></pre></div>
+<div class="sourceCode" id="cb28"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Exploring 20 combinations of hyperparameters.</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="do">## Best hyperparameters:</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a><span class="do">##   - num.trees:     1000</span></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a><span class="do">##   - mtry:          14</span></span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a><span class="do">##   - min.node.size: 5</span></span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a><span class="do">## gain in r.squared: 0.033</span></span></code></pre></div>
 <p><img src="README_files/figure-gfm/unnamed-chunk-26-1.png"><!-- --></p>
 <p>The function <code><a href="reference/rf_tuning.html">rf_tuning()</a></code> returns a model fitted with the same data as the original model, but using the best hyperparameters found during tuning. Model tuning has helped to a very small improvement in performance measures (+ 0.033 R squared), so from here, we can keep working with <code>model.non.spatial.tuned</code>.</p>
 </div>
@@ -597,33 +557,33 @@
 <h1 class="hasAnchor">
 <a href="#fitting-a-spatial-model" class="anchor"></a>Fitting a spatial model</h1>
 <p>The spatial autocorrelation of the residuals of <code>model.non.spatial</code>, measured with <a href="https://en.wikipedia.org/wiki/Moran%27s_I">Moran’s I</a>, can be plotted with <a href="https://blasbenito.github.io/spatialRF/reference/plot_moran.html"><code><a href="reference/plot_moran.html">plot_moran()</a></code></a>.</p>
-<div class="sourceCode" id="cb32"><pre class="r"><span class="kw pkg">spatialRF</span><span class="kw ns">::</span><span class="fu"><a href="reference/plot_moran.html">plot_moran</a></span>(
+<div class="sourceCode" id="cb29"><pre class="r"><span class="kw pkg">spatialRF</span><span class="kw ns">::</span><span class="fu"><a href="reference/plot_moran.html">plot_moran</a></span>(
   <span class="no">model.non.spatial.tuned</span>,
   <span class="kw">verbose</span> <span class="kw">=</span> <span class="fl">FALSE</span>
   )</pre></div>
 <p><img src="README_files/figure-gfm/unnamed-chunk-27-1.png"><!-- --></p>
 <p><strong>Note:</strong> The function <code><a href="reference/plot_moran.html">spatialRF::plot_moran()</a></code> can also plot a more classical “Moran’s scatterplot” by adding the argument <code>option = 2</code>.</p>
-<div class="sourceCode" id="cb33"><pre class="r"><span class="kw pkg">spatialRF</span><span class="kw ns">::</span><span class="fu"><a href="reference/plot_moran.html">plot_moran</a></span>(
+<div class="sourceCode" id="cb30"><pre class="r"><span class="kw pkg">spatialRF</span><span class="kw ns">::</span><span class="fu"><a href="reference/plot_moran.html">plot_moran</a></span>(
   <span class="no">model.non.spatial.tuned</span>,
   <span class="kw">option</span> <span class="kw">=</span> <span class="fl">2</span>,
   <span class="kw">verbose</span> <span class="kw">=</span> <span class="fl">FALSE</span>
   )</pre></div>
 <p><img src="README_files/figure-gfm/unnamed-chunk-28-1.png"><!-- --></p>
 <p>According to the plots, the spatial autocorrelation of the residuals is highly positive for a neighborhood of 0 km, while it becomes non-significant (p-value &gt; 0.05, whatever that means) at 1500 and 3000 km. To reduce the spatial autocorrelation of the residuals as much as possible, the non-spatial tuned model fitted above can be converted into a spatial model easily with <a href="https://blasbenito.github.io/spatialRF/reference/rf_spatial.html"><code><a href="reference/rf_spatial.html">rf_spatial()</a></code></a>, that by default uses the Moran’s Eigenvector Maps method.</p>
-<div class="sourceCode" id="cb34"><pre class="r"><span class="no">model.spatial</span> <span class="kw">&lt;-</span> <span class="kw pkg">spatialRF</span><span class="kw ns">::</span><span class="fu"><a href="reference/rf_spatial.html">rf_spatial</a></span>(
+<div class="sourceCode" id="cb31"><pre class="r"><span class="no">model.spatial</span> <span class="kw">&lt;-</span> <span class="kw pkg">spatialRF</span><span class="kw ns">::</span><span class="fu"><a href="reference/rf_spatial.html">rf_spatial</a></span>(
   <span class="kw">model</span> <span class="kw">=</span> <span class="no">model.non.spatial.tuned</span>,
   <span class="kw">method</span> <span class="kw">=</span> <span class="st">"mem.moran.sequential"</span>, <span class="co">#default method</span>
   <span class="kw">verbose</span> <span class="kw">=</span> <span class="fl">FALSE</span>,
   <span class="kw">seed</span> <span class="kw">=</span> <span class="no">random.seed</span>
   )</pre></div>
 <p>The plot below shows the Moran’s I of the residuals of the spatial model. It shows that <code><a href="reference/rf_spatial.html">rf_spatial()</a></code> has managed to remove the spatial autocorrelation (p-values of the Moran’s I estimates for each neighborhood distance are higher than 0.05) of the model residuals for every neighborhood distance.</p>
-<div class="sourceCode" id="cb35"><pre class="r"><span class="kw pkg">spatialRF</span><span class="kw ns">::</span><span class="fu"><a href="reference/plot_moran.html">plot_moran</a></span>(
+<div class="sourceCode" id="cb32"><pre class="r"><span class="kw pkg">spatialRF</span><span class="kw ns">::</span><span class="fu"><a href="reference/plot_moran.html">plot_moran</a></span>(
   <span class="no">model.spatial</span>,
   <span class="kw">verbose</span> <span class="kw">=</span> <span class="fl">FALSE</span>
   )</pre></div>
 <p><img src="README_files/figure-gfm/unnamed-chunk-30-1.png"><!-- --></p>
 <p>If we compare the variable importance plots of both models, we can see that the spatial model has an additional set of dots under the name “spatial_predictors”, and that the maximum importance of a few of these spatial predictors matches the importance of the most relevant non-spatial predictors.</p>
-<div class="sourceCode" id="cb36"><pre class="r"><span class="no">p1</span> <span class="kw">&lt;-</span> <span class="kw pkg">spatialRF</span><span class="kw ns">::</span><span class="fu"><a href="reference/plot_importance.html">plot_importance</a></span>(
+<div class="sourceCode" id="cb33"><pre class="r"><span class="no">p1</span> <span class="kw">&lt;-</span> <span class="kw pkg">spatialRF</span><span class="kw ns">::</span><span class="fu"><a href="reference/plot_importance.html">plot_importance</a></span>(
   <span class="no">model.non.spatial</span>,
   <span class="kw">verbose</span> <span class="kw">=</span> <span class="fl">FALSE</span>) +
   <span class="kw pkg">ggplot2</span><span class="kw ns">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">ggtitle</a></span>(<span class="st">"Non-spatial model"</span>)
@@ -643,44 +603,44 @@
 </tr></thead>
 <tbody>
 <tr class="odd">
+<td align="left">climate_bio1_average_X_bias_area_km2</td>
+<td align="right">0.168</td>
+</tr>
+<tr class="even">
+<td align="left">climate_bio1_average</td>
+<td align="right">0.155</td>
+</tr>
+<tr class="odd">
 <td align="left">spatial_predictor_0_2</td>
-<td align="right">0.157</td>
+<td align="right">0.152</td>
 </tr>
 <tr class="even">
 <td align="left">climate_hypervolume</td>
-<td align="right">0.154</td>
+<td align="right">0.150</td>
 </tr>
 <tr class="odd">
-<td align="left">climate_bio1_average</td>
-<td align="right">0.151</td>
+<td align="left">bias_species_per_record</td>
+<td align="right">0.073</td>
 </tr>
 <tr class="even">
-<td align="left">climate_bio1_average_X_bias_area_km2</td>
-<td align="right">0.144</td>
+<td align="left">spatial_predictor_0_6</td>
+<td align="right">0.055</td>
 </tr>
 <tr class="odd">
 <td align="left">spatial_predictor_0_1</td>
-<td align="right">0.069</td>
+<td align="right">0.055</td>
 </tr>
 <tr class="even">
-<td align="left">bias_species_per_record</td>
-<td align="right">0.066</td>
-</tr>
-<tr class="odd">
-<td align="left">spatial_predictor_0_6</td>
-<td align="right">0.056</td>
-</tr>
-<tr class="even">
-<td align="left">neighbors_count</td>
+<td align="left">spatial_predictor_0_5</td>
 <td align="right">0.043</td>
 </tr>
 <tr class="odd">
-<td align="left">spatial_predictor_0_5</td>
-<td align="right">0.041</td>
+<td align="left">neighbors_count</td>
+<td align="right">0.038</td>
 </tr>
 <tr class="even">
 <td align="left">human_population_density</td>
-<td align="right">0.032</td>
+<td align="right">0.036</td>
 </tr>
 </tbody>
 </table>
@@ -693,7 +653,7 @@
 <p><img src="README_files/figure-gfm/unnamed-chunk-34-1.png"><!-- --></p>
 <p><strong>Tuning spatial models</strong></p>
 <p>Spatial models fitted with <code><a href="reference/rf_spatial.html">rf_spatial()</a></code> can be tuned as well with <code><a href="reference/rf_tuning.html">rf_tuning()</a></code>. However, tuning may in some cases increase the spatial autocorrelation of the model residuals. In that case, the function will return a message explaining the situation, and the original model without any sort of tuning applied</p>
-<div class="sourceCode" id="cb37"><pre class="r"><span class="no">model.spatial.tuned</span> <span class="kw">&lt;-</span> <span class="kw pkg">spatialRF</span><span class="kw ns">::</span><span class="fu"><a href="reference/rf_tuning.html">rf_tuning</a></span>(
+<div class="sourceCode" id="cb34"><pre class="r"><span class="no">model.spatial.tuned</span> <span class="kw">&lt;-</span> <span class="kw pkg">spatialRF</span><span class="kw ns">::</span><span class="fu"><a href="reference/rf_tuning.html">rf_tuning</a></span>(
   <span class="kw">model</span> <span class="kw">=</span> <span class="no">model.spatial</span>,
   <span class="kw">xy</span> <span class="kw">=</span> <span class="no">plant_richness_df</span>[, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"x"</span>, <span class="st">"y"</span>)],
   <span class="kw">repetitions</span> <span class="kw">=</span> <span class="fl">30</span>,
@@ -705,24 +665,24 @@
   <span class="kw">min.node.size</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">5</span>, <span class="fl">15</span>),
   <span class="kw">seed</span> <span class="kw">=</span> <span class="no">random.seed</span>
 )</pre></div>
-<div class="sourceCode" id="cb38"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Exploring 24 combinations of hyperparameters.</span></span>
-<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a><span class="do">## Best hyperparameters:</span></span>
-<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a><span class="do">##   - num.trees:     1000</span></span>
-<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a><span class="do">##   - mtry:          47</span></span>
-<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a><span class="do">##   - min.node.size: 15</span></span>
-<span id="cb38-10"><a href="#cb38-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-11"><a href="#cb38-11" aria-hidden="true" tabindex="-1"></a><span class="do">## gain in r.squared: 0.032</span></span></code></pre></div>
+<div class="sourceCode" id="cb35"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Exploring 16 combinations of hyperparameters.</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a><span class="do">## Best hyperparameters:</span></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a><span class="do">##   - num.trees:     1000</span></span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a><span class="do">##   - mtry:          29</span></span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a><span class="do">##   - min.node.size: 5</span></span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a><span class="do">## gain in r.squared: 0.012</span></span></code></pre></div>
 <p><img src="README_files/figure-gfm/unnamed-chunk-35-1.png"><!-- --></p>
 </div>
 <div id="assessing-model-performance-on-spatially-independent-folds" class="section level1">
 <h1 class="hasAnchor">
 <a href="#assessing-model-performance-on-spatially-independent-folds" class="anchor"></a>Assessing model performance on spatially independent folds</h1>
 <p>The function <a href="https://blasbenito.github.io/spatialRF/reference/rf_evaluate.html"><code><a href="reference/rf_evaluate.html">rf_evaluate()</a></code></a> separates the training data into a number of spatially independent training and testing folds, fits a model on each training fold, predicts over each testing fold, and computes performance measures, to finally aggregate them across model repetitions. Let’s see how it works.</p>
-<div class="sourceCode" id="cb39"><pre class="r"><span class="no">model.spatial.tuned</span> <span class="kw">&lt;-</span> <span class="kw pkg">spatialRF</span><span class="kw ns">::</span><span class="fu"><a href="reference/rf_evaluate.html">rf_evaluate</a></span>(
+<div class="sourceCode" id="cb36"><pre class="r"><span class="no">model.spatial.tuned</span> <span class="kw">&lt;-</span> <span class="kw pkg">spatialRF</span><span class="kw ns">::</span><span class="fu"><a href="reference/rf_evaluate.html">rf_evaluate</a></span>(
   <span class="kw">model</span> <span class="kw">=</span> <span class="no">model.spatial.tuned</span>,
   <span class="kw">xy</span> <span class="kw">=</span> <span class="no">plant_richness_df</span>[, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"x"</span>, <span class="st">"y"</span>)], <span class="co">#data coordinates</span>
   <span class="kw">repetitions</span> <span class="kw">=</span> <span class="fl">30</span>,                      <span class="co">#number of folds</span>
@@ -731,23 +691,23 @@
   <span class="kw">seed</span> <span class="kw">=</span> <span class="no">random.seed</span>,
   <span class="kw">verbose</span> <span class="kw">=</span> <span class="fl">TRUE</span>
 )</pre></div>
-<div class="sourceCode" id="cb40"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Selecting pairs of coordinates as trainnig fold origins.</span></span>
-<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a><span class="do">## Generating spatial folds.</span></span>
-<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
-<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a><span class="do">## Spatial evaluation </span></span>
-<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a><span class="do">##   - Training fraction:             0.8</span></span>
-<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a><span class="do">##   - Spatial folds:                 25</span></span>
-<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
-<span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a><span class="do">##     Metric   Median     Mean  Minimum  Maximum</span></span>
-<span id="cb40-11"><a href="#cb40-11" aria-hidden="true" tabindex="-1"></a><span class="do">##  r.squared    0.226    0.262    0.106    0.551</span></span>
-<span id="cb40-12"><a href="#cb40-12" aria-hidden="true" tabindex="-1"></a><span class="do">##       rmse 2879.230 3209.655 2360.546 4466.451</span></span></code></pre></div>
+<div class="sourceCode" id="cb37"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Selecting pairs of coordinates as trainnig fold origins.</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a><span class="do">## Generating spatial folds.</span></span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a><span class="do">## Spatial evaluation </span></span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a><span class="do">##   - Training fraction:             0.8</span></span>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a><span class="do">##   - Spatial folds:                 25</span></span>
+<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb37-10"><a href="#cb37-10" aria-hidden="true" tabindex="-1"></a><span class="do">##     Metric   Median     Mean  Minimum  Maximum</span></span>
+<span id="cb37-11"><a href="#cb37-11" aria-hidden="true" tabindex="-1"></a><span class="do">##  r.squared    0.266    0.300    0.147    0.607</span></span>
+<span id="cb37-12"><a href="#cb37-12" aria-hidden="true" tabindex="-1"></a><span class="do">##       rmse 2736.414 3096.164 2289.092 4474.390</span></span></code></pre></div>
 <p>The function generates a new slot in the model named “evaluation” with several objects that summarize the spatial cross-validation results.</p>
-<div class="sourceCode" id="cb41"><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span>(<span class="no">model.spatial.tuned</span>$<span class="no">evaluation</span>)</pre></div>
-<div class="sourceCode" id="cb42"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] "metrics"           "training.fraction" "spatial.folds"    </span></span>
-<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a><span class="do">## [4] "per.fold"          "per.fold.long"     "per.model"        </span></span>
-<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a><span class="do">## [7] "aggregated"</span></span></code></pre></div>
+<div class="sourceCode" id="cb38"><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span>(<span class="no">model.spatial.tuned</span>$<span class="no">evaluation</span>)</pre></div>
+<div class="sourceCode" id="cb39"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] "metrics"           "training.fraction" "spatial.folds"    </span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="do">## [4] "per.fold"          "per.fold.long"     "per.model"        </span></span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a><span class="do">## [7] "aggregated"</span></span></code></pre></div>
 <p>The slot “spatial.folds”, produced by <a href="https://blasbenito.github.io/spatialRF/reference/make_spatial_folds.html"><code><a href="reference/make_spatial_folds.html">make_spatial_folds()</a></code></a>, contains the indices of the training and testing cases for each cross-validation repetition. The maps below show two sets of training and testing spatial folds.</p>
 <p><img src="README_files/figure-gfm/unnamed-chunk-38-1.png"><!-- --></p>
 <p>The low R squared yielded by the model evaluation shows that the spatial model is hard to transfer outside of the training space, because spatial structures are not transferable when the data is irregularly distributed, as it is the case with the dataset <code>plant_richness_df</code>. The comparison below shows how non-spatial models may show better (not bad, not great) evaluation scores on independent spatial folds.</p>
@@ -756,7 +716,7 @@
 <h1 class="hasAnchor">
 <a href="#comparing-several-models" class="anchor"></a>Comparing several models</h1>
 <p>The function <code><a href="reference/rf_evaluate.html">rf_evaluate()</a></code> only assesses the predictive performance on unseen data of one model at a time. If the goal is to compare two models, <code><a href="reference/rf_evaluate.html">rf_evaluate()</a></code> can be indeed ran twice, but <code>spatialRF</code> offers a more convenient option named <a href="https://blasbenito.github.io/spatialRF/reference/rf_compare.html"><code><a href="reference/rf_compare.html">rf_compare()</a></code></a>. It takes as input a named list with as many models as the user needs to compare.</p>
-<div class="sourceCode" id="cb43"><pre class="r"><span class="no">comparison</span> <span class="kw">&lt;-</span> <span class="fu"><a href="reference/rf_compare.html">rf_compare</a></span>(
+<div class="sourceCode" id="cb40"><pre class="r"><span class="no">comparison</span> <span class="kw">&lt;-</span> <span class="fu"><a href="reference/rf_compare.html">rf_compare</a></span>(
   <span class="kw">models</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(
     <span class="kw">`Non-spatial`</span> <span class="kw">=</span> <span class="no">model.non.spatial</span>,
     <span class="kw">`Non-spatial tuned`</span> <span class="kw">=</span> <span class="no">model.non.spatial.tuned</span>,
@@ -791,12 +751,12 @@
 <tr class="odd">
 <td align="left">Spatial</td>
 <td align="left">r.squared</td>
-<td align="right">0.189</td>
+<td align="right">0.239</td>
 </tr>
 <tr class="even">
 <td align="left">Spatial tuned</td>
 <td align="left">r.squared</td>
-<td align="right">0.226</td>
+<td align="right">0.266</td>
 </tr>
 <tr class="odd">
 <td align="left">Non-spatial</td>
@@ -811,12 +771,12 @@
 <tr class="odd">
 <td align="left">Spatial</td>
 <td align="left">rmse</td>
-<td align="right">3077.746</td>
+<td align="right">2796.022</td>
 </tr>
 <tr class="even">
 <td align="left">Spatial tuned</td>
 <td align="left">rmse</td>
-<td align="right">2879.230</td>
+<td align="right">2736.414</td>
 </tr>
 </tbody>
 </table>
@@ -826,12 +786,12 @@
 <a href="#generating-spatial-predictors-for-other-models" class="anchor"></a>Generating spatial predictors for other models</h1>
 <p>You might not love Random Forest, but <code>spatialRF</code> loves you, and as such, it gives you tools to generate spatial predictors for other models anyway.</p>
 <p>The first step requires generating Moran’s Eigenvector Maps (MEMs) from the distance matrix. Here there are two options, computing MEMs for a single neighborhood distance with <a href="https://blasbenito.github.io/spatialRF/reference/mem.html"><code><a href="reference/mem.html">mem()</a></code></a>, and computing MEMs for several neighborhood distances at once with <a href="https://blasbenito.github.io/spatialRF/reference/mem_multithreshold.html"><code><a href="reference/mem_multithreshold.html">mem_multithreshold()</a></code></a>.</p>
-<div class="sourceCode" id="cb44"><pre class="r"><span class="co">#single distance (0km by default)</span>
-<span class="no">mems</span> <span class="kw">&lt;-</span> <span class="kw pkg">spatialRF</span><span class="kw ns">::</span><span class="fu"><a href="reference/mem.html">mem</a></span>(<span class="kw">x</span> <span class="kw">=</span> <span class="no">distance_matrix</span>)
+<div class="sourceCode" id="cb41"><pre class="r"><span class="co">#single distance (0km by default)</span>
+<span class="no">mems</span> <span class="kw">&lt;-</span> <span class="kw pkg">spatialRF</span><span class="kw ns">::</span><span class="fu"><a href="reference/mem.html">mem</a></span>(<span class="kw">distance.matrix</span> <span class="kw">=</span> <span class="no">distance_matrix</span>)
 
 <span class="co">#several distances</span>
 <span class="no">mems</span> <span class="kw">&lt;-</span> <span class="kw pkg">spatialRF</span><span class="kw ns">::</span><span class="fu"><a href="reference/mem_multithreshold.html">mem_multithreshold</a></span>(
-  <span class="kw">x</span> <span class="kw">=</span> <span class="no">distance_matrix</span>,
+  <span class="kw">distance.matrix</span> <span class="kw">=</span> <span class="no">distance_matrix</span>,
   <span class="kw">distance.thresholds</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0</span>, <span class="fl">1000</span>, <span class="fl">2000</span>)
 )</pre></div>
 <p>In either case the result is a data frame with Moran’s Eigenvector Maps (“just” the positive eigenvectors of the double-centered distance matrix).</p>
@@ -912,18 +872,18 @@
 </tbody>
 </table>
 <p>But not all MEMs are made equal, and you will need to rank them by their Moran’s I. The function <a href="https://blasbenito.github.io/spatialRF/reference/rank_spatial_predictors.html"><code><a href="reference/rank_spatial_predictors.html">rank_spatial_predictors()</a></code></a> will help you do so.</p>
-<div class="sourceCode" id="cb45"><pre class="r"><span class="no">mem.rank</span> <span class="kw">&lt;-</span> <span class="kw pkg">spatialRF</span><span class="kw ns">::</span><span class="fu"><a href="reference/rank_spatial_predictors.html">rank_spatial_predictors</a></span>(
+<div class="sourceCode" id="cb42"><pre class="r"><span class="no">mem.rank</span> <span class="kw">&lt;-</span> <span class="kw pkg">spatialRF</span><span class="kw ns">::</span><span class="fu"><a href="reference/rank_spatial_predictors.html">rank_spatial_predictors</a></span>(
   <span class="kw">distance.matrix</span> <span class="kw">=</span> <span class="no">distance_matrix</span>,
   <span class="kw">spatial.predictors.df</span> <span class="kw">=</span> <span class="no">mems</span>,
   <span class="kw">ranking.method</span> <span class="kw">=</span> <span class="st">"moran"</span>
 )</pre></div>
 <p>The output of <code><a href="reference/rank_spatial_predictors.html">rank_spatial_predictors()</a></code> is a list with three slots: “method”, a character string with the name of the ranking method; “criteria”, an ordered data frame with the criteria used to rank the spatial predictors; and “ranking”, a character vector with the names of the spatial predictors in the order of their ranking (it is just the first column of the “criteria” data frame). We can use this “ranking” object to reorder or <code>mems</code> data frame.</p>
-<div class="sourceCode" id="cb46"><pre class="r"><span class="no">mems</span> <span class="kw">&lt;-</span> <span class="no">mems</span>[, <span class="no">mem.rank</span>$<span class="no">ranking</span>]
+<div class="sourceCode" id="cb43"><pre class="r"><span class="no">mems</span> <span class="kw">&lt;-</span> <span class="no">mems</span>[, <span class="no">mem.rank</span>$<span class="no">ranking</span>]
 
 <span class="co">#also:</span>
 <span class="co">#mems &lt;- mem.rank$spatial.predictors.df</span></pre></div>
 <p>From here, spatial predictors can be included in any model one by one, in the order of the ranking, until the spatial autocorrelation of the residuals becomes neutral, if possible. A little example with a linear model follows.</p>
-<div class="sourceCode" id="cb47"><pre class="r"><span class="co">#model definition</span>
+<div class="sourceCode" id="cb44"><pre class="r"><span class="co">#model definition</span>
 <span class="no">predictors</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(
   <span class="st">"climate_aridity_index_average "</span>,
   <span class="st">"climate_bio1_average"</span>,
@@ -959,7 +919,7 @@
 <span class="no">moran.test</span>$<span class="no">plot</span></pre></div>
 <p><img src="README_files/figure-gfm/unnamed-chunk-45-1.png"><!-- --></p>
 <p>According to the Moran’s I test, the model residuals show spatial autocorrelation. Let’s introduce MEMs one by one until the problem is solved.</p>
-<div class="sourceCode" id="cb48"><pre class="r"><span class="co">#add mems to the data and applies scale()</span>
+<div class="sourceCode" id="cb45"><pre class="r"><span class="co">#add mems to the data and applies scale()</span>
 <span class="no">model.data</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span>(
   <span class="no">plant_richness_df</span>,
   <span class="no">mems</span>
@@ -999,7 +959,7 @@
   )
 
   <span class="co">#stop if no autocorrelation</span>
-  <span class="kw">if</span>(<span class="no">moran.test.i</span>$<span class="no">test</span>$<span class="no">interpretation</span> <span class="kw">!=</span> <span class="st">"Positive spatial correlation"</span>){
+  <span class="kw">if</span>(<span class="no">moran.test.i</span>$<span class="no">test</span>$<span class="no">interpretation</span> <span class="kw">==</span> <span class="st">"No spatial correlation"</span>){
     <span class="kw">break</span>
   }
 
@@ -1069,7 +1029,7 @@
   <div class="dev-status">
 <h2>Dev status</h2>
 <ul class="list-unstyled">
-<li><a href="https://github.com/blasbenito/spatialRF"><img src="https://img.shields.io/badge/devel%20version-1.0.8-blue.svg" alt="Devel-version"></a></li>
+<li><a href="https://github.com/blasbenito/spatialRF"><img src="https://img.shields.io/badge/devel%20version-1.0.9-blue.svg" alt="Devel-version"></a></li>
 <li><a href="https://lifecycle.r-lib.org/articles/stages.html"><img src="https://img.shields.io/badge/lifecycle-experimental-orange.svg" alt="lifecycle"></a></li>
 <li><a href="https://github.com/blasbenito/spatialRF"><img src="https://img.shields.io/badge/CRAN-not_published_yet-red" alt="CRAN"></a></li>
 <li><a href="https://www.gnu.org/licenses/gpl-3.0.en.html"><img src="https://img.shields.io/badge/license-GPL--3-blue.svg" alt="License"></a></li>

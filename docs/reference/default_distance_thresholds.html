@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Generates case weights for binary data — case_weights • spatialRF</title>
+<title>Default distance thresholds from distance matrix — default_distance_thresholds • spatialRF</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,8 @@
 
 
 
-<meta property="og:title" content="Generates case weights for binary data — case_weights" />
-<meta property="og:description" content="When the data is binary, setting the ranager argument case.weights helps to minimize the issues produced by class imbalance. This function takes a binary response variable and returns a vector of weights populated with the values 1/#zeros and 1/#ones. It is used internally by the function rf()." />
+<meta property="og:title" content="Default distance thresholds from distance matrix — default_distance_thresholds" />
+<meta property="og:description" content="Generates four distance thresholds, from 0 to max(distance.matrix)/2." />
 
 
 
@@ -111,46 +111,36 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Generates case weights for binary data</h1>
-    <small class="dont-index">Source: <a href='https://github.com/BlasBenito/spatialRF/blob/master/R/case_weights.R'><code>R/case_weights.R</code></a></small>
-    <div class="hidden name"><code>case_weights.Rd</code></div>
+    <h1>Default distance thresholds from distance matrix</h1>
+    <small class="dont-index">Source: <a href='https://github.com/BlasBenito/spatialRF/blob/master/R/default_distance_thresholds.R'><code>R/default_distance_thresholds.R</code></a></small>
+    <div class="hidden name"><code>default_distance_thresholds.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>When the data is binary, setting the <code>ranager</code> argument <code>case.weights</code> helps to minimize the issues produced by class imbalance. This function takes a binary response variable and returns a vector of weights populated with the values <code>1/#zeros</code> and <code>1/#ones</code>. It is used internally by the function <code><a href='rf.html'>rf()</a></code>.</p>
+    <p>Generates four distance thresholds, from 0 to max(distance.matrix)/2.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>case_weights</span>(<span class='kw'>data</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>dependent.variable.name</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>default_distance_thresholds</span>(<span class='kw'>distance.matrix</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>data</th>
-      <td><p>Data frame with a response variable and a set of predictors. Default: <code>NULL</code></p></td>
-    </tr>
-    <tr>
-      <th>dependent.variable.name</th>
-      <td><p>Character string with the name of the response variable. Must be in the column names of <code>data</code>. Default: <code>NULL</code></p></td>
+      <th>distance.matrix</th>
+      <td><p>Distance matrix. Default: <code>NULL</code>.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A vector with a length equal to <code><a href='https://rdrr.io/r/base/nrow.html'>nrow(data)</a></code> with the respective weights of the cases.</p>
+    <p>A numeric vector with distance thresholds.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
 <span class='kw'>if</span>(<span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span>()){
 
- <span class='no'>data</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span>(
-   <span class='kw'>response</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>1</span>, <span class='fl'>1</span>)
- )
-
- <span class='fu'>case_weights</span>(
-   <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>data</span>,
-   <span class='kw'>dependent.variable.name</span> <span class='kw'>=</span> <span class='st'>"response"</span>
- )
+ <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>distance_matrix</span>)
+ <span class='fu'>default_distance_thresholds</span>(<span class='no'>distance_matrix</span>)
 
  }
 }</div></pre>

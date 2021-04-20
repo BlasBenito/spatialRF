@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">spatialRF</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.8</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.9</span>
       </span>
     </div>
 
@@ -121,7 +121,7 @@
     </div>
 
     <pre class="usage"><span class='fu'>weights_from_distance_matrix</span>(
-  <span class='no'>x</span>,
+  <span class='kw'>distance.matrix</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>distance.threshold</span> <span class='kw'>=</span> <span class='fl'>0</span>
 )</pre>
 
@@ -129,12 +129,12 @@
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>x</th>
-      <td><p>Numeric squared and symmetric distance matrix.</p></td>
+      <th>distance.matrix</th>
+      <td><p>Distance matrix. Default: <code>NULL</code>.</p></td>
     </tr>
     <tr>
       <th>distance.threshold</th>
-      <td><p>Numeric, positive, in the range of values of <code>distance.matrix</code>. Distances below this value in the distance matrix are set to 0., Default: 0</p></td>
+      <td><p>Numeric, positive, in the range of values of <code>distance.matrix</code>. Distances below this value in the distance matrix are set to 0., Default: <code>0</code>.</p></td>
     </tr>
     </table>
 
@@ -149,7 +149,7 @@
  <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>distance_matrix</span>)
 
  <span class='no'>distance.matrix.weights</span> <span class='kw'>&lt;-</span> <span class='fu'>weights_from_distance_matrix</span>(
-   <span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>distance_matrix</span>
+   <span class='kw'>distance.matrix</span> <span class='kw'>=</span> <span class='no'>distance_matrix</span>
    )
 
  <span class='no'>distance.matrix.weights</span>

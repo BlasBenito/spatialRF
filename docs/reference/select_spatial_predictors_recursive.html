@@ -76,7 +76,7 @@ This method allows to select the smallest set of spatial predictors that have th
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">spatialRF</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.8</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.9</span>
       </span>
     </div>
 
@@ -247,8 +247,8 @@ This method allows to select the smallest set of spatial predictors that have th
 )
 
 <span class='co'>#preparing spatial predictors</span>
-<span class='no'>spatial.predictors</span> <span class='kw'>&lt;-</span> <span class='fu'>pca_distance_matrix</span>(
-  <span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>distance.matrix</span>,
+<span class='no'>spatial.predictors</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='mem_multithreshold.html'>mem_multithreshold</a></span>(
+  <span class='kw'>distance.matrix</span> <span class='kw'>=</span> <span class='no'>distance.matrix</span>,
   <span class='kw'>distance.thresholds</span> <span class='kw'>=</span> <span class='no'>distance.thresholds</span>
 )
 

@@ -1,3 +1,9 @@
+## Version 1.0.9 (20/4/2021)
+
+Changed the names of function arguments from 'x' to 'model' or 'distance.matrix' for consistency. This might break code written previously, but I hope argument names are more self-explanatory now.
+
+The function rf_spatial() now fits a non-spatial model first, and only generates spatial predictors for these distance.thresholds that show positive spatial autocorrelation.
+
 ## Version 1.0.8 (16/4/2021)
 
 Added a new function named filter_spatial_predictors(), that removes redundant spatial predictors within rf_spatial(). It shouldn't lead to changes in the spatial models fitted with previous versions, but it will make them more parsimonious.

@@ -15,7 +15,7 @@ always_allow_html: yes
 
 <!-- badges: start -->
 
-[![Devel-version](https://img.shields.io/badge/devel%20version-1.0.8-blue.svg)](https://github.com/blasbenito/spatialRF) [![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html) [![CRAN](https://img.shields.io/badge/CRAN-not_published_yet-red)](https://github.com/blasbenito/spatialRF) [![License](https://img.shields.io/badge/license-GPL--3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
+[![Devel-version](https://img.shields.io/badge/devel%20version-1.0.9-blue.svg)](https://github.com/blasbenito/spatialRF) [![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html) [![CRAN](https://img.shields.io/badge/CRAN-not_published_yet-red)](https://github.com/blasbenito/spatialRF) [![License](https://img.shields.io/badge/license-GPL--3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
 
 <!-- badges: end -->
 
@@ -76,7 +76,7 @@ If after considering these limitations you are still interested, follow me, I wi
 
 The package is not yet in the CRAN repositories, so at the moment it must be installed from GitHub as follows.
 
-```{r, message = FALSE, eval = FALSE}
+```{r, message = FALSE, eval = TRUE}
 remotes::install_github(
   repo = "blasbenito/spatialRF", 
   ref = "development",
@@ -84,11 +84,6 @@ remotes::install_github(
   )
 library(spatialRF)
 ```
-
-```{r}
-library(spatialRF)
-```
-
 
 There are a few other libraries that will be useful during this tutorial.
 

@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">spatialRF</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.8</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.9</span>
       </span>
     </div>
 
@@ -121,7 +121,7 @@
     </div>
 
     <pre class="usage"><span class='fu'>mem_multithreshold</span>(
-  <span class='kw'>x</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>distance.matrix</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>distance.thresholds</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>max.spatial.predictors</span> <span class='kw'>=</span> <span class='kw'>NULL</span>
 )</pre>
@@ -130,8 +130,8 @@
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>x</th>
-      <td><p>x Numeric matrix or data frame, generally a distance matrix. Default: <code>NULL</code>.</p></td>
+      <th>distance.matrix</th>
+      <td><p>Distance matrix. Default: <code>NULL</code>.</p></td>
     </tr>
     <tr>
       <th>distance.thresholds</th>
@@ -156,11 +156,11 @@
 
  <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>distance_matrix</span>)
 
- <span class='no'>out</span> <span class='kw'>&lt;-</span> <span class='fu'>mem_multithreshold</span>(
-   <span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>distance_matrix</span>,
+ <span class='no'>mem.df</span> <span class='kw'>&lt;-</span> <span class='fu'>mem_multithreshold</span>(
+   <span class='kw'>distance.matrix</span> <span class='kw'>=</span> <span class='no'>distance_matrix</span>,
    <span class='kw'>distance.thresholds</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0</span>, <span class='fl'>1000</span>, <span class='fl'>2000</span>)
    )
- <span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span>(<span class='no'>out</span>)
+ <span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span>(<span class='no'>mem.df</span>)
 }
 <span class='co'># }</span></div></pre>
   </div>
