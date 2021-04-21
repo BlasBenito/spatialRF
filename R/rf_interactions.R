@@ -185,7 +185,8 @@ rf_interactions <- function(
   i <- NULL
   interaction.screening <- foreach::foreach(
     i = seq(1, nrow(variables.pairs)),
-    .combine = "rbind"
+    .combine = "rbind",
+    .verbose = verbose
   ) %dopar% {
 
     #get pair

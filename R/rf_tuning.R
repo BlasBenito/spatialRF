@@ -229,7 +229,8 @@ rf_tuning <- function(
     num.trees.i = combinations$num.trees,
     mtry.i = combinations$mtry,
     min.node.size.i = combinations$min.node.size,
-    .combine = "rbind"
+    .combine = "rbind",
+    .verbose = verbose
   ) %dopar% {
 
     #filling ranger arguments

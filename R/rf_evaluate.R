@@ -241,7 +241,8 @@ rf_evaluate <- function(
   #####################################
   evaluation.df <- foreach::foreach(
     i = seq(1, length(spatial.folds), by = 1),
-    .combine = "rbind"
+    .combine = "rbind",
+    .verbose = verbose
     ) %dopar% {
 
     #separating training and testing data

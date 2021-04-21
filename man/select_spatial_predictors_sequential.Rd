@@ -66,7 +66,7 @@ A list with two slots: \code{optimization}, a data frame with the index of the s
 Selects spatial predictors by adding them sequentially into a model while monitoring the Moran's I of the model residuals and the model's R-squared. Once all the available spatial predictors have been added to the model, the function identifies the first \code{n} predictors that minimize the spatial correlation of the residuals and maximize R-squared, and returns the names of the selected spatial predictors and a data frame with the selection criteria.
 }
 \details{
-The algorithm works as follows: If the function \link{rank_spatial_predictors} returns 10 spatial predictors (sp1 to sp10, ordered from best to worst), \link{select_spatial_predictors_sequential} is going to fit the models \code{y ~ predictors + sp1}, \code{y ~ predictors + sp1 + sp2}, until all spatial predictors are used in \verb{y ~ predictors + sp1 ... sp10}. The model with lower Moran's I of the residuals and higher R-squared is selected, and its spatial predictors returned.
+The algorithm works as follows: If the function \link{rank_spatial_predictors} returns 10 spatial predictors (sp1 to sp10, ordered from best to worst), \link{select_spatial_predictors_sequential} is going to fit the models \code{y ~ predictors + sp1}, \code{y ~ predictors + sp1 + sp2}, until all spatial predictors are used in \verb{y ~ predictors + sp1 ... sp10}. The model with lower Moran's I of the residuals and higher R-squared (computed on the out-of-bag data) is selected, and its spatial predictors returned.
 }
 \examples{
 \donttest{

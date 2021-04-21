@@ -182,7 +182,8 @@ rank_spatial_predictors <- function(
   spatial.predictors.i <- NULL
   spatial.predictors.order <- foreach::foreach(
     spatial.predictors.i = seq(1, ncol(spatial.predictors.df)),
-    .combine = "rbind"
+    .combine = "rbind",
+    .verbose = verbose
     ) %dopar% {
 
     #3.2.3.1 preparing data
@@ -219,7 +220,7 @@ rank_spatial_predictors <- function(
       #out.df
       out.i <- data.frame(
         spatial.predictors.name = spatial.predictors.name.i,
-        model.r.squared = m.i$performance$r.squared,
+        model.r.squared = m.i$performance$r.squared.oob,
         moran.i = m.i$spatial.correlation.residuals$max.moran,
         p.value = m.i$spatial.correlation.residuals$per.distance$p.value[1],
         ranking.criteria = reference.moran.i - m.i$spatial.correlation.residuals$max.moran

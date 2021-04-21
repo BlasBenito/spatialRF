@@ -283,7 +283,7 @@ evaluation <- rf_evaluate(
 
 
 spatial.predictors.df <- mem_multithreshold(
-  x = distance_matrix,
+  distance.matrix = distance_matrix,
   distance.thresholds = c(0, 100, 1000, 10000),
   max.spatial.predictors = NULL
 )
@@ -291,8 +291,7 @@ rank <- rank_spatial_predictors(
   distance.matrix = distance_matrix,
   distance.thresholds = c(0, 100, 1000, 10000),
   spatial.predictors.df = spatial.predictors.df,
-  ranking.method = "moran",
-  n.cores = 1
+  ranking.method = "effect"
 )
 
 rank <- rank_spatial_predictors(
@@ -667,7 +666,7 @@ tuning <- rf_spatial(
   data = plant_richness_df,
   dependent.variable.name = "richness_species_vascular",
   predictor.variable.names = colnames(plant_richness_df)[5:21],
-  method = "pca.effect.recursive",
+  method = "mem.effect.recursive",
   distance.matrix = distance_matrix,
   distance.thresholds = c(0, 1000, 10000),
   cluster.ips = c(
@@ -675,5 +674,31 @@ tuning <- rf_spatial(
     "10.42.0.34",
     "10.42.0.104"
   ),
-  cluster.cores = c(7, 4, 4)
+  cluster.cores = c(7, 4, 4),
+  verbose = FALSE
+)
+
+tuning <- rf_spatial(
+  data = plant_richness_df,
+  dependent.variable.name = "richness_species_vascular",
+  predictor.variable.names = colnames(plant_richness_df)[5:21],
+  method = "mem.effect.recursive",
+  distance.matrix = distance_matrix,
+  distance.thresholds = c(0, 1000, 10000),
+  verbose = FALSE
+)
+
+spatial.predictors.df <- mem_multithreshold(
+  distance.matrix = distance_matrix,
+  distance.thresholds = c(0, 100, 1000, 10000),
+  max.spatial.predictors = NULL
+)
+rank <- rank_spatial_predictors(
+  data = plant_richness_df,
+  dependent.variable.name = "richness_species_vascular",
+  predictor.variable.names = colnames(plant_richness_df)[5:21],
+  distance.matrix = distance_matrix,
+  distance.thresholds = c(0, 100, 1000, 10000),
+  spatial.predictors.df = spatial.predictors.df,
+  ranking.method = "effect"
 )

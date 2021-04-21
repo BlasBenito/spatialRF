@@ -18,7 +18,7 @@
 #' @param cluster.user Character string, name of the user (should be the same throughout machines). Defaults to the current system user.
 #' @param cluster.port Character, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: `"11000"`
 #' @return A list with two slots: `optimization`, a data frame with the index of the spatial predictor added on each iteration, the spatial correlation of the model residuals, and the R-squared of the model, and `best.spatial.predictors`, that is a character vector with the names of the spatial predictors that minimize the Moran's I of the residuals and maximize the R-squared of the model.
-#' @details The algorithm works as follows: If the function [rank_spatial_predictors] returns 10 spatial predictors (sp1 to sp10, ordered from best to worst), [select_spatial_predictors_sequential] is going to fit the models `y ~ predictors + sp1`, `y ~ predictors + sp1 + sp2`, until all spatial predictors are used in `y ~ predictors + sp1 ... sp10`. The model with lower Moran's I of the residuals and higher R-squared is selected, and its spatial predictors returned.
+#' @details The algorithm works as follows: If the function [rank_spatial_predictors] returns 10 spatial predictors (sp1 to sp10, ordered from best to worst), [select_spatial_predictors_sequential] is going to fit the models `y ~ predictors + sp1`, `y ~ predictors + sp1 + sp2`, until all spatial predictors are used in `y ~ predictors + sp1 ... sp10`. The model with lower Moran's I of the residuals and higher R-squared (computed on the out-of-bag data) is selected, and its spatial predictors returned.
 #' @examples
 #' \donttest{
 #' if(interactive()){
@@ -209,7 +209,8 @@ select_spatial_predictors_sequential <- function(
   spatial.predictors.i <- NULL
   optimization.df <- foreach::foreach(
     spatial.predictors.i = seq(1, length(spatial.predictors.ranking)),
-    .combine = "rbind"
+    .combine = "rbind",
+    .verbose = verbose
   ) %dopar% {
 
     #pca factor names
@@ -244,8 +245,11 @@ select_spatial_predictors_sequential <- function(
     out.df <- data.frame(
       spatial.predictor.index = spatial.predictors.i,
       moran.i = m.i$spatial.correlation.residuals$max.moran,
-      p.value = m.i$spatial.correlation.residuals$per.distance[which.max(m.i$spatial.correlation.residuals$per.distance$moran.i), "p.value"],
-      r.squared = m.i$r.squared
+      p.value = m.i$spatial.correlation.residuals$per.distance[
+        which.max(m.i$spatial.correlation.residuals$per.distance$moran.i),
+        "p.value"
+        ],
+      r.squared = m.i$performance$r.squared.oob
     )
 
     return(out.df)

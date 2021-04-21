@@ -64,11 +64,11 @@ plot_optimization <- function(model, verbose = TRUE){
       size = 0.7,
       linetype = "dashed") +
     ggplot2::labs(
-      size = "Number of spatial predictors",
-      color = "Weighted optimization index"
+      size = "Number of \nspatial predictors",
+      color = "Weighted \noptimization index"
     ) +
-    ggplot2::ylab("Moran's I of the model residuals") +
-    ggplot2::xlab("Model's R squared") +
+    ggplot2::ylab("Maximum Moran's I of the residuals") +
+    ggplot2::xlab("Model's R squared (out-of-bag)") +
     ggplot2::ggtitle("Selection of spatial predictors (selection path shown in gray)") +
     ggplot2::theme_bw()
 

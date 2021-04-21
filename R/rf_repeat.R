@@ -209,7 +209,8 @@ rf_repeat <- function(
   #executing repetitions
   i <- NULL
   repeated.models <- foreach::foreach(
-    i = 1:repetitions
+    i = 1:repetitions,
+    .verbose = verbose
   ) %dopar% {
 
     #model on raw data
