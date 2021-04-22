@@ -22,7 +22,7 @@ devtools::check()
 ########################################
 
 #test (takes half an hour)
-testthat::test_local()
+tests <- testthat::test_local()
 
 #https://www.rostrum.blog/2020/08/09/ghactions-pkgs/
 # usethis::use_pkgdown()

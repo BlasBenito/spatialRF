@@ -15,7 +15,7 @@ select_spatial_predictors_sequential(
   spatial.predictors.ranking = NULL,
   weight.r.squared = 0.75,
   weight.penalization.n.predictors = 0.25,
-  verbose = TRUE,
+  verbose = FALSE,
   cluster = NULL,
   n.cores = NULL,
   cluster.ips = NULL,
@@ -45,7 +45,7 @@ select_spatial_predictors_sequential(
 
 \item{weight.penalization.n.predictors}{Numeric between 0 and 1, weight of the penalization for the number of spatial predictors added in the optimization index. Default: \code{0.25}}
 
-\item{verbose}{Logical, ff \code{TRUE}, messages and plots generated during the execution of the function are displayed, Default: \code{TRUE}}
+\item{verbose}{Logical, ff \code{TRUE}, messages and plots generated during the execution of the function are displayed, Default: \code{FALSE}}
 
 \item{cluster}{A cluster definition made with \code{parallel::makeCluster()}.}
 
