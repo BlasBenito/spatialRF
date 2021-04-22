@@ -141,13 +141,12 @@ remotes::install_github(
   )
 ```
 
-    ## 
-    ##      checking for file ‘/tmp/RtmpVNPpHp/remotes37f9cb62e76e53/BlasBenito-spatialRF-16382bb/DESCRIPTION’ ...  ✓  checking for file ‘/tmp/RtmpVNPpHp/remotes37f9cb62e76e53/BlasBenito-spatialRF-16382bb/DESCRIPTION’
+    ##      checking for file ‘/tmp/RtmpXUjy1r/remotes39b753789a79/BlasBenito-spatialRF-7b7f69c/DESCRIPTION’ ...  ✓  checking for file ‘/tmp/RtmpXUjy1r/remotes39b753789a79/BlasBenito-spatialRF-7b7f69c/DESCRIPTION’
     ##   ─  preparing ‘spatialRF’:
     ##    checking DESCRIPTION meta-information ...  ✓  checking DESCRIPTION meta-information
     ##   ─  checking for LF line-endings in source and make files and shell scripts
     ##   ─  checking for empty or unneeded directories
-    ##   ─  building ‘spatialRF_1.0.8.tar.gz’
+    ##   ─  building ‘spatialRF_1.0.9.tar.gz’
     ##      
     ## 
 
@@ -416,7 +415,8 @@ An example is shown in the next section.
 names(predictor.variable.names)
 ```
 
-    ## [1] "vif"                   "selected.variables"    "selected.variables.df"
+    ## [1] "vif"                   "selected.variables"   
+    ## [3] "selected.variables.df"
 
 The slot `selected.variables` contains the names of the selected
 predictors.
@@ -578,24 +578,42 @@ to fit the model, all stored in the slot `ranger.arguments`
 names(model.non.spatial$ranger.arguments)
 ```
 
-    ##  [1] "data"                         "dependent.variable.name"     
-    ##  [3] "predictor.variable.names"     "distance.matrix"             
-    ##  [5] "distance.thresholds"          "num.trees"                   
-    ##  [7] "mtry"                         "importance"                  
-    ##  [9] "scaled.importance"            "write.forest"                
-    ## [11] "probability"                  "min.node.size"               
-    ## [13] "max.depth"                    "replace"                     
-    ## [15] "sample.fraction"              "case.weights"                
-    ## [17] "class.weights"                "splitrule"                   
-    ## [19] "num.random.splits"            "alpha"                       
-    ## [21] "minprop"                      "split.select.weights"        
-    ## [23] "always.split.variables"       "respect.unordered.factors"   
-    ## [25] "scale.permutation.importance" "local.importance"            
-    ## [27] "regularization.factor"        "regularization.usedepth"     
-    ## [29] "keep.inbag"                   "inbag"                       
-    ## [31] "holdout"                      "quantreg"                    
-    ## [33] "oob.error"                    "num.threads"                 
-    ## [35] "save.memory"                  "seed"                        
+    ##  [1] "data"                        
+    ##  [2] "dependent.variable.name"     
+    ##  [3] "predictor.variable.names"    
+    ##  [4] "distance.matrix"             
+    ##  [5] "distance.thresholds"         
+    ##  [6] "num.trees"                   
+    ##  [7] "mtry"                        
+    ##  [8] "importance"                  
+    ##  [9] "scaled.importance"           
+    ## [10] "write.forest"                
+    ## [11] "probability"                 
+    ## [12] "min.node.size"               
+    ## [13] "max.depth"                   
+    ## [14] "replace"                     
+    ## [15] "sample.fraction"             
+    ## [16] "case.weights"                
+    ## [17] "class.weights"               
+    ## [18] "splitrule"                   
+    ## [19] "num.random.splits"           
+    ## [20] "alpha"                       
+    ## [21] "minprop"                     
+    ## [22] "split.select.weights"        
+    ## [23] "always.split.variables"      
+    ## [24] "respect.unordered.factors"   
+    ## [25] "scale.permutation.importance"
+    ## [26] "local.importance"            
+    ## [27] "regularization.factor"       
+    ## [28] "regularization.usedepth"     
+    ## [29] "keep.inbag"                  
+    ## [30] "inbag"                       
+    ## [31] "holdout"                     
+    ## [32] "quantreg"                    
+    ## [33] "oob.error"                   
+    ## [34] "num.threads"                 
+    ## [35] "save.memory"                 
+    ## [36] "seed"                        
     ## [37] "classification"
 
 The importance scores of a model fitted with `rf_repeat()` are plotted
@@ -683,6 +701,78 @@ model.non.spatial.tuned <- spatialRF::rf_tuning(
 ```
 
     ## Exploring 20 combinations of hyperparameters.
+
+    ## discovered package(s): 
+    ## automatically exporting the following variables from the local environment:
+    ##   data, dependent.variable.name, distance.matrix, distance.thresholds, metric, min.node.size, model, mtry, num.trees, predictor.variable.names, repetitions, seed, training.fraction, xy 
+    ## explicitly exporting package(s): 
+    ## numValues: 20, numResults: 0, stopped: TRUE
+    ## got results for task 1
+    ## numValues: 20, numResults: 1, stopped: TRUE
+    ## returning status FALSE
+    ## got results for task 2
+    ## numValues: 20, numResults: 2, stopped: TRUE
+    ## returning status FALSE
+    ## got results for task 3
+    ## numValues: 20, numResults: 3, stopped: TRUE
+    ## returning status FALSE
+    ## got results for task 4
+    ## numValues: 20, numResults: 4, stopped: TRUE
+    ## returning status FALSE
+    ## got results for task 5
+    ## numValues: 20, numResults: 5, stopped: TRUE
+    ## returning status FALSE
+    ## got results for task 6
+    ## numValues: 20, numResults: 6, stopped: TRUE
+    ## returning status FALSE
+    ## got results for task 7
+    ## numValues: 20, numResults: 7, stopped: TRUE
+    ## returning status FALSE
+    ## got results for task 8
+    ## numValues: 20, numResults: 8, stopped: TRUE
+    ## returning status FALSE
+    ## got results for task 9
+    ## numValues: 20, numResults: 9, stopped: TRUE
+    ## returning status FALSE
+    ## got results for task 10
+    ## numValues: 20, numResults: 10, stopped: TRUE
+    ## returning status FALSE
+    ## got results for task 11
+    ## numValues: 20, numResults: 11, stopped: TRUE
+    ## returning status FALSE
+    ## got results for task 12
+    ## numValues: 20, numResults: 12, stopped: TRUE
+    ## returning status FALSE
+    ## got results for task 13
+    ## numValues: 20, numResults: 13, stopped: TRUE
+    ## returning status FALSE
+    ## got results for task 14
+    ## numValues: 20, numResults: 14, stopped: TRUE
+    ## returning status FALSE
+    ## got results for task 15
+    ## numValues: 20, numResults: 15, stopped: TRUE
+    ## returning status FALSE
+    ## got results for task 16
+    ## numValues: 20, numResults: 16, stopped: TRUE
+    ## returning status FALSE
+    ## got results for task 17
+    ## numValues: 20, numResults: 17, stopped: TRUE
+    ## returning status FALSE
+    ## got results for task 18
+    ## numValues: 20, numResults: 18, stopped: TRUE
+    ## returning status FALSE
+    ## got results for task 19
+    ## numValues: 20, numResults: 19, stopped: TRUE
+    ## returning status FALSE
+    ## got results for task 20
+    ## numValues: 20, numResults: 20, stopped: TRUE
+    ## first call to combine function
+    ## evaluating call object to combine results:
+    ##   fun(result.1, result.2, result.3, result.4, result.5, result.6, 
+    ##     result.7, result.8, result.9, result.10, result.11, result.12, 
+    ##     result.13, result.14, result.15, result.16, result.17, result.18, 
+    ##     result.19, result.20)
+    ## returning status TRUE
 
     ## Best hyperparameters:
 
@@ -857,6 +947,65 @@ model.spatial.tuned <- spatialRF::rf_tuning(
 
     ## Exploring 16 combinations of hyperparameters.
 
+    ## discovered package(s): 
+    ## automatically exporting the following variables from the local environment:
+    ##   data, dependent.variable.name, distance.matrix, distance.thresholds, metric, min.node.size, model, mtry, num.trees, predictor.variable.names, repetitions, seed, training.fraction, xy 
+    ## explicitly exporting package(s): 
+    ## numValues: 16, numResults: 0, stopped: TRUE
+    ## got results for task 1
+    ## numValues: 16, numResults: 1, stopped: TRUE
+    ## returning status FALSE
+    ## got results for task 2
+    ## numValues: 16, numResults: 2, stopped: TRUE
+    ## returning status FALSE
+    ## got results for task 3
+    ## numValues: 16, numResults: 3, stopped: TRUE
+    ## returning status FALSE
+    ## got results for task 4
+    ## numValues: 16, numResults: 4, stopped: TRUE
+    ## returning status FALSE
+    ## got results for task 5
+    ## numValues: 16, numResults: 5, stopped: TRUE
+    ## returning status FALSE
+    ## got results for task 6
+    ## numValues: 16, numResults: 6, stopped: TRUE
+    ## returning status FALSE
+    ## got results for task 7
+    ## numValues: 16, numResults: 7, stopped: TRUE
+    ## returning status FALSE
+    ## got results for task 8
+    ## numValues: 16, numResults: 8, stopped: TRUE
+    ## returning status FALSE
+    ## got results for task 9
+    ## numValues: 16, numResults: 9, stopped: TRUE
+    ## returning status FALSE
+    ## got results for task 10
+    ## numValues: 16, numResults: 10, stopped: TRUE
+    ## returning status FALSE
+    ## got results for task 11
+    ## numValues: 16, numResults: 11, stopped: TRUE
+    ## returning status FALSE
+    ## got results for task 12
+    ## numValues: 16, numResults: 12, stopped: TRUE
+    ## returning status FALSE
+    ## got results for task 13
+    ## numValues: 16, numResults: 13, stopped: TRUE
+    ## returning status FALSE
+    ## got results for task 14
+    ## numValues: 16, numResults: 14, stopped: TRUE
+    ## returning status FALSE
+    ## got results for task 15
+    ## numValues: 16, numResults: 15, stopped: TRUE
+    ## returning status FALSE
+    ## got results for task 16
+    ## numValues: 16, numResults: 16, stopped: TRUE
+    ## first call to combine function
+    ## evaluating call object to combine results:
+    ##   fun(result.1, result.2, result.3, result.4, result.5, result.6, 
+    ##     result.7, result.8, result.9, result.10, result.11, result.12, 
+    ##     result.13, result.14, result.15, result.16)
+    ## returning status TRUE
+
     ## Best hyperparameters:
 
     ##   - num.trees:     1000
@@ -894,6 +1043,93 @@ model.spatial.tuned <- spatialRF::rf_evaluate(
 
     ## Generating spatial folds.
 
+    ## discovered package(s): 
+    ## automatically exporting the following variables from the local environment:
+    ##   data, dependent.variable.name, metrics, predictor.variable.names, ranger.arguments, seed, spatial.folds, xy.reference.records 
+    ## explicitly exporting package(s): 
+    ## numValues: 25, numResults: 0, stopped: TRUE
+    ## got results for task 1
+    ## numValues: 25, numResults: 1, stopped: TRUE
+    ## returning status FALSE
+    ## got results for task 2
+    ## numValues: 25, numResults: 2, stopped: TRUE
+    ## returning status FALSE
+    ## got results for task 3
+    ## numValues: 25, numResults: 3, stopped: TRUE
+    ## returning status FALSE
+    ## got results for task 4
+    ## numValues: 25, numResults: 4, stopped: TRUE
+    ## returning status FALSE
+    ## got results for task 5
+    ## numValues: 25, numResults: 5, stopped: TRUE
+    ## returning status FALSE
+    ## got results for task 6
+    ## numValues: 25, numResults: 6, stopped: TRUE
+    ## returning status FALSE
+    ## got results for task 7
+    ## numValues: 25, numResults: 7, stopped: TRUE
+    ## returning status FALSE
+    ## got results for task 8
+    ## numValues: 25, numResults: 8, stopped: TRUE
+    ## returning status FALSE
+    ## got results for task 9
+    ## numValues: 25, numResults: 9, stopped: TRUE
+    ## returning status FALSE
+    ## got results for task 10
+    ## numValues: 25, numResults: 10, stopped: TRUE
+    ## returning status FALSE
+    ## got results for task 11
+    ## numValues: 25, numResults: 11, stopped: TRUE
+    ## returning status FALSE
+    ## got results for task 12
+    ## numValues: 25, numResults: 12, stopped: TRUE
+    ## returning status FALSE
+    ## got results for task 13
+    ## numValues: 25, numResults: 13, stopped: TRUE
+    ## returning status FALSE
+    ## got results for task 14
+    ## numValues: 25, numResults: 14, stopped: TRUE
+    ## returning status FALSE
+    ## got results for task 15
+    ## numValues: 25, numResults: 15, stopped: TRUE
+    ## returning status FALSE
+    ## got results for task 16
+    ## numValues: 25, numResults: 16, stopped: TRUE
+    ## returning status FALSE
+    ## got results for task 17
+    ## numValues: 25, numResults: 17, stopped: TRUE
+    ## returning status FALSE
+    ## got results for task 18
+    ## numValues: 25, numResults: 18, stopped: TRUE
+    ## returning status FALSE
+    ## got results for task 19
+    ## numValues: 25, numResults: 19, stopped: TRUE
+    ## returning status FALSE
+    ## got results for task 20
+    ## numValues: 25, numResults: 20, stopped: TRUE
+    ## returning status FALSE
+    ## got results for task 21
+    ## numValues: 25, numResults: 21, stopped: TRUE
+    ## returning status FALSE
+    ## got results for task 22
+    ## numValues: 25, numResults: 22, stopped: TRUE
+    ## returning status FALSE
+    ## got results for task 23
+    ## numValues: 25, numResults: 23, stopped: TRUE
+    ## returning status FALSE
+    ## got results for task 24
+    ## numValues: 25, numResults: 24, stopped: TRUE
+    ## returning status FALSE
+    ## got results for task 25
+    ## numValues: 25, numResults: 25, stopped: TRUE
+    ## first call to combine function
+    ## evaluating call object to combine results:
+    ##   fun(result.1, result.2, result.3, result.4, result.5, result.6, 
+    ##     result.7, result.8, result.9, result.10, result.11, result.12, 
+    ##     result.13, result.14, result.15, result.16, result.17, result.18, 
+    ##     result.19, result.20, result.21, result.22, result.23, result.24, 
+    ##     result.25)
+    ## returning status TRUE
     ## 
     ## Spatial evaluation 
     ##   - Training fraction:             0.8
@@ -910,8 +1146,9 @@ several objects that summarize the spatial cross-validation results.
 names(model.spatial.tuned$evaluation)
 ```
 
-    ## [1] "metrics"           "training.fraction" "spatial.folds"    
-    ## [4] "per.fold"          "per.fold.long"     "per.model"        
+    ## [1] "metrics"           "training.fraction"
+    ## [3] "spatial.folds"     "per.fold"         
+    ## [5] "per.fold.long"     "per.model"        
     ## [7] "aggregated"
 
 The slot “spatial.folds”, produced by

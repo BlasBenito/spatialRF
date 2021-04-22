@@ -131,7 +131,7 @@
   <span class='kw'>spatial.predictors.ranking</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>weight.r.squared</span> <span class='kw'>=</span> <span class='fl'>0.75</span>,
   <span class='kw'>weight.penalization.n.predictors</span> <span class='kw'>=</span> <span class='fl'>0.25</span>,
-  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
   <span class='kw'>cluster</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>n.cores</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>cluster.ips</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
@@ -185,7 +185,7 @@
     </tr>
     <tr>
       <th>verbose</th>
-      <td><p>Logical, ff <code>TRUE</code>, messages and plots generated during the execution of the function are displayed, Default: <code>TRUE</code></p></td>
+      <td><p>Logical, ff <code>TRUE</code>, messages and plots generated during the execution of the function are displayed, Default: <code>FALSE</code></p></td>
     </tr>
     <tr>
       <th>cluster</th>
@@ -218,7 +218,7 @@
     <p>A list with two slots: <code>optimization</code>, a data frame with the index of the spatial predictor added on each iteration, the spatial correlation of the model residuals, and the R-squared of the model, and <code>best.spatial.predictors</code>, that is a character vector with the names of the spatial predictors that minimize the Moran's I of the residuals and maximize the R-squared of the model.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>The algorithm works as follows: If the function <a href='rank_spatial_predictors.html'>rank_spatial_predictors</a> returns 10 spatial predictors (sp1 to sp10, ordered from best to worst), select_spatial_predictors_sequential is going to fit the models <code>y ~ predictors + sp1</code>, <code>y ~ predictors + sp1 + sp2</code>, until all spatial predictors are used in <code>y ~ predictors + sp1 ... sp10</code>. The model with lower Moran's I of the residuals and higher R-squared is selected, and its spatial predictors returned.</p>
+    <p>The algorithm works as follows: If the function <a href='rank_spatial_predictors.html'>rank_spatial_predictors</a> returns 10 spatial predictors (sp1 to sp10, ordered from best to worst), select_spatial_predictors_sequential is going to fit the models <code>y ~ predictors + sp1</code>, <code>y ~ predictors + sp1 + sp2</code>, until all spatial predictors are used in <code>y ~ predictors + sp1 ... sp10</code>. The model with lower Moran's I of the residuals and higher R-squared (computed on the out-of-bag data) is selected, and its spatial predictors returned.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># \donttest{</span>
