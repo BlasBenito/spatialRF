@@ -396,19 +396,22 @@ rf <- function(
   }
 
   #residuals
-  m$residuals <- observed - predicted
+  m$residuals$values <- observed - predicted
 
   #compute moran I of residuals if distance.matrix is provided
   if(!is.null(distance.matrix)){
 
-    m$spatial.correlation.residuals <- moran_multithreshold(
-      x = m$residuals,
+    m$residuals$autocorrelation <- moran_multithreshold(
+      x = m$residuals$values,
       distance.matrix = distance.matrix,
       distance.thresholds = distance.thresholds,
       verbose = verbose
     )
 
   }
+
+  #normality of the residuals
+  m$residuals$normality <- normality(x = m$residuals$values)
 
   #replacing local variable importance with the scaled one
   if(local.importance == TRUE){
