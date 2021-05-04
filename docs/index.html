@@ -141,20 +141,21 @@
 <div id="install" class="section level1">
 <h1 class="hasAnchor">
 <a href="#install" class="anchor"></a>Install</h1>
-<p>The package is not yet in the CRAN repositories, so at the moment it must be installed from GitHub as follows.</p>
+<p>The package is not yet in the CRAN repositories, so at the moment it must be installed from GitHub as follows. Notice that there are two branches in the GitHub repository, “main” and “development”. If you install it from “development”, things will likely go wrong! Please, install it from “main” even if the code chunk below says otherwise!</p>
 <div class="sourceCode" id="cb2"><pre class="r"><span class="kw pkg">remotes</span><span class="kw ns">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html">install_github</a></span>(
   <span class="kw">repo</span> <span class="kw">=</span> <span class="st">"blasbenito/spatialRF"</span>,
-  <span class="kw">ref</span> <span class="kw">=</span> <span class="st">"development"</span>,
+  <span class="kw">ref</span> <span class="kw">=</span> <span class="st">"main"</span>,
   <span class="kw">force</span> <span class="kw">=</span> <span class="fl">TRUE</span>
   )</pre></div>
-<div class="sourceCode" id="cb3"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="do">##      checking for file ‘/tmp/RtmpXUjy1r/remotes39b753789a79/BlasBenito-spatialRF-7b7f69c/DESCRIPTION’ ...  ✓  checking for file ‘/tmp/RtmpXUjy1r/remotes39b753789a79/BlasBenito-spatialRF-7b7f69c/DESCRIPTION’</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="do">##   ─  preparing ‘spatialRF’:</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="do">##    checking DESCRIPTION meta-information ...  ✓  checking DESCRIPTION meta-information</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="do">##   ─  checking for LF line-endings in source and make files and shell scripts</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="do">##   ─  checking for empty or unneeded directories</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="do">##   ─  building ‘spatialRF_1.0.9.tar.gz’</span></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="do">##      </span></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="do">##      checking for file ‘/tmp/RtmpTwqdv6/remotes1c664227713cf/BlasBenito-spatialRF-d3ef276/DESCRIPTION’ ...  ✓  checking for file ‘/tmp/RtmpTwqdv6/remotes1c664227713cf/BlasBenito-spatialRF-d3ef276/DESCRIPTION’</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="do">##   ─  preparing ‘spatialRF’:</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="do">##    checking DESCRIPTION meta-information ...  ✓  checking DESCRIPTION meta-information</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="do">##   ─  checking for LF line-endings in source and make files and shell scripts</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="do">##   ─  checking for empty or unneeded directories</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="do">##   ─  building ‘spatialRF_1.0.9.tar.gz’</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="do">##      </span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span></code></pre></div>
 <div class="sourceCode" id="cb4"><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">spatialRF</span>)</pre></div>
 <p>There are a few other libraries that will be useful during this tutorial.</p>
 <div class="sourceCode" id="cb5"><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">kableExtra</span>)
@@ -311,8 +312,7 @@ climate_bio1_average_X_bias_area_km2
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="do">## [auto_vif()]: Removed variables: human_population</span></span></code></pre></div>
 <p>The output of <code><a href="reference/auto_cor.html">auto_cor()</a></code> or <code><a href="reference/auto_vif.html">auto_vif()</a></code> is of the class “variable_selection”, that can be used as input for the argument <code>predictor.variable.names</code> of any modeling function within the package. An example is shown in the next section.</p>
 <div class="sourceCode" id="cb11"><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span>(<span class="no">predictor.variable.names</span>)</pre></div>
-<div class="sourceCode" id="cb12"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] "vif"                   "selected.variables"   </span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="do">## [3] "selected.variables.df"</span></span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] "vif"                   "selected.variables"    "selected.variables.df"</span></span></code></pre></div>
 <p>The slot <code>selected.variables</code> contains the names of the selected predictors.</p>
 <div class="sourceCode" id="cb13"><pre class="r"><span class="no">predictor.variable.names</span>$<span class="no">selected.variables</span></pre></div>
 <div class="sourceCode" id="cb14"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="do">##  [1] "climate_bio1_average_X_bias_area_km2"</span></span>
@@ -385,43 +385,25 @@ climate_bio1_average_X_bias_area_km2
 )</pre></div>
 <p>Notice that the argument <code>model</code>, present in several functions of the package, takes a fitted model as input. Such fitted model already has the training data, the names of the response and the predictors, the distance matrix, the distance thresholds, and the hyperparameters used to fit the model, all stored in the slot <code>ranger.arguments</code></p>
 <div class="sourceCode" id="cb22"><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span>(<span class="no">model.non.spatial</span>$<span class="no">ranger.arguments</span>)</pre></div>
-<div class="sourceCode" id="cb23"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="do">##  [1] "data"                        </span></span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="do">##  [2] "dependent.variable.name"     </span></span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="do">##  [3] "predictor.variable.names"    </span></span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="do">##  [4] "distance.matrix"             </span></span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="do">##  [5] "distance.thresholds"         </span></span>
-<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a><span class="do">##  [6] "num.trees"                   </span></span>
-<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a><span class="do">##  [7] "mtry"                        </span></span>
-<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a><span class="do">##  [8] "importance"                  </span></span>
-<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a><span class="do">##  [9] "scaled.importance"           </span></span>
-<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a><span class="do">## [10] "write.forest"                </span></span>
-<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a><span class="do">## [11] "probability"                 </span></span>
-<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a><span class="do">## [12] "min.node.size"               </span></span>
-<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a><span class="do">## [13] "max.depth"                   </span></span>
-<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a><span class="do">## [14] "replace"                     </span></span>
-<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a><span class="do">## [15] "sample.fraction"             </span></span>
-<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a><span class="do">## [16] "case.weights"                </span></span>
-<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a><span class="do">## [17] "class.weights"               </span></span>
-<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a><span class="do">## [18] "splitrule"                   </span></span>
-<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a><span class="do">## [19] "num.random.splits"           </span></span>
-<span id="cb23-20"><a href="#cb23-20" aria-hidden="true" tabindex="-1"></a><span class="do">## [20] "alpha"                       </span></span>
-<span id="cb23-21"><a href="#cb23-21" aria-hidden="true" tabindex="-1"></a><span class="do">## [21] "minprop"                     </span></span>
-<span id="cb23-22"><a href="#cb23-22" aria-hidden="true" tabindex="-1"></a><span class="do">## [22] "split.select.weights"        </span></span>
-<span id="cb23-23"><a href="#cb23-23" aria-hidden="true" tabindex="-1"></a><span class="do">## [23] "always.split.variables"      </span></span>
-<span id="cb23-24"><a href="#cb23-24" aria-hidden="true" tabindex="-1"></a><span class="do">## [24] "respect.unordered.factors"   </span></span>
-<span id="cb23-25"><a href="#cb23-25" aria-hidden="true" tabindex="-1"></a><span class="do">## [25] "scale.permutation.importance"</span></span>
-<span id="cb23-26"><a href="#cb23-26" aria-hidden="true" tabindex="-1"></a><span class="do">## [26] "local.importance"            </span></span>
-<span id="cb23-27"><a href="#cb23-27" aria-hidden="true" tabindex="-1"></a><span class="do">## [27] "regularization.factor"       </span></span>
-<span id="cb23-28"><a href="#cb23-28" aria-hidden="true" tabindex="-1"></a><span class="do">## [28] "regularization.usedepth"     </span></span>
-<span id="cb23-29"><a href="#cb23-29" aria-hidden="true" tabindex="-1"></a><span class="do">## [29] "keep.inbag"                  </span></span>
-<span id="cb23-30"><a href="#cb23-30" aria-hidden="true" tabindex="-1"></a><span class="do">## [30] "inbag"                       </span></span>
-<span id="cb23-31"><a href="#cb23-31" aria-hidden="true" tabindex="-1"></a><span class="do">## [31] "holdout"                     </span></span>
-<span id="cb23-32"><a href="#cb23-32" aria-hidden="true" tabindex="-1"></a><span class="do">## [32] "quantreg"                    </span></span>
-<span id="cb23-33"><a href="#cb23-33" aria-hidden="true" tabindex="-1"></a><span class="do">## [33] "oob.error"                   </span></span>
-<span id="cb23-34"><a href="#cb23-34" aria-hidden="true" tabindex="-1"></a><span class="do">## [34] "num.threads"                 </span></span>
-<span id="cb23-35"><a href="#cb23-35" aria-hidden="true" tabindex="-1"></a><span class="do">## [35] "save.memory"                 </span></span>
-<span id="cb23-36"><a href="#cb23-36" aria-hidden="true" tabindex="-1"></a><span class="do">## [36] "seed"                        </span></span>
-<span id="cb23-37"><a href="#cb23-37" aria-hidden="true" tabindex="-1"></a><span class="do">## [37] "classification"</span></span></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="do">##  [1] "data"                         "dependent.variable.name"     </span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="do">##  [3] "predictor.variable.names"     "distance.matrix"             </span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="do">##  [5] "distance.thresholds"          "num.trees"                   </span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="do">##  [7] "mtry"                         "importance"                  </span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="do">##  [9] "scaled.importance"            "write.forest"                </span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a><span class="do">## [11] "probability"                  "min.node.size"               </span></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a><span class="do">## [13] "max.depth"                    "replace"                     </span></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a><span class="do">## [15] "sample.fraction"              "case.weights"                </span></span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a><span class="do">## [17] "class.weights"                "splitrule"                   </span></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a><span class="do">## [19] "num.random.splits"            "alpha"                       </span></span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a><span class="do">## [21] "minprop"                      "split.select.weights"        </span></span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a><span class="do">## [23] "always.split.variables"       "respect.unordered.factors"   </span></span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a><span class="do">## [25] "scale.permutation.importance" "local.importance"            </span></span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a><span class="do">## [27] "regularization.factor"        "regularization.usedepth"     </span></span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a><span class="do">## [29] "keep.inbag"                   "inbag"                       </span></span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a><span class="do">## [31] "holdout"                      "quantreg"                    </span></span>
+<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a><span class="do">## [33] "oob.error"                    "num.threads"                 </span></span>
+<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a><span class="do">## [35] "save.memory"                  "seed"                        </span></span>
+<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a><span class="do">## [37] "classification"</span></span></code></pre></div>
 <p>The importance scores of a model fitted with <code><a href="reference/rf_repeat.html">rf_repeat()</a></code> are plotted as a boxplot, with the distribution of the importance scores of each predictor across repetitions.</p>
 <div class="sourceCode" id="cb24"><pre class="r"><span class="kw pkg">spatialRF</span><span class="kw ns">::</span><span class="fu"><a href="reference/plot_importance.html">plot_importance</a></span>(
   <span class="no">model.non.spatial.repeat</span>,
@@ -941,10 +923,9 @@ climate_bio1_average_X_bias_area_km2
 <span id="cb37-99"><a href="#cb37-99" aria-hidden="true" tabindex="-1"></a><span class="do">##       rmse 2736.414 3096.164 2289.092 4474.390</span></span></code></pre></div>
 <p>The function generates a new slot in the model named “evaluation” with several objects that summarize the spatial cross-validation results.</p>
 <div class="sourceCode" id="cb38"><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span>(<span class="no">model.spatial.tuned</span>$<span class="no">evaluation</span>)</pre></div>
-<div class="sourceCode" id="cb39"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] "metrics"           "training.fraction"</span></span>
-<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="do">## [3] "spatial.folds"     "per.fold"         </span></span>
-<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a><span class="do">## [5] "per.fold.long"     "per.model"        </span></span>
-<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a><span class="do">## [7] "aggregated"</span></span></code></pre></div>
+<div class="sourceCode" id="cb39"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] "metrics"           "training.fraction" "spatial.folds"    </span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="do">## [4] "per.fold"          "per.fold.long"     "per.model"        </span></span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a><span class="do">## [7] "aggregated"</span></span></code></pre></div>
 <p>The slot “spatial.folds”, produced by <a href="https://blasbenito.github.io/spatialRF/reference/make_spatial_folds.html"><code><a href="reference/make_spatial_folds.html">make_spatial_folds()</a></code></a>, contains the indices of the training and testing cases for each cross-validation repetition. The maps below show two sets of training and testing spatial folds.</p>
 <p><img src="README_files/figure-gfm/unnamed-chunk-38-1.png"><!-- --></p>
 <p>The low R squared yielded by the model evaluation shows that the spatial model is hard to transfer outside of the training space, because spatial structures are not transferable when the data is irregularly distributed, as it is the case with the dataset <code>plant_richness_df</code>. The comparison below shows how non-spatial models may show better (not bad, not great) evaluation scores on independent spatial folds.</p>

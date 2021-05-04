@@ -131,17 +131,21 @@ me, I will show you how it works.
 # Install
 
 The package is not yet in the CRAN repositories, so at the moment it
-must be installed from GitHub as follows.
+must be installed from GitHub as follows. Notice that there are two
+branches in the GitHub repository, “main” and “development”. If you
+install it from “development”, things will likely go wrong! Please,
+install it from “main” even if the code chunk below says otherwise!
 
 ``` r
 remotes::install_github(
   repo = "blasbenito/spatialRF", 
-  ref = "development",
+  ref = "main",
   force = TRUE
   )
 ```
 
-    ##      checking for file ‘/tmp/RtmpXUjy1r/remotes39b753789a79/BlasBenito-spatialRF-7b7f69c/DESCRIPTION’ ...  ✓  checking for file ‘/tmp/RtmpXUjy1r/remotes39b753789a79/BlasBenito-spatialRF-7b7f69c/DESCRIPTION’
+    ## 
+    ##      checking for file ‘/tmp/RtmpTwqdv6/remotes1c664227713cf/BlasBenito-spatialRF-d3ef276/DESCRIPTION’ ...  ✓  checking for file ‘/tmp/RtmpTwqdv6/remotes1c664227713cf/BlasBenito-spatialRF-d3ef276/DESCRIPTION’
     ##   ─  preparing ‘spatialRF’:
     ##    checking DESCRIPTION meta-information ...  ✓  checking DESCRIPTION meta-information
     ##   ─  checking for LF line-endings in source and make files and shell scripts
@@ -415,8 +419,7 @@ An example is shown in the next section.
 names(predictor.variable.names)
 ```
 
-    ## [1] "vif"                   "selected.variables"   
-    ## [3] "selected.variables.df"
+    ## [1] "vif"                   "selected.variables"    "selected.variables.df"
 
 The slot `selected.variables` contains the names of the selected
 predictors.
@@ -578,42 +581,24 @@ to fit the model, all stored in the slot `ranger.arguments`
 names(model.non.spatial$ranger.arguments)
 ```
 
-    ##  [1] "data"                        
-    ##  [2] "dependent.variable.name"     
-    ##  [3] "predictor.variable.names"    
-    ##  [4] "distance.matrix"             
-    ##  [5] "distance.thresholds"         
-    ##  [6] "num.trees"                   
-    ##  [7] "mtry"                        
-    ##  [8] "importance"                  
-    ##  [9] "scaled.importance"           
-    ## [10] "write.forest"                
-    ## [11] "probability"                 
-    ## [12] "min.node.size"               
-    ## [13] "max.depth"                   
-    ## [14] "replace"                     
-    ## [15] "sample.fraction"             
-    ## [16] "case.weights"                
-    ## [17] "class.weights"               
-    ## [18] "splitrule"                   
-    ## [19] "num.random.splits"           
-    ## [20] "alpha"                       
-    ## [21] "minprop"                     
-    ## [22] "split.select.weights"        
-    ## [23] "always.split.variables"      
-    ## [24] "respect.unordered.factors"   
-    ## [25] "scale.permutation.importance"
-    ## [26] "local.importance"            
-    ## [27] "regularization.factor"       
-    ## [28] "regularization.usedepth"     
-    ## [29] "keep.inbag"                  
-    ## [30] "inbag"                       
-    ## [31] "holdout"                     
-    ## [32] "quantreg"                    
-    ## [33] "oob.error"                   
-    ## [34] "num.threads"                 
-    ## [35] "save.memory"                 
-    ## [36] "seed"                        
+    ##  [1] "data"                         "dependent.variable.name"     
+    ##  [3] "predictor.variable.names"     "distance.matrix"             
+    ##  [5] "distance.thresholds"          "num.trees"                   
+    ##  [7] "mtry"                         "importance"                  
+    ##  [9] "scaled.importance"            "write.forest"                
+    ## [11] "probability"                  "min.node.size"               
+    ## [13] "max.depth"                    "replace"                     
+    ## [15] "sample.fraction"              "case.weights"                
+    ## [17] "class.weights"                "splitrule"                   
+    ## [19] "num.random.splits"            "alpha"                       
+    ## [21] "minprop"                      "split.select.weights"        
+    ## [23] "always.split.variables"       "respect.unordered.factors"   
+    ## [25] "scale.permutation.importance" "local.importance"            
+    ## [27] "regularization.factor"        "regularization.usedepth"     
+    ## [29] "keep.inbag"                   "inbag"                       
+    ## [31] "holdout"                      "quantreg"                    
+    ## [33] "oob.error"                    "num.threads"                 
+    ## [35] "save.memory"                  "seed"                        
     ## [37] "classification"
 
 The importance scores of a model fitted with `rf_repeat()` are plotted
@@ -1146,9 +1131,8 @@ several objects that summarize the spatial cross-validation results.
 names(model.spatial.tuned$evaluation)
 ```
 
-    ## [1] "metrics"           "training.fraction"
-    ## [3] "spatial.folds"     "per.fold"         
-    ## [5] "per.fold.long"     "per.model"        
+    ## [1] "metrics"           "training.fraction" "spatial.folds"    
+    ## [4] "per.fold"          "per.fold.long"     "per.model"        
     ## [7] "aggregated"
 
 The slot “spatial.folds”, produced by

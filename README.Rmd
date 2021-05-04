@@ -74,12 +74,12 @@ If after considering these limitations you are still interested, follow me, I wi
 
 # Install
 
-The package is not yet in the CRAN repositories, so at the moment it must be installed from GitHub as follows.
+The package is not yet in the CRAN repositories, so at the moment it must be installed from GitHub as follows. Notice that there are two branches in the GitHub repository, "main" and "development". If you install it from "development", things will likely go wrong! Please, install it from "main" even if the code chunk below says otherwise!
 
 ```{r, message = FALSE, eval = TRUE}
 remotes::install_github(
   repo = "blasbenito/spatialRF", 
-  ref = "development",
+  ref = "main",
   force = TRUE
   )
 library(spatialRF)
