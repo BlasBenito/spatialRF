@@ -54,8 +54,8 @@ print.rf <- function(x, ...) {
     cat("\n")
     cat("Model residuals \n")
     cat("  - Stats: \n")
-    if(length(x$performance$r.squared) == 1){
-      residuals.stats <- as.data.frame(t(summary(x$residuals)))[, 2:3]
+    if(inherits(x, "rf_repeat") == FALSE){
+      residuals.stats <- as.data.frame(t(summary(x$residuals$values)))[, 2:3]
     } else {
       residuals.stats <- as.data.frame(t(summary(x$residuals$mean$mean)))[, 2:3]
     }
@@ -72,6 +72,11 @@ print.rf <- function(x, ...) {
       huxtable::set_all_borders(TRUE)
     huxtable::number_format(residuals.stats)[2, ] <- 2
     huxtable::print_screen(residuals.stats, colnames = FALSE)
+
+    cat("  - Normality: \n")
+    cat("      - Shapiro-Wilks W:", round(x$residuals$normality$shapiro.w, 3), "\n")
+    cat("      - p-value        :", round(x$residuals$normality$p.value, 4), "\n")
+    cat("      - Interpretation :", x$residuals$normality$interpretation, "\n")
 
     if("spatial.correlation.residuals" %in% names(x)){
       cat("\n")

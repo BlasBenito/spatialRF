@@ -1,6 +1,7 @@
 #' @title Normality test of a numeric vector
 #' @description Applies a Shapiro-Wilks test to a numeric vector, and plots the qq plot and the histogram.
-#' @param x Numeric vector.
+#' @param residuals Numeric vector, model residuals.
+#' @param predictions Numeric vector, model predictions.
 #' @return A list with four slots:
 #' \itemize{
 #'  /item `w` W statistic returned by [shapiro.test()].
@@ -23,13 +24,16 @@
 #' @export
 #' @importFrom ggplot2 stat_qq stat_qq_line geom_histogram
 #' @importFrom patchwork plot_annotation
-normality <- function(x){
+residuals_test <- function(
+  residuals,
+  predictions
+  ){
 
   #list to store results
   y <- list()
 
   #normality of x
-  shapiro.out <- shapiro.test(x)
+  shapiro.out <- shapiro.test(residuals)
 
   #writing results to list
   names(shapiro.out$statistic) <- NULL
@@ -37,8 +41,8 @@ normality <- function(x){
   y$p.value <- shapiro.out$p.value
   y$interpretation <- ifelse(
     shapiro.out$p.value > 0.05,
-    "x is normal",
-    "x is not normal"
+    "Residuals are normal",
+    "Residuals are not normal"
   )
 
   #plot title
@@ -52,24 +56,29 @@ normality <- function(x){
   )
 
   #qqplot
-  p1 <- ggplot2::ggplot(data = as.data.frame(x)) +
-    ggplot2::aes(sample = x) +
-    ggplot2::stat_qq() +
-    ggplot2::stat_qq_line(col = "red4") +
+  p1 <- ggplot2::ggplot(data = as.data.frame(residuals)) +
+    ggplot2::aes(sample = residuals) +
+    ggplot2::stat_qq(alpha = 0.7) +
+    ggplot2::stat_qq_line(
+      col = "red4",
+      size = 0.7,
+      linetype = "dashed"
+      ) +
     ggplot2::theme_bw() +
-    ggplot2::ylab("x")
+    ggplot2::ylab("Residuals") +
+    ggplot2::xlab("Theoretical")
 
   #computing optimal binwidth for histogram
   #using the max of the Freedman-Diaconist rule
   #or 1/100th of the data range
   bw <- max(
-    2 * IQR(x) / length(x)^(1/3),
-    (range(x)[2] - range(x)[1]) / 100
+    2 * IQR(residuals) / length(residuals)^(1/3),
+    (range(residuals)[2] - range(residuals)[1]) / 100
     )
 
   #histogram
-  p2 <- ggplot2::ggplot(data = as.data.frame(x)) +
-    ggplot2::aes(x = x) +
+  p2 <- ggplot2::ggplot(data = as.data.frame(residuals)) +
+    ggplot2::aes(x = residuals) +
     ggplot2::geom_histogram(
       binwidth = bw,
       fill = "gray95",
@@ -77,16 +86,40 @@ normality <- function(x){
     ) +
     ggplot2::theme_bw() +
     ggplot2::geom_vline(
-      xintercept = mean(x),
+      xintercept = mean(residuals),
       col = "red4",
       size = 0.7,
       linetype = "dashed"
-    )
+    ) +
+    ggplot2::ylab("Count") +
+    ggplot2::xlab("Residuals")
+
+  #residuals vs predictions
+  p3 <- ggplot2::ggplot(data = data.frame(
+    Residuals = residuals,
+    Predicted = predictions
+  )
+  ) +
+    ggplot2::aes(
+      x = Predicted,
+      y = Residuals
+    ) +
+    ggplot2::geom_hline(
+      yintercept = 0,
+      linetype = "dashed",
+      color = "red4",
+      size = 0.7
+    ) +
+    ggplot2::geom_point(alpha = 0.7) +
+    ggplot2::theme_bw() +
+    ggplot2::ggtitle("Residuals vs. predictions") +
+    ggplot2::theme(plot.title = element_text(hjust = 0.5))
 
   #final plot
-  y$plot <- p1 + p2 + patchwork::plot_annotation(
-    title = plot.title
-  )
+  y$plot <- (p1 + p2) / p3 + patchwork::plot_annotation(
+    title = plot.title,
+    theme = ggplot2::theme(plot.title = element_text(hjust = 0.5))
+    )
 
   #returning output
   y

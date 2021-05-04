@@ -107,11 +107,12 @@ plot_moran <- function(
         ) +
         ggplot2::scale_x_continuous(breaks = x$distance.threshold) +
         ggplot2::xlab("Distance thresholds") +
-        ggplot2::ylab("Moran's I of residuals") +
+        ggplot2::ylab("Moran's I of model residuals") +
         ggplot2::ggtitle("Multiscale Moran's I") +
         ggplot2::theme_bw() +
         ggplot2::theme(legend.position = "bottom") +
-        ggplot2::labs(size = "Moran's I p-value")
+        ggplot2::labs(size = "Moran's I p-value") +
+        ggplot2::theme(plot.title = element_text(hjust = 0.5))
 
     } else {
 

@@ -237,13 +237,12 @@ rf_repeat <- function(
     out$variable.importance <- m.i$variable.importance$per.variable
     out$prediction.error <- m.i$prediction.error
     out$r.squared <- m.i$performance$r.squared
-    out$r.squared.oob <- m.i$r.squared
+    out$r.squared.oob <- m.i$performance$r.squared.oob
     out$pseudo.r.squared <- m.i$performance$pseudo.r.squared
     out$rmse <- m.i$performance$rmse
     out$nrmse <- m.i$performance$nrmse
     out$auc <- m.i$performance$auc
     out$residuals <- m.i$residuals
-    out$spatial.correlation.residuals <- m.i$spatial.correlation.residuals
 
     #saving model
     if(keep.models == TRUE){
@@ -259,18 +258,23 @@ rf_repeat <- function(
     parallel::stopCluster(cl = temp.cluster)
   }
 
-  #fitting model to allow plotting partial dependence curves
-  m.curves <- rf(
-    data = data,
-    dependent.variable.name = dependent.variable.name,
-    predictor.variable.names = predictor.variable.names,
-    distance.matrix = distance.matrix,
-    distance.thresholds = distance.thresholds,
-    ranger.arguments = ranger.arguments,
-    scaled.importance = scaled.importance,
-    seed = seed,
-    verbose = FALSE
-  )
+  #fitting model if keep.models  == FALSE
+  if(keep.models == FALSE){
+    m <- rf(
+      data = data,
+      dependent.variable.name = dependent.variable.name,
+      predictor.variable.names = predictor.variable.names,
+      distance.matrix = distance.matrix,
+      distance.thresholds = distance.thresholds,
+      ranger.arguments = ranger.arguments,
+      scaled.importance = scaled.importance,
+      seed = seed,
+      verbose = FALSE
+    )
+  } else {
+    m <- repeated.models[[1]]$model
+  }
+
 
   #PARSING OUTPUT OF PARALLELIZED LOOP
 
@@ -293,14 +297,16 @@ rf_repeat <- function(
     mean = rowMeans(predictions.per.repetition),
     standard_deviation = apply(predictions.per.repetition, 1, sd)
   )
-  m.curves$predictions <- NULL
-  m.curves$predictions$per.repetition <- predictions.per.repetition
-  m.curves$predictions$mean <- predictions.mean
+  m$predictions <- NULL
+  m$predictions$per.repetition <- predictions.per.repetition
+  m$predictions$mean <- predictions.mean
 
-  #gathering variable.importance.local
+
+  #PREPARING variable.importance.local SLOT
+  #########################################
   if(!is.null(local.importance)){
     if(local.importance == TRUE){
-      m.curves$variable.importance.local <- as.data.frame(
+      m$variable.importance.local <- as.data.frame(
         apply(
           simplify2array(
             lapply(
@@ -319,8 +325,9 @@ rf_repeat <- function(
 
   if(importance == "permutation"){
 
-    #gathering variable.importance
-    m.curves$variable.importance <- NULL
+    #PREPARING variable.importance SLOT
+    #####################################
+    m$variable.importance <- NULL
 
     #per repetition
     variable.importance.per.repetition <- as.data.frame(
@@ -341,22 +348,24 @@ rf_repeat <- function(
       dplyr::arrange(dplyr::desc(importance)) %>%
       as.data.frame()
 
-    m.curves$variable.importance <- list()
-    m.curves$variable.importance$per.variable <- variable.importance.per.variable
-    m.curves$variable.importance$per.variable.plot <- plot_importance(
+    m$variable.importance <- list()
+    m$variable.importance$per.variable <- variable.importance.per.variable
+    m$variable.importance$per.variable.plot <- plot_importance(
       variable.importance.per.variable,
       verbose = FALSE
       )
-    m.curves$variable.importance$per.repetition <- variable.importance.per.repetition
-    m.curves$variable.importance$per.repetition.plot <- plot_importance(
+    m$variable.importance$per.repetition <- variable.importance.per.repetition
+    m$variable.importance$per.repetition.plot <- plot_importance(
       variable.importance.per.repetition,
       verbose = verbose
     )
 
   }
 
-  #gathering prediction.error
-  m.curves$prediction.error <- unlist(
+
+  #PREPARING prediction.error SLOT
+  ################################
+  m$prediction.error <- unlist(
     lapply(
       repeated.models,
       "[[",
@@ -364,10 +373,12 @@ rf_repeat <- function(
     )
   )
 
-  #gathering r.squared
-  m.curves$performance <- list()
 
-  m.curves$performance$r.squared.oob <- unlist(
+  #PREPARING THE PERFORMANCE SLOT
+  ###############################
+  m$performance <- list()
+
+  m$performance$r.squared.oob <- unlist(
     lapply(
       repeated.models,
       "[[",
@@ -375,7 +386,7 @@ rf_repeat <- function(
     )
   )
 
-  m.curves$performance$r.squared <- unlist(
+  m$performance$r.squared <- unlist(
     lapply(
       repeated.models,
       "[[",
@@ -384,7 +395,7 @@ rf_repeat <- function(
   )
 
   #gathering pseudo R squared
-  m.curves$performance$pseudo.r.squared <- unlist(
+  m$performance$pseudo.r.squared <- unlist(
     lapply(
       repeated.models,
       "[[",
@@ -393,59 +404,95 @@ rf_repeat <- function(
   )
 
   #gathering rmse
-  m.curves$performance$rmse <- unlist(
+  m$performance$rmse <- unlist(
     lapply(
       repeated.models,
       "[[",
       "rmse"
     )
   )
-  names(m.curves$performance$rmse) <- NULL
+  names(m$performance$rmse) <- NULL
 
   #gathering nrmse
-  m.curves$performance$nrmse <- unlist(
+  m$performance$nrmse <- unlist(
     lapply(
       repeated.models,
       "[[",
       "nrmse"
     )
   )
-  names(m.curves$performance$nrmse) <- NULL
+  names(m$performance$nrmse) <- NULL
 
   #gathering auc
-  m.curves$performance$auc <- unlist(
+  m$performance$auc <- unlist(
     lapply(
       repeated.models,
       "[[",
       "auc"
     )
   )
-  names(m.curves$performance$auc) <- NULL
+  names(m$performance$auc) <- NULL
 
-  #gathering spatial.correlation.residuals
+
+  #PREPARING THE RESIDUALS SLOT
+  #############################
+  m$residuals <- list()
+
+  #gathering residuals
+  residuals <- do.call(
+    "cbind",
+    lapply(
+      lapply(
+        repeated.models,
+        "[[",
+        "residuals"
+      ),
+      "[[",
+      1
+    )
+  ) %>%
+    as.data.frame()
+  colnames(residuals) <- repetition.columns
+
+  residuals.mean <- data.frame(
+    mean = rowMeans(residuals),
+    standard_deviation = apply(residuals, 1, sd),
+    row.names = NULL
+  )
+
+  m$residuals$values <- residuals.mean$mean
+  m$residuals$values.mean <- residuals.mean
+  m$residuals$values.per.repetition <- residuals
+  m$residuals$values.stats <- summary(residuals.mean$mean)
+
+  #gathering autocorrelation
   if(!is.null(distance.matrix)){
 
-    spatial.correlation.residuals.per.repetition <- do.call(
+    #getting m$residuals$autocorrelation$per.distance
+    moran.per.repetition <- do.call(
       "rbind",
       lapply(
         lapply(
-          repeated.models,
+          lapply(
+            repeated.models,
+            "[[",
+            "residuals"
+          ),
           "[[",
-          "spatial.correlation.residuals"
+          2
         ),
         "[[",
-        1
-      )
+        1)
     ) %>%
       dplyr::arrange(distance.threshold)
-    spatial.correlation.residuals.per.repetition$repetition <- rep(
+    moran.per.repetition$repetition <- rep(
       1:repetitions,
-      length(unique(spatial.correlation.residuals.per.repetition$distance.threshold))
-      )
+      length(unique(moran.per.repetition$distance.threshold))
+    )
 
     p.value <- NULL
     interpretation <- NULL
-    spatial.correlation.residuals.mean <- spatial.correlation.residuals.per.repetition %>%
+    moran.mean <- moran.per.repetition %>%
       dplyr::group_by(distance.threshold) %>%
       dplyr::summarise(
         moran.i = median(moran.i),
@@ -454,15 +501,15 @@ rf_repeat <- function(
       ) %>%
       as.data.frame()
 
-    m.curves$spatial.correlation.residuals <- list()
-    m.curves$spatial.correlation.residuals$per.distance <- spatial.correlation.residuals.mean
-    m.curves$spatial.correlation.residuals$per.repetition <- spatial.correlation.residuals.per.repetition
-    m.curves$spatial.correlation.residuals$plot <- plot_moran(
-      spatial.correlation.residuals.per.repetition,
+    m$residuals <- list()
+    m$spatial.correlation.residuals$per.distance <- moran.mean
+    m$spatial.correlation.residuals$per.repetition <- moran.per.repetition
+    m$spatial.correlation.residuals$plot <- plot_moran(
+      moran.per.repetition,
       verbose = verbose
     )
 
-    m.curves$spatial.correlation.residuals$max.moran <-  median(
+    m$spatial.correlation.residuals$max.moran <-  median(
       unlist(
         lapply(
           lapply(
@@ -476,7 +523,7 @@ rf_repeat <- function(
       )
     )
 
-    m.curves$spatial.correlation.residuals$max.moran.distance.threshold <- statistical_mode(
+    m$spatial.correlation.residuals$max.moran.distance.threshold <- statistical_mode(
       unlist(
         lapply(
           lapply(
@@ -492,29 +539,12 @@ rf_repeat <- function(
 
   }
 
-  #gathering residuals
-  residuals <- as.data.frame(do.call("cbind", lapply(
-    repeated.models,
-    "[[",
-    "residuals"
-  )))
-  colnames(residuals) <- repetition.columns
 
-  residuals.mean <- data.frame(
-    mean = rowMeans(residuals),
-    standard_deviation = apply(residuals, 1, sd),
-    row.names = NULL
-  )
-
-  m.curves$residuals <- NULL
-  m.curves$residuals$mean <- residuals.mean
-  m.curves$residuals$per.repetition <- residuals
-  m.curves$residuals$stats <- summary(residuals.mean$mean)
 
   #gathering models
   if(keep.models == TRUE){
 
-    m.curves$models <- lapply(
+    m$models <- lapply(
       repeated.models,
       "[[",
       "model"
@@ -523,19 +553,19 @@ rf_repeat <- function(
   }
 
   #adding repetitions to ranger.arguments
-  m.curves$ranger.arguments$repetitions <- repetitions
-  m.curves$ranger.arguments$keep.models <- keep.models
+  m$ranger.arguments$repetitions <- repetitions
+  m$ranger.arguments$keep.models <- keep.models
 
   #adding class to the model
-  class(m.curves) <- c("rf", "rf_repeat", "ranger")
+  class(m) <- c("rf", "rf_repeat", "ranger")
 
   #print model
   if(verbose == TRUE){
-    print(m.curves)
+    print(m)
   }
 
   #return m.curves
-  m.curves
+  m
 
 
 }

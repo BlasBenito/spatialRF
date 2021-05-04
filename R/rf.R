@@ -397,6 +397,7 @@ rf <- function(
 
   #residuals
   m$residuals$values <- observed - predicted
+  m$residuals$values.stats <- summary(m$residuals$values)
 
   #compute moran I of residuals if distance.matrix is provided
   if(!is.null(distance.matrix)){
@@ -411,7 +412,10 @@ rf <- function(
   }
 
   #normality of the residuals
-  m$residuals$normality <- normality(x = m$residuals$values)
+  m$residuals$normality <- residuals_test(
+    residuals = m$residuals$values,
+    predictions = predicted
+    )
 
   #replacing local variable importance with the scaled one
   if(local.importance == TRUE){
