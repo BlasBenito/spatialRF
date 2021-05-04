@@ -54,11 +54,12 @@ print.rf <- function(x, ...) {
     cat("\n")
     cat("Model residuals \n")
     cat("  - Stats: \n")
-    if(inherits(x, "rf_repeat") == FALSE){
-      residuals.stats <- as.data.frame(t(summary(x$residuals$values)))[, 2:3]
-    } else {
-      residuals.stats <- as.data.frame(t(summary(x$residuals$mean$mean)))[, 2:3]
-    }
+      residuals.stats <- x$residuals$stats
+      residuals.stats <- data.frame(
+        Var1 = as.vector(residuals.stats),
+        Var2 = names(residuals.stats)
+      )
+
     rownames(residuals.stats) <- residuals.stats$Var2
     residuals.stats$Var2 <- NULL
     residuals.stats <- t(residuals.stats)

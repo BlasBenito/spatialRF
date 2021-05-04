@@ -458,22 +458,22 @@ rf_repeat <- function(
     as.data.frame()
   colnames(residuals) <- repetition.columns
 
-  residuals.mean <- data.frame(
-    mean = rowMeans(residuals),
-    standard_deviation = apply(residuals, 1, sd),
+  residuals.median <- data.frame(
+    median = apply(residuals, 1, FUN = median),
+    mad = apply(residuals, 1, stats::mad),
     row.names = NULL
   )
 
-  m$residuals$values <- residuals.mean$mean
-  m$residuals$values.mean <- residuals.mean
-  m$residuals$values.per.repetition <- residuals
-  m$residuals$values.stats <- summary(residuals.mean$mean)
+  m$residuals$values <- residuals.median$median
+  m$residuals$values.median <- residuals.median
+  m$residuals$values.repetitions <- residuals
+  m$residuals$stats <- summary(residuals.median$median)
 
   #gathering autocorrelation
   if(!is.null(distance.matrix)){
 
     #getting m$residuals$autocorrelation$per.distance
-    moran.per.repetition <- do.call(
+    moran.repetitions <- do.call(
       "rbind",
       lapply(
         lapply(
@@ -483,20 +483,20 @@ rf_repeat <- function(
             "residuals"
           ),
           "[[",
-          2
+          3
         ),
         "[[",
         1)
     ) %>%
       dplyr::arrange(distance.threshold)
-    moran.per.repetition$repetition <- rep(
+    moran.repetitions$repetition <- rep(
       1:repetitions,
-      length(unique(moran.per.repetition$distance.threshold))
+      length(unique(moran.repetitions$distance.threshold))
     )
 
     p.value <- NULL
     interpretation <- NULL
-    moran.mean <- moran.per.repetition %>%
+    moran.mean <- moran.repetitions %>%
       dplyr::group_by(distance.threshold) %>%
       dplyr::summarise(
         moran.i = median(moran.i),
@@ -505,45 +505,54 @@ rf_repeat <- function(
       ) %>%
       as.data.frame()
 
-    m$residuals <- list()
-    m$spatial.correlation.residuals$per.distance <- moran.mean
-    m$spatial.correlation.residuals$per.repetition <- moran.per.repetition
-    m$spatial.correlation.residuals$plot <- plot_moran(
-      moran.per.repetition,
+    m$residuals$autocorrelation$per.distance <- moran.mean
+    m$residuals$autocorrelation$per.repetition <- moran.repetitions
+    m$residuals$autocorrelation$plot <- plot_moran(
+      moran.repetitions,
       verbose = verbose
     )
 
-    m$spatial.correlation.residuals$max.moran <-  median(
-      unlist(
-        lapply(
+    m$residuals$autocorrelation$max.moran <- median(
+        unlist(
           lapply(
-            repeated.models,
+            lapply(
+              lapply(
+                repeated.models,
+                "[[",
+                "residuals"
+              ),
+              "[[",
+              3
+            ),
             "[[",
-            "spatial.correlation.residuals"
-          ),
-          "[[",
-          2
+            2)
         )
       )
-    )
 
-    m$spatial.correlation.residuals$max.moran.distance.threshold <- statistical_mode(
+    m$residuals$autocorrelation$max.moran.distance.threshold <- statistical_mode(
       unlist(
         lapply(
           lapply(
-            repeated.models,
+            lapply(
+              repeated.models,
+              "[[",
+              "residuals"
+            ),
             "[[",
-            "spatial.correlation.residuals"
+            3
           ),
           "[[",
-          3
-        )
+          3)
       )
     )
 
   }
 
-
+  #normality of the median residuals
+  m$residuals$normality <- residuals_test(
+    residuals = m$residuals$values,
+    predictions = m$predictions$values
+  )
 
   #gathering models
   if(keep.models == TRUE){

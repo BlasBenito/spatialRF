@@ -22,12 +22,17 @@
 #'  \code{\link[patchwork]{plot_annotation}}
 #' @rdname normality
 #' @export
-#' @importFrom ggplot2 stat_qq stat_qq_line geom_histogram
+#' @importFrom ggplot2 stat_qq stat_qq_line geom_histogram element_text
 #' @importFrom patchwork plot_annotation
+#' @importFrom stats shapiro.test IQR
 residuals_test <- function(
   residuals,
   predictions
   ){
+
+  #declaring varialbes
+  Predicted <- NULL
+  Residuals <- NULL
 
   #list to store results
   y <- list()
@@ -72,7 +77,7 @@ residuals_test <- function(
   #using the max of the Freedman-Diaconist rule
   #or 1/100th of the data range
   bw <- max(
-    2 * IQR(residuals) / length(residuals)^(1/3),
+    2 * stats::IQR(residuals) / length(residuals)^(1/3),
     (range(residuals)[2] - range(residuals)[1]) / 100
     )
 
@@ -113,7 +118,7 @@ residuals_test <- function(
     ggplot2::geom_point(alpha = 0.7) +
     ggplot2::theme_bw() +
     ggplot2::ggtitle("Residuals vs. predictions") +
-    ggplot2::theme(plot.title = element_text(hjust = 0.5))
+    ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
 
   #final plot
   y$plot <- (p1 + p2) / p3 + patchwork::plot_annotation(

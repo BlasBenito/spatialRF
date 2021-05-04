@@ -39,7 +39,7 @@ print_moran <- function(model, caption = NULL, verbose = TRUE){
 
   #if model is not a data frame
   if(inherits(model, "rf") | inherits(model, "rf_repeat") | inherits(model, "rf_spatial")){
-      x <- model$spatial.correlation.residuals$per.distance
+      x <- model$residuals$autocorrelation$per.distance
   }
 
   #subsetting columns

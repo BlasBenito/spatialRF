@@ -397,7 +397,7 @@ rf <- function(
 
   #residuals
   m$residuals$values <- observed - predicted
-  m$residuals$values.stats <- summary(m$residuals$values)
+  m$residuals$stats <- summary(m$residuals$values)
 
   #compute moran I of residuals if distance.matrix is provided
   if(!is.null(distance.matrix)){

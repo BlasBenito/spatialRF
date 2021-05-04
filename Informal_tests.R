@@ -6,7 +6,7 @@ data(plant_richness_df)
 data(distance_matrix)
 
 #basic model
-x <- rf(
+rf.model <- rf(
   data = plant_richness_df,
   dependent.variable.name = "richness_species_vascular",
   predictor.variable.names = colnames(plant_richness_df)[5:21],
@@ -19,10 +19,9 @@ x <- rf(
 plot_response_curves(rf.model)
 
 #with repetitions
-x <- rf_repeat(
-  model = x,
-  verbose = FALSE,
-  keep.models = TRUE
+rf.model <- rf_repeat(
+  model = rf.model,
+  verbose = TRUE
   )
 
 rf.repeat <- rf_repeat(
