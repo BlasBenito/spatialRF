@@ -277,11 +277,14 @@ rf_repeat <- function(
 
 
   #PARSING OUTPUT OF PARALLELIZED LOOP
+  ###################################
 
   #names of repetitions columns
   repetition.columns <- paste("repetition", 1:repetitions, sep = "_")
 
-  #gathering predictions
+
+  #PREPARING predictions
+  #------------------------------
   predictions.per.repetition <- as.data.frame(
     do.call(
       "cbind",
@@ -298,12 +301,13 @@ rf_repeat <- function(
     standard_deviation = apply(predictions.per.repetition, 1, sd)
   )
   m$predictions <- NULL
-  m$predictions$per.repetition <- predictions.per.repetition
-  m$predictions$mean <- predictions.mean
+  m$predictions$values <- predictions.mean$mean
+  m$predictions$values.per.repetition <- predictions.per.repetition
+  m$predictions$values.mean <- predictions.mean
 
 
-  #PREPARING variable.importance.local SLOT
-  #########################################
+  #PREPARING variable.importance.local
+  #-----------------------------------
   if(!is.null(local.importance)){
     if(local.importance == TRUE){
       m$variable.importance.local <- as.data.frame(
@@ -325,8 +329,8 @@ rf_repeat <- function(
 
   if(importance == "permutation"){
 
-    #PREPARING variable.importance SLOT
-    #####################################
+    #PREPARING variable.importance
+    #-----------------------------
     m$variable.importance <- NULL
 
     #per repetition
@@ -341,7 +345,7 @@ rf_repeat <- function(
       )
     )
 
-    #mean
+    #mean variable importance across repetitions
     variable.importance.per.variable <- variable.importance.per.repetition %>%
       dplyr::group_by(variable) %>%
       dplyr::summarise(importance = median(importance)) %>%
@@ -364,7 +368,7 @@ rf_repeat <- function(
 
 
   #PREPARING prediction.error SLOT
-  ################################
+  #-------------------------------
   m$prediction.error <- unlist(
     lapply(
       repeated.models,
@@ -375,7 +379,7 @@ rf_repeat <- function(
 
 
   #PREPARING THE PERFORMANCE SLOT
-  ###############################
+  #------------------------------
   m$performance <- list()
 
   m$performance$r.squared.oob <- unlist(
@@ -435,7 +439,7 @@ rf_repeat <- function(
 
 
   #PREPARING THE RESIDUALS SLOT
-  #############################
+  #----------------------------
   m$residuals <- list()
 
   #gathering residuals
