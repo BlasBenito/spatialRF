@@ -145,9 +145,9 @@ remotes::install_github(
 ```
 
     ## 
-    ##      checking for file ‘/tmp/RtmpTwqdv6/remotes1c664227713cf/BlasBenito-spatialRF-d3ef276/DESCRIPTION’ ...  ✓  checking for file ‘/tmp/RtmpTwqdv6/remotes1c664227713cf/BlasBenito-spatialRF-d3ef276/DESCRIPTION’
+    ##      checking for file ‘/tmp/RtmppHMWas/remotes31ed346df33b2/BlasBenito-spatialRF-5cac474/DESCRIPTION’ ...  ✓  checking for file ‘/tmp/RtmppHMWas/remotes31ed346df33b2/BlasBenito-spatialRF-5cac474/DESCRIPTION’
     ##   ─  preparing ‘spatialRF’:
-    ##    checking DESCRIPTION meta-information ...  ✓  checking DESCRIPTION meta-information
+    ##      checking DESCRIPTION meta-information ...  ✓  checking DESCRIPTION meta-information
     ##   ─  checking for LF line-endings in source and make files and shell scripts
     ##   ─  checking for empty or unneeded directories
     ##   ─  building ‘spatialRF_1.0.9.tar.gz’
@@ -681,95 +681,10 @@ model.non.spatial.tuned <- spatialRF::rf_tuning(
     by = 3
     ),
   min.node.size = c(5, 15),
-  seed = random.seed
+  seed = random.seed,
+  verbose = FALSE
 ) 
 ```
-
-    ## Exploring 20 combinations of hyperparameters.
-
-    ## discovered package(s): 
-    ## automatically exporting the following variables from the local environment:
-    ##   data, dependent.variable.name, distance.matrix, distance.thresholds, metric, min.node.size, model, mtry, num.trees, predictor.variable.names, repetitions, seed, training.fraction, xy 
-    ## explicitly exporting package(s): 
-    ## numValues: 20, numResults: 0, stopped: TRUE
-    ## got results for task 1
-    ## numValues: 20, numResults: 1, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 2
-    ## numValues: 20, numResults: 2, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 3
-    ## numValues: 20, numResults: 3, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 4
-    ## numValues: 20, numResults: 4, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 5
-    ## numValues: 20, numResults: 5, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 6
-    ## numValues: 20, numResults: 6, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 7
-    ## numValues: 20, numResults: 7, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 8
-    ## numValues: 20, numResults: 8, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 9
-    ## numValues: 20, numResults: 9, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 10
-    ## numValues: 20, numResults: 10, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 11
-    ## numValues: 20, numResults: 11, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 12
-    ## numValues: 20, numResults: 12, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 13
-    ## numValues: 20, numResults: 13, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 14
-    ## numValues: 20, numResults: 14, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 15
-    ## numValues: 20, numResults: 15, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 16
-    ## numValues: 20, numResults: 16, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 17
-    ## numValues: 20, numResults: 17, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 18
-    ## numValues: 20, numResults: 18, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 19
-    ## numValues: 20, numResults: 19, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 20
-    ## numValues: 20, numResults: 20, stopped: TRUE
-    ## first call to combine function
-    ## evaluating call object to combine results:
-    ##   fun(result.1, result.2, result.3, result.4, result.5, result.6, 
-    ##     result.7, result.8, result.9, result.10, result.11, result.12, 
-    ##     result.13, result.14, result.15, result.16, result.17, result.18, 
-    ##     result.19, result.20)
-    ## returning status TRUE
-
-    ## Best hyperparameters:
-
-    ##   - num.trees:     1000
-
-    ##   - mtry:          14
-
-    ##   - min.node.size: 5
-
-    ## gain in r.squared: 0.033
-
-![](README_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
 
 The function `rf_tuning()` returns a model fitted with the same data as
 the original model, but using the best hyperparameters found during
@@ -926,82 +841,10 @@ model.spatial.tuned <- spatialRF::rf_tuning(
     length(model.spatial$ranger.arguments$predictor.variable.names),
     by = 9),
   min.node.size = c(5, 15),
-  seed = random.seed
+  seed = random.seed,
+  verbose = FALSE
 )
 ```
-
-    ## Exploring 16 combinations of hyperparameters.
-
-    ## discovered package(s): 
-    ## automatically exporting the following variables from the local environment:
-    ##   data, dependent.variable.name, distance.matrix, distance.thresholds, metric, min.node.size, model, mtry, num.trees, predictor.variable.names, repetitions, seed, training.fraction, xy 
-    ## explicitly exporting package(s): 
-    ## numValues: 16, numResults: 0, stopped: TRUE
-    ## got results for task 1
-    ## numValues: 16, numResults: 1, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 2
-    ## numValues: 16, numResults: 2, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 3
-    ## numValues: 16, numResults: 3, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 4
-    ## numValues: 16, numResults: 4, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 5
-    ## numValues: 16, numResults: 5, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 6
-    ## numValues: 16, numResults: 6, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 7
-    ## numValues: 16, numResults: 7, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 8
-    ## numValues: 16, numResults: 8, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 9
-    ## numValues: 16, numResults: 9, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 10
-    ## numValues: 16, numResults: 10, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 11
-    ## numValues: 16, numResults: 11, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 12
-    ## numValues: 16, numResults: 12, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 13
-    ## numValues: 16, numResults: 13, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 14
-    ## numValues: 16, numResults: 14, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 15
-    ## numValues: 16, numResults: 15, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 16
-    ## numValues: 16, numResults: 16, stopped: TRUE
-    ## first call to combine function
-    ## evaluating call object to combine results:
-    ##   fun(result.1, result.2, result.3, result.4, result.5, result.6, 
-    ##     result.7, result.8, result.9, result.10, result.11, result.12, 
-    ##     result.13, result.14, result.15, result.16)
-    ## returning status TRUE
-
-    ## Best hyperparameters:
-
-    ##   - num.trees:     1000
-
-    ##   - mtry:          29
-
-    ##   - min.node.size: 5
-
-    ## gain in r.squared: 0.012
-
-![](README_files/figure-gfm/unnamed-chunk-35-1.png)<!-- -->
 
 # Assessing model performance on spatially independent folds
 
@@ -1020,109 +863,9 @@ model.spatial.tuned <- spatialRF::rf_evaluate(
   training.fraction = 0.8,               #training data fraction
   metrics = c("r.squared", "rmse"),
   seed = random.seed,
-  verbose = TRUE
+  verbose = FALSE
 )
 ```
-
-    ## Selecting pairs of coordinates as trainnig fold origins.
-
-    ## Generating spatial folds.
-
-    ## discovered package(s): 
-    ## automatically exporting the following variables from the local environment:
-    ##   data, dependent.variable.name, metrics, predictor.variable.names, ranger.arguments, seed, spatial.folds, xy.reference.records 
-    ## explicitly exporting package(s): 
-    ## numValues: 25, numResults: 0, stopped: TRUE
-    ## got results for task 1
-    ## numValues: 25, numResults: 1, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 2
-    ## numValues: 25, numResults: 2, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 3
-    ## numValues: 25, numResults: 3, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 4
-    ## numValues: 25, numResults: 4, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 5
-    ## numValues: 25, numResults: 5, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 6
-    ## numValues: 25, numResults: 6, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 7
-    ## numValues: 25, numResults: 7, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 8
-    ## numValues: 25, numResults: 8, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 9
-    ## numValues: 25, numResults: 9, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 10
-    ## numValues: 25, numResults: 10, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 11
-    ## numValues: 25, numResults: 11, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 12
-    ## numValues: 25, numResults: 12, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 13
-    ## numValues: 25, numResults: 13, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 14
-    ## numValues: 25, numResults: 14, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 15
-    ## numValues: 25, numResults: 15, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 16
-    ## numValues: 25, numResults: 16, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 17
-    ## numValues: 25, numResults: 17, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 18
-    ## numValues: 25, numResults: 18, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 19
-    ## numValues: 25, numResults: 19, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 20
-    ## numValues: 25, numResults: 20, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 21
-    ## numValues: 25, numResults: 21, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 22
-    ## numValues: 25, numResults: 22, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 23
-    ## numValues: 25, numResults: 23, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 24
-    ## numValues: 25, numResults: 24, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 25
-    ## numValues: 25, numResults: 25, stopped: TRUE
-    ## first call to combine function
-    ## evaluating call object to combine results:
-    ##   fun(result.1, result.2, result.3, result.4, result.5, result.6, 
-    ##     result.7, result.8, result.9, result.10, result.11, result.12, 
-    ##     result.13, result.14, result.15, result.16, result.17, result.18, 
-    ##     result.19, result.20, result.21, result.22, result.23, result.24, 
-    ##     result.25)
-    ## returning status TRUE
-    ## 
-    ## Spatial evaluation 
-    ##   - Training fraction:             0.8
-    ##   - Spatial folds:                 25
-    ## 
-    ##     Metric   Median     Mean  Minimum  Maximum
-    ##  r.squared    0.266    0.300    0.147    0.607
-    ##       rmse 2736.414 3096.164 2289.092 4474.390
 
 The function generates a new slot in the model named “evaluation” with
 several objects that summarize the spatial cross-validation results.

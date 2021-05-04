@@ -398,7 +398,8 @@ model.non.spatial.tuned <- spatialRF::rf_tuning(
     by = 3
     ),
   min.node.size = c(5, 15),
-  seed = random.seed
+  seed = random.seed,
+  verbose = FALSE
 ) 
 ```
 
@@ -550,7 +551,8 @@ model.spatial.tuned <- spatialRF::rf_tuning(
     length(model.spatial$ranger.arguments$predictor.variable.names),
     by = 9),
   min.node.size = c(5, 15),
-  seed = random.seed
+  seed = random.seed,
+  verbose = FALSE
 )
 ```
 
@@ -566,7 +568,7 @@ model.spatial.tuned <- spatialRF::rf_evaluate(
   training.fraction = 0.8,               #training data fraction
   metrics = c("r.squared", "rmse"),
   seed = random.seed,
-  verbose = TRUE
+  verbose = FALSE
 )
 ```
 
