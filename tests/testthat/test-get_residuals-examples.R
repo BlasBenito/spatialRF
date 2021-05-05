@@ -5,7 +5,6 @@ test_that("`get_residuals()` works", {
     predictor.variable.names = colnames(plant_richness_df)[5:21],
     verbose = FALSE
   )
-  x <- get_residuals(x = rf.model)
-  expect_s3_class(x, "data.frame")
-  expect_named(x, c("residuals"))
+  x <- get_residuals(rf.model)
+  expect_equal(length(x), nrow(plant_richness_df))
 })

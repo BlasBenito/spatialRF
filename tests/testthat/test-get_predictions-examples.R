@@ -5,7 +5,6 @@ test_that("`get_predictions()` works", {
     predictor.variable.names = colnames(plant_richness_df)[5:21],
     verbose = FALSE
   )
-  x <- get_predictions(x = rf.model)
-  expect_s3_class(x, "data.frame")
-  expect_named(x, c("predictions"))
+  x <- get_predictions(rf.model)
+  expect_equal(length(x), nrow(plant_richness_df))
 })

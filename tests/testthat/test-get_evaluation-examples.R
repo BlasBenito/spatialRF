@@ -14,7 +14,7 @@ test_that("`get_evaluation()` works", {
     c("x", "y")
   ], verbose = FALSE,
   n.cores = 1)
-  x <- get_evaluation(x = rf.model)
+  x <- get_evaluation(rf.model)
   expect_s3_class(x, "data.frame")
-  expect_named(x, c("model", "metric", "mean", "sd", "min", "max"))
+  expect_named(x, c("model", "metric", "median", "median_absolute_deviation","q1", "q3", "mean", "se", "sd", "min", "max"))
 })
