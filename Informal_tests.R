@@ -17,15 +17,17 @@ interactions <- spatialRF::rf_interactions(
 
 #rf()
 #############################################
+data(plant_richness_df)
+data(distance_matrix)
+
 x <- rf(
   data = plant_richness_df,
   dependent.variable.name = "richness_species_vascular",
   predictor.variable.names = colnames(plant_richness_df)[5:21],
-  distance.matrix = distance_matrix,
-  distance.thresholds = c(0, 1000, 2000),
-  seed = 50,
-  verbose = FALSE
+  distance.matrix = distance_matrix
 )
+
+plot_residuals_diagnostics(x)
 
 x <- rf_repeat(
   model = x

@@ -165,6 +165,7 @@ usethis::use_build_ignore("optimization_sequential.R")
 sinew::makeOxygen(plot_training_data)
 
 #adding functions
+sinew::makeOxygen(plot_residuals_diagnostics)
 sinew::makeOxygen(normality)
 sinew::makeOxygen(is_binary)
 sinew::makeOxygen(case_weights)

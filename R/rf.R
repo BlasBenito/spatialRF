@@ -415,7 +415,7 @@ rf <- function(
   }
 
   #normality of the residuals
-  m$residuals$normality <- residuals_test(
+  m$residuals$normality <- residuals_diagnostics(
     residuals = m$residuals$values,
     predictions = predicted
     )

@@ -560,7 +560,7 @@ rf_repeat <- function(
   }
 
   #normality of the median residuals
-  m$residuals$normality <- residuals_test(
+  m$residuals$normality <- residuals_diagnostics(
     residuals = m$residuals$values,
     predictions = m$predictions$values
   )
