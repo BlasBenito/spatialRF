@@ -292,7 +292,7 @@ spatialRF::plot_response_curves(
 ```
 
 ```{r, fig.height = 3.2, fig.width=4.5}
-spatialRF::plot_response_surfaces(
+spatialRF::plot_response_surface(
   model.non.spatial,
   a = "climate_bio1_average",
   b = "neighbors_count"

@@ -58,5 +58,5 @@ p
 }
 }
 \seealso{
-\code{\link[=plot_response_surfaces]{plot_response_surfaces()}}
+\code{\link[=plot_response_surface]{plot_response_surface()}}
 }
