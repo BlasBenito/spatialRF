@@ -4,9 +4,8 @@
 #' @return A data frame with four columns:
 #' \itemize{
 #'   \item `metric` Name of the performance metric.
-#'   \item `mean` Value of the performance metric. Truly a mean only if the model is fitted with [rf_repeat()].
-#'   \item `standard_error` Standard error of the mean, only if the model is fitted with [rf_repeat()], and `NA` otherwise.
-#'   \item `standard_deviation` Standard deviation of the mean, only if the model is fitted with [rf_repeat()], and `NA` otherwise.
+#'   \item `median` Value of the performance metric. Truly a median only if the model is fitted with [rf_repeat()].
+#'   \item `median_absolute_deviation` median absolute deviation (MAD), only if the model is fitted with [rf_repeat()], and `NA` otherwise.
 #' }
 #' @seealso [print_performance()]
 #' @examples
@@ -36,23 +35,20 @@ get_performance <- function(x){
 
   if(inherits(x, "rf_repeat")){
 
-    x.mean <- sapply(x$performance, FUN = mean)
-    x.se <- sapply(x$performance, FUN = standard_error)
-    x.sd <- sapply(x$performance, FUN = sd)
+    x.median <- sapply(x$performance, FUN = median)
+    x.mad <- sapply(x$performance, FUN = mad)
 
   } else {
 
-    x.mean <- unlist(x$performance)
+    x.median <- unlist(x$performance)
     x.se <- NA
-    x.sd <- NA
 
   }
 
   out.df <- data.frame(
-    metric = names(x.mean),
-    mean = x.mean,
-    standard_error = x.se,
-    standard_deviation = round(x.sd, 3)
+    metric = names(x.median),
+    median = x.median,
+    median_absolute_deviation = x.mad
   )
 
   rownames(out.df) <- NULL

@@ -269,17 +269,17 @@ rf_tuning <- function(
 
     #getting performance measures
     m.i.performance <- spatialRF::get_evaluation(m.i)
-    m.i.performance <- m.i.performance[m.i.performance$model == "Testing", c("metric", "mean")]
+    m.i.performance <- m.i.performance[m.i.performance$model == "Testing", c("metric", "median")]
 
     #if the model is spatial
     if(inherits(model, "rf_spatial")){
 
       #getting interpretation of Moran's I if the model is rf_spatial
-      moran.i.interpretation <- m.i$spatial.correlation.residuals$per.distance$interpretation[1]
+      moran.i.interpretation <- m.i$residuals$autocorrelation$per.distance$interpretation[1]
 
       #getting performance
       m.i.performance <- data.frame(
-        r.squared = m.i.performance[m.i.performance$metric == metric, "mean"],
+        r.squared = m.i.performance[m.i.performance$metric == metric, "median"],
         moran.i.interpretation = moran.i.interpretation
       )
 
@@ -287,7 +287,7 @@ rf_tuning <- function(
 
       #performance without Moran's I for non-spatial models
       m.i.performance <- data.frame(
-        metric = m.i.performance[m.i.performance$metric == metric, "mean"]
+        metric = m.i.performance[m.i.performance$metric == metric, "median"]
       )
 
     }
@@ -428,7 +428,7 @@ rf_tuning <- function(
   new.performance <- round(
     model.tuned$evaluation$aggregated[model.tuned$evaluation$aggregated$model == "Testing" &
         model.tuned$evaluation$aggregated$metric == metric.name,
-      "mean"
+      "median"
     ],
     3
   )
@@ -436,7 +436,7 @@ rf_tuning <- function(
     model$evaluation$aggregated[
       model$evaluation$aggregated$model == "Testing" &
         model$evaluation$aggregated$metric == metric.name,
-      "mean"
+      "median"
     ],
     3
   )

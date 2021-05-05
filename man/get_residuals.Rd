@@ -10,7 +10,7 @@ get_residuals(x)
 \item{x}{A model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}.}
 }
 \value{
-A data frame with residuals, or mean and standard deviation of the residuals if the model was fitted with \code{\link[=rf_repeat]{rf_repeat()}}.
+A vector with model residuals, or the median of model residuals across repetitions if the model was fitted with \code{\link[=rf_repeat]{rf_repeat()}}.
 }
 \description{
 Returns the residuals of models fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}.

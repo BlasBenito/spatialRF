@@ -1,5 +1,5 @@
 #' @title print_performance
-#' @description Prints the performance slot of a model fitted with [rf()], [rf_repeat()], or [rf_spatial()]. For models fitted with [rf_repeat()] it shows the mean and the standard error (computed with the function [standard_error()]) of the mean of each performance measure.
+#' @description Prints the performance slot of a model fitted with [rf()], [rf_repeat()], or [rf_spatial()]. For models fitted with [rf_repeat()] it shows the median and the median absolute deviation of each performance measure.
 #' @param model Model fitted with [rf()], [rf_repeat()], or [rf_spatial()].
 #' @seealso [print_performance()], [get_performance()]
 #' @examples
@@ -38,12 +38,12 @@ print_performance <- function(model){
     cat("  - Normalized RMSE:                 ", x$nrmse, "\n", sep="")
   } else {
     cat("\n")
-    cat("Model performance (mean +/- standard error) \n")
-    cat("  - R squared (oob):                 ", round(mean(x$r.squared.oob), 3), " +/- ", standard_error(x$r.squared.oob), "\n", sep="")
-    cat("  - R squared (cor(obs, pred)^2):     ", round(mean(x$r.squared), 3), " +/- ", standard_error(x$r.squared), "\n", sep="")
-    cat("  - Pseudo R squared:         ", round(mean(x$pseudo.r.squared), 3), " +/- ", standard_error(x$pseudo.r.squared), "\n", sep="")
-    cat("  - RMSE:                     ", round(mean(x$rmse), 3), " +/- ", standard_error(x$rmse), "\n", sep="")
-    cat("  - Normalized RMSE:          ",round( mean(x$nrmse), 3), " +/- ", standard_error(x$nrmse), "\n", sep="")
+    cat("Model performance (median +/- mad) \n")
+    cat("  - R squared (oob):                 ", round(median(x$r.squared.oob), 3), " +/- ", mad(x$r.squared.oob), "\n", sep="")
+    cat("  - R squared (cor(obs, pred)^2):     ", round(median(x$r.squared), 3), " +/- ", mad(x$r.squared), "\n", sep="")
+    cat("  - Pseudo R squared:         ", round(median(x$pseudo.r.squared), 3), " +/- ", mad(x$pseudo.r.squared), "\n", sep="")
+    cat("  - RMSE:                     ", round(median(x$rmse), 3), " +/- ", mad(x$rmse), "\n", sep="")
+    cat("  - Normalized RMSE:          ",round(median(x$nrmse), 3), " +/- ", mad(x$nrmse), "\n", sep="")
   }
 
 

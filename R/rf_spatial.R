@@ -39,7 +39,7 @@
 #'   \item `ranger.arguments`: Values of the arguments used to fit the ranger model.
 #'   \item `variable.importance`: A list containing the vector of variable importance as originally returned by ranger (scaled or not depending on the value of 'scaled.importance'), a data frame with the predictors ordered by their importance, and a ggplot showing the importance values.
 #'   \item `performance`: With the out-of-bag R squared, pseudo R squared, RMSE and NRMSE of the model.
-#'   \item `spatial.correlation.residuals`: Result of [moran_multithreshold()] applied in the model residuals.
+#'   \item `residuals`: residuals, normality test of the residuals computed with [residuals_test()], and spatial autocorrelation of the residuals computed with [moran_multithreshold()].
 #'   \item `selection.spatial.predictors`: A list with four slots:
 #'   \itemize{
 #'     \item `method`: Character, method used to generate, rank, and select spatial predictors.
@@ -340,14 +340,14 @@ rf_spatial <- function(
     }
 
   #reference moran's I for selection of spatial predictors
-  if(!is.null(model$spatial.correlation.residuals$max.moran)){
-    reference.moran.i <- model$spatial.correlation.residuals$max.moran
+  if(!is.null(model$residuals$autocorrelation$max.moran)){
+    reference.moran.i <- model$residuals$autocorrelation$max.moran
   } else {
     reference.moran.i <- 1
   }
 
   #extracting autocorrelation of the residuals
-  model.moran.i <- model$spatial.correlation.residuals$per.distance %>%
+  model.moran.i <- model$residuals$autocorrelation$per.distance %>%
     dplyr::arrange(dplyr::desc(moran.i)) %>%
     dplyr::filter(interpretation == "Positive spatial correlation")
 
@@ -356,7 +356,7 @@ rf_spatial <- function(
 
     if(verbose == TRUE){
       message("The model residuals are not spatially correlated, there is no need to fit a spatial model")
-      suppressWarnings(print(model$spatial.correlation.residuals$plot))
+      suppressWarnings(print(model$residuals$autocorrelation$plot))
     }
 
     return(model)
@@ -366,7 +366,7 @@ rf_spatial <- function(
 
     if(verbose == TRUE){
       message("The model residuals are spatially correlated, fitting a spatial model.")
-      suppressWarnings(print(model$spatial.correlation.residuals$plot))
+      suppressWarnings(print(model$residuals$autocorrelation$plot))
     }
 
   }
@@ -657,7 +657,7 @@ rf_spatial <- function(
   }
 
   #add moran's I plot
-  model.spatial$spatial.correlation.residuals$plot <- plot_moran(
+  model.spatial$residuals$autocorrelation$plot <- plot_moran(
     model.spatial,
     verbose = FALSE
   )

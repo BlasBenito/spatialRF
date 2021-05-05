@@ -41,8 +41,7 @@ A ranger model with several new slots:
 \item \code{ranger.arguments}: Stores the values of the arguments used to fit the ranger model.
 \item \code{variable.importance}: A list containing a data frame with the predictors ordered by their importance, and a ggplot showing the importance values.
 \item \code{performance}: performance scores: R squared on out-of-bag data, R squared (cor(observed, predicted) ^ 2), pseudo R squared (cor(observed, predicted)), RMSE, and normalized RMSE (NRMSE).
-\item \code{residuals}: computed as observations minus predictions.
-\item \code{spatial.correlation.residuals}: the result of \code{\link[=moran_multithreshold]{moran_multithreshold()}} applied to the model results.
+\item \code{residuals}: residuals, normality test of the residuals computed with \code{\link[=residuals_test]{residuals_test()}}, and spatial autocorrelation of the residuals computed with \code{\link[=moran_multithreshold]{moran_multithreshold()}}.
 }
 }
 \description{

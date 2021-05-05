@@ -244,9 +244,9 @@ select_spatial_predictors_sequential <- function(
     #output.df
     out.df <- data.frame(
       spatial.predictor.index = spatial.predictors.i,
-      moran.i = m.i$spatial.correlation.residuals$max.moran,
-      p.value = m.i$spatial.correlation.residuals$per.distance[
-        which.max(m.i$spatial.correlation.residuals$per.distance$moran.i),
+      moran.i = m.i$residuals$autocorrelation$max.moran,
+      p.value = m.i$residuals$autocorrelation$per.distance[
+        which.max(m.i$residuals$autocorrelation$per.distance$moran.i),
         "p.value"
         ],
       r.squared = m.i$performance$r.squared.oob

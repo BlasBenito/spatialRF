@@ -21,19 +21,16 @@ print_evaluation <- function(model){
       dplyr::select(
         metric,
         median,
-        mean,
         min,
         max
       ) %>%
       dplyr::mutate(
         median = round(median, 3),
-        mean = round(mean, 3),
         min = round(min, 3),
         max = round(max, 3)
       ) %>%
       dplyr::rename(
         Metric = metric,
-        Mean = mean,
         Median = median,
         Minimum = min,
         Maximum = max

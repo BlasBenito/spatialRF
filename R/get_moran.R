@@ -26,5 +26,5 @@
 #' @rdname get_moran
 #' @export
 get_moran <- function(x){
-   x$spatial.correlation.residuals$per.distance
+   x$residuals$autocorrelation$per.distance
 }

@@ -1,5 +1,5 @@
 #' @title Fits several random forest models on the same data
-#' @description Fits several random forest models on the same data in order to capture the effect of the algorithm's stochasticity on the importance scores and performance measures.
+#' @description Fits several random forest models on the same data in order to capture the effect of the algorithm's stochasticity on the variable importance scores, predictions, residuals, and performance measures. The function relies on the median to aggregate values across repetitions.
 #' @param model A model fitted with [rf()]. If provided, the data and ranger arguments are taken directly from the model definition (stored in `model$ranger.arguments`). Default: `NULL`
 #' @param data Data frame with a response variable and a set of predictors. Default: `NULL`
 #' @param dependent.variable.name Character string with the name of the response variable. Must be in the column names of `data`. If the dependent variable is binary with values 1 and 0, the argument `case.weights` of `ranger` is populated by the function [case_weights()]. Default: `NULL`
@@ -8,7 +8,7 @@
 #' @param distance.thresholds Numeric vector with neighborhood distances. All distances in the distance matrix below each value in `dustance.thresholds` are set to 0 for the computation of Moran's I. If `NULL`, it defaults to seq(0, max(distance.matrix), length.out = 4). Default: `NULL`
 #' @param ranger.arguments Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.
 #' @param scaled.importance Logical. If `TRUE`, and 'importance = "permutation', the function scales 'data' with \link[base]{scale} and fits a new model to compute scaled variable importance scores. Default: `FALSE`
-#' @param repetitions Integer, number of random forest models to fit. Default: `5`
+#' @param repetitions Integer, number of random forest models to fit. Default: `10`
 #' @param keep.models Logical, if `TRUE`, the fitted models are returned in the `models` slot. Set to `FALSE` if the accumulation of models is creating issues with the RAM memory available. Default: `TRUE`.
 #' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same.
 #' @param verbose Logical, ff `TRUE`, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
@@ -23,8 +23,7 @@
 #'   \item `variable.importance`: A list containing a data frame with the predictors ordered by their importance, and a ggplot showing the importance values.
 #'   \item `performance`: out-of-bag performance scores: R squared, pseudo R squared, RMSE, and normalized RMSE (NRMSE).
 #'   \item `pseudo.r.squared`: computed as the correlation between the observations and the predictions.
-#'   \item `residuals`: computed as observations minus predictions.
-#'   \item `spatial.correlation.residuals`: the result of [moran_multithreshold()] applied to the model results.
+#'   \item `residuals`: residuals, normality test of the residuals computed with [residuals_test()], and spatial autocorrelation of the residuals computed with [moran_multithreshold()].
 #' }
 #' @examples
 #' \donttest{
@@ -91,7 +90,7 @@ rf_repeat <- function(
   distance.thresholds = NULL,
   ranger.arguments = NULL,
   scaled.importance = FALSE,
-  repetitions = 5,
+  repetitions = 10,
   keep.models = TRUE,
   seed = NULL,
   verbose = TRUE,
@@ -280,7 +279,11 @@ rf_repeat <- function(
   ###################################
 
   #names of repetitions columns
-  repetition.columns <- paste("repetition", 1:repetitions, sep = "_")
+  repetition.columns <- paste(
+    "repetition",
+    seq(1, repetitions),
+    sep = "_"
+    )
 
 
   #PREPARING predictions
@@ -296,14 +299,18 @@ rf_repeat <- function(
     )
   )
   colnames(predictions.per.repetition) <- repetition.columns
-  predictions.mean <- data.frame(
-    mean = rowMeans(predictions.per.repetition),
-    standard_deviation = apply(predictions.per.repetition, 1, sd)
+
+  #computing medians
+  predictions.median <- data.frame(
+    median = apply(predictions.per.repetition, 1, FUN = median),
+    median_absolute_deviation = apply(predictions.per.repetition, 1, stats::mad),
+    row.names = NULL
   )
+
   m$predictions <- NULL
-  m$predictions$values <- predictions.mean$mean
+  m$predictions$values <- predictions.median$median
   m$predictions$values.per.repetition <- predictions.per.repetition
-  m$predictions$values.mean <- predictions.mean
+  m$predictions$values.median <- predictions.median
 
 
   #PREPARING variable.importance.local
@@ -320,7 +327,7 @@ rf_repeat <- function(
             )
           ),
           1:2,
-          mean
+          median
         )
       )
     }
@@ -345,7 +352,7 @@ rf_repeat <- function(
       )
     )
 
-    #mean variable importance across repetitions
+    #median variable importance across repetitions
     variable.importance.per.variable <- variable.importance.per.repetition %>%
       dplyr::group_by(variable) %>%
       dplyr::summarise(importance = median(importance)) %>%
@@ -460,7 +467,7 @@ rf_repeat <- function(
 
   residuals.median <- data.frame(
     median = apply(residuals, 1, FUN = median),
-    mad = apply(residuals, 1, stats::mad),
+    median_absolute_deviation = apply(residuals, 1, stats::mad),
     row.names = NULL
   )
 
@@ -496,7 +503,7 @@ rf_repeat <- function(
 
     p.value <- NULL
     interpretation <- NULL
-    moran.mean <- moran.repetitions %>%
+    moran.median <- moran.repetitions %>%
       dplyr::group_by(distance.threshold) %>%
       dplyr::summarise(
         moran.i = median(moran.i),
@@ -505,7 +512,7 @@ rf_repeat <- function(
       ) %>%
       as.data.frame()
 
-    m$residuals$autocorrelation$per.distance <- moran.mean
+    m$residuals$autocorrelation$per.distance <- moran.median
     m$residuals$autocorrelation$per.repetition <- moran.repetitions
     m$residuals$autocorrelation$plot <- plot_moran(
       moran.repetitions,

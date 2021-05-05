@@ -13,7 +13,7 @@ rf_repeat(
   distance.thresholds = NULL,
   ranger.arguments = NULL,
   scaled.importance = FALSE,
-  repetitions = 5,
+  repetitions = 10,
   keep.models = TRUE,
   seed = NULL,
   verbose = TRUE,
@@ -41,7 +41,7 @@ rf_repeat(
 
 \item{scaled.importance}{Logical. If \code{TRUE}, and 'importance = "permutation', the function scales 'data' with \link[base]{scale} and fits a new model to compute scaled variable importance scores. Default: \code{FALSE}}
 
-\item{repetitions}{Integer, number of random forest models to fit. Default: \code{5}}
+\item{repetitions}{Integer, number of random forest models to fit. Default: \code{10}}
 
 \item{keep.models}{Logical, if \code{TRUE}, the fitted models are returned in the \code{models} slot. Set to \code{FALSE} if the accumulation of models is creating issues with the RAM memory available. Default: \code{TRUE}.}
 
@@ -66,12 +66,11 @@ A ranger model with several new slots:
 \item \code{variable.importance}: A list containing a data frame with the predictors ordered by their importance, and a ggplot showing the importance values.
 \item \code{performance}: out-of-bag performance scores: R squared, pseudo R squared, RMSE, and normalized RMSE (NRMSE).
 \item \code{pseudo.r.squared}: computed as the correlation between the observations and the predictions.
-\item \code{residuals}: computed as observations minus predictions.
-\item \code{spatial.correlation.residuals}: the result of \code{\link[=moran_multithreshold]{moran_multithreshold()}} applied to the model results.
+\item \code{residuals}: residuals, normality test of the residuals computed with \code{\link[=residuals_test]{residuals_test()}}, and spatial autocorrelation of the residuals computed with \code{\link[=moran_multithreshold]{moran_multithreshold()}}.
 }
 }
 \description{
-Fits several random forest models on the same data in order to capture the effect of the algorithm's stochasticity on the importance scores and performance measures.
+Fits several random forest models on the same data in order to capture the effect of the algorithm's stochasticity on the variable importance scores, predictions, residuals, and performance measures. The function relies on the median to aggregate values across repetitions.
 }
 \examples{
 \donttest{

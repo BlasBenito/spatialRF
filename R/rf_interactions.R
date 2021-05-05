@@ -236,7 +236,7 @@ rf_interactions <- function(
     out.df <- data.frame(
       interaction.name = pair.i.name,
       interaction.importance = round((model.i.importance[model.i.importance$variable == pair.i.name, "importance"] * 100) / max(model.i.importance$importance), 3),
-      interaction.r.squared.gain = mean(model.i$performance$r.squared) - mean(model$performance$r.squared),
+      interaction.r.squared.gain = median(model.i$performance$r.squared) - median(model$performance$r.squared),
       variable.a.name = pair.i[1],
       variable.b.name = pair.i[2],
       stringsAsFactors = FALSE

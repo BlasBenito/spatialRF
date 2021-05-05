@@ -91,7 +91,7 @@ residuals_test <- function(
     ) +
     ggplot2::theme_bw() +
     ggplot2::geom_vline(
-      xintercept = mean(residuals),
+      xintercept = median(residuals),
       col = "red4",
       size = 0.7,
       linetype = "dashed"

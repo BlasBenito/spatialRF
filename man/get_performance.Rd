@@ -13,9 +13,8 @@ get_performance(x)
 A data frame with four columns:
 \itemize{
 \item \code{metric} Name of the performance metric.
-\item \code{mean} Value of the performance metric. Truly a mean only if the model is fitted with \code{\link[=rf_repeat]{rf_repeat()}}.
-\item \code{standard_error} Standard error of the mean, only if the model is fitted with \code{\link[=rf_repeat]{rf_repeat()}}, and \code{NA} otherwise.
-\item \code{standard_deviation} Standard deviation of the mean, only if the model is fitted with \code{\link[=rf_repeat]{rf_repeat()}}, and \code{NA} otherwise.
+\item \code{median} Value of the performance metric. Truly a median only if the model is fitted with \code{\link[=rf_repeat]{rf_repeat()}}.
+\item \code{median_absolute_deviation} median absolute deviation (MAD), only if the model is fitted with \code{\link[=rf_repeat]{rf_repeat()}}, and \code{NA} otherwise.
 }
 }
 \description{

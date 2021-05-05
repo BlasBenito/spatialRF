@@ -149,12 +149,12 @@ plot_importance <- function(
             y = reorder(
               variable,
               importance,
-              FUN = mean
+              FUN = median
             ),
             fill = reorder(
               variable,
               importance,
-              FUN = mean
+              FUN = median
             )
           ) +
           ggplot2::geom_violin(draw_quantiles = 0.5) +

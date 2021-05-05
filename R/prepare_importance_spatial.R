@@ -96,7 +96,7 @@ prepare_importance_spatial <- function(x){
 
     importance.df <- non.spatial.predictors %>%
       dplyr::group_by(variable) %>%
-      dplyr::summarise(importance = round(mean(importance), 3)) %>%
+      dplyr::summarise(importance = round(median(importance), 3)) %>%
       as.data.frame() %>%
       rbind(spatial.predictors.stats) %>%
       dplyr::arrange(dplyr::desc(importance))

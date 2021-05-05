@@ -6,7 +6,7 @@ data(plant_richness_df)
 data(distance_matrix)
 
 #basic model
-rf.model <- rf(
+x <- rf(
   data = plant_richness_df,
   dependent.variable.name = "richness_species_vascular",
   predictor.variable.names = colnames(plant_richness_df)[5:21],
@@ -16,31 +16,55 @@ rf.model <- rf(
   verbose = FALSE
 )
 
-plot_response_curves(rf.model)
+#get plot and print functions
+get_importance(x)
+get_moran(x)
+get_performance(x)
+get_predictions(x)
+get_residuals(x)
+get_response_curves(x)
+plot_importance(x)
+plot_response_curves(x)
+print_importance(x)
+print_moran(x)
+print_performance(x)
+print(x)
 
 #with repetitions
-rf.model <- rf_repeat(
-  model = rf.model,
+x <- rf_repeat(
+  model = x,
+  verbose = FALSE
+  )
+
+#get plot and print functions
+get_importance(x)
+get_moran(x)
+get_performance(x)
+get_predictions(x)
+get_residuals(x)
+get_response_curves(x)
+plot_importance(x)
+plot_response_curves(x)
+print_importance(x)
+print_moran(x)
+print_performance(x)
+print(x)
+
+#spatial model
+rf.spatial <- rf_spatial(
+  model = x,
   verbose = TRUE
   )
 
-rf.repeat <- rf_repeat(
-  model = rf.model,
-  verbose = FALSE,
-  keep.models = FALSE
-)
-
-p <- get_response_curves(rf.repeat)
-
-#spatial model
-rf.spatial <- rf_spatial(model = rf.model, verbose = FALSE)
+get_spatial_predictors(rf.spatial)
+plot_optimization(rf.spatial)
 
 #from repeat
 rf.spatial.repeat <- rf_spatial(model = rf.repeat, verbose = FALSE)
 
 #rf_spatial from data
 #basic model
-rf.model <- rf_spatial(
+x <- rf_spatial(
   data = plant_richness_df,
   dependent.variable.name = "richness_species_vascular",
   predictor.variable.names = colnames(plant_richness_df)[5:21],
@@ -51,14 +75,14 @@ rf.model <- rf_spatial(
 )
 
 #trying rf_evaluate
-rf.model <- rf_evaluate(
-  model = rf.model,
+x <- rf_evaluate(
+  model = x,
   xy = plant_richness_df[, c("x", "y")],
   verbose = FALSE,
   metrics = "r.squared"
 )
-plot_evaluation(rf.model)
-get_evaluation(rf.model)
+plot_evaluation(x)
+get_evaluation(x)
 
 rf.repeat <- rf_evaluate(
   model = rf.repeat,
@@ -94,11 +118,11 @@ rf.interaction$selected
 
 #RESPONSE SURFACES
 p <- plot_response_surfaces(
-  model = rf.model
+  model = x
   )
 
 p <- plot_response_curves(
-  model = rf.model
+  model = x
 )
 
 p <- plot_response_surfaces(

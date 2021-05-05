@@ -14,8 +14,7 @@
 #'   \item `ranger.arguments`: Stores the values of the arguments used to fit the ranger model.
 #'   \item `variable.importance`: A list containing a data frame with the predictors ordered by their importance, and a ggplot showing the importance values.
 #'   \item `performance`: performance scores: R squared on out-of-bag data, R squared (cor(observed, predicted) ^ 2), pseudo R squared (cor(observed, predicted)), RMSE, and normalized RMSE (NRMSE).
-#'   \item `residuals`: computed as observations minus predictions.
-#'   \item `spatial.correlation.residuals`: the result of [moran_multithreshold()] applied to the model results.
+#'   \item `residuals`: residuals, normality test of the residuals computed with [residuals_test()], and spatial autocorrelation of the residuals computed with [moran_multithreshold()].
 #' }
 #' @details Please read the help file of \link[ranger]{ranger} for further details. Notice that the `formula` interface of \link[ranger]{ranger} is supported through `ranger.arguments`, but variable interactions are not allowed (but check [rf_interactions()]).
 #' @examples
@@ -354,6 +353,9 @@ rf <- function(
     data = data,
     type = "response"
   )$predictions
+
+  #saving predictions
+  m$predictions$values <- predicted
 
   #getting observed data
   observed <- data[, dependent.variable.name]
