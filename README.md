@@ -19,8 +19,8 @@
 -   [Assessing model performance on spatially independent
     folds](#assessing-model-performance-on-spatially-independent-folds)
 -   [Comparing several models](#comparing-several-models)
--   [Generating spatial predictors for other
-    models](#generating-spatial-predictors-for-other-models)
+-   [Generating spatial predictors for other modelling
+    methods](#generating-spatial-predictors-for-other-modelling-methods)
 
 <!---
 [![R-CMD-check](https://github.com/BlasBenito/spatialRF/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/BlasBenito/spatialRF/actions/workflows/R-CMD-check.yaml)
@@ -141,7 +141,8 @@ remotes::install_github(
   )
 ```
 
-    ##      checking for file ‘/tmp/RtmpXUjy1r/remotes39b753789a79/BlasBenito-spatialRF-7b7f69c/DESCRIPTION’ ...  ✓  checking for file ‘/tmp/RtmpXUjy1r/remotes39b753789a79/BlasBenito-spatialRF-7b7f69c/DESCRIPTION’
+    ## 
+    ##      checking for file ‘/tmp/RtmpKglbDI/remotes56e2f64afe53d/BlasBenito-spatialRF-838f17d/DESCRIPTION’ ...  ✓  checking for file ‘/tmp/RtmpKglbDI/remotes56e2f64afe53d/BlasBenito-spatialRF-838f17d/DESCRIPTION’
     ##   ─  preparing ‘spatialRF’:
     ##    checking DESCRIPTION meta-information ...  ✓  checking DESCRIPTION meta-information
     ##   ─  checking for LF line-endings in source and make files and shell scripts
@@ -415,8 +416,7 @@ An example is shown in the next section.
 names(predictor.variable.names)
 ```
 
-    ## [1] "vif"                   "selected.variables"   
-    ## [3] "selected.variables.df"
+    ## [1] "vif"                   "selected.variables"    "selected.variables.df"
 
 The slot `selected.variables` contains the names of the selected
 predictors.
@@ -511,7 +511,7 @@ spatialRF::plot_response_curves(
 ![](README_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
 
 ``` r
-spatialRF::plot_response_surfaces(
+spatialRF::plot_response_surface(
   model.non.spatial,
   a = "climate_bio1_average",
   b = "neighbors_count"
@@ -578,42 +578,24 @@ to fit the model, all stored in the slot `ranger.arguments`
 names(model.non.spatial$ranger.arguments)
 ```
 
-    ##  [1] "data"                        
-    ##  [2] "dependent.variable.name"     
-    ##  [3] "predictor.variable.names"    
-    ##  [4] "distance.matrix"             
-    ##  [5] "distance.thresholds"         
-    ##  [6] "num.trees"                   
-    ##  [7] "mtry"                        
-    ##  [8] "importance"                  
-    ##  [9] "scaled.importance"           
-    ## [10] "write.forest"                
-    ## [11] "probability"                 
-    ## [12] "min.node.size"               
-    ## [13] "max.depth"                   
-    ## [14] "replace"                     
-    ## [15] "sample.fraction"             
-    ## [16] "case.weights"                
-    ## [17] "class.weights"               
-    ## [18] "splitrule"                   
-    ## [19] "num.random.splits"           
-    ## [20] "alpha"                       
-    ## [21] "minprop"                     
-    ## [22] "split.select.weights"        
-    ## [23] "always.split.variables"      
-    ## [24] "respect.unordered.factors"   
-    ## [25] "scale.permutation.importance"
-    ## [26] "local.importance"            
-    ## [27] "regularization.factor"       
-    ## [28] "regularization.usedepth"     
-    ## [29] "keep.inbag"                  
-    ## [30] "inbag"                       
-    ## [31] "holdout"                     
-    ## [32] "quantreg"                    
-    ## [33] "oob.error"                   
-    ## [34] "num.threads"                 
-    ## [35] "save.memory"                 
-    ## [36] "seed"                        
+    ##  [1] "data"                         "dependent.variable.name"     
+    ##  [3] "predictor.variable.names"     "distance.matrix"             
+    ##  [5] "distance.thresholds"          "num.trees"                   
+    ##  [7] "mtry"                         "importance"                  
+    ##  [9] "scaled.importance"            "write.forest"                
+    ## [11] "probability"                  "min.node.size"               
+    ## [13] "max.depth"                    "replace"                     
+    ## [15] "sample.fraction"              "case.weights"                
+    ## [17] "class.weights"                "splitrule"                   
+    ## [19] "num.random.splits"            "alpha"                       
+    ## [21] "minprop"                      "split.select.weights"        
+    ## [23] "always.split.variables"       "respect.unordered.factors"   
+    ## [25] "scale.permutation.importance" "local.importance"            
+    ## [27] "regularization.factor"        "regularization.usedepth"     
+    ## [29] "keep.inbag"                   "inbag"                       
+    ## [31] "holdout"                      "quantreg"                    
+    ## [33] "oob.error"                    "num.threads"                 
+    ## [35] "save.memory"                  "seed"                        
     ## [37] "classification"
 
 The importance scores of a model fitted with `rf_repeat()` are plotted
@@ -696,100 +678,22 @@ model.non.spatial.tuned <- spatialRF::rf_tuning(
     by = 3
     ),
   min.node.size = c(5, 15),
-  seed = random.seed
+  seed = random.seed,
+  verbose = FALSE
 ) 
+
+spatialRF::plot_tuning(
+  model.non.spatial.tuned,
+  verbose = FALSE
+  )
 ```
-
-    ## Exploring 20 combinations of hyperparameters.
-
-    ## discovered package(s): 
-    ## automatically exporting the following variables from the local environment:
-    ##   data, dependent.variable.name, distance.matrix, distance.thresholds, metric, min.node.size, model, mtry, num.trees, predictor.variable.names, repetitions, seed, training.fraction, xy 
-    ## explicitly exporting package(s): 
-    ## numValues: 20, numResults: 0, stopped: TRUE
-    ## got results for task 1
-    ## numValues: 20, numResults: 1, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 2
-    ## numValues: 20, numResults: 2, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 3
-    ## numValues: 20, numResults: 3, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 4
-    ## numValues: 20, numResults: 4, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 5
-    ## numValues: 20, numResults: 5, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 6
-    ## numValues: 20, numResults: 6, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 7
-    ## numValues: 20, numResults: 7, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 8
-    ## numValues: 20, numResults: 8, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 9
-    ## numValues: 20, numResults: 9, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 10
-    ## numValues: 20, numResults: 10, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 11
-    ## numValues: 20, numResults: 11, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 12
-    ## numValues: 20, numResults: 12, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 13
-    ## numValues: 20, numResults: 13, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 14
-    ## numValues: 20, numResults: 14, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 15
-    ## numValues: 20, numResults: 15, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 16
-    ## numValues: 20, numResults: 16, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 17
-    ## numValues: 20, numResults: 17, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 18
-    ## numValues: 20, numResults: 18, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 19
-    ## numValues: 20, numResults: 19, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 20
-    ## numValues: 20, numResults: 20, stopped: TRUE
-    ## first call to combine function
-    ## evaluating call object to combine results:
-    ##   fun(result.1, result.2, result.3, result.4, result.5, result.6, 
-    ##     result.7, result.8, result.9, result.10, result.11, result.12, 
-    ##     result.13, result.14, result.15, result.16, result.17, result.18, 
-    ##     result.19, result.20)
-    ## returning status TRUE
-
-    ## Best hyperparameters:
-
-    ##   - num.trees:     1000
-
-    ##   - mtry:          14
-
-    ##   - min.node.size: 5
-
-    ## gain in r.squared: 0.033
 
 ![](README_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
 
 The function `rf_tuning()` returns a model fitted with the same data as
 the original model, but using the best hyperparameters found during
 tuning. Model tuning has helped to a very small improvement in
-performance measures (+ 0.033 R squared), so from here, we can keep
+performance measures (+ 0.037 R squared), so from here, we can keep
 working with `model.non.spatial.tuned`.
 
 # Fitting a spatial model
@@ -881,16 +785,16 @@ we will see that a few of them are spatial predictors.
 
 | variable                                   | importance |
 |:-------------------------------------------|-----------:|
-| climate\_bio1\_average\_X\_bias\_area\_km2 |      0.168 |
-| climate\_bio1\_average                     |      0.155 |
-| spatial\_predictor\_0\_2                   |      0.152 |
-| climate\_hypervolume                       |      0.150 |
-| bias\_species\_per\_record                 |      0.073 |
-| spatial\_predictor\_0\_6                   |      0.055 |
-| spatial\_predictor\_0\_1                   |      0.055 |
-| spatial\_predictor\_0\_5                   |      0.043 |
-| neighbors\_count                           |      0.038 |
-| human\_population\_density                 |      0.036 |
+| spatial\_predictor\_0\_2                   |      0.164 |
+| climate\_hypervolume                       |      0.162 |
+| climate\_bio1\_average\_X\_bias\_area\_km2 |      0.160 |
+| climate\_bio1\_average                     |      0.156 |
+| bias\_species\_per\_record                 |      0.080 |
+| spatial\_predictor\_0\_1                   |      0.060 |
+| spatial\_predictor\_0\_6                   |      0.058 |
+| neighbors\_count                           |      0.046 |
+| human\_population\_density                 |      0.040 |
+| spatial\_predictor\_0\_5                   |      0.040 |
 
 Spatial predictors are named `spatial_predictor_X_Y`, where `X` is the
 neighborhood distance at which the predictor has been generated, and `Y`
@@ -941,80 +845,15 @@ model.spatial.tuned <- spatialRF::rf_tuning(
     length(model.spatial$ranger.arguments$predictor.variable.names),
     by = 9),
   min.node.size = c(5, 15),
-  seed = random.seed
+  seed = random.seed,
+  verbose = FALSE
 )
+
+spatialRF::plot_tuning(
+  model.spatial.tuned,
+  verbose = FALSE
+  )
 ```
-
-    ## Exploring 16 combinations of hyperparameters.
-
-    ## discovered package(s): 
-    ## automatically exporting the following variables from the local environment:
-    ##   data, dependent.variable.name, distance.matrix, distance.thresholds, metric, min.node.size, model, mtry, num.trees, predictor.variable.names, repetitions, seed, training.fraction, xy 
-    ## explicitly exporting package(s): 
-    ## numValues: 16, numResults: 0, stopped: TRUE
-    ## got results for task 1
-    ## numValues: 16, numResults: 1, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 2
-    ## numValues: 16, numResults: 2, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 3
-    ## numValues: 16, numResults: 3, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 4
-    ## numValues: 16, numResults: 4, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 5
-    ## numValues: 16, numResults: 5, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 6
-    ## numValues: 16, numResults: 6, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 7
-    ## numValues: 16, numResults: 7, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 8
-    ## numValues: 16, numResults: 8, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 9
-    ## numValues: 16, numResults: 9, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 10
-    ## numValues: 16, numResults: 10, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 11
-    ## numValues: 16, numResults: 11, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 12
-    ## numValues: 16, numResults: 12, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 13
-    ## numValues: 16, numResults: 13, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 14
-    ## numValues: 16, numResults: 14, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 15
-    ## numValues: 16, numResults: 15, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 16
-    ## numValues: 16, numResults: 16, stopped: TRUE
-    ## first call to combine function
-    ## evaluating call object to combine results:
-    ##   fun(result.1, result.2, result.3, result.4, result.5, result.6, 
-    ##     result.7, result.8, result.9, result.10, result.11, result.12, 
-    ##     result.13, result.14, result.15, result.16)
-    ## returning status TRUE
-
-    ## Best hyperparameters:
-
-    ##   - num.trees:     1000
-
-    ##   - mtry:          29
-
-    ##   - min.node.size: 5
-
-    ## gain in r.squared: 0.012
 
 ![](README_files/figure-gfm/unnamed-chunk-35-1.png)<!-- -->
 
@@ -1031,113 +870,13 @@ aggregate them across model repetitions. Let’s see how it works.
 model.spatial.tuned <- spatialRF::rf_evaluate(
   model = model.spatial.tuned,
   xy = plant_richness_df[, c("x", "y")], #data coordinates
-  repetitions = 30,                      #number of folds
+  repetitions = 30,                      #number of spatial folds
   training.fraction = 0.8,               #training data fraction
   metrics = c("r.squared", "rmse"),
   seed = random.seed,
-  verbose = TRUE
+  verbose = FALSE
 )
 ```
-
-    ## Selecting pairs of coordinates as trainnig fold origins.
-
-    ## Generating spatial folds.
-
-    ## discovered package(s): 
-    ## automatically exporting the following variables from the local environment:
-    ##   data, dependent.variable.name, metrics, predictor.variable.names, ranger.arguments, seed, spatial.folds, xy.reference.records 
-    ## explicitly exporting package(s): 
-    ## numValues: 25, numResults: 0, stopped: TRUE
-    ## got results for task 1
-    ## numValues: 25, numResults: 1, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 2
-    ## numValues: 25, numResults: 2, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 3
-    ## numValues: 25, numResults: 3, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 4
-    ## numValues: 25, numResults: 4, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 5
-    ## numValues: 25, numResults: 5, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 6
-    ## numValues: 25, numResults: 6, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 7
-    ## numValues: 25, numResults: 7, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 8
-    ## numValues: 25, numResults: 8, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 9
-    ## numValues: 25, numResults: 9, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 10
-    ## numValues: 25, numResults: 10, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 11
-    ## numValues: 25, numResults: 11, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 12
-    ## numValues: 25, numResults: 12, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 13
-    ## numValues: 25, numResults: 13, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 14
-    ## numValues: 25, numResults: 14, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 15
-    ## numValues: 25, numResults: 15, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 16
-    ## numValues: 25, numResults: 16, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 17
-    ## numValues: 25, numResults: 17, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 18
-    ## numValues: 25, numResults: 18, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 19
-    ## numValues: 25, numResults: 19, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 20
-    ## numValues: 25, numResults: 20, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 21
-    ## numValues: 25, numResults: 21, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 22
-    ## numValues: 25, numResults: 22, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 23
-    ## numValues: 25, numResults: 23, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 24
-    ## numValues: 25, numResults: 24, stopped: TRUE
-    ## returning status FALSE
-    ## got results for task 25
-    ## numValues: 25, numResults: 25, stopped: TRUE
-    ## first call to combine function
-    ## evaluating call object to combine results:
-    ##   fun(result.1, result.2, result.3, result.4, result.5, result.6, 
-    ##     result.7, result.8, result.9, result.10, result.11, result.12, 
-    ##     result.13, result.14, result.15, result.16, result.17, result.18, 
-    ##     result.19, result.20, result.21, result.22, result.23, result.24, 
-    ##     result.25)
-    ## returning status TRUE
-    ## 
-    ## Spatial evaluation 
-    ##   - Training fraction:             0.8
-    ##   - Spatial folds:                 25
-    ## 
-    ##     Metric   Median     Mean  Minimum  Maximum
-    ##  r.squared    0.266    0.300    0.147    0.607
-    ##       rmse 2736.414 3096.164 2289.092 4474.390
 
 The function generates a new slot in the model named “evaluation” with
 several objects that summarize the spatial cross-validation results.
@@ -1146,9 +885,8 @@ several objects that summarize the spatial cross-validation results.
 names(model.spatial.tuned$evaluation)
 ```
 
-    ## [1] "metrics"           "training.fraction"
-    ## [3] "spatial.folds"     "per.fold"         
-    ## [5] "per.fold.long"     "per.model"        
+    ## [1] "metrics"           "training.fraction" "spatial.folds"    
+    ## [4] "per.fold"          "per.fold.long"     "per.model"        
     ## [7] "aggregated"
 
 The slot “spatial.folds”, produced by
@@ -1177,7 +915,7 @@ It takes as input a named list with as many models as the user needs to
 compare.
 
 ``` r
-comparison <- rf_compare(
+comparison <- spatialRF::rf_compare(
   models = list(
     `Non-spatial` = model.non.spatial,
     `Non-spatial tuned` = model.non.spatial.tuned,
@@ -1198,15 +936,15 @@ comparison <- rf_compare(
 | Model             | Metric    |     Mean |
 |:------------------|:----------|---------:|
 | Non-spatial       | r.squared |    0.336 |
-| Non-spatial tuned | r.squared |    0.412 |
-| Spatial           | r.squared |    0.239 |
-| Spatial tuned     | r.squared |    0.266 |
+| Non-spatial tuned | r.squared |    0.394 |
+| Spatial           | r.squared |    0.245 |
+| Spatial tuned     | r.squared |    0.255 |
 | Non-spatial       | rmse      | 2817.225 |
-| Non-spatial tuned | rmse      | 2329.933 |
-| Spatial           | rmse      | 2796.022 |
-| Spatial tuned     | rmse      | 2736.414 |
+| Non-spatial tuned | rmse      | 2415.084 |
+| Spatial           | rmse      | 2853.095 |
+| Spatial tuned     | rmse      | 2745.029 |
 
-# Generating spatial predictors for other models
+# Generating spatial predictors for other modelling methods
 
 You might not love Random Forest, but `spatialRF` loves you, and as
 such, it gives you tools to generate spatial predictors for other models
