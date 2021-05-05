@@ -168,7 +168,7 @@ plot_moran <- function(
     residual.lag <- NULL
 
     #getting residuals
-    m.residuals <- model$residuals$median$values
+    m.residuals <- model$residuals$values
 
     #getting distance matrix
     if(!is.null(model$ranger.arguments$distance.matrix)){

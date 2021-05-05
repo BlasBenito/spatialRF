@@ -80,7 +80,7 @@ plot_importance <- function(
         fill = importance
       ) +
       ggplot2::geom_point(size = 4, shape = 21) +
-      ggplot2::scale_fill_viridis_c(direction = -1, alpha = 0.8) +
+      ggplot2::scale_fill_viridis_c(direction = -1, alpha = 0.5) +
       ggplot2::ylab("") +
       ggplot2::xlab("Variable importance") +
       ggplot2::theme_bw() +

@@ -385,7 +385,7 @@ The model fitted above was based on the default hyperparameter values provided b
 
 Model tuning is done via spatial cross-validation, to ensure that the selected combination of hyperparameters maximizes the ability of the model to predict data not used to train it.
 
-```{r, fig.width=6, fig.height=4.5}
+```{r, fig.width=6, fig.height=4.5, message = FALSE, warning = FALSE}
 model.non.spatial.tuned <- spatialRF::rf_tuning(
   model = model.non.spatial,
   xy = plant_richness_df[, c("x", "y")],
@@ -398,8 +398,14 @@ model.non.spatial.tuned <- spatialRF::rf_tuning(
     by = 3
     ),
   min.node.size = c(5, 15),
-  seed = random.seed
+  seed = random.seed,
+  verbose = FALSE
 ) 
+
+spatialRF::plot_tuning(
+  model.non.spatial.tuned,
+  verbose = FALSE
+  )
 ```
 
 The function `rf_tuning()` returns a model fitted with the same data as the original model, but using the best hyperparameters found during tuning. Model tuning has helped to a very small improvement in performance measures (+ `r round(model.non.spatial.tuned$tuning$performance.gain, 3)` R squared), so from here, we can keep working with `model.non.spatial.tuned`.
@@ -495,7 +501,7 @@ p1 <- ggplot2::ggplot() +
   ggplot2::labs(color = "Eigenvalue") +
   ggplot2::scale_x_continuous(limits = c(-170, -30)) +
   ggplot2::scale_y_continuous(limits = c(-58, 80))  +
-  ggplot2::ggtitle("Variable: spatial_predictor_0_5") + 
+  ggplot2::ggtitle("Variable: spatial_predictor_0_2") + 
   ggplot2::theme(legend.position = "bottom")+ 
   ggplot2::xlab("Longitude") + 
   ggplot2::ylab("Latitude")
@@ -539,7 +545,7 @@ p <- spatialRF::plot_optimization(model.spatial)
 
 Spatial models fitted with `rf_spatial()` can be tuned as well with `rf_tuning()`. However, tuning may in some cases increase the spatial autocorrelation of the model residuals. In that case, the function will return a message explaining the situation, and the original model without any sort of tuning applied
 
-```{r, fig.width=6, fig.height=4.5}
+```{r, fig.width=6, fig.height=4.5, message = FALSE, warning = FALSE}
 model.spatial.tuned <- spatialRF::rf_tuning(
   model = model.spatial,
   xy = plant_richness_df[, c("x", "y")],
@@ -550,8 +556,14 @@ model.spatial.tuned <- spatialRF::rf_tuning(
     length(model.spatial$ranger.arguments$predictor.variable.names),
     by = 9),
   min.node.size = c(5, 15),
-  seed = random.seed
+  seed = random.seed,
+  verbose = FALSE
 )
+
+spatialRF::plot_tuning(
+  model.spatial.tuned,
+  verbose = FALSE
+  )
 ```
 
 # Assessing model performance on spatially independent folds
@@ -562,11 +574,11 @@ The function [`rf_evaluate()`](https://blasbenito.github.io/spatialRF/reference/
 model.spatial.tuned <- spatialRF::rf_evaluate(
   model = model.spatial.tuned,
   xy = plant_richness_df[, c("x", "y")], #data coordinates
-  repetitions = 30,                      #number of folds
+  repetitions = 30,                      #number of spatial folds
   training.fraction = 0.8,               #training data fraction
   metrics = c("r.squared", "rmse"),
   seed = random.seed,
-  verbose = TRUE
+  verbose = FALSE
 )
 ```
 
@@ -634,7 +646,7 @@ The low R squared yielded by the model evaluation shows that the spatial model i
 The function `rf_evaluate()` only assesses the predictive performance on unseen data of one model at a time. If the goal is to compare two models, `rf_evaluate()` can be indeed ran twice, but `spatialRF` offers a more convenient option named [`rf_compare()`](https://blasbenito.github.io/spatialRF/reference/rf_compare.html). It takes as input a named list with as many models as the user needs to compare.
 
 ```{r, fig.width=6, fig.height=5}
-comparison <- rf_compare(
+comparison <- spatialRF::rf_compare(
   models = list(
     `Non-spatial` = model.non.spatial,
     `Non-spatial tuned` = model.non.spatial.tuned,
@@ -665,7 +677,7 @@ kableExtra::kbl(
   kableExtra::kable_paper("hover", full_width = F)
 ```
 
-# Generating spatial predictors for other models
+# Generating spatial predictors for other modelling methods
 
 You might not love Random Forest, but `spatialRF` loves you, and as such, it gives you tools to generate spatial predictors for other models anyway.
 
