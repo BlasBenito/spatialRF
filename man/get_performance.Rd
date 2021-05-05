@@ -4,10 +4,10 @@
 \alias{get_performance}
 \title{Gets out-of-bag performance scores from a model}
 \usage{
-get_performance(x)
+get_performance(model)
 }
 \arguments{
-\item{x}{Model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}.}
+\item{model}{Model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}.}
 }
 \value{
 A data frame with four columns:

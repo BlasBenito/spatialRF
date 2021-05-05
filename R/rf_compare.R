@@ -143,6 +143,7 @@ rf_compare <- function(
   x[x$metric == "pseudo.r.squared", "metric"] <- "pseudo R squared"
   x[x$metric == "rmse", "metric"] <- "RMSE"
   x[x$metric == "nrmse", "metric"] <- "NRMSE"
+  x[x$metric == "auc", "metric"] <- "AUC"
 
   #plot
   p <- ggplot2::ggplot() +

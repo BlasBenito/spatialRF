@@ -4,8 +4,19 @@ library(spatialRF)
 #############################################
 data(plant_richness_df)
 data(distance_matrix)
+xy <- plant_richness_df[, c("x", "y")]
 
-#basic model
+#rf_interactions()
+#############################################
+interactions <- spatialRF::rf_interactions(
+  data = plant_richness_df,
+  dependent.variable.name = "richness_species_vascular",
+  predictor.variable.names = colnames(plant_richness_df)[5:21]
+)
+
+
+#rf()
+#############################################
 x <- rf(
   data = plant_richness_df,
   dependent.variable.name = "richness_species_vascular",
@@ -14,6 +25,10 @@ x <- rf(
   distance.thresholds = c(0, 1000, 2000),
   seed = 50,
   verbose = FALSE
+)
+
+x <- rf_repeat(
+  model = x
 )
 
 #get plot and print functions
@@ -29,6 +44,56 @@ print_importance(x)
 print_moran(x)
 print_performance(x)
 print(x)
+
+#evaluate
+x <- rf_evaluate(
+  model = x,
+  xy = xy
+)
+
+get_evaluation(x)
+print_evaluation(x)
+plot_evaluation(x)
+
+#tunning
+x <- rf_tuning(
+  model = x,
+  xy = xy
+)
+
+plot_tuning(x)
+
+#spatial
+x <- rf_spatial(
+  model = x
+)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #with repetitions
 x <- rf_repeat(

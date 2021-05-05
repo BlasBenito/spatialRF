@@ -4,10 +4,10 @@
 \alias{get_residuals}
 \title{Gets model residuals}
 \usage{
-get_residuals(x)
+get_residuals(model)
 }
 \arguments{
-\item{x}{A model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}.}
+\item{model}{A model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}.}
 }
 \value{
 A vector with model residuals, or the median of model residuals across repetitions if the model was fitted with \code{\link[=rf_repeat]{rf_repeat()}}.
@@ -28,7 +28,7 @@ rf.model <- rf(
   verbose = FALSE
 )
 
-x <- get_residuals(x = rf.model)
+x <- get_residuals(rf.model)
 x
 
 }

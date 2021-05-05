@@ -1,6 +1,6 @@
 #' @title Gets the spatial predictors of a spatial model
 #' @description Returns spatial predictors from a model fitted with [rf_spatial()] in order of importance.
-#' @param x A model fitted with [rf_spatial()].
+#' @param model A model fitted with [rf_spatial()].
 #' @return A data frame with the spatial predictors included in the model.
 #' @examples
 #' \donttest{
@@ -19,20 +19,20 @@
 #'    method = "mem.moran.sequential"
 #'  )
 #'
-#' spatial.predictors <- get_spatial_predictors(x = model)
+#' spatial.predictors <- get_spatial_predictors(model)
 #' head(spatial.predictors)
 #' }
 #' }
 #' @rdname get_spatial_predictors
 #' @export
-get_spatial_predictors <- function(x){
+get_spatial_predictors <- function(model){
 
-  if(!inherits(x, "rf_spatial")){
+  if(!inherits(model, "rf_spatial")){
     stop("This function only works on models fitted with 'rf_spatial'")
   }
 
-  spatial.predictors.order <- x$variable.importance$per.variable$variable[x$variable.importance$per.variable$variable %in% x$selection.spatial.predictors$names]
+  spatial.predictors.order <- model$variable.importance$per.variable$variable[model$variable.importance$per.variable$variable %in% model$selection.spatial.predictors$names]
 
-  x$ranger.arguments$data[, spatial.predictors.order, drop = FALSE]
+  model$ranger.arguments$data[, spatial.predictors.order, drop = FALSE]
 
 }

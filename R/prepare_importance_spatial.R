@@ -1,6 +1,6 @@
 #' @title Prepares variable importance objects for spatial models
 #' @description Prepares variable importance data frames and plots for models fitted with [rf_spatial()].
-#' @param x An importance data frame with spatial predictors.
+#' @param x An importance data frame with spatial predictors, or a model fitted with [rf_spatial()].
 #' @return A list with importance data frames in different formats depending on whether the model was fitted with [rf()] or [rf_repeat()].
 #' @examples
 #' \dontrun{

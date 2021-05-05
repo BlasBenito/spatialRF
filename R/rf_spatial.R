@@ -9,8 +9,7 @@
 #' @param ranger.arguments Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.
 #' @param scaled.importance Logical. If `TRUE`, and 'importance = "permutation', the function scales 'data' with \link[base]{scale} and fits a new model to compute scaled variable importance scores. Default: `TRUE`
 #' @param repetitions Integer, number of repetitions. If 1, [rf()] is used to fit the non-spatial and spatial models. If higher than one, [rf_repeat()] is used instead. Notice that using more than one repetition can get computationally costly if the selected method generated a large number of spatial predictors, as it is the case of the "hengl" method. Default: `1`
-#' @param keep.models Logical. If `TRUE`, the fitted models are returned in the "models" slot. If `repetitions` is very high and `method` is "hengl",
-#' setting `keep.models` to `TRUE` may cause memory issues. Default: `FALSE`
+#' @param keep.models Logical. If `TRUE`, the fitted models are returned in the "models" slot. If `repetitions` is very high and `method` is "hengl", setting `keep.models` to `TRUE` may cause memory issues. Default: `FALSE`
 #' @param method Character, method to build, rank, and select spatial predictors. One of:
 #' \itemize{
 #'   \item "hengl"
@@ -313,6 +312,8 @@ rf_spatial <- function(
 
       predictor.variable.names <- ranger.arguments$predictor.variable.names
 
+      repetitions <- ranger.arguments$repetitions
+
       distance.matrix <- ranger.arguments$distance.matrix
       if(is.null(distance.matrix)){
         stop("The argument 'distance.matrix' is missing.")
@@ -335,8 +336,6 @@ rf_spatial <- function(
 
       seed <- model$ranger.arguments$seed
 
-
-
     }
 
   #reference moran's I for selection of spatial predictors
@@ -356,7 +355,6 @@ rf_spatial <- function(
 
     if(verbose == TRUE){
       message("The model residuals are not spatially correlated, there is no need to fit a spatial model")
-      suppressWarnings(print(model$residuals$autocorrelation$plot))
     }
 
     return(model)
@@ -366,7 +364,6 @@ rf_spatial <- function(
 
     if(verbose == TRUE){
       message("The model residuals are spatially correlated, fitting a spatial model.")
-      suppressWarnings(print(model$residuals$autocorrelation$plot))
     }
 
   }
@@ -669,12 +666,15 @@ rf_spatial <- function(
   model.spatial$selection.spatial.predictors <- list()
   model.spatial$selection.spatial.predictors$method <- method
   model.spatial$selection.spatial.predictors$names <- spatial.predictors.selected
+
   if(exists("spatial.predictors.selection")){
+
     model.spatial$selection.spatial.predictors$optimization <- spatial.predictors.selection$optimization
     model.spatial$selection.spatial.predictors$plot <- plot_optimization(
       spatial.predictors.selection$optimization,
       verbose = FALSE
     )
+
   }
 
   if(verbose == TRUE){

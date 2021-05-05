@@ -355,6 +355,7 @@ rf <- function(
   )$predictions
 
   #saving predictions
+  m$predictions <- list()
   m$predictions$values <- predicted
 
   #getting observed data

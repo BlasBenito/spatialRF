@@ -452,7 +452,7 @@ rf_evaluate <- function(
   class(model) <- c(class(model), "rf_evaluate")
 
   if(verbose == TRUE){
-    print_evaluation(model)
+    print_evaluation(model = model)
   }
 
   model

@@ -64,9 +64,9 @@ plot_moran <- function(
     if(!inherits(model, "data.frame")){
       #importance from rf_repeat
       if(inherits(model, "rf_repeat")){
-        x <- model$spatial.correlation.residuals$per.repetition
+        x <- model$residuals$autocorrelation$per.repetition
       } else {
-        x <- model$spatial.correlation.residuals$per.distance
+        x <- model$residuals$autocorrelation$per.distance
       }
     } else {
       x <- model
@@ -185,7 +185,7 @@ plot_moran <- function(
     }
 
     #getting Moran's I results
-    m.moran <- model$spatial.correlation.residuals$per.distance
+    m.moran <- model$residuals$autocorrelation$per.distance
 
     #iterating through distance thresholds
     loop.out <- foreach::foreach(distance.threshold = distance.thresholds) %do% {

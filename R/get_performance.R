@@ -1,6 +1,6 @@
 #' @title Gets out-of-bag performance scores from a model
 #' @description Returns the performance slot of an [rf()], [rf_repeat()], or [rf_spatial()] model computed on the out-of-bag data.
-#' @param x Model fitted with [rf()], [rf_repeat()], or [rf_spatial()].
+#' @param model Model fitted with [rf()], [rf_repeat()], or [rf_spatial()].
 #' @return A data frame with four columns:
 #' \itemize{
 #'   \item `metric` Name of the performance metric.
@@ -31,17 +31,17 @@
 #' }
 #' @rdname get_performance
 #' @export
-get_performance <- function(x){
+get_performance <- function(model){
 
-  if(inherits(x, "rf_repeat")){
+  if(inherits(model, "rf_repeat")){
 
-    x.median <- sapply(x$performance, FUN = median)
-    x.mad <- sapply(x$performance, FUN = mad)
+    x.median <- sapply(model$performance, FUN = median)
+    x.mad <- sapply(model$performance, FUN = mad)
 
   } else {
 
-    x.median <- unlist(x$performance)
-    x.se <- NA
+    x.median <- unlist(model$performance)
+    x.mad <- NA
 
   }
 
@@ -51,7 +51,15 @@ get_performance <- function(x){
     median_absolute_deviation = x.mad
   )
 
+  if(inherits(model , "rf_repeat") == FALSE){
+    colnames(out.df)[2] <- "value"
+  }
+
   rownames(out.df) <- NULL
+
+  out.df <- out.df[,colSums(is.na(out.df)) < nrow(out.df)]
+
+  out.df <- na.omit(out.df)
 
   out.df
 

@@ -292,10 +292,14 @@ rf_repeat <- function(
     do.call(
       "cbind",
       lapply(
+      lapply(
         repeated.models,
         "[[",
         "predictions"
-      )
+      ),
+      "[[",
+      1
+    )
     )
   )
   colnames(predictions.per.repetition) <- repetition.columns

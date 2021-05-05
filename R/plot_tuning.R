@@ -66,12 +66,13 @@ plot_tuning <- function(model, verbose = TRUE){
     )) +
     ggplot2::geom_smooth(
       se = TRUE,
+      method = "loess",
       color = "gray20",
       alpha = 0.5,
       formula = y ~ x) +
     ggplot2::geom_point(
       shape = 21,
-      alpha = 0.5,
+      alpha = 0.75,
       size = 3
     ) +
     ggplot2::facet_wrap(
@@ -84,11 +85,8 @@ plot_tuning <- function(model, verbose = TRUE){
     ggplot2::theme(legend.position = "none") +
     ggplot2::xlab("") +
     ggplot2::ylab(metric.name) +
-    ggplot2::ggtitle(
-      paste0("Method: ",
-        model$tuning$method
-        )
-      )
+    ggplot2::ggtitle("Model tuning via spatial cross-validation") +
+    ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
 
 
   if(verbose == TRUE){

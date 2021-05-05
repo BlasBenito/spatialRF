@@ -50,8 +50,7 @@ rf_spatial(
 
 \item{repetitions}{Integer, number of repetitions. If 1, \code{\link[=rf]{rf()}} is used to fit the non-spatial and spatial models. If higher than one, \code{\link[=rf_repeat]{rf_repeat()}} is used instead. Notice that using more than one repetition can get computationally costly if the selected method generated a large number of spatial predictors, as it is the case of the "hengl" method. Default: \code{1}}
 
-\item{keep.models}{Logical. If \code{TRUE}, the fitted models are returned in the "models" slot. If \code{repetitions} is very high and \code{method} is "hengl",
-setting \code{keep.models} to \code{TRUE} may cause memory issues. Default: \code{FALSE}}
+\item{keep.models}{Logical. If \code{TRUE}, the fitted models are returned in the "models" slot. If \code{repetitions} is very high and \code{method} is "hengl", setting \code{keep.models} to \code{TRUE} may cause memory issues. Default: \code{FALSE}}
 
 \item{method}{Character, method to build, rank, and select spatial predictors. One of:
 \itemize{

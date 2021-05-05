@@ -4,10 +4,10 @@
 \alias{get_moran}
 \title{Gets Moran's I test of model residuals}
 \usage{
-get_moran(x)
+get_moran(model)
 }
 \arguments{
-\item{x}{A model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}}
+\item{model}{A model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}}
 }
 \value{
 A data frame with Moran's I test results produced by \code{\link[=moran_multithreshold]{moran_multithreshold()}}.

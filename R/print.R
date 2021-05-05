@@ -79,7 +79,7 @@ print.rf <- function(x, ...) {
     cat("      - p-value        :", round(x$residuals$normality$p.value, 4), "\n")
     cat("      - Interpretation :", x$residuals$normality$interpretation, "\n")
 
-    if("spatial.correlation.residuals" %in% names(x)){
+    if("autocorrelation" %in% names(x$residuals)){
       cat("\n")
       cat("  - Spatial autocorrelation: \n")
       print_moran(x)

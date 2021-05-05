@@ -330,7 +330,7 @@ rf_interactions <- function(
   if(verbose == TRUE){
 
     x <- interaction.screening.selected
-    colnames(x) <- c("Interaction", "Importance (% of max)", "R2 improvement")
+    colnames(x) <- c("Interaction", "Importance (% of max)", "R-squared improvement")
 
     x.hux <- huxtable::hux(x) %>%
       huxtable::set_bold(

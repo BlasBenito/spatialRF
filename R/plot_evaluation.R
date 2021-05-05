@@ -44,26 +44,26 @@
 plot_evaluation <- function(model, verbose = TRUE, notch = TRUE){
 
   #declaring variable because of check BS
-  model <- NULL
   value <- NULL
-
-  #getting metrics
-
 
   #stop if no evaluation slot
   if(!inherits(model, "rf_evaluate")){
-    stop("Object 'x' does not have an 'evaluation' slot.")
+    stop("Object 'model' does not have an 'evaluation' slot.")
   }
 
   #getting plotting df
   n.spatial.folds <- length(model$evaluation$spatial.folds)
   x <- model$evaluation$per.fold.long
 
+  #removing NA
+  x <- na.omit(x)
+
   #prettier labels
   x[x$metric == "r.squared", "metric"] <- "R squared"
   x[x$metric == "pseudo.r.squared", "metric"] <- "pseudo R squared"
   x[x$metric == "rmse", "metric"] <- "RMSE"
   x[x$metric == "nrmse", "metric"] <- "NRMSE"
+  x[x$metric == "auc", "metric"] <- "AUC"
 
   #ordering models
   x$model <- factor(x$model,levels = c("Testing", "Training", "Full"))
@@ -98,7 +98,8 @@ plot_evaluation <- function(model, verbose = TRUE, notch = TRUE){
         n.spatial.folds,
         " spatial folds."
       )
-    )
+    ) +
+    ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
 
   if(verbose == TRUE){
     suppressMessages(print(p))

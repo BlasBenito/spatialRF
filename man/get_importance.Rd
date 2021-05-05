@@ -4,10 +4,10 @@
 \alias{get_importance}
 \title{Gets importance data frame from a model}
 \usage{
-get_importance(x)
+get_importance(model)
 }
 \arguments{
-\item{x}{A model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}. Default: NULL}
+\item{model}{A model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}. Default: NULL}
 }
 \value{
 A data frame with variable names and importance scores.
