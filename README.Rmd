@@ -362,6 +362,7 @@ spatialRF::plot_response_surface(
   b = "neighbors_count"
   )
 ```
+
 ## Performance
 
 The **performance** slot (in `model.non.spatial$performance`) contains the values of several performance measures. It be printed via the function [`print_performance()`](https://blasbenito.github.io/spatialRF/reference/print_performance.html).
@@ -391,7 +392,7 @@ model.non.spatial <- spatialRF::rf_evaluate(
 The function generates a new slot in the model named **evaluation** (`model.non.spatial$evaluation`) with several objects that summarize the spatial cross-validation results.
 
 ```{r}
-names(model.spatial.tuned$evaluation)
+names(model.non.spatial$evaluation)
 ```
 
 The slot "spatial.folds", produced by [`make_spatial_folds()`](https://blasbenito.github.io/spatialRF/reference/make_spatial_folds.html), contains the indices of the training and testing cases for each cross-validation repetition. The maps below show two sets of training and testing folds.
@@ -399,8 +400,8 @@ The slot "spatial.folds", produced by [`make_spatial_folds()`](https://blasbenit
 ```{r, echo=FALSE, fig.width=10, fig.height=5}
 pr <- plant_richness_df[, c("x", "y")]
 pr$group.2 <- pr$group.1 <- "Training"
-pr[model.spatial.tuned$evaluation$spatial.folds[[1]]$testing, "group.1"] <- "Testing"
-pr[model.spatial.tuned$evaluation$spatial.folds[[25]]$testing, "group.2"] <- "Testing"
+pr[model.non.spatial$evaluation$spatial.folds[[1]]$testing, "group.1"] <- "Testing"
+pr[model.non.spatial$evaluation$spatial.folds[[25]]$testing, "group.2"] <- "Testing"
 
 p1 <- ggplot2::ggplot() +
   ggplot2::geom_sf(data = world, fill = "white") +
