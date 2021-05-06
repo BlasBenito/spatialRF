@@ -7,7 +7,7 @@
 #' @param grid.resolution Integer between 20 and 500. Resolution of the plotted surface Default: `100`
 #' @param point.size.range Numeric vector of length 2 with the range of point sizes used by \link[ggplot2]{geom_point}. Using `c(-1, -1)` removes the points. Default: `c(0.5, 2.5)`
 #' @param point.alpha Numeric between 0 and 1, transparency of the points. Setting it to `0` removes all points. Default: `1`.
-#' @param fill.color Character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. `viridis::viridis(100)`). Default: `viridis::viridis(100, option = "F", direction = -1 )`
+#' @param fill.color Character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. `viridis::viridis(100)`). Default: `viridis::viridis(100, option = "F", direction = -1, alpha = 0.9)`
 #' @param point.color Character vector with a color name (e.g. "red4"). Default: `gray30`
 #' @param verbose Logical, if TRUE the plot is printed. Default: `TRUE`
 #' @return A list with slots named after the selected `quantiles`, each one with a ggplot.
@@ -47,7 +47,8 @@ plot_response_surface <- function(
   fill.color = viridis::viridis(
     100,
     option = "F",
-    direction = -1
+    direction = -1,
+    alpha = 0.9
   ),
   point.color = "gray30",
   verbose = TRUE
@@ -152,7 +153,7 @@ plot_response_surface <- function(
         fill = "Predicted",
         size = "Observed"
       ) +
-      ggplot2::ggtitle(paste0("Quantile ", quantile.i)) +
+      ggplot2::ggtitle(paste0("Other variables set to quantile ", quantile.i)) +
       ggplot2::guides(size = ggplot2::guide_legend(reverse = TRUE)) +
       ggplot2::theme(plot.title = element_text(hjust = 0.5))
 

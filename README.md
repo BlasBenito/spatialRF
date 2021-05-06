@@ -142,9 +142,9 @@ remotes::install_github(
 ```
 
     ## 
-    ##      checking for file ‘/tmp/RtmpwyAwnE/remotes4187719a3375/BlasBenito-spatialRF-4a5835e/DESCRIPTION’ ...  ✓  checking for file ‘/tmp/RtmpwyAwnE/remotes4187719a3375/BlasBenito-spatialRF-4a5835e/DESCRIPTION’
+    ##      checking for file ‘/tmp/RtmpGKFXqO/remotes47b3c7629f1b6/BlasBenito-spatialRF-7627f5f/DESCRIPTION’ ...  ✓  checking for file ‘/tmp/RtmpGKFXqO/remotes47b3c7629f1b6/BlasBenito-spatialRF-7627f5f/DESCRIPTION’
     ##   ─  preparing ‘spatialRF’:
-    ##      checking DESCRIPTION meta-information ...  ✓  checking DESCRIPTION meta-information
+    ##    checking DESCRIPTION meta-information ...  ✓  checking DESCRIPTION meta-information
     ##   ─  checking for LF line-endings in source and make files and shell scripts
     ##   ─  checking for empty or unneeded directories
     ##   ─  building ‘spatialRF_1.0.9.tar.gz’
@@ -237,7 +237,9 @@ variable (y axis) against each predictor (x axis).
 ![](README_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
 The function `plot_training_df_moran()` helps to check the spatial
-autocorrelation of the response variable and the predictors.
+autocorrelation of the response variable and the predictors. Low Moran’s
+I p-values equal or larger than 0.05 indicate that there is no spatial
+autocorrelation for the given variable and distance threshold.
 
 ![](README_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
@@ -494,7 +496,7 @@ residuals.
 spatialRF::plot_residuals_diagnostics(model.non.spatial)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->![](README_files/figure-gfm/unnamed-chunk-15-2.png)<!-- -->
 
 The function
 [`plot_response_curves()`](https://blasbenito.github.io/spatialRF/reference/plot_response_curves.html)
@@ -505,7 +507,15 @@ understand how the response curve of a variable changes when all the
 other variables have low, median, or high values.
 
 ``` r
-spatialRF::plot_response_curves(model.non.spatial)
+spatialRF::plot_response_curves(
+  model.non.spatial,
+  quantiles = c(0.1, 0.5, 0.9),
+  line.color = viridis::viridis(
+    3, #same colors as quantiles
+    option = "F", 
+    end = 0.9
+    )
+  )
 ```
 
 ![](README_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
@@ -537,7 +547,7 @@ their medians (but other quantiles are possible).
 
 ``` r
 spatialRF::plot_importance(
-  model.non.spatial, 
+  model.non.spatial,
   verbose = FALSE
   )
 ```
@@ -927,7 +937,7 @@ It takes as input a named list with as many models as the user needs to
 compare.
 
 ``` r
-comparison <- spatialRF::rf_compare(
+comparison <- rf_compare(
   models = list(
     `Non-spatial` = model.non.spatial,
     `Non-spatial tuned` = model.non.spatial.tuned,
@@ -937,24 +947,19 @@ comparison <- spatialRF::rf_compare(
   xy = plant_richness_df[, c("x", "y")],
   repetitions = 30,
   training.fraction = 0.8,
-  metrics = c("r.squared", "rmse"),
-  notch = TRUE,
+  metrics = "r.squared",
   seed = random.seed
   )
 ```
 
 ![](README_files/figure-gfm/unnamed-chunk-40-1.png)<!-- -->
 
-| Model             | Metric    |     Mean |
-|:------------------|:----------|---------:|
-| Non-spatial       | r.squared |    0.336 |
-| Non-spatial tuned | r.squared |    0.394 |
-| Spatial           | r.squared |    0.245 |
-| Spatial tuned     | r.squared |    0.255 |
-| Non-spatial       | rmse      | 2817.225 |
-| Non-spatial tuned | rmse      | 2415.084 |
-| Spatial           | rmse      | 2853.095 |
-| Spatial tuned     | rmse      | 2745.029 |
+| Model             | Metric    |  Mean |
+|:------------------|:----------|------:|
+| Non-spatial       | r.squared | 0.336 |
+| Non-spatial tuned | r.squared | 0.394 |
+| Spatial           | r.squared | 0.245 |
+| Spatial tuned     | r.squared | 0.255 |
 
 # Generating spatial predictors for other modelling methods
 

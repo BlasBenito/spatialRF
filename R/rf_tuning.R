@@ -230,7 +230,7 @@ rf_tuning <- function(
     mtry.i = combinations$mtry,
     min.node.size.i = combinations$min.node.size,
     .combine = "rbind",
-    .verbose = verbose
+    .verbose = FALSE
   ) %dopar% {
 
     #filling ranger arguments
@@ -448,20 +448,18 @@ rf_tuning <- function(
   if(performance.gain > 0){
 
     #plot tuning
-    if(verbose == TRUE){
-      plot_tuning(model.tuned)
-      message("Best hyperparameters:")
-      message(paste0("  - num.trees:     ", tuning[1, "num.trees"]))
-      message(paste0("  - mtry:          ", tuning[1, "mtry"]))
-      message(paste0("  - min.node.size: ", tuning[1, "min.node.size"]))
-      message(paste0(
-        "gain in ",
-        metric.name,
-        ": ",
-        performance.gain
-      )
-      )
-    }
+    suppressWarnings(plot_tuning(model.tuned))
+    message("Best hyperparameters:")
+    message(paste0("  - num.trees:     ", tuning[1, "num.trees"]))
+    message(paste0("  - mtry:          ", tuning[1, "mtry"]))
+    message(paste0("  - min.node.size: ", tuning[1, "min.node.size"]))
+    message(paste0(
+      "gain in ",
+      metric.name,
+      ": ",
+      round(performance.gain, 4)
+    )
+    )
 
     #adding gain
     model.tuned$tuning$performance.gain <- performance.gain

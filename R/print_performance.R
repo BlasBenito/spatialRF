@@ -31,11 +31,11 @@ print_performance <- function(model){
   if(length(x$r.squared) == 1){
     cat("\n")
     cat("Model performance \n")
-    cat("  - R squared (oob):                 ", x$r.squared.oob, "\n", sep="")
-    cat("  - R squared (cor(obs, pred)^2):    ", x$r.squared, "\n", sep="")
-    cat("  - Pseudo R squared(cor(obs, pred)):", x$pseudo.r.squared, "\n", sep="")
-    cat("  - RMSE:                            ", x$rmse, "\n", sep="")
-    cat("  - Normalized RMSE:                 ", x$nrmse, "\n", sep="")
+    cat("  - R squared (oob):                  ", x$r.squared.oob, "\n", sep="")
+    cat("  - R squared (cor(obs, pred)^2):     ", x$r.squared, "\n", sep="")
+    cat("  - Pseudo R squared (cor(obs, pred)):", x$pseudo.r.squared, "\n", sep="")
+    cat("  - RMSE:                             ", x$rmse, "\n", sep="")
+    cat("  - Normalized RMSE:                  ", x$nrmse, "\n", sep="")
   } else {
     cat("\n")
     cat("Model performance (median +/- mad) \n")
