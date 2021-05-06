@@ -12,6 +12,8 @@ plot_response_surface(
   grid.resolution = 100,
   point.size.range = c(0.5, 2.5),
   point.alpha = 1,
+  fill.color = viridis::viridis(100, option = "F", direction = -1),
+  point.color = "gray30",
   verbose = TRUE
 )
 }
@@ -29,6 +31,10 @@ plot_response_surface(
 \item{point.size.range}{Numeric vector of length 2 with the range of point sizes used by \link[ggplot2]{geom_point}. Using \code{c(-1, -1)} removes the points. Default: \code{c(0.5, 2.5)}}
 
 \item{point.alpha}{Numeric between 0 and 1, transparency of the points. Setting it to \code{0} removes all points. Default: \code{1}.}
+
+\item{fill.color}{Character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. \code{viridis::viridis(100)}). Default: \code{viridis::viridis(100, option = "F", direction = -1 )}}
+
+\item{point.color}{Character vector with a color name (e.g. "red4"). Default: \code{gray30}}
 
 \item{verbose}{Logical, if TRUE the plot is printed. Default: \code{TRUE}}
 }

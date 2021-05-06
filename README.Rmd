@@ -130,7 +130,10 @@ world <- rnaturalearth::ne_countries(
   )
 
 ggplot2::ggplot() +
-  ggplot2::geom_sf(data = world, fill = "white") +
+  ggplot2::geom_sf(
+    data = world, 
+    fill = "white"
+    ) +
   ggplot2::geom_point(
     data = plant_richness_df,
     ggplot2::aes(
@@ -140,7 +143,10 @@ ggplot2::ggplot() +
     ),
     size = 2.5
   ) +
-  ggplot2::scale_color_viridis_c(direction = -1) +
+  ggplot2::scale_color_viridis_c(
+    direction = -1, 
+    option = "F"
+    ) +
   ggplot2::theme_bw() +
   ggplot2::labs(color = "Plant richness") +
   ggplot2::scale_x_continuous(limits = c(-170, -30)) +
@@ -517,7 +523,7 @@ p1 <- ggplot2::ggplot() +
     ),
     size = 2.5
   ) +
-  ggplot2::scale_color_viridis_c(direction = -1) +
+  ggplot2::scale_color_viridis_c(option = "F") +
   ggplot2::theme_bw() +
   ggplot2::labs(color = "Eigenvalue") +
   ggplot2::scale_x_continuous(limits = c(-170, -30)) +
@@ -538,7 +544,7 @@ p2 <- ggplot2::ggplot() +
     ),
     size = 2.5
   ) +
-  ggplot2::scale_color_viridis_c(direction = -1) +
+  ggplot2::scale_color_viridis_c(option = "F") +
   ggplot2::theme_bw() +
   ggplot2::labs(color = "Eigenvalue") +
   ggplot2::scale_x_continuous(limits = c(-170, -30)) +
@@ -627,7 +633,12 @@ p1 <- ggplot2::ggplot() +
             ),
           size = 2.5
           ) +
-  ggplot2::scale_color_viridis_d(direction = -1, end = 0.8, alpha = 0.6) +
+  ggplot2::scale_color_viridis_d(
+    direction = -1, 
+    end = 0.5, 
+    alpha = 0.8, 
+    option = "F"
+    ) +
   ggplot2::theme_bw() +
   ggplot2::labs(color = "Group") +
   ggplot2::scale_x_continuous(limits = c(-170, -30)) +
@@ -647,7 +658,12 @@ p2 <- ggplot2::ggplot() +
             ),
           size = 2.5
           ) +
-  ggplot2::scale_color_viridis_d(direction = -1, end = 0.8, alpha = 0.6) +
+  ggplot2::scale_color_viridis_d(
+    direction = -1, 
+    end = 0.5, 
+    alpha = 0.8, 
+    option = "F"
+    ) +
   ggplot2::theme_bw() +
   ggplot2::labs(color = "Group") +
   ggplot2::scale_x_continuous(limits = c(-170, -30)) +
@@ -666,8 +682,8 @@ The low R squared yielded by the model evaluation shows that the spatial model i
 
 The function `rf_evaluate()` only assesses the predictive performance on unseen data of one model at a time. If the goal is to compare two models, `rf_evaluate()` can be indeed ran twice, but `spatialRF` offers a more convenient option named [`rf_compare()`](https://blasbenito.github.io/spatialRF/reference/rf_compare.html). It takes as input a named list with as many models as the user needs to compare.
 
-```{r, fig.width=6, fig.height=5}
-comparison <- spatialRF::rf_compare(
+```{r, fig.width=6, fig.height=3}
+comparison <- rf_compare(
   models = list(
     `Non-spatial` = model.non.spatial,
     `Non-spatial tuned` = model.non.spatial.tuned,
@@ -677,8 +693,7 @@ comparison <- spatialRF::rf_compare(
   xy = plant_richness_df[, c("x", "y")],
   repetitions = 30,
   training.fraction = 0.8,
-  metrics = c("r.squared", "rmse"),
-  notch = TRUE,
+  metrics = "r.squared",
   seed = random.seed
   )
 ```

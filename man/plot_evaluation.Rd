@@ -6,12 +6,23 @@
 \usage{
 plot_evaluation(
   model,
+  fill.color = viridis::viridis(
+    3,
+    option = "F",
+    alpha = 0.8,
+    direction = -1
+    ),
+  line.color = "gray30",
   verbose = TRUE,
   notch = TRUE
 )
 }
 \arguments{
 \item{model}{A model resulting from \code{\link[=rf_evaluate]{rf_evaluate()}}.}
+
+\item{fill.color}{Character vector with three hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. \code{viridis::viridis(3)}). Default: \code{viridis::viridis(3, option = "F", alpha = 0.8, direction = -1)}}
+
+\item{line.color}{Character string, color of the line produced by \code{ggplot2::geom_smooth()}. Default: \code{"gray30"}}
 
 \item{verbose}{Logical, if \code{TRUE} the plot is printed. Default: \code{TRUE}}
 

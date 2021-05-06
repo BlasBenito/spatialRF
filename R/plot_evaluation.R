@@ -3,10 +3,19 @@
 #' @usage
 #' plot_evaluation(
 #'   model,
+#'   fill.color = viridis::viridis(
+#'     3,
+#'     option = "F",
+#'     alpha = 0.8,
+#'     direction = -1
+#'     ),
+#'   line.color = "gray30",
 #'   verbose = TRUE,
 #'   notch = TRUE
 #' )
 #' @param model A model resulting from [rf_evaluate()].
+#' @param fill.color Character vector with three hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. `viridis::viridis(3)`). Default: `viridis::viridis(3, option = "F", alpha = 0.8, direction = -1)`
+#' @param line.color Character string, color of the line produced by `ggplot2::geom_smooth()`. Default: `"gray30"`
 #' @param verbose Logical, if `TRUE` the plot is printed. Default: `TRUE`
 #' @param notch Logical, if `TRUE`, boxplot notches are plotted. Default: `TRUE`
 #' @return A ggplot.
@@ -41,7 +50,18 @@
 #' @rdname plot_evaluation
 #' @export
 #' @importFrom ggplot2 ggplot facet_wrap theme xlab ylab labs
-plot_evaluation <- function(model, verbose = TRUE, notch = TRUE){
+plot_evaluation <- function(
+  model,
+  fill.color = viridis::viridis(
+    3,
+    option = "F",
+    alpha = 0.8,
+    direction = -1
+  ),
+  line.color = "gray30",
+  verbose = TRUE,
+  notch = TRUE
+  ){
 
   #declaring variable because of check BS
   value <- NULL
@@ -79,6 +99,7 @@ plot_evaluation <- function(model, verbose = TRUE, notch = TRUE){
         fill = model
       ),
       notch = notch,
+      color = line.color
     ) +
     ggplot2::facet_wrap(
       "metric",
@@ -90,7 +111,7 @@ plot_evaluation <- function(model, verbose = TRUE, notch = TRUE){
     ggplot2::theme(legend.position = "none") +
     ggplot2::xlab("") +
     ggplot2::ylab("") +
-    ggplot2::scale_fill_viridis_d(end = 0.8, alpha = 0.75) +
+    ggplot2::scale_fill_manual(values = fill.color) +
     ggplot2::labs(fill = "Model") +
     ggplot2::ggtitle(
       paste0(
