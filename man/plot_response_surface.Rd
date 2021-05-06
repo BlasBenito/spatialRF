@@ -12,7 +12,7 @@ plot_response_surface(
   grid.resolution = 100,
   point.size.range = c(0.5, 2.5),
   point.alpha = 1,
-  fill.color = viridis::viridis(100, option = "F", direction = -1),
+  fill.color = viridis::viridis(100, option = "F", direction = -1, alpha = 0.9),
   point.color = "gray30",
   verbose = TRUE
 )
@@ -32,7 +32,7 @@ plot_response_surface(
 
 \item{point.alpha}{Numeric between 0 and 1, transparency of the points. Setting it to \code{0} removes all points. Default: \code{1}.}
 
-\item{fill.color}{Character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. \code{viridis::viridis(100)}). Default: \code{viridis::viridis(100, option = "F", direction = -1 )}}
+\item{fill.color}{Character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. \code{viridis::viridis(100)}). Default: \code{viridis::viridis(100, option = "F", direction = -1, alpha = 0.9)}}
 
 \item{point.color}{Character vector with a color name (e.g. "red4"). Default: \code{gray30}}
 

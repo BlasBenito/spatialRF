@@ -1,3 +1,9 @@
+## Version 1.1.0 (6/5/2021)
+
+Added new residuals diagnostics with the functions residuals_diagnostics() and plot_residuals_diagnostics(). This changed the name of the slot "spatial.autocorrelation.residuals" to "residuals", that now stores all the information relative to the residuals. 
+
+All plotting functions now allow to change the color of their key components.
+
 ## Version 1.0.9 (20/4/2021)
 
 Changed the names of function arguments from 'x' to 'model' or 'distance.matrix' for consistency. This might break code written previously, but I hope argument names are more self-explanatory now.

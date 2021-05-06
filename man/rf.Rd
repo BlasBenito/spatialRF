@@ -11,7 +11,7 @@ rf(
   distance.matrix = NULL,
   distance.thresholds = NULL,
   ranger.arguments = NULL,
-  scaled.importance = TRUE,
+  scaled.importance = FALSE,
   seed = NULL,
   verbose = TRUE
 )
@@ -29,7 +29,7 @@ rf(
 
 \item{ranger.arguments}{Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. The ranger arguments \code{x}, \code{y}, and \code{formula} are disabled. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.}
 
-\item{scaled.importance}{Logical, if \code{TRUE}, the function scales \code{data} with \link[base]{scale} and fits a new model to compute scaled variable importance scores. This makes variable importance scores of different models somewhat comparable. Default: \code{TRUE}}
+\item{scaled.importance}{Logical, if \code{TRUE}, the function scales \code{data} with \link[base]{scale} and fits a new model to compute scaled variable importance scores. This makes variable importance scores of different models somewhat comparable. Default: \code{FALSE}}
 
 \item{seed}{Integer, random seed to facilitate reproducibility. If set to a given number, the returned model is always the same. Default: \code{NULL}}
 

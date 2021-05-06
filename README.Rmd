@@ -15,7 +15,7 @@ always_allow_html: yes
 
 <!-- badges: start -->
 
-[![Devel-version](https://img.shields.io/badge/devel%20version-1.0.9-blue.svg)](https://github.com/blasbenito/spatialRF) [![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html) [![CRAN](https://img.shields.io/badge/CRAN-not_published_yet-red)](https://github.com/blasbenito/spatialRF) [![License](https://img.shields.io/badge/license-GPL--3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
+[![Devel-version](https://img.shields.io/badge/devel%20version-1.1.0-blue.svg)](https://github.com/blasbenito/spatialRF) [![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html) [![CRAN](https://img.shields.io/badge/CRAN-not_published_yet-red)](https://github.com/blasbenito/spatialRF) [![License](https://img.shields.io/badge/license-GPL--3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
 
 <!-- badges: end -->
 
@@ -342,7 +342,7 @@ spatialRF::plot_response_curves(
 If you need to do your own plots in a different way, the function [`get_response_curves()`](https://blasbenito.github.io/spatialRF/reference/get_response_curves.html) returns a data frame with the required data.
 
 ```{r}
-reponse.curves.df <- spatialRF::get_response_curves(model.non.spatial.repeat)
+reponse.curves.df <- spatialRF::get_response_curves(model.non.spatial)
 ```
 
 ```{r, echo = FALSE, warning = FALSE, message=FALSE}
