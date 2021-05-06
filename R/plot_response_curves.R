@@ -4,8 +4,9 @@
 #' @param variables Character vector, names of predictors to plot. If `NULL`, the most important variables (importance higher than the median) in `x` are selected. Default: `NULL`.
 #' @param quantiles Numeric vector with values between 0 and 1, argument `probs` of \link[stats]{quantile}. Quantiles to set the other variables to. Default: `c(0.1, 0.5, 0.9)`
 #' @param grid.resolution Integer between 20 and 500. Resolution of the plotted curve Default: `100`
-#' @param ncol Integer, argument of \link[patchwork]{wrap_plots}. Defaults to the rounded squared root of the number of plots.
-#' @param show.data Logical, if `TRUE`, the observed data is plotted along with the response curves. Default. `FALSE`
+#' @param line.color Character vector with colors, or function to generate colors for the lines representing `quantiles`. Must have the same number of colors as `quantiles` are defined. Default: `viridis::viridis(length(quantiles), option = "F", end = 0.9)`
+#' @param ncol Integer, argument of \link[patchwork]{wrap_plots}. Defaults to the rounded squared root of the number of plots. Default: `2`
+#' @param show.data Logical, if `TRUE`, the observed data is plotted along with the response curves. Default: `FALSE`
 #' @param verbose Logical, if TRUE the plot is printed. Default: `TRUE`
 #' @return A list with slots named after the selected `variables`, with one ggplot each.
 #' @details All variables that are not plotted in a particular response curve are set to the values of their respective quantiles, and the response curve for each one of these quantiles is shown in the plot. When the input model was fitted with [rf_repeat()] with `keep.models = TRUE`, then the plot shows the median of all model runs, and each model run separately as a thinner line. The output list can be plotted all at once with `patchwork::wrap_plots(p)` or `cowplot::plot_grid(plotlist = p)`, or one by one by extracting each plot from the list.
@@ -35,13 +36,32 @@ plot_response_curves <- function(
   variables = NULL,
   quantiles = c(0.1, 0.5, 0.9),
   grid.resolution = 200,
-  ncol = NULL,
+  line.color = viridis::viridis(
+    length(quantiles),
+    option = "F",
+    end = 0.9
+    ),
+  ncol = 2,
   show.data = FALSE,
   verbose = TRUE
 ){
 
   if(is.null(model)){
     stop("Argument 'x' must not be empty.")
+  }
+
+  if(length(quantiles) < length(line.color)){
+    line.color <- line.color[1:length(quantiles)]
+  }
+  if(length(line.color) < length(quantiles)){
+    if(verbose == TRUE){
+      message("Insufficient colors provided in 'line.color', used the default palette insted.")
+    }
+    line.color = viridis::viridis(
+      length(quantiles),
+      option = "F",
+      end = 0.9
+    )
   }
 
   #preparing grid resolution
@@ -244,10 +264,7 @@ plot_response_curves <- function(
           size = ifelse(several.models, 0.8, 0),
           alpha = ifelse(several.models, 1, 0)
         )  +
-        ggplot2::scale_color_viridis_d(
-          end = ifelse(length(quantiles) == 1, 0.1, 0.8),
-          direction = -1
-        ) +
+        ggplot2::scale_color_manual(values = line.color) +
         ggplot2::theme_bw() +
         # ggplot2::theme(legend.position = "none") +
         ggplot2::labs(
@@ -280,10 +297,7 @@ plot_response_curves <- function(
           size = ifelse(several.models, 0.8, 0),
           alpha = ifelse(several.models, 1, 0)
         )  +
-        ggplot2::scale_color_viridis_d(
-          end = ifelse(length(quantiles) == 1, 0.1, 0.8),
-          direction = -1
-        ) +
+        ggplot2::scale_color_manual(values = line.color) +
         ggplot2::theme_bw() +
         # ggplot2::theme(legend.position = "none") +
         ggplot2::labs(

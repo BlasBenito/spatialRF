@@ -9,6 +9,7 @@
 #' @param predictor.variable.names Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Default: `NULL`
 #' @param ranger.arguments Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.
 #' @param importance.threshold Value of variable importance from `model` used as threshold to select variables to generate candidate interactions. Default: Quantile 0.75 of the variable importance in `model`.
+#' @param point.color Colors of the plotted points. Can be a single color name (e.g. "red4"), a character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. `viridis::viridis(100)`). Default: `viridis::viridis(100, option = "F")`
 #' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same.
 #' @param verbose Logical If `TRUE`, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
 #' @param n.cores Integer, number of cores to use. Default = `parallel::detectCores() - 1`
@@ -46,6 +47,10 @@ rf_interactions <- function(
   predictor.variable.names = NULL,
   ranger.arguments = NULL,
   importance.threshold = NULL,
+  point.color = viridis::viridis(
+    100,
+    option = "F"
+    ),
   seed = NULL,
   verbose = TRUE,
   n.cores = parallel::detectCores() - 1,
@@ -361,10 +366,11 @@ rf_interactions <- function(
         data = plot.df,
         ggplot2::aes(
           x = x,
-          y = y
-        ),
-        alpha = 0.5
+          y = y,
+          color = y
+        )
       ) +
+      ggplot2::scale_color_gradientn(colors = point.color) +
       ggplot2::xlab(variable) +
       ggplot2::ylab(dependent.variable.name) +
       ggplot2::ggtitle(
@@ -376,6 +382,7 @@ rf_interactions <- function(
         )
       ) +
       ggplot2::theme_bw() +
+      ggplot2::theme(legend.position = "none") +
       ggplot2::coord_cartesian(
         xlim = c(min(plot.df$x), quantile(plot.df$x, 0.95)),
         ylim = c(min(plot.df$y), quantile(plot.df$y, 0.95))

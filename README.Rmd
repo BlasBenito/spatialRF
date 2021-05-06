@@ -157,11 +157,13 @@ spatialRF::plot_training_df(
   data = plant_richness_df,
   dependent.variable.name = dependent.variable.name,
   predictor.variable.names = predictor.variable.names,
-  ncol = 3
+  ncol = 3,
+  point.color = viridis::viridis(100, option = "F"),
+  line.color = "gray30"
   )
 ```
 
-The function `plot_training_df_moran()` helps to check the spatial autocorrelation of the response variable and the predictors. 
+The function `plot_training_df_moran()` helps to check the spatial autocorrelation of the response variable and the predictors. Low Moran's I p-values equal or larger than 0.05 indicate that there is no spatial autocorrelation for the given variable and distance threshold.
 
 ```{r, echo = FALSE, fig.width=10, fig.height=5}
 spatialRF::plot_training_df_moran(
@@ -171,7 +173,13 @@ spatialRF::plot_training_df_moran(
   distance.matrix = distance_matrix,
   distance.thresholds = c(
     0, 1000, 2000, 4000, 8000
-  )
+  ),
+  fill.color = viridis::viridis(
+    100,
+    option = "F",
+    direction = -1
+    ),
+  point.color = "gray30"
 )
 ```
 
@@ -253,7 +261,6 @@ The slot `selected.variables` contains the names of the selected predictors.
 predictor.variable.names$selected.variables
 ```
 
-
 # Fitting a non-spatial Random Forest model
 
 To fit basic Random Forest models `spatialRF` provides the [`rf()`](https://blasbenito.github.io/spatialRF/reference/rf.html) function. It takes the training data, the names of the response and the predictors, and optionally (to assess the spatial autocorrelation of the residuals), the distance matrix, and a vector of distance thresholds (in the same units as the distances in **distance_matrix**).
@@ -270,16 +277,30 @@ model.non.spatial <- spatialRF::rf(
   distance.matrix = distance_matrix,
   distance.thresholds = c(0, 1500, 3000),
   seed = random.seed,
-  verbose = FALSE
+  verbose = TRUE
 )
 ```
 
-The model output can be printed or plotted with a plethora of functions such as [`print()`](https://blasbenito.github.io/spatialRF/reference/print.html), [`print_importance()`](https://blasbenito.github.io/spatialRF/reference/print_importance.html), [`print_performance()`](https://blasbenito.github.io/spatialRF/reference/print_performance.html), [`plot_importance()`](https://blasbenito.github.io/spatialRF/reference/plot_importance.html), [`print_moran()`](https://blasbenito.github.io/spatialRF/reference/print_moran.html), [`plot_moran()`](https://blasbenito.github.io/spatialRF/reference/plot_moran.html), [`plot_response_curves()`](https://blasbenito.github.io/spatialRF/reference/plot_response_curves.html), or [`plot_response_surfaces)`](https://blasbenito.github.io/spatialRF/reference/plot_response_surfaces.html), among many others.
+The model output can be printed or plotted with a plethora of functions such as [`print()`](https://blasbenito.github.io/spatialRF/reference/print.html), [`print_importance()`](https://blasbenito.github.io/spatialRF/reference/print_importance.html), [`print_performance()`](https://blasbenito.github.io/spatialRF/reference/print_performance.html), [`plot_importance()`](https://blasbenito.github.io/spatialRF/reference/plot_importance.html), [`print_moran()`](https://blasbenito.github.io/spatialRF/reference/print_moran.html), [`plot_moran()`](https://blasbenito.github.io/spatialRF/reference/plot_moran.html), [`plot_response_curves()`](https://blasbenito.github.io/spatialRF/reference/plot_response_curves.html), or [`plot_response_surface())`](https://blasbenito.github.io/spatialRF/reference/plot_response_surfaces.html), and [`plot_residuals_diagnostics()`](https://blasbenito.github.io/spatialRF/reference/plot_residuals_diagnostics.html) among many others.
+
+The last one plots the normality and autocorrelation tests of the residuals, very helpful to get a good grasp on the behavior of the residuals.
+
+```{r, fig.width=7, fig.height=7}
+spatialRF::plot_residuals_diagnostics(model.non.spatial)
+```
 
 The function [`plot_response_curves()`](https://blasbenito.github.io/spatialRF/reference/plot_response_curves.html) plots partial dependence curves for the predictors (by default, only the ones with an importance score above the median), by setting the other predictors to their quantiles 0.1, 0.5, and 0.9. This helps to understand how the response curve of a variable changes when all the other variables have low, median, or high values.
 
 ```{r, fig.width = 9, fig.height=10}
-spatialRF::plot_response_curves(model.non.spatial)
+spatialRF::plot_response_curves(
+  model.non.spatial,
+  quantiles = c(0.1, 0.5, 0.9),
+  line.color = viridis::viridis(
+    3, #same colors as quantiles
+    option = "F", 
+    end = 0.9
+    )
+  )
 ```
 
 Setting the argument `quantiles` to 0.5 accentuates the shape of the response curves.
@@ -303,7 +324,7 @@ In this response surface, the predictors that are not shown are set to their med
 
 ```{r, fig.width = 6, fig.height=4.5}
 spatialRF::plot_importance(
-  model.non.spatial, 
+  model.non.spatial,
   verbose = FALSE
   )
 ```

@@ -565,6 +565,12 @@ rf_repeat <- function(
     predictions = m$predictions$values
   )
 
+  #plot of the residuals diagnostics
+  m$residuals$diagnostics <- plot_residuals_diagnostics(
+    m,
+    verbose = verbose
+  )
+
   #gathering models
   if(keep.models == TRUE){
 

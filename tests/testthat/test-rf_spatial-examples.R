@@ -8,7 +8,7 @@ test_that("`rf_spatial()` works", {
     distance.matrix = distance_matrix,
     distance.thresholds = c(0, 500, 1000),
     method = "hengl",
-    n.cores = 1,
+    n.cores = 7,
     verbose = FALSE
   )
   expect_equal(inherits(out, "rf_spatial"), TRUE)
@@ -26,7 +26,7 @@ test_that("`rf_spatial()` works", {
     distance.matrix = distance_matrix,
     distance.thresholds = c(0, 500, 1000),
     method = "mem.moran.sequential",
-    n.cores = 1,
+    n.cores = 7,
     verbose = FALSE
   )
   expect_equal(inherits(out, "rf_spatial"), TRUE)
@@ -44,7 +44,7 @@ test_that("`rf_spatial()` works", {
     distance.matrix = distance_matrix,
     distance.thresholds = c(0, 500, 1000),
     method = "mem.effect.recursive",
-    n.cores = 1,
+    n.cores = 7,
     verbose = FALSE
   )
   expect_equal(inherits(out, "rf_spatial"), TRUE)

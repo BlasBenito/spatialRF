@@ -6,11 +6,22 @@
 \usage{
 plot_importance(
   model,
+  fill.color = viridis::viridis(
+    100,
+    option = "F",
+    direction = -1,
+    alpha = 0.8
+   ),
+  line.color = "gray30",
   verbose = TRUE
 )
 }
 \arguments{
 \item{model}{A model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}.}
+
+\item{fill.color}{Character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. \code{viridis::viridis(100)}). Default: \code{viridis::viridis(100, option = "F", direction = -1)}}
+
+\item{line.color}{Character string, color of the line produced by \code{ggplot2::geom_smooth()}. Default: \code{"gray30"}}
 
 \item{verbose}{Logical, if \code{TRUE}, the plot is printed. Default: \code{TRUE}}
 }

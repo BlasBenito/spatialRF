@@ -9,7 +9,9 @@ plot_training_df(
   dependent.variable.name = NULL,
   predictor.variable.names = NULL,
   ncol = 4,
-  method = "loess"
+  method = "loess",
+  point.color = viridis::viridis(100, option = "F"),
+  line.color = "gray30"
 )
 }
 \arguments{
@@ -22,6 +24,10 @@ plot_training_df(
 \item{ncol}{Number of columns of the plot. Argument \code{ncol} of \link[patchwork]{wrap_plots}.}
 
 \item{method}{Method for \link[ggplot2]{geom_smooth}, one of: "lm", "glm", "gam", "loess", or a function, for example \code{mgcv::gam} Default: 'loess'}
+
+\item{point.color}{Colors of the plotted points. Can be a single color name (e.g. "red4"), a character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. \code{viridis::viridis(100)}). Default: \code{viridis::viridis(100, option = "F")}}
+
+\item{line.color}{Character string, color of the line produced by \code{ggplot2::geom_smooth()}. Default: \code{"gray30"}}
 }
 \value{
 A \link[patchwork]{wrap_plots} object.

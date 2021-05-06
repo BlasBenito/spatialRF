@@ -9,7 +9,9 @@ plot_training_df_moran(
   dependent.variable.name = NULL,
   predictor.variable.names = NULL,
   distance.matrix = NULL,
-  distance.thresholds = NULL
+  distance.thresholds = NULL,
+  fill.color = viridis::viridis(100, option = "F", direction = -1),
+  point.color = "gray30"
 )
 }
 \arguments{
@@ -22,6 +24,10 @@ plot_training_df_moran(
 \item{distance.matrix}{Squared matrix with the distances among the records in \code{data}. The number of rows of \code{distance.matrix} and \code{data} must be the same. If not provided, the computation of the Moran's I of the residuals is omitted. Default: \code{NULL}}
 
 \item{distance.thresholds}{Numeric vector, distances below each value are set to 0 on separated copies of the distance matrix for the computation of Moran's I at different neighborhood distances. If \code{NULL}, it defaults to \code{seq(0, max(distance.matrix)/4, length.out = 2)}. Default: \code{NULL}}
+
+\item{fill.color}{Character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. \code{viridis::viridis(100)}). Default: \code{viridis::viridis(100, option = "F", direction = -1)}}
+
+\item{point.color}{Character vector with a color name (e.g. "red4"). Default: \code{gray30}}
 }
 \value{
 A ggplot2 object.

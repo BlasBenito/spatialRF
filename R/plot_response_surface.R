@@ -7,6 +7,8 @@
 #' @param grid.resolution Integer between 20 and 500. Resolution of the plotted surface Default: `100`
 #' @param point.size.range Numeric vector of length 2 with the range of point sizes used by \link[ggplot2]{geom_point}. Using `c(-1, -1)` removes the points. Default: `c(0.5, 2.5)`
 #' @param point.alpha Numeric between 0 and 1, transparency of the points. Setting it to `0` removes all points. Default: `1`.
+#' @param fill.color Character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. `viridis::viridis(100)`). Default: `viridis::viridis(100, option = "F", direction = -1 )`
+#' @param point.color Character vector with a color name (e.g. "red4"). Default: `gray30`
 #' @param verbose Logical, if TRUE the plot is printed. Default: `TRUE`
 #' @return A list with slots named after the selected `quantiles`, each one with a ggplot.
 #' @details All variables that are not `a` or `b` in a response curve are set to the values of their respective quantiles to plot the response surfaces. The output list can be plotted all at once with `patchwork::wrap_plots(p)` or `cowplot::plot_grid(plotlist = p)`, or one by one by extracting each plot from the list.
@@ -42,6 +44,12 @@ plot_response_surface <- function(
   grid.resolution = 100,
   point.size.range = c(0.5, 2.5),
   point.alpha = 1,
+  fill.color = viridis::viridis(
+    100,
+    option = "F",
+    direction = -1
+  ),
+  point.color = "gray30",
   verbose = TRUE
   ){
 
@@ -125,10 +133,7 @@ plot_response_surface <- function(
           fill = response.variable
           )
         ) +
-      viridis::scale_fill_viridis(
-        direction = 1,
-        begin = 0.1
-      ) +
+      ggplot2::scale_fill_gradientn(colors = fill.color) +
       ggplot2::theme_bw() +
       ggplot2::geom_point(
         data = data,
@@ -138,7 +143,8 @@ plot_response_surface <- function(
           size = response.variable
         ),
         shape = 21,
-        alpha = point.alpha
+        alpha = point.alpha,
+        color = point.color
       ) +
       ggplot2::scale_size_continuous(range = point.size.range) +
       ggplot2::coord_cartesian(expand = FALSE) +
@@ -147,7 +153,8 @@ plot_response_surface <- function(
         size = "Observed"
       ) +
       ggplot2::ggtitle(paste0("Quantile ", quantile.i)) +
-      ggplot2::guides(size = ggplot2::guide_legend(reverse = TRUE))
+      ggplot2::guides(size = ggplot2::guide_legend(reverse = TRUE)) +
+      ggplot2::theme(plot.title = element_text(hjust = 0.5))
 
   }
 

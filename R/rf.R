@@ -420,6 +420,12 @@ rf <- function(
     predictions = predicted
     )
 
+  #plot of the residuals diagnostics
+  m$residuals$diagnostics <- plot_residuals_diagnostics(
+    m,
+    verbose = verbose
+  )
+
   #replacing local variable importance with the scaled one
   if(local.importance == TRUE){
     m$variable.importance.local <- m.scaled$variable.importance.local

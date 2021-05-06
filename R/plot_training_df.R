@@ -5,6 +5,8 @@
 #' @param predictor.variable.names Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Optionally, the result of [auto_cor()] or [auto_vif()] Default: `NULL`
 #' @param ncol Number of columns of the plot. Argument `ncol` of \link[patchwork]{wrap_plots}.
 #' @param method Method for \link[ggplot2]{geom_smooth}, one of: "lm", "glm", "gam", "loess", or a function, for example `mgcv::gam` Default: 'loess'
+#' @param point.color Colors of the plotted points. Can be a single color name (e.g. "red4"), a character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. `viridis::viridis(100)`). Default: `viridis::viridis(100, option = "F")`
+#' @param line.color Character string, color of the line produced by `ggplot2::geom_smooth()`. Default: `"gray30"`
 #' @return A \link[patchwork]{wrap_plots} object.
 #' @examples
 #' \dontrun{
@@ -26,7 +28,12 @@ plot_training_df <- function(
   dependent.variable.name = NULL,
   predictor.variable.names = NULL,
   ncol = 4,
-  method = "loess"
+  method = "loess",
+  point.color = viridis::viridis(
+    100,
+    option = "F"
+    ),
+  line.color = "gray30"
 ){
 
   if(
@@ -48,15 +55,15 @@ plot_training_df <- function(
       )
     ) +
       ggplot2::geom_point() +
-      ggplot2::scale_color_viridis_c(direction = -1) +
+      ggplot2::scale_color_gradientn(colors = point.color) +
       ggplot2::theme_bw() +
       ggplot2::theme(legend.position = "none") +
       ggplot2::geom_smooth(
         method = method,
-        col = "gray20",
+        col = line.color,
         formula = y ~ x,
         se = FALSE,
-        alpha = 0.5
+        alpha = 0.75
       )
   }
 

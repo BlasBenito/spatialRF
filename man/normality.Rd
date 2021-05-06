@@ -4,12 +4,10 @@
 \alias{residuals_test}
 \title{Normality test of a numeric vector}
 \usage{
-residuals_test(residuals, predictions)
+residuals_test(residuals)
 }
 \arguments{
 \item{residuals}{Numeric vector, model residuals.}
-
-\item{predictions}{Numeric vector, model predictions.}
 }
 \value{
 A list with four slots:
@@ -21,7 +19,7 @@ A list with four slots:
 }
 }
 \description{
-Applies a Shapiro-Wilks test to a numeric vector, and plots the qq plot and the histogram.
+Applies a Shapiro-Wilks test to a numeric vector, and returns a list with the statistic W, its p-value, and a character string with the interpretation.
 }
 \examples{
 \dontrun{

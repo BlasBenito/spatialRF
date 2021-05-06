@@ -8,7 +8,7 @@ test_that("`rf_repeat()` works", {
     distance.matrix = distance_matrix,
     distance.thresholds = c(0,100, 1000),
     repetitions = 10,
-    n.cores = 1,
+    n.cores = 7,
     verbose = FALSE
   )
   expect_s3_class(out, "rf_repeat")
