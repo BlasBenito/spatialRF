@@ -6,7 +6,7 @@
 #' @param distance.matrix Squared matrix with the distances among the records in `data`. The number of rows of `distance.matrix` and `data` must be the same. If not provided, the computation of the Moran's I of the residuals is omitted. Default: `NULL`
 #' @param distance.thresholds Numeric vector with neighborhood distances. All distances in the distance matrix below each value in `dustance.thresholds` are set to 0 for the computation of Moran's I. If `NULL`, it defaults to seq(0, max(distance.matrix), length.out = 4). Default: `NULL`
 #' @param ranger.arguments Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. The ranger arguments `x`, `y`, and `formula` are disabled. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.
-#' @param scaled.importance Logical, if `TRUE`, the function scales `data` with \link[base]{scale} and fits a new model to compute scaled variable importance scores. This makes variable importance scores of different models somewhat comparable. Default: `TRUE`
+#' @param scaled.importance Logical, if `TRUE`, the function scales `data` with \link[base]{scale} and fits a new model to compute scaled variable importance scores. This makes variable importance scores of different models somewhat comparable. Default: `FALSE`
 #' @param seed Integer, random seed to facilitate reproducibility. If set to a given number, the returned model is always the same. Default: `NULL`
 #' @param verbose Boolean. If TRUE, messages and plots generated during the execution of the function are displayed. Default: `TRUE`
 #' @return A ranger model with several new slots:
@@ -84,7 +84,7 @@ rf <- function(
   distance.matrix = NULL,
   distance.thresholds = NULL,
   ranger.arguments = NULL,
-  scaled.importance = TRUE,
+  scaled.importance = FALSE,
   seed = NULL,
   verbose = TRUE
 ){
