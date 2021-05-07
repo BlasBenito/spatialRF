@@ -18,9 +18,6 @@ interactions <- spatialRF::rf_interactions(
 
 #rf()
 #############################################
-data(plant_richness_df)
-data(distance_matrix)
-
 x <- rf(
   data = plant_richness_df,
   dependent.variable.name = "richness_species_vascular",
@@ -42,12 +39,13 @@ x.local <- rf(
   predictor.variable.names = colnames(plant_richness_df)[5:21],
   distance.matrix = distance_matrix,
   ranger.arguments = ranger.arguments,
-  scaled.importance = TRUE,
+  scaled.importance = FALSE,
   verbose = FALSE
 )
 
 randomForestExplainer::measure_importance(x.local)
-randomForestExplainer::explain_forest(x.local, interactions = TRUE, data = plant_richness_df)
+randomForestExplainer::min_depth_distribution(x.local) %>%
+  randomForestExplainer::plot_min_depth_distribution()
 
 local.importance <- cbind(
   xy,

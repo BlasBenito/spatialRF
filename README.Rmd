@@ -91,6 +91,8 @@ There are a few other libraries that will be useful during this tutorial.
 library(kableExtra)
 library(rnaturalearth)
 library(rnaturalearthdata)
+library(randomForestExplainer)
+library(pdp)
 ```
 
 # Data requirements
@@ -158,6 +160,8 @@ ggplot2::ggplot() +
 
 The predictors (columns 5 to 21) represent diverse factors that may influence plant richness such as sampling bias, the area of the ecoregion, climatic variables, human presence and impact, topography, geographical fragmentation, and features of the neighbors of each ecoregion. The figure below shows the scatterplots of the response variable (y axis) against each predictor (x axis).
 
+**Note:** Every plotting function in the package now allows changing the colors of their main features via specific arguments such as `point.color`, `line.color`, or `fill.color`.
+
 ```{r, echo = FALSE, fig.width=10, fig.height=14}
 spatialRF::plot_training_df(
   data = plant_richness_df,
@@ -185,7 +189,7 @@ spatialRF::plot_training_df_moran(
     option = "F",
     direction = -1
     ),
-  point.color = "gray30"
+  point.color = "gray40"
 )
 ```
 
@@ -293,7 +297,7 @@ The output is a list with several slots containing the information required to i
 
 The slot **residuals** (`model.non.spatial$residuals`) stores the values of the residuals and the results of the normality and spatial autocorrelation tests. The best function to interrogate it is [`plot_residuals_diagnostics()`].
 
-```{r, fig.width=7, fig.height=7}
+```{r, fig.width=6, fig.height=6}
 spatialRF::plot_residuals_diagnostics(
   model.non.spatial,
   verbose = FALSE
@@ -301,9 +305,11 @@ spatialRF::plot_residuals_diagnostics(
 ```
 The upper panels show the results of the normality test (interpretation in the title), the middle panel shows the relationship between the residuals and the fitted values, important to understand the behavior of the residuals, and the lower panel shows the Moran's I of the residuals across distance thresholds and their respective p-values.
 
-## Variable importance and response curves
+## Variable importance
 
-The slot **variable.importance** (`model.non.spatial$variable.importance`) contains the variable importance scores. These can be plotted with [`plot_importance()`](https://blasbenito.github.io/spatialRF/reference/plot_importance.html), printed with [`print_importance()`](https://blasbenito.github.io/spatialRF/reference/print_importance.html), and the dataframe retrieved with [`get_importance()`](https://blasbenito.github.io/spatialRF/reference/get_importance.html)
+### Global variable importance
+
+The slot **importance** (`model.non.spatial$variable.importance`) contains the variable importance scores. These can be plotted with [`plot_importance()`](https://blasbenito.github.io/spatialRF/reference/plot_importance.html), printed with [`print_importance()`](https://blasbenito.github.io/spatialRF/reference/print_importance.html), and the dataframe retrieved with [`get_importance()`](https://blasbenito.github.io/spatialRF/reference/get_importance.html)
 
 ```{r, fig.width = 6, fig.height=4.5}
 spatialRF::plot_importance(
@@ -311,7 +317,32 @@ spatialRF::plot_importance(
   verbose = FALSE
   )
 ```
-It is computed using the `permutation` method of the argument `importance` in `ranger::ranger()`, and represents the increase in mean squared error when a predictor is permuted across trees in the forest. If the argument `scaled.importance = TRUE` is used, the variable importance scores are computed from the scaled predictors, making the importance scores easier to compare across different models.
+Variable importance represents the increase in mean squared error when a predictor is permuted across trees in the forest. If the argument `scaled.importance = TRUE` is used, the variable importance scores are computed from the scaled predictors, making the importance scores easier to compare across different models.
+
+The package [`randomForestExplainer`](https://github.com/ModelOriented/randomForestExplainer) offers a couple of interesting options to deepen our understanding on variable importance scores. The first one is `measure_importance()`, which analyzes the forest to find out the average minimum tree depth at which each variable can be found (`mean_min_depth`), the number of nodes in which a variable was selected to make a split (`no_of_nodes`), the number of times the variable was selected as the first one to start a tree (`times_a_root`), and the probability of a variable to be in more nodes than what it would be expected by chance (`p_value`).
+
+```{r}
+importance.df <- randomForestExplainer::measure_importance(
+  model.non.spatial,
+  measures = c("mean_min_depth", "no_of_nodes", "times_a_root", "p_value")
+  )
+```
+
+```{r, echo = FALSE}
+kableExtra::kbl(
+  importance.df %>% 
+    dplyr::arrange(mean_min_depth) %>% 
+    dplyr::mutate(p_value = round(p_value, 4)),
+  format = "markdown"
+) %>%
+  kableExtra::kable_paper("hover", full_width = F)
+```
+
+### Local variable importance
+
+
+
+## Response curves and surfaces
 
 The variable importance scores are also used by the function [`plot_response_curves()`](https://blasbenito.github.io/spatialRF/reference/plot_response_curves.html) to plot partial dependence curves for the predictors (by default, only the ones with an importance score above the median). Building the partial dependency curve of a predictor requires setting the other predictors to their quantiles (0.1, 0.5, and 0.9 by default). This helps to understand how the response curve of a variable changes when all the other variables have low, centered, or high values. The function also allows to see the training data
 

@@ -239,6 +239,10 @@ rf <- function(
     classification = classification
   )
 
+  #get variable importance
+  variable.importance.global <- m$variable.importance
+  variable.importance.local <- m$variable.importance.local
+
   #if scaled.importance is TRUE
   if(scaled.importance == TRUE){
 
@@ -280,9 +284,9 @@ rf <- function(
       classification = classification
     )
 
-  } else {
-
-    m.scaled <- m
+    #overwrite variable importance
+    variable.importance.global <- m.scaled$variable.importance
+    variable.importance.local <- m.scaled$variable.importance.local
 
   }
 
@@ -327,11 +331,13 @@ rf <- function(
     classification = classification
   )
 
-  #importance dataframe
+  #importance slot
   m$importance <- list()
+
+  #global importance
   m$importance$per.variable <- data.frame(
-    variable = names(m.scaled$variable.importance),
-    importance = m.scaled$variable.importance
+    variable = names(variable.importance.global),
+    importance = variable.importance.global
   ) %>%
     tibble::remove_rownames() %>%
     dplyr::arrange(dplyr::desc(importance)) %>%
@@ -342,6 +348,19 @@ rf <- function(
     m$importance$per.variable,
     verbose = verbose
   )
+
+  #local importance (reconverting values from ^2 to sqrt())
+
+  #matrix with sign of the value
+  variable.importance.local.sign <- variable.importance.local
+  variable.importance.local.sign[variable.importance.local.sign >= 0] <- 1
+  variable.importance.local.sign[variable.importance.local.sign < 0 ] <- -1
+
+  #applying sqrt
+  variable.importance.local <- sqrt(abs(variable.importance.local)) * variable.importance.local.sign
+
+  #saving to the slot
+  m$importance$local <- variable.importance.local
 
   #computing predictions
   predicted <- stats::predict(
@@ -421,9 +440,6 @@ rf <- function(
     m,
     verbose = verbose
   )
-
-  #replacing local variable importance with the scaled one
-  m$importance$local <- m.scaled$variable.importance.local
 
   #adding rf class
   class(m) <- c("rf", "ranger")
