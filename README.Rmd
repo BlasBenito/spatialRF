@@ -317,7 +317,7 @@ spatialRF::plot_importance(
   verbose = FALSE
   )
 ```
-Variable importance represents the increase in mean squared error when a predictor is permuted across trees in the forest. If the argument `scaled.importance = TRUE` is used, the variable importance scores are computed from the scaled predictors, making the importance scores easier to compare across different models.
+Variable importance represents the percent increase in mean squared error when a predictor is permuted across trees in the forest. If the argument `scaled.importance = TRUE` is used, the variable importance scores are computed from the scaled predictors, making the importance scores easier to compare across different models.
 
 The package [`randomForestExplainer`](https://github.com/ModelOriented/randomForestExplainer) offers a couple of interesting options to deepen our understanding on variable importance scores. The first one is `measure_importance()`, which analyzes the forest to find out the average minimum tree depth at which each variable can be found (`mean_min_depth`), the number of nodes in which a variable was selected to make a split (`no_of_nodes`), the number of times the variable was selected as the first one to start a tree (`times_a_root`), and the probability of a variable to be in more nodes than what it would be expected by chance (`p_value`).
 
@@ -333,7 +333,7 @@ kableExtra::kbl(
   importance.df %>% 
     dplyr::arrange(mean_min_depth) %>% 
     dplyr::mutate(p_value = round(p_value, 4)),
-  format = "markdown"
+  format = "html"
 ) %>%
   kableExtra::kable_paper("hover", full_width = F)
 ```
@@ -379,7 +379,7 @@ reponse.curves.df <- spatialRF::get_response_curves(model.non.spatial)
 ```{r, echo = FALSE, warning = FALSE, message=FALSE}
 kableExtra::kbl(
   head(reponse.curves.df, n = 10),
-  format = "markdown"
+  format = "html"
 ) %>%
   kableExtra::kable_paper("hover", full_width = F)
 ```
@@ -608,7 +608,7 @@ If we take a look to the ten most important variables in `model.spatial` we will
 ```{r, echo = FALSE, warning = FALSE, message=FALSE}
 kableExtra::kbl(
   head(model.spatial$variable.importance$per.variable, n = 10),
-  format = "markdown"
+  format = "html"
 ) %>%
   kableExtra::kable_paper("hover", full_width = F)
 ```
@@ -725,7 +725,7 @@ x <- comparison$comparison.df %>%
 colnames(x) <- c("Model", "Metric", "Median")
 kableExtra::kbl(
   x,
-  format = "markdown"
+  format = "html"
   ) %>%
   kableExtra::kable_paper("hover", full_width = F)
 ```
@@ -752,7 +752,7 @@ In either case the result is a data frame with Moran's Eigenvector Maps ("just" 
 ```{r, echo = FALSE, warning = FALSE, message=FALSE}
 kableExtra::kbl(
   head(mems[, 1:4], n = 10),
-  format = "markdown"
+  format = "html"
 ) %>%
   kableExtra::kable_paper("hover", full_width = F)
 ```
@@ -882,7 +882,7 @@ comparison.df <- data.frame(
 
 kableExtra::kbl(
   comparison.df,
-  format = "markdown"
+  format = "html"
 ) %>%
   kableExtra::kable_paper("hover", full_width = F)
 ```
