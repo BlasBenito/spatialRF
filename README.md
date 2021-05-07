@@ -158,8 +158,7 @@ remotes::install_github(
   )
 ```
 
-    ## 
-    ##      checking for file ‘/tmp/Rtmp3UxfBz/remotes2554c5fd57524/BlasBenito-spatialRF-32cfa41/DESCRIPTION’ ...  ✓  checking for file ‘/tmp/Rtmp3UxfBz/remotes2554c5fd57524/BlasBenito-spatialRF-32cfa41/DESCRIPTION’
+    ##      checking for file ‘/tmp/RtmpqksPc9/remotes1e9d5e69ead670/BlasBenito-spatialRF-a9b950b/DESCRIPTION’ ...  ✓  checking for file ‘/tmp/RtmpqksPc9/remotes1e9d5e69ead670/BlasBenito-spatialRF-a9b950b/DESCRIPTION’
     ##   ─  preparing ‘spatialRF’:
     ##    checking DESCRIPTION meta-information ...  ✓  checking DESCRIPTION meta-information
     ##   ─  checking for LF line-endings in source and make files and shell scripts
@@ -446,7 +445,8 @@ An example is shown in the next section.
 names(predictor.variable.names)
 ```
 
-    ## [1] "vif"                   "selected.variables"    "selected.variables.df"
+    ## [1] "vif"                   "selected.variables"   
+    ## [3] "selected.variables.df"
 
 The slot `selected.variables` contains the names of the selected
 predictors.
@@ -1468,8 +1468,9 @@ spatial cross-validation results.
 names(model.non.spatial$evaluation)
 ```
 
-    ## [1] "metrics"           "training.fraction" "spatial.folds"    
-    ## [4] "per.fold"          "per.fold.long"     "per.model"        
+    ## [1] "metrics"           "training.fraction"
+    ## [3] "spatial.folds"     "per.fold"         
+    ## [5] "per.fold.long"     "per.model"        
     ## [7] "aggregated"
 
 The slot “spatial.folds”, produced by
@@ -1559,24 +1560,42 @@ to fit the model, all stored in the slot `ranger.arguments`.
 names(model.non.spatial$ranger.arguments)
 ```
 
-    ##  [1] "data"                         "dependent.variable.name"     
-    ##  [3] "predictor.variable.names"     "distance.matrix"             
-    ##  [5] "distance.thresholds"          "num.trees"                   
-    ##  [7] "mtry"                         "importance"                  
-    ##  [9] "scaled.importance"            "write.forest"                
-    ## [11] "probability"                  "min.node.size"               
-    ## [13] "max.depth"                    "replace"                     
-    ## [15] "sample.fraction"              "case.weights"                
-    ## [17] "class.weights"                "splitrule"                   
-    ## [19] "num.random.splits"            "alpha"                       
-    ## [21] "minprop"                      "split.select.weights"        
-    ## [23] "always.split.variables"       "respect.unordered.factors"   
-    ## [25] "scale.permutation.importance" "local.importance"            
-    ## [27] "regularization.factor"        "regularization.usedepth"     
-    ## [29] "keep.inbag"                   "inbag"                       
-    ## [31] "holdout"                      "quantreg"                    
-    ## [33] "oob.error"                    "num.threads"                 
-    ## [35] "save.memory"                  "seed"                        
+    ##  [1] "data"                        
+    ##  [2] "dependent.variable.name"     
+    ##  [3] "predictor.variable.names"    
+    ##  [4] "distance.matrix"             
+    ##  [5] "distance.thresholds"         
+    ##  [6] "num.trees"                   
+    ##  [7] "mtry"                        
+    ##  [8] "importance"                  
+    ##  [9] "scaled.importance"           
+    ## [10] "write.forest"                
+    ## [11] "probability"                 
+    ## [12] "min.node.size"               
+    ## [13] "max.depth"                   
+    ## [14] "replace"                     
+    ## [15] "sample.fraction"             
+    ## [16] "case.weights"                
+    ## [17] "class.weights"               
+    ## [18] "splitrule"                   
+    ## [19] "num.random.splits"           
+    ## [20] "alpha"                       
+    ## [21] "minprop"                     
+    ## [22] "split.select.weights"        
+    ## [23] "always.split.variables"      
+    ## [24] "respect.unordered.factors"   
+    ## [25] "scale.permutation.importance"
+    ## [26] "local.importance"            
+    ## [27] "regularization.factor"       
+    ## [28] "regularization.usedepth"     
+    ## [29] "keep.inbag"                  
+    ## [30] "inbag"                       
+    ## [31] "holdout"                     
+    ## [32] "quantreg"                    
+    ## [33] "oob.error"                   
+    ## [34] "num.threads"                 
+    ## [35] "save.memory"                 
+    ## [36] "seed"                        
     ## [37] "classification"
 
 The importance scores of a model fitted with `rf_repeat()` are plotted
@@ -1637,64 +1656,80 @@ model.non.spatial.repeat
     ## 
     ## Model residuals 
     ##   - Stats: 
-    ##           ┌──────────┬─────────┬─────────┬────────┬────────┬─────────┐
-    ##           │ Min.     │ 1st Q.  │ Median  │ Mean   │ 3rd Q. │ Max.    │
-    ##           ├──────────┼─────────┼─────────┼────────┼────────┼─────────┤
-    ##           │ -1907.20 │ -468.56 │ -188.08 │ -20.77 │ 188.13 │ 8135.49 │
-    ##           └──────────┴─────────┴─────────┴────────┴────────┴─────────┘
-    ##   - Normality: 
+    ##      ┌──────────┬─────────┬─────────┬────────┐
+    ##      │ Min.     │ 1st Q.  │ Median  │ Mean   │
+    ##      ├──────────┼─────────┼─────────┼────────┤
+    ##      │ -1907.20 │ -468.56 │ -188.08 │ -20.77 │
+    ##      └──────────┴─────────┴─────────┴────────┘
+    ## 
+    ## 4/6 columns shown.  - Normality: 
     ##       - Shapiro-Wilks W: 0.733 
     ##       - p-value        : 0 
     ##       - Interpretation : Residuals are not normal 
     ## 
     ##   - Spatial autocorrelation: 
-    ##              ┌──────────┬───────────┬─────────┬──────────────────┐
-    ##              │ Distance │ Moran's I │ P value │ Interpretation   │
-    ##              ├──────────┼───────────┼─────────┼──────────────────┤
-    ##              │      0.0 │     0.148 │   0.000 │ Positive spatial │
-    ##              │          │           │         │ correlation      │
-    ##              ├──────────┼───────────┼─────────┼──────────────────┤
-    ##              │   1500.0 │     0.036 │   0.001 │ Positive spatial │
-    ##              │          │           │         │ correlation      │
-    ##              ├──────────┼───────────┼─────────┼──────────────────┤
-    ##              │   3000.0 │     0.007 │   0.107 │ No spatial       │
-    ##              │          │           │         │ correlation      │
-    ##              └──────────┴───────────┴─────────┴──────────────────┘
+    ##   ┌──────────┬───────────┬─────────┬───────────┐
+    ##   │ Distance │ Moran's I │ P value │ Interpret │
+    ##   │          │           │         │ ation     │
+    ##   ├──────────┼───────────┼─────────┼───────────┤
+    ##   │      0.0 │     0.148 │   0.000 │ Positive  │
+    ##   │          │           │         │ spatial   │
+    ##   │          │           │         │ correlati │
+    ##   │          │           │         │ on        │
+    ##   ├──────────┼───────────┼─────────┼───────────┤
+    ##   │   1500.0 │     0.036 │   0.001 │ Positive  │
+    ##   │          │           │         │ spatial   │
+    ##   │          │           │         │ correlati │
+    ##   │          │           │         │ on        │
+    ##   ├──────────┼───────────┼─────────┼───────────┤
+    ##   │   3000.0 │     0.007 │   0.107 │ No        │
+    ##   │          │           │         │ spatial   │
+    ##   │          │           │         │ correlati │
+    ##   │          │           │         │ on        │
+    ##   └──────────┴───────────┴─────────┴───────────┘
     ## 
     ## Variable importance: 
-    ##              ┌──────────────────────────────────────┬────────────┐
-    ##              │ Variable                             │ Importance │
-    ##              ├──────────────────────────────────────┼────────────┤
-    ##              │ climate_bio1_average                 │   1821.664 │
-    ##              ├──────────────────────────────────────┼────────────┤
-    ##              │ climate_bio1_average_X_bias_area_km2 │   1576.992 │
-    ##              ├──────────────────────────────────────┼────────────┤
-    ##              │ climate_hypervolume                  │   1491.059 │
-    ##              ├──────────────────────────────────────┼────────────┤
-    ##              │ human_population_density             │   1143.874 │
-    ##              ├──────────────────────────────────────┼────────────┤
-    ##              │ neighbors_count                      │    912.874 │
-    ##              ├──────────────────────────────────────┼────────────┤
-    ##              │ bias_species_per_record              │    814.218 │
-    ##              ├──────────────────────────────────────┼────────────┤
-    ##              │ fragmentation_cohesion               │    696.268 │
-    ##              ├──────────────────────────────────────┼────────────┤
-    ##              │ neighbors_area                       │    662.428 │
-    ##              ├──────────────────────────────────────┼────────────┤
-    ##              │ climate_velocity_lgm_average         │    643.557 │
-    ##              ├──────────────────────────────────────┼────────────┤
-    ##              │ topography_elevation_average         │    618.643 │
-    ##              ├──────────────────────────────────────┼────────────┤
-    ##              │ climate_aridity_index_average        │    614.939 │
-    ##              ├──────────────────────────────────────┼────────────┤
-    ##              │ neighbors_percent_shared_edge        │    585.492 │
-    ##              ├──────────────────────────────────────┼────────────┤
-    ##              │ fragmentation_division               │    518.689 │
-    ##              ├──────────────────────────────────────┼────────────┤
-    ##              │ climate_bio15_minimum                │    502.518 │
-    ##              ├──────────────────────────────────────┼────────────┤
-    ##              │ landcover_herbs_percent_average      │    434.588 │
-    ##              └──────────────────────────────────────┴────────────┘
+    ##       ┌────────────────────────┬────────────┐
+    ##       │ Variable               │ Importance │
+    ##       ├────────────────────────┼────────────┤
+    ##       │ climate_bio1_average   │   1821.664 │
+    ##       ├────────────────────────┼────────────┤
+    ##       │ climate_bio1_average_X │   1576.992 │
+    ##       │ _bias_area_km2         │            │
+    ##       ├────────────────────────┼────────────┤
+    ##       │ climate_hypervolume    │   1491.059 │
+    ##       ├────────────────────────┼────────────┤
+    ##       │ human_population_densi │   1143.874 │
+    ##       │ ty                     │            │
+    ##       ├────────────────────────┼────────────┤
+    ##       │ neighbors_count        │    912.874 │
+    ##       ├────────────────────────┼────────────┤
+    ##       │ bias_species_per_recor │    814.218 │
+    ##       │ d                      │            │
+    ##       ├────────────────────────┼────────────┤
+    ##       │ fragmentation_cohesion │    696.268 │
+    ##       ├────────────────────────┼────────────┤
+    ##       │ neighbors_area         │    662.428 │
+    ##       ├────────────────────────┼────────────┤
+    ##       │ climate_velocity_lgm_a │    643.557 │
+    ##       │ verage                 │            │
+    ##       ├────────────────────────┼────────────┤
+    ##       │ topography_elevation_a │    618.643 │
+    ##       │ verage                 │            │
+    ##       ├────────────────────────┼────────────┤
+    ##       │ climate_aridity_index_ │    614.939 │
+    ##       │ average                │            │
+    ##       ├────────────────────────┼────────────┤
+    ##       │ neighbors_percent_shar │    585.492 │
+    ##       │ ed_edge                │            │
+    ##       ├────────────────────────┼────────────┤
+    ##       │ fragmentation_division │    518.689 │
+    ##       ├────────────────────────┼────────────┤
+    ##       │ climate_bio15_minimum  │    502.518 │
+    ##       ├────────────────────────┼────────────┤
+    ##       │ landcover_herbs_percen │    434.588 │
+    ##       │ t_average              │            │
+    ##       └────────────────────────┴────────────┘
 
 And the function `get_performance()` offers a nice summary with the
 median and the median absolute deviation.
@@ -2027,8 +2062,9 @@ several objects that summarize the spatial cross-validation results.
 names(model.spatial.tuned$evaluation)
 ```
 
-    ## [1] "metrics"           "training.fraction" "spatial.folds"    
-    ## [4] "per.fold"          "per.fold.long"     "per.model"        
+    ## [1] "metrics"           "training.fraction"
+    ## [3] "spatial.folds"     "per.fold"         
+    ## [5] "per.fold.long"     "per.model"        
     ## [7] "aggregated"
 
 The slot “spatial.folds”, produced by

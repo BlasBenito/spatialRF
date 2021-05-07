@@ -2,15 +2,15 @@ citHeader("To cite spatialRF in publications use:")
 
 citEntry(
   entry    = "Article",
-  title    = ,
-  author   = Blas M. Benito,
+  title    = "spatialRF: Easy Spatial Regression with Random Forest",
+  author   = "Blas M Benito",
   journal  = ,
-  year     = ,
+  year     = "2021",
   volume   = ,
   number   = ,
   pages    = ,
-  url      = ,
+  url      = "https://blasbenito.github.io/spatialRF/",
   textVersion = paste(
-    Blas M. Benito, 2021. spatialRF: Easy Spatial Regression with Random Forest. URL: https://blasbenito.github.io/spatialRF/
+    "Blas M. Benito, 2021. spatialRF: Easy Spatial Regression with Random Forest. URL: https://blasbenito.github.io/spatialRF/"
   )
 )
