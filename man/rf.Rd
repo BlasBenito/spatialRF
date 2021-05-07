@@ -39,7 +39,7 @@ rf(
 A ranger model with several new slots:
 \itemize{
 \item \code{ranger.arguments}: Stores the values of the arguments used to fit the ranger model.
-\item \code{importance}: A list containing a data frame with the predictors ordered by their importance, a ggplot showing the importance values, and local importance scores.
+\item \code{importance}: A list containing a data frame with the predictors ordered by their importance, a ggplot showing the importance values, and local importance scores (difference in accuracy between permuted and non permuted variables for every case, computed on the out-of-bag data).
 \item \code{performance}: performance scores: R squared on out-of-bag data, R squared (cor(observed, predicted) ^ 2), pseudo R squared (cor(observed, predicted)), RMSE, and normalized RMSE (NRMSE).
 \item \code{residuals}: residuals, normality test of the residuals computed with \code{\link[=residuals_test]{residuals_test()}}, and spatial autocorrelation of the residuals computed with \code{\link[=moran_multithreshold]{moran_multithreshold()}}.
 }
