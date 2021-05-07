@@ -226,7 +226,6 @@ kableExtra::kbl(
 patchwork::wrap_plots(interactions$plot)
 ```
 
-
 Here `rf_interactions()` suggests several candidate interactions ordered by their impact on the model. The function cannot say whether an interaction *makes sense*, and it is up to the user to choose wisely whether to select an interaction or not.
 
 For the sake of the example, I will choose `climate_bio1_average_X_bias_area_km2`, hypothesizing that ecoregions with higher area (bias_area_km2) and energy (represented by the annual temperature, climate_bio1_average) will have more species of vascular plants (this is just an example, many other rationales are possible when choosing between candidate interactions). The data required to add the interaction to the training data is in the output of `rf_interactions()`.
@@ -312,6 +311,7 @@ spatialRF::plot_residuals_diagnostics(
   verbose = FALSE
   )
 ```
+
 The upper panels show the results of the normality test (interpretation in the title), the middle panel shows the relationship between the residuals and the fitted values, important to understand the behavior of the residuals, and the lower panel shows the Moran's I of the residuals across distance thresholds and their respective p-values.
 
 ## Variable importance
@@ -326,6 +326,7 @@ spatialRF::plot_importance(
   verbose = FALSE
   )
 ```
+
 Variable importance represents the increase in mean error (computed on the out-of-bag data) across trees when a predictor is permuted. Values lower than zero would indicate that the variable performs worse than a random one. 
 
 If the argument `scaled.importance = TRUE` is used, the variable importance scores are computed from the scaled data, making the importance scores easier to compare across different models.
@@ -436,6 +437,7 @@ p2 <- ggplot2::ggplot() +
 
 p1 + p2
 ```
+
 In these maps, values lower than 0 indicate that for a given record, the permuted version of the variable led to an accuracy score even higher than the one of the non-permuted variable, so again these negative values can be interpreted as "worse than chance".
 
 ## Response curves and surfaces
@@ -465,6 +467,7 @@ spatialRF::plot_response_curves(
   ncol = 3
   )
 ```
+
 The package [`pdp`](https://bgreenwell.github.io/pdp/index.html) provides a general way to plot partial dependence plots.
 
 ```{r, fig.width=4, fig.height=3}
@@ -476,8 +479,6 @@ pdp::partial(
   grid.resolution = 200
   )
 ```
-
-
 
 If you need to do your own plots in a different way, the function [`get_response_curves()`](https://blasbenito.github.io/spatialRF/reference/get_response_curves.html) returns a data frame with the required data.
 
@@ -502,6 +503,7 @@ spatialRF::plot_response_surface(
   b = "neighbors_count"
   )
 ```
+
 This can be done as well with the `pdp` package, that uses a slightly different algorithm to plot interaction surfaces.
 
 ```{r, fig.height = 3.2, fig.width=4.5}
@@ -612,6 +614,7 @@ p2 <- ggplot2::ggplot() +
 
 p1 | p2
 ```
+
 The information available in this new slot can be accessed with the functions [`print_evaluation()`](https://blasbenito.github.io/spatialRF/reference/print_evaluation.html), [`plot_evaluation()`](https://blasbenito.github.io/spatialRF/reference/plot_evaluation.html), and [`get_evaluation()`](https://blasbenito.github.io/spatialRF/reference/get_evaluation.html).
 
 ```{r, fig.height = 2, fig.width=4.5}
@@ -682,11 +685,10 @@ model.non.spatial.repeat
 ```
 And the function `get_performance()` offers a nice summary with the median and the median absolute deviation.
 
-<<<<<<< HEAD
 ```{r, echo = FALSE, warning = FALSE, message=FALSE}
 kableExtra::kbl(
   head(reponse.curves.df, n = 10),
-  format = "markdown"
+  format = "html"
 ) %>%
   kableExtra::kable_paper("hover", full_width = F)
 ```
@@ -859,8 +861,7 @@ model.spatial.tuned <- rf_tuning(
 )
 ```
 
-<<<<<<< HEAD
-# Assessing model performance on spatially independent folds
+# Assessing model performance on spatially mindependent folds
 
 The function [`rf_evaluate()`](https://blasbenito.github.io/spatialRF/reference/rf_evaluate.html) separates the training data into a number of spatially independent training and testing folds, fits a model on each training fold, predicts over each testing fold, and computes performance measures, to finally aggregate them across model repetitions. Let's see how it works.
 
@@ -932,7 +933,6 @@ p2 <- ggplot2::ggplot() +
 p1 | p2
 ```
 
-
 The low R squared yielded by the model evaluation shows that the spatial model is hard to transfer outside of the training space, because spatial structures are not transferable when the data is irregularly distributed, as it is the case with the dataset `plant_richness_df`. The comparison below shows how non-spatial models may show better (not bad, not great) evaluation scores on independent spatial folds.
 
 # Comparing several models
@@ -968,6 +968,7 @@ kableExtra::kbl(
   ) %>%
   kableExtra::kable_paper("hover", full_width = F)
 ```
+
 # Working with a binomial response
 
 This package can also perform binomial regression on response variables with zeros and ones. Let's work on a quick example by turning the response variable of the previous models into a binomial one. 
@@ -1020,7 +1021,6 @@ model.non.spatial <- spatialRF::rf_evaluate(
 
 spatialRF::print_evaluation(model.non.spatial)
 ```
-That's a pretty good result I'd say! 
 
 Now, let's see if this model needs spatial predictors (beyond this point, SDMs are no longer possible, because the spatial predictors cannot be represented as rasters, as they are mathematical representations of the distances among the training points).
 
@@ -1030,6 +1030,7 @@ spatialRF::plot_moran(
   verbose = FALSE
   )
 ```
+
 The Moran's I tests of the residuals shows that they are spatially autocorrelated for a neighborhood distance of 0 km. Let's try to fix that with a spatial model.
 
 ```{r, fig.width=4, fig.height=2.5, message=FALSE, warning=FALSE}

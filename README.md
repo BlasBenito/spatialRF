@@ -27,6 +27,8 @@
     `rf_spatial()`](#fitting-a-spatial-model-with-rf_spatial)
 -   [Tuning Random Forest
     hyperparameters](#tuning-random-forest-hyperparameters-1)
+-   [Assessing model performance on spatially mindependent
+    folds](#assessing-model-performance-on-spatially-mindependent-folds)
 -   [Comparing several models](#comparing-several-models)
 -   [Working with a binomial
     response](#working-with-a-binomial-response)
@@ -158,7 +160,7 @@ remotes::install_github(
   )
 ```
 
-    ##      checking for file ‘/tmp/RtmpqksPc9/remotes1e9d5e69ead670/BlasBenito-spatialRF-a9b950b/DESCRIPTION’ ...  ✓  checking for file ‘/tmp/RtmpqksPc9/remotes1e9d5e69ead670/BlasBenito-spatialRF-a9b950b/DESCRIPTION’
+    ##      checking for file ‘/tmp/RtmpqksPc9/remotes1e9d5e527ab00c/BlasBenito-spatialRF-b782bfb/DESCRIPTION’ ...  ✓  checking for file ‘/tmp/RtmpqksPc9/remotes1e9d5e527ab00c/BlasBenito-spatialRF-b782bfb/DESCRIPTION’
     ##   ─  preparing ‘spatialRF’:
     ##    checking DESCRIPTION meta-information ...  ✓  checking DESCRIPTION meta-information
     ##   ─  checking for LF line-endings in source and make files and shell scripts
@@ -523,11 +525,12 @@ spatialRF::plot_residuals_diagnostics(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-15-1.png)<!-- --> The upper
-panels show the results of the normality test (interpretation in the
-title), the middle panel shows the relationship between the residuals
-and the fitted values, important to understand the behavior of the
-residuals, and the lower panel shows the Moran’s I of the residuals
+![](README_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+
+The upper panels show the results of the normality test (interpretation
+in the title), the middle panel shows the relationship between the
+residuals and the fitted values, important to understand the behavior of
+the residuals, and the lower panel shows the Moran’s I of the residuals
 across distance thresholds and their respective p-values.
 
 ## Variable importance
@@ -549,11 +552,12 @@ spatialRF::plot_importance(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-16-1.png)<!-- --> Variable
-importance represents the increase in mean error (computed on the
-out-of-bag data) across trees when a predictor is permuted. Values lower
-than zero would indicate that the variable performs worse than a random
-one.
+![](README_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+
+Variable importance represents the increase in mean error (computed on
+the out-of-bag data) across trees when a predictor is permuted. Values
+lower than zero would indicate that the variable performs worse than a
+random one.
 
 If the argument `scaled.importance = TRUE` is used, the variable
 importance scores are computed from the scaled data, making the
@@ -1079,11 +1083,12 @@ local.importance <- cbind(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-22-1.png)<!-- --> In these
-maps, values lower than 0 indicate that for a given record, the permuted
-version of the variable led to an accuracy score even higher than the
-one of the non-permuted variable, so again these negative values can be
-interpreted as “worse than chance”.
+![](README_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
+
+In these maps, values lower than 0 indicate that for a given record, the
+permuted version of the variable led to an accuracy score even higher
+than the one of the non-permuted variable, so again these negative
+values can be interpreted as “worse than chance”.
 
 ## Response curves and surfaces
 
@@ -1124,9 +1129,10 @@ spatialRF::plot_response_curves(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-24-1.png)<!-- --> The package
-[`pdp`](https://bgreenwell.github.io/pdp/index.html) provides a general
-way to plot partial dependence plots.
+![](README_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
+
+The package [`pdp`](https://bgreenwell.github.io/pdp/index.html)
+provides a general way to plot partial dependence plots.
 
 ``` r
 pdp::partial(
@@ -1386,9 +1392,10 @@ spatialRF::plot_response_surface(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-28-1.png)<!-- --> This can be
-done as well with the `pdp` package, that uses a slightly different
-algorithm to plot interaction surfaces.
+![](README_files/figure-gfm/unnamed-chunk-28-1.png)<!-- -->
+
+This can be done as well with the `pdp` package, that uses a slightly
+different algorithm to plot interaction surfaces.
 
 ``` r
 pdp::partial(
@@ -1479,8 +1486,9 @@ contains the indices of the training and testing cases for each
 cross-validation repetition. The maps below show two sets of training
 and testing folds.
 
-![](README_files/figure-gfm/unnamed-chunk-33-1.png)<!-- --> The
-information available in this new slot can be accessed with the
+![](README_files/figure-gfm/unnamed-chunk-33-1.png)<!-- -->
+
+The information available in this new slot can be accessed with the
 functions
 [`print_evaluation()`](https://blasbenito.github.io/spatialRF/reference/print_evaluation.html),
 [`plot_evaluation()`](https://blasbenito.github.io/spatialRF/reference/plot_evaluation.html),
@@ -1734,20 +1742,232 @@ model.non.spatial.repeat
 And the function `get_performance()` offers a nice summary with the
 median and the median absolute deviation.
 
-&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
-
-| response | predictor | quantile | model | predictor.name         | response.name               |
-|---------:|----------:|:---------|------:|:-----------------------|:----------------------------|
-| 1478.935 | -183.8091 | 0.1      |     1 | climate\_bio1\_average | richness\_species\_vascular |
-| 1478.935 | -181.5008 | 0.1      |     1 | climate\_bio1\_average | richness\_species\_vascular |
-| 1478.935 | -179.1924 | 0.1      |     1 | climate\_bio1\_average | richness\_species\_vascular |
-| 1478.935 | -176.8841 | 0.1      |     1 | climate\_bio1\_average | richness\_species\_vascular |
-| 1478.935 | -174.5758 | 0.1      |     1 | climate\_bio1\_average | richness\_species\_vascular |
-| 1478.935 | -172.2675 | 0.1      |     1 | climate\_bio1\_average | richness\_species\_vascular |
-| 1478.935 | -169.9592 | 0.1      |     1 | climate\_bio1\_average | richness\_species\_vascular |
-| 1478.935 | -167.6509 | 0.1      |     1 | climate\_bio1\_average | richness\_species\_vascular |
-| 1478.935 | -165.3426 | 0.1      |     1 | climate\_bio1\_average | richness\_species\_vascular |
-| 1478.935 | -163.0343 | 0.1      |     1 | climate\_bio1\_average | richness\_species\_vascular |
+<table class=" lightable-paper lightable-hover" style="font-family: &quot;Arial Narrow&quot;, arial, helvetica, sans-serif; width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:right;">
+response
+</th>
+<th style="text-align:right;">
+predictor
+</th>
+<th style="text-align:left;">
+quantile
+</th>
+<th style="text-align:right;">
+model
+</th>
+<th style="text-align:left;">
+predictor.name
+</th>
+<th style="text-align:left;">
+response.name
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+1478.935
+</td>
+<td style="text-align:right;">
+-183.8091
+</td>
+<td style="text-align:left;">
+0.1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+climate\_bio1\_average
+</td>
+<td style="text-align:left;">
+richness\_species\_vascular
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1478.935
+</td>
+<td style="text-align:right;">
+-181.5008
+</td>
+<td style="text-align:left;">
+0.1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+climate\_bio1\_average
+</td>
+<td style="text-align:left;">
+richness\_species\_vascular
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1478.935
+</td>
+<td style="text-align:right;">
+-179.1924
+</td>
+<td style="text-align:left;">
+0.1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+climate\_bio1\_average
+</td>
+<td style="text-align:left;">
+richness\_species\_vascular
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1478.935
+</td>
+<td style="text-align:right;">
+-176.8841
+</td>
+<td style="text-align:left;">
+0.1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+climate\_bio1\_average
+</td>
+<td style="text-align:left;">
+richness\_species\_vascular
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1478.935
+</td>
+<td style="text-align:right;">
+-174.5758
+</td>
+<td style="text-align:left;">
+0.1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+climate\_bio1\_average
+</td>
+<td style="text-align:left;">
+richness\_species\_vascular
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1478.935
+</td>
+<td style="text-align:right;">
+-172.2675
+</td>
+<td style="text-align:left;">
+0.1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+climate\_bio1\_average
+</td>
+<td style="text-align:left;">
+richness\_species\_vascular
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1478.935
+</td>
+<td style="text-align:right;">
+-169.9592
+</td>
+<td style="text-align:left;">
+0.1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+climate\_bio1\_average
+</td>
+<td style="text-align:left;">
+richness\_species\_vascular
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1478.935
+</td>
+<td style="text-align:right;">
+-167.6509
+</td>
+<td style="text-align:left;">
+0.1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+climate\_bio1\_average
+</td>
+<td style="text-align:left;">
+richness\_species\_vascular
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1478.935
+</td>
+<td style="text-align:right;">
+-165.3426
+</td>
+<td style="text-align:left;">
+0.1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+climate\_bio1\_average
+</td>
+<td style="text-align:left;">
+richness\_species\_vascular
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1478.935
+</td>
+<td style="text-align:right;">
+-163.0343
+</td>
+<td style="text-align:left;">
+0.1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+climate\_bio1\_average
+</td>
+<td style="text-align:left;">
+richness\_species\_vascular
+</td>
+</tr>
+</tbody>
+</table>
 
 # Tuning Random Forest hyperparameters
 
@@ -2033,8 +2253,7 @@ model.spatial.tuned <- rf_tuning(
 
 ![](README_files/figure-gfm/unnamed-chunk-51-1.png)<!-- -->
 
-&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD \# Assessing model performance on
-spatially independent folds
+# Assessing model performance on spatially mindependent folds
 
 The function
 [`rf_evaluate()`](https://blasbenito.github.io/spatialRF/reference/rf_evaluate.html)
@@ -2257,8 +2476,6 @@ spatialRF::print_evaluation(model.non.spatial)
     ##  Metric Median   MAD Minimum Maximum
     ##     auc  0.885 0.059   0.674   0.959
 
-That’s a pretty good result I’d say!
-
 Now, let’s see if this model needs spatial predictors (beyond this
 point, SDMs are no longer possible, because the spatial predictors
 cannot be represented as rasters, as they are mathematical
@@ -2271,10 +2488,11 @@ spatialRF::plot_moran(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-62-1.png)<!-- --> The Moran’s
-I tests of the residuals shows that they are spatially autocorrelated
-for a neighborhood distance of 0 km. Let’s try to fix that with a
-spatial model.
+![](README_files/figure-gfm/unnamed-chunk-62-1.png)<!-- -->
+
+The Moran’s I tests of the residuals shows that they are spatially
+autocorrelated for a neighborhood distance of 0 km. Let’s try to fix
+that with a spatial model.
 
 ``` r
 model.spatial <- spatialRF::rf_spatial(
