@@ -121,6 +121,7 @@ rf_evaluate <- function(
   ranger.arguments$dependent.variable.name <- NULL
   ranger.arguments$predictor.variable.names <- NULL
   ranger.arguments$importance <- "none"
+  ranger.arguments$local.importance <- FALSE
   ranger.arguments$data <- NULL
   ranger.arguments$scaled.importance <- FALSE
   ranger.arguments$distance.matrix <- NULL

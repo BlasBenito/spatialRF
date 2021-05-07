@@ -119,6 +119,9 @@ data(distance_matrix)
 dependent.variable.name <- "richness_species_vascular"
 predictor.variable.names <- colnames(plant_richness_df)[5:21]
 
+#coordinates of the cases
+xy <- plant_richness_df[, c("x", "y")]
+
 #random seed for reproducibility
 random.seed <- 100
 ```
@@ -210,7 +213,7 @@ interactions <- spatialRF::rf_interactions(
   )
 ```
 
-```{r, echo = FALSE, fig.width = 10, fig.height = 3.5}
+```{r, echo = FALSE, fig.width = 8, fig.height = 5}
 kableExtra::kbl(
   interactions$selected
 )
@@ -317,7 +320,9 @@ spatialRF::plot_importance(
   verbose = FALSE
   )
 ```
-Variable importance represents the increase in mean error (computed on the out-of-bag data) across trees when a predictor is permuted. If the argument `scaled.importance = TRUE` is used, the variable importance scores are computed from the scaled data, making the importance scores easier to compare across different models.
+Variable importance represents the increase in mean error (computed on the out-of-bag data) across trees when a predictor is permuted. Values lower than zero would indicate that the variable performs worse than a random one. 
+
+If the argument `scaled.importance = TRUE` is used, the variable importance scores are computed from the scaled data, making the importance scores easier to compare across different models.
 
 The package [`randomForestExplainer`](https://github.com/ModelOriented/randomForestExplainer) offers a couple of interesting options to deepen our understanding on variable importance scores. The first one is `measure_importance()`, which analyzes the forest to find out the average minimum tree depth at which each variable can be found (`mean_min_depth`), the number of nodes in which a variable was selected to make a split (`no_of_nodes`), the number of times the variable was selected as the first one to start a tree (`times_a_root`), and the probability of a variable to be in more nodes than what it would be expected by chance (`p_value`).
 
@@ -340,11 +345,13 @@ kableExtra::kbl(
 
 ### Local variable importance
 
-Random forest also computes the average error increase when a variable is permuted for each case. This is named "local importance", is stored in `model.non.spatial$importance$local` as a data frame, and can be retrieved with [`get_importance_local()`](https://blasbenito.github.io/spatialRF/reference/get_importance_local.html).
+Random forest also computes the average increase in error when a variable is permuted for each case. This is named "local importance", is stored in `model.non.spatial$importance$local` as a data frame, and can be retrieved with [`get_importance_local()`](https://blasbenito.github.io/spatialRF/reference/get_importance_local.html).
 
 ```{r}
 local.importance <- spatialRF::get_importance_local(model.non.spatial)
 ```
+
+The table below shows the first few records and columns. Larger values indicate larger average errors when estimating a case with the permuted version of the variable, so more important variables will show larger values.
 
 ```{r, echo = FALSE}
 kableExtra::kbl(
@@ -354,7 +361,76 @@ kableExtra::kbl(
   kableExtra::kable_paper("hover", full_width = F)
 ```
 
+If we join the case coordinates with the local importance scores, we can get an idea on how variable importance changes over space.
 
+```{r}
+#adding coordinates
+local.importance <- cbind(
+  xy,
+  local.importance
+  )
+```
+
+
+```{r, echo=FALSE, fig.width=8, fig.height=5}
+#plot of climate_bio1_average
+p1 <- ggplot2::ggplot() +
+  ggplot2::geom_sf(
+    data = world,
+    fill = "white"
+  ) +
+  ggplot2::geom_point(
+    data = local.importance,
+    ggplot2::aes(
+      x = x,
+      y = y,
+      color = climate_bio1_average
+    )
+  ) +
+  ggplot2::scale_x_continuous(limits = c(-170, -30)) +
+  ggplot2::scale_y_continuous(limits = c(-58, 80)) +
+  ggplot2::scale_color_gradient2(low = "red", high = "blue") +
+  ggplot2::theme_bw() +
+  ggplot2::theme(legend.position = "bottom") + 
+  ggplot2::ggtitle("climate_bio1_average") +
+  ggplot2::theme(
+    plot.title = ggplot2::element_text(hjust = 0.5),
+    legend.key.width = ggplot2::unit(1,"cm")
+    ) + 
+  ggplot2::labs(color = "Importance") + 
+  ggplot2::xlab("Longitude") + 
+  ggplot2::ylab("Latitude")
+
+p2 <- ggplot2::ggplot() +
+  ggplot2::geom_sf(
+    data = world,
+    fill = "white"
+  ) +
+  ggplot2::geom_point(
+    data = local.importance,
+    ggplot2::aes(
+      x = x,
+      y = y,
+      color = human_population_density
+    )
+  ) +
+  ggplot2::scale_x_continuous(limits = c(-170, -30)) +
+  ggplot2::scale_y_continuous(limits = c(-58, 80)) +
+  ggplot2::scale_color_gradient2(low = "red", high = "blue") +
+  ggplot2::theme_bw() +
+  ggplot2::theme(legend.position = "bottom") +
+  ggplot2::ggtitle("human_population_density") +
+  ggplot2::theme(
+    plot.title = ggplot2::element_text(hjust = 0.5),
+    legend.key.width = ggplot2::unit(1,"cm")
+    ) + 
+  ggplot2::labs(color = "Importance") + 
+  ggplot2::xlab("Longitude") + 
+  ggplot2::ylab("Latitude")
+
+p1 + p2
+```
+In these maps, values lower than 0 indicate that for a given record, the permuted version of the variable led to an accuracy score even higher than the one of the non-permuted variable, so again these negative values can be interpreted as "worse than chance".
 
 ## Response curves and surfaces
 
@@ -383,6 +459,19 @@ spatialRF::plot_response_curves(
   ncol = 3
   )
 ```
+The package [`pdp`](https://bgreenwell.github.io/pdp/index.html) provides a general way to plot partial dependence plots.
+
+```{r, fig.width=4, fig.height=3}
+pdp::partial(
+  model.non.spatial, 
+  train = plant_richness_df, 
+  pred.var = "climate_bio1_average", 
+  plot = TRUE, 
+  grid.resolution = 200
+  )
+```
+
+
 
 If you need to do your own plots in a different way, the function [`get_response_curves()`](https://blasbenito.github.io/spatialRF/reference/get_response_curves.html) returns a data frame with the required data.
 
@@ -398,6 +487,8 @@ kableExtra::kbl(
   kableExtra::kable_paper("hover", full_width = F)
 ```
 
+
+
 Interactions between two variables can be plotted with [`plot_response_surface()`](https://blasbenito.github.io/spatialRF/reference/plot_response_surface.html)
 
 ```{r, fig.height = 3.2, fig.width=4.5}
@@ -405,6 +496,19 @@ spatialRF::plot_response_surface(
   model.non.spatial,
   a = "climate_bio1_average",
   b = "neighbors_count"
+  )
+```
+This can be done as well with the `pdp` package, that uses a more precise but computationally demanding method.
+
+```{r, fig.height = 3.2, fig.width=4.5}
+pdp::partial(
+  model.non.spatial, 
+  train = plant_richness_df, 
+  pred.var = c("climate_bio1_average", "neighbors_count"), 
+  plot = TRUE,
+  grid.resolution = 200,
+  rug = TRUE,
+  chull = TRUE
   )
 ```
 
@@ -425,9 +529,9 @@ None of these values are suitable descriptors of the ability of the model to gen
 ```{r}
 model.non.spatial <- spatialRF::rf_evaluate(
   model = model.non.spatial,
-  xy = plant_richness_df[, c("x", "y")], #data coordinates
-  repetitions = 30,                      #number of spatial folds
-  training.fraction = 0.8,               #training data fraction on each fold
+  xy = xy,                 #data coordinates
+  repetitions = 30,        #number of spatial folds
+  training.fraction = 0.8, #training data fraction on each fold
   metrics = "r.squared",
   seed = random.seed,
   verbose = FALSE
@@ -698,7 +802,7 @@ Model tuning is done via spatial cross-validation, to ensure that the selected c
 ```{r, fig.width=6, fig.height=4.5}
 model.spatial.tuned <- rf_tuning(
   model = model.spatial,
-  xy = plant_richness_df[, c("x", "y")],
+  xy = xy,
   repetitions = 30,
   num.trees = c(500, 1000),
   mtry = seq(
@@ -721,7 +825,7 @@ comparison <- rf_compare(
     `Spatial` = model.spatial,
     `Spatial tuned` = model.spatial.tuned
   ),
-  xy = plant_richness_df[, c("x", "y")],
+  xy = xy,
   repetitions = 30,
   training.fraction = 0.8,
   metrics = "r.squared",

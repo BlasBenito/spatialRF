@@ -386,6 +386,9 @@ rf_interactions <- function(
       ggplot2::coord_cartesian(
         xlim = c(min(plot.df$x), quantile(plot.df$x, 0.95)),
         ylim = c(min(plot.df$y), quantile(plot.df$y, 0.95))
+      ) +
+      ggplot2::theme(
+        plot.title = ggplot2::element_text(hjust = 0.5),
       )
 
   }

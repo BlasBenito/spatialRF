@@ -332,35 +332,40 @@ rf <- function(
   )
 
   #importance slot
-  m$importance <- list()
+  if(importance == "permutation"){
 
-  #global importance
-  m$importance$per.variable <- data.frame(
-    variable = names(variable.importance.global),
-    importance = sqrt(variable.importance.global)
-  ) %>%
-    tibble::remove_rownames() %>%
-    dplyr::arrange(dplyr::desc(importance)) %>%
-    dplyr::mutate(importance = round(importance, 3)) %>%
-    as.data.frame()
+    #importance slot
+    m$importance <- list()
 
-  m$importance$per.variable.plot <- plot_importance(
-    m$importance$per.variable,
-    verbose = verbose
-  )
+    #global importance
+    m$importance$per.variable <- data.frame(
+      variable = names(variable.importance.global),
+      importance = sqrt(variable.importance.global)
+    ) %>%
+      tibble::remove_rownames() %>%
+      dplyr::arrange(dplyr::desc(importance)) %>%
+      dplyr::mutate(importance = round(importance, 3)) %>%
+      as.data.frame()
 
-  #local importance (reconverting values from ^2 to sqrt())
+    m$importance$per.variable.plot <- plot_importance(
+      m$importance$per.variable,
+      verbose = verbose
+    )
 
-  #matrix with sign of the value
-  variable.importance.local.sign <- variable.importance.local
-  variable.importance.local.sign[variable.importance.local.sign >= 0] <- 1
-  variable.importance.local.sign[variable.importance.local.sign < 0 ] <- -1
+    #local importance (reconverting values from ^2 to sqrt())
 
-  #applying sqrt
-  variable.importance.local <- sqrt(abs(variable.importance.local)) * variable.importance.local.sign
+    #matrix with sign of the value
+    variable.importance.local.sign <- variable.importance.local
+    variable.importance.local.sign[variable.importance.local.sign >= 0] <- 1
+    variable.importance.local.sign[variable.importance.local.sign < 0 ] <- -1
 
-  #saving to the slot
-  m$importance$local <- variable.importance.local
+    #applying sqrt
+    variable.importance.local <- sqrt(abs(variable.importance.local)) * variable.importance.local.sign
+
+    #saving to the slot
+    m$importance$local <- variable.importance.local
+
+  }
 
   #computing predictions
   predicted <- stats::predict(
