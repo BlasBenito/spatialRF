@@ -12,7 +12,7 @@
 #' @return A ranger model with several new slots:
 #' \itemize{
 #'   \item `ranger.arguments`: Stores the values of the arguments used to fit the ranger model.
-#'   \item `variable.importance`: A list containing a data frame with the predictors ordered by their importance, and a ggplot showing the importance values.
+#'   \item `importance`: A list containing a data frame with the predictors ordered by their importance, a ggplot showing the importance values, and local importance scores.
 #'   \item `performance`: performance scores: R squared on out-of-bag data, R squared (cor(observed, predicted) ^ 2), pseudo R squared (cor(observed, predicted)), RMSE, and normalized RMSE (NRMSE).
 #'   \item `residuals`: residuals, normality test of the residuals computed with [residuals_test()], and spatial autocorrelation of the residuals computed with [moran_multithreshold()].
 #' }
@@ -35,10 +35,10 @@
 #'  class(out)
 #'
 #'  #data frame with ordered variable importance
-#'  out$variable.importance$per.variable
+#'  out$importance$per.variable
 #'
 #'  #variable importance plot
-#'  out$variable.importance$per.variable.plot
+#'  out$importance$per.variable.plot
 #'
 #'  #performance
 #'  out$performance
@@ -117,7 +117,7 @@ rf <- function(
   always.split.variables <- NULL
   respect.unordered.factors <- NULL
   scale.permutation.importance <- TRUE
-  local.importance <- FALSE
+  local.importance <- TRUE
   regularization.factor <- 1
   regularization.usedepth <- FALSE
   keep.inbag <- FALSE
@@ -328,24 +328,20 @@ rf <- function(
   )
 
   #importance dataframe
-  if(importance == "permutation"){
+  m$importance <- list()
+  m$importance$per.variable <- data.frame(
+    variable = names(m.scaled$variable.importance),
+    importance = m.scaled$variable.importance
+  ) %>%
+    tibble::remove_rownames() %>%
+    dplyr::arrange(dplyr::desc(importance)) %>%
+    dplyr::mutate(importance = round(importance, 3)) %>%
+    as.data.frame()
 
-    m$variable.importance <- list()
-    m$variable.importance$per.variable <- data.frame(
-      variable = names(m.scaled$variable.importance),
-      importance = m.scaled$variable.importance
-    ) %>%
-      tibble::remove_rownames() %>%
-      dplyr::arrange(dplyr::desc(importance)) %>%
-      dplyr::mutate(importance = round(importance, 3)) %>%
-      as.data.frame()
-
-    m$variable.importance$per.variable.plot <- plot_importance(
-      m$variable.importance$per.variable,
-      verbose = verbose
-    )
-
-  }
+  m$importance$per.variable.plot <- plot_importance(
+    m$importance$per.variable,
+    verbose = verbose
+  )
 
   #computing predictions
   predicted <- stats::predict(
@@ -427,9 +423,7 @@ rf <- function(
   )
 
   #replacing local variable importance with the scaled one
-  if(local.importance == TRUE){
-    m$variable.importance.local <- m.scaled$variable.importance.local
-  }
+  m$importance$local <- m.scaled$variable.importance.local
 
   #adding rf class
   class(m) <- c("rf", "ranger")

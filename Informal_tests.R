@@ -1,4 +1,5 @@
 library(spatialRF)
+library(tictoc)
 
 #BASIC MODELS TO TEST OTHER THINGIES
 #############################################
@@ -24,8 +25,69 @@ x <- rf(
   data = plant_richness_df,
   dependent.variable.name = "richness_species_vascular",
   predictor.variable.names = colnames(plant_richness_df)[5:21],
-  distance.matrix = distance_matrix
+  distance.matrix = distance_matrix,
+  scaled.importance = TRUE,
+  verbose = FALSE
 )
+
+#local importance experiment
+##################################################
+ranger.arguments <- list(
+  local.importance = TRUE
+)
+
+x.local <- rf(
+  data = plant_richness_df,
+  dependent.variable.name = "richness_species_vascular",
+  predictor.variable.names = colnames(plant_richness_df)[5:21],
+  distance.matrix = distance_matrix,
+  ranger.arguments = ranger.arguments,
+  scaled.importance = TRUE,
+  verbose = FALSE
+)
+
+randomForestExplainer::measure_importance(x.local)
+randomForestExplainer::explain_forest(x.local, interactions = TRUE, data = plant_richness_df)
+
+local.importance <- cbind(
+  xy,
+  x.local$variable.importance.local
+  ) %>%
+  tidyr::pivot_longer(
+    cols = colnames(plant_richness_df)[5:21],
+    names_to = "variable",
+    values_to = "importance"
+  ) %>%
+  dplyr::mutate(
+    importance = importance + abs(min(importance))
+  )
+
+world <- rnaturalearth::ne_countries(
+  scale = "medium",
+  returnclass = "sf"
+)
+
+ggplot2::ggplot() +
+  ggplot2::geom_sf(
+    data = world,
+    fill = "white"
+  ) +
+  ggplot2::facet_wrap("variable", ncol = 6) +
+  ggplot2::geom_point(
+    data = local.importance,
+    ggplot2::aes(
+      x = x,
+      y = y,
+      color = importance
+    )
+  ) +
+  ggplot2::scale_x_continuous(limits = c(-170, -30)) +
+  ggplot2::scale_y_continuous(limits = c(-58, 80)) +
+  viridis::scale_color_viridis(direction = -1) +
+  ggplot2::theme_bw() +
+  ggplot2::theme(legend.position = "bottom")
+
+
 
 plot_residuals_diagnostics(x)
 

@@ -63,17 +63,17 @@ plot_importance <- function(
 
     #importance from rf
     if(inherits(model, "rf") & !inherits(model, "rf_spatial") & !inherits(model, "rf_repeat")){
-      x <- model$variable.importance$per.variable
+      x <- model$importance$per.variable
     }
 
     #importance from rf_repeat
     if(inherits(model, "rf_repeat") & !inherits(model, "rf_spatial")){
-      x <- model$variable.importance$per.repetition
+      x <- model$importance$per.repetition
     }
 
     #importance from rf_spatial and rf
     if(inherits(model, "rf_spatial")){
-      x <- model$variable.importance$spatial.predictors
+      x <- model$importance$spatial.predictors
     }
 
   } else {

@@ -76,10 +76,10 @@ plot_response_surface <- function(
 
   #default values for a and b
   if(is.null(a)){
-    a <- model$variable.importance$per.variable[model$variable.importance$per.variable$variable %in% predictors, "variable"][1]
+    a <- model$importance$per.variable[model$importance$per.variable$variable %in% predictors, "variable"][1]
   }
   if(is.null(b)){
-    b <- model$variable.importance$per.variable[model$variable.importance$per.variable$variable %in% predictors, "variable"][2]
+    b <- model$importance$per.variable[model$importance$per.variable$variable %in% predictors, "variable"][2]
   }
 
   if(!(a %in% colnames(data))){

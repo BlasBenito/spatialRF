@@ -388,7 +388,7 @@ rf_tuning <- function(
   #adding the variable importance slot if rf_spatial
   if(inherits(model, "rf_spatial")){
 
-    model.tuned$variable.importance <- prepare_importance_spatial(model.tuned)
+    model.tuned$importance <- prepare_importance_spatial(model.tuned)
 
   }
 

@@ -90,11 +90,11 @@ rf_interactions <- function(
   #select variables to test
   if(is.null(importance.threshold)){
     importance.threshold <- quantile(
-      x = model$variable.importance$per.variable$importance,
+      x = model$importance$per.variable$importance,
       probs = 0.75
       )
   }
-  variables.to.test <- model$variable.importance$per.variable[model$variable.importance$per.variable$importance >= importance.threshold, "variable"]
+  variables.to.test <- model$importance$per.variable[model$importance$per.variable$importance >= importance.threshold, "variable"]
 
   #pairs of variables
   variables.pairs <- as.data.frame(
@@ -235,7 +235,7 @@ rf_interactions <- function(
     )
 
     #importance data frames
-    model.i.importance <- model.i$variable.importance$per.variable
+    model.i.importance <- model.i$importance$per.variable
 
     #gathering results
     out.df <- data.frame(

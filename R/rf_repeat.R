@@ -20,7 +20,7 @@
 #' @return A ranger model with several new slots:
 #' \itemize{
 #'   \item `ranger.arguments`: Stores the values of the arguments used to fit the ranger model.
-#'   \item `variable.importance`: A list containing a data frame with the predictors ordered by their importance, and a ggplot showing the importance values.
+#'   \item `importance`: A list containing a data frame with the predictors ordered by their importance, a ggplot showing the importance values, and local importance scores.
 #'   \item `performance`: out-of-bag performance scores: R squared, pseudo R squared, RMSE, and normalized RMSE (NRMSE).
 #'   \item `pseudo.r.squared`: computed as the correlation between the observations and the predictions.
 #'   \item `residuals`: residuals, normality test of the residuals computed with [residuals_test()], and spatial autocorrelation of the residuals computed with [moran_multithreshold()].
@@ -45,13 +45,13 @@
 #'  class(out)
 #'
 #'  #data frame with ordered variable importance
-#'  out$variable.importance$per.variable
+#'  out$importance$per.variable
 #'
 #'  #per repetition
-#'  out$variable.importance$per.repetition
+#'  out$importance$per.repetition
 #'
 #'  #variable importance plot
-#'  out$variable.importance$per.repetition.plot
+#'  out$importance$per.repetition.plot
 #'
 #'  #performance
 #'  out$performance
@@ -74,7 +74,7 @@
 #'
 #'  rf.repeat <- rf_repeat(model = rf.model)
 #'  rf.repeat$performance
-#'  rf.repeat$variable.importance$per.repetition.plot
+#'  rf.repeat$importance$per.repetition.plot
 #'
 #' }
 #' }
@@ -124,15 +124,11 @@ rf_repeat <- function(
     distance.matrix <- ranger.arguments$distance.matrix
     distance.thresholds <- ranger.arguments$distance.thresholds
     scaled.importance <- ranger.arguments$scaled.importance
-    importance <- ranger.arguments$importance
-    local.importance <- ranger.arguments$local.importance
   }
 
   if(is.null(ranger.arguments)){
     ranger.arguments <- list()
   }
-  ranger.arguments$importance <- importance <- "permutation"
-  ranger.arguments$local.importance <- local.importance <- FALSE
   ranger.arguments$num.threads <- 1
   ranger.arguments$seed <- NULL
   ranger.arguments$scaled.importance <- scaled.importance
@@ -228,12 +224,8 @@ rf_repeat <- function(
     #gathering results
     out <- list()
     out$predictions <- m.i$predictions
-    if(!is.null(local.importance)){
-      if(local.importance == TRUE){
-        out$variable.importance.local <- m.i$variable.importance.local
-      }
-    }
-    out$variable.importance <- m.i$variable.importance$per.variable
+    out$importance$local <- m.i$variable.importance.local
+    out$importance <- m.i$importance$per.variable
     out$prediction.error <- m.i$prediction.error
     out$r.squared <- m.i$performance$r.squared
     out$r.squared.oob <- m.i$performance$r.squared.oob
@@ -319,63 +311,55 @@ rf_repeat <- function(
 
   #PREPARING variable.importance.local
   #-----------------------------------
-  if(!is.null(local.importance)){
-    if(local.importance == TRUE){
-      m$variable.importance.local <- as.data.frame(
-        apply(
-          simplify2array(
-            lapply(
-              repeated.models,
-              "[[",
-              "variable.importance.local"
-            )
-          ),
-          1:2,
-          median
-        )
-      )
-    }
-  }
-
-
-  if(importance == "permutation"){
-
-    #PREPARING variable.importance
-    #-----------------------------
-    m$variable.importance <- NULL
-
-    #per repetition
-    variable.importance.per.repetition <- as.data.frame(
-      do.call(
-        "rbind",
+  m$variable.importance.local <- as.data.frame(
+    apply(
+      simplify2array(
         lapply(
           repeated.models,
           "[[",
-          "variable.importance"
+          "variable.importance.local"
         )
+      ),
+      1:2,
+      median
+    )
+  )
+
+
+  #PREPARING variable.importance
+  #-----------------------------
+  m$importance <- NULL
+
+  #per repetition
+  variable.importance.per.repetition <- as.data.frame(
+    do.call(
+      "rbind",
+      lapply(
+        repeated.models,
+        "[[",
+        "variable.importance"
       )
     )
+  )
 
-    #median variable importance across repetitions
-    variable.importance.per.variable <- variable.importance.per.repetition %>%
-      dplyr::group_by(variable) %>%
-      dplyr::summarise(importance = median(importance)) %>%
-      dplyr::arrange(dplyr::desc(importance)) %>%
-      as.data.frame()
+  #median variable importance across repetitions
+  variable.importance.per.variable <- variable.importance.per.repetition %>%
+    dplyr::group_by(variable) %>%
+    dplyr::summarise(importance = median(importance)) %>%
+    dplyr::arrange(dplyr::desc(importance)) %>%
+    as.data.frame()
 
-    m$variable.importance <- list()
-    m$variable.importance$per.variable <- variable.importance.per.variable
-    m$variable.importance$per.variable.plot <- plot_importance(
-      variable.importance.per.variable,
-      verbose = FALSE
-      )
-    m$variable.importance$per.repetition <- variable.importance.per.repetition
-    m$variable.importance$per.repetition.plot <- plot_importance(
-      variable.importance.per.repetition,
-      verbose = verbose
-    )
-
-  }
+  m$importance <- list()
+  m$importance$per.variable <- variable.importance.per.variable
+  m$importance$per.variable.plot <- plot_importance(
+    variable.importance.per.variable,
+    verbose = FALSE
+  )
+  m$importance$per.repetition <- variable.importance.per.repetition
+  m$importance$per.repetition.plot <- plot_importance(
+    variable.importance.per.repetition,
+    verbose = verbose
+  )
 
 
   #PREPARING prediction.error SLOT

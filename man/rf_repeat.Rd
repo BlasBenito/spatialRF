@@ -63,7 +63,7 @@ rf_repeat(
 A ranger model with several new slots:
 \itemize{
 \item \code{ranger.arguments}: Stores the values of the arguments used to fit the ranger model.
-\item \code{variable.importance}: A list containing a data frame with the predictors ordered by their importance, and a ggplot showing the importance values.
+\item \code{importance}: A list containing a data frame with the predictors ordered by their importance, a ggplot showing the importance values, and local importance scores.
 \item \code{performance}: out-of-bag performance scores: R squared, pseudo R squared, RMSE, and normalized RMSE (NRMSE).
 \item \code{pseudo.r.squared}: computed as the correlation between the observations and the predictions.
 \item \code{residuals}: residuals, normality test of the residuals computed with \code{\link[=residuals_test]{residuals_test()}}, and spatial autocorrelation of the residuals computed with \code{\link[=moran_multithreshold]{moran_multithreshold()}}.
@@ -92,13 +92,13 @@ if(interactive()){
  class(out)
 
  #data frame with ordered variable importance
- out$variable.importance$per.variable
+ out$importance$per.variable
 
  #per repetition
- out$variable.importance$per.repetition
+ out$importance$per.repetition
 
  #variable importance plot
- out$variable.importance$per.repetition.plot
+ out$importance$per.repetition.plot
 
  #performance
  out$performance
@@ -121,7 +121,7 @@ if(interactive()){
 
  rf.repeat <- rf_repeat(model = rf.model)
  rf.repeat$performance
- rf.repeat$variable.importance$per.repetition.plot
+ rf.repeat$importance$per.repetition.plot
 
 }
 }

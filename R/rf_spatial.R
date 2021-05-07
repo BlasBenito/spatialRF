@@ -660,7 +660,7 @@ rf_spatial <- function(
   )
 
   #preparing variable importance
-  model.spatial$variable.importance <- prepare_importance_spatial(x = model.spatial)
+  model.spatial$importance <- prepare_importance_spatial(x = model.spatial)
 
   #adding spatial method and predictors to the model
   model.spatial$selection.spatial.predictors <- list()

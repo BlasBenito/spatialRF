@@ -72,7 +72,7 @@ get_response_curves <- function(
   #default values for variables
   if(is.null(variables)){
 
-    variables <- model$variable.importance$per.variable[model$variable.importance$per.variable$variable %in% predictors, "variable"][1:floor(length(predictors) / 2)]
+    variables <- model$importance$per.variable[model$importance$per.variable$variable %in% predictors, "variable"][1:floor(length(predictors) / 2)]
 
   }
 
