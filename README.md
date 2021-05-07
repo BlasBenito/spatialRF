@@ -12,18 +12,22 @@
 -   [Reducing multicollinearity in the
     predictors](#reducing-multicollinearity-in-the-predictors)
 -   [Fitting a (non-spatial) Random Forest model with
-    \`rf()\`\`](#fitting-a-non-spatial-random-forest-model-with-rf)
+    `rf()`](#fitting-a-non-spatial-random-forest-model-with-rf)
     -   [Residuals](#residuals)
-    -   [Variable importance and response
-        curves](#variable-importance-and-response-curves)
-    -   [Performance](#performance)
+    -   [Variable importance](#variable-importance)
+    -   [Response curves and surfaces](#response-curves-and-surfaces)
+    -   [Model performance](#model-performance)
+    -   [Spatial cross-validation](#spatial-cross-validation)
     -   [Other important things stored in the
         model](#other-important-things-stored-in-the-model)
--   [Repeating a model execution](#repeating-a-model-execution)
--   [Fitting a spatial model](#fitting-a-spatial-model)
+    -   [Repeating a model execution](#repeating-a-model-execution)
+-   [Fitting a spatial model with
+    `rf_spatial()`](#fitting-a-spatial-model-with-rf_spatial)
 -   [Tuning Random Forest
     hyperparameters](#tuning-random-forest-hyperparameters)
 -   [Comparing several models](#comparing-several-models)
+-   [Working with a binomial
+    response](#working-with-a-binomial-response)
 -   [Generating spatial predictors for other modelling
     methods](#generating-spatial-predictors-for-other-modelling-methods)
 
@@ -136,7 +140,14 @@ me, I will show you how it works.
 # Install
 
 The package is not yet in the CRAN repositories, so at the moment it
-must be installed from GitHub as follows.
+must be installed from GitHub as follows. There are several branches in
+the repository:
+
+-   `main`: latest stable version (1.1.0 currently).
+-   `development` contains the development version, usually very broken.
+    Do not install from here!
+-   `v.1.0.9`: previous functional version.
+-   `v.1.1.0`: latest release.
 
 ``` r
 remotes::install_github(
@@ -147,7 +158,7 @@ remotes::install_github(
 ```
 
     ## 
-    ##      checking for file ‘/tmp/RtmpA7pucU/remotes1f49127a3e4e15/BlasBenito-spatialRF-a2bf50c/DESCRIPTION’ ...  ✓  checking for file ‘/tmp/RtmpA7pucU/remotes1f49127a3e4e15/BlasBenito-spatialRF-a2bf50c/DESCRIPTION’
+    ##      checking for file ‘/tmp/RtmpxJVFys/remotes22fd3412cf5ea1/BlasBenito-spatialRF-6d95c1c/DESCRIPTION’ ...  ✓  checking for file ‘/tmp/RtmpxJVFys/remotes22fd3412cf5ea1/BlasBenito-spatialRF-6d95c1c/DESCRIPTION’
     ##   ─  preparing ‘spatialRF’:
     ##      checking DESCRIPTION meta-information ...  ✓  checking DESCRIPTION meta-information
     ##   ─  checking for LF line-endings in source and make files and shell scripts
@@ -167,6 +178,8 @@ tutorial.
 library(kableExtra)
 library(rnaturalearth)
 library(rnaturalearthdata)
+library(randomForestExplainer)
+library(pdp)
 ```
 
 # Data requirements
@@ -220,15 +233,18 @@ data(distance_matrix)
 dependent.variable.name <- "richness_species_vascular"
 predictor.variable.names <- colnames(plant_richness_df)[5:21]
 
+#coordinates of the cases
+xy <- plant_richness_df[, c("x", "y")]
+
 #random seed for reproducibility
 random.seed <- 100
 ```
 
 The response variable of `plant_richness_df` is
-“richness\_species\_vascular”, with the total count of vascular plant
-species found on each ecoregion. The figure below shows the centroids of
-each ecoregion along with their associated value of the response
-variable.
+“richness\_species\_vascular”, that represents the total count of
+vascular plant species found on each ecoregion. The figure below shows
+the centroids of each ecoregion along with their associated value of the
+response variable.
 
 ![](README_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
 
@@ -239,11 +255,17 @@ geographical fragmentation, and features of the neighbors of each
 ecoregion. The figure below shows the scatterplots of the response
 variable (y axis) against each predictor (x axis).
 
+**Note:** Every plotting function in the package now allows changing the
+colors of their main features via specific arguments such as
+`point.color`, `line.color`, or `fill.color`.
+
 ![](README_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
-The function `plot_training_df_moran()` helps to check the spatial
-autocorrelation of the response variable and the predictors. Low Moran’s
-I p-values equal or larger than 0.05 indicate that there is no spatial
+The function
+[`plot_training_df_moran()`](https://blasbenito.github.io/spatialRF/reference/plot_training_df_moran.html)
+helps assessing the spatial autocorrelation of the response variable and
+the predictors across different distance thresholds. Low Moran’s I and
+p-values equal or larger than 0.05 indicate that there is no spatial
 autocorrelation for the given variable and distance threshold.
 
 ![](README_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
@@ -298,24 +320,10 @@ interaction.r.squared.gain
 human\_population\_X\_bias\_area\_km2
 </td>
 <td style="text-align:right;">
-93.19
+96.591
 </td>
 <td style="text-align:right;">
-0.002
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-4
-</td>
-<td style="text-align:left;">
-human\_population\_X\_human\_population\_density
-</td>
-<td style="text-align:right;">
-82.84
-</td>
-<td style="text-align:right;">
-0.000
+0.0020859
 </td>
 </tr>
 <tr>
@@ -326,10 +334,24 @@ human\_population\_X\_human\_population\_density
 climate\_bio1\_average\_X\_bias\_area\_km2
 </td>
 <td style="text-align:right;">
-77.86
+88.100
 </td>
 <td style="text-align:right;">
-0.000
+0.0005355
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+7
+</td>
+<td style="text-align:left;">
+climate\_hypervolume\_X\_bias\_area\_km2
+</td>
+<td style="text-align:right;">
+79.640
+</td>
+<td style="text-align:right;">
+0.0011140
 </td>
 </tr>
 </tbody>
@@ -448,7 +470,7 @@ predictor.variable.names$selected.variables
     ## [14] "fragmentation_division"              
     ## [15] "neighbors_area"
 
-# Fitting a (non-spatial) Random Forest model with \`rf()\`\`
+# Fitting a (non-spatial) Random Forest model with `rf()`
 
 The function
 [`rf()`](https://blasbenito.github.io/spatialRF/reference/rf.html) is a
@@ -507,11 +529,12 @@ and the fitted values, important to understand the behavior of the
 residuals, and the lower panel shows the Moran’s I of the residuals
 across distance thresholds and their respective p-values.
 
-## Variable importance and response curves
+## Variable importance
 
-The slot **variable.importance**
-(`model.non.spatial$variable.importance`) contains the variable
-importance scores. These can be plotted with
+### Global variable importance
+
+The slot **importance** (`model.non.spatial$variable.importance`)
+contains the variable importance scores. These can be plotted with
 [`plot_importance()`](https://blasbenito.github.io/spatialRF/reference/plot_importance.html),
 printed with
 [`print_importance()`](https://blasbenito.github.io/spatialRF/reference/print_importance.html),
@@ -525,13 +548,543 @@ spatialRF::plot_importance(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-16-1.png)<!-- --> It is
-computed using the `permutation` method of the argument `importance` in
-`ranger::ranger()`, and represents the increase in mean squared error
-when a predictor is permuted across trees in the forest. If the argument
-`scaled.importance = TRUE` is used, the variable importance scores are
-computed from the scaled predictors, making the importance scores easier
-to compare across different models.
+![](README_files/figure-gfm/unnamed-chunk-16-1.png)<!-- --> Variable
+importance represents the increase in mean error (computed on the
+out-of-bag data) across trees when a predictor is permuted. Values lower
+than zero would indicate that the variable performs worse than a random
+one.
+
+If the argument `scaled.importance = TRUE` is used, the variable
+importance scores are computed from the scaled data, making the
+importance scores easier to compare across different models.
+
+The package
+[`randomForestExplainer`](https://github.com/ModelOriented/randomForestExplainer)
+offers a couple of interesting options to deepen our understanding on
+variable importance scores. The first one is `measure_importance()`,
+which analyzes the forest to find out the average minimum tree depth at
+which each variable can be found (`mean_min_depth`), the number of nodes
+in which a variable was selected to make a split (`no_of_nodes`), the
+number of times the variable was selected as the first one to start a
+tree (`times_a_root`), and the probability of a variable to be in more
+nodes than what it would be expected by chance (`p_value`).
+
+``` r
+importance.df <- randomForestExplainer::measure_importance(
+  model.non.spatial,
+  measures = c("mean_min_depth", "no_of_nodes", "times_a_root", "p_value")
+  )
+```
+
+<table class=" lightable-paper lightable-hover" style="font-family: &quot;Arial Narrow&quot;, arial, helvetica, sans-serif; width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+variable
+</th>
+<th style="text-align:right;">
+mean\_min\_depth
+</th>
+<th style="text-align:right;">
+no\_of\_nodes
+</th>
+<th style="text-align:right;">
+times\_a\_root
+</th>
+<th style="text-align:right;">
+p\_value
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+climate\_bio1\_average
+</td>
+<td style="text-align:right;">
+2.2320
+</td>
+<td style="text-align:right;">
+3023
+</td>
+<td style="text-align:right;">
+76
+</td>
+<td style="text-align:right;">
+0.0000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+climate\_bio1\_average\_X\_bias\_area\_km2
+</td>
+<td style="text-align:right;">
+2.3547
+</td>
+<td style="text-align:right;">
+2893
+</td>
+<td style="text-align:right;">
+81
+</td>
+<td style="text-align:right;">
+0.0000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+human\_population\_density
+</td>
+<td style="text-align:right;">
+2.5140
+</td>
+<td style="text-align:right;">
+2979
+</td>
+<td style="text-align:right;">
+64
+</td>
+<td style="text-align:right;">
+0.0000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+climate\_hypervolume
+</td>
+<td style="text-align:right;">
+2.6067
+</td>
+<td style="text-align:right;">
+2626
+</td>
+<td style="text-align:right;">
+89
+</td>
+<td style="text-align:right;">
+0.0029
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+neighbors\_count
+</td>
+<td style="text-align:right;">
+2.9135
+</td>
+<td style="text-align:right;">
+2030
+</td>
+<td style="text-align:right;">
+68
+</td>
+<td style="text-align:right;">
+1.0000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+bias\_species\_per\_record
+</td>
+<td style="text-align:right;">
+3.1947
+</td>
+<td style="text-align:right;">
+2951
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+0.0000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+neighbors\_percent\_shared\_edge
+</td>
+<td style="text-align:right;">
+3.6054
+</td>
+<td style="text-align:right;">
+2439
+</td>
+<td style="text-align:right;">
+15
+</td>
+<td style="text-align:right;">
+0.8641
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+neighbors\_area
+</td>
+<td style="text-align:right;">
+3.6407
+</td>
+<td style="text-align:right;">
+2349
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+0.9986
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+climate\_aridity\_index\_average
+</td>
+<td style="text-align:right;">
+3.7755
+</td>
+<td style="text-align:right;">
+2303
+</td>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:right;">
+1.0000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+topography\_elevation\_average
+</td>
+<td style="text-align:right;">
+3.8294
+</td>
+<td style="text-align:right;">
+2452
+</td>
+<td style="text-align:right;">
+13
+</td>
+<td style="text-align:right;">
+0.7961
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+fragmentation\_cohesion
+</td>
+<td style="text-align:right;">
+3.8429
+</td>
+<td style="text-align:right;">
+2236
+</td>
+<td style="text-align:right;">
+25
+</td>
+<td style="text-align:right;">
+1.0000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+climate\_velocity\_lgm\_average
+</td>
+<td style="text-align:right;">
+3.9721
+</td>
+<td style="text-align:right;">
+2308
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+0.9999
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+climate\_bio15\_minimum
+</td>
+<td style="text-align:right;">
+4.0881
+</td>
+<td style="text-align:right;">
+2347
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0.9988
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+landcover\_herbs\_percent\_average
+</td>
+<td style="text-align:right;">
+4.1154
+</td>
+<td style="text-align:right;">
+2349
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0.9986
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+fragmentation\_division
+</td>
+<td style="text-align:right;">
+4.5129
+</td>
+<td style="text-align:right;">
+2087
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+1.0000
+</td>
+</tr>
+</tbody>
+</table>
+
+### Local variable importance
+
+Random forest also computes the average increase in error when a
+variable is permuted for each case. This is named “local importance”, is
+stored in `model.non.spatial$importance$local` as a data frame, and can
+be retrieved with
+[`get_importance_local()`](https://blasbenito.github.io/spatialRF/reference/get_importance_local.html).
+
+``` r
+local.importance <- spatialRF::get_importance_local(model.non.spatial)
+```
+
+The table below shows the first few records and columns. Larger values
+indicate larger average errors when estimating a case with the permuted
+version of the variable, so more important variables will show larger
+values.
+
+<table class=" lightable-paper lightable-hover" style="font-family: &quot;Arial Narrow&quot;, arial, helvetica, sans-serif; width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:right;">
+climate\_bio1\_average\_X\_bias\_area\_km2
+</th>
+<th style="text-align:right;">
+climate\_aridity\_index\_average
+</th>
+<th style="text-align:right;">
+climate\_hypervolume
+</th>
+<th style="text-align:right;">
+climate\_bio1\_average
+</th>
+<th style="text-align:right;">
+climate\_bio15\_minimum
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+987
+</td>
+<td style="text-align:right;">
+-452
+</td>
+<td style="text-align:right;">
+1091
+</td>
+<td style="text-align:right;">
+-512
+</td>
+<td style="text-align:right;">
+566
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1481
+</td>
+<td style="text-align:right;">
+242
+</td>
+<td style="text-align:right;">
+299
+</td>
+<td style="text-align:right;">
+404
+</td>
+<td style="text-align:right;">
+186
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+940
+</td>
+<td style="text-align:right;">
+57
+</td>
+<td style="text-align:right;">
+-801
+</td>
+<td style="text-align:right;">
+2272
+</td>
+<td style="text-align:right;">
+895
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+391
+</td>
+<td style="text-align:right;">
+644
+</td>
+<td style="text-align:right;">
+979
+</td>
+<td style="text-align:right;">
+1059
+</td>
+<td style="text-align:right;">
+175
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+-1337
+</td>
+<td style="text-align:right;">
+-727
+</td>
+<td style="text-align:right;">
+523
+</td>
+<td style="text-align:right;">
+866
+</td>
+<td style="text-align:right;">
+363
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+833
+</td>
+<td style="text-align:right;">
+463
+</td>
+<td style="text-align:right;">
+1441
+</td>
+<td style="text-align:right;">
+596
+</td>
+<td style="text-align:right;">
+540
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1023
+</td>
+<td style="text-align:right;">
+489
+</td>
+<td style="text-align:right;">
+821
+</td>
+<td style="text-align:right;">
+739
+</td>
+<td style="text-align:right;">
+366
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+-530
+</td>
+<td style="text-align:right;">
+325
+</td>
+<td style="text-align:right;">
+-769
+</td>
+<td style="text-align:right;">
+471
+</td>
+<td style="text-align:right;">
+576
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1363
+</td>
+<td style="text-align:right;">
+604
+</td>
+<td style="text-align:right;">
+-484
+</td>
+<td style="text-align:right;">
+1656
+</td>
+<td style="text-align:right;">
+263
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+917
+</td>
+<td style="text-align:right;">
+229
+</td>
+<td style="text-align:right;">
+1163
+</td>
+<td style="text-align:right;">
+588
+</td>
+<td style="text-align:right;">
+60
+</td>
+</tr>
+</tbody>
+</table>
+
+When case coordinates are joined with the local importance scores, it is
+possible to draw maps showing how variable importance changes over
+space.
+
+``` r
+#adding coordinates
+local.importance <- cbind(
+  xy,
+  local.importance
+  )
+```
+
+![](README_files/figure-gfm/unnamed-chunk-22-1.png)<!-- --> In these
+maps, values lower than 0 indicate that for a given record, the permuted
+version of the variable led to an accuracy score even higher than the
+one of the non-permuted variable, so again these negative values can be
+interpreted as “worse than chance”.
+
+## Response curves and surfaces
 
 The variable importance scores are also used by the function
 [`plot_response_curves()`](https://blasbenito.github.io/spatialRF/reference/plot_response_curves.html)
@@ -557,10 +1110,10 @@ spatialRF::plot_response_curves(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
 
-Setting the argument `quantiles` to 0.5 accentuates the shape of the
-response curves.
+Setting the argument `quantiles` to 0.5 and setting `show.data` to
+`FALSE` (default optioin) accentuates the shape of the response curves.
 
 ``` r
 spatialRF::plot_response_curves(
@@ -570,7 +1123,21 @@ spatialRF::plot_response_curves(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-24-1.png)<!-- --> The package
+[`pdp`](https://bgreenwell.github.io/pdp/index.html) provides a general
+way to plot partial dependence plots.
+
+``` r
+pdp::partial(
+  model.non.spatial, 
+  train = plant_richness_df, 
+  pred.var = "climate_bio1_average", 
+  plot = TRUE, 
+  grid.resolution = 200
+  )
+```
+
+![](README_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->
 
 If you need to do your own plots in a different way, the function
 [`get_response_curves()`](https://blasbenito.github.io/spatialRF/reference/get_response_curves.html)
@@ -580,18 +1147,232 @@ returns a data frame with the required data.
 reponse.curves.df <- spatialRF::get_response_curves(model.non.spatial)
 ```
 
-| response | predictor | quantile | model | predictor.name         | response.name               |
-|---------:|----------:|:---------|------:|:-----------------------|:----------------------------|
-| 1478.935 | -183.8091 | 0.1      |     1 | climate\_bio1\_average | richness\_species\_vascular |
-| 1478.935 | -181.5008 | 0.1      |     1 | climate\_bio1\_average | richness\_species\_vascular |
-| 1478.935 | -179.1924 | 0.1      |     1 | climate\_bio1\_average | richness\_species\_vascular |
-| 1478.935 | -176.8841 | 0.1      |     1 | climate\_bio1\_average | richness\_species\_vascular |
-| 1478.935 | -174.5758 | 0.1      |     1 | climate\_bio1\_average | richness\_species\_vascular |
-| 1478.935 | -172.2675 | 0.1      |     1 | climate\_bio1\_average | richness\_species\_vascular |
-| 1478.935 | -169.9592 | 0.1      |     1 | climate\_bio1\_average | richness\_species\_vascular |
-| 1478.935 | -167.6509 | 0.1      |     1 | climate\_bio1\_average | richness\_species\_vascular |
-| 1478.935 | -165.3426 | 0.1      |     1 | climate\_bio1\_average | richness\_species\_vascular |
-| 1478.935 | -163.0343 | 0.1      |     1 | climate\_bio1\_average | richness\_species\_vascular |
+<table class=" lightable-paper lightable-hover" style="font-family: &quot;Arial Narrow&quot;, arial, helvetica, sans-serif; width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:right;">
+response
+</th>
+<th style="text-align:right;">
+predictor
+</th>
+<th style="text-align:left;">
+quantile
+</th>
+<th style="text-align:right;">
+model
+</th>
+<th style="text-align:left;">
+predictor.name
+</th>
+<th style="text-align:left;">
+response.name
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+1478.935
+</td>
+<td style="text-align:right;">
+-183.8091
+</td>
+<td style="text-align:left;">
+0.1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+climate\_bio1\_average
+</td>
+<td style="text-align:left;">
+richness\_species\_vascular
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1478.935
+</td>
+<td style="text-align:right;">
+-181.5008
+</td>
+<td style="text-align:left;">
+0.1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+climate\_bio1\_average
+</td>
+<td style="text-align:left;">
+richness\_species\_vascular
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1478.935
+</td>
+<td style="text-align:right;">
+-179.1924
+</td>
+<td style="text-align:left;">
+0.1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+climate\_bio1\_average
+</td>
+<td style="text-align:left;">
+richness\_species\_vascular
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1478.935
+</td>
+<td style="text-align:right;">
+-176.8841
+</td>
+<td style="text-align:left;">
+0.1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+climate\_bio1\_average
+</td>
+<td style="text-align:left;">
+richness\_species\_vascular
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1478.935
+</td>
+<td style="text-align:right;">
+-174.5758
+</td>
+<td style="text-align:left;">
+0.1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+climate\_bio1\_average
+</td>
+<td style="text-align:left;">
+richness\_species\_vascular
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1478.935
+</td>
+<td style="text-align:right;">
+-172.2675
+</td>
+<td style="text-align:left;">
+0.1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+climate\_bio1\_average
+</td>
+<td style="text-align:left;">
+richness\_species\_vascular
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1478.935
+</td>
+<td style="text-align:right;">
+-169.9592
+</td>
+<td style="text-align:left;">
+0.1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+climate\_bio1\_average
+</td>
+<td style="text-align:left;">
+richness\_species\_vascular
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1478.935
+</td>
+<td style="text-align:right;">
+-167.6509
+</td>
+<td style="text-align:left;">
+0.1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+climate\_bio1\_average
+</td>
+<td style="text-align:left;">
+richness\_species\_vascular
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1478.935
+</td>
+<td style="text-align:right;">
+-165.3426
+</td>
+<td style="text-align:left;">
+0.1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+climate\_bio1\_average
+</td>
+<td style="text-align:left;">
+richness\_species\_vascular
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1478.935
+</td>
+<td style="text-align:right;">
+-163.0343
+</td>
+<td style="text-align:left;">
+0.1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+climate\_bio1\_average
+</td>
+<td style="text-align:left;">
+richness\_species\_vascular
+</td>
+</tr>
+</tbody>
+</table>
 
 Interactions between two variables can be plotted with
 [`plot_response_surface()`](https://blasbenito.github.io/spatialRF/reference/plot_response_surface.html)
@@ -604,9 +1385,22 @@ spatialRF::plot_response_surface(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-28-1.png)<!-- --> This can be
+done as well with the `pdp` package, that uses a slightly different
+algorithm to plot interaction surfaces.
 
-## Performance
+``` r
+pdp::partial(
+  model.non.spatial, 
+  train = plant_richness_df, 
+  pred.var = c("climate_bio1_average", "neighbors_count"), 
+  plot = TRUE
+  )
+```
+
+![](README_files/figure-gfm/unnamed-chunk-29-1.png)<!-- -->
+
+## Model performance
 
 The **performance** slot (in `model.non.spatial$performance`) contains
 the values of several performance measures. It be printed via the
@@ -619,19 +1413,21 @@ spatialRF::print_performance(model.non.spatial)
 
     ## 
     ## Model performance 
-    ##   - R squared (oob):                  0.568
-    ##   - R squared (cor(obs, pred)^2):     0.954
-    ##   - Pseudo R squared (cor(obs, pred)):0.977
-    ##   - RMSE:                             961.388
-    ##   - Normalized RMSE:                  0.278
+    ##   - R squared (oob):                  0.5680336
+    ##   - R squared (cor(obs, pred)^2):     0.9541156
+    ##   - Pseudo R squared (cor(obs, pred)):0.9767884
+    ##   - RMSE (oob):                       2214.932
+    ##   - RMSE:                             961.3883
+    ##   - Normalized RMSE:                  0.277537
 
--   `R squared (oob)` is the R squared of the model when predicting the
-    out-of-bag data (fraction of data not used to train individual
-    trees). From all the values available in the `performance` slot,
-    probably this is the most honest one, as it is the closer trying to
-    get an R-squared estimate on independent data. However, out-of-bag
-    data is not independent data, and therefore will still be inflated
-    if the data is highly aggregated in space.
+-   `R squared (oob)` and `RMSE (oob)` are the R squared of the model
+    and its root mean squared error when predicting the out-of-bag data
+    (fraction of data not used to train individual trees). From all the
+    values available in the `performance` slot, probably these the most
+    honest ones, as it is the closer trying to get a performance
+    estimate on independent data. However, out-of-bag data is not fully
+    independent, and therefore will still be inflated, especially if the
+    data is highly aggregated in space.
 -   `R squared` and `pseudo R squared` are computed from the
     observations and the predictions, and indicate to what extent model
     outcomes represent the input data. These values will usually be high
@@ -640,22 +1436,23 @@ spatialRF::print_performance(model.non.spatial)
     [`root_mean_squared_error()`](https://blasbenito.github.io/spatialRF/reference/root_mean_squared_error.html),
     and are linear with `R squared` and `pseudo R squared`.
 
-None of these values are suitable descriptors of the ability of the
-model to generalize over new data, and therefore, are not meant to be
-reported. The function
+## Spatial cross-validation
+
+The function
 [rf\_evaluate()](https://blasbenito.github.io/spatialRF/reference/rf_evaluate.html)
-provides honest performance scores on new data by applying spatial
-cross-validation. It separates the training data into a number of
-spatially independent training and testing folds, fits a model on each
-training fold, predicts over each testing fold, and computes statistics
-of performance measures across folds. Let’s see how it works.
+overcomes the limitations of the performance scores explained above by
+providing honest performance based on *spatial cross-validation*. The
+function separates the data into a number of spatially independent
+training and testing folds. Then, it fits a model on each training fold,
+predicts over each testing fold, and computes statistics of performance
+measures across folds. Let’s see how it works.
 
 ``` r
 model.non.spatial <- spatialRF::rf_evaluate(
   model = model.non.spatial,
-  xy = plant_richness_df[, c("x", "y")], #data coordinates
-  repetitions = 30,                      #number of spatial folds
-  training.fraction = 0.8,               #training data fraction on each fold
+  xy = xy,                  #data coordinates
+  repetitions = 30,         #number of spatial folds
+  training.fraction = 0.75, #training data fraction on each fold
   metrics = "r.squared",
   seed = random.seed,
   verbose = FALSE
@@ -680,7 +1477,7 @@ contains the indices of the training and testing cases for each
 cross-validation repetition. The maps below show two sets of training
 and testing folds.
 
-![](README_files/figure-gfm/unnamed-chunk-25-1.png)<!-- --> The
+![](README_files/figure-gfm/unnamed-chunk-33-1.png)<!-- --> The
 information available in this new slot can be accessed with the
 functions
 [`print_evaluation()`](https://blasbenito.github.io/spatialRF/reference/print_evaluation.html),
@@ -692,14 +1489,15 @@ and
 spatialRF::plot_evaluation(model.non.spatial)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-26-1.png)<!-- --> `Full`
-represents the R squared of the model trained on the full dataset.
-`Training` are the R-squared of the models fitted on the spatial folds
-(labelled `Training` in the maps above), and `Testing` are the R-squared
-of the same models on “unseen” data (data not used to train the model,
-labelled `Testing` in the maps above). The median, median absolute
-deviation, minimum, and maximum R-squared values on the testing folds
-can be printed with `print_evaluation()`.
+![](README_files/figure-gfm/unnamed-chunk-34-1.png)<!-- -->
+
+`Full` represents the R squared of the model trained on the full
+dataset. `Training` are the R-squared of the models fitted on the
+spatial folds (named `Training` in the maps above), and `Testing` are
+the R-squared of the same models on “unseen” data (data not used to
+train the model, named `Testing` in the maps above). The median, median
+absolute deviation (MAD), minimum, and maximum R-squared values on the
+testing folds can be printed with `print_evaluation()`.
 
 ``` r
 spatialRF::print_evaluation(model.non.spatial)
@@ -707,11 +1505,11 @@ spatialRF::print_evaluation(model.non.spatial)
 
     ## 
     ## Spatial evaluation 
-    ##   - Training fraction:             0.8
+    ##   - Training fraction:             0.75
     ##   - Spatial folds:                 25
     ## 
-    ##     Metric Median   MAD Minimum Maximum
-    ##  r.squared  0.336 0.053   0.193   0.673
+    ##     Metric Median  MAD Minimum Maximum
+    ##  r.squared  0.364 0.13   0.119   0.669
 
 ## Other important things stored in the model
 
@@ -728,7 +1526,7 @@ predicted <- stats::predict(
   )$predictions
 ```
 
-# Repeating a model execution
+## Repeating a model execution
 
 Random Forest is an stochastic algorithm that yields slightly different
 results on each run unless a random seed is set. This particularity has
@@ -742,7 +1540,7 @@ repeats a model execution and yields the distribution of importance
 scores of the predictors across executions.
 
 ``` r
-model.non.spatial.repeat <- spatialRF::rf_repeat(
+model.non.spatial.repeat <- rf_repeat(
   model = model.non.spatial, 
   repetitions = 30,
   seed = random.seed,
@@ -791,10 +1589,11 @@ spatialRF::plot_importance(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-31-1.png)<!-- --> The response
-curves of models fitted with `rf_repeat()` can be plotted with
-`plot_response_curves()` as well. The median prediction is shown with a
-thicker line.
+![](README_files/figure-gfm/unnamed-chunk-39-1.png)<!-- -->
+
+The response curves of models fitted with `rf_repeat()` can be plotted
+with `plot_response_curves()` as well. The median prediction is shown
+with a thicker line.
 
 ``` r
 spatialRF::plot_response_curves(
@@ -804,9 +1603,115 @@ spatialRF::plot_response_curves(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-32-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-40-1.png)<!-- -->
 
-# Fitting a spatial model
+The distributions of the performance scores across repetitions are also
+provided.
+
+``` r
+model.non.spatial.repeat
+```
+
+    ## Model type
+    ##   - Fitted with:                     rf_repeat()
+    ##   - Repetitions:                     30
+    ##   - Response variable:               richness_species_vascular
+    ## 
+    ## Random forest parameters
+    ##   - Type:                            Regression
+    ##   - Number of trees:                 500
+    ##   - Sample size:                     227
+    ##   - Number of predictors:            15
+    ##   - Mtry:                            3
+    ##   - Minimum node size:               5
+    ## 
+    ## 
+    ## Model performance (median +/- mad) 
+    ##   - R squared (oob):              0.571 +/- 0.0053
+    ##   - R squared (cor(obs, pred)^2): 0.951 +/- 0.0023
+    ##   - Pseudo R squared:             0.975 +/- 0.0012
+    ##   - RMSE (oob):                   2207.678 +/- 13.609
+    ##   - RMSE:                         972.239 +/- 15.5961
+    ##   - Normalized RMSE:              0.281 +/- 0.0045
+    ## 
+    ## Model residuals 
+    ##   - Stats: 
+    ##           ┌──────────┬─────────┬─────────┬────────┬────────┬─────────┐
+    ##           │ Min.     │ 1st Q.  │ Median  │ Mean   │ 3rd Q. │ Max.    │
+    ##           ├──────────┼─────────┼─────────┼────────┼────────┼─────────┤
+    ##           │ -1907.20 │ -468.56 │ -188.08 │ -20.77 │ 188.13 │ 8135.49 │
+    ##           └──────────┴─────────┴─────────┴────────┴────────┴─────────┘
+    ##   - Normality: 
+    ##       - Shapiro-Wilks W: 0.733 
+    ##       - p-value        : 0 
+    ##       - Interpretation : Residuals are not normal 
+    ## 
+    ##   - Spatial autocorrelation: 
+    ##              ┌──────────┬───────────┬─────────┬──────────────────┐
+    ##              │ Distance │ Moran's I │ P value │ Interpretation   │
+    ##              ├──────────┼───────────┼─────────┼──────────────────┤
+    ##              │      0.0 │     0.148 │   0.000 │ Positive spatial │
+    ##              │          │           │         │ correlation      │
+    ##              ├──────────┼───────────┼─────────┼──────────────────┤
+    ##              │   1500.0 │     0.036 │   0.001 │ Positive spatial │
+    ##              │          │           │         │ correlation      │
+    ##              ├──────────┼───────────┼─────────┼──────────────────┤
+    ##              │   3000.0 │     0.007 │   0.107 │ No spatial       │
+    ##              │          │           │         │ correlation      │
+    ##              └──────────┴───────────┴─────────┴──────────────────┘
+    ## 
+    ## Variable importance: 
+    ##              ┌──────────────────────────────────────┬────────────┐
+    ##              │ Variable                             │ Importance │
+    ##              ├──────────────────────────────────────┼────────────┤
+    ##              │ climate_bio1_average                 │   1821.664 │
+    ##              ├──────────────────────────────────────┼────────────┤
+    ##              │ climate_bio1_average_X_bias_area_km2 │   1576.992 │
+    ##              ├──────────────────────────────────────┼────────────┤
+    ##              │ climate_hypervolume                  │   1491.059 │
+    ##              ├──────────────────────────────────────┼────────────┤
+    ##              │ human_population_density             │   1143.874 │
+    ##              ├──────────────────────────────────────┼────────────┤
+    ##              │ neighbors_count                      │    912.874 │
+    ##              ├──────────────────────────────────────┼────────────┤
+    ##              │ bias_species_per_record              │    814.218 │
+    ##              ├──────────────────────────────────────┼────────────┤
+    ##              │ fragmentation_cohesion               │    696.268 │
+    ##              ├──────────────────────────────────────┼────────────┤
+    ##              │ neighbors_area                       │    662.428 │
+    ##              ├──────────────────────────────────────┼────────────┤
+    ##              │ climate_velocity_lgm_average         │    643.557 │
+    ##              ├──────────────────────────────────────┼────────────┤
+    ##              │ topography_elevation_average         │    618.643 │
+    ##              ├──────────────────────────────────────┼────────────┤
+    ##              │ climate_aridity_index_average        │    614.939 │
+    ##              ├──────────────────────────────────────┼────────────┤
+    ##              │ neighbors_percent_shared_edge        │    585.492 │
+    ##              ├──────────────────────────────────────┼────────────┤
+    ##              │ fragmentation_division               │    518.689 │
+    ##              ├──────────────────────────────────────┼────────────┤
+    ##              │ climate_bio15_minimum                │    502.518 │
+    ##              ├──────────────────────────────────────┼────────────┤
+    ##              │ landcover_herbs_percent_average      │    434.588 │
+    ##              └──────────────────────────────────────┴────────────┘
+
+And the function `get_performance()` offers a nice summary with the
+median and the median absolute deviation.
+
+``` r
+spatialRF::print_performance(model.non.spatial.repeat)
+```
+
+    ## 
+    ## Model performance (median +/- mad) 
+    ##   - R squared (oob):              0.571 +/- 0.0053
+    ##   - R squared (cor(obs, pred)^2): 0.951 +/- 0.0023
+    ##   - Pseudo R squared:             0.975 +/- 0.0012
+    ##   - RMSE (oob):                   2207.678 +/- 13.609
+    ##   - RMSE:                         972.239 +/- 15.5961
+    ##   - Normalized RMSE:              0.281 +/- 0.0045
+
+# Fitting a spatial model with `rf_spatial()`
 
 The spatial autocorrelation of the residuals of a model like
 `model.non.spatial`, measured with [Moran’s
@@ -820,28 +1725,13 @@ spatialRF::plot_moran(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-33-1.png)<!-- -->
-
-**Note:** The function `plot_moran()` (and
-`plot_residuals_diagnostics()`) can also plot a more classical “Moran’s
-scatterplot” by adding the argument `option = 2`.
-
-``` r
-spatialRF::plot_moran(
-  model.non.spatial, 
-  option = 2,
-  verbose = FALSE
-  )
-```
-
-![](README_files/figure-gfm/unnamed-chunk-34-1.png)<!-- -->
-
-According to these plots, the spatial autocorrelation of the residuals
-of `model.non.spatial` is highly positive for a neighborhood of 0 km,
-while it becomes non-significant (p-value &gt; 0.05) at 1500 and 3000
-km. To reduce the spatial autocorrelation of the residuals as much as
-possible, the non-spatial model can be transformed into a *spatial
-model* very easily with the function
+![](README_files/figure-gfm/unnamed-chunk-43-1.png)<!-- --> According to
+these plots, the spatial autocorrelation of the residuals of
+`model.non.spatial` is highly positive for a neighborhood of 0 km, while
+it becomes non-significant (p-value &gt; 0.05) at 1500 and 3000 km. To
+reduce the spatial autocorrelation of the residuals as much as possible,
+the non-spatial model can be transformed into a *spatial model* very
+easily with the function
 [`rf_spatial()`](https://blasbenito.github.io/spatialRF/reference/rf_spatial.html).
 This function is the true core of the package!
 
@@ -856,7 +1746,7 @@ model.spatial <- spatialRF::rf_spatial(
 
 The plot below shows the Moran’s I of the residuals of the spatial
 model. It indicates that the residuals are not autocorrelated at a
-distance of 0 km.
+distance of 0 km any longer.
 
 ``` r
 spatialRF::plot_moran(
@@ -865,10 +1755,9 @@ spatialRF::plot_moran(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-36-1.png)<!-- -->
-
-If we compare the variable importance plots of both models, we can see
-that the spatial model has an additional set of dots under the name
+![](README_files/figure-gfm/unnamed-chunk-45-1.png)<!-- --> If we
+compare the variable importance plots of both models, we can see that
+the spatial model has an additional set of dots under the name
 “spatial\_predictors”, and that the maximum importance of a few of these
 *spatial predictors* matches the importance of the most relevant
 non-spatial predictors.
@@ -887,49 +1776,130 @@ p2 <- spatialRF::plot_importance(
 p1 | p2 
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-37-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-46-1.png)<!-- -->
 
-If we take a look to the ten most important variables in `model.spatial`
-we will see that a few of them are *spatial predictors*. Spatial
-predictors are named `spatial_predictor_X_Y`, where `X` is the
-neighborhood distance at which the predictor has been generated, and `Y`
-is the index of the predictor.
+If we look at the ten most important variables in `model.spatial` we
+will see that a few of them are *spatial predictors*. Spatial predictors
+are named `spatial_predictor_X_Y`, where `X` is the neighborhood
+distance at which the predictor has been generated, and `Y` is the index
+of the predictor.
 
-| variable                                   | importance |
-|:-------------------------------------------|-----------:|
-| climate\_bio1\_average\_X\_bias\_area\_km2 |     11.433 |
-| climate\_bio1\_average                     |     10.792 |
-| bias\_species\_per\_record                 |     10.188 |
-| climate\_hypervolume                       |     10.113 |
-| spatial\_predictor\_0\_2                   |      9.862 |
-| spatial\_predictor\_0\_6                   |      9.291 |
-| neighbors\_count                           |      8.806 |
-| human\_population\_density                 |      8.320 |
-| spatial\_predictor\_0\_5                   |      7.043 |
-| spatial\_predictor\_0\_4                   |      6.916 |
+<table class=" lightable-paper lightable-hover" style="font-family: &quot;Arial Narrow&quot;, arial, helvetica, sans-serif; width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+variable
+</th>
+<th style="text-align:right;">
+importance
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+spatial\_predictor\_0\_2
+</td>
+<td style="text-align:right;">
+1347.981
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+climate\_bio1\_average
+</td>
+<td style="text-align:right;">
+1333.954
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+climate\_hypervolume
+</td>
+<td style="text-align:right;">
+1224.860
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+climate\_bio1\_average\_X\_bias\_area\_km2
+</td>
+<td style="text-align:right;">
+1199.727
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+spatial\_predictor\_0\_1
+</td>
+<td style="text-align:right;">
+964.605
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+spatial\_predictor\_0\_6
+</td>
+<td style="text-align:right;">
+921.123
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+bias\_species\_per\_record
+</td>
+<td style="text-align:right;">
+804.623
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+spatial\_predictor\_0\_5
+</td>
+<td style="text-align:right;">
+773.244
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+neighbors\_count
+</td>
+<td style="text-align:right;">
+767.143
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+spatial\_predictor\_0\_3
+</td>
+<td style="text-align:right;">
+755.153
+</td>
+</tr>
+</tbody>
+</table>
 
-But what the heck are spatial predictors? Spatial predictors, as shown
-below, are smooth surfaces representing neighborhood among records at
-different spatial scales. They are computed from the distance matrix in
-different ways. The ones below are the eigenvectors of the
-double-centered distance matrix of weights (a.k.a, Moran’s Eigenvector
-Maps). They represent the effect of spatial proximity among records,
-helping to take into account biogeographic and spatial processes not
-considered by the non-spatial predictors.
+But what are spatial predictors? Spatial predictors, as shown below, are
+smooth surfaces representing neighborhood among records at different
+spatial scales. They are computed from the distance matrix in different
+ways. The ones below are the eigenvectors of the double-centered
+distance matrix of weights (a.k.a, Moran’s Eigenvector Maps). They
+represent the effect of spatial proximity among records, helping to
+represent biogeographic and spatial processes not considered by the
+non-spatial predictors.
 
-![](README_files/figure-gfm/unnamed-chunk-39-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-48-1.png)<!-- -->
 
-The spatial predictors are included in the model one by one in the order
-of their Moran’s I (spatial predictors with Moran’s I lower than 0 are
-removed). The subset of spatial predictors maximizing the model’s R
-squared on the out-of-bag data, and minimizing the Moran’s I of the
-residuals and the number of spatial predictors required by the model are
-selected, as shown in the optimization plot below (dots linked by lines
-represent the selected spatial predictors). The selection procedure is
-performed by the function
-[`select_spatial_predictors_sequential()`](https://blasbenito.github.io/spatialRF/reference/select_spatial_predictors_sequential.html).
+The spatial predictors are included in the model one by one, in the
+order of their Moran’s I (spatial predictors with Moran’s I lower than 0
+are removed). The selection procedure is performed by the function
+[`select_spatial_predictors_sequential()`](https://blasbenito.github.io/spatialRF/reference/select_spatial_predictors_sequential.html),
+which finds the smaller subset of spatial predictors maximizing the
+model’s R squared, and minimizing the Moran’s I of the residuals. This
+is shown in the optimization plot below (dots linked by lines represent
+the selected spatial predictors).
 
-![](README_files/figure-gfm/unnamed-chunk-40-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-49-1.png)<!-- -->
 
 # Tuning Random Forest hyperparameters
 
@@ -953,7 +1923,7 @@ datasets might freeze your computer.
 ``` r
 model.spatial.tuned <- rf_tuning(
   model = model.spatial,
-  xy = plant_richness_df[, c("x", "y")],
+  xy = xy,
   repetitions = 30,
   num.trees = c(500, 1000),
   mtry = seq(
@@ -977,15 +1947,15 @@ model.spatial.tuned <- rf_tuning(
 
     ## gain in r.squared: 0.01
 
-![](README_files/figure-gfm/unnamed-chunk-41-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-50-1.png)<!-- -->
 
 # Comparing several models
 
 The function
 [`rf_compare()`](https://blasbenito.github.io/spatialRF/reference/rf_compare.html)
 takes named list with as many models as the user needs to compare, and
-applies \[`rf_evaluate()`\] to each one of them to compare their
-respective predictive performances across spatial folds.
+applies `rf_evaluate()` to each one of them to compare their predictive
+performances across spatial folds.
 
 ``` r
 comparison <- rf_compare(
@@ -994,7 +1964,7 @@ comparison <- rf_compare(
     `Spatial` = model.spatial,
     `Spatial tuned` = model.spatial.tuned
   ),
-  xy = plant_richness_df[, c("x", "y")],
+  xy = xy,
   repetitions = 30,
   training.fraction = 0.8,
   metrics = "r.squared",
@@ -1002,13 +1972,200 @@ comparison <- rf_compare(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-42-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-51-1.png)<!-- -->
 
-| Model         | Metric    | Median |
-|:--------------|:----------|-------:|
-| Non-spatial   | r.squared |  0.336 |
-| Spatial       | r.squared |  0.184 |
-| Spatial tuned | r.squared |  0.223 |
+<table class=" lightable-paper lightable-hover" style="font-family: &quot;Arial Narrow&quot;, arial, helvetica, sans-serif; width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Model
+</th>
+<th style="text-align:left;">
+Metric
+</th>
+<th style="text-align:right;">
+Median
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Non-spatial
+</td>
+<td style="text-align:left;">
+r.squared
+</td>
+<td style="text-align:right;">
+0.336
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Spatial
+</td>
+<td style="text-align:left;">
+r.squared
+</td>
+<td style="text-align:right;">
+0.184
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Spatial tuned
+</td>
+<td style="text-align:left;">
+r.squared
+</td>
+<td style="text-align:right;">
+0.223
+</td>
+</tr>
+</tbody>
+</table>
+
+# Working with a binomial response
+
+This package can also perform binomial regression on response variables
+with zeros and ones. Let’s work on a quick example by turning the
+response variable of the previous models into a binomial one.
+
+``` r
+plant_richness_df$response_binomial <- ifelse(
+  plant_richness_df$richness_species_vascular > 5000,
+  1,
+  0
+)
+```
+
+The new response variable, `response_binomial`, will have ones where
+`richness_species_vascular > 5000`, and zeros otherwise. This would be
+equivalent to having the classes “high richness” (represented by the
+ones) and “low richness”, represented by the zeros. The binomial
+regression model would then have as objective to compute the probability
+of each ecoregion to belong to the “high richness” class.
+
+There is something important to notice before moving forward though. The
+number of zeros in the new response variable is larger than the number
+of ones.
+
+``` r
+table(plant_richness_df$response_binomial)
+```
+
+    ## 
+    ##   0   1 
+    ## 165  62
+
+This means that there is **class imbalance**, and under this scenario,
+any random forest model is going to get better at predicting the most
+abundant class, while in our case the “target” is the less abundant one.
+But the function `rf()` is ready to deal with this issue. Let’s fit a
+model to see what am I talking about.
+
+``` r
+model.non.spatial <- spatialRF::rf(
+  data = plant_richness_df,
+  dependent.variable.name = "response_binomial",
+  predictor.variable.names = predictor.variable.names,
+  distance.matrix = distance_matrix,
+  distance.thresholds = c(0, 1500, 3000),
+  seed = random.seed,
+  verbose = FALSE
+)
+```
+
+The function detects that the response variable is binary (using the
+function
+[`is_binary()`](https://blasbenito.github.io/spatialRF/reference/is_binary.html)),
+and computes *case weights* for the ones and the zeros. These case
+weights are stored in the `ranger.arguments` slot of the model, and are
+used to give preference to the cases with larger weights during the
+selection of the out-of-bag data (check the `case.weights` argument in
+`ranger::ranger()`). As a result, each individual tree in the forest is
+trained with a similar proportion of zeros and ones, which helps
+mitigate the class imbalance issue. This method is named *weighted
+Random Forest*, and is very well explained in this [white
+paper](https://statistics.berkeley.edu/sites/default/files/tech-reports/666.pdf)
+that includes the father of Random Forest, Leo Breiman, as coauthor.
+
+``` r
+unique(model.non.spatial$ranger.arguments$case.weights)
+```
+
+    ## [1] 0.006060606 0.016129032
+
+This model could be projected right away onto a raster stack with maps
+of the predictors, so, in fact, `spatialRF` can be used to fit Species
+Distribution Models, when it actually wasn’t really designed with such a
+purpose in mind. And as an additional advantage, the model can be
+evaluated with `rf_evaluate()`, which is way better than
+cross-validation via random data-splitting ([this blog
+post](https://methodsblog.com/2018/11/29/blockcv-english/) explains
+explains why).
+
+``` r
+model.non.spatial <- spatialRF::rf_evaluate(
+  model.non.spatial,
+  xy = xy,
+  metrics = "auc", #surprise!
+  verbose = FALSE
+)
+
+spatialRF::print_evaluation(model.non.spatial)
+```
+
+    ## 
+    ## Spatial evaluation 
+    ##   - Training fraction:             0.75
+    ##   - Spatial folds:                 25
+    ## 
+    ##  Metric Median   MAD Minimum Maximum
+    ##     auc  0.885 0.059   0.674   0.959
+
+That’s a pretty good result I’d say!
+
+Now, let’s see if this model needs spatial predictors (beyond this
+point, SDMs are no longer possible, because the spatial predictors
+cannot be represented as rasters, as they are mathematical
+representations of the distances among the training points).
+
+``` r
+spatialRF::plot_moran(
+  model.non.spatial,
+  verbose = FALSE
+  )
+```
+
+![](README_files/figure-gfm/unnamed-chunk-58-1.png)<!-- --> The Moran’s
+I tests of the residuals shows that they are spatially autocorrelated
+for a neighborhood distance of 0 km. Let’s try to fix that with a
+spatial model.
+
+``` r
+model.spatial <- spatialRF::rf_spatial(
+  model = model.non.spatial,
+  verbose = FALSE,
+  seed = random.seed
+  )
+
+spatialRF::plot_moran(
+  model.spatial,
+  verbose = FALSE
+  )
+```
+
+![](README_files/figure-gfm/unnamed-chunk-59-1.png)<!-- -->
+
+*Et voilá*, the problem went away!
+
+The **take away message** here is that you can work with a binomial
+response with `spatialRF`, just as you would do with a continuous
+response, as long as it is represented with zeros and ones. Just
+remember that class imbalance is solved via case weights, and that
+predictive performance is also measured using the Area Under the ROC
+Curve (AUC).
 
 # Generating spatial predictors for other modelling methods
 
@@ -1038,18 +2195,166 @@ In either case the result is a data frame with Moran’s Eigenvector Maps
 (“just” the positive eigenvectors of the double-centered distance
 matrix).
 
-| spatial\_predictor\_0\_1 | spatial\_predictor\_0\_2 | spatial\_predictor\_0\_3 | spatial\_predictor\_0\_4 |
-|-------------------------:|-------------------------:|-------------------------:|-------------------------:|
-|                0.0259217 |                0.0052203 |                0.0416969 |               -0.0363324 |
-|                0.0996679 |                0.0539713 |                0.1324480 |                0.3826928 |
-|                0.0010477 |               -0.0143046 |               -0.0443602 |               -0.0031386 |
-|                0.0165695 |                0.0047991 |                0.0307457 |                0.0005170 |
-|                0.0225761 |                0.0019595 |                0.0230368 |               -0.0524239 |
-|                0.0155252 |                0.0023742 |                0.0197953 |               -0.0338956 |
-|                0.0229197 |                0.0039860 |                0.0312561 |               -0.0416697 |
-|               -0.2436009 |               -0.1155295 |                0.0791452 |                0.0189996 |
-|                0.0150725 |               -0.0158684 |               -0.1010284 |                0.0095590 |
-|               -0.1187381 |               -0.0471879 |                0.0359881 |                0.0065211 |
+<table class=" lightable-paper lightable-hover" style="font-family: &quot;Arial Narrow&quot;, arial, helvetica, sans-serif; width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:right;">
+spatial\_predictor\_0\_1
+</th>
+<th style="text-align:right;">
+spatial\_predictor\_0\_2
+</th>
+<th style="text-align:right;">
+spatial\_predictor\_0\_3
+</th>
+<th style="text-align:right;">
+spatial\_predictor\_0\_4
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+0.0259217
+</td>
+<td style="text-align:right;">
+0.0052203
+</td>
+<td style="text-align:right;">
+0.0416969
+</td>
+<td style="text-align:right;">
+-0.0363324
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.0996679
+</td>
+<td style="text-align:right;">
+0.0539713
+</td>
+<td style="text-align:right;">
+0.1324480
+</td>
+<td style="text-align:right;">
+0.3826928
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.0010477
+</td>
+<td style="text-align:right;">
+-0.0143046
+</td>
+<td style="text-align:right;">
+-0.0443602
+</td>
+<td style="text-align:right;">
+-0.0031386
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.0165695
+</td>
+<td style="text-align:right;">
+0.0047991
+</td>
+<td style="text-align:right;">
+0.0307457
+</td>
+<td style="text-align:right;">
+0.0005170
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.0225761
+</td>
+<td style="text-align:right;">
+0.0019595
+</td>
+<td style="text-align:right;">
+0.0230368
+</td>
+<td style="text-align:right;">
+-0.0524239
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.0155252
+</td>
+<td style="text-align:right;">
+0.0023742
+</td>
+<td style="text-align:right;">
+0.0197953
+</td>
+<td style="text-align:right;">
+-0.0338956
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.0229197
+</td>
+<td style="text-align:right;">
+0.0039860
+</td>
+<td style="text-align:right;">
+0.0312561
+</td>
+<td style="text-align:right;">
+-0.0416697
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+-0.2436009
+</td>
+<td style="text-align:right;">
+-0.1155295
+</td>
+<td style="text-align:right;">
+0.0791452
+</td>
+<td style="text-align:right;">
+0.0189996
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.0150725
+</td>
+<td style="text-align:right;">
+-0.0158684
+</td>
+<td style="text-align:right;">
+-0.1010284
+</td>
+<td style="text-align:right;">
+0.0095590
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+-0.1187381
+</td>
+<td style="text-align:right;">
+-0.0471879
+</td>
+<td style="text-align:right;">
+0.0359881
+</td>
+<td style="text-align:right;">
+0.0065211
+</td>
+</tr>
+</tbody>
+</table>
 
 But not all MEMs are made equal, and you will need to rank them by their
 Moran’s I. The function
@@ -1121,7 +2426,7 @@ moran.test <- spatialRF::moran(
 moran.test$plot
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-48-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-64-1.png)<!-- -->
 
 According to the Moran’s I test, the model residuals show spatial
 autocorrelation. Let’s introduce MEMs one by one until the problem is
@@ -1178,15 +2483,77 @@ for(mem.i in colnames(mems)){
 moran.test.i$plot
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-49-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-65-1.png)<!-- -->
 
 Now we can compare the model without spatial predictors `m` and the
 model with spatial predictors `m.i`.
 
-| Model       | Predictors | R\_squared | AIC | BIC | Moran.I |
-|:------------|-----------:|-----------:|----:|----:|--------:|
-| Non-spatial |          6 |       0.38 | 551 | 578 |    0.21 |
-| Spatial     |         21 |       0.51 | 529 | 608 |    0.06 |
+<table class=" lightable-paper lightable-hover" style="font-family: &quot;Arial Narrow&quot;, arial, helvetica, sans-serif; width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Model
+</th>
+<th style="text-align:right;">
+Predictors
+</th>
+<th style="text-align:right;">
+R\_squared
+</th>
+<th style="text-align:right;">
+AIC
+</th>
+<th style="text-align:right;">
+BIC
+</th>
+<th style="text-align:right;">
+Moran.I
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Non-spatial
+</td>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+0.38
+</td>
+<td style="text-align:right;">
+551
+</td>
+<td style="text-align:right;">
+578
+</td>
+<td style="text-align:right;">
+0.21
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Spatial
+</td>
+<td style="text-align:right;">
+21
+</td>
+<td style="text-align:right;">
+0.51
+</td>
+<td style="text-align:right;">
+529
+</td>
+<td style="text-align:right;">
+608
+</td>
+<td style="text-align:right;">
+0.06
+</td>
+</tr>
+</tbody>
+</table>
 
 According to the model comparison, it can be concluded that the addition
 of spatial predictors, in spite of the increase in complexity, has

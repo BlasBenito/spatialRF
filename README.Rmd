@@ -74,7 +74,12 @@ If after considering these limitations you are still interested, follow me, I wi
 
 # Install
 
-The package is not yet in the CRAN repositories, so at the moment it must be installed from GitHub as follows.
+The package is not yet in the CRAN repositories, so at the moment it must be installed from GitHub as follows. There are several branches in the repository:
+
+  + `main`: latest stable version (1.1.0 currently).
+  + `development` contains the development version, usually very broken. Do not install from here!
+  + `v.1.0.9`: previous functional version.
+  + `v.1.1.0`: latest release.
 
 ```{r, message = FALSE, eval = TRUE}
 remotes::install_github(
@@ -273,7 +278,7 @@ The slot `selected.variables` contains the names of the selected predictors.
 predictor.variable.names$selected.variables
 ```
 
-# Fitting a (non-spatial) Random Forest model with `rf()``
+# Fitting a (non-spatial) Random Forest model with `rf()`
 
 The function [`rf()`](https://blasbenito.github.io/spatialRF/reference/rf.html) is a convenient wrapper for `ranger::ranger()` used in every modelling function of the *spatialRF* package. It takes the training data, the names of the response and the predictors, and optionally (to assess the spatial autocorrelation of the residuals), the distance matrix, and a vector of distance thresholds (in the same units as the distances in **distance_matrix**).
 
@@ -506,7 +511,7 @@ pdp::partial(
   )
 ```
 
-## Performance
+## Model performance
 
 The **performance** slot (in `model.non.spatial$performance`) contains the values of several performance measures. It be printed via the function [`print_performance()`](https://blasbenito.github.io/spatialRF/reference/print_performance.html).
 
@@ -518,7 +523,9 @@ spatialRF::print_performance(model.non.spatial)
    + `R squared` and `pseudo R squared` are computed from the observations and the predictions, and indicate to what extent model outcomes represent the input data. These values will usually be high the data is highly aggregated in space.
    + The `RMSE` and its normalized version are computed via [`root_mean_squared_error()`](https://blasbenito.github.io/spatialRF/reference/root_mean_squared_error.html), and are linear with `R squared` and `pseudo R squared`.
    
-The function [rf_evaluate()](https://blasbenito.github.io/spatialRF/reference/rf_evaluate.html) overcomes the limitations of these performance scores by providing honest performance scores on data not used to train the model by applying spatial cross-validation. It separates the training data into a number of spatially independent training and testing folds, fits a model on each training fold, predicts over each testing fold, and computes statistics of performance measures across folds. Let's see how it works.
+## Spatial cross-validation
+
+The function [rf_evaluate()](https://blasbenito.github.io/spatialRF/reference/rf_evaluate.html) overcomes the limitations of the performance scores explained above by providing honest performance based on *spatial cross-validation*. The function separates the data into a number of spatially independent training and testing folds. Then, it fits a model on each training fold, predicts over each testing fold, and computes statistics of performance measures across folds. Let's see how it works.
 
 ```{r}
 model.non.spatial <- spatialRF::rf_evaluate(
@@ -678,7 +685,7 @@ spatialRF::print_performance(model.non.spatial.repeat)
 ```
 
 
-# Fitting a spatial model
+# Fitting a spatial model with `rf_spatial()`
 
 The spatial autocorrelation of the residuals of a model like `model.non.spatial`, measured with [Moran's I](https://en.wikipedia.org/wiki/Moran%27s_I), can be plotted with [`plot_moran()`](https://blasbenito.github.io/spatialRF/reference/plot_moran.html).
 
@@ -849,7 +856,7 @@ kableExtra::kbl(
   ) %>%
   kableExtra::kable_paper("hover", full_width = F)
 ```
-# Working with binomial data
+# Working with a binomial response
 
 This package can also perform binomial regression on response variables with zeros and ones. Let's work on a quick example by turning the response variable of the previous models into a binomial one. 
 
