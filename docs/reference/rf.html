@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">spatialRF</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.9</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
       </span>
     </div>
 
@@ -127,7 +127,7 @@
   <span class='kw'>distance.matrix</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>distance.thresholds</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>ranger.arguments</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>scaled.importance</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>scaled.importance</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
   <span class='kw'>seed</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
 )</pre>
@@ -161,7 +161,7 @@
     </tr>
     <tr>
       <th>scaled.importance</th>
-      <td><p>Logical, if <code>TRUE</code>, the function scales <code>data</code> with <a href='https://rdrr.io/r/base/scale.html'>scale</a> and fits a new model to compute scaled variable importance scores. This makes variable importance scores of different models somewhat comparable. Default: <code>TRUE</code></p></td>
+      <td><p>Logical, if <code>TRUE</code>, the function scales <code>data</code> with <a href='https://rdrr.io/r/base/scale.html'>scale</a> and fits a new model to compute scaled variable importance scores. This makes variable importance scores of different models somewhat comparable. Default: <code>FALSE</code></p></td>
     </tr>
     <tr>
       <th>seed</th>
@@ -177,10 +177,9 @@
 
     <p>A ranger model with several new slots:</p><ul>
 <li><p><code>ranger.arguments</code>: Stores the values of the arguments used to fit the ranger model.</p></li>
-<li><p><code>variable.importance</code>: A list containing a data frame with the predictors ordered by their importance, and a ggplot showing the importance values.</p></li>
+<li><p><code>importance</code>: A list containing a data frame with the predictors ordered by their importance, a ggplot showing the importance values, and local importance scores (difference in accuracy between permuted and non permuted variables for every case, computed on the out-of-bag data).</p></li>
 <li><p><code>performance</code>: performance scores: R squared on out-of-bag data, R squared (cor(observed, predicted) ^ 2), pseudo R squared (cor(observed, predicted)), RMSE, and normalized RMSE (NRMSE).</p></li>
-<li><p><code>residuals</code>: computed as observations minus predictions.</p></li>
-<li><p><code>spatial.correlation.residuals</code>: the result of <code><a href='moran_multithreshold.html'>moran_multithreshold()</a></code> applied to the model results.</p></li>
+<li><p><code>residuals</code>: residuals, normality test of the residuals computed with <code><a href='normality.html'>residuals_test()</a></code>, and spatial autocorrelation of the residuals computed with <code><a href='moran_multithreshold.html'>moran_multithreshold()</a></code>.</p></li>
 </ul>
 
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
@@ -205,10 +204,10 @@
  <span class='fu'><a href='https://rdrr.io/r/base/class.html'>class</a></span>(<span class='no'>out</span>)
 
  <span class='co'>#data frame with ordered variable importance</span>
- <span class='no'>out</span>$<span class='no'>variable.importance</span>$<span class='no'>per.variable</span>
+ <span class='no'>out</span>$<span class='no'>importance</span>$<span class='no'>per.variable</span>
 
  <span class='co'>#variable importance plot</span>
- <span class='no'>out</span>$<span class='no'>variable.importance</span>$<span class='no'>per.variable.plot</span>
+ <span class='no'>out</span>$<span class='no'>importance</span>$<span class='no'>per.variable.plot</span>
 
  <span class='co'>#performance</span>
  <span class='no'>out</span>$<span class='no'>performance</span>

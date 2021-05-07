@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">spatialRF</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.9</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
       </span>
     </div>
 
@@ -120,13 +120,13 @@
     <p>Returns the performance slot of an <code><a href='rf.html'>rf()</a></code>, <code><a href='rf_repeat.html'>rf_repeat()</a></code>, or <code><a href='rf_spatial.html'>rf_spatial()</a></code> model computed on the out-of-bag data.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>get_performance</span>(<span class='no'>x</span>)</pre>
+    <pre class="usage"><span class='fu'>get_performance</span>(<span class='no'>model</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>x</th>
+      <th>model</th>
       <td><p>Model fitted with <code><a href='rf.html'>rf()</a></code>, <code><a href='rf_repeat.html'>rf_repeat()</a></code>, or <code><a href='rf_spatial.html'>rf_spatial()</a></code>.</p></td>
     </tr>
     </table>
@@ -135,9 +135,8 @@
 
     <p>A data frame with four columns:</p><ul>
 <li><p><code>metric</code> Name of the performance metric.</p></li>
-<li><p><code>mean</code> Value of the performance metric. Truly a mean only if the model is fitted with <code><a href='rf_repeat.html'>rf_repeat()</a></code>.</p></li>
-<li><p><code>standard_error</code> Standard error of the mean, only if the model is fitted with <code><a href='rf_repeat.html'>rf_repeat()</a></code>, and <code>NA</code> otherwise.</p></li>
-<li><p><code>standard_deviation</code> Standard deviation of the mean, only if the model is fitted with <code><a href='rf_repeat.html'>rf_repeat()</a></code>, and <code>NA</code> otherwise.</p></li>
+<li><p><code>median</code> Value of the performance metric. Truly a median only if the model is fitted with <code><a href='rf_repeat.html'>rf_repeat()</a></code>.</p></li>
+<li><p><code>median_absolute_deviation</code> median absolute deviation (MAD), only if the model is fitted with <code><a href='rf_repeat.html'>rf_repeat()</a></code>, and <code>NA</code> otherwise.</p></li>
 </ul>
 
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>

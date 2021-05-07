@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Optimization plot of a selection of spatial predictors — plot_optimization • spatialRF</title>
+<title>Gets the local importance data frame from a model — get_importance_local • spatialRF</title>
 
 
 <!-- jquery -->
@@ -39,9 +39,8 @@
 
 
 
-<meta property="og:title" content="Optimization plot of a selection of spatial predictors — plot_optimization" />
-<meta property="og:description" content="Plots optimization data frames produced by select_spatial_predictors_sequential()
-and select_spatial_predictors_recursive()." />
+<meta property="og:title" content="Gets the local importance data frame from a model — get_importance_local" />
+<meta property="og:description" content="Gets local importance scores from rf(), rf_repeat(), and rf_spatial() models." />
 
 
 
@@ -112,50 +111,54 @@ and select_spatial_predictors_recursive()." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Optimization plot of a selection of spatial predictors</h1>
-    <small class="dont-index">Source: <a href='https://github.com/BlasBenito/spatialRF/blob/master/R/plot_optimization.R'><code>R/plot_optimization.R</code></a></small>
-    <div class="hidden name"><code>plot_optimization.Rd</code></div>
+    <h1>Gets the local importance data frame from a model</h1>
+    <small class="dont-index">Source: <a href='https://github.com/BlasBenito/spatialRF/blob/master/R/get_importance_local.R'><code>R/get_importance_local.R</code></a></small>
+    <div class="hidden name"><code>get_importance_local.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Plots optimization data frames produced by <code><a href='select_spatial_predictors_sequential.html'>select_spatial_predictors_sequential()</a></code>
-and <code><a href='select_spatial_predictors_recursive.html'>select_spatial_predictors_recursive()</a></code>.</p>
+    <p>Gets local importance scores from <code><a href='rf.html'>rf()</a></code>, <code><a href='rf_repeat.html'>rf_repeat()</a></code>, and <code><a href='rf_spatial.html'>rf_spatial()</a></code> models.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>plot_optimization</span>(
-  <span class='no'>model</span>,
-  <span class='kw'>point.color</span> <span class='kw'>=</span> <span class='kw pkg'>viridis</span><span class='kw ns'>::</span><span class='fu'><a href='https://sjmgarnier.github.io/viridis/reference/reexports.html'>viridis</a></span>(
-    <span class='fl'>100</span>,
-    <span class='kw'>option</span> <span class='kw'>=</span> <span class='st'>"F"</span>,
-    <span class='kw'>direction</span> <span class='kw'>=</span> -<span class='fl'>1</span>
-  ),
-  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
-)</pre>
+    <pre class="usage"><span class='fu'>get_importance_local</span>(<span class='no'>model</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>model</th>
-      <td><p>A model produced by <code><a href='rf_spatial.html'>rf_spatial()</a></code>, or an optimization data frame produced by <code><a href='select_spatial_predictors_sequential.html'>select_spatial_predictors_sequential()</a></code> or <code><a href='select_spatial_predictors_recursive.html'>select_spatial_predictors_recursive()</a></code>.</p></td>
-    </tr>
-    <tr>
-      <th>point.color</th>
-      <td><p>Colors of the plotted points. Can be a single color name (e.g. "red4"), a character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. <code><a href='https://sjmgarnier.github.io/viridis/reference/reexports.html'>viridis::viridis(100)</a></code>). Default: <code><a href='https://sjmgarnier.github.io/viridis/reference/reexports.html'>viridis::viridis(100, option = "F", direction = -1)</a></code></p></td>
-    </tr>
-    <tr>
-      <th>verbose</th>
-      <td><p>Logical, if <code>TRUE</code> the plot is printed. Default: <code>TRUE</code></p></td>
+      <td><p>A model fitted with <code><a href='rf.html'>rf()</a></code>, <code><a href='rf_repeat.html'>rf_repeat()</a></code>, or <code><a href='rf_spatial.html'>rf_spatial()</a></code>. Default: NULL</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A ggplot.</p>
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+    <p>A data frame with variable names and local importance scores.</p>
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <p>If the method used to fit a model with <code><a href='rf_spatial.html'>rf_spatial()</a></code> is "hengl", the function returns nothing, as this method does not require optimization.</p>
+    <div class='dont-index'><p><code><a href='rf.html'>rf()</a></code>, <code><a href='rf_repeat.html'>rf_repeat()</a></code>, <code><a href='rf_spatial.html'>rf_spatial()</a></code>, <code><a href='plot_importance.html'>plot_importance()</a></code>, <code><a href='print_importance.html'>print_importance()</a></code>.</p></div>
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='co'># \donttest{</span>
+<span class='kw'>if</span>(<span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span>()){
+
+<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>plant_richness_df</span>)
+<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>distance_matrix</span>)
+
+<span class='no'>rf.model</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='rf.html'>rf</a></span>(
+  <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>plant_richness_df</span>,
+  <span class='kw'>dependent.variable.name</span> <span class='kw'>=</span> <span class='st'>"richness_species_vascular"</span>,
+  <span class='kw'>predictor.variable.names</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span>(<span class='no'>plant_richness_df</span>)[<span class='fl'>5</span>:<span class='fl'>21</span>],
+  <span class='kw'>distance.matrix</span> <span class='kw'>=</span> <span class='no'>distance_matrix</span>,
+  <span class='kw'>distance.thresholds</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0</span>, <span class='fl'>1000</span>, <span class='fl'>2000</span>),
+  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
+)
+
+<span class='no'>x</span> <span class='kw'>&lt;-</span> <span class='fu'>get_importance_local</span>(<span class='no'>rf.model</span>)
+<span class='no'>x</span>
+
+}
+<span class='co'># }</span></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

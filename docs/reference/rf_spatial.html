@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">spatialRF</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.9</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
       </span>
     </div>
 
@@ -188,8 +188,7 @@
     </tr>
     <tr>
       <th>keep.models</th>
-      <td><p>Logical. If <code>TRUE</code>, the fitted models are returned in the "models" slot. If <code>repetitions</code> is very high and <code>method</code> is "hengl",
-setting <code>keep.models</code> to <code>TRUE</code> may cause memory issues. Default: <code>FALSE</code></p></td>
+      <td><p>Logical. If <code>TRUE</code>, the fitted models are returned in the "models" slot. If <code>repetitions</code> is very high and <code>method</code> is "hengl", setting <code>keep.models</code> to <code>TRUE</code> may cause memory issues. Default: <code>FALSE</code></p></td>
     </tr>
     <tr>
       <th>method</th>
@@ -254,8 +253,8 @@ setting <code>keep.models</code> to <code>TRUE</code> may cause memory issues. D
 <li><p><code>ranger.arguments</code>: Values of the arguments used to fit the ranger model.</p></li>
 <li><p><code>variable.importance</code>: A list containing the vector of variable importance as originally returned by ranger (scaled or not depending on the value of 'scaled.importance'), a data frame with the predictors ordered by their importance, and a ggplot showing the importance values.</p></li>
 <li><p><code>performance</code>: With the out-of-bag R squared, pseudo R squared, RMSE and NRMSE of the model.</p></li>
-<li><p><code>spatial.correlation.residuals</code>: Result of <code><a href='moran_multithreshold.html'>moran_multithreshold()</a></code> applied in the model residuals.</p></li>
-<li><p><code>selection.spatial.predictors</code>: A list with four slots:</p><ul>
+<li><p><code>residuals</code>: residuals, normality test of the residuals computed with <code><a href='normality.html'>residuals_test()</a></code>, and spatial autocorrelation of the residuals computed with <code><a href='moran_multithreshold.html'>moran_multithreshold()</a></code>.</p></li>
+<li><p><code>spatial</code>: A list with four slots:</p><ul>
 <li><p><code>method</code>: Character, method used to generate, rank, and select spatial predictors.</p></li>
 <li><p><code>names</code>: Character vector with the names of the selected spatial predictors. Not returned if the method is "hengl".</p></li>
 <li><p><code>optimization</code>: Criteria used to select the spatial predictors. Not returned if the method is "hengl".</p></li>

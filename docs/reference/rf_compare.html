@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">spatialRF</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.9</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
       </span>
     </div>
 
@@ -126,7 +126,8 @@
   <span class='kw'>repetitions</span> <span class='kw'>=</span> <span class='fl'>30</span>,
   <span class='kw'>training.fraction</span> <span class='kw'>=</span> <span class='fl'>0.8</span>,
   <span class='kw'>metrics</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"r.squared"</span>, <span class='st'>"pseudo.r.squared"</span>, <span class='st'>"rmse"</span>, <span class='st'>"nrmse"</span>),
-  <span class='kw'>notch</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>fill.color</span> <span class='kw'>=</span> <span class='kw pkg'>viridis</span><span class='kw ns'>::</span><span class='fu'><a href='https://sjmgarnier.github.io/viridis/reference/reexports.html'>viridis</a></span>(<span class='fl'>100</span>, <span class='kw'>option</span> <span class='kw'>=</span> <span class='st'>"F"</span>, <span class='kw'>direction</span> <span class='kw'>=</span> -<span class='fl'>1</span>, <span class='kw'>alpha</span> <span class='kw'>=</span> <span class='fl'>0.8</span>),
+  <span class='kw'>line.color</span> <span class='kw'>=</span> <span class='st'>"gray30"</span>,
   <span class='kw'>seed</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>n.cores</span> <span class='kw'>=</span> <span class='kw pkg'>parallel</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/r/parallel/detectCores.html'>detectCores</a></span>() - <span class='fl'>1</span>,
@@ -160,8 +161,12 @@
       <td><p>Character vector, names of the performance metrics selected. The possible values are: "r.squared" (<code>cor(obs, pred) ^ 2</code>), "pseudo.r.squared" (<code><a href='https://rdrr.io/r/stats/cor.html'>cor(obs, pred)</a></code>), "rmse" (<code><a href='https://rdrr.io/r/base/MathFun.html'>sqrt(sum((obs - pred)^2)/length(obs))</a></code>), "nrmse" (<code>rmse/(quantile(obs, 0.75) - quantile(obs, 0.25))</code>). Default: <code><a href='https://rdrr.io/r/base/c.html'>c("r.squared", "pseudo.r.squared", "rmse", "nrmse")</a></code></p></td>
     </tr>
     <tr>
-      <th>notch</th>
-      <td><p>Logical, if <code>TRUE</code>, boxplot notches are plotted. Default: <code>TRUE</code></p></td>
+      <th>fill.color</th>
+      <td><p>Character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. <code><a href='https://sjmgarnier.github.io/viridis/reference/reexports.html'>viridis::viridis(100)</a></code>). Default: <code><a href='https://sjmgarnier.github.io/viridis/reference/reexports.html'>viridis::viridis(100, option = "F", direction = -1)</a></code></p></td>
+    </tr>
+    <tr>
+      <th>line.color</th>
+      <td><p>Character string, color of the line produced by <code><a href='https://ggplot2.tidyverse.org/reference/geom_smooth.html'>ggplot2::geom_smooth()</a></code>. Default: <code>"gray30"</code></p></td>
     </tr>
     <tr>
       <th>seed</th>

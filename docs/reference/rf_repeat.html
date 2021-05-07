@@ -40,7 +40,7 @@
 
 
 <meta property="og:title" content="Fits several random forest models on the same data — rf_repeat" />
-<meta property="og:description" content="Fits several random forest models on the same data in order to capture the effect of the algorithm's stochasticity on the importance scores and performance measures." />
+<meta property="og:description" content="Fits several random forest models on the same data in order to capture the effect of the algorithm's stochasticity on the variable importance scores, predictions, residuals, and performance measures. The function relies on the median to aggregate values across repetitions." />
 
 
 
@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">spatialRF</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.9</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
       </span>
     </div>
 
@@ -117,7 +117,7 @@
     </div>
 
     <div class="ref-description">
-    <p>Fits several random forest models on the same data in order to capture the effect of the algorithm's stochasticity on the importance scores and performance measures.</p>
+    <p>Fits several random forest models on the same data in order to capture the effect of the algorithm's stochasticity on the variable importance scores, predictions, residuals, and performance measures. The function relies on the median to aggregate values across repetitions.</p>
     </div>
 
     <pre class="usage"><span class='fu'>rf_repeat</span>(
@@ -129,7 +129,7 @@
   <span class='kw'>distance.thresholds</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>ranger.arguments</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>scaled.importance</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>repetitions</span> <span class='kw'>=</span> <span class='fl'>5</span>,
+  <span class='kw'>repetitions</span> <span class='kw'>=</span> <span class='fl'>10</span>,
   <span class='kw'>keep.models</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>seed</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
@@ -177,7 +177,7 @@
     </tr>
     <tr>
       <th>repetitions</th>
-      <td><p>Integer, number of random forest models to fit. Default: <code>5</code></p></td>
+      <td><p>Integer, number of random forest models to fit. Default: <code>10</code></p></td>
     </tr>
     <tr>
       <th>keep.models</th>
@@ -217,11 +217,10 @@
 
     <p>A ranger model with several new slots:</p><ul>
 <li><p><code>ranger.arguments</code>: Stores the values of the arguments used to fit the ranger model.</p></li>
-<li><p><code>variable.importance</code>: A list containing a data frame with the predictors ordered by their importance, and a ggplot showing the importance values.</p></li>
+<li><p><code>importance</code>: A list containing a data frame with the predictors ordered by their importance, a ggplot showing the importance values, and local importance scores.</p></li>
 <li><p><code>performance</code>: out-of-bag performance scores: R squared, pseudo R squared, RMSE, and normalized RMSE (NRMSE).</p></li>
 <li><p><code>pseudo.r.squared</code>: computed as the correlation between the observations and the predictions.</p></li>
-<li><p><code>residuals</code>: computed as observations minus predictions.</p></li>
-<li><p><code>spatial.correlation.residuals</code>: the result of <code><a href='moran_multithreshold.html'>moran_multithreshold()</a></code> applied to the model results.</p></li>
+<li><p><code>residuals</code>: residuals, normality test of the residuals computed with <code><a href='normality.html'>residuals_test()</a></code>, and spatial autocorrelation of the residuals computed with <code><a href='moran_multithreshold.html'>moran_multithreshold()</a></code>.</p></li>
 </ul>
 
 
@@ -245,13 +244,13 @@
  <span class='fu'><a href='https://rdrr.io/r/base/class.html'>class</a></span>(<span class='no'>out</span>)
 
  <span class='co'>#data frame with ordered variable importance</span>
- <span class='no'>out</span>$<span class='no'>variable.importance</span>$<span class='no'>per.variable</span>
+ <span class='no'>out</span>$<span class='no'>importance</span>$<span class='no'>per.variable</span>
 
  <span class='co'>#per repetition</span>
- <span class='no'>out</span>$<span class='no'>variable.importance</span>$<span class='no'>per.repetition</span>
+ <span class='no'>out</span>$<span class='no'>importance</span>$<span class='no'>per.repetition</span>
 
  <span class='co'>#variable importance plot</span>
- <span class='no'>out</span>$<span class='no'>variable.importance</span>$<span class='no'>per.repetition.plot</span>
+ <span class='no'>out</span>$<span class='no'>importance</span>$<span class='no'>per.repetition.plot</span>
 
  <span class='co'>#performance</span>
  <span class='no'>out</span>$<span class='no'>performance</span>
@@ -274,7 +273,7 @@
 
  <span class='no'>rf.repeat</span> <span class='kw'>&lt;-</span> <span class='fu'>rf_repeat</span>(<span class='kw'>model</span> <span class='kw'>=</span> <span class='no'>rf.model</span>)
  <span class='no'>rf.repeat</span>$<span class='no'>performance</span>
- <span class='no'>rf.repeat</span>$<span class='no'>variable.importance</span>$<span class='no'>per.repetition.plot</span>
+ <span class='no'>rf.repeat</span>$<span class='no'>importance</span>$<span class='no'>per.repetition.plot</span>
 
 }
 <span class='co'># }</span></div></pre>

@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">spatialRF</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.9</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
       </span>
     </div>
 
@@ -125,7 +125,9 @@
   <span class='kw'>dependent.variable.name</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>predictor.variable.names</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>distance.matrix</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>distance.thresholds</span> <span class='kw'>=</span> <span class='kw'>NULL</span>
+  <span class='kw'>distance.thresholds</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>fill.color</span> <span class='kw'>=</span> <span class='kw pkg'>viridis</span><span class='kw ns'>::</span><span class='fu'><a href='https://sjmgarnier.github.io/viridis/reference/reexports.html'>viridis</a></span>(<span class='fl'>100</span>, <span class='kw'>option</span> <span class='kw'>=</span> <span class='st'>"F"</span>, <span class='kw'>direction</span> <span class='kw'>=</span> -<span class='fl'>1</span>),
+  <span class='kw'>point.color</span> <span class='kw'>=</span> <span class='st'>"gray30"</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -150,6 +152,14 @@
     <tr>
       <th>distance.thresholds</th>
       <td><p>Numeric vector, distances below each value are set to 0 on separated copies of the distance matrix for the computation of Moran's I at different neighborhood distances. If <code>NULL</code>, it defaults to <code><a href='https://rdrr.io/r/base/seq.html'>seq(0, max(distance.matrix)/4, length.out = 2)</a></code>. Default: <code>NULL</code></p></td>
+    </tr>
+    <tr>
+      <th>fill.color</th>
+      <td><p>Character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. <code><a href='https://sjmgarnier.github.io/viridis/reference/reexports.html'>viridis::viridis(100)</a></code>). Default: <code><a href='https://sjmgarnier.github.io/viridis/reference/reexports.html'>viridis::viridis(100, option = "F", direction = -1)</a></code></p></td>
+    </tr>
+    <tr>
+      <th>point.color</th>
+      <td><p>Character vector with a color name (e.g. "red4"). Default: <code>gray30</code></p></td>
     </tr>
     </table>
 

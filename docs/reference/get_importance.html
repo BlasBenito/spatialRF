@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Gets importance data frame from a model — get_importance • spatialRF</title>
+<title>Gets the global importance data frame from a model — get_importance • spatialRF</title>
 
 
 <!-- jquery -->
@@ -39,7 +39,7 @@
 
 
 
-<meta property="og:title" content="Gets importance data frame from a model — get_importance" />
+<meta property="og:title" content="Gets the global importance data frame from a model — get_importance" />
 <meta property="og:description" content="Gets variable importance scores from rf(), rf_repeat(), and rf_spatial() models." />
 
 
@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">spatialRF</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.9</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
       </span>
     </div>
 
@@ -111,7 +111,7 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Gets importance data frame from a model</h1>
+    <h1>Gets the global importance data frame from a model</h1>
     <small class="dont-index">Source: <a href='https://github.com/BlasBenito/spatialRF/blob/master/R/get_importance.R'><code>R/get_importance.R</code></a></small>
     <div class="hidden name"><code>get_importance.Rd</code></div>
     </div>
@@ -120,13 +120,13 @@
     <p>Gets variable importance scores from <code><a href='rf.html'>rf()</a></code>, <code><a href='rf_repeat.html'>rf_repeat()</a></code>, and <code><a href='rf_spatial.html'>rf_spatial()</a></code> models.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>get_importance</span>(<span class='no'>x</span>)</pre>
+    <pre class="usage"><span class='fu'>get_importance</span>(<span class='no'>model</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>x</th>
+      <th>model</th>
       <td><p>A model fitted with <code><a href='rf.html'>rf()</a></code>, <code><a href='rf_repeat.html'>rf_repeat()</a></code>, or <code><a href='rf_spatial.html'>rf_spatial()</a></code>. Default: NULL</p></td>
     </tr>
     </table>
@@ -154,7 +154,7 @@
   <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
 )
 
-<span class='no'>x</span> <span class='kw'>&lt;-</span> <span class='fu'>get_importance</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>rf.model</span>)
+<span class='no'>x</span> <span class='kw'>&lt;-</span> <span class='fu'>get_importance</span>(<span class='no'>rf.model</span>)
 <span class='no'>x</span>
 
 }

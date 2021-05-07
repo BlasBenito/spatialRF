@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">spatialRF</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.9</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
       </span>
     </div>
 
@@ -120,13 +120,13 @@
     <p>Returns spatial predictors from a model fitted with <code><a href='rf_spatial.html'>rf_spatial()</a></code> in order of importance.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>get_spatial_predictors</span>(<span class='no'>x</span>)</pre>
+    <pre class="usage"><span class='fu'>get_spatial_predictors</span>(<span class='no'>model</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>x</th>
+      <th>model</th>
       <td><p>A model fitted with <code><a href='rf_spatial.html'>rf_spatial()</a></code>.</p></td>
     </tr>
     </table>
@@ -152,7 +152,7 @@
    <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"mem.moran.sequential"</span>
  )
 
-<span class='no'>spatial.predictors</span> <span class='kw'>&lt;-</span> <span class='fu'>get_spatial_predictors</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>model</span>)
+<span class='no'>spatial.predictors</span> <span class='kw'>&lt;-</span> <span class='fu'>get_spatial_predictors</span>(<span class='no'>model</span>)
 <span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span>(<span class='no'>spatial.predictors</span>)
 }
 <span class='co'># }</span></div></pre>

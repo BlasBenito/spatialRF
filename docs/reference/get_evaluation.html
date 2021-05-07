@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">spatialRF</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.9</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
       </span>
     </div>
 
@@ -120,13 +120,13 @@
     <p>Returns performance metrics produced by <code><a href='rf_evaluate.html'>rf_evaluate()</a></code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>get_evaluation</span>(<span class='no'>x</span>)</pre>
+    <pre class="usage"><span class='fu'>get_evaluation</span>(<span class='no'>model</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>x</th>
+      <th>model</th>
       <td><p>A model fitted with <code><a href='rf_evaluate.html'>rf_evaluate()</a></code>.</p></td>
     </tr>
     </table>
@@ -165,7 +165,7 @@
   <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
 )
 
-<span class='no'>x</span> <span class='kw'>&lt;-</span> <span class='fu'>get_evaluation</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>rf.model</span>)
+<span class='no'>x</span> <span class='kw'>&lt;-</span> <span class='fu'>get_evaluation</span>(<span class='no'>rf.model</span>)
 <span class='no'>x</span>
 
 }

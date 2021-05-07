@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">spatialRF</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.9</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
       </span>
     </div>
 
@@ -120,20 +120,20 @@
     <p>Returns model predictions from a model fitted with <code><a href='rf.html'>rf()</a></code>, <code><a href='rf_repeat.html'>rf_repeat()</a></code>, or <code><a href='rf_spatial.html'>rf_spatial()</a></code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>get_predictions</span>(<span class='no'>x</span>)</pre>
+    <pre class="usage"><span class='fu'>get_predictions</span>(<span class='no'>model</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>x</th>
+      <th>model</th>
       <td><p>A model produced by <code><a href='rf.html'>rf()</a></code>, <code><a href='rf_repeat.html'>rf_repeat()</a></code>, or <code><a href='rf_spatial.html'>rf_spatial()</a></code>.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A data frame with predictions, or mean and standard deviation of the predictions if the model was fitted with <code><a href='rf_repeat.html'>rf_repeat()</a></code>.</p>
+    <p>A vector with predictions, or median of the predictions across repetitions if the model was fitted with <code><a href='rf_repeat.html'>rf_repeat()</a></code>.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># \donttest{</span>
@@ -148,7 +148,7 @@
   <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
 )
 
-<span class='no'>x</span> <span class='kw'>&lt;-</span> <span class='fu'>get_predictions</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>rf.model</span>)
+<span class='no'>x</span> <span class='kw'>&lt;-</span> <span class='fu'>get_predictions</span>(<span class='no'>rf.model</span>)
 <span class='no'>x</span>
 
 }

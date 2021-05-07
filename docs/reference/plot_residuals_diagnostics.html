@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Transforms a distance matrix into a matrix of weights — weights_from_distance_matrix • spatialRF</title>
+<title>Plot residuals diagnostics — plot_residuals_diagnostics • spatialRF</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,8 @@
 
 
 
-<meta property="og:title" content="Transforms a distance matrix into a matrix of weights — weights_from_distance_matrix" />
-<meta property="og:description" content="Transforms a distance matrix into weights (1/distance.matrix) normalized by the row sums. Used to compute Moran's I values and Moran's Eigenvector Maps. Allows to apply a threshold to the distance matrix before computing the weights." />
+<meta property="og:title" content="Plot residuals diagnostics — plot_residuals_diagnostics" />
+<meta property="og:description" content="Plots normality and autocorrelation tests (if available) of a model's residuals." />
 
 
 
@@ -111,51 +111,80 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Transforms a distance matrix into a matrix of weights</h1>
-    <small class="dont-index">Source: <a href='https://github.com/BlasBenito/spatialRF/blob/master/R/weights_from_distance_matrix.R'><code>R/weights_from_distance_matrix.R</code></a></small>
-    <div class="hidden name"><code>weights_from_distance_matrix.Rd</code></div>
+    <h1>Plot residuals diagnostics</h1>
+    <small class="dont-index">Source: <a href='https://github.com/BlasBenito/spatialRF/blob/master/R/plot_residuals_diagnostics.R'><code>R/plot_residuals_diagnostics.R</code></a></small>
+    <div class="hidden name"><code>plot_residuals_diagnostics.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Transforms a distance matrix into weights (1/distance.matrix) normalized by the row sums. Used to compute Moran's I values and Moran's Eigenvector Maps. Allows to apply a threshold to the distance matrix before computing the weights.</p>
+    <p>Plots normality and autocorrelation tests (if available) of a model's residuals.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>weights_from_distance_matrix</span>(
-  <span class='kw'>distance.matrix</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>distance.threshold</span> <span class='kw'>=</span> <span class='fl'>0</span>
+    <pre class="usage"><span class='fu'>plot_residuals_diagnostics</span>(
+  <span class='no'>model</span>,
+  <span class='kw'>point.color</span> <span class='kw'>=</span> <span class='kw pkg'>viridis</span><span class='kw ns'>::</span><span class='fu'><a href='https://sjmgarnier.github.io/viridis/reference/reexports.html'>viridis</a></span>(<span class='fl'>100</span>, <span class='kw'>option</span> <span class='kw'>=</span> <span class='st'>"F"</span>),
+  <span class='kw'>line.color</span> <span class='kw'>=</span> <span class='st'>"gray10"</span>,
+  <span class='kw'>fill.color</span> <span class='kw'>=</span> <span class='kw pkg'>viridis</span><span class='kw ns'>::</span><span class='fu'><a href='https://sjmgarnier.github.io/viridis/reference/reexports.html'>viridis</a></span>(<span class='fl'>4</span>, <span class='kw'>option</span> <span class='kw'>=</span> <span class='st'>"F"</span>, <span class='kw'>alpha</span> <span class='kw'>=</span> <span class='fl'>0.95</span>)[<span class='fl'>2</span>],
+  <span class='kw'>option</span> <span class='kw'>=</span> <span class='fl'>1</span>,
+  <span class='kw'>ncol</span> <span class='kw'>=</span> <span class='fl'>1</span>,
+  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>distance.matrix</th>
-      <td><p>Distance matrix. Default: <code>NULL</code>.</p></td>
+      <th>model</th>
+      <td><p>A model produced by <code><a href='rf.html'>rf()</a></code>, <code><a href='rf_repeat.html'>rf_repeat()</a></code>, or <code><a href='rf_spatial.html'>rf_spatial()</a></code>.</p></td>
     </tr>
     <tr>
-      <th>distance.threshold</th>
-      <td><p>Numeric, positive, in the range of values of <code>distance.matrix</code>. Distances below this value in the distance matrix are set to 0., Default: <code>0</code>.</p></td>
+      <th>point.color</th>
+      <td><p>Colors of the plotted points. Can be a single color name (e.g. "red4"), a character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. <code><a href='https://sjmgarnier.github.io/viridis/reference/reexports.html'>viridis::viridis(100)</a></code>). Default: <code><a href='https://sjmgarnier.github.io/viridis/reference/reexports.html'>viridis::viridis(100, option = "F")</a></code></p></td>
+    </tr>
+    <tr>
+      <th>line.color</th>
+      <td><p>Character string, color of the line produced by <code><a href='https://ggplot2.tidyverse.org/reference/geom_smooth.html'>ggplot2::geom_smooth()</a></code>. Default: <code>"gray30"</code></p></td>
+    </tr>
+    <tr>
+      <th>fill.color</th>
+      <td><p>Character string, fill color of the bars produced by <code><a href='https://ggplot2.tidyverse.org/reference/geom_histogram.html'>ggplot2::geom_histogram()</a></code>. Default: <code>viridis::viridis(4, option = "F", , alpha = 0.95 )[2]</code></p></td>
+    </tr>
+    <tr>
+      <th>option</th>
+      <td><p>(argument of <code><a href='plot_moran.html'>plot_moran()</a></code>) Integer, type of plot. If <code>1</code> (default) a line plot with Moran's I and p-values across distance thresholds is returned. If <code>2</code>, scatterplots of residuals versus lagged residuals per distance threshold and their corresponding slopes are returned. In models fitted with <code><a href='rf_repeat.html'>rf_repeat()</a></code>, the residuals and lags of the residuals are computed from the median residuals across repetitions. Option <code>2</code> is disabled if <code>x</code> is a data frame generated by <code><a href='moran.html'>moran()</a></code>.</p></td>
+    </tr>
+    <tr>
+      <th>ncol</th>
+      <td><p>(argument of <a href='plot_moran.html'>plot_moran</a>) Number of columns of the Moran's I plot if <code>option = 2</code>.</p></td>
+    </tr>
+    <tr>
+      <th>verbose</th>
+      <td><p>Logical, if <code>TRUE</code>, the resulting plot is printed, Default: <code>TRUE</code></p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A weighted distance matrix.</p>
+    <p>A patchwork object.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='co'># \donttest{</span>
+    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
 <span class='kw'>if</span>(<span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span>()){
 
+ <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>plant_richness_df</span>)
  <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>distance_matrix</span>)
 
- <span class='no'>distance.matrix.weights</span> <span class='kw'>&lt;-</span> <span class='fu'>weights_from_distance_matrix</span>(
+ <span class='no'>x</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='rf.html'>rf</a></span>(
+   <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>plant_richness_df</span>,
+   <span class='kw'>dependent.variable.name</span> <span class='kw'>=</span> <span class='st'>"richness_species_vascular"</span>,
+   <span class='kw'>predictor.variable.names</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span>(<span class='no'>plant_richness_df</span>)[<span class='fl'>5</span>:<span class='fl'>21</span>],
    <span class='kw'>distance.matrix</span> <span class='kw'>=</span> <span class='no'>distance_matrix</span>
-   )
+ )
 
- <span class='no'>distance.matrix.weights</span>
+ <span class='fu'>plot_residuals_diagnostics</span>(<span class='no'>x</span>)
 
-}
-<span class='co'># }</span></div></pre>
+ }
+}</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
