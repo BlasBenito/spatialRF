@@ -103,7 +103,7 @@ plot_importance <- function(
         ) +
       ggplot2::scale_fill_gradientn(colors = fill.color) +
       ggplot2::ylab("") +
-      ggplot2::xlab("Variable importance") +
+      ggplot2::xlab("Mean error increase when permuted") +
       ggplot2::theme_bw() +
       ggplot2::theme(legend.position = "none")
 
@@ -144,7 +144,7 @@ plot_importance <- function(
           ) +
         ggplot2::scale_fill_manual(values = fill.color) +
         ggplot2::ylab("") +
-        ggplot2::xlab("Variable importance") +
+        ggplot2::xlab("Mean error increase when permuted") +
         ggplot2::theme_bw() +
         ggplot2::theme(legend.position = "none")
 
@@ -173,7 +173,7 @@ plot_importance <- function(
           ) +
           ggplot2::scale_fill_gradientn(colors = fill.color) +
           ggplot2::ylab("") +
-          ggplot2::xlab("Variable importance") +
+          ggplot2::xlab("Mean error increase when permuted") +
           ggplot2::theme_bw() +
           ggplot2::theme(legend.position = "none")
 
@@ -212,7 +212,7 @@ plot_importance <- function(
             ) +
           ggplot2::scale_fill_manual(values = fill.color) +
           ggplot2::ylab("") +
-          ggplot2::xlab("Variable importance") +
+          ggplot2::xlab("Mean error increase when permuted") +
           ggplot2::theme_bw() +
           ggplot2::theme(legend.position = "none")
 

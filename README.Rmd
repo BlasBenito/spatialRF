@@ -317,7 +317,7 @@ spatialRF::plot_importance(
   verbose = FALSE
   )
 ```
-Variable importance represents the percent increase in mean squared error when a predictor is permuted across trees in the forest. If the argument `scaled.importance = TRUE` is used, the variable importance scores are computed from the scaled predictors, making the importance scores easier to compare across different models.
+Variable importance represents the increase in mean error (computed on the out-of-bag data) across trees when a predictor is permuted. If the argument `scaled.importance = TRUE` is used, the variable importance scores are computed from the scaled data, making the importance scores easier to compare across different models.
 
 The package [`randomForestExplainer`](https://github.com/ModelOriented/randomForestExplainer) offers a couple of interesting options to deepen our understanding on variable importance scores. The first one is `measure_importance()`, which analyzes the forest to find out the average minimum tree depth at which each variable can be found (`mean_min_depth`), the number of nodes in which a variable was selected to make a split (`no_of_nodes`), the number of times the variable was selected as the first one to start a tree (`times_a_root`), and the probability of a variable to be in more nodes than what it would be expected by chance (`p_value`).
 
@@ -339,6 +339,20 @@ kableExtra::kbl(
 ```
 
 ### Local variable importance
+
+Random forest also computes the average error increase when a variable is permuted for each case. This is named "local importance", is stored in `model.non.spatial$importance$local` as a data frame, and can be retrieved with [`get_importance_local()`](https://blasbenito.github.io/spatialRF/reference/get_importance_local.html).
+
+```{r}
+local.importance <- get_importance_local(model.non.spatial)
+```
+
+```{r, echo = FALSE}
+kableExtra::kbl(
+  head(local.importance),
+  format = "html"
+) %>%
+  kableExtra::kable_paper("hover", full_width = F)
+```
 
 
 

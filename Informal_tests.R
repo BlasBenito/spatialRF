@@ -49,7 +49,7 @@ randomForestExplainer::min_depth_distribution(x.local) %>%
 
 local.importance <- cbind(
   xy,
-  x.local$variable.importance.local
+  x.local$importance$local
   ) %>%
   tidyr::pivot_longer(
     cols = colnames(plant_richness_df)[5:21],

@@ -1,4 +1,4 @@
-#' @title Gets importance data frame from a model
+#' @title Gets the global importance data frame from a model
 #' @description Gets variable importance scores from [rf()], [rf_repeat()], and [rf_spatial()] models.
 #' @param model A model fitted with [rf()], [rf_repeat()], or [rf_spatial()]. Default: NULL
 #' @return A data frame with variable names and importance scores.
@@ -19,7 +19,7 @@
 #'   verbose = FALSE
 #' )
 #'
-#' x <- get_importance(x = rf.model)
+#' x <- get_importance(rf.model)
 #' x
 #'
 #' }
