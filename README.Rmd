@@ -517,7 +517,7 @@ The **performance** slot (in `model.non.spatial$performance`) contains the value
 spatialRF::print_performance(model.non.spatial)
 ```
 
-   + `R squared (oob)` is the R squared of the model when predicting the out-of-bag data (fraction of data not used to train individual trees). From all the values available in the `performance` slot, probably this is the most honest one, as it is the closer trying to get an R-squared estimate on independent data. However, out-of-bag data is not independent data, and therefore will still be inflated if the data is highly aggregated in space.
+   + `R squared (oob)` and `RMSE (oob)` are the R squared of the model and its root mean squared error when predicting the out-of-bag data (fraction of data not used to train individual trees). From all the values available in the `performance` slot, probably these the most honest ones, as it is the closer trying to get a performance estimate on independent data. However, out-of-bag data is not fully independent, and therefore will still be inflated, especially if the data is highly aggregated in space.
    + `R squared` and `pseudo R squared` are computed from the observations and the predictions, and indicate to what extent model outcomes represent the input data. These values will usually be high the data is highly aggregated in space.
    + The `RMSE` and its normalized version are computed via [`root_mean_squared_error()`](https://blasbenito.github.io/spatialRF/reference/root_mean_squared_error.html), and are linear with `R squared` and `pseudo R squared`.
    
@@ -636,7 +636,7 @@ predicted <- stats::predict(
 Random Forest is an stochastic algorithm that yields slightly different results on each run unless a random seed is set. This particularity has implications for the interpretation of variable importance scores. For example, in the plot above, the difference in importance between the predictors `climate_hypervolume` and `climate_bio1_average_X_bias_area_km2` could be just the result of chance. The function [`rf_repeat()`](https://blasbenito.github.io/spatialRF/reference/rf_repeat.html) repeats a model execution and yields the distribution of importance scores of the predictors across executions.
 
 ```{r, fig.width = 6, fig.height=4.5}
-model.non.spatial.repeat <- spatialRF::rf_repeat(
+model.non.spatial.repeat <- rf_repeat(
   model = model.non.spatial, 
   repetitions = 30,
   seed = random.seed,

@@ -383,40 +383,37 @@ rf <- function(
 
   #performance slot
   m$performance <- list()
-  m$performance$r.squared.oob <- round(m$r.squared, 3)
-  m$performance$r.squared <- round(cor(observed, predicted) ^ 2, 3)
-  m$performance$pseudo.r.squared <- round(cor(
+
+  m$performance$r.squared.oob <- m$r.squared
+
+  m$performance$r.squared <- cor(observed, predicted) ^ 2
+
+  m$performance$pseudo.r.squared <- cor(
     observed,
     predicted
-  ), 3)
-  if(is.binary == FALSE){
+  )
 
-    m$performance$rmse <- round(root_mean_squared_error(
-      o = observed,
-      p = predicted,
-      normalization = "rmse"
-    ), 3)
-    names(m$performance$rmse) <- NULL
-    m$performance$nrmse <- round(root_mean_squared_error(
-      o = observed,
-      p = predicted,
-      normalization = "iq"
-    ), 3)
-    names(m$performance$nrmse) <- NULL
-    m$performance$auc <- NA
+  m$performance$rmse.oob <- sqrt(m$prediction.error)
 
-  } else {
+  m$performance$rmse <- root_mean_squared_error(
+    o = observed,
+    p = predicted,
+    normalization = "rmse"
+  )
+  names(m$performance$rmse) <- NULL
+  m$performance$nrmse <- root_mean_squared_error(
+    o = observed,
+    p = predicted,
+    normalization = "iq"
+  )
+  names(m$performance$nrmse) <- NULL
+  m$performance$auc <- NA
 
-    m$performance$rmse <- NA
-    m$performance$nrmse <- NA
-
-    #compute AUC
-    m$performance$auc <- auc(
-      o = observed,
-      p = predicted
-    )
-
-  }
+  #compute AUC
+  m$performance$auc <- auc(
+    o = observed,
+    p = predicted
+  )
 
   #residuals
   m$residuals$values <- observed - predicted

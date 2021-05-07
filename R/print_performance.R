@@ -34,6 +34,7 @@ print_performance <- function(model){
     cat("  - R squared (oob):                  ", x$r.squared.oob, "\n", sep="")
     cat("  - R squared (cor(obs, pred)^2):     ", x$r.squared, "\n", sep="")
     cat("  - Pseudo R squared (cor(obs, pred)):", x$pseudo.r.squared, "\n", sep="")
+    cat("  - RMSE (oob):                       ", x$rmse.oob, "\n", sep="")
     cat("  - RMSE:                             ", x$rmse, "\n", sep="")
     cat("  - Normalized RMSE:                  ", x$nrmse, "\n", sep="")
   } else {
@@ -42,6 +43,7 @@ print_performance <- function(model){
     cat("  - R squared (oob):              ", round(median(x$r.squared.oob), 3), " +/- ", round(mad(x$r.squared.oob), 4), "\n", sep="")
     cat("  - R squared (cor(obs, pred)^2): ", round(median(x$r.squared), 3), " +/- ", round(mad(x$r.squared), 4), "\n", sep="")
     cat("  - Pseudo R squared:             ", round(median(x$pseudo.r.squared), 3), " +/- ", round(mad(x$pseudo.r.squared), 4), "\n", sep="")
+    cat("  - RMSE (oob):                   ", round(median(x$rmse.oob), 3), " +/- ", round(mad(x$rmse.oob), 4), "\n", sep="")
     cat("  - RMSE:                         ", round(median(x$rmse), 3), " +/- ", round(mad(x$rmse), 4), "\n", sep="")
     cat("  - Normalized RMSE:              ",round(median(x$nrmse), 3), " +/- ", round(mad(x$nrmse), 4), "\n", sep="")
   }

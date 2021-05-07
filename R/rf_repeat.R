@@ -137,7 +137,6 @@ rf_repeat <- function(
     ranger.arguments$write.forest <- TRUE
   }
 
-
   #CLUSTER SETUP
   #if no cluster.ips, local cluster
   if(is.null(cluster.ips)){
@@ -231,6 +230,7 @@ rf_repeat <- function(
     out$r.squared <- m.i$performance$r.squared
     out$r.squared.oob <- m.i$performance$r.squared.oob
     out$pseudo.r.squared <- m.i$performance$pseudo.r.squared
+    out$rmse.oob <- m.i$prediction.error
     out$rmse <- m.i$performance$rmse
     out$nrmse <- m.i$performance$nrmse
     out$auc <- m.i$performance$auc
@@ -322,7 +322,7 @@ rf_repeat <- function(
       lapply(
         repeated.models,
         "[[",
-        "variable.importance"
+        "importance"
       )
     )
   )
@@ -371,7 +371,8 @@ rf_repeat <- function(
       "[[",
       "prediction.error"
     )
-  )
+  ) %>%
+    median()
 
 
   #PREPARING THE PERFORMANCE SLOT
@@ -402,6 +403,16 @@ rf_repeat <- function(
       "pseudo.r.squared"
     )
   )
+
+  #gathering rmse.oob
+  m$performance$rmse.oob <- unlist(
+    lapply(
+      repeated.models,
+      "[[",
+      "prediction.error"
+    )
+  ) %>%
+    sqrt()
 
   #gathering rmse
   m$performance$rmse <- unlist(
