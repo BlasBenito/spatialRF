@@ -498,17 +498,14 @@ spatialRF::plot_response_surface(
   b = "neighbors_count"
   )
 ```
-This can be done as well with the `pdp` package, that uses a more precise but computationally demanding method.
+This can be done as well with the `pdp` package.
 
 ```{r, fig.height = 3.2, fig.width=4.5}
 pdp::partial(
   model.non.spatial, 
   train = plant_richness_df, 
   pred.var = c("climate_bio1_average", "neighbors_count"), 
-  plot = TRUE,
-  grid.resolution = 200,
-  rug = TRUE,
-  chull = TRUE
+  plot = TRUE
   )
 ```
 
@@ -531,7 +528,7 @@ model.non.spatial <- spatialRF::rf_evaluate(
   model = model.non.spatial,
   xy = xy,                 #data coordinates
   repetitions = 30,        #number of spatial folds
-  training.fraction = 0.8, #training data fraction on each fold
+  training.fraction = 0.75, #training data fraction on each fold
   metrics = "r.squared",
   seed = random.seed,
   verbose = FALSE
@@ -573,7 +570,10 @@ p1 <- ggplot2::ggplot() +
   ggplot2::scale_x_continuous(limits = c(-170, -30)) +
   ggplot2::scale_y_continuous(limits = c(-58, 80))  +
   ggplot2::ggtitle("Spatial fold 1") + 
-  ggplot2::theme(legend.position = "none") + 
+  ggplot2::theme(
+    legend.position = "none", 
+    plot.title = ggplot2::element_text(hjust = 0.5)
+  ) + 
   ggplot2::xlab("Longitude") + 
   ggplot2::ylab("Latitude")
 
@@ -597,6 +597,9 @@ p2 <- ggplot2::ggplot() +
   ggplot2::labs(color = "Group") +
   ggplot2::scale_x_continuous(limits = c(-170, -30)) +
   ggplot2::scale_y_continuous(limits = c(-58, 80)) +
+  ggplot2::theme(
+    plot.title = ggplot2::element_text(hjust = 0.5)
+  ) + 
   ggplot2::ggtitle("Spatial fold 25") + 
   ggplot2::xlab("Longitude") + 
   ggplot2::ylab("")
@@ -608,6 +611,7 @@ The information available in this new slot can be accessed with the functions [`
 ```{r, fig.height = 2, fig.width=4.5}
 spatialRF::plot_evaluation(model.non.spatial)
 ```
+
 `Full` represents the R squared of the model trained on the full dataset. `Training` are the R-squared of the models fitted on the spatial folds (labelled `Training` in the maps above), and `Testing` are the R-squared of the same models on "unseen" data (data not used to train the model, labelled `Testing` in the maps above). The median, median absolute deviation, minimum, and maximum R-squared values on the testing folds can be printed with `print_evaluation()`.
 
 ```{r, fig.height = 2, fig.width=4.5}

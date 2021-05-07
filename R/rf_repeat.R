@@ -226,6 +226,7 @@ rf_repeat <- function(
     out$predictions <- m.i$predictions
     out$importance$local <- m.i$variable.importance.local
     out$importance <- m.i$importance$per.variable
+    out$importance.local <- m.i$importance$local
     out$prediction.error <- m.i$prediction.error
     out$r.squared <- m.i$performance$r.squared
     out$r.squared.oob <- m.i$performance$r.squared.oob
@@ -309,22 +310,6 @@ rf_repeat <- function(
   m$predictions$values.median <- predictions.median
 
 
-  #PREPARING variable.importance.local
-  #-----------------------------------
-  m$variable.importance.local <- as.data.frame(
-    apply(
-      simplify2array(
-        lapply(
-          repeated.models,
-          "[[",
-          "variable.importance.local"
-        )
-      ),
-      1:2,
-      median
-    )
-  )
-
 
   #PREPARING variable.importance
   #-----------------------------
@@ -359,6 +344,22 @@ rf_repeat <- function(
   m$importance$per.repetition.plot <- plot_importance(
     variable.importance.per.repetition,
     verbose = verbose
+  )
+
+  #PREPARING variable.importance.local
+  #-----------------------------------
+  m$importance$local <- m$variable.importance.local <- as.data.frame(
+    apply(
+      simplify2array(
+        lapply(
+          repeated.models,
+          "[[",
+          "importance.local"
+        )
+      ),
+      1:2,
+      median
+    )
   )
 
 
