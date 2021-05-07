@@ -526,8 +526,8 @@ None of these values are suitable descriptors of the ability of the model to gen
 ```{r}
 model.non.spatial <- spatialRF::rf_evaluate(
   model = model.non.spatial,
-  xy = xy,                 #data coordinates
-  repetitions = 30,        #number of spatial folds
+  xy = xy,                  #data coordinates
+  repetitions = 30,         #number of spatial folds
   training.fraction = 0.75, #training data fraction on each fold
   metrics = "r.squared",
   seed = random.seed,
