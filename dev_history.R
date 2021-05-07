@@ -21,6 +21,8 @@ devtools::document()
 devtools::check()
 ########################################
 
+usethis::use_citation()
+
 #test (takes half an hour)
 tests <- testthat::test_local()
 

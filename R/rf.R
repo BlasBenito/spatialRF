@@ -338,9 +338,18 @@ rf <- function(
     m$importance <- list()
 
     #global importance
+    #sign of the importance
+    variable.importance.global.sign <- variable.importance.global
+    variable.importance.global.sign[variable.importance.global.sign >= 0] <- 1
+    variable.importance.global.sign[variable.importance.global.sign < 0 ] <- -1
+
+    #applying sqrt
+    variable.importance.global <- sqrt(abs(variable.importance.global)) * variable.importance.global.sign
+
+
     m$importance$per.variable <- data.frame(
       variable = names(variable.importance.global),
-      importance = sqrt(variable.importance.global)
+      importance = variable.importance.global
     ) %>%
       tibble::remove_rownames() %>%
       dplyr::arrange(dplyr::desc(importance)) %>%

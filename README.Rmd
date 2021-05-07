@@ -126,7 +126,7 @@ xy <- plant_richness_df[, c("x", "y")]
 random.seed <- 100
 ```
 
-The response variable of `plant_richness_df` is "richness_species_vascular", with the total count of vascular plant species found on each ecoregion. The figure below shows the centroids of each ecoregion along with their associated value of the response variable.
+The response variable of `plant_richness_df` is "richness_species_vascular", that represents the total count of vascular plant species found on each ecoregion. The figure below shows the centroids of each ecoregion along with their associated value of the response variable.
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.width=6, fig.height=5.5}
 world <- rnaturalearth::ne_countries(
@@ -176,7 +176,7 @@ spatialRF::plot_training_df(
   )
 ```
 
-The function `plot_training_df_moran()` helps to check the spatial autocorrelation of the response variable and the predictors. Low Moran's I p-values equal or larger than 0.05 indicate that there is no spatial autocorrelation for the given variable and distance threshold.
+The function [`plot_training_df_moran()`](https://blasbenito.github.io/spatialRF/reference/plot_training_df_moran.html) helps assessing the spatial autocorrelation of the response variable and the predictors across different distance thresholds. Low Moran's I and p-values equal or larger than 0.05 indicate that there is no spatial autocorrelation for the given variable and distance threshold.
 
 ```{r, echo = FALSE, fig.width=10, fig.height=5}
 spatialRF::plot_training_df_moran(
@@ -196,7 +196,6 @@ spatialRF::plot_training_df_moran(
 )
 ```
 
-
 # Finding promising variable interactions
 
 Random Forests already takes into account variable interactions of the form "variable `a` becomes important when `b` is higher than x". However, Random Forest can also take advantage of variable interactions of the form `a * b`, as they are commonly defined in regression models.
@@ -213,7 +212,7 @@ interactions <- spatialRF::rf_interactions(
   )
 ```
 
-```{r, echo = FALSE, fig.width = 8, fig.height = 5}
+```{r, echo = FALSE, fig.width = 8, fig.height = 3}
 kableExtra::kbl(
   interactions$selected
 )
@@ -361,7 +360,7 @@ kableExtra::kbl(
   kableExtra::kable_paper("hover", full_width = F)
 ```
 
-If we join the case coordinates with the local importance scores, we can get an idea on how variable importance changes over space.
+When case coordinates are joined with the local importance scores, it is possible to draw maps showing how variable importance changes over space.
 
 ```{r}
 #adding coordinates
@@ -450,7 +449,7 @@ spatialRF::plot_response_curves(
   )
 ```
 
-Setting the argument `quantiles` to 0.5 accentuates the shape of the response curves.
+Setting the argument `quantiles` to 0.5 and setting `show.data` to `FALSE` (default optioin) accentuates the shape of the response curves.
 
 ```{r, fig.width = 9, fig.height=7}
 spatialRF::plot_response_curves(
@@ -487,8 +486,6 @@ kableExtra::kbl(
   kableExtra::kable_paper("hover", full_width = F)
 ```
 
-
-
 Interactions between two variables can be plotted with [`plot_response_surface()`](https://blasbenito.github.io/spatialRF/reference/plot_response_surface.html)
 
 ```{r, fig.height = 3.2, fig.width=4.5}
@@ -498,7 +495,7 @@ spatialRF::plot_response_surface(
   b = "neighbors_count"
   )
 ```
-This can be done as well with the `pdp` package.
+This can be done as well with the `pdp` package, that uses a slightly different algorithm to plot interaction surfaces.
 
 ```{r, fig.height = 3.2, fig.width=4.5}
 pdp::partial(
@@ -521,7 +518,7 @@ spatialRF::print_performance(model.non.spatial)
    + `R squared` and `pseudo R squared` are computed from the observations and the predictions, and indicate to what extent model outcomes represent the input data. These values will usually be high the data is highly aggregated in space.
    + The `RMSE` and its normalized version are computed via [`root_mean_squared_error()`](https://blasbenito.github.io/spatialRF/reference/root_mean_squared_error.html), and are linear with `R squared` and `pseudo R squared`.
    
-None of these values are suitable descriptors of the ability of the model to generalize over new data, and therefore, are not meant to be reported. The function [rf_evaluate()](https://blasbenito.github.io/spatialRF/reference/rf_evaluate.html) provides honest performance scores on new data by applying spatial cross-validation. It separates the training data into a number of spatially independent training and testing folds, fits a model on each training fold, predicts over each testing fold, and computes statistics of performance measures across folds. Let's see how it works.
+The function [rf_evaluate()](https://blasbenito.github.io/spatialRF/reference/rf_evaluate.html) overcomes the limitations of these performance scores by providing honest performance scores on data not used to train the model by applying spatial cross-validation. It separates the training data into a number of spatially independent training and testing folds, fits a model on each training fold, predicts over each testing fold, and computes statistics of performance measures across folds. Let's see how it works.
 
 ```{r}
 model.non.spatial <- spatialRF::rf_evaluate(
@@ -612,7 +609,7 @@ The information available in this new slot can be accessed with the functions [`
 spatialRF::plot_evaluation(model.non.spatial)
 ```
 
-`Full` represents the R squared of the model trained on the full dataset. `Training` are the R-squared of the models fitted on the spatial folds (named `Training` in the maps above), and `Testing` are the R-squared of the same models on "unseen" data (data not used to train the model, named `Testing` in the maps above). The median, median absolute deviation, minimum, and maximum R-squared values on the testing folds can be printed with `print_evaluation()`.
+`Full` represents the R squared of the model trained on the full dataset. `Training` are the R-squared of the models fitted on the spatial folds (named `Training` in the maps above), and `Testing` are the R-squared of the same models on "unseen" data (data not used to train the model, named `Testing` in the maps above). The median, median absolute deviation (MAD), minimum, and maximum R-squared values on the testing folds can be printed with `print_evaluation()`.
 
 ```{r, fig.height = 2, fig.width=4.5}
 spatialRF::print_evaluation(model.non.spatial)
@@ -669,6 +666,18 @@ spatialRF::plot_response_curves(
   )
 ```
 
+The distributions of the performance scores across repetitions are also provided.
+
+```{r}
+model.non.spatial.repeat
+```
+And the function `get_performance()` offers a nice summary with the median and the median absolute deviation.
+
+```{r}
+spatialRF::print_performance(model.non.spatial.repeat)
+```
+
+
 # Fitting a spatial model
 
 The spatial autocorrelation of the residuals of a model like `model.non.spatial`, measured with [Moran's I](https://en.wikipedia.org/wiki/Moran%27s_I), can be plotted with [`plot_moran()`](https://blasbenito.github.io/spatialRF/reference/plot_moran.html).
@@ -679,17 +688,6 @@ spatialRF::plot_moran(
   verbose = FALSE
   )
 ```
-
-**Note:** The function `plot_moran()` (and `plot_residuals_diagnostics()`) can also plot a more classical "Moran's scatterplot" by adding the argument `option = 2`.
-
-```{r, fig.width=4, fig.height=4, message=FALSE, warning=FALSE}
-spatialRF::plot_moran(
-  model.non.spatial, 
-  option = 2,
-  verbose = FALSE
-  )
-```
-
 According to these plots, the spatial autocorrelation of the residuals of `model.non.spatial` is highly positive for a neighborhood of 0 km, while it becomes non-significant (p-value \> 0.05) at 1500 and 3000 km. To reduce the spatial autocorrelation of the residuals as much as possible, the non-spatial model can be transformed into a *spatial model* very easily with the function [`rf_spatial()`](https://blasbenito.github.io/spatialRF/reference/rf_spatial.html). This function is the true core of the package!
 
 ```{r}
@@ -700,8 +698,6 @@ model.spatial <- spatialRF::rf_spatial(
   seed = random.seed
   )
 ```
-
-The function `rf_spatial()` adds the slot **spatial**. Keep going to better understand what can be found in this slot before taking a look at it!
 
 The plot below shows the Moran's I of the residuals of the spatial model. It indicates that the residuals are not autocorrelated at a distance of 0 km any longer.
 
@@ -727,7 +723,7 @@ p2 <- spatialRF::plot_importance(
 p1 | p2 
 ```
 
-If we take a look to the ten most important variables in `model.spatial` we will see that a few of them are *spatial predictors*. Spatial predictors are named `spatial_predictor_X_Y`, where `X` is the neighborhood distance at which the predictor has been generated, and `Y` is the index of the predictor.
+If we look at the ten most important variables in `model.spatial` we will see that a few of them are *spatial predictors*. Spatial predictors are named `spatial_predictor_X_Y`, where `X` is the neighborhood distance at which the predictor has been generated, and `Y` is the index of the predictor.
 
 ```{r, echo = FALSE, warning = FALSE, message=FALSE}
 kableExtra::kbl(
@@ -736,8 +732,7 @@ kableExtra::kbl(
 ) %>%
   kableExtra::kable_paper("hover", full_width = F)
 ```
-
-But what the heck are spatial predictors? Spatial predictors, as shown below, are smooth surfaces representing neighborhood among records at different spatial scales. They are computed from the distance matrix in different ways. The ones below are the eigenvectors of the double-centered distance matrix of weights (a.k.a, Moran's Eigenvector Maps). They represent the effect of spatial proximity among records, helping to take into account biogeographic and spatial processes not considered by the non-spatial predictors.
+But what are spatial predictors? Spatial predictors, as shown below, are smooth surfaces representing neighborhood among records at different spatial scales. They are computed from the distance matrix in different ways. The ones below are the eigenvectors of the double-centered distance matrix of weights (a.k.a, Moran's Eigenvector Maps). They represent the effect of spatial proximity among records, helping to represent biogeographic and spatial processes not considered by the non-spatial predictors.
 
 ```{r, echo=FALSE, fig.width=12, fig.height=7}
 spatial.predictors <- spatialRF::get_spatial_predictors(model.spatial)
@@ -789,7 +784,7 @@ p1 | p2
 
 ```
 
-The spatial predictors are included in the model one by one, in the order of their Moran's I (spatial predictors with Moran's I lower than 0 are removed). The selection procedure is performed by the function [`select_spatial_predictors_sequential()`](https://blasbenito.github.io/spatialRF/reference/select_spatial_predictors_sequential.html). It finds the smaller subset of spatial predictors maximizing the model's R squared, and minimizing the Moran's I of the residuals. This is shown in the optimization plot below (dots linked by lines represent the selected spatial predictors). 
+The spatial predictors are included in the model one by one, in the order of their Moran's I (spatial predictors with Moran's I lower than 0 are removed). The selection procedure is performed by the function [`select_spatial_predictors_sequential()`](https://blasbenito.github.io/spatialRF/reference/select_spatial_predictors_sequential.html), which finds the smaller subset of spatial predictors maximizing the model's R squared, and minimizing the Moran's I of the residuals. This is shown in the optimization plot below (dots linked by lines represent the selected spatial predictors). 
 
 ```{r, echo=FALSE, fig.width=6, fig.height=4}
 p <- spatialRF::plot_optimization(model.spatial)
@@ -823,7 +818,7 @@ model.spatial.tuned <- rf_tuning(
 
 # Comparing several models
 
-The function [`rf_compare()`](https://blasbenito.github.io/spatialRF/reference/rf_compare.html) takes named list with as many models as the user needs to compare, and applies [`rf_evaluate()`] to each one of them to compare their respective predictive performances across spatial folds.
+The function [`rf_compare()`](https://blasbenito.github.io/spatialRF/reference/rf_compare.html) takes named list with as many models as the user needs to compare, and applies `rf_evaluate()` to each one of them to compare their predictive performances across spatial folds.
 
 ```{r, fig.width=6, fig.height=3}
 comparison <- rf_compare(
@@ -854,6 +849,86 @@ kableExtra::kbl(
   ) %>%
   kableExtra::kable_paper("hover", full_width = F)
 ```
+# Working with binomial data
+
+This package can also perform binomial regression on response variables with zeros and ones. Let's work on a quick example by turning the response variable of the previous models into a binomial one. 
+
+```{r}
+plant_richness_df$response_binomial <- ifelse(
+  plant_richness_df$richness_species_vascular > 5000,
+  1,
+  0
+)
+```
+
+The new response variable, `response_binomial`, will have ones where `richness_species_vascular > 5000`, and zeros otherwise. This would be equivalent to having the classes "high richness" (represented by the ones) and "low richness", represented by the zeros. The binomial regression model would then have as objective to compute the probability of each ecoregion to belong to the "high richness" class.
+
+There is something important to notice before moving forward though. The number of zeros in the new response variable is larger than the number of ones. 
+
+```{r}
+table(plant_richness_df$response_binomial)
+```
+
+This means that there is **class imbalance**, and under this scenario, any random forest model is going to get better at predicting the most abundant class, while in our case the "target" is the less abundant one. But the function `rf()` is ready to deal with this issue. Let's fit a model to see what am I talking about.
+
+```{r}
+model.non.spatial <- spatialRF::rf(
+  data = plant_richness_df,
+  dependent.variable.name = "response_binomial",
+  predictor.variable.names = predictor.variable.names,
+  distance.matrix = distance_matrix,
+  distance.thresholds = c(0, 1500, 3000),
+  seed = random.seed,
+  verbose = FALSE
+)
+```
+
+The function detects that the response variable is binary (using the function [`is_binary()`](https://blasbenito.github.io/spatialRF/reference/is_binary.html)), and computes *case weights* for the ones and the zeros. These case weights are stored in the `ranger.arguments` slot of the model, and are used to give preference to the cases with larger weights during the selection of the out-of-bag data (check the `case.weights` argument in `ranger::ranger()`). As a result, each individual tree in the forest is trained with a similar proportion of zeros and ones, which helps mitigate the class imbalance issue. This method is named *weighted Random Forest*, and is very well explained in this [white paper](https://statistics.berkeley.edu/sites/default/files/tech-reports/666.pdf) that includes the father of Random Forest, Leo Breiman, as coauthor.
+
+```{r}
+unique(model.non.spatial$ranger.arguments$case.weights)
+```
+
+This model could be projected right away onto a raster stack with maps of the predictors, so, in fact, `spatialRF` can be used to fit Species Distribution Models, when it actually wasn't really designed with such a purpose in mind. And as an additional advantage, the model can be evaluated with `rf_evaluate()`, which is way better than cross-validation via random data-splitting ([this blog post](https://methodsblog.com/2018/11/29/blockcv-english/) explains explains why).
+
+```{r}
+model.non.spatial <- spatialRF::rf_evaluate(
+  model.non.spatial,
+  xy = xy,
+  metrics = "auc", #surprise!
+  verbose = FALSE
+)
+
+spatialRF::print_evaluation(model.non.spatial)
+```
+That's a pretty good result I'd say! 
+
+Now, let's see if this model needs spatial predictors (beyond this point, SDMs are no longer possible, because the spatial predictors cannot be represented as rasters, as they are mathematical representations of the distances among the training points).
+
+```{r, fig.width=4, fig.height=2.5, message=FALSE, warning=FALSE}
+spatialRF::plot_moran(
+  model.non.spatial,
+  verbose = FALSE
+  )
+```
+The Moran's I tests of the residuals shows that they are spatially autocorrelated for a neighborhood distance of 0 km. Let's try to fix that with a spatial model.
+
+```{r, fig.width=4, fig.height=2.5, message=FALSE, warning=FALSE}
+model.spatial <- spatialRF::rf_spatial(
+  model = model.non.spatial,
+  verbose = FALSE,
+  seed = random.seed
+  )
+
+spatialRF::plot_moran(
+  model.spatial,
+  verbose = FALSE
+  )
+```
+
+*Et voilá*, the problem went away!
+
+The **take away message** here is that you can work with a binomial response with `spatialRF`, just as you would do with a continuous response, as long as it is represented with zeros and ones. Just remember that class imbalance is solved via case weights, and that predictive performance is also measured using the Area Under the ROC Curve (AUC).
 
 # Generating spatial predictors for other modelling methods
 
