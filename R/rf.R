@@ -337,7 +337,7 @@ rf <- function(
   #global importance
   m$importance$per.variable <- data.frame(
     variable = names(variable.importance.global),
-    importance = variable.importance.global
+    importance = sqrt(variable.importance.global)
   ) %>%
     tibble::remove_rownames() %>%
     dplyr::arrange(dplyr::desc(importance)) %>%
