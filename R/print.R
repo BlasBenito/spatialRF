@@ -35,7 +35,7 @@ print.rf <- function(x, ...) {
     cat("  - Repetitions:                     ", x$ranger.arguments$repetitions, "\n", sep="")
     }
     if(inherits(x, "rf_spatial")){
-    cat("  - rf_spatial() method:             ", x$selection.spatial.predictors$method, "\n", sep="")
+    cat("  - rf_spatial() method:             ", x$spatial$method, "\n", sep="")
     }
     cat("  - Response variable:               ", x$ranger.arguments$dependent.variable.name, "\n", sep="")
 
@@ -54,11 +54,12 @@ print.rf <- function(x, ...) {
     cat("\n")
     cat("Model residuals \n")
     cat("  - Stats: \n")
-    if(length(x$performance$r.squared) == 1){
-      residuals.stats <- as.data.frame(t(summary(x$residuals)))[, 2:3]
-    } else {
-      residuals.stats <- as.data.frame(t(summary(x$residuals$mean$mean)))[, 2:3]
-    }
+      residuals.stats <- x$residuals$stats
+      residuals.stats <- data.frame(
+        Var1 = as.vector(residuals.stats),
+        Var2 = names(residuals.stats)
+      )
+
     rownames(residuals.stats) <- residuals.stats$Var2
     residuals.stats$Var2 <- NULL
     residuals.stats <- t(residuals.stats)
@@ -73,7 +74,12 @@ print.rf <- function(x, ...) {
     huxtable::number_format(residuals.stats)[2, ] <- 2
     huxtable::print_screen(residuals.stats, colnames = FALSE)
 
-    if("spatial.correlation.residuals" %in% names(x)){
+    cat("  - Normality: \n")
+    cat("      - Shapiro-Wilks W:", round(x$residuals$normality$shapiro.w, 3), "\n")
+    cat("      - p-value        :", round(x$residuals$normality$p.value, 4), "\n")
+    cat("      - Interpretation :", x$residuals$normality$interpretation, "\n")
+
+    if("autocorrelation" %in% names(x$residuals)){
       cat("\n")
       cat("  - Spatial autocorrelation: \n")
       print_moran(x)

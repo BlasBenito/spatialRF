@@ -1,7 +1,7 @@
 #' @title Gets model predictions
 #' @description Returns model predictions from a model fitted with [rf()], [rf_repeat()], or [rf_spatial()].
-#' @param x A model produced by [rf()], [rf_repeat()], or [rf_spatial()].
-#' @return A data frame with predictions, or mean and standard deviation of the predictions if the model was fitted with [rf_repeat()].
+#' @param model A model produced by [rf()], [rf_repeat()], or [rf_spatial()].
+#' @return A vector with predictions, or median of the predictions across repetitions if the model was fitted with [rf_repeat()].
 #' @examples
 #' \donttest{
 #' if(interactive()){
@@ -15,26 +15,15 @@
 #'   verbose = FALSE
 #' )
 #'
-#' x <- get_predictions(x = rf.model)
+#' x <- get_predictions(rf.model)
 #' x
 #'
 #' }
 #' }
 #' @rdname get_predictions
 #' @export
-get_predictions <- function(x){
+get_predictions <- function(model){
 
-  if("rf" %in% class(x)){
-    predictions <- x$predictions
-    predictions <- data.frame(
-      predictions = predictions
-    )
-  }
-
-  if("rf_repeat" %in% class(x)){
-    predictions <- x$predictions$mean
-  }
-
-  predictions
+  model$predictions$values
 
 }

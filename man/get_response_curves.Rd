@@ -5,7 +5,7 @@
 \title{Gets data to allow custom plotting of response curves}
 \usage{
 get_response_curves(
-  x = NULL,
+  model = NULL,
   variables = NULL,
   quantiles = c(0.1, 0.5, 0.9),
   grid.resolution = 200,
@@ -13,9 +13,9 @@ get_response_curves(
 )
 }
 \arguments{
-\item{x}{A model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}.}
+\item{model}{A model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}.}
 
-\item{variables}{Character vector, names of predictors to plot. If \code{NULL}, the most important variables (importance higher than the median) in \code{x} are selected. Default: \code{NULL}.}
+\item{variables}{Character vector, names of predictors to plot. If \code{NULL}, the most important variables (importance higher than the median) in \code{model} are selected. Default: \code{NULL}.}
 
 \item{quantiles}{Numeric vector with values between 0 and 1, argument \code{probs} of \link[stats]{quantile}. Quantiles to set the other variables to. Default: \code{c(0.1, 0.5, 0.9)}}
 
@@ -53,7 +53,7 @@ out <- rf(
  verbose = FALSE
 )
 
-p <- get_response_curves(x = out)
+p <- get_response_curves(out)
 head(p)
 
 }

@@ -9,8 +9,7 @@
 #' @param ranger.arguments Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.
 #' @param scaled.importance Logical. If `TRUE`, and 'importance = "permutation', the function scales 'data' with \link[base]{scale} and fits a new model to compute scaled variable importance scores. Default: `TRUE`
 #' @param repetitions Integer, number of repetitions. If 1, [rf()] is used to fit the non-spatial and spatial models. If higher than one, [rf_repeat()] is used instead. Notice that using more than one repetition can get computationally costly if the selected method generated a large number of spatial predictors, as it is the case of the "hengl" method. Default: `1`
-#' @param keep.models Logical. If `TRUE`, the fitted models are returned in the "models" slot. If `repetitions` is very high and `method` is "hengl",
-#' setting `keep.models` to `TRUE` may cause memory issues. Default: `FALSE`
+#' @param keep.models Logical. If `TRUE`, the fitted models are returned in the "models" slot. If `repetitions` is very high and `method` is "hengl", setting `keep.models` to `TRUE` may cause memory issues. Default: `FALSE`
 #' @param method Character, method to build, rank, and select spatial predictors. One of:
 #' \itemize{
 #'   \item "hengl"
@@ -39,8 +38,8 @@
 #'   \item `ranger.arguments`: Values of the arguments used to fit the ranger model.
 #'   \item `variable.importance`: A list containing the vector of variable importance as originally returned by ranger (scaled or not depending on the value of 'scaled.importance'), a data frame with the predictors ordered by their importance, and a ggplot showing the importance values.
 #'   \item `performance`: With the out-of-bag R squared, pseudo R squared, RMSE and NRMSE of the model.
-#'   \item `spatial.correlation.residuals`: Result of [moran_multithreshold()] applied in the model residuals.
-#'   \item `selection.spatial.predictors`: A list with four slots:
+#'   \item `residuals`: residuals, normality test of the residuals computed with [residuals_test()], and spatial autocorrelation of the residuals computed with [moran_multithreshold()].
+#'   \item `spatial`: A list with four slots:
 #'   \itemize{
 #'     \item `method`: Character, method used to generate, rank, and select spatial predictors.
 #'     \item `names`: Character vector with the names of the selected spatial predictors. Not returned if the method is "hengl".
@@ -313,6 +312,8 @@ rf_spatial <- function(
 
       predictor.variable.names <- ranger.arguments$predictor.variable.names
 
+      repetitions <- ranger.arguments$repetitions
+
       distance.matrix <- ranger.arguments$distance.matrix
       if(is.null(distance.matrix)){
         stop("The argument 'distance.matrix' is missing.")
@@ -335,19 +336,17 @@ rf_spatial <- function(
 
       seed <- model$ranger.arguments$seed
 
-
-
     }
 
   #reference moran's I for selection of spatial predictors
-  if(!is.null(model$spatial.correlation.residuals$max.moran)){
-    reference.moran.i <- model$spatial.correlation.residuals$max.moran
+  if(!is.null(model$residuals$autocorrelation$max.moran)){
+    reference.moran.i <- model$residuals$autocorrelation$max.moran
   } else {
     reference.moran.i <- 1
   }
 
   #extracting autocorrelation of the residuals
-  model.moran.i <- model$spatial.correlation.residuals$per.distance %>%
+  model.moran.i <- model$residuals$autocorrelation$per.distance %>%
     dplyr::arrange(dplyr::desc(moran.i)) %>%
     dplyr::filter(interpretation == "Positive spatial correlation")
 
@@ -356,7 +355,6 @@ rf_spatial <- function(
 
     if(verbose == TRUE){
       message("The model residuals are not spatially correlated, there is no need to fit a spatial model")
-      suppressWarnings(print(model$spatial.correlation.residuals$plot))
     }
 
     return(model)
@@ -366,7 +364,6 @@ rf_spatial <- function(
 
     if(verbose == TRUE){
       message("The model residuals are spatially correlated, fitting a spatial model.")
-      suppressWarnings(print(model$spatial.correlation.residuals$plot))
     }
 
   }
@@ -657,24 +654,28 @@ rf_spatial <- function(
   }
 
   #add moran's I plot
-  model.spatial$spatial.correlation.residuals$plot <- plot_moran(
+  model.spatial$residuals$autocorrelation$plot <- plot_moran(
     model.spatial,
     verbose = FALSE
   )
 
   #preparing variable importance
-  model.spatial$variable.importance <- prepare_importance_spatial(x = model.spatial)
+  model.spatial$importance <- prepare_importance_spatial(x = model.spatial)
 
   #adding spatial method and predictors to the model
-  model.spatial$selection.spatial.predictors <- list()
-  model.spatial$selection.spatial.predictors$method <- method
-  model.spatial$selection.spatial.predictors$names <- spatial.predictors.selected
+  model.spatial$spatial <- list()
+  model.spatial$spatial$method <- method
+  model.spatial$spatial$names <- spatial.predictors.selected
+  model.spatial$spatial$spatial.predictors <- spatial.predictors.df
+
   if(exists("spatial.predictors.selection")){
-    model.spatial$selection.spatial.predictors$optimization <- spatial.predictors.selection$optimization
-    model.spatial$selection.spatial.predictors$plot <- plot_optimization(
+
+    model.spatial$spatial$optimization <- spatial.predictors.selection$optimization
+    model.spatial$spatial$plot <- plot_optimization(
       spatial.predictors.selection$optimization,
       verbose = FALSE
     )
+
   }
 
   if(verbose == TRUE){

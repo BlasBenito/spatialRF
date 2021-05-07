@@ -27,7 +27,7 @@ test_that("`select_spatial_predictors_recursive()` works", {
     spatial.predictors.df = spatial.predictors,
     ranking.method = "effect",
     reference.moran.i = model$spatial.correlation.residuals$max.moran,
-    n.cores = 1
+    n.cores = 7
   )
   selection <- select_spatial_predictors_recursive(
     data = data,
@@ -37,7 +37,7 @@ test_that("`select_spatial_predictors_recursive()` works", {
     distance.thresholds = distance.thresholds,
     spatial.predictors.df = spatial.predictors,
     spatial.predictors.ranking = spatial.predictors.ranking,
-    n.cores = 1
+    n.cores = 7
   )
   expect_type(selection, "list")
   expect_s3_class(selection$optimization, "data.frame")

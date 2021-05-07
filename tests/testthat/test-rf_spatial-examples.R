@@ -8,12 +8,12 @@ test_that("`rf_spatial()` works", {
     distance.matrix = distance_matrix,
     distance.thresholds = c(0, 500, 1000),
     method = "hengl",
-    n.cores = 1,
+    n.cores = 7,
     verbose = FALSE
   )
   expect_equal(inherits(out, "rf_spatial"), TRUE)
   expect_equal(inherits(out$variable.importance$per.variable.plot, "ggplot"), TRUE)
-  expect_equal(inherits(out$spatial.correlation.residuals$plot, "ggplot"), TRUE)
+  expect_equal(inherits(out$residuals$autocorrelation$plot, "ggplot"), TRUE)
   expect_equal(length(out$performance$rmse), 1)
   expect_equal(length(out$performance$nrmse), 1)
   expect_equal(length(out$performance$r.squared), 1)
@@ -26,12 +26,12 @@ test_that("`rf_spatial()` works", {
     distance.matrix = distance_matrix,
     distance.thresholds = c(0, 500, 1000),
     method = "mem.moran.sequential",
-    n.cores = 1,
+    n.cores = 7,
     verbose = FALSE
   )
   expect_equal(inherits(out, "rf_spatial"), TRUE)
   expect_equal(inherits(out$variable.importance$per.variable.plot, "ggplot"), TRUE)
-  expect_equal(inherits(out$spatial.correlation.residuals$plot, "ggplot"), TRUE)
+  expect_equal(inherits(out$residuals$autocorrelation$plot, "ggplot"), TRUE)
   expect_equal(length(out$performance$rmse), 1)
   expect_equal(length(out$performance$nrmse), 1)
   expect_equal(length(out$performance$r.squared), 1)
@@ -44,12 +44,12 @@ test_that("`rf_spatial()` works", {
     distance.matrix = distance_matrix,
     distance.thresholds = c(0, 500, 1000),
     method = "mem.effect.recursive",
-    n.cores = 1,
+    n.cores = 7,
     verbose = FALSE
   )
   expect_equal(inherits(out, "rf_spatial"), TRUE)
   expect_equal(inherits(out$variable.importance$per.variable.plot, "ggplot"), TRUE)
-  expect_equal(inherits(out$spatial.correlation.residuals$plot, "ggplot"), TRUE)
+  expect_equal(inherits(out$residuals$autocorrelation$plot, "ggplot"), TRUE)
   expect_equal(length(out$performance$rmse), 1)
   expect_equal(length(out$performance$nrmse), 1)
   expect_equal(length(out$performance$r.squared), 1)

@@ -5,6 +5,8 @@
 #' @param predictor.variable.names Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Optionally, the result of [auto_cor()] or [auto_vif()] Default: `NULL`
 #' @param distance.matrix Squared matrix with the distances among the records in `data`. The number of rows of `distance.matrix` and `data` must be the same. If not provided, the computation of the Moran's I of the residuals is omitted. Default: `NULL`
 #' @param distance.thresholds Numeric vector, distances below each value are set to 0 on separated copies of the distance matrix for the computation of Moran's I at different neighborhood distances. If `NULL`, it defaults to `seq(0, max(distance.matrix)/4, length.out = 2)`. Default: `NULL`
+#' @param fill.color Character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. `viridis::viridis(100)`). Default: `viridis::viridis(100, option = "F", direction = -1)`
+#' @param point.color Character vector with a color name (e.g. "red4"). Default: `gray30`
 #' @return A ggplot2 object.
 #' @examples
 #' \dontrun{
@@ -33,7 +35,13 @@ plot_training_df_moran <- function(
   dependent.variable.name = NULL,
   predictor.variable.names = NULL,
   distance.matrix = NULL,
-  distance.thresholds = NULL
+  distance.thresholds = NULL,
+  fill.color = viridis::viridis(
+    100,
+    option = "F",
+    direction = -1
+    ),
+  point.color = "gray30"
 ){
 
   #declaring variables to avoid check complaints
@@ -104,11 +112,7 @@ plot_training_df_moran <- function(
 
   #plotting moran's i
   p <- ggplot2::ggplot(data = plot.df) +
-    ggplot2::scale_fill_viridis_c(
-      alpha = 0.9,
-      begin = 0.05,
-      end = 0.95
-      ) +
+    ggplot2::scale_fill_gradientn(colors = fill.color) +
     ggplot2::geom_tile(
       ggplot2::aes(
         x = factor(distance.threshold),
@@ -122,6 +126,7 @@ plot_training_df_moran <- function(
         y = variable,
         size = p.value.binary
       ),
+      color = point.color,
       pch = 1
     ) +
     ggplot2::scale_size_manual(

@@ -4,10 +4,10 @@
 \alias{get_spatial_predictors}
 \title{Gets the spatial predictors of a spatial model}
 \usage{
-get_spatial_predictors(x)
+get_spatial_predictors(model)
 }
 \arguments{
-\item{x}{A model fitted with \code{\link[=rf_spatial]{rf_spatial()}}.}
+\item{model}{A model fitted with \code{\link[=rf_spatial]{rf_spatial()}}.}
 }
 \value{
 A data frame with the spatial predictors included in the model.
@@ -32,7 +32,7 @@ if(interactive()){
    method = "mem.moran.sequential"
  )
 
-spatial.predictors <- get_spatial_predictors(x = model)
+spatial.predictors <- get_spatial_predictors(model)
 head(spatial.predictors)
 }
 }

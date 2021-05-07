@@ -4,16 +4,30 @@
 #' @usage
 #' plot_optimization(
 #'   model,
+#'   point.color = viridis::viridis(
+#'     100,
+#'     option = "F",
+#'     direction = -1
+#'   ),
 #'   verbose = TRUE
 #' )
 #' @param model A model produced by [rf_spatial()], or an optimization data frame produced by [select_spatial_predictors_sequential()] or [select_spatial_predictors_recursive()].
+#' @param point.color Colors of the plotted points. Can be a single color name (e.g. "red4"), a character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. `viridis::viridis(100)`). Default: `viridis::viridis(100, option = "F", direction = -1)`
 #' @param verbose Logical, if `TRUE` the plot is printed. Default: `TRUE`
 #' @details If the method used to fit a model with [rf_spatial()] is "hengl", the function returns nothing, as this method does not require optimization.
 #' @return A ggplot.
 #' @rdname plot_optimization
 #' @export
 #' @importFrom ggplot2 ggplot aes geom_point scale_color_viridis_c geom_path geom_vline labs xlab ylab ggtitle
-plot_optimization <- function(model, verbose = TRUE){
+plot_optimization <- function(
+  model,
+  point.color = viridis::viridis(
+    100,
+    option = "F",
+    direction = -1
+  ),
+  verbose = TRUE
+  ){
 
   #declaring variables
   moran.i <- NULL
@@ -23,7 +37,7 @@ plot_optimization <- function(model, verbose = TRUE){
 
   #getting optimization df from the model
   if(inherits(model, "rf_spatial")){
-    x <- model$selection.spatial.predictors$optimization
+    x <- model$spatial$optimization
   } else {
     x <- model
   }
@@ -37,7 +51,7 @@ plot_optimization <- function(model, verbose = TRUE){
       size = spatial.predictor.index
     ) +
     ggplot2::geom_point() +
-    ggplot2::scale_color_viridis_c(direction = 1) +
+    ggplot2::scale_color_gradientn(colors = point.color) +
     ggplot2::geom_point(
       data = x[x$selected, ],
       aes(
@@ -70,7 +84,8 @@ plot_optimization <- function(model, verbose = TRUE){
     ggplot2::ylab("Maximum Moran's I of the residuals") +
     ggplot2::xlab("Model's R squared (out-of-bag)") +
     ggplot2::ggtitle("Selection of spatial predictors (selection path shown in gray)") +
-    ggplot2::theme_bw()
+    ggplot2::theme_bw() +
+    ggplot2::theme(plot.title = element_text(hjust = 0.5))
 
   if(verbose == TRUE){
     suppressMessages(print(p))

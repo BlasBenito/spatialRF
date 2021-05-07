@@ -13,6 +13,7 @@ print_evaluation <- function(model){
   }
 
   metric <- NULL
+  median_absolute_deviation <- NULL
 
     x <- model$evaluation$aggregated %>%
       dplyr::filter(
@@ -21,23 +22,27 @@ print_evaluation <- function(model){
       dplyr::select(
         metric,
         median,
-        mean,
+        median_absolute_deviation,
         min,
         max
       ) %>%
       dplyr::mutate(
         median = round(median, 3),
-        mean = round(mean, 3),
+        median_absolute_deviation = round(median_absolute_deviation, 3),
         min = round(min, 3),
         max = round(max, 3)
       ) %>%
       dplyr::rename(
         Metric = metric,
-        Mean = mean,
         Median = median,
+        MAD = median_absolute_deviation,
         Minimum = min,
         Maximum = max
       )
+
+    x <- x[,colSums(is.na(x)) < nrow(x)]
+
+    x <- na.omit(x)
 
   #printing output
   cat("\n")

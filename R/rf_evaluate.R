@@ -55,7 +55,7 @@
 #' @importFrom parallel detectCores makeCluster stopCluster
 #' @importFrom doParallel registerDoParallel
 #' @importFrom foreach foreach
-#' @importFrom stats predict
+#' @importFrom stats predict mad
 #' @importFrom dplyr select contains group_by summarise
 #' @importFrom tidyr pivot_longer
 rf_evaluate <- function(
@@ -121,6 +121,7 @@ rf_evaluate <- function(
   ranger.arguments$dependent.variable.name <- NULL
   ranger.arguments$predictor.variable.names <- NULL
   ranger.arguments$importance <- "none"
+  ranger.arguments$local.importance <- FALSE
   ranger.arguments$data <- NULL
   ranger.arguments$scaled.importance <- FALSE
   ranger.arguments$distance.matrix <- NULL
@@ -419,6 +420,7 @@ rf_evaluate <- function(
     dplyr::group_by(model, metric) %>%
     dplyr::summarise(
       median = median(value),
+      median_absolute_deviation = stats::mad(value),
       q1 = quantile(value, 0.25, na.rm = TRUE),
       q3 = quantile(value, 0.75, na.rm = TRUE),
       mean = mean(value),
@@ -432,7 +434,7 @@ rf_evaluate <- function(
 
   #stats to NA if "Full" only once in performance.df
   if(sum("Full" %in% performance.df$model) == 1){
-    performande.df.aggregated[performande.df.aggregated$model == "Full", c("median", "q1", "q3", "se", "sd", "min", "max")] <- NA
+    performande.df.aggregated[performande.df.aggregated$model == "Full", c("median", "median_absolute_deviation", "q1", "q3", "se", "sd", "min", "max")] <- NA
   }
 
   #add spatial folds to the model
@@ -451,7 +453,7 @@ rf_evaluate <- function(
   class(model) <- c(class(model), "rf_evaluate")
 
   if(verbose == TRUE){
-    print_evaluation(model)
+    print_evaluation(model = model)
   }
 
   model

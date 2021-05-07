@@ -50,8 +50,7 @@ rf_spatial(
 
 \item{repetitions}{Integer, number of repetitions. If 1, \code{\link[=rf]{rf()}} is used to fit the non-spatial and spatial models. If higher than one, \code{\link[=rf_repeat]{rf_repeat()}} is used instead. Notice that using more than one repetition can get computationally costly if the selected method generated a large number of spatial predictors, as it is the case of the "hengl" method. Default: \code{1}}
 
-\item{keep.models}{Logical. If \code{TRUE}, the fitted models are returned in the "models" slot. If \code{repetitions} is very high and \code{method} is "hengl",
-setting \code{keep.models} to \code{TRUE} may cause memory issues. Default: \code{FALSE}}
+\item{keep.models}{Logical. If \code{TRUE}, the fitted models are returned in the "models" slot. If \code{repetitions} is very high and \code{method} is "hengl", setting \code{keep.models} to \code{TRUE} may cause memory issues. Default: \code{FALSE}}
 
 \item{method}{Character, method to build, rank, and select spatial predictors. One of:
 \itemize{
@@ -93,8 +92,8 @@ A ranger model with several new slots:
 \item \code{ranger.arguments}: Values of the arguments used to fit the ranger model.
 \item \code{variable.importance}: A list containing the vector of variable importance as originally returned by ranger (scaled or not depending on the value of 'scaled.importance'), a data frame with the predictors ordered by their importance, and a ggplot showing the importance values.
 \item \code{performance}: With the out-of-bag R squared, pseudo R squared, RMSE and NRMSE of the model.
-\item \code{spatial.correlation.residuals}: Result of \code{\link[=moran_multithreshold]{moran_multithreshold()}} applied in the model residuals.
-\item \code{selection.spatial.predictors}: A list with four slots:
+\item \code{residuals}: residuals, normality test of the residuals computed with \code{\link[=residuals_test]{residuals_test()}}, and spatial autocorrelation of the residuals computed with \code{\link[=moran_multithreshold]{moran_multithreshold()}}.
+\item \code{spatial}: A list with four slots:
 \itemize{
 \item \code{method}: Character, method used to generate, rank, and select spatial predictors.
 \item \code{names}: Character vector with the names of the selected spatial predictors. Not returned if the method is "hengl".

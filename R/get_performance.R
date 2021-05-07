@@ -1,12 +1,11 @@
 #' @title Gets out-of-bag performance scores from a model
 #' @description Returns the performance slot of an [rf()], [rf_repeat()], or [rf_spatial()] model computed on the out-of-bag data.
-#' @param x Model fitted with [rf()], [rf_repeat()], or [rf_spatial()].
+#' @param model Model fitted with [rf()], [rf_repeat()], or [rf_spatial()].
 #' @return A data frame with four columns:
 #' \itemize{
 #'   \item `metric` Name of the performance metric.
-#'   \item `mean` Value of the performance metric. Truly a mean only if the model is fitted with [rf_repeat()].
-#'   \item `standard_error` Standard error of the mean, only if the model is fitted with [rf_repeat()], and `NA` otherwise.
-#'   \item `standard_deviation` Standard deviation of the mean, only if the model is fitted with [rf_repeat()], and `NA` otherwise.
+#'   \item `median` Value of the performance metric. Truly a median only if the model is fitted with [rf_repeat()].
+#'   \item `median_absolute_deviation` median absolute deviation (MAD), only if the model is fitted with [rf_repeat()], and `NA` otherwise.
 #' }
 #' @seealso [print_performance()]
 #' @examples
@@ -32,30 +31,35 @@
 #' }
 #' @rdname get_performance
 #' @export
-get_performance <- function(x){
+get_performance <- function(model){
 
-  if(inherits(x, "rf_repeat")){
+  if(inherits(model, "rf_repeat")){
 
-    x.mean <- sapply(x$performance, FUN = mean)
-    x.se <- sapply(x$performance, FUN = standard_error)
-    x.sd <- sapply(x$performance, FUN = sd)
+    x.median <- sapply(model$performance, FUN = median)
+    x.mad <- sapply(model$performance, FUN = mad)
 
   } else {
 
-    x.mean <- unlist(x$performance)
-    x.se <- NA
-    x.sd <- NA
+    x.median <- unlist(model$performance)
+    x.mad <- NA
 
   }
 
   out.df <- data.frame(
-    metric = names(x.mean),
-    mean = x.mean,
-    standard_error = x.se,
-    standard_deviation = round(x.sd, 3)
+    metric = names(x.median),
+    median = x.median,
+    median_absolute_deviation = x.mad
   )
 
+  if(inherits(model , "rf_repeat") == FALSE){
+    colnames(out.df)[2] <- "value"
+  }
+
   rownames(out.df) <- NULL
+
+  out.df <- out.df[,colSums(is.na(out.df)) < nrow(out.df)]
+
+  out.df <- na.omit(out.df)
 
   out.df
 

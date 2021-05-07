@@ -1,7 +1,7 @@
 #' @title Gets model residuals
 #' @description Returns the residuals of models fitted with [rf()], [rf_repeat()], or [rf_spatial()].
-#' @param x A model fitted with [rf()], [rf_repeat()], or [rf_spatial()].
-#' @return A data frame with residuals, or mean and standard deviation of the residuals if the model was fitted with [rf_repeat()].
+#' @param model A model fitted with [rf()], [rf_repeat()], or [rf_spatial()].
+#' @return A vector with model residuals, or the median of model residuals across repetitions if the model was fitted with [rf_repeat()].
 #' @examples
 #' \donttest{
 #' if(interactive()){
@@ -15,26 +15,15 @@
 #'   verbose = FALSE
 #' )
 #'
-#' x <- get_residuals(x = rf.model)
+#' x <- get_residuals(rf.model)
 #' x
 #'
 #' }
 #' }
 #' @rdname get_residuals
 #' @export
-get_residuals <- function(x){
+get_residuals <- function(model){
 
-  if("rf" %in% class(x)){
-    residuals <- x$residuals
-    residuals <- data.frame(
-      residuals = residuals
-    )
-  }
-
-  if("rf_repeat" %in% class(x)){
-    residuals <- x$residuals$mean
-  }
-
-  residuals
+    model$residuals$values
 
 }

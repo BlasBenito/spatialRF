@@ -100,7 +100,7 @@ rf_tuning <- function(
 
   #saving slots if it's an rf_spatial model
   if(inherits(model, "rf_spatial")){
-    selection.spatial.predictors <- model$selection.spatial.predictors
+    spatial <- model$spatial
   }
 
   #mtry
@@ -230,7 +230,7 @@ rf_tuning <- function(
     mtry.i = combinations$mtry,
     min.node.size.i = combinations$min.node.size,
     .combine = "rbind",
-    .verbose = verbose
+    .verbose = FALSE
   ) %dopar% {
 
     #filling ranger arguments
@@ -269,17 +269,17 @@ rf_tuning <- function(
 
     #getting performance measures
     m.i.performance <- spatialRF::get_evaluation(m.i)
-    m.i.performance <- m.i.performance[m.i.performance$model == "Testing", c("metric", "mean")]
+    m.i.performance <- m.i.performance[m.i.performance$model == "Testing", c("metric", "median")]
 
     #if the model is spatial
     if(inherits(model, "rf_spatial")){
 
       #getting interpretation of Moran's I if the model is rf_spatial
-      moran.i.interpretation <- m.i$spatial.correlation.residuals$per.distance$interpretation[1]
+      moran.i.interpretation <- m.i$residuals$autocorrelation$per.distance$interpretation[1]
 
       #getting performance
       m.i.performance <- data.frame(
-        r.squared = m.i.performance[m.i.performance$metric == metric, "mean"],
+        r.squared = m.i.performance[m.i.performance$metric == metric, "median"],
         moran.i.interpretation = moran.i.interpretation
       )
 
@@ -287,7 +287,7 @@ rf_tuning <- function(
 
       #performance without Moran's I for non-spatial models
       m.i.performance <- data.frame(
-        metric = m.i.performance[m.i.performance$metric == metric, "mean"]
+        metric = m.i.performance[m.i.performance$metric == metric, "median"]
       )
 
     }
@@ -388,7 +388,7 @@ rf_tuning <- function(
   #adding the variable importance slot if rf_spatial
   if(inherits(model, "rf_spatial")){
 
-    model.tuned$variable.importance <- prepare_importance_spatial(model.tuned)
+    model.tuned$importance <- prepare_importance_spatial(model.tuned)
 
   }
 
@@ -428,7 +428,7 @@ rf_tuning <- function(
   new.performance <- round(
     model.tuned$evaluation$aggregated[model.tuned$evaluation$aggregated$model == "Testing" &
         model.tuned$evaluation$aggregated$metric == metric.name,
-      "mean"
+      "median"
     ],
     3
   )
@@ -436,7 +436,7 @@ rf_tuning <- function(
     model$evaluation$aggregated[
       model$evaluation$aggregated$model == "Testing" &
         model$evaluation$aggregated$metric == metric.name,
-      "mean"
+      "median"
     ],
     3
   )
@@ -448,20 +448,18 @@ rf_tuning <- function(
   if(performance.gain > 0){
 
     #plot tuning
-    if(verbose == TRUE){
-      plot_tuning(model.tuned)
-      message("Best hyperparameters:")
-      message(paste0("  - num.trees:     ", tuning[1, "num.trees"]))
-      message(paste0("  - mtry:          ", tuning[1, "mtry"]))
-      message(paste0("  - min.node.size: ", tuning[1, "min.node.size"]))
-      message(paste0(
-        "gain in ",
-        metric.name,
-        ": ",
-        performance.gain
-      )
-      )
-    }
+    suppressWarnings(plot_tuning(model.tuned))
+    message("Best hyperparameters:")
+    message(paste0("  - num.trees:     ", tuning[1, "num.trees"]))
+    message(paste0("  - mtry:          ", tuning[1, "mtry"]))
+    message(paste0("  - min.node.size: ", tuning[1, "min.node.size"]))
+    message(paste0(
+      "gain in ",
+      metric.name,
+      ": ",
+      round(performance.gain, 4)
+    )
+    )
 
     #adding gain
     model.tuned$tuning$performance.gain <- performance.gain
@@ -469,7 +467,7 @@ rf_tuning <- function(
     #adding selection of spatial predictors
     if(inherits(model, "rf_spatial")){
 
-      model.tuned$selection.spatial.predictors <- selection.spatial.predictors
+      model.tuned$spatial <- spatial
 
     }
 

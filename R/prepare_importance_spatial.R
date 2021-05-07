@@ -1,6 +1,6 @@
 #' @title Prepares variable importance objects for spatial models
 #' @description Prepares variable importance data frames and plots for models fitted with [rf_spatial()].
-#' @param x An importance data frame with spatial predictors.
+#' @param x An importance data frame with spatial predictors, or a model fitted with [rf_spatial()].
 #' @return A list with importance data frames in different formats depending on whether the model was fitted with [rf()] or [rf_repeat()].
 #' @examples
 #' \dontrun{
@@ -33,14 +33,14 @@ prepare_importance_spatial <- function(x){
   #no rf repeat
   if(!inherits(x, "rf_repeat")){
 
-    importance.df <- x$variable.importance$per.variable
+    importance.df <- x$importance$per.variable
 
   }
 
   #rf repeat
   if(inherits(x, "rf_repeat")){
 
-    importance.df <- x$variable.importance$per.repetition
+    importance.df <- x$importance$per.repetition
 
   }
 
@@ -96,7 +96,7 @@ prepare_importance_spatial <- function(x){
 
     importance.df <- non.spatial.predictors %>%
       dplyr::group_by(variable) %>%
-      dplyr::summarise(importance = round(mean(importance), 3)) %>%
+      dplyr::summarise(importance = round(median(importance), 3)) %>%
       as.data.frame() %>%
       rbind(spatial.predictors.stats) %>%
       dplyr::arrange(dplyr::desc(importance))
@@ -107,9 +107,9 @@ prepare_importance_spatial <- function(x){
   variable.importance <- list()
 
   #common slots
-  variable.importance$per.variable <- x$variable.importance$per.variable
+  variable.importance$per.variable <- x$importance$per.variable
   variable.importance$per.variable.plot <- plot_importance(
-    x$variable.importance$per.variable,
+    x$importance$per.variable,
     verbose = FALSE
     )
   variable.importance$spatial.predictors <- importance.plot.df
@@ -126,9 +126,9 @@ prepare_importance_spatial <- function(x){
   #filling rf repeat
   if(inherits(x, "rf_repeat")){
 
-    variable.importance$per.repetition <- x$variable.importance$per.repetition
+    variable.importance$per.repetition <- x$importance$per.repetition
     variable.importance$per.repetition.plot <- plot_importance(
-      x$variable.importance$per.repetition,
+      x$importance$per.repetition,
       verbose = FALSE
     )
 

@@ -5,7 +5,8 @@
 #' @param repetitions Integer, must be lower than the total number of rows available in the model's data. Default: `30`
 #' @param training.fraction Proportion between 0.5 and 0.9 indicating the number of records to be used in model training. Default: `0.8`
 #' @param metrics Character vector, names of the performance metrics selected. The possible values are: "r.squared" (`cor(obs, pred) ^ 2`), "pseudo.r.squared" (`cor(obs, pred)`), "rmse" (`sqrt(sum((obs - pred)^2)/length(obs))`), "nrmse" (`rmse/(quantile(obs, 0.75) - quantile(obs, 0.25))`). Default: `c("r.squared", "pseudo.r.squared", "rmse", "nrmse")`
-#' @param notch Logical, if `TRUE`, boxplot notches are plotted. Default: `TRUE`
+#' @param fill.color Character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. `viridis::viridis(100)`). Default: `viridis::viridis(100, option = "F", direction = -1)`
+#' @param line.color Character string, color of the line produced by `ggplot2::geom_smooth()`. Default: `"gray30"`
 #' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same.
 #' @param verbose Logical. If `TRUE`, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
 #' @param n.cores Integer, number of cores to use. Default = `parallel::detectCores() - 1`
@@ -51,7 +52,13 @@ rf_compare <- function(
   repetitions = 30,
   training.fraction = 0.8,
   metrics = c("r.squared", "pseudo.r.squared", "rmse", "nrmse"),
-  notch = TRUE,
+  fill.color = viridis::viridis(
+    100,
+    option = "F",
+    direction = -1,
+    alpha = 0.8
+  ),
+  line.color = "gray30",
   seed = NULL,
   verbose = TRUE,
   n.cores = parallel::detectCores() - 1,
@@ -143,6 +150,18 @@ rf_compare <- function(
   x[x$metric == "pseudo.r.squared", "metric"] <- "pseudo R squared"
   x[x$metric == "rmse", "metric"] <- "RMSE"
   x[x$metric == "nrmse", "metric"] <- "NRMSE"
+  x[x$metric == "auc", "metric"] <- "AUC"
+
+  n.models <- length(models)
+  if(length(fill.color) != 1){
+    if(length(fill.color) > length(n.models)){
+      fill.colors.function <- grDevices::colorRampPalette(
+        fill.color,
+        alpha = TRUE
+      )
+      fill.color <- fill.colors.function(n.models)
+    }
+  }
 
   #plot
   p <- ggplot2::ggplot() +
@@ -150,11 +169,20 @@ rf_compare <- function(
       data = x,
       ggplot2::aes(
         group = model,
-        y = model,
+        y = reorder(
+          model,
+          value,
+          FUN = stats::median
+          ),
         x = value,
-        fill = model
+        fill = reorder(
+          model,
+          value,
+          FUN = stats::median
+        )
       ),
-      draw_quantiles = 0.5
+      draw_quantiles = 0.5,
+      color = line.color
     ) +
     ggplot2::facet_wrap(
       "metric",
@@ -166,7 +194,7 @@ rf_compare <- function(
     ggplot2::theme(legend.position = "none") +
     ggplot2::xlab("") +
     ggplot2::ylab("") +
-    ggplot2::scale_fill_viridis_d(end = 0.9, alpha = 0.5) +
+    ggplot2::scale_fill_manual(values = fill.color) +
     ggplot2::labs(fill = "Model") +
     ggplot2::ggtitle(
       paste0(
@@ -174,7 +202,8 @@ rf_compare <- function(
         repetitions,
         " spatial folds."
       )
-    )
+    ) +
+    ggplot2::theme(plot.title = element_text(hjust = 0.5))
 
   #out list
   out.list <- list()

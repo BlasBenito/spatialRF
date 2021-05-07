@@ -11,6 +11,6 @@ test_that("`get_spatial_predictors()` works", {
     verbose = FALSE,
     n.cores = 1
   )
-  spatial.predictors <- get_spatial_predictors(x = model)
+  spatial.predictors <- get_spatial_predictors(model)
   expect_s3_class(spatial.predictors, "data.frame")
 })

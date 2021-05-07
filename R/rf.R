@@ -6,16 +6,15 @@
 #' @param distance.matrix Squared matrix with the distances among the records in `data`. The number of rows of `distance.matrix` and `data` must be the same. If not provided, the computation of the Moran's I of the residuals is omitted. Default: `NULL`
 #' @param distance.thresholds Numeric vector with neighborhood distances. All distances in the distance matrix below each value in `dustance.thresholds` are set to 0 for the computation of Moran's I. If `NULL`, it defaults to seq(0, max(distance.matrix), length.out = 4). Default: `NULL`
 #' @param ranger.arguments Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. The ranger arguments `x`, `y`, and `formula` are disabled. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.
-#' @param scaled.importance Logical, if `TRUE`, the function scales `data` with \link[base]{scale} and fits a new model to compute scaled variable importance scores. This makes variable importance scores of different models somewhat comparable. Default: `TRUE`
+#' @param scaled.importance Logical, if `TRUE`, the function scales `data` with \link[base]{scale} and fits a new model to compute scaled variable importance scores. This makes variable importance scores of different models somewhat comparable. Default: `FALSE`
 #' @param seed Integer, random seed to facilitate reproducibility. If set to a given number, the returned model is always the same. Default: `NULL`
 #' @param verbose Boolean. If TRUE, messages and plots generated during the execution of the function are displayed. Default: `TRUE`
 #' @return A ranger model with several new slots:
 #' \itemize{
 #'   \item `ranger.arguments`: Stores the values of the arguments used to fit the ranger model.
-#'   \item `variable.importance`: A list containing a data frame with the predictors ordered by their importance, and a ggplot showing the importance values.
+#'   \item `importance`: A list containing a data frame with the predictors ordered by their importance, a ggplot showing the importance values, and local importance scores (difference in accuracy between permuted and non permuted variables for every case, computed on the out-of-bag data).
 #'   \item `performance`: performance scores: R squared on out-of-bag data, R squared (cor(observed, predicted) ^ 2), pseudo R squared (cor(observed, predicted)), RMSE, and normalized RMSE (NRMSE).
-#'   \item `residuals`: computed as observations minus predictions.
-#'   \item `spatial.correlation.residuals`: the result of [moran_multithreshold()] applied to the model results.
+#'   \item `residuals`: residuals, normality test of the residuals computed with [residuals_test()], and spatial autocorrelation of the residuals computed with [moran_multithreshold()].
 #' }
 #' @details Please read the help file of \link[ranger]{ranger} for further details. Notice that the `formula` interface of \link[ranger]{ranger} is supported through `ranger.arguments`, but variable interactions are not allowed (but check [rf_interactions()]).
 #' @examples
@@ -36,10 +35,10 @@
 #'  class(out)
 #'
 #'  #data frame with ordered variable importance
-#'  out$variable.importance$per.variable
+#'  out$importance$per.variable
 #'
 #'  #variable importance plot
-#'  out$variable.importance$per.variable.plot
+#'  out$importance$per.variable.plot
 #'
 #'  #performance
 #'  out$performance
@@ -85,7 +84,7 @@ rf <- function(
   distance.matrix = NULL,
   distance.thresholds = NULL,
   ranger.arguments = NULL,
-  scaled.importance = TRUE,
+  scaled.importance = FALSE,
   seed = NULL,
   verbose = TRUE
 ){
@@ -118,7 +117,7 @@ rf <- function(
   always.split.variables <- NULL
   respect.unordered.factors <- NULL
   scale.permutation.importance <- TRUE
-  local.importance <- FALSE
+  local.importance <- TRUE
   regularization.factor <- 1
   regularization.usedepth <- FALSE
   keep.inbag <- FALSE
@@ -240,6 +239,10 @@ rf <- function(
     classification = classification
   )
 
+  #get variable importance
+  variable.importance.global <- m$variable.importance
+  variable.importance.local <- m$variable.importance.local
+
   #if scaled.importance is TRUE
   if(scaled.importance == TRUE){
 
@@ -281,9 +284,9 @@ rf <- function(
       classification = classification
     )
 
-  } else {
-
-    m.scaled <- m
+    #overwrite variable importance
+    variable.importance.global <- m.scaled$variable.importance
+    variable.importance.local <- m.scaled$variable.importance.local
 
   }
 
@@ -328,23 +331,48 @@ rf <- function(
     classification = classification
   )
 
-  #importance dataframe
+  #importance slot
   if(importance == "permutation"){
 
-    m$variable.importance <- list()
-    m$variable.importance$per.variable <- data.frame(
-      variable = names(m.scaled$variable.importance),
-      importance = m.scaled$variable.importance
+    #importance slot
+    m$importance <- list()
+
+    #global importance
+    #sign of the importance
+    variable.importance.global.sign <- variable.importance.global
+    variable.importance.global.sign[variable.importance.global.sign >= 0] <- 1
+    variable.importance.global.sign[variable.importance.global.sign < 0 ] <- -1
+
+    #applying sqrt
+    variable.importance.global <- sqrt(abs(variable.importance.global)) * variable.importance.global.sign
+
+
+    m$importance$per.variable <- data.frame(
+      variable = names(variable.importance.global),
+      importance = variable.importance.global
     ) %>%
       tibble::remove_rownames() %>%
       dplyr::arrange(dplyr::desc(importance)) %>%
       dplyr::mutate(importance = round(importance, 3)) %>%
       as.data.frame()
 
-    m$variable.importance$per.variable.plot <- plot_importance(
-      m$variable.importance$per.variable,
+    m$importance$per.variable.plot <- plot_importance(
+      m$importance$per.variable,
       verbose = verbose
     )
+
+    #local importance (reconverting values from ^2 to sqrt())
+
+    #matrix with sign of the value
+    variable.importance.local.sign <- variable.importance.local
+    variable.importance.local.sign[variable.importance.local.sign >= 0] <- 1
+    variable.importance.local.sign[variable.importance.local.sign < 0 ] <- -1
+
+    #applying sqrt
+    variable.importance.local <- sqrt(abs(variable.importance.local)) * variable.importance.local.sign
+
+    #saving to the slot
+    m$importance$local <- variable.importance.local
 
   }
 
@@ -355,54 +383,56 @@ rf <- function(
     type = "response"
   )$predictions
 
+  #saving predictions
+  m$predictions <- list()
+  m$predictions$values <- predicted
+
   #getting observed data
   observed <- data[, dependent.variable.name]
 
   #performance slot
   m$performance <- list()
-  m$performance$r.squared.oob <- round(m$r.squared, 3)
-  m$performance$r.squared <- round(cor(observed, predicted) ^ 2, 3)
-  m$performance$pseudo.r.squared <- round(cor(
+
+  m$performance$r.squared.oob <- m$r.squared
+
+  m$performance$r.squared <- cor(observed, predicted) ^ 2
+
+  m$performance$pseudo.r.squared <- cor(
     observed,
     predicted
-  ), 3)
-  if(is.binary == FALSE){
+  )
 
-    m$performance$rmse <- round(root_mean_squared_error(
-      o = observed,
-      p = predicted,
-      normalization = "rmse"
-    ), 3)
-    names(m$performance$rmse) <- NULL
-    m$performance$nrmse <- round(root_mean_squared_error(
-      o = observed,
-      p = predicted,
-      normalization = "iq"
-    ), 3)
-    names(m$performance$nrmse) <- NULL
-    m$performance$auc <- NA
+  m$performance$rmse.oob <- sqrt(m$prediction.error)
 
-  } else {
+  m$performance$rmse <- root_mean_squared_error(
+    o = observed,
+    p = predicted,
+    normalization = "rmse"
+  )
+  names(m$performance$rmse) <- NULL
+  m$performance$nrmse <- root_mean_squared_error(
+    o = observed,
+    p = predicted,
+    normalization = "iq"
+  )
+  names(m$performance$nrmse) <- NULL
+  m$performance$auc <- NA
 
-    m$performance$rmse <- NA
-    m$performance$nrmse <- NA
-
-    #compute AUC
-    m$performance$auc <- auc(
-      o = observed,
-      p = predicted
-    )
-
-  }
+  #compute AUC
+  m$performance$auc <- auc(
+    o = observed,
+    p = predicted
+  )
 
   #residuals
-  m$residuals <- observed - predicted
+  m$residuals$values <- observed - predicted
+  m$residuals$stats <- summary(m$residuals$values)
 
   #compute moran I of residuals if distance.matrix is provided
   if(!is.null(distance.matrix)){
 
-    m$spatial.correlation.residuals <- moran_multithreshold(
-      x = m$residuals,
+    m$residuals$autocorrelation <- moran_multithreshold(
+      x = m$residuals$values,
       distance.matrix = distance.matrix,
       distance.thresholds = distance.thresholds,
       verbose = verbose
@@ -410,10 +440,17 @@ rf <- function(
 
   }
 
-  #replacing local variable importance with the scaled one
-  if(local.importance == TRUE){
-    m$variable.importance.local <- m.scaled$variable.importance.local
-  }
+  #normality of the residuals
+  m$residuals$normality <- residuals_diagnostics(
+    residuals = m$residuals$values,
+    predictions = predicted
+    )
+
+  #plot of the residuals diagnostics
+  m$residuals$diagnostics <- plot_residuals_diagnostics(
+    m,
+    verbose = verbose
+  )
 
   #adding rf class
   class(m) <- c("rf", "ranger")

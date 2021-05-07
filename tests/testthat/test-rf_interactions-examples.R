@@ -6,7 +6,7 @@ test_that("`rf_interactions()` works", {
     predictor.variable.names = colnames(plant_richness_df)[5:21],
     verbose = FALSE,
     seed = 100,
-    n.cores = 1
+    n.cores = 7
     )
   expect_s3_class(interactions$screening, "data.frame")
   expect_s3_class(interactions$selected, "data.frame")

@@ -10,6 +10,7 @@ rf_interactions(
   predictor.variable.names = NULL,
   ranger.arguments = NULL,
   importance.threshold = NULL,
+  point.color = viridis::viridis(100, option = "F"),
   seed = NULL,
   verbose = TRUE,
   n.cores = parallel::detectCores() - 1,
@@ -29,6 +30,8 @@ rf_interactions(
 \item{ranger.arguments}{Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.}
 
 \item{importance.threshold}{Value of variable importance from \code{model} used as threshold to select variables to generate candidate interactions. Default: Quantile 0.75 of the variable importance in \code{model}.}
+
+\item{point.color}{Colors of the plotted points. Can be a single color name (e.g. "red4"), a character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. \code{viridis::viridis(100)}). Default: \code{viridis::viridis(100, option = "F")}}
 
 \item{seed}{Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same.}
 

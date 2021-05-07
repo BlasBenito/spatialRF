@@ -221,9 +221,9 @@ rank_spatial_predictors <- function(
       out.i <- data.frame(
         spatial.predictors.name = spatial.predictors.name.i,
         model.r.squared = m.i$performance$r.squared.oob,
-        moran.i = m.i$spatial.correlation.residuals$max.moran,
-        p.value = m.i$spatial.correlation.residuals$per.distance$p.value[1],
-        ranking.criteria = reference.moran.i - m.i$spatial.correlation.residuals$max.moran
+        moran.i = m.i$residuals$autocorrelation$max.moran,
+        p.value = m.i$residuals$autocorrelation$per.distance$p.value[1],
+        ranking.criteria = reference.moran.i - m.i$residuals$autocorrelation$max.moran
       )
 
     }

@@ -4,13 +4,13 @@
 \alias{get_predictions}
 \title{Gets model predictions}
 \usage{
-get_predictions(x)
+get_predictions(model)
 }
 \arguments{
-\item{x}{A model produced by \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}.}
+\item{model}{A model produced by \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}.}
 }
 \value{
-A data frame with predictions, or mean and standard deviation of the predictions if the model was fitted with \code{\link[=rf_repeat]{rf_repeat()}}.
+A vector with predictions, or median of the predictions across repetitions if the model was fitted with \code{\link[=rf_repeat]{rf_repeat()}}.
 }
 \description{
 Returns model predictions from a model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}.
@@ -28,7 +28,7 @@ rf.model <- rf(
   verbose = FALSE
 )
 
-x <- get_predictions(x = rf.model)
+x <- get_predictions(rf.model)
 x
 
 }

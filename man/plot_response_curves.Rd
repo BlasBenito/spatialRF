@@ -9,7 +9,8 @@ plot_response_curves(
   variables = NULL,
   quantiles = c(0.1, 0.5, 0.9),
   grid.resolution = 200,
-  ncol = NULL,
+  line.color = viridis::viridis(length(quantiles), option = "F", end = 0.9),
+  ncol = 2,
   show.data = FALSE,
   verbose = TRUE
 )
@@ -23,9 +24,11 @@ plot_response_curves(
 
 \item{grid.resolution}{Integer between 20 and 500. Resolution of the plotted curve Default: \code{100}}
 
-\item{ncol}{Integer, argument of \link[patchwork]{wrap_plots}. Defaults to the rounded squared root of the number of plots.}
+\item{line.color}{Character vector with colors, or function to generate colors for the lines representing \code{quantiles}. Must have the same number of colors as \code{quantiles} are defined. Default: \code{viridis::viridis(length(quantiles), option = "F", end = 0.9)}}
 
-\item{show.data}{Logical, if \code{TRUE}, the observed data is plotted along with the response curves. Default. \code{FALSE}}
+\item{ncol}{Integer, argument of \link[patchwork]{wrap_plots}. Defaults to the rounded squared root of the number of plots. Default: \code{2}}
+
+\item{show.data}{Logical, if \code{TRUE}, the observed data is plotted along with the response curves. Default: \code{FALSE}}
 
 \item{verbose}{Logical, if TRUE the plot is printed. Default: \code{TRUE}}
 }
@@ -58,5 +61,5 @@ p
 }
 }
 \seealso{
-\code{\link[=plot_response_surfaces]{plot_response_surfaces()}}
+\code{\link[=plot_response_surface]{plot_response_surface()}}
 }

@@ -13,7 +13,8 @@ test_that("`rf_evaluate()` works", {
     model = rf.model,
     xy = plant_richness_df[,c("x", "y")],
     verbose = FALSE,
-    n.cores = 1)
+    n.cores = 7
+    )
   expect_s3_class(rf.model, "rf_evaluate")
   expect_type(rf.model$evaluation, "list")
   expect_s3_class(rf.model$evaluation$per.fold, "data.frame")

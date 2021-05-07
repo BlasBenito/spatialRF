@@ -4,18 +4,17 @@
 \alias{get_performance}
 \title{Gets out-of-bag performance scores from a model}
 \usage{
-get_performance(x)
+get_performance(model)
 }
 \arguments{
-\item{x}{Model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}.}
+\item{model}{Model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}.}
 }
 \value{
 A data frame with four columns:
 \itemize{
 \item \code{metric} Name of the performance metric.
-\item \code{mean} Value of the performance metric. Truly a mean only if the model is fitted with \code{\link[=rf_repeat]{rf_repeat()}}.
-\item \code{standard_error} Standard error of the mean, only if the model is fitted with \code{\link[=rf_repeat]{rf_repeat()}}, and \code{NA} otherwise.
-\item \code{standard_deviation} Standard deviation of the mean, only if the model is fitted with \code{\link[=rf_repeat]{rf_repeat()}}, and \code{NA} otherwise.
+\item \code{median} Value of the performance metric. Truly a median only if the model is fitted with \code{\link[=rf_repeat]{rf_repeat()}}.
+\item \code{median_absolute_deviation} median absolute deviation (MAD), only if the model is fitted with \code{\link[=rf_repeat]{rf_repeat()}}, and \code{NA} otherwise.
 }
 }
 \description{

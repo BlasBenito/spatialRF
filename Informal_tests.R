@@ -1,47 +1,197 @@
 library(spatialRF)
+library(tictoc)
 
 #BASIC MODELS TO TEST OTHER THINGIES
 #############################################
 data(plant_richness_df)
 data(distance_matrix)
+xy <- plant_richness_df[, c("x", "y")]
 
-#basic model
-rf.model <- rf(
+#rf_interactions()
+#############################################
+interactions <- spatialRF::rf_interactions(
+  data = plant_richness_df,
+  dependent.variable.name = "richness_species_vascular",
+  predictor.variable.names = colnames(plant_richness_df)[5:21]
+)
+
+
+#rf()
+#############################################
+x <- rf(
   data = plant_richness_df,
   dependent.variable.name = "richness_species_vascular",
   predictor.variable.names = colnames(plant_richness_df)[5:21],
   distance.matrix = distance_matrix,
-  distance.thresholds = c(0, 1000, 2000),
-  seed = 50,
+  scaled.importance = TRUE,
   verbose = FALSE
 )
 
-plot_response_curves(rf.model)
-
-#with repetitions
-rf.repeat <- rf_repeat(
-  model = rf.model,
-  verbose = FALSE,
-  keep.models = TRUE
-  )
-
-rf.repeat <- rf_repeat(
-  model = rf.model,
-  verbose = FALSE,
-  keep.models = FALSE
+#local importance experiment
+##################################################
+ranger.arguments <- list(
+  local.importance = TRUE
 )
 
-p <- get_response_curves(rf.repeat)
+x.local <- rf(
+  data = plant_richness_df,
+  dependent.variable.name = "richness_species_vascular",
+  predictor.variable.names = colnames(plant_richness_df)[5:21],
+  distance.matrix = distance_matrix,
+  ranger.arguments = ranger.arguments,
+  scaled.importance = FALSE,
+  verbose = FALSE
+)
+
+randomForestExplainer::measure_importance(x.local)
+randomForestExplainer::min_depth_distribution(x.local) %>%
+  randomForestExplainer::plot_min_depth_distribution()
+
+local.importance <- cbind(
+  xy,
+  x.local$importance$local
+  ) %>%
+  tidyr::pivot_longer(
+    cols = colnames(plant_richness_df)[5:21],
+    names_to = "variable",
+    values_to = "importance"
+  ) %>%
+  dplyr::mutate(
+    importance = importance + abs(min(importance))
+  )
+
+world <- rnaturalearth::ne_countries(
+  scale = "medium",
+  returnclass = "sf"
+)
+
+ggplot2::ggplot() +
+  ggplot2::geom_sf(
+    data = world,
+    fill = "white"
+  ) +
+  ggplot2::facet_wrap("variable", ncol = 6) +
+  ggplot2::geom_point(
+    data = local.importance,
+    ggplot2::aes(
+      x = x,
+      y = y,
+      color = importance
+    )
+  ) +
+  ggplot2::scale_x_continuous(limits = c(-170, -30)) +
+  ggplot2::scale_y_continuous(limits = c(-58, 80)) +
+  viridis::scale_color_viridis(direction = -1) +
+  ggplot2::theme_bw() +
+  ggplot2::theme(legend.position = "bottom")
+
+
+
+plot_residuals_diagnostics(x)
+
+x <- rf_repeat(
+  model = x
+)
+
+#get plot and print functions
+get_importance(x)
+get_moran(x)
+get_performance(x)
+get_predictions(x)
+get_residuals(x)
+get_response_curves(x)
+plot_importance(x)
+plot_response_curves(x)
+print_importance(x)
+print_moran(x)
+print_performance(x)
+print(x)
+
+#evaluate
+x <- rf_evaluate(
+  model = x,
+  xy = xy
+)
+
+get_evaluation(x)
+print_evaluation(x)
+plot_evaluation(x)
+
+#tunning
+x <- rf_tuning(
+  model = x,
+  xy = xy
+)
+
+plot_tuning(x)
+
+#spatial
+x <- rf_spatial(
+  model = x
+)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#with repetitions
+x <- rf_repeat(
+  model = x,
+  verbose = FALSE
+  )
+
+#get plot and print functions
+get_importance(x)
+get_moran(x)
+get_performance(x)
+get_predictions(x)
+get_residuals(x)
+get_response_curves(x)
+plot_importance(x)
+plot_response_curves(x)
+print_importance(x)
+print_moran(x)
+print_performance(x)
+print(x)
 
 #spatial model
-rf.spatial <- rf_spatial(model = rf.model, verbose = FALSE)
+rf.spatial <- rf_spatial(
+  model = x,
+  verbose = TRUE
+  )
+
+get_spatial_predictors(rf.spatial)
+plot_optimization(rf.spatial)
 
 #from repeat
 rf.spatial.repeat <- rf_spatial(model = rf.repeat, verbose = FALSE)
 
 #rf_spatial from data
 #basic model
-rf.model <- rf_spatial(
+x <- rf_spatial(
   data = plant_richness_df,
   dependent.variable.name = "richness_species_vascular",
   predictor.variable.names = colnames(plant_richness_df)[5:21],
@@ -52,14 +202,14 @@ rf.model <- rf_spatial(
 )
 
 #trying rf_evaluate
-rf.model <- rf_evaluate(
-  model = rf.model,
+x <- rf_evaluate(
+  model = x,
   xy = plant_richness_df[, c("x", "y")],
   verbose = FALSE,
   metrics = "r.squared"
 )
-plot_evaluation(rf.model)
-get_evaluation(rf.model)
+plot_evaluation(x)
+get_evaluation(x)
 
 rf.repeat <- rf_evaluate(
   model = rf.repeat,
@@ -95,11 +245,11 @@ rf.interaction$selected
 
 #RESPONSE SURFACES
 p <- plot_response_surfaces(
-  model = rf.model
+  model = x
   )
 
 p <- plot_response_curves(
-  model = rf.model
+  model = x
 )
 
 p <- plot_response_surfaces(

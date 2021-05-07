@@ -1,6 +1,6 @@
 #' @title Gets performance data frame from a cross-validated model
 #' @description Returns performance metrics produced by [rf_evaluate()].
-#' @param x A model fitted with [rf_evaluate()].
+#' @param model A model fitted with [rf_evaluate()].
 #' @return A data frame with evaluation scores. The following columns are shown:
 #' \itemize{
 #'   \item `model`: Identifies the given model. The values are "Full", (original model introduced into [rf_evaluate()]), "Training" (model trained on an independent training spatial fold), and "Testing" (predictive performance of the training model on an independent testing spatial fold). The performance values of the "Testing" model represent the model performance on unseen data, and hence its ability to generalize.
@@ -31,22 +31,20 @@
 #'   verbose = FALSE
 #' )
 #'
-#' x <- get_evaluation(x = rf.model)
+#' x <- get_evaluation(rf.model)
 #' x
 #'
 #' }
 #' }
 #' @rdname get_evaluation
 #' @export
-get_evaluation <- function(x){
+get_evaluation <- function(model){
 
   #stop if no evaluation slot
-  if(!inherits(x, "rf_evaluate")){
+  if(!inherits(model, "rf_evaluate")){
     stop("Object 'x' does not have an 'evaluation' slot.")
   }
 
-  x <- x$evaluation$aggregated[, c("model", "metric", "mean", "sd", "min", "max")]
-
-  x
+  model$evaluation$aggregated
 
 }

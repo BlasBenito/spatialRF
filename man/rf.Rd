@@ -11,7 +11,7 @@ rf(
   distance.matrix = NULL,
   distance.thresholds = NULL,
   ranger.arguments = NULL,
-  scaled.importance = TRUE,
+  scaled.importance = FALSE,
   seed = NULL,
   verbose = TRUE
 )
@@ -29,7 +29,7 @@ rf(
 
 \item{ranger.arguments}{Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. The ranger arguments \code{x}, \code{y}, and \code{formula} are disabled. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.}
 
-\item{scaled.importance}{Logical, if \code{TRUE}, the function scales \code{data} with \link[base]{scale} and fits a new model to compute scaled variable importance scores. This makes variable importance scores of different models somewhat comparable. Default: \code{TRUE}}
+\item{scaled.importance}{Logical, if \code{TRUE}, the function scales \code{data} with \link[base]{scale} and fits a new model to compute scaled variable importance scores. This makes variable importance scores of different models somewhat comparable. Default: \code{FALSE}}
 
 \item{seed}{Integer, random seed to facilitate reproducibility. If set to a given number, the returned model is always the same. Default: \code{NULL}}
 
@@ -39,10 +39,9 @@ rf(
 A ranger model with several new slots:
 \itemize{
 \item \code{ranger.arguments}: Stores the values of the arguments used to fit the ranger model.
-\item \code{variable.importance}: A list containing a data frame with the predictors ordered by their importance, and a ggplot showing the importance values.
+\item \code{importance}: A list containing a data frame with the predictors ordered by their importance, a ggplot showing the importance values, and local importance scores (difference in accuracy between permuted and non permuted variables for every case, computed on the out-of-bag data).
 \item \code{performance}: performance scores: R squared on out-of-bag data, R squared (cor(observed, predicted) ^ 2), pseudo R squared (cor(observed, predicted)), RMSE, and normalized RMSE (NRMSE).
-\item \code{residuals}: computed as observations minus predictions.
-\item \code{spatial.correlation.residuals}: the result of \code{\link[=moran_multithreshold]{moran_multithreshold()}} applied to the model results.
+\item \code{residuals}: residuals, normality test of the residuals computed with \code{\link[=residuals_test]{residuals_test()}}, and spatial autocorrelation of the residuals computed with \code{\link[=moran_multithreshold]{moran_multithreshold()}}.
 }
 }
 \description{
@@ -69,10 +68,10 @@ if(interactive()){
  class(out)
 
  #data frame with ordered variable importance
- out$variable.importance$per.variable
+ out$importance$per.variable
 
  #variable importance plot
- out$variable.importance$per.variable.plot
+ out$importance$per.variable.plot
 
  #performance
  out$performance

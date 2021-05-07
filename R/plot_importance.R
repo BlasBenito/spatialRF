@@ -3,9 +3,18 @@
 #' @usage
 #' plot_importance(
 #'   model,
+#'   fill.color = viridis::viridis(
+#'     100,
+#'     option = "F",
+#'     direction = -1,
+#'     alpha = 0.8
+#'    ),
+#'   line.color = "gray30",
 #'   verbose = TRUE
 #' )
 #' @param model A model fitted with [rf()], [rf_repeat()], or [rf_spatial()].
+#' @param fill.color Character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. `viridis::viridis(100)`). Default: `viridis::viridis(100, option = "F", direction = -1)`
+#' @param line.color Character string, color of the line produced by `ggplot2::geom_smooth()`. Default: `"gray30"`
 #' @param verbose Logical, if `TRUE`, the plot is printed. Default: `TRUE`
 #' @return A ggplot.
 #' @seealso [print_importance()], [get_importance()]
@@ -32,8 +41,16 @@
 #' @rdname plot_importance
 #' @export
 #' @importFrom ggplot2 ggplot aes geom_point scale_fill_viridis_c ylab xlab theme geom_boxplot scale_fill_viridis_d
+#' @importFrom grDevices colorRampPalette
 plot_importance <- function(
   model,
+  fill.color = viridis::viridis(
+    100,
+    option = "F",
+    direction = -1,
+    alpha = 0.8
+  ),
+  line.color = "gray30",
   verbose = TRUE
   ){
 
@@ -46,17 +63,17 @@ plot_importance <- function(
 
     #importance from rf
     if(inherits(model, "rf") & !inherits(model, "rf_spatial") & !inherits(model, "rf_repeat")){
-      x <- model$variable.importance$per.variable
+      x <- model$importance$per.variable
     }
 
     #importance from rf_repeat
     if(inherits(model, "rf_repeat") & !inherits(model, "rf_spatial")){
-      x <- model$variable.importance$per.repetition
+      x <- model$importance$per.repetition
     }
 
     #importance from rf_spatial and rf
     if(inherits(model, "rf_spatial")){
-      x <- model$variable.importance$spatial.predictors
+      x <- model$importance$spatial.predictors
     }
 
   } else {
@@ -79,10 +96,14 @@ plot_importance <- function(
         ),
         fill = importance
       ) +
-      ggplot2::geom_point(size = 4, shape = 21) +
-      ggplot2::scale_fill_viridis_c(direction = -1, alpha = 0.8) +
+      ggplot2::geom_point(
+        size = 4,
+        shape = 21,
+        color = line.color
+        ) +
+      ggplot2::scale_fill_gradientn(colors = fill.color) +
       ggplot2::ylab("") +
-      ggplot2::xlab("Variable importance") +
+      ggplot2::xlab("Mean error increase when permuted") +
       ggplot2::theme_bw() +
       ggplot2::theme(legend.position = "none")
 
@@ -90,6 +111,18 @@ plot_importance <- function(
 
     #no "spatial_predictors" in variable, rf_repeat
     if(!("spatial_predictors" %in% x$variable)){
+
+      #adapting palette
+      n.variables <- length(unique(x$variable))
+      if(length(fill.color) != 1){
+        if(length(fill.color) > length(n.variables)){
+          fill.colors.function <- grDevices::colorRampPalette(
+            fill.color,
+            alpha = TRUE
+            )
+          fill.color <- fill.colors.function(n.variables)
+        }
+      }
 
       p <- ggplot2::ggplot(data = x) +
         ggplot2::aes(
@@ -105,13 +138,13 @@ plot_importance <- function(
             FUN = stats::median
           )
         ) +
-        ggplot2::geom_violin(draw_quantiles = 0.5) +
-        ggplot2::scale_fill_viridis_d(
-          direction = -1,
-          alpha = 0.5
+        ggplot2::geom_violin(
+          draw_quantiles = 0.5,
+          color = line.color
           ) +
+        ggplot2::scale_fill_manual(values = fill.color) +
         ggplot2::ylab("") +
-        ggplot2::xlab("Variable importance") +
+        ggplot2::xlab("Mean error increase when permuted") +
         ggplot2::theme_bw() +
         ggplot2::theme(legend.position = "none")
 
@@ -133,15 +166,31 @@ plot_importance <- function(
             ),
             fill = importance
           ) +
-          ggplot2::geom_point(size = 4, shape = 21) +
-          ggplot2::scale_fill_viridis_c(direction = -1, alpha = 0.5) +
+          ggplot2::geom_point(
+            size = 4,
+            shape = 21,
+            color = line.color
+          ) +
+          ggplot2::scale_fill_gradientn(colors = fill.color) +
           ggplot2::ylab("") +
-          ggplot2::xlab("Variable importance") +
+          ggplot2::xlab("Mean error increase when permuted") +
           ggplot2::theme_bw() +
           ggplot2::theme(legend.position = "none")
 
         #rf_spatial rf_repeat
       } else {
+
+        #adapting palette
+        n.variables <- length(unique(x$variable))
+        if(length(fill.color) != 1){
+          if(length(fill.color) > length(n.variables)){
+            fill.colors.function <- grDevices::colorRampPalette(
+              fill.color,
+              alpha = TRUE
+              )
+            fill.color <- fill.colors.function(n.variables)
+          }
+        }
 
         p <- ggplot2::ggplot(data = x) +
           ggplot2::aes(
@@ -149,19 +198,21 @@ plot_importance <- function(
             y = reorder(
               variable,
               importance,
-              FUN = mean
+              FUN = median
             ),
             fill = reorder(
               variable,
               importance,
-              FUN = mean
+              FUN = median
             )
           ) +
-          ggplot2::geom_violin(draw_quantiles = 0.5) +
-          ggplot2::geom_violin(trim=FALSE) +
-          ggplot2::scale_fill_viridis_d(direction = -1, alpha = 0.5) +
+          ggplot2::geom_violin(
+            draw_quantiles = 0.5,
+            color = line.color
+            ) +
+          ggplot2::scale_fill_manual(values = fill.color) +
           ggplot2::ylab("") +
-          ggplot2::xlab("Variable importance") +
+          ggplot2::xlab("Mean error increase when permuted") +
           ggplot2::theme_bw() +
           ggplot2::theme(legend.position = "none")
 

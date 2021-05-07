@@ -1,6 +1,6 @@
-#' @title Gets importance data frame from a model
+#' @title Gets the global importance data frame from a model
 #' @description Gets variable importance scores from [rf()], [rf_repeat()], and [rf_spatial()] models.
-#' @param x A model fitted with [rf()], [rf_repeat()], or [rf_spatial()]. Default: NULL
+#' @param model A model fitted with [rf()], [rf_repeat()], or [rf_spatial()]. Default: NULL
 #' @return A data frame with variable names and importance scores.
 #' @seealso [rf()], [rf_repeat()], [rf_spatial()], [plot_importance()], [print_importance()].
 #' @examples
@@ -19,42 +19,42 @@
 #'   verbose = FALSE
 #' )
 #'
-#' x <- get_importance(x = rf.model)
+#' x <- get_importance(rf.model)
 #' x
 #'
 #' }
 #' }
 #' @rdname get_importance
 #' @export
-get_importance <- function(x){
+get_importance <- function(model){
 
   #declaring variables
   importance <- NULL
 
   #importance from rf
-  if((inherits(x, "rf") & !inherits(x, "rf_spatial")) | (inherits(x, "rf_repeat") & !inherits(x, "rf_spatial"))){
-    x <- x$variable.importance$per.variable
+  if((inherits(model, "rf") & !inherits(model, "rf_spatial")) | (inherits(model, "rf_repeat") & !inherits(model, "rf_spatial"))){
+    x <- model$importance$per.variable
   }
 
   #importance from rf_repeat
-  if(inherits(x, "rf_spatial")){
+  if(inherits(model, "rf_spatial")){
 
-    if(!is.null(x$ranger.arguments$repetitions)){
-      repetitions <- x$ranger.arguments$repetitions
+    if(!is.null(model$ranger.arguments$repetitions)){
+      repetitions <- model$ranger.arguments$repetitions
     } else {
       repetitions <- 1
     }
 
     #count non-spatial predictors
-    length.non.spatial.predictors <- sum(x$variable.importance$spatial.predictors$variable != "spatial_predictors") / repetitions
+    length.non.spatial.predictors <- sum(model$importance$spatial.predictors$variable != "spatial_predictors") / repetitions
 
-    length.spatial.predictors <- sum(x$variable.importance$spatial.predictors$variable == "spatial_predictors") / repetitions
+    length.spatial.predictors <- sum(model$importance$spatial.predictors$variable == "spatial_predictors") / repetitions
 
     #get spatial.predictor.stats if too many spatial predictors
     if(length.spatial.predictors >= length.non.spatial.predictors){
-      x <- x$variable.importance$spatial.predictor.stats
+      x <- model$importance$spatial.predictor.stats
     } else {
-      x <- x$variable.importance$per.variable
+      x <- model$importance$per.variable
     }
   }
 

@@ -4,10 +4,10 @@
 \alias{get_evaluation}
 \title{Gets performance data frame from a cross-validated model}
 \usage{
-get_evaluation(x)
+get_evaluation(model)
 }
 \arguments{
-\item{x}{A model fitted with \code{\link[=rf_evaluate]{rf_evaluate()}}.}
+\item{model}{A model fitted with \code{\link[=rf_evaluate]{rf_evaluate()}}.}
 }
 \value{
 A data frame with evaluation scores. The following columns are shown:
@@ -43,7 +43,7 @@ rf.model <- rf_evaluate(
   verbose = FALSE
 )
 
-x <- get_evaluation(x = rf.model)
+x <- get_evaluation(rf.model)
 x
 
 }
