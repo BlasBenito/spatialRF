@@ -74,17 +74,21 @@ If after considering these limitations you are still interested, follow me, I wi
 
 # Install
 
+<<<<<<< HEAD
 The package is not yet in the CRAN repositories, so at the moment it must be installed from GitHub as follows. There are several branches in the repository:
 
   + `main`: latest stable version (1.1.0 currently).
   + `development` contains the development version, usually very broken. Do not install from here!
   + `v.1.0.9`: previous functional version.
   + `v.1.1.0`: latest release.
+=======
+The package is not yet in the CRAN repositories, so at the moment it must be installed from GitHub as follows. Notice that there are two branches in the GitHub repository, "main" and "development". If you install it from "development", things will likely go wrong! Please, install it from "main" even if the code chunk below says otherwise!
+>>>>>>> main
 
 ```{r, message = FALSE, eval = TRUE}
 remotes::install_github(
   repo = "blasbenito/spatialRF", 
-  ref = "development",
+  ref = "main",
   force = TRUE
   )
 library(spatialRF)
@@ -680,8 +684,45 @@ model.non.spatial.repeat
 ```
 And the function `get_performance()` offers a nice summary with the median and the median absolute deviation.
 
+<<<<<<< HEAD
 ```{r}
 spatialRF::print_performance(model.non.spatial.repeat)
+=======
+```{r, echo = FALSE, warning = FALSE, message=FALSE}
+kableExtra::kbl(
+  head(reponse.curves.df, n = 10),
+  format = "markdown"
+) %>%
+  kableExtra::kable_paper("hover", full_width = F)
+```
+
+# Tuning Random Forest hyperparameters
+
+The model fitted above was based on the default hyperparameter values provided by `ranger()`, and those might not be the most adequate ones for a given dataset. The function [`rf_tuning()`](https://blasbenito.github.io/spatialRF/reference/rf_tuning.html) helps the user to choose sensible values for three Random Forest hyperparameters that are critical to model performance:
+
+-   `num.trees`: number of regression trees in the forest.
+-   `mtry`: number of variables to choose from on each tree split.
+-   `min.node.size`: minimum number of cases on a terminal node.
+
+Model tuning is done via spatial cross-validation, to ensure that the selected combination of hyperparameters maximizes the ability of the model to predict data not used to train it.
+
+```{r, fig.width=6, fig.height=4.5}
+model.non.spatial.tuned <- spatialRF::rf_tuning(
+  model = model.non.spatial,
+  xy = plant_richness_df[, c("x", "y")],
+  repetitions = 30,
+  training.fraction = 0.75,
+  num.trees = c(500, 1000),
+  mtry = seq(
+    2, 
+    14, #equal or lower than the number of predictors
+    by = 3
+    ),
+  min.node.size = c(5, 15),
+  seed = random.seed,
+  verbose = FALSE
+) 
+>>>>>>> main
 ```
 
 
@@ -819,10 +860,89 @@ model.spatial.tuned <- rf_tuning(
     length(model.spatial$ranger.arguments$predictor.variable.names), #number of predictors
     by = 9),
   min.node.size = c(5, 15),
-  seed = random.seed
+  seed = random.seed,
+  verbose = FALSE
 )
 ```
 
+<<<<<<< HEAD
+=======
+# Assessing model performance on spatially independent folds
+
+The function [`rf_evaluate()`](https://blasbenito.github.io/spatialRF/reference/rf_evaluate.html) separates the training data into a number of spatially independent training and testing folds, fits a model on each training fold, predicts over each testing fold, and computes performance measures, to finally aggregate them across model repetitions. Let's see how it works.
+
+```{r}
+model.spatial.tuned <- spatialRF::rf_evaluate(
+  model = model.spatial.tuned,
+  xy = plant_richness_df[, c("x", "y")], #data coordinates
+  repetitions = 30,                      #number of folds
+  training.fraction = 0.8,               #training data fraction
+  metrics = c("r.squared", "rmse"),
+  seed = random.seed,
+  verbose = FALSE
+)
+```
+
+The function generates a new slot in the model named "evaluation" with several objects that summarize the spatial cross-validation results.
+
+```{r}
+names(model.spatial.tuned$evaluation)
+```
+
+The slot "spatial.folds", produced by [`make_spatial_folds()`](https://blasbenito.github.io/spatialRF/reference/make_spatial_folds.html), contains the indices of the training and testing cases for each cross-validation repetition. The maps below show two sets of training and testing spatial folds.
+
+```{r, echo=FALSE, fig.width=10, fig.height=5}
+pr <- plant_richness_df[, c("x", "y")]
+pr$group.2 <- pr$group.1 <- "Training"
+pr[model.spatial.tuned$evaluation$spatial.folds[[1]]$testing, "group.1"] <- "Testing"
+pr[model.spatial.tuned$evaluation$spatial.folds[[25]]$testing, "group.2"] <- "Testing"
+
+p1 <- ggplot2::ggplot() +
+  ggplot2::geom_sf(data = world, fill = "white") +
+  ggplot2::geom_point(data = pr,
+          ggplot2::aes(
+            x = x,
+            y = y,
+            color = group.1
+            ),
+          size = 2.5
+          ) +
+  ggplot2::scale_color_viridis_d(direction = -1, end = 0.8, alpha = 0.6) +
+  ggplot2::theme_bw() +
+  ggplot2::labs(color = "Group") +
+  ggplot2::scale_x_continuous(limits = c(-170, -30)) +
+  ggplot2::scale_y_continuous(limits = c(-58, 80))  +
+  ggplot2::ggtitle("Spatial fold 1") + 
+  ggplot2::theme(legend.position = "none") + 
+  ggplot2::xlab("Longitude") + 
+  ggplot2::ylab("Latitude")
+
+p2 <- ggplot2::ggplot() +
+  ggplot2::geom_sf(data = world, fill = "white") +
+  ggplot2::geom_point(data = pr,
+          ggplot2::aes(
+            x = x,
+            y = y,
+            color = group.2
+            ),
+          size = 2.5
+          ) +
+  ggplot2::scale_color_viridis_d(direction = -1, end = 0.8, alpha = 0.6) +
+  ggplot2::theme_bw() +
+  ggplot2::labs(color = "Group") +
+  ggplot2::scale_x_continuous(limits = c(-170, -30)) +
+  ggplot2::scale_y_continuous(limits = c(-58, 80)) +
+  ggplot2::ggtitle("Spatial fold 25") + 
+  ggplot2::xlab("Longitude") + 
+  ggplot2::ylab("")
+
+p1 | p2
+```
+
+
+The low R squared yielded by the model evaluation shows that the spatial model is hard to transfer outside of the training space, because spatial structures are not transferable when the data is irregularly distributed, as it is the case with the dataset `plant_richness_df`. The comparison below shows how non-spatial models may show better (not bad, not great) evaluation scores on independent spatial folds.
+
+>>>>>>> main
 # Comparing several models
 
 The function [`rf_compare()`](https://blasbenito.github.io/spatialRF/reference/rf_compare.html) takes named list with as many models as the user needs to compare, and applies `rf_evaluate()` to each one of them to compare their predictive performances across spatial folds.
