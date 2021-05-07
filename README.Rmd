@@ -74,16 +74,12 @@ If after considering these limitations you are still interested, follow me, I wi
 
 # Install
 
-<<<<<<< HEAD
-The package is not yet in the CRAN repositories, so at the moment it must be installed from GitHub as follows. Notice that there are two branches in the GitHub repository, "main" and "development". If you install it from "development", things will likely go wrong! Please, install it from "main" even if the code chunk below says otherwise!
-=======
 The package is not yet in the CRAN repositories, so at the moment it must be installed from GitHub as follows. There are several branches in the repository:
 
   + `main`: latest stable version (1.1.0 currently).
-  + `development` contains the development version, usually very broken. Do not install from here!
-  + `v.1.0.9`: previous functional version.
-  + `v.1.1.0`: latest release.
->>>>>>> development
+  + `development`: development version, usually very broken.
+  + `v.1.0.9`: archived version.
+  + `v.1.1.0`: archived version.
 
 ```{r, message = FALSE, eval = TRUE}
 remotes::install_github(
@@ -223,8 +219,10 @@ interactions <- spatialRF::rf_interactions(
 
 ```{r, echo = FALSE, fig.width = 8, fig.height = 3}
 kableExtra::kbl(
-  interactions$selected
-)
+  interactions$selected,
+  format = "html"
+) %>%
+  kableExtra::kable_paper("hover", full_width = F)
 patchwork::wrap_plots(interactions$plot)
 ```
 
@@ -719,10 +717,6 @@ model.non.spatial.tuned <- spatialRF::rf_tuning(
   seed = random.seed,
   verbose = FALSE
 ) 
-=======
-```{r}
-spatialRF::print_performance(model.non.spatial.repeat)
->>>>>>> development
 ```
 
 
@@ -941,8 +935,6 @@ p1 | p2
 
 The low R squared yielded by the model evaluation shows that the spatial model is hard to transfer outside of the training space, because spatial structures are not transferable when the data is irregularly distributed, as it is the case with the dataset `plant_richness_df`. The comparison below shows how non-spatial models may show better (not bad, not great) evaluation scores on independent spatial folds.
 
-=======
->>>>>>> development
 # Comparing several models
 
 The function [`rf_compare()`](https://blasbenito.github.io/spatialRF/reference/rf_compare.html) takes named list with as many models as the user needs to compare, and applies `rf_evaluate()` to each one of them to compare their predictive performances across spatial folds.
