@@ -39,7 +39,7 @@
 #'   \item `variable.importance`: A list containing the vector of variable importance as originally returned by ranger (scaled or not depending on the value of 'scaled.importance'), a data frame with the predictors ordered by their importance, and a ggplot showing the importance values.
 #'   \item `performance`: With the out-of-bag R squared, pseudo R squared, RMSE and NRMSE of the model.
 #'   \item `residuals`: residuals, normality test of the residuals computed with [residuals_test()], and spatial autocorrelation of the residuals computed with [moran_multithreshold()].
-#'   \item `selection.spatial.predictors`: A list with four slots:
+#'   \item `spatial`: A list with four slots:
 #'   \itemize{
 #'     \item `method`: Character, method used to generate, rank, and select spatial predictors.
 #'     \item `names`: Character vector with the names of the selected spatial predictors. Not returned if the method is "hengl".
@@ -663,14 +663,15 @@ rf_spatial <- function(
   model.spatial$importance <- prepare_importance_spatial(x = model.spatial)
 
   #adding spatial method and predictors to the model
-  model.spatial$selection.spatial.predictors <- list()
-  model.spatial$selection.spatial.predictors$method <- method
-  model.spatial$selection.spatial.predictors$names <- spatial.predictors.selected
+  model.spatial$spatial <- list()
+  model.spatial$spatial$method <- method
+  model.spatial$spatial$names <- spatial.predictors.selected
+  model.spatial$spatial$spatial.predictors <- spatial.predictors.df
 
   if(exists("spatial.predictors.selection")){
 
-    model.spatial$selection.spatial.predictors$optimization <- spatial.predictors.selection$optimization
-    model.spatial$selection.spatial.predictors$plot <- plot_optimization(
+    model.spatial$spatial$optimization <- spatial.predictors.selection$optimization
+    model.spatial$spatial$plot <- plot_optimization(
       spatial.predictors.selection$optimization,
       verbose = FALSE
     )

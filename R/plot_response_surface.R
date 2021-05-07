@@ -71,7 +71,7 @@ plot_response_surface <- function(
   response.variable <- model$ranger.arguments$dependent.variable.name
   predictors <- model$ranger.arguments$predictor.variable.names
   if(inherits(model, "rf_spatial")){
-    predictors <- predictors[!(predictors %in% model$selection.spatial.predictors$names)]
+    predictors <- predictors[!(predictors %in% model$spatial$names)]
   }
 
   #default values for a and b

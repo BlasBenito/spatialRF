@@ -31,7 +31,7 @@
 #'   verbose = FALSE
 #' )
 #'
-#' x <- get_evaluation(x = rf.model)
+#' x <- get_evaluation(rf.model)
 #' x
 #'
 #' }

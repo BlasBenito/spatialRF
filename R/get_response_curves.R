@@ -65,7 +65,7 @@ get_response_curves <- function(
   predictors <- model$ranger.arguments$predictor.variable.names
   if(inherits(model, "rf_spatial")){
 
-    predictors <- predictors[!(predictors %in% model$selection.spatial.predictors$names)]
+    predictors <- predictors[!(predictors %in% model$spatial$names)]
 
   }
 

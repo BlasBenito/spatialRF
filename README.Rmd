@@ -612,7 +612,7 @@ The information available in this new slot can be accessed with the functions [`
 spatialRF::plot_evaluation(model.non.spatial)
 ```
 
-`Full` represents the R squared of the model trained on the full dataset. `Training` are the R-squared of the models fitted on the spatial folds (labelled `Training` in the maps above), and `Testing` are the R-squared of the same models on "unseen" data (data not used to train the model, labelled `Testing` in the maps above). The median, median absolute deviation, minimum, and maximum R-squared values on the testing folds can be printed with `print_evaluation()`.
+`Full` represents the R squared of the model trained on the full dataset. `Training` are the R-squared of the models fitted on the spatial folds (named `Training` in the maps above), and `Testing` are the R-squared of the same models on "unseen" data (data not used to train the model, named `Testing` in the maps above). The median, median absolute deviation, minimum, and maximum R-squared values on the testing folds can be printed with `print_evaluation()`.
 
 ```{r, fig.height = 2, fig.width=4.5}
 spatialRF::print_evaluation(model.non.spatial)
@@ -631,7 +631,7 @@ predicted <- stats::predict(
 ```
 
 
-# Repeating a model execution
+## Repeating a model execution
 
 Random Forest is an stochastic algorithm that yields slightly different results on each run unless a random seed is set. This particularity has implications for the interpretation of variable importance scores. For example, in the plot above, the difference in importance between the predictors `climate_hypervolume` and `climate_bio1_average_X_bias_area_km2` could be just the result of chance. The function [`rf_repeat()`](https://blasbenito.github.io/spatialRF/reference/rf_repeat.html) repeats a model execution and yields the distribution of importance scores of the predictors across executions.
 
@@ -658,6 +658,7 @@ spatialRF::plot_importance(
   verbose = FALSE
   )
 ```
+
 The response curves of models fitted with `rf_repeat()` can be plotted with `plot_response_curves()` as well. The median prediction is shown with a thicker line.
 
 ```{r, fig.width = 9, fig.height=7}
@@ -700,7 +701,9 @@ model.spatial <- spatialRF::rf_spatial(
   )
 ```
 
-The plot below shows the Moran's I of the residuals of the spatial model. It indicates that the residuals are not autocorrelated at a distance of 0 km.
+The function `rf_spatial()` adds the slot **spatial**. Keep going to better understand what can be found in this slot before taking a look at it!
+
+The plot below shows the Moran's I of the residuals of the spatial model. It indicates that the residuals are not autocorrelated at a distance of 0 km any longer.
 
 ```{r, fig.width=4, fig.height=2.5, message=FALSE, warning=FALSE}
 spatialRF::plot_moran(
@@ -708,7 +711,6 @@ spatialRF::plot_moran(
   verbose = FALSE
   )
 ```
-
 If we compare the variable importance plots of both models, we can see that the spatial model has an additional set of dots under the name "spatial_predictors", and that the maximum importance of a few of these *spatial predictors* matches the importance of the most relevant non-spatial predictors.
 
 ```{r, fig.width=10, fig.height=4.5}
@@ -729,7 +731,7 @@ If we take a look to the ten most important variables in `model.spatial` we will
 
 ```{r, echo = FALSE, warning = FALSE, message=FALSE}
 kableExtra::kbl(
-  head(model.spatial$variable.importance$per.variable, n = 10),
+  head(model.spatial$importance$per.variable, n = 10),
   format = "html"
 ) %>%
   kableExtra::kable_paper("hover", full_width = F)
@@ -787,11 +789,12 @@ p1 | p2
 
 ```
 
-The spatial predictors are included in the model one by one in the order of their Moran's I (spatial predictors with Moran's I lower than 0 are removed). The subset of spatial predictors maximizing the model's R squared on the out-of-bag data, and minimizing the Moran's I of the residuals and the number of spatial predictors required by the model are selected, as shown in the optimization plot below (dots linked by lines represent the selected spatial predictors). The selection procedure is performed by the function [`select_spatial_predictors_sequential()`](https://blasbenito.github.io/spatialRF/reference/select_spatial_predictors_sequential.html).
+The spatial predictors are included in the model one by one, in the order of their Moran's I (spatial predictors with Moran's I lower than 0 are removed). The selection procedure is performed by the function [`select_spatial_predictors_sequential()`](https://blasbenito.github.io/spatialRF/reference/select_spatial_predictors_sequential.html). It finds the smaller subset of spatial predictors maximizing the model's R squared, and minimizing the Moran's I of the residuals. This is shown in the optimization plot below (dots linked by lines represent the selected spatial predictors). 
 
 ```{r, echo=FALSE, fig.width=6, fig.height=4}
 p <- spatialRF::plot_optimization(model.spatial)
 ```
+
 
 # Tuning Random Forest hyperparameters
 

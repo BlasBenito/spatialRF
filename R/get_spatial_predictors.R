@@ -31,8 +31,6 @@ get_spatial_predictors <- function(model){
     stop("This function only works on models fitted with 'rf_spatial'")
   }
 
-  spatial.predictors.order <- model$importance$per.variable$variable[model$importance$per.variable$variable %in% model$selection.spatial.predictors$names]
-
-  model$ranger.arguments$data[, spatial.predictors.order, drop = FALSE]
+  model$spatial$spatial.predictors
 
 }

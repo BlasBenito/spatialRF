@@ -15,7 +15,7 @@
 #'   verbose = FALSE
 #' )
 #'
-#' x <- get_predictions(x = rf.model)
+#' x <- get_predictions(rf.model)
 #' x
 #'
 #' }

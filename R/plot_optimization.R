@@ -37,7 +37,7 @@ plot_optimization <- function(
 
   #getting optimization df from the model
   if(inherits(model, "rf_spatial")){
-    x <- model$selection.spatial.predictors$optimization
+    x <- model$spatial$optimization
   } else {
     x <- model
   }

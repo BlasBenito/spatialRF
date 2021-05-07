@@ -100,7 +100,7 @@ rf_tuning <- function(
 
   #saving slots if it's an rf_spatial model
   if(inherits(model, "rf_spatial")){
-    selection.spatial.predictors <- model$selection.spatial.predictors
+    spatial <- model$spatial
   }
 
   #mtry
@@ -467,7 +467,7 @@ rf_tuning <- function(
     #adding selection of spatial predictors
     if(inherits(model, "rf_spatial")){
 
-      model.tuned$selection.spatial.predictors <- selection.spatial.predictors
+      model.tuned$spatial <- spatial
 
     }
 

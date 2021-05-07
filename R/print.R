@@ -35,7 +35,7 @@ print.rf <- function(x, ...) {
     cat("  - Repetitions:                     ", x$ranger.arguments$repetitions, "\n", sep="")
     }
     if(inherits(x, "rf_spatial")){
-    cat("  - rf_spatial() method:             ", x$selection.spatial.predictors$method, "\n", sep="")
+    cat("  - rf_spatial() method:             ", x$spatial$method, "\n", sep="")
     }
     cat("  - Response variable:               ", x$ranger.arguments$dependent.variable.name, "\n", sep="")
 

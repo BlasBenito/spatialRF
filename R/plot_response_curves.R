@@ -84,7 +84,7 @@ plot_response_curves <- function(
 
   #removing spatial predictors
   if(inherits(model, "rf_spatial")){
-    predictors <- predictors[!(predictors %in% model$selection.spatial.predictors$names)]
+    predictors <- predictors[!(predictors %in% model$spatial$names)]
   }
 
   #default values for variables
