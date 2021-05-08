@@ -133,7 +133,7 @@ random.seed <- 100
 
 The response variable of `plant_richness_df` is "richness_species_vascular", that represents the total count of vascular plant species found on each ecoregion. The figure below shows the centroids of each ecoregion along with their associated value of the response variable.
 
-```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.width=6, fig.height=5.5}
+```{r, echo=TRUE, message=FALSE, warning=FALSE, fig.width=6, fig.height=5.5}
 world <- rnaturalearth::ne_countries(
   scale = "medium", 
   returnclass = "sf"
@@ -170,7 +170,7 @@ The predictors (columns 5 to 21) represent diverse factors that may influence pl
 
 **Note:** Every plotting function in the package now allows changing the colors of their main features via specific arguments such as `point.color`, `line.color`, or `fill.color`.
 
-```{r, echo = FALSE, fig.width=10, fig.height=14}
+```{r, echo=TRUE, fig.width=10, fig.height=14}
 spatialRF::plot_training_df(
   data = plant_richness_df,
   dependent.variable.name = dependent.variable.name,
@@ -183,7 +183,7 @@ spatialRF::plot_training_df(
 
 The function [`plot_training_df_moran()`](https://blasbenito.github.io/spatialRF/reference/plot_training_df_moran.html) helps assessing the spatial autocorrelation of the response variable and the predictors across different distance thresholds. Low Moran's I and p-values equal or larger than 0.05 indicate that there is no spatial autocorrelation for the given variable and distance threshold.
 
-```{r, echo = FALSE, fig.width=10, fig.height=5}
+```{r, echo=TRUE, fig.width=10, fig.height=5}
 spatialRF::plot_training_df_moran(
   data = plant_richness_df,
   dependent.variable.name = dependent.variable.name,
@@ -217,7 +217,7 @@ interactions <- spatialRF::rf_interactions(
   )
 ```
 
-```{r, echo = FALSE, fig.width = 8, fig.height = 3}
+```{r, echo=TRUE, fig.width = 8, fig.height = 3}
 kableExtra::kbl(
   interactions$selected,
   format = "html"
@@ -340,7 +340,7 @@ importance.df <- randomForestExplainer::measure_importance(
   )
 ```
 
-```{r, echo = FALSE}
+```{r, echo=TRUE}
 kableExtra::kbl(
   importance.df %>% 
     dplyr::arrange(mean_min_depth) %>% 
@@ -360,7 +360,7 @@ local.importance <- spatialRF::get_importance_local(model.non.spatial)
 
 The table below shows the first few records and columns. Larger values indicate larger average errors when estimating a case with the permuted version of the variable, so more important variables will show larger values.
 
-```{r, echo = FALSE}
+```{r, echo=TRUE}
 kableExtra::kbl(
   round(local.importance[1:10, 1:5], 0),
   format = "html"
@@ -379,7 +379,7 @@ local.importance <- cbind(
 ```
 
 
-```{r, echo=FALSE, fig.width=8, fig.height=5}
+```{r, echo=TRUE, fig.width=8, fig.height=5}
 #plot of climate_bio1_average
 p1 <- ggplot2::ggplot() +
   ggplot2::geom_sf(
@@ -449,7 +449,7 @@ spatialRF::plot_response_curves(
   model.non.spatial,
   quantiles = c(0.1, 0.5, 0.9),
   line.color = viridis::viridis(
-    3, #same colors as quantiles
+    3, #same number of colors as quantiles
     option = "F", 
     end = 0.9
     ),
@@ -486,7 +486,7 @@ If you need to do your own plots in a different way, the function [`get_response
 reponse.curves.df <- spatialRF::get_response_curves(model.non.spatial)
 ```
 
-```{r, echo = FALSE, warning = FALSE, message=FALSE}
+```{r, echo=TRUE, warning = FALSE, message=FALSE}
 kableExtra::kbl(
   head(reponse.curves.df, n = 10),
   format = "html"
@@ -551,7 +551,7 @@ names(model.non.spatial$evaluation)
 
 The slot "spatial.folds", produced by [`make_spatial_folds()`](https://blasbenito.github.io/spatialRF/reference/make_spatial_folds.html), contains the indices of the training and testing cases for each cross-validation repetition. The maps below show two sets of training and testing folds.
 
-```{r, echo=FALSE, fig.width=10, fig.height=5}
+```{r, echo=TRUE, fig.width=10, fig.height=5}
 pr <- plant_richness_df[, c("x", "y")]
 pr$group.2 <- pr$group.1 <- "Training"
 pr[model.non.spatial$evaluation$spatial.folds[[1]]$testing, "group.1"] <- "Testing"
@@ -653,7 +653,7 @@ model.non.spatial.repeat <- rf_repeat(
 )
 ```
 
-Notice that the argument `model`, present in several functions of the package, takes a fitted model as input. Such fitted model already has the training data, the names of the response and the predictors, the distance matrix, the distance thresholds, and the hyperparameters used to fit the model, all stored in the slot `ranger.arguments`.
+Notice that the argument `model`, present in several functions of the package, takes a fitted model as input. Such fitted model already has the training data, the names of the response and the predictors, the distance matrix, the distance thresholds, and the hyperparameters used to fit the model, all stored in the slot `ranger.arguments`. All modeling functions in the package use the values stored in this slot to make it easy for the user to move a model from one function to the other.
 
 ```{r}
 names(model.non.spatial$ranger.arguments)
@@ -677,50 +677,11 @@ spatialRF::plot_response_curves(
   ncol = 3
   )
 ```
-
-The distributions of the performance scores across repetitions are also provided.
+The function `print_performance()` generates a summary of the performance scores across model repetitions. As every other function of the package involving repetitions, the provided stats are the median, and the median absolute deviation (mad).
 
 ```{r}
-model.non.spatial.repeat
+spatialRF::print_performance(model.non.spatial.repeat)
 ```
-And the function `get_performance()` offers a nice summary with the median and the median absolute deviation.
-
-```{r, echo = FALSE, warning = FALSE, message=FALSE}
-kableExtra::kbl(
-  head(reponse.curves.df, n = 10),
-  format = "html"
-) %>%
-  kableExtra::kable_paper("hover", full_width = F)
-```
-
-# Tuning Random Forest hyperparameters
-
-The model fitted above was based on the default hyperparameter values provided by `ranger()`, and those might not be the most adequate ones for a given dataset. The function [`rf_tuning()`](https://blasbenito.github.io/spatialRF/reference/rf_tuning.html) helps the user to choose sensible values for three Random Forest hyperparameters that are critical to model performance:
-
--   `num.trees`: number of regression trees in the forest.
--   `mtry`: number of variables to choose from on each tree split.
--   `min.node.size`: minimum number of cases on a terminal node.
-
-Model tuning is done via spatial cross-validation, to ensure that the selected combination of hyperparameters maximizes the ability of the model to predict data not used to train it.
-
-```{r, fig.width=6, fig.height=4.5}
-model.non.spatial.tuned <- spatialRF::rf_tuning(
-  model = model.non.spatial,
-  xy = plant_richness_df[, c("x", "y")],
-  repetitions = 30,
-  training.fraction = 0.75,
-  num.trees = c(500, 1000),
-  mtry = seq(
-    2, 
-    14, #equal or lower than the number of predictors
-    by = 3
-    ),
-  min.node.size = c(5, 15),
-  seed = random.seed,
-  verbose = FALSE
-) 
-```
-
 
 # Fitting a spatial model with `rf_spatial()`
 
@@ -732,7 +693,7 @@ spatialRF::plot_moran(
   verbose = FALSE
   )
 ```
-According to these plots, the spatial autocorrelation of the residuals of `model.non.spatial` is highly positive for a neighborhood of 0 km, while it becomes non-significant (p-value \> 0.05) at 1500 and 3000 km. To reduce the spatial autocorrelation of the residuals as much as possible, the non-spatial model can be transformed into a *spatial model* very easily with the function [`rf_spatial()`](https://blasbenito.github.io/spatialRF/reference/rf_spatial.html). This function is the true core of the package!
+According to the plot, the spatial autocorrelation of the residuals of `model.non.spatial` is highly positive for a neighborhood of 0 km, while it becomes non-significant (p-value \> 0.05) at 1500 and 3000 km. To reduce the spatial autocorrelation of the residuals as much as possible, the non-spatial model can be transformed into a *spatial model* very easily with the function [`rf_spatial()`](https://blasbenito.github.io/spatialRF/reference/rf_spatial.html). This function is the true core of the package!
 
 ```{r}
 model.spatial <- spatialRF::rf_spatial(
@@ -751,6 +712,7 @@ spatialRF::plot_moran(
   verbose = FALSE
   )
 ```
+
 If we compare the variable importance plots of both models, we can see that the spatial model has an additional set of dots under the name "spatial_predictors", and that the maximum importance of a few of these *spatial predictors* matches the importance of the most relevant non-spatial predictors.
 
 ```{r, fig.width=10, fig.height=4.5}
@@ -769,7 +731,7 @@ p1 | p2
 
 If we look at the ten most important variables in `model.spatial` we will see that a few of them are *spatial predictors*. Spatial predictors are named `spatial_predictor_X_Y`, where `X` is the neighborhood distance at which the predictor has been generated, and `Y` is the index of the predictor.
 
-```{r, echo = FALSE, warning = FALSE, message=FALSE}
+```{r, echo=TRUE, warning = FALSE, message=FALSE}
 kableExtra::kbl(
   head(model.spatial$importance$per.variable, n = 10),
   format = "html"
@@ -778,7 +740,7 @@ kableExtra::kbl(
 ```
 But what are spatial predictors? Spatial predictors, as shown below, are smooth surfaces representing neighborhood among records at different spatial scales. They are computed from the distance matrix in different ways. The ones below are the eigenvectors of the double-centered distance matrix of weights (a.k.a, Moran's Eigenvector Maps). They represent the effect of spatial proximity among records, helping to represent biogeographic and spatial processes not considered by the non-spatial predictors.
 
-```{r, echo=FALSE, fig.width=12, fig.height=7}
+```{r, echo=TRUE, fig.width=12, fig.height=7}
 spatial.predictors <- spatialRF::get_spatial_predictors(model.spatial)
 pr <- data.frame(spatial.predictors, plant_richness_df[, c("x", "y")])
 
@@ -830,7 +792,7 @@ p1 | p2
 
 The spatial predictors are included in the model one by one, in the order of their Moran's I (spatial predictors with Moran's I lower than 0 are removed). The selection procedure is performed by the function [`select_spatial_predictors_sequential()`](https://blasbenito.github.io/spatialRF/reference/select_spatial_predictors_sequential.html), which finds the smaller subset of spatial predictors maximizing the model's R squared, and minimizing the Moran's I of the residuals. This is shown in the optimization plot below (dots linked by lines represent the selected spatial predictors). 
 
-```{r, echo=FALSE, fig.width=6, fig.height=4}
+```{r, echo=TRUE, fig.width=6, fig.height=4}
 p <- spatialRF::plot_optimization(model.spatial)
 ```
 
@@ -861,80 +823,6 @@ model.spatial.tuned <- rf_tuning(
 )
 ```
 
-# Assessing model performance on spatially mindependent folds
-
-The function [`rf_evaluate()`](https://blasbenito.github.io/spatialRF/reference/rf_evaluate.html) separates the training data into a number of spatially independent training and testing folds, fits a model on each training fold, predicts over each testing fold, and computes performance measures, to finally aggregate them across model repetitions. Let's see how it works.
-
-```{r}
-model.spatial.tuned <- spatialRF::rf_evaluate(
-  model = model.spatial.tuned,
-  xy = plant_richness_df[, c("x", "y")], #data coordinates
-  repetitions = 30,                      #number of folds
-  training.fraction = 0.8,               #training data fraction
-  metrics = c("r.squared", "rmse"),
-  seed = random.seed,
-  verbose = FALSE
-)
-```
-
-The function generates a new slot in the model named "evaluation" with several objects that summarize the spatial cross-validation results.
-
-```{r}
-names(model.spatial.tuned$evaluation)
-```
-
-The slot "spatial.folds", produced by [`make_spatial_folds()`](https://blasbenito.github.io/spatialRF/reference/make_spatial_folds.html), contains the indices of the training and testing cases for each cross-validation repetition. The maps below show two sets of training and testing spatial folds.
-
-```{r, echo=FALSE, fig.width=10, fig.height=5}
-pr <- plant_richness_df[, c("x", "y")]
-pr$group.2 <- pr$group.1 <- "Training"
-pr[model.spatial.tuned$evaluation$spatial.folds[[1]]$testing, "group.1"] <- "Testing"
-pr[model.spatial.tuned$evaluation$spatial.folds[[25]]$testing, "group.2"] <- "Testing"
-
-p1 <- ggplot2::ggplot() +
-  ggplot2::geom_sf(data = world, fill = "white") +
-  ggplot2::geom_point(data = pr,
-          ggplot2::aes(
-            x = x,
-            y = y,
-            color = group.1
-            ),
-          size = 2.5
-          ) +
-  ggplot2::scale_color_viridis_d(direction = -1, end = 0.8, alpha = 0.6) +
-  ggplot2::theme_bw() +
-  ggplot2::labs(color = "Group") +
-  ggplot2::scale_x_continuous(limits = c(-170, -30)) +
-  ggplot2::scale_y_continuous(limits = c(-58, 80))  +
-  ggplot2::ggtitle("Spatial fold 1") + 
-  ggplot2::theme(legend.position = "none") + 
-  ggplot2::xlab("Longitude") + 
-  ggplot2::ylab("Latitude")
-
-p2 <- ggplot2::ggplot() +
-  ggplot2::geom_sf(data = world, fill = "white") +
-  ggplot2::geom_point(data = pr,
-          ggplot2::aes(
-            x = x,
-            y = y,
-            color = group.2
-            ),
-          size = 2.5
-          ) +
-  ggplot2::scale_color_viridis_d(direction = -1, end = 0.8, alpha = 0.6) +
-  ggplot2::theme_bw() +
-  ggplot2::labs(color = "Group") +
-  ggplot2::scale_x_continuous(limits = c(-170, -30)) +
-  ggplot2::scale_y_continuous(limits = c(-58, 80)) +
-  ggplot2::ggtitle("Spatial fold 25") + 
-  ggplot2::xlab("Longitude") + 
-  ggplot2::ylab("")
-
-p1 | p2
-```
-
-The low R squared yielded by the model evaluation shows that the spatial model is hard to transfer outside of the training space, because spatial structures are not transferable when the data is irregularly distributed, as it is the case with the dataset `plant_richness_df`. The comparison below shows how non-spatial models may show better (not bad, not great) evaluation scores on independent spatial folds.
-
 # Comparing several models
 
 The function [`rf_compare()`](https://blasbenito.github.io/spatialRF/reference/rf_compare.html) takes named list with as many models as the user needs to compare, and applies `rf_evaluate()` to each one of them to compare their predictive performances across spatial folds.
@@ -955,7 +843,7 @@ comparison <- rf_compare(
 ```
 
 
-```{r, echo = FALSE, message=FALSE, warning=FALSE}
+```{r, echo=TRUE, message=FALSE, warning=FALSE}
 x <- comparison$comparison.df %>% 
     dplyr::group_by(model, metric) %>% 
     dplyr::summarise(value = round(median(value), 3)) %>% 
@@ -1048,7 +936,7 @@ spatialRF::plot_moran(
 
 *Et voilá*, the problem went away!
 
-The **take away message** here is that you can work with a binomial response with `spatialRF`, just as you would do with a continuous response, as long as it is represented with zeros and ones. Just remember that class imbalance is solved via case weights, and that predictive performance is also measured using the Area Under the ROC Curve (AUC).
+The **take away message** here is that you can work with a binomial response with `spatialRF`, just as you would do with a continuous response, as long as it is represented with zeros and ones. Just remember that the class imbalance problem is tackled via case weights, and that predictive performance is also measured using the Area Under the ROC Curve (AUC).
 
 # Generating spatial predictors for other modelling methods
 
@@ -1069,7 +957,7 @@ mems <- spatialRF::mem_multithreshold(
 
 In either case the result is a data frame with Moran's Eigenvector Maps ("just" the positive eigenvectors of the double-centered distance matrix).
 
-```{r, echo = FALSE, warning = FALSE, message=FALSE}
+```{r, echo=TRUE, warning = FALSE, message=FALSE}
 kableExtra::kbl(
   head(mems[, 1:4], n = 10),
   format = "html"
@@ -1190,7 +1078,7 @@ moran.test.i$plot
 
 Now we can compare the model without spatial predictors `m` and the model with spatial predictors `m.i`.
 
-```{r, echo = FALSE, warning = FALSE, message=FALSE}
+```{r, echo=TRUE, warning = FALSE, message=FALSE}
 comparison.df <- data.frame(
   Model = c("Non-spatial", "Spatial"),
   Predictors = c(length(predictors), length(predictors.i)),
