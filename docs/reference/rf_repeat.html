@@ -80,7 +80,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -94,7 +94,7 @@
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/BlasBenito/spatialRF/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -120,25 +120,25 @@
     <p>Fits several random forest models on the same data in order to capture the effect of the algorithm's stochasticity on the variable importance scores, predictions, residuals, and performance measures. The function relies on the median to aggregate values across repetitions.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>rf_repeat</span>(
-  <span class='kw'>model</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>data</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>dependent.variable.name</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>predictor.variable.names</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>distance.matrix</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>distance.thresholds</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>ranger.arguments</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>scaled.importance</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>repetitions</span> <span class='kw'>=</span> <span class='fl'>10</span>,
-  <span class='kw'>keep.models</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>seed</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>n.cores</span> <span class='kw'>=</span> <span class='kw pkg'>parallel</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/r/parallel/detectCores.html'>detectCores</a></span>() - <span class='fl'>1</span>,
-  <span class='kw'>cluster.ips</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>cluster.cores</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>cluster.user</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Sys.info.html'>Sys.info</a></span>()<span class='kw'>[[</span><span class='st'>"user"</span>]],
-  <span class='kw'>cluster.port</span> <span class='kw'>=</span> <span class='st'>"11000"</span>
-)</pre>
+    <pre class="usage"><span class='fu'>rf_repeat</span><span class='op'>(</span>
+  model <span class='op'>=</span> <span class='cn'>NULL</span>,
+  data <span class='op'>=</span> <span class='cn'>NULL</span>,
+  dependent.variable.name <span class='op'>=</span> <span class='cn'>NULL</span>,
+  predictor.variable.names <span class='op'>=</span> <span class='cn'>NULL</span>,
+  distance.matrix <span class='op'>=</span> <span class='cn'>NULL</span>,
+  distance.thresholds <span class='op'>=</span> <span class='cn'>NULL</span>,
+  ranger.arguments <span class='op'>=</span> <span class='cn'>NULL</span>,
+  scaled.importance <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  repetitions <span class='op'>=</span> <span class='fl'>10</span>,
+  keep.models <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  seed <span class='op'>=</span> <span class='cn'>NULL</span>,
+  verbose <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  n.cores <span class='op'>=</span> <span class='fu'>parallel</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/r/parallel/detectCores.html'>detectCores</a></span><span class='op'>(</span><span class='op'>)</span> <span class='op'>-</span> <span class='fl'>1</span>,
+  cluster.ips <span class='op'>=</span> <span class='cn'>NULL</span>,
+  cluster.cores <span class='op'>=</span> <span class='cn'>NULL</span>,
+  cluster.user <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Sys.info.html'>Sys.info</a></span><span class='op'>(</span><span class='op'>)</span><span class='op'>[[</span><span class='st'>"user"</span><span class='op'>]</span><span class='op'>]</span>,
+  cluster.port <span class='op'>=</span> <span class='st'>"11000"</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -220,63 +220,64 @@
 <li><p><code>importance</code>: A list containing a data frame with the predictors ordered by their importance, a ggplot showing the importance values, and local importance scores.</p></li>
 <li><p><code>performance</code>: out-of-bag performance scores: R squared, pseudo R squared, RMSE, and normalized RMSE (NRMSE).</p></li>
 <li><p><code>pseudo.r.squared</code>: computed as the correlation between the observations and the predictions.</p></li>
-<li><p><code>residuals</code>: residuals, normality test of the residuals computed with <code><a href='normality.html'>residuals_test()</a></code>, and spatial autocorrelation of the residuals computed with <code><a href='moran_multithreshold.html'>moran_multithreshold()</a></code>.</p></li>
+<li><p><code>residuals</code>: residuals, normality test of the residuals computed with <code><a href='residuals_test.html'>residuals_test()</a></code>, and spatial autocorrelation of the residuals computed with <code><a href='moran_multithreshold.html'>moran_multithreshold()</a></code>.</p></li>
 </ul>
 
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># \donttest{</span>
-<span class='kw'>if</span>(<span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span>()){
+<span class='kw'>if</span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span><span class='op'>{</span>
 
- <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>plant_richness_df</span>)
- <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>distance_matrix</span>)
+ <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='va'>plant_richness_df</span><span class='op'>)</span>
+ <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='va'>distance_matrix</span><span class='op'>)</span>
 
- <span class='no'>out</span> <span class='kw'>&lt;-</span> <span class='fu'>rf_repeat</span>(
-   <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>plant_richness_df</span>,
-   <span class='kw'>dependent.variable.name</span> <span class='kw'>=</span> <span class='st'>"richness_species_vascular"</span>,
-   <span class='kw'>predictor.variable.names</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span>(<span class='no'>plant_richness_df</span>)[<span class='fl'>5</span>:<span class='fl'>21</span>],
-   <span class='kw'>distance.matrix</span> <span class='kw'>=</span> <span class='no'>distance_matrix</span>,
-   <span class='kw'>distance.thresholds</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0</span>, <span class='fl'>100</span>, <span class='fl'>1000</span>, <span class='fl'>10000</span>),
-   <span class='kw'>repetitions</span> <span class='kw'>=</span> <span class='fl'>5</span>,
-   <span class='kw'>n.cores</span> <span class='kw'>=</span> <span class='fl'>1</span>
- )
+ <span class='va'>out</span> <span class='op'>&lt;-</span> <span class='fu'>rf_repeat</span><span class='op'>(</span>
+   data <span class='op'>=</span> <span class='va'>plant_richness_df</span>,
+   dependent.variable.name <span class='op'>=</span> <span class='st'>"richness_species_vascular"</span>,
+   predictor.variable.names <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span><span class='op'>(</span><span class='va'>plant_richness_df</span><span class='op'>)</span><span class='op'>[</span><span class='fl'>5</span><span class='op'>:</span><span class='fl'>21</span><span class='op'>]</span>,
+   distance.matrix <span class='op'>=</span> <span class='va'>distance_matrix</span>,
+   distance.thresholds <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0</span>, <span class='fl'>100</span>, <span class='fl'>1000</span>, <span class='fl'>10000</span><span class='op'>)</span>,
+   repetitions <span class='op'>=</span> <span class='fl'>5</span>,
+   n.cores <span class='op'>=</span> <span class='fl'>1</span>
+ <span class='op'>)</span>
 
- <span class='fu'><a href='https://rdrr.io/r/base/class.html'>class</a></span>(<span class='no'>out</span>)
+ <span class='fu'><a href='https://rdrr.io/r/base/class.html'>class</a></span><span class='op'>(</span><span class='va'>out</span><span class='op'>)</span>
 
  <span class='co'>#data frame with ordered variable importance</span>
- <span class='no'>out</span>$<span class='no'>importance</span>$<span class='no'>per.variable</span>
+ <span class='va'>out</span><span class='op'>$</span><span class='va'>importance</span><span class='op'>$</span><span class='va'>per.variable</span>
 
  <span class='co'>#per repetition</span>
- <span class='no'>out</span>$<span class='no'>importance</span>$<span class='no'>per.repetition</span>
+ <span class='va'>out</span><span class='op'>$</span><span class='va'>importance</span><span class='op'>$</span><span class='va'>per.repetition</span>
 
  <span class='co'>#variable importance plot</span>
- <span class='no'>out</span>$<span class='no'>importance</span>$<span class='no'>per.repetition.plot</span>
+ <span class='va'>out</span><span class='op'>$</span><span class='va'>importance</span><span class='op'>$</span><span class='va'>per.repetition.plot</span>
 
  <span class='co'>#performance</span>
- <span class='no'>out</span>$<span class='no'>performance</span>
+ <span class='va'>out</span><span class='op'>$</span><span class='va'>performance</span>
 
 
  <span class='co'>#spatial correlation of the residuals for different distance thresholds</span>
- <span class='no'>out</span>$<span class='no'>spatial.correlation.residuals</span>$<span class='no'>per.distance</span>
+ <span class='va'>out</span><span class='op'>$</span><span class='va'>spatial.correlation.residuals</span><span class='op'>$</span><span class='va'>per.distance</span>
 
  <span class='co'>#plot of the Moran's I of the residuals for different distance thresholds</span>
- <span class='no'>out</span>$<span class='no'>spatial.correlation.residuals</span>$<span class='no'>plot</span>
+ <span class='va'>out</span><span class='op'>$</span><span class='va'>spatial.correlation.residuals</span><span class='op'>$</span><span class='va'>plot</span>
 
  <span class='co'>#using a model as an input for rf_repeat()</span>
- <span class='no'>rf.model</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='rf.html'>rf</a></span>(
-   <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>plant_richness_df</span>,
-   <span class='kw'>dependent.variable.name</span> <span class='kw'>=</span> <span class='st'>"richness_species_vascular"</span>,
-   <span class='kw'>predictor.variable.names</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span>(<span class='no'>plant_richness_df</span>)[<span class='fl'>8</span>:<span class='fl'>21</span>],
-   <span class='kw'>distance.matrix</span> <span class='kw'>=</span> <span class='no'>distance_matrix</span>,
-   <span class='kw'>distance.thresholds</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0</span>, <span class='fl'>1000</span>, <span class='fl'>2000</span>)
-   )
+ <span class='va'>rf.model</span> <span class='op'>&lt;-</span> <span class='fu'><a href='rf.html'>rf</a></span><span class='op'>(</span>
+   data <span class='op'>=</span> <span class='va'>plant_richness_df</span>,
+   dependent.variable.name <span class='op'>=</span> <span class='st'>"richness_species_vascular"</span>,
+   predictor.variable.names <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span><span class='op'>(</span><span class='va'>plant_richness_df</span><span class='op'>)</span><span class='op'>[</span><span class='fl'>8</span><span class='op'>:</span><span class='fl'>21</span><span class='op'>]</span>,
+   distance.matrix <span class='op'>=</span> <span class='va'>distance_matrix</span>,
+   distance.thresholds <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0</span>, <span class='fl'>1000</span>, <span class='fl'>2000</span><span class='op'>)</span>
+   <span class='op'>)</span>
 
- <span class='no'>rf.repeat</span> <span class='kw'>&lt;-</span> <span class='fu'>rf_repeat</span>(<span class='kw'>model</span> <span class='kw'>=</span> <span class='no'>rf.model</span>)
- <span class='no'>rf.repeat</span>$<span class='no'>performance</span>
- <span class='no'>rf.repeat</span>$<span class='no'>importance</span>$<span class='no'>per.repetition.plot</span>
+ <span class='va'>rf.repeat</span> <span class='op'>&lt;-</span> <span class='fu'>rf_repeat</span><span class='op'>(</span>model <span class='op'>=</span> <span class='va'>rf.model</span><span class='op'>)</span>
+ <span class='va'>rf.repeat</span><span class='op'>$</span><span class='va'>performance</span>
+ <span class='va'>rf.repeat</span><span class='op'>$</span><span class='va'>importance</span><span class='op'>$</span><span class='va'>per.repetition.plot</span>
 
-}
-<span class='co'># }</span></div></pre>
+<span class='op'>}</span>
+<span class='co'># }</span>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -292,7 +293,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

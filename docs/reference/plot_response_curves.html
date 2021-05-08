@@ -80,7 +80,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -94,7 +94,7 @@
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/BlasBenito/spatialRF/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -120,16 +120,16 @@
     <p>Plots the response curves of models fitted with <code><a href='rf.html'>rf()</a></code>, <code><a href='rf_repeat.html'>rf_repeat()</a></code>, or  <code><a href='rf_spatial.html'>rf_spatial()</a></code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>plot_response_curves</span>(
-  <span class='kw'>model</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>variables</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>quantiles</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.1</span>, <span class='fl'>0.5</span>, <span class='fl'>0.9</span>),
-  <span class='kw'>grid.resolution</span> <span class='kw'>=</span> <span class='fl'>200</span>,
-  <span class='kw'>line.color</span> <span class='kw'>=</span> <span class='kw pkg'>viridis</span><span class='kw ns'>::</span><span class='fu'><a href='https://sjmgarnier.github.io/viridis/reference/reexports.html'>viridis</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/length.html'>length</a></span>(<span class='no'>quantiles</span>), <span class='kw'>option</span> <span class='kw'>=</span> <span class='st'>"F"</span>, <span class='kw'>end</span> <span class='kw'>=</span> <span class='fl'>0.9</span>),
-  <span class='kw'>ncol</span> <span class='kw'>=</span> <span class='fl'>2</span>,
-  <span class='kw'>show.data</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
-)</pre>
+    <pre class="usage"><span class='fu'>plot_response_curves</span><span class='op'>(</span>
+  model <span class='op'>=</span> <span class='cn'>NULL</span>,
+  variables <span class='op'>=</span> <span class='cn'>NULL</span>,
+  quantiles <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0.1</span>, <span class='fl'>0.5</span>, <span class='fl'>0.9</span><span class='op'>)</span>,
+  grid.resolution <span class='op'>=</span> <span class='fl'>200</span>,
+  line.color <span class='op'>=</span> <span class='fu'>viridis</span><span class='fu'>::</span><span class='fu'><a href='https://sjmgarnier.github.io/viridisLite/reference/viridis.html'>viridis</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/length.html'>length</a></span><span class='op'>(</span><span class='va'>quantiles</span><span class='op'>)</span>, option <span class='op'>=</span> <span class='st'>"F"</span>, end <span class='op'>=</span> <span class='fl'>0.9</span><span class='op'>)</span>,
+  ncol <span class='op'>=</span> <span class='fl'>2</span>,
+  show.data <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  verbose <span class='op'>=</span> <span class='cn'>TRUE</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -152,7 +152,7 @@
     </tr>
     <tr>
       <th>line.color</th>
-      <td><p>Character vector with colors, or function to generate colors for the lines representing <code>quantiles</code>. Must have the same number of colors as <code>quantiles</code> are defined. Default: <code><a href='https://sjmgarnier.github.io/viridis/reference/reexports.html'>viridis::viridis(length(quantiles), option = "F", end = 0.9)</a></code></p></td>
+      <td><p>Character vector with colors, or function to generate colors for the lines representing <code>quantiles</code>. Must have the same number of colors as <code>quantiles</code> are defined. Default: <code><a href='https://sjmgarnier.github.io/viridisLite/reference/viridis.html'>viridis::viridis(length(quantiles), option = "F", end = 0.9)</a></code></p></td>
     </tr>
     <tr>
       <th>ncol</th>
@@ -173,29 +173,30 @@
     <p>A list with slots named after the selected <code>variables</code>, with one ggplot each.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>All variables that are not plotted in a particular response curve are set to the values of their respective quantiles, and the response curve for each one of these quantiles is shown in the plot. When the input model was fitted with <code><a href='rf_repeat.html'>rf_repeat()</a></code> with <code>keep.models = TRUE</code>, then the plot shows the median of all model runs, and each model run separately as a thinner line. The output list can be plotted all at once with <code><a href='https://patchwork.data-imaginist.com/reference/wrap_plots.html'>patchwork::wrap_plots(p)</a></code> or <code><a href='https://rdrr.io/pkg/cowplot/man/plot_grid.html'>cowplot::plot_grid(plotlist = p)</a></code>, or one by one by extracting each plot from the list.</p>
+    <p>All variables that are not plotted in a particular response curve are set to the values of their respective quantiles, and the response curve for each one of these quantiles is shown in the plot. When the input model was fitted with <code><a href='rf_repeat.html'>rf_repeat()</a></code> with <code>keep.models = TRUE</code>, then the plot shows the median of all model runs, and each model run separately as a thinner line. The output list can be plotted all at once with <code><a href='https://patchwork.data-imaginist.com/reference/wrap_plots.html'>patchwork::wrap_plots(p)</a></code> or <code><a href='https://wilkelab.org/cowplot/reference/plot_grid.html'>cowplot::plot_grid(plotlist = p)</a></code>, or one by one by extracting each plot from the list.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code><a href='plot_response_surface.html'>plot_response_surface()</a></code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># \donttest{</span>
-<span class='kw'>if</span>(<span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span>()){
+<span class='kw'>if</span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span><span class='op'>{</span>
 
-<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>plant_richness_df</span>)
+<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='va'>plant_richness_df</span><span class='op'>)</span>
 
-<span class='no'>m</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='rf.html'>rf</a></span>(
- <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>plant_richness_df</span>,
- <span class='kw'>dependent.variable.name</span> <span class='kw'>=</span> <span class='st'>"richness_species_vascular"</span>,
- <span class='kw'>predictor.variable.names</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span>(<span class='no'>plant_richness_df</span>)[<span class='fl'>5</span>:<span class='fl'>21</span>],
- <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
-)
+<span class='va'>m</span> <span class='op'>&lt;-</span> <span class='fu'><a href='rf.html'>rf</a></span><span class='op'>(</span>
+ data <span class='op'>=</span> <span class='va'>plant_richness_df</span>,
+ dependent.variable.name <span class='op'>=</span> <span class='st'>"richness_species_vascular"</span>,
+ predictor.variable.names <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span><span class='op'>(</span><span class='va'>plant_richness_df</span><span class='op'>)</span><span class='op'>[</span><span class='fl'>5</span><span class='op'>:</span><span class='fl'>21</span><span class='op'>]</span>,
+ verbose <span class='op'>=</span> <span class='cn'>FALSE</span>
+<span class='op'>)</span>
 
-<span class='no'>p</span> <span class='kw'>&lt;-</span> <span class='fu'>plot_response_curves</span>(<span class='kw'>model</span> <span class='kw'>=</span> <span class='no'>m</span>)
-<span class='no'>p</span>
+<span class='va'>p</span> <span class='op'>&lt;-</span> <span class='fu'>plot_response_curves</span><span class='op'>(</span>model <span class='op'>=</span> <span class='va'>m</span><span class='op'>)</span>
+<span class='va'>p</span>
 
-}
-<span class='co'># }</span></div></pre>
+<span class='op'>}</span>
+<span class='co'># }</span>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -211,7 +212,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>
