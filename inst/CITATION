@@ -1,0 +1,32 @@
+citHeader("To cite spatialRF in publications use:")
+
+bibentry(bibtype = "Article",
+  title        = "{ranger}: A Fast Implementation of Random Forests for High Dimensional Data in {C++} and {R}",
+  author       = c(person(given = c("Marvin", "N."),
+                          family = "Wright"),
+                   person(given = "Andreas",
+                          family = "Ziegler",
+                          email = "ziegler@imbs.uni-luebeck.de")),
+  journal      = "Journal of Statistical Software",
+  year         = "2017",
+  volume       = "77",
+  number       = "1",
+  pages        = "1--17",
+  doi          = "10.18637/jss.v077.i01",
+  textVersion  =
+  paste("Marvin N. Wright, Andreas Ziegler (2017).",
+        "ranger: A Fast Implementation of Random Forests for High Dimensional Data in C++ and R.",
+        "Journal of Statistical Software, 77(1), 1-17.",
+        "doi:10.18637/jss.v077.i01")
+)
+
+citEntry(
+  entry    = "Manual",
+  title    = "spatialRF: Easy Spatial Regression with Random Forest",
+  author   = person(given = c("Blas", "M."),
+  family = "Benito"),
+   url      = "https://blasbenito.github.io/spatialRF/",
+  year     = 2021,
+  note = "R package version 1.1.0",
+  textVersion = "Blas M. Benito (2021). spatialRF: Easy Spatial Regression with Random Forest. R package version 1.1.0. URL: https://blasbenito.github.io/spatialRF/"
+)

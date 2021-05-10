@@ -25,4 +25,3 @@ data_Blas.Rdata
 comparison_with_other_methods.R
 understanding_lmmorantest.R
 reviewing_moran.R
-inst/CITATION

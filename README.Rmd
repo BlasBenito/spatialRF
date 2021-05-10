@@ -72,6 +72,15 @@ However, **when the focus is on fitting spatial models**, and due to the nature 
 
 If after considering these limitations you are still interested, follow me, I will show you how it works.
 
+# Citation
+
+There is a paper in the making about this package. In the meantime, if you find it useful for your academic work, please cite the `ranger` package as well, it is the true core of `spatialRF`!
+
+*Marvin N. Wright, Andreas Ziegler (2017). ranger: A Fast Implementation of Random Forests for High Dimensional Data in C++ and R. Journal of Statistical Software, 77(1), 1-17. doi:10.18637/jss.v077.i01*
+
+*Blas M. Benito (2021). spatialRF: Easy Spatial Regression with Random Forest. R package version 1.1.0. URL: https://blasbenito.github.io/spatialRF/*
+
+
 # Install
 
 The package is not yet in the CRAN repositories, so at the moment it must be installed from GitHub as follows. There are several branches in the repository:
