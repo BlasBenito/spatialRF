@@ -25,8 +25,9 @@ citEntry(
   title    = "spatialRF: Easy Spatial Regression with Random Forest",
   author   = person(given = c("Blas", "M."),
   family = "Benito"),
+  doi = "10.5281/zenodo.4745208",
    url      = "https://blasbenito.github.io/spatialRF/",
   year     = 2021,
   note = "R package version 1.1.0",
-  textVersion = "Blas M. Benito (2021). spatialRF: Easy Spatial Regression with Random Forest. R package version 1.1.0. URL: https://blasbenito.github.io/spatialRF/"
+  textVersion = "Blas M. Benito (2021). spatialRF: Easy Spatial Regression with Random Forest. R package version 1.1.0. doi: 10.5281/zenodo.4745208. url: https://blasbenito.github.io/spatialRF/"
 )

@@ -41,6 +41,7 @@
 [![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html)
 [![CRAN](https://img.shields.io/badge/CRAN-not_published_yet-red)](https://github.com/blasbenito/spatialRF)
 [![License](https://img.shields.io/badge/license-GPL--3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
+[![DOI](https://zenodo.org/badge/330962704.svg)](https://zenodo.org/badge/latestdoi/330962704)
 
 <!-- badges: end -->
 
@@ -149,7 +150,7 @@ of Random Forests for High Dimensional Data in C++ and R. Journal of
 Statistical Software, 77(1), 1-17. <doi:10.18637/jss.v077.i01>*
 
 *Blas M. Benito (2021). spatialRF: Easy Spatial Regression with Random
-Forest. R package version 1.1.0. URL:
+Forest. R package version 1.1.0. doi: 10.5281/zenodo.4745208. url:
 <https://blasbenito.github.io/spatialRF/>*
 
 # Install
@@ -171,8 +172,7 @@ remotes::install_github(
   )
 ```
 
-    ## 
-    ##      checking for file ‘/tmp/Rtmpq3orZI/remotes542e7887b633/BlasBenito-spatialRF-75d0396/DESCRIPTION’ ...  ✓  checking for file ‘/tmp/Rtmpq3orZI/remotes542e7887b633/BlasBenito-spatialRF-75d0396/DESCRIPTION’
+    ##      checking for file ‘/tmp/Rtmplehz2H/remotes508367d6db50/BlasBenito-spatialRF-424fcc0/DESCRIPTION’ ...  ✓  checking for file ‘/tmp/Rtmplehz2H/remotes508367d6db50/BlasBenito-spatialRF-424fcc0/DESCRIPTION’
     ##   ─  preparing ‘spatialRF’:
     ##    checking DESCRIPTION meta-information ...  ✓  checking DESCRIPTION meta-information
     ##   ─  checking for LF line-endings in source and make files and shell scripts
@@ -542,21 +542,11 @@ predictors.
 predictor.variable.names$selected.variables
 ```
 
-    ##  [1] "climate_bio1_average_X_bias_area_km2"
-    ##  [2] "climate_aridity_index_average"       
-    ##  [3] "climate_hypervolume"                 
-    ##  [4] "climate_bio1_average"                
-    ##  [5] "climate_bio15_minimum"               
-    ##  [6] "bias_species_per_record"             
-    ##  [7] "climate_velocity_lgm_average"        
-    ##  [8] "neighbors_count"                     
-    ##  [9] "neighbors_percent_shared_edge"       
-    ## [10] "human_population_density"            
-    ## [11] "topography_elevation_average"        
-    ## [12] "landcover_herbs_percent_average"     
-    ## [13] "fragmentation_cohesion"              
-    ## [14] "fragmentation_division"              
-    ## [15] "neighbors_area"
+    ##  [1] "climate_bio1_average_X_bias_area_km2" "climate_aridity_index_average"        "climate_hypervolume"                 
+    ##  [4] "climate_bio1_average"                 "climate_bio15_minimum"                "bias_species_per_record"             
+    ##  [7] "climate_velocity_lgm_average"         "neighbors_count"                      "neighbors_percent_shared_edge"       
+    ## [10] "human_population_density"             "topography_elevation_average"         "landcover_herbs_percent_average"     
+    ## [13] "fragmentation_cohesion"               "fragmentation_division"               "neighbors_area"
 
 # Fitting a (non-spatial) Random Forest model with `rf()`
 
@@ -1645,9 +1635,8 @@ spatial cross-validation results.
 names(model.non.spatial$evaluation)
 ```
 
-    ## [1] "metrics"           "training.fraction" "spatial.folds"    
-    ## [4] "per.fold"          "per.fold.long"     "per.model"        
-    ## [7] "aggregated"
+    ## [1] "metrics"           "training.fraction" "spatial.folds"     "per.fold"          "per.fold.long"    
+    ## [6] "per.model"         "aggregated"
 
 The slot “spatial.folds”, produced by
 [`make_spatial_folds()`](https://blasbenito.github.io/spatialRF/reference/make_spatial_folds.html),
@@ -1804,24 +1793,18 @@ other.
 names(model.non.spatial$ranger.arguments)
 ```
 
-    ##  [1] "data"                         "dependent.variable.name"     
-    ##  [3] "predictor.variable.names"     "distance.matrix"             
-    ##  [5] "distance.thresholds"          "num.trees"                   
-    ##  [7] "mtry"                         "importance"                  
-    ##  [9] "scaled.importance"            "write.forest"                
-    ## [11] "probability"                  "min.node.size"               
-    ## [13] "max.depth"                    "replace"                     
-    ## [15] "sample.fraction"              "case.weights"                
-    ## [17] "class.weights"                "splitrule"                   
-    ## [19] "num.random.splits"            "alpha"                       
-    ## [21] "minprop"                      "split.select.weights"        
-    ## [23] "always.split.variables"       "respect.unordered.factors"   
-    ## [25] "scale.permutation.importance" "local.importance"            
-    ## [27] "regularization.factor"        "regularization.usedepth"     
-    ## [29] "keep.inbag"                   "inbag"                       
-    ## [31] "holdout"                      "quantreg"                    
-    ## [33] "oob.error"                    "num.threads"                 
-    ## [35] "save.memory"                  "seed"                        
+    ##  [1] "data"                         "dependent.variable.name"      "predictor.variable.names"    
+    ##  [4] "distance.matrix"              "distance.thresholds"          "num.trees"                   
+    ##  [7] "mtry"                         "importance"                   "scaled.importance"           
+    ## [10] "write.forest"                 "probability"                  "min.node.size"               
+    ## [13] "max.depth"                    "replace"                      "sample.fraction"             
+    ## [16] "case.weights"                 "class.weights"                "splitrule"                   
+    ## [19] "num.random.splits"            "alpha"                        "minprop"                     
+    ## [22] "split.select.weights"         "always.split.variables"       "respect.unordered.factors"   
+    ## [25] "scale.permutation.importance" "local.importance"             "regularization.factor"       
+    ## [28] "regularization.usedepth"      "keep.inbag"                   "inbag"                       
+    ## [31] "holdout"                      "quantreg"                     "oob.error"                   
+    ## [34] "num.threads"                  "save.memory"                  "seed"                        
     ## [37] "classification"
 
 The importance scores of a model fitted with `rf_repeat()` are plotted

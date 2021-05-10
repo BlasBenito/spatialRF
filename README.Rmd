@@ -79,7 +79,7 @@ There is a paper in the making about this package. In the meantime, if you find 
 
 *Marvin N. Wright, Andreas Ziegler (2017). ranger: A Fast Implementation of Random Forests for High Dimensional Data in C++ and R. Journal of Statistical Software, 77(1), 1-17. doi:10.18637/jss.v077.i01*
 
-*Blas M. Benito (2021). spatialRF: Easy Spatial Regression with Random Forest. R package version 1.1.0. URL: https://blasbenito.github.io/spatialRF/*
+*Blas M. Benito (2021). spatialRF: Easy Spatial Regression with Random Forest. R package version 1.1.0. doi: 10.5281/zenodo.4745208. url: https://blasbenito.github.io/spatialRF/*
 
 
 # Install
