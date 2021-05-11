@@ -5,6 +5,7 @@
 #' @param predictor.variable.names Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Optionally, the result of [auto_cor()] or [auto_vif()] Default: `NULL`
 #' @param distance.matrix Squared matrix with the distances among the records in `data`. The number of rows of `distance.matrix` and `data` must be the same. If not provided, the computation of the Moran's I of the residuals is omitted. Default: `NULL`
 #' @param distance.thresholds Numeric vector with neighborhood distances. All distances in the distance matrix below each value in `dustance.thresholds` are set to 0 for the computation of Moran's I. If `NULL`, it defaults to seq(0, max(distance.matrix), length.out = 4). Default: `NULL`
+#' @param xy (optional) Data frame or matrix with two columns containing coordinates and named "x" and "y". It is not used by this function, but it is stored in the slot `ranger.arguments$xy` of the model, so it can be used by [rf_evaluate()] and [rf_tuning()]. Default: `NULL`
 #' @param ranger.arguments Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. The ranger arguments `x`, `y`, and `formula` are disabled. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.
 #' @param scaled.importance Logical, if `TRUE`, the function scales `data` with \link[base]{scale} and fits a new model to compute scaled variable importance scores. This makes variable importance scores of different models somewhat comparable. Default: `FALSE`
 #' @param seed Integer, random seed to facilitate reproducibility. If set to a given number, the returned model is always the same. Default: `NULL`
@@ -83,6 +84,7 @@ rf <- function(
   predictor.variable.names = NULL,
   distance.matrix = NULL,
   distance.thresholds = NULL,
+  xy = NULL,
   ranger.arguments = NULL,
   scaled.importance = FALSE,
   seed = NULL,
@@ -297,6 +299,7 @@ rf <- function(
     predictor.variable.names = predictor.variable.names,
     distance.matrix = distance.matrix,
     distance.thresholds = distance.thresholds,
+    xy = xy,
     num.trees = num.trees,
     mtry = mtry,
     importance = importance,

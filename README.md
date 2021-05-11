@@ -21,11 +21,12 @@
     -   [Spatial cross-validation](#spatial-cross-validation)
     -   [Other important things stored in the
         model](#other-important-things-stored-in-the-model)
-    -   [Repeating a model execution](#repeating-a-model-execution)
 -   [Fitting a spatial model with
     `rf_spatial()`](#fitting-a-spatial-model-with-rf_spatial)
 -   [Tuning Random Forest
     hyperparameters](#tuning-random-forest-hyperparameters)
+-   [Repeating a model execution](#repeating-a-model-execution)
+-   [Taking advantage of the `%>%` pipe](#taking-advantage-of-the-pipe)
 -   [Comparing several models](#comparing-several-models)
 -   [Working with a binomial
     response](#working-with-a-binomial-response)
@@ -37,7 +38,7 @@
 -->
 <!-- badges: start -->
 
-[![Devel-version](https://img.shields.io/badge/devel%20version-1.1.0-blue.svg)](https://github.com/blasbenito/spatialRF)
+[![Devel-version](https://img.shields.io/badge/devel%20version-1.1.1-blue.svg)](https://github.com/blasbenito/spatialRF)
 [![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html)
 [![CRAN](https://img.shields.io/badge/CRAN-not_published_yet-red)](https://github.com/blasbenito/spatialRF)
 [![License](https://img.shields.io/badge/license-GPL--3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
@@ -167,18 +168,18 @@ the repository:
 ``` r
 remotes::install_github(
   repo = "blasbenito/spatialRF", 
-  ref = "main",
+  ref = "development",
   force = TRUE
   )
 ```
 
     ## 
-    ##      checking for file ‘/tmp/Rtmp2Meihj/remotes2b48057d12edf/BlasBenito-spatialRF-6ffb0ea/DESCRIPTION’ ...  ✓  checking for file ‘/tmp/Rtmp2Meihj/remotes2b48057d12edf/BlasBenito-spatialRF-6ffb0ea/DESCRIPTION’
+    ##      checking for file ‘/tmp/RtmpKXrVv6/remotese5801714c2e0a/BlasBenito-spatialRF-82b8271/DESCRIPTION’ ...  ✓  checking for file ‘/tmp/RtmpKXrVv6/remotese5801714c2e0a/BlasBenito-spatialRF-82b8271/DESCRIPTION’
     ##   ─  preparing ‘spatialRF’:
-    ##      checking DESCRIPTION meta-information ...  ✓  checking DESCRIPTION meta-information
+    ##    checking DESCRIPTION meta-information ...  ✓  checking DESCRIPTION meta-information
     ##   ─  checking for LF line-endings in source and make files and shell scripts
     ##   ─  checking for empty or unneeded directories
-    ##   ─  building ‘spatialRF_1.1.0.tar.gz’
+    ##   ─  building ‘spatialRF_1.1.1.tar.gz’
     ##      
     ## 
 
@@ -1770,105 +1771,6 @@ predicted <- stats::predict(
   )$predictions
 ```
 
-## Repeating a model execution
-
-Random Forest is an stochastic algorithm that yields slightly different
-results on each run unless a random seed is set. This particularity has
-implications for the interpretation of variable importance scores. For
-example, in the plot above, the difference in importance between the
-predictors `climate_hypervolume` and
-`climate_bio1_average_X_bias_area_km2` could be just the result of
-chance. The function
-[`rf_repeat()`](https://blasbenito.github.io/spatialRF/reference/rf_repeat.html)
-repeats a model execution and yields the distribution of importance
-scores of the predictors across executions.
-
-``` r
-model.non.spatial.repeat <- rf_repeat(
-  model = model.non.spatial, 
-  repetitions = 30,
-  seed = random.seed,
-  verbose = FALSE
-)
-```
-
-Notice that the argument `model`, present in several functions of the
-package, takes a fitted model as input. Such fitted model already has
-the training data, the names of the response and the predictors, the
-distance matrix, the distance thresholds, and the hyperparameters used
-to fit the model, all stored in the slot `ranger.arguments`. All
-modeling functions in the package use the values stored in this slot to
-make it easy for the user to move a model from one function to the
-other.
-
-``` r
-names(model.non.spatial$ranger.arguments)
-```
-
-    ##  [1] "data"                         "dependent.variable.name"     
-    ##  [3] "predictor.variable.names"     "distance.matrix"             
-    ##  [5] "distance.thresholds"          "num.trees"                   
-    ##  [7] "mtry"                         "importance"                  
-    ##  [9] "scaled.importance"            "write.forest"                
-    ## [11] "probability"                  "min.node.size"               
-    ## [13] "max.depth"                    "replace"                     
-    ## [15] "sample.fraction"              "case.weights"                
-    ## [17] "class.weights"                "splitrule"                   
-    ## [19] "num.random.splits"            "alpha"                       
-    ## [21] "minprop"                      "split.select.weights"        
-    ## [23] "always.split.variables"       "respect.unordered.factors"   
-    ## [25] "scale.permutation.importance" "local.importance"            
-    ## [27] "regularization.factor"        "regularization.usedepth"     
-    ## [29] "keep.inbag"                   "inbag"                       
-    ## [31] "holdout"                      "quantreg"                    
-    ## [33] "oob.error"                    "num.threads"                 
-    ## [35] "save.memory"                  "seed"                        
-    ## [37] "classification"
-
-The importance scores of a model fitted with `rf_repeat()` are plotted
-as a violin plot, with the distribution of the importance scores of each
-predictor across repetitions.
-
-``` r
-spatialRF::plot_importance(
-  model.non.spatial.repeat, 
-  verbose = FALSE
-  )
-```
-
-![](README_files/figure-gfm/unnamed-chunk-39-1.png)<!-- -->
-
-The response curves of models fitted with `rf_repeat()` can be plotted
-with `plot_response_curves()` as well. The median prediction is shown
-with a thicker line.
-
-``` r
-spatialRF::plot_response_curves(
-  model.non.spatial.repeat, 
-  quantiles = 0.5,
-  ncol = 3
-  )
-```
-
-![](README_files/figure-gfm/unnamed-chunk-40-1.png)<!-- --> The function
-`print_performance()` generates a summary of the performance scores
-across model repetitions. As every other function of the package
-involving repetitions, the provided stats are the median, and the median
-absolute deviation (mad).
-
-``` r
-spatialRF::print_performance(model.non.spatial.repeat)
-```
-
-    ## 
-    ## Model performance (median +/- mad) 
-    ##   - R squared (oob):              0.571 +/- 0.0053
-    ##   - R squared (cor(obs, pred)^2): 0.951 +/- 0.0023
-    ##   - Pseudo R squared:             0.975 +/- 0.0012
-    ##   - RMSE (oob):                   2207.678 +/- 13.609
-    ##   - RMSE:                         972.239 +/- 15.5961
-    ##   - Normalized RMSE:              0.281 +/- 0.0045
-
 # Fitting a spatial model with `rf_spatial()`
 
 The spatial autocorrelation of the residuals of a model like
@@ -1883,7 +1785,7 @@ spatialRF::plot_moran(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-42-1.png)<!-- --> According to
+![](README_files/figure-gfm/unnamed-chunk-37-1.png)<!-- --> According to
 the plot, the spatial autocorrelation of the residuals of
 `model.non.spatial` is highly positive for a neighborhood of 0 km, while
 it becomes non-significant (p-value &gt; 0.05) at 1500 and 3000 km. To
@@ -1913,7 +1815,7 @@ spatialRF::plot_moran(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-44-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-39-1.png)<!-- -->
 
 If we compare the variable importance plots of both models, we can see
 that the spatial model has an additional set of dots under the name
@@ -1935,7 +1837,7 @@ p2 <- spatialRF::plot_importance(
 p1 | p2 
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-45-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-40-1.png)<!-- -->
 
 If we look at the ten most important variables in `model.spatial` we
 will see that a few of them are *spatial predictors*. Spatial predictors
@@ -2104,7 +2006,7 @@ p2 <- ggplot2::ggplot() +
 p1 | p2
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-47-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-42-1.png)<!-- -->
 
 The spatial predictors are included in the model one by one, in the
 order of their Moran’s I (spatial predictors with Moran’s I lower than 0
@@ -2119,13 +2021,13 @@ the selected spatial predictors).
 p <- spatialRF::plot_optimization(model.spatial)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-48-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-43-1.png)<!-- -->
 
 # Tuning Random Forest hyperparameters
 
-The model fitted above was based on the default hyperparameter values
-provided by `ranger()`, and those might not be the most adequate ones
-for a given dataset. The function
+The model fitted above was based on the default random forest
+hyperparameters of `ranger()`, and those might not be the most adequate
+ones for a given dataset. The function
 [`rf_tuning()`](https://blasbenito.github.io/spatialRF/reference/rf_tuning.html)
 helps the user to choose sensible values for three Random Forest
 hyperparameters that are critical to model performance:
@@ -2156,17 +2058,114 @@ model.spatial.tuned <- rf_tuning(
 )
 ```
 
-    ## Best hyperparameters:
+The results of the function indicate that the model has a higher
+transferability (ability to predict on data not used to train the model
+assessed via spatial cross-validation with `rf_evaluate()`) when `mtry`
+is 29, `min.node.size` is 5, and `num.trees` is 500, but also indicates
+that the gain in transferability is rather low (increased R squared of
+`model.spatial.tuned$tuning$performance.gain`). The function returns a
+tuned model only if the tuning finds a solution better than the original
+model. Otherwise the original model is returned (only a new slot named
+`tuning`is added).
 
-    ##   - num.trees:     500
+# Repeating a model execution
 
-    ##   - mtry:          29
+Random Forest is an stochastic algorithm that yields slightly different
+results on each run unless a random seed is set. This particularity has
+implications for the interpretation of variable importance scores and
+response curves. The function
+[`rf_repeat()`](https://blasbenito.github.io/spatialRF/reference/rf_repeat.html)
+repeats a model execution and yields the distribution of importance
+scores of the predictors across executions. **NOTE**: this function
+works better when used at the end of a workflow
 
-    ##   - min.node.size: 5
+``` r
+model.spatial.tuned.repeat <- rf_repeat(
+  model = model.spatial.tuned, 
+  repetitions = 30,
+  seed = random.seed,
+  verbose = FALSE
+)
+```
 
-    ## gain in r.squared: 0.01
+The importance scores of a model fitted with `rf_repeat()` are plotted
+as a violin plot, with the distribution of the importance scores of each
+predictor across repetitions.
 
-![](README_files/figure-gfm/unnamed-chunk-49-1.png)<!-- -->
+``` r
+spatialRF::plot_importance(
+  model.spatial.tuned.repeat, 
+  verbose = FALSE
+  )
+```
+
+![](README_files/figure-gfm/unnamed-chunk-46-1.png)<!-- -->
+
+The response curves of models fitted with `rf_repeat()` can be plotted
+with `plot_response_curves()` as well. The median prediction is shown
+with a thicker line.
+
+``` r
+spatialRF::plot_response_curves(
+  model.spatial.tuned.repeat, 
+  quantiles = 0.5,
+  ncol = 3
+  )
+```
+
+![](README_files/figure-gfm/unnamed-chunk-47-1.png)<!-- -->
+
+The function `print_performance()` generates a summary of the
+performance scores across model repetitions. As every other function of
+the package involving repetitions, the provided stats are the median,
+and the median absolute deviation (mad).
+
+``` r
+spatialRF::print_performance(model.spatial.tuned.repeat)
+```
+
+    ## 
+    ## Model performance (median +/- mad) 
+    ##   - R squared (oob):              0.582 +/- 0.0068
+    ##   - R squared (cor(obs, pred)^2): 0.947 +/- 0.0017
+    ##   - Pseudo R squared:             0.973 +/- 9e-04
+    ##   - RMSE (oob):                   2179.791 +/- 17.7167
+    ##   - RMSE:                         894.903 +/- 10.2955
+    ##   - Normalized RMSE:              0.258 +/- 0.003
+
+# Taking advantage of the `%>%` pipe
+
+The modeling functions of `spatialRF` are designed to facilitate using
+the pipe to combine them. The code below fits a spatial model, tunes its
+hyperparameters, evaluates it using spatial cross-validation, and
+repeats the execution several times, just by passing the model from one
+function to another.
+
+``` r
+model.full <- rf_spatial(
+  data = plant_richness_df,
+  dependent.variable.name = dependent.variable.name,
+  predictor.variable.names = predictor.variable.names,
+  distance.matrix = distance_matrix,
+  verbose = FALSE
+) %>%
+  rf_tuning(
+    xy = xy,
+    verbose = FALSE
+  ) %>%
+  rf_evaluate(
+    xy = xy,
+    verbose = FALSE
+  ) %>%
+  rf_repeat(
+    repetitions = 30,
+    verbose = FALSE
+  )
+```
+
+Once the model is fitted, the slots added by each function can be
+examined with functions such as `plot_tuning()`, `plot_evaluation()` and
+the likes.
 
 # Comparing several models
 

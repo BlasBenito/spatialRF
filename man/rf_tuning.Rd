@@ -51,7 +51,7 @@ rf_tuning(
 \item{cluster.port}{Character, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: \code{"11000"}}
 }
 \value{
-A list with four slots: \code{tuning} data frame with the results of the tuning analysis; \code{tuning.long}, a long version of the previous data frame; \code{tuning.plot}, ggplot of \code{tuning.long}; \code{ranger.arguments}, a list ready to be used as the argument \code{ranger.arguments} in \code{\link[=rf_repeat]{rf_repeat()}} or \code{\link[=rf_spatial]{rf_spatial()}}.
+A model with a new slot named \code{tuning}, with a data frame with the results of the tuning analysis.
 }
 \description{
 Finds the optimal set of random forest hyperparameters \code{num.trees}, \code{mtry}, and \code{min.node.size} via grid search by maximizing the model's R squared, or AUC, if the response variable is binomial, via spatial cross-validation performed with \code{\link[=rf_evaluate]{rf_evaluate()}}.

@@ -129,15 +129,14 @@ rf_evaluate <- function(
 
   #preparing xy
   #if null, stop
-  if(is.null(xy)){
-    stop("Argument 'xy' requires a matrix or data frame with longitude-latitude coordinates with columns named 'x' and 'y'.")
+  if(is.null(xy) & !is.null(ranger.arguments$xy)){
+    xy <- ranger.arguments$xy
   } else {
-    if(sum(c("x", "y") %in% colnames(xy)) < 2){
-      stop("The column names of 'xy' must be 'x' and 'y'.")
-    }
+    stop("Argument 'xy' is required for model tuning.")
   }
-
-  #check nrow of xy and data
+  if(sum(c("x", "y") %in% colnames(xy)) < 2){
+    stop("The column names of 'xy' must be 'x' and 'y'.")
+  }
   if(nrow(xy) != nrow(data)){
     stop("nrow(xy) and nrow(data) (stored in model$ranger.arguments$data) must be the same.")
   }

@@ -14,7 +14,7 @@
 #' @param cluster.cores Numeric integer vector, number of cores to use on each machine.
 #' @param cluster.user Character string, name of the user (should be the same throughout machines). Defaults to the current system user.
 #' @param cluster.port Character, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: `"11000"`
-#' @return A list with four slots: `tuning` data frame with the results of the tuning analysis; `tuning.long`, a long version of the previous data frame; `tuning.plot`, ggplot of `tuning.long`; `ranger.arguments`, a list ready to be used as the argument `ranger.arguments` in [rf_repeat()] or [rf_spatial()].
+#' @return A model with a new slot named `tuning`, with a data frame with the results of the tuning analysis.
 #' @seealso [rf_evaluate()]
 #' @examples
 #' \donttest{
@@ -85,6 +85,11 @@ rf_tuning <- function(
   predictor.variable.names <- ranger.arguments$predictor.variable.names
   distance.matrix <- ranger.arguments$distance.matrix
   distance.thresholds <- ranger.arguments$distance.thresholds
+  if(is.null(xy) & !is.null(ranger.arguments$xy)){
+    xy <- ranger.arguments$xy
+  } else {
+    stop("Argument 'xy' is required for model tuning.")
+  }
   model.class <- class(model)
 
   #testing if the data is binary
@@ -343,41 +348,16 @@ rf_tuning <- function(
   ranger.arguments$mtry <- tuning[1, "mtry"]
   ranger.arguments$min.node.size <- tuning[1, "min.node.size"]
 
-  #fitting tuned model with rf
-  if(!inherits(model, "rf_repeat")){
-
-    model.tuned <- rf(
-      data = data,
-      dependent.variable.name = dependent.variable.name,
-      predictor.variable.names = predictor.variable.names,
-      ranger.arguments = ranger.arguments,
-      distance.matrix = distance.matrix,
-      distance.thresholds = distance.thresholds,
-      verbose = FALSE
-    )
-
-  }
-
-  #fitting tuned model with rf repeat
-  if(inherits(model, "rf_repeat")){
-
-    model.tuned <- rf_repeat(
-      data = data,
-      dependent.variable.name = dependent.variable.name,
-      predictor.variable.names = predictor.variable.names,
-      ranger.arguments = ranger.arguments,
-      distance.matrix = distance.matrix,
-      distance.thresholds = distance.thresholds,
-      repetitions = model$ranger.arguments$repetitions,
-      verbose = FALSE,
-      n.cores = n.cores,
-      cluster.ips = cluster.ips,
-      cluster.cores = cluster.cores,
-      cluster.user = cluster.user,
-      cluster.port = cluster.port
-    )
-
-  }
+  #fitting tuned model
+  model.tuned <- rf(
+    data = data,
+    dependent.variable.name = dependent.variable.name,
+    predictor.variable.names = predictor.variable.names,
+    ranger.arguments = ranger.arguments,
+    distance.matrix = distance.matrix,
+    distance.thresholds = distance.thresholds,
+    verbose = FALSE
+  )
 
   #keeping class
   class(model.tuned) <- unique(c(class(model.tuned), model.class))
