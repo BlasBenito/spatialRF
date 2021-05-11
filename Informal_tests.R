@@ -6,6 +6,66 @@ library(tictoc)
 data(plant_richness_df)
 data(distance_matrix)
 xy <- plant_richness_df[, c("x", "y")]
+dependent.variable.name <- "richness_species_vascular"
+predictor.variable.names <- colnames(plant_richness_df)[5:21]
+
+
+rf.repeat <- rf_repeat(
+  data = plant_richness_df,
+  dependent.variable.name = "richness_species_vascular",
+  predictor.variable.names = colnames(plant_richness_df)[5:21],
+  distance.matrix = distance_matrix
+)
+
+rf.model <- rf(
+  data = plant_richness_df,
+  dependent.variable.name = "richness_species_vascular",
+  predictor.variable.names = colnames(plant_richness_df)[5:21],
+  distance.matrix = distance_matrix
+)
+
+rf.model.repeat <- rf_repeat(
+  rf.model
+)
+
+rf.spatial <- rf_spatial(
+  data = plant_richness_df,
+  dependent.variable.name = "richness_species_vascular",
+  predictor.variable.names = colnames(plant_richness_df)[5:21],
+  distance.matrix = distance_matrix
+)
+
+rf.spatial.repeat <- rf_repeat(
+  rf.spatial
+)
+
+
+
+
+
+
+
+#see if rf_repeat respects evaluation and tuning slots
+x <- rf_spatial(
+  data = plant_richness_df,
+  dependent.variable.name = dependent.variable.name,
+  predictor.variable.names = predictor.variable.names,
+  distance.matrix = distance_matrix,
+  verbose = FALSE
+) %>%
+  rf_tuning(
+    xy = xy,
+    verbose = FALSE
+  ) %>%
+  rf_evaluate(
+    xy = xy,
+    verbose = FALSE
+  ) %>%
+  rf_repeat(
+    repetitions = 30,
+    verbose = FALSE
+  )
+
 
 #rf_interactions()
 #############################################
@@ -18,7 +78,7 @@ interactions <- spatialRF::rf_interactions(
 
 #rf()
 #############################################
-x <- rf(
+rf.model <- rf(
   data = plant_richness_df,
   dependent.variable.name = "richness_species_vascular",
   predictor.variable.names = colnames(plant_richness_df)[5:21],
@@ -130,31 +190,13 @@ x <- rf_spatial(
   model = x
 )
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+rf_spatial <- rf_spatial(
+  data = plant_richness_df,
+  dependent.variable.name = "richness_species_vascular",
+  predictor.variable.names = colnames(plant_richness_df)[5:21],
+  distance.matrix = distance_matrix,
+  verbose = FALSE
+)
 
 
 #with repetitions

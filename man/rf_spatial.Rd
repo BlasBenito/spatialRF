@@ -13,8 +13,6 @@ rf_spatial(
   distance.thresholds = NULL,
   ranger.arguments = NULL,
   scaled.importance = TRUE,
-  repetitions = 1,
-  keep.models = FALSE,
   method = c("mem.moran.sequential", "mem.effect.sequential", "mem.effect.recursive",
     "hengl", "hengl.moran.sequential", "hengl.effect.sequential",
     "hengl.effect.recursive", "pca.moran.sequential", "pca.effect.sequential",
@@ -32,7 +30,7 @@ rf_spatial(
 )
 }
 \arguments{
-\item{model}{A model produced by \code{\link[=rf]{rf()}} or \code{\link[=rf_repeat]{rf_repeat()}}. If used, the arguments \code{data}, \code{dependent.variable.name}, \code{predictor.variable.names}, \code{distance.matrix}, \code{distance.thresholds}, \code{ranger.arguments}, and \code{scaled.importance} are taken directly from the model definition. Default: NULL}
+\item{model}{A model fitted with \code{\link[=rf]{rf()}}. If used, the arguments \code{data}, \code{dependent.variable.name}, \code{predictor.variable.names}, \code{distance.matrix}, \code{distance.thresholds}, \code{ranger.arguments}, and \code{scaled.importance} are taken directly from the model definition. Default: NULL}
 
 \item{data}{Data frame with a response variable and a set of predictors. Default: \code{NULL}}
 
@@ -47,10 +45,6 @@ rf_spatial(
 \item{ranger.arguments}{Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.}
 
 \item{scaled.importance}{Logical. If \code{TRUE}, and 'importance = "permutation', the function scales 'data' with \link[base]{scale} and fits a new model to compute scaled variable importance scores. Default: \code{TRUE}}
-
-\item{repetitions}{Integer, number of repetitions. If 1, \code{\link[=rf]{rf()}} is used to fit the non-spatial and spatial models. If higher than one, \code{\link[=rf_repeat]{rf_repeat()}} is used instead. Notice that using more than one repetition can get computationally costly if the selected method generated a large number of spatial predictors, as it is the case of the "hengl" method. Default: \code{1}}
-
-\item{keep.models}{Logical. If \code{TRUE}, the fitted models are returned in the "models" slot. If \code{repetitions} is very high and \code{method} is "hengl", setting \code{keep.models} to \code{TRUE} may cause memory issues. Default: \code{FALSE}}
 
 \item{method}{Character, method to build, rank, and select spatial predictors. One of:
 \itemize{
@@ -72,7 +66,7 @@ rf_spatial(
 
 \item{weight.penalization.n.predictors}{Numeric between 0 and 1, weight of the penalization for adding an increasing number of spatial predictors during selection. Default: \code{NULL}}
 
-\item{seed}{Integer, random seed to facilitate reproducibility. If set to a given number, the returned model is always the same. Only relevant if \code{repetitions = 1}. Default: \code{NULL}}
+\item{seed}{Integer, random seed to facilitate reproducibility.}
 
 \item{verbose}{Logical. If TRUE, messages and plots generated during the execution of the function are displayed, Default: \code{TRUE}}
 
@@ -171,19 +165,6 @@ if(interactive()){
  rf.spatial <- rf_spatial(model = rf.model)
  rf.spatial$spatial.correlation.residuals$plot
 
- #fitting an rf_spatial model from an rf_repeat model
- rf.repeat <- rf_repeat(
-   data = plant_richness_df,
-   dependent.variable.name = "richness_species_vascular",
-   predictor.variable.names = colnames(plant_richness_df)[5:21],
-   distance.matrix = distance_matrix,
-   distance.thresholds = c(0, 1000, 2000),
-   repetitions = 5
- )
- rf.repeat$spatial.correlation.residuals$plot
-
- rf.spatial <- rf_spatial(model = rf.repeat)
- rf.spatial$spatial.correlation.residuals$plot
 
 }
 }

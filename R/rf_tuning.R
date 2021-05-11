@@ -388,7 +388,7 @@ rf_tuning <- function(
   #adding the variable importance slot if rf_spatial
   if(inherits(model, "rf_spatial")){
 
-    model.tuned$importance <- prepare_importance_spatial(model.tuned)
+    model.tuned$importance <- prepare_importance_spatial(model = model.tuned)
 
   }
 
@@ -448,18 +448,20 @@ rf_tuning <- function(
   if(performance.gain > 0){
 
     #plot tuning
-    suppressWarnings(plot_tuning(model.tuned))
-    message("Best hyperparameters:")
-    message(paste0("  - num.trees:     ", tuning[1, "num.trees"]))
-    message(paste0("  - mtry:          ", tuning[1, "mtry"]))
-    message(paste0("  - min.node.size: ", tuning[1, "min.node.size"]))
-    message(paste0(
-      "gain in ",
-      metric.name,
-      ": ",
-      round(performance.gain, 4)
-    )
-    )
+    if(verbose == TRUE){
+      suppressWarnings(plot_tuning(model.tuned))
+      message("Best hyperparameters:")
+      message(paste0("  - num.trees:     ", tuning[1, "num.trees"]))
+      message(paste0("  - mtry:          ", tuning[1, "mtry"]))
+      message(paste0("  - min.node.size: ", tuning[1, "min.node.size"]))
+      message(paste0(
+        "gain in ",
+        metric.name,
+        ": ",
+        round(performance.gain, 4)
+      )
+      )
+    }
 
     #adding gain
     model.tuned$tuning$performance.gain <- performance.gain
@@ -476,19 +478,21 @@ rf_tuning <- function(
     #tuned model worse than original one
   } else {
 
-    message(
-      paste0(
-        "The tuned model (",
-        metric.name,
-        " = ",
-        new.performance,
-        ") performs worse than the original one (",
-        metric.name,
-        " = ",
-        old.performance,
-        "). Tuning not required, returning the original model."
+    if(verbose == TRUE){
+      message(
+        paste0(
+          "The tuned model (",
+          metric.name,
+          " = ",
+          new.performance,
+          ") performs worse than the original one (",
+          metric.name,
+          " = ",
+          old.performance,
+          "). Tuning not required, returning the original model."
+        )
       )
-    )
+    }
 
     #adding tuning slot
     model$tuning <- tuning.list

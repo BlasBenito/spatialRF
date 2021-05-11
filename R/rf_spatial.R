@@ -1,6 +1,6 @@
 #' @title Fits spatial random forest models
 #' @description Fits spatial random forest models using different methods to generate, rank, and select spatial predictors. The end goal is to provide the model with information about the spatial structure of the data in order to minimize the spatial correlation (Moran's I) of the model residuals.
-#' @param model A model produced by [rf()] or [rf_repeat()]. If used, the arguments `data`, `dependent.variable.name`, `predictor.variable.names`, `distance.matrix`, `distance.thresholds`, `ranger.arguments`, and `scaled.importance` are taken directly from the model definition. Default: NULL
+#' @param model A model fitted with [rf()]. If used, the arguments `data`, `dependent.variable.name`, `predictor.variable.names`, `distance.matrix`, `distance.thresholds`, `ranger.arguments`, and `scaled.importance` are taken directly from the model definition. Default: NULL
 #' @param data Data frame with a response variable and a set of predictors. Default: `NULL`
 #' @param dependent.variable.name Character string with the name of the response variable. Must be in the column names of `data`. If the dependent variable is binary with values 1 and 0, the argument `case.weights` of `ranger` is populated by the function [case_weights()]. Default: `NULL`
 #' @param predictor.variable.names Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Default: `NULL`
@@ -8,8 +8,6 @@
 #' @param distance.thresholds Numeric vector, distances below each value are set to 0 on separated copies of the distance matrix for the computation of Moran's I at different neighborhood distances. If `NULL`, it defaults to `seq(0, max(distance.matrix)/4, length.out = 2)`. Default: `NULL`
 #' @param ranger.arguments Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.
 #' @param scaled.importance Logical. If `TRUE`, and 'importance = "permutation', the function scales 'data' with \link[base]{scale} and fits a new model to compute scaled variable importance scores. Default: `TRUE`
-#' @param repetitions Integer, number of repetitions. If 1, [rf()] is used to fit the non-spatial and spatial models. If higher than one, [rf_repeat()] is used instead. Notice that using more than one repetition can get computationally costly if the selected method generated a large number of spatial predictors, as it is the case of the "hengl" method. Default: `1`
-#' @param keep.models Logical. If `TRUE`, the fitted models are returned in the "models" slot. If `repetitions` is very high and `method` is "hengl", setting `keep.models` to `TRUE` may cause memory issues. Default: `FALSE`
 #' @param method Character, method to build, rank, and select spatial predictors. One of:
 #' \itemize{
 #'   \item "hengl"
@@ -26,7 +24,7 @@
 #' @param max.spatial.predictors Integer, maximum number of spatial predictors to generate. Useful when memory problems arise due to a large number of spatial predictors, Default: `NULL`
 #' @param weight.r.squared Numeric between 0 and 1, weight of R-squared in the selection of spatial components. See Details, Default: `NULL`
 #' @param weight.penalization.n.predictors Numeric between 0 and 1, weight of the penalization for adding an increasing number of spatial predictors during selection. Default: `NULL`
-#' @param seed Integer, random seed to facilitate reproducibility. If set to a given number, the returned model is always the same. Only relevant if `repetitions = 1`. Default: `NULL`
+#' @param seed Integer, random seed to facilitate reproducibility.
 #' @param verbose Logical. If TRUE, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
 #' @param n.cores Integer, number of cores to use. Default = `parallel::detectCores() - 1`
 #' @param cluster.ips Character vector with the IPs of the machines in a cluster. The machine with the first IP will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.
@@ -111,19 +109,6 @@
 #'  rf.spatial <- rf_spatial(model = rf.model)
 #'  rf.spatial$spatial.correlation.residuals$plot
 #'
-#'  #fitting an rf_spatial model from an rf_repeat model
-#'  rf.repeat <- rf_repeat(
-#'    data = plant_richness_df,
-#'    dependent.variable.name = "richness_species_vascular",
-#'    predictor.variable.names = colnames(plant_richness_df)[5:21],
-#'    distance.matrix = distance_matrix,
-#'    distance.thresholds = c(0, 1000, 2000),
-#'    repetitions = 5
-#'  )
-#'  rf.repeat$spatial.correlation.residuals$plot
-#'
-#'  rf.spatial <- rf_spatial(model = rf.repeat)
-#'  rf.spatial$spatial.correlation.residuals$plot
 #'
 #' }
 #' }
@@ -138,8 +123,6 @@ rf_spatial <- function(
   distance.thresholds = NULL,
   ranger.arguments = NULL,
   scaled.importance = TRUE,
-  repetitions = 1,
-  keep.models = FALSE,
   method = c(
     "mem.moran.sequential", #mem ordered by their Moran's I.
     "mem.effect.sequential", #mem added in order of effect.
@@ -312,8 +295,6 @@ rf_spatial <- function(
 
       predictor.variable.names <- ranger.arguments$predictor.variable.names
 
-      repetitions <- ranger.arguments$repetitions
-
       distance.matrix <- ranger.arguments$distance.matrix
       if(is.null(distance.matrix)){
         stop("The argument 'distance.matrix' is missing.")
@@ -325,14 +306,6 @@ rf_spatial <- function(
       }
 
       scaled.importance <- ranger.arguments$scaled.importance
-
-      if(is.null(repetitions)){
-        if(!is.null(ranger.arguments$repetitions)){
-          repetitions <- ranger.arguments$repetitions
-        } else {
-          repetitions <- 1
-        }
-      }
 
       seed <- model$ranger.arguments$seed
 
@@ -607,46 +580,19 @@ rf_spatial <- function(
     spatial.predictors.selected
   )
 
-  #fitting spatial model
-  if(repetitions == 1){
+  #fitting model
+  model.spatial <- rf(
+    data = data.spatial,
+    dependent.variable.name = dependent.variable.name,
+    predictor.variable.names = predictor.variable.names.spatial,
+    distance.matrix = distance.matrix,
+    distance.thresholds = distance.thresholds,
+    ranger.arguments = ranger.arguments,
+    seed = seed,
+    verbose = FALSE
+  )
 
-    #fitting model
-    model.spatial <- rf(
-      data = data.spatial,
-      dependent.variable.name = dependent.variable.name,
-      predictor.variable.names = predictor.variable.names.spatial,
-      distance.matrix = distance.matrix,
-      distance.thresholds = distance.thresholds,
-      ranger.arguments = ranger.arguments,
-      seed = seed,
-      verbose = FALSE
-    )
-
-    class(model.spatial) <- c("rf", "rf_spatial", "ranger")
-
-  } else {
-
-    model.spatial <- rf_repeat(
-      data = data.spatial,
-      dependent.variable.name = dependent.variable.name,
-      predictor.variable.names = predictor.variable.names.spatial,
-      distance.matrix = distance.matrix,
-      distance.thresholds = distance.thresholds,
-      ranger.arguments = ranger.arguments,
-      scaled.importance = scaled.importance,
-      repetitions = repetitions,
-      keep.models = keep.models,
-      verbose = FALSE,
-      n.cores = n.cores,
-      cluster.ips = cluster.ips,
-      cluster.cores = cluster.cores,
-      cluster.user = cluster.user,
-      cluster.port = cluster.port
-    )
-
-    class(model.spatial) <- c("rf", "rf_spatial", "rf_repeat", "ranger")
-
-  }
+  class(model.spatial) <- c("rf", "rf_spatial", "ranger")
 
   #stopping cluster
   if(exists("temp.cluster") & !is.null(temp.cluster)){
@@ -659,8 +605,11 @@ rf_spatial <- function(
     verbose = FALSE
   )
 
-  #preparing variable importance
-  model.spatial$importance <- prepare_importance_spatial(x = model.spatial)
+  #preparing global variable importance
+  model.spatial$importance <- prepare_importance_spatial(model = model.spatial)
+
+  #preparing local variable importance
+  model.spatial$importance$local <- model.spatial$variable.importance.local
 
   #adding spatial method and predictors to the model
   model.spatial$spatial <- list()

@@ -1,5 +1,5 @@
 #' @title Plots the variable importance of a model
-#' @description Plots variable importance scores of [rf()], [rf_repeat()], and [rf_spatial()] models.
+#' @description Plots variable importance scores of [rf()], [rf_repeat()], and [rf_spatial()] models. Distributions of importance scores produced with [rf_repeat()] are plotted using `ggplot2::geom_violin`, which shows the median of the density estimate rather than the actual median of the data. However, the violin plots are ordered from top to bottom by the real median of the data to make small differences in median importance easier to spot.
 #' @usage
 #' plot_importance(
 #'   model,
@@ -7,14 +7,15 @@
 #'     100,
 #'     option = "F",
 #'     direction = -1,
-#'     alpha = 0.8
+#'     alpha = 0.8,
+#'     end = 0.9
 #'    ),
-#'   line.color = "gray30",
+#'   line.color = "white",
 #'   verbose = TRUE
 #' )
-#' @param model A model fitted with [rf()], [rf_repeat()], or [rf_spatial()].
-#' @param fill.color Character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. `viridis::viridis(100)`). Default: `viridis::viridis(100, option = "F", direction = -1)`
-#' @param line.color Character string, color of the line produced by `ggplot2::geom_smooth()`. Default: `"gray30"`
+#' @param model A model fitted with [rf()], [rf_repeat()], or [rf_spatial()], or a data frame with variable importance scores (only for internal use within the package functions).
+#' @param fill.color Character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. `viridis::viridis(100)`). Default: `viridis::viridis(100, option = "F", direction = -1, alpha = 0.8, end = 0.9)`
+#' @param line.color Character string, color of the line produced by `ggplot2::geom_smooth()`. Default: `"white"`
 #' @param verbose Logical, if `TRUE`, the plot is printed. Default: `TRUE`
 #' @return A ggplot.
 #' @seealso [print_importance()], [get_importance()]
@@ -26,7 +27,7 @@
 #' data(distance_matrix)
 #'
 #' rf.model <- rf(
-#'   data = plant_richness_df,
+#'  data = plant_richness_df,
 #'  dependent.variable.name = "richness_species_vascular",
 #'  predictor.variable.names = colnames(plant_richness_df)[5:21],
 #'  distance.matrix = distance_matrix,
@@ -48,9 +49,10 @@ plot_importance <- function(
     100,
     option = "F",
     direction = -1,
-    alpha = 0.8
+    alpha = 0.8,
+    end = 0.9
   ),
-  line.color = "gray30",
+  line.color = "white",
   verbose = TRUE
   ){
 
@@ -140,7 +142,8 @@ plot_importance <- function(
         ) +
         ggplot2::geom_violin(
           draw_quantiles = 0.5,
-          color = line.color
+          color = line.color,
+          scale = "width"
           ) +
         ggplot2::scale_fill_manual(values = fill.color) +
         ggplot2::ylab("") +
@@ -198,17 +201,18 @@ plot_importance <- function(
             y = reorder(
               variable,
               importance,
-              FUN = median
+              FUN = stats::median
             ),
             fill = reorder(
               variable,
               importance,
-              FUN = median
+              FUN = stats::median
             )
           ) +
           ggplot2::geom_violin(
             draw_quantiles = 0.5,
-            color = line.color
+            color = line.color,
+            scale = "width"
             ) +
           ggplot2::scale_fill_manual(values = fill.color) +
           ggplot2::ylab("") +

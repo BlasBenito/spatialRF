@@ -10,18 +10,19 @@ plot_importance(
     100,
     option = "F",
     direction = -1,
-    alpha = 0.8
+    alpha = 0.8,
+    end = 0.9
    ),
-  line.color = "gray30",
+  line.color = "white",
   verbose = TRUE
 )
 }
 \arguments{
-\item{model}{A model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}.}
+\item{model}{A model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}, or a data frame with variable importance scores (only for internal use within the package functions).}
 
-\item{fill.color}{Character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. \code{viridis::viridis(100)}). Default: \code{viridis::viridis(100, option = "F", direction = -1)}}
+\item{fill.color}{Character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. \code{viridis::viridis(100)}). Default: \code{viridis::viridis(100, option = "F", direction = -1, alpha = 0.8, end = 0.9)}}
 
-\item{line.color}{Character string, color of the line produced by \code{ggplot2::geom_smooth()}. Default: \code{"gray30"}}
+\item{line.color}{Character string, color of the line produced by \code{ggplot2::geom_smooth()}. Default: \code{"white"}}
 
 \item{verbose}{Logical, if \code{TRUE}, the plot is printed. Default: \code{TRUE}}
 }
@@ -29,7 +30,7 @@ plot_importance(
 A ggplot.
 }
 \description{
-Plots variable importance scores of \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, and \code{\link[=rf_spatial]{rf_spatial()}} models.
+Plots variable importance scores of \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, and \code{\link[=rf_spatial]{rf_spatial()}} models. Distributions of importance scores produced with \code{\link[=rf_repeat]{rf_repeat()}} are plotted using \code{ggplot2::geom_violin}, which shows the median of the density estimate rather than the actual median of the data. However, the violin plots are ordered from top to bottom by the real median of the data to make small differences in median importance easier to spot.
 }
 \examples{
 \donttest{
@@ -39,7 +40,7 @@ data(plant_richness_df)
 data(distance_matrix)
 
 rf.model <- rf(
-  data = plant_richness_df,
+ data = plant_richness_df,
  dependent.variable.name = "richness_species_vascular",
  predictor.variable.names = colnames(plant_richness_df)[5:21],
  distance.matrix = distance_matrix,

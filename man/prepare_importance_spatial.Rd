@@ -4,10 +4,10 @@
 \alias{prepare_importance_spatial}
 \title{Prepares variable importance objects for spatial models}
 \usage{
-prepare_importance_spatial(x)
+prepare_importance_spatial(model)
 }
 \arguments{
-\item{x}{An importance data frame with spatial predictors, or a model fitted with \code{\link[=rf_spatial]{rf_spatial()}}.}
+\item{model}{An importance data frame with spatial predictors, or a model fitted with \code{\link[=rf_spatial]{rf_spatial()}}.}
 }
 \value{
 A list with importance data frames in different formats depending on whether the model was fitted with \code{\link[=rf]{rf()}} or \code{\link[=rf_repeat]{rf_repeat()}}.

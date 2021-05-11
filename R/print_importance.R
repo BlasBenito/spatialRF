@@ -36,9 +36,12 @@ print_importance <- function(model, verbose = TRUE){
   #declaring variables
   importance <- NULL
 
-
   #if x is not a data frame
   if(!is.data.frame(model)){
+
+    if(("importance" %in% names(model)) == FALSE){
+      stop("The model does not have a slot named 'importance'")
+    }
 
     #importance from rf
     if((inherits(model, "rf") & !inherits(model, "rf_spatial")) | (inherits(model, "rf_repeat") & !inherits(model, "rf_spatial"))){
@@ -48,28 +51,20 @@ print_importance <- function(model, verbose = TRUE){
     #importance from rf_repeat
     if(inherits(model, "rf_spatial")){
 
-      if(!is.null(model$ranger.arguments$repetitions)){
-        repetitions <- model$ranger.arguments$repetitions
-      } else {
-        repetitions <- 1
-      }
+      #count spatial predictors
+      length.spatial.predictors <- length(model$spatial$names)
 
       #count non-spatial predictors
-      length.non.spatial.predictors <- sum(model$importance$spatial.predictors$variable != "spatial_predictors") / repetitions
+      length.non.spatial.predictors <- length(model$ranger.arguments$predictor.variable.names) - length.spatial.predictors
 
-      length.spatial.predictors <- sum(model$importance$spatial.predictors$variable == "spatial_predictors") / repetitions
 
       #get spatial.predictor.stats if too many spatial predictors
-      if(length.spatial.predictors >= length.non.spatial.predictors){
+      if(length.spatial.predictors > length.non.spatial.predictors){
         x <- model$importance$spatial.predictors.stats
       } else {
         x <- model$importance$per.variable
       }
     }
-  }
-
-  if(is.null(x)){
-    stop("This model doesn't have a 'variable.importance' slot")
   }
 
   #arranging

@@ -70,7 +70,7 @@ A ranger model with several new slots:
 }
 }
 \description{
-Fits several random forest models on the same data in order to capture the effect of the algorithm's stochasticity on the variable importance scores, predictions, residuals, and performance measures. The function relies on the median to aggregate values across repetitions.
+Fits several random forest models on the same data in order to capture the effect of the algorithm's stochasticity on the variable importance scores, predictions, residuals, and performance measures. The function relies on the median to aggregate performance and importance values across repetitions. It is recommended to use it after a model is fitted (\code{\link[=rf]{rf()}} or \code{\link[=rf_spatial]{rf_spatial()}}), tuned (\code{\link[=rf_tuning]{rf_tuning()}}), and/or evaluated (\code{\link[=rf_evaluate]{rf_evaluate()}}).
 }
 \examples{
 \donttest{

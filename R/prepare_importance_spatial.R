@@ -1,6 +1,6 @@
 #' @title Prepares variable importance objects for spatial models
 #' @description Prepares variable importance data frames and plots for models fitted with [rf_spatial()].
-#' @param x An importance data frame with spatial predictors, or a model fitted with [rf_spatial()].
+#' @param model An importance data frame with spatial predictors, or a model fitted with [rf_spatial()].
 #' @return A list with importance data frames in different formats depending on whether the model was fitted with [rf()] or [rf_repeat()].
 #' @examples
 #' \dontrun{
@@ -25,24 +25,16 @@
 #' @rdname prepare_importance_spatial
 #' @importFrom stats median
 #' @export
-prepare_importance_spatial <- function(x){
+prepare_importance_spatial <- function(model){
 
   importance <- NULL
   variable <- NULL
 
-  #no rf repeat
-  if(!inherits(x, "rf_repeat")){
-
-    importance.df <- x$importance$per.variable
-
+  #getting importance df
+  if(inherits(model, "rf_spatial") == FALSE){
+    stop("This function requires a model fitted with rf_spatial()")
   }
-
-  #rf repeat
-  if(inherits(x, "rf_repeat")){
-
-    importance.df <- x$importance$per.repetition
-
-  }
+  importance.df <- model$importance$per.variable
 
   #spatial predictors only
   spatial.predictors <- importance.df[grepl(
@@ -69,72 +61,47 @@ prepare_importance_spatial <- function(x){
     variable = c(
       "spatial_predictors (max)",
       "spatial_predictors (min)",
-      "spatial_predictors (mean)",
-      "spatial_predictors (median)"
+      "spatial_predictors (median)",
+      "spatial_predictors (quantile 0.25)",
+      "spatial_predictors (quantile 0.75)"
     ),
     importance = c(
       max(spatial.predictors$importance),
       min(spatial.predictors$importance),
-      mean(spatial.predictors$importance),
-      median(spatial.predictors$importance)
+      median(spatial.predictors$importance),
+      quantile(spatial.predictors$importanc, probs = 0.25),
+      quantile(spatial.predictors$importanc, probs = 0.75)
     )
   )
 
-  #no rf repeat
-  if(!inherits(x, "rf_repeat")){
-
-    importance.df <- rbind(
-      non.spatial.predictors,
-      spatial.predictors.stats
-    ) %>%
-      dplyr::arrange(dplyr::desc(importance))
-
-  }
-
-  #rf repeat
-  if(inherits(x, "rf_repeat")){
-
-    importance.df <- non.spatial.predictors %>%
-      dplyr::group_by(variable) %>%
-      dplyr::summarise(importance = round(median(importance), 3)) %>%
-      as.data.frame() %>%
-      rbind(spatial.predictors.stats) %>%
-      dplyr::arrange(dplyr::desc(importance))
-
-  }
+  #formatting importance.df
+  importance.df <- rbind(
+    non.spatial.predictors,
+    spatial.predictors.stats
+  ) %>%
+    dplyr::arrange(dplyr::desc(importance))
 
   #preparing out list
-  variable.importance <- list()
+  out.list <- list()
 
   #common slots
-  variable.importance$per.variable <- x$importance$per.variable
-  variable.importance$per.variable.plot <- plot_importance(
-    x$importance$per.variable,
+  out.list$per.variable <- model$importance$per.variable
+  out.list$per.variable.plot <- plot_importance(
+    model$importance$per.variable,
     verbose = FALSE
     )
-  variable.importance$spatial.predictors <- importance.plot.df
-  variable.importance$spatial.predictors.plot <- plot_importance(
+  out.list$spatial.predictors <- importance.plot.df
+  out.list$spatial.predictors.plot <- plot_importance(
     importance.plot.df,
     verbose = FALSE
   )
-  variable.importance$spatial.predictors.stats <- importance.df
-  variable.importance$spatial.predictors.stats.plot <- plot_importance(
+  out.list$spatial.predictors.stats <- importance.df
+  out.list$spatial.predictors.stats.plot <- plot_importance(
     importance.df,
     verbose = FALSE
   )
 
-  #filling rf repeat
-  if(inherits(x, "rf_repeat")){
-
-    variable.importance$per.repetition <- x$importance$per.repetition
-    variable.importance$per.repetition.plot <- plot_importance(
-      x$importance$per.repetition,
-      verbose = FALSE
-    )
-
-  }
-
   #returning the list
-  variable.importance
+  out.list
 
 }

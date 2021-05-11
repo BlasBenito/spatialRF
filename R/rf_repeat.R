@@ -1,5 +1,5 @@
 #' @title Fits several random forest models on the same data
-#' @description Fits several random forest models on the same data in order to capture the effect of the algorithm's stochasticity on the variable importance scores, predictions, residuals, and performance measures. The function relies on the median to aggregate values across repetitions.
+#' @description Fits several random forest models on the same data in order to capture the effect of the algorithm's stochasticity on the variable importance scores, predictions, residuals, and performance measures. The function relies on the median to aggregate performance and importance values across repetitions. It is recommended to use it after a model is fitted ([rf()] or [rf_spatial()]), tuned ([rf_tuning()]), and/or evaluated ([rf_evaluate()]).
 #' @param model A model fitted with [rf()]. If provided, the data and ranger arguments are taken directly from the model definition (stored in `model$ranger.arguments`). Default: `NULL`
 #' @param data Data frame with a response variable and a set of predictors. Default: `NULL`
 #' @param dependent.variable.name Character string with the name of the response variable. Must be in the column names of `data`. If the dependent variable is binary with values 1 and 0, the argument `case.weights` of `ranger` is populated by the function [case_weights()]. Default: `NULL`
@@ -124,6 +124,15 @@ rf_repeat <- function(
     distance.matrix <- ranger.arguments$distance.matrix
     distance.thresholds <- ranger.arguments$distance.thresholds
     scaled.importance <- ranger.arguments$scaled.importance
+
+    #saving tuning and evaluation slots for later
+    if("tuning" %in% names(model)){
+      tuning <- model$tuning
+    }
+    if("evaluation" %in% names(model)){
+      evaluation <- model$evaluation
+    }
+
   }
 
   if(is.null(ranger.arguments)){
@@ -252,21 +261,28 @@ rf_repeat <- function(
 
   #fitting model if keep.models  == FALSE
   if(keep.models == FALSE){
-    m <- rf(
-      data = data,
-      dependent.variable.name = dependent.variable.name,
-      predictor.variable.names = predictor.variable.names,
-      distance.matrix = distance.matrix,
-      distance.thresholds = distance.thresholds,
-      ranger.arguments = ranger.arguments,
-      scaled.importance = scaled.importance,
-      seed = seed,
-      verbose = FALSE
-    )
+    if(!is.null(model)){
+      m <- model
+    } else {
+      m <- rf(
+        data = data,
+        dependent.variable.name = dependent.variable.name,
+        predictor.variable.names = predictor.variable.names,
+        distance.matrix = distance.matrix,
+        distance.thresholds = distance.thresholds,
+        ranger.arguments = ranger.arguments,
+        scaled.importance = scaled.importance,
+        seed = seed,
+        verbose = FALSE
+      )
+    }
   } else {
-    m <- repeated.models[[1]]$model
+    if(!is.null(model)){
+      m <- model
+    } else {
+      m <- repeated.models[[1]]$model
+    }
   }
-
 
   #PARSING OUTPUT OF PARALLELIZED LOOP
   ###################################
@@ -316,7 +332,7 @@ rf_repeat <- function(
   m$importance <- NULL
 
   #per repetition
-  variable.importance.per.repetition <- as.data.frame(
+  importance.per.repetition <- as.data.frame(
     do.call(
       "rbind",
       lapply(
@@ -328,25 +344,94 @@ rf_repeat <- function(
   )
 
   #median variable importance across repetitions
-  variable.importance.per.variable <- variable.importance.per.repetition %>%
+  importance.per.variable <- importance.per.repetition %>%
     dplyr::group_by(variable) %>%
     dplyr::summarise(importance = median(importance)) %>%
     dplyr::arrange(dplyr::desc(importance)) %>%
     as.data.frame()
 
+  #saving importance info
   m$importance <- list()
-  m$importance$per.variable <- variable.importance.per.variable
+  m$importance$per.variable <- importance.per.variable
   m$importance$per.variable.plot <- plot_importance(
-    variable.importance.per.variable,
+    importance.per.variable,
     verbose = FALSE
   )
-  m$importance$per.repetition <- variable.importance.per.repetition
+  m$importance$per.repetition <- importance.per.repetition
   m$importance$per.repetition.plot <- plot_importance(
-    variable.importance.per.repetition,
+    importance.per.repetition,
     verbose = verbose
   )
 
-  #PREPARING variable.importance.local
+  #additional importance data if model is rf_spatial
+  if(!is.null(model)){
+    if(inherits(model, "rf_spatial")){
+
+      #spatial predictors only
+      spatial.predictors <- importance.per.repetition[grepl(
+        "spatial_predictor",
+        importance.per.repetition$variable
+      ),]
+      spatial.predictors$variable <- "spatial_predictors"
+
+      #non-spatial predictors
+      non.spatial.predictors <- importance.per.repetition[!grepl(
+        "spatial_predictor",
+        importance.per.repetition$variable
+      ),]
+
+      #spatial.predictors
+      m$importance$spatial.predictors <- rbind(
+        spatial.predictors,
+        non.spatial.predictors
+      )
+      m$importance$spatial.predictors.plot <- plot_importance(
+        m$importance$spatial.predictors,
+        verbose = verbose
+      )
+
+      #spatial.predictors.stat
+      #min, max, median and mean of the spatial predictors
+      #aggregating spatial predictors
+      #min, max, median and mean of the spatial predictors
+      spatial.predictors.stats <- data.frame(
+        variable = c(
+          "spatial_predictors (max)",
+          "spatial_predictors (min)",
+          "spatial_predictors (median)",
+          "spatial_predictors (quantile 0.25)",
+          "spatial_predictors (quantile 0.75)"
+        ),
+        importance = c(
+          max(spatial.predictors$importance),
+          min(spatial.predictors$importance),
+          median(spatial.predictors$importance),
+          quantile(spatial.predictors$importanc, probs = 0.25),
+          quantile(spatial.predictors$importanc, probs = 0.75)
+        )
+      )
+
+      non.spatial.predictors.stats <- non.spatial.predictors %>%
+        dplyr::group_by(variable) %>%
+        dplyr::summarise(
+          importance = median(importance)
+        ) %>%
+        as.data.frame()
+
+      m$importance$spatial.predictors.stats <- rbind(
+        spatial.predictors.stats,
+        non.spatial.predictors.stats
+      )
+
+      m$importance$spatial.predictors.stats.plot <- plot_importance(
+        m$importance$spatial.predictors.stats,
+        verbose = verbose
+      )
+
+    }
+  }
+
+  #PREPARING importance.local
   #-----------------------------------
   m$importance$local <- m$variable.importance.local <- as.data.frame(
     apply(
@@ -361,6 +446,20 @@ rf_repeat <- function(
       median
     )
   )
+
+  # m$importance$local$mad <- m$variable.importance.local <- as.data.frame(
+  #   apply(
+  #     simplify2array(
+  #       lapply(
+  #         repeated.models,
+  #         "[[",
+  #         "importance.local"
+  #       )
+  #     ),
+  #     1:2,
+  #     mad
+  #   )
+  # )
 
 
   #PREPARING prediction.error SLOT
@@ -582,8 +681,19 @@ rf_repeat <- function(
   m$ranger.arguments$repetitions <- repetitions
   m$ranger.arguments$keep.models <- keep.models
 
-  #adding class to the model
-  class(m) <- c("rf", "rf_repeat", "ranger")
+  #adding evaluation and tuning slots if they exist
+  if(!is.null(model)){
+    #saving tuning and evaluation slots for later
+    if("tuning" %in% names(model)){
+      m$tuning <- tuning
+    }
+    if("evaluation" %in% names(model)){
+      m$evaluation <- evaluation
+    }
+    class(m) <- c(class(m), "rf_repeat")
+  } else {
+    class(m) <- c("rf", "rf_repeat", "ranger")
+  }
 
   #print model
   if(verbose == TRUE){
@@ -592,6 +702,5 @@ rf_repeat <- function(
 
   #return m.curves
   m
-
 
 }
