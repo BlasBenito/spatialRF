@@ -16,8 +16,9 @@ library(knitr)
 #TO CHECK
 ########################################
 usethis::use_spell_check()
-
-
+attachment::att_from_description()
+devtools::document()
+devtools::check()
 ########################################
 
 

@@ -83,27 +83,25 @@ rf_interactions <- function(
   y <- NULL
 
   #fitting model
-  model <- rf(
+  model <- rf_repeat(
     data = data,
     dependent.variable.name = dependent.variable.name,
     predictor.variable.names = predictor.variable.names,
     ranger.arguments = ranger.arguments,
-    scaled.importance = TRUE,
+    repetitions = 10,
     seed = seed,
     verbose = FALSE
   )
 
-  #getting model arguments
-  ranger.arguments <- model$ranger.arguments
-  data <- ranger.arguments$data
-  dependent.variable.name <- ranger.arguments$dependent.variable.name
-  predictor.variable.names <- ranger.arguments$predictor.variable.names
+  #r squared
+  model.r.squared <- median(model$performance$r.squared.oob)
 
   #ranger.arguments.i
   ranger.arguments.i <- ranger.arguments
   ranger.arguments.i$data <- NULL
   ranger.arguments.i$dependent.variable.name <- NULL
   ranger.arguments.i$predictor.variable.names <- NULL
+  ranger.arguments.i$num.trees <- 1000
 
   #select variables to test
   if(is.null(importance.threshold)){
@@ -248,14 +246,15 @@ rf_interactions <- function(
     )
 
     #fitting model
-    model.i <- spatialRF::rf(
+    model.i <- spatialRF::rf_repeat(
       data = data.i,
       dependent.variable.name = dependent.variable.name,
       predictor.variable.names = predictor.variable.names.i,
       ranger.arguments = ranger.arguments.i,
-      scaled.importance = TRUE,
+      repetitions = 10,
       seed = seed,
-      verbose = FALSE
+      verbose = FALSE,
+      n.cores = 1
     )
 
     #importance data frames
@@ -270,7 +269,7 @@ rf_interactions <- function(
     out.df <- data.frame(
       interaction.name = pair.i.name,
       interaction.importance = round((model.i.importance[model.i.importance$variable == pair.i.name, "importance"] * 100) / max(model.i.importance$importance), 3),
-      interaction.r.squared.gain = median(model.i$performance$r.squared.oob) - median(model$performance$r.squared.oob),
+      interaction.r.squared.gain = median(model.i$performance$r.squared.oob) - model.r.squared,
       max.cor.with.predictors = max.cor,
       variable.a.name = pair.i[1],
       variable.b.name = pair.i[2],
@@ -326,14 +325,15 @@ rf_interactions <- function(
     )
 
     #fitting model
-    model.i <- spatialRF::rf(
+    model.i <- spatialRF::rf_repeat(
       data = data.i,
       dependent.variable.name = dependent.variable.name,
       predictor.variable.names = predictor.variable.names.i,
       ranger.arguments = ranger.arguments.i,
-      scaled.importance = TRUE,
+      repetitions = 10,
       seed = seed,
-      verbose = FALSE
+      verbose = FALSE,
+      n.cores = 1
     )
 
     #importance data frames
@@ -348,7 +348,7 @@ rf_interactions <- function(
     out.df <- data.frame(
       interaction.name = pair.i.name,
       interaction.importance = round((model.i.importance[model.i.importance$variable == pair.i.name, "importance"] * 100) / max(model.i.importance$importance), 3),
-      interaction.r.squared.gain = median(model.i$performance$r.squared.oob) - median(model$performance$r.squared.oob),
+      interaction.r.squared.gain = median(model.i$performance$r.squared.oob) - model.r.squared,
       max.cor.with.predictors = max.cor,
       variable.a.name = pair.i[1],
       variable.b.name = pair.i[2],
@@ -376,8 +376,7 @@ rf_interactions <- function(
 
   #adding column of selected interactions
   interaction.screening$selected <- ifelse(
-    interaction.screening$interaction.r.squared.gain > 0.01 &
-    interaction.screening$interaction.importance > 50 &
+    interaction.screening$interaction.r.squared.gain > 0 &
     interaction.screening$max.cor.with.predictors < cor.threshold,
     TRUE,
     FALSE
@@ -455,7 +454,7 @@ rf_interactions <- function(
   #filtering out interactions by correlation among themselves
   if(nrow(interaction.screening.selected) > 1){
 
-    interaction.selection <- spatialRF::auto_cor(
+    interaction.selection <- auto_cor(
       x = interaction.df,
       preference.order = interaction.screening.selected$interaction.name,
       cor.threshold = cor.threshold,
@@ -552,10 +551,6 @@ rf_interactions <- function(
       ) +
       ggplot2::theme_bw() +
       ggplot2::theme(legend.position = "none") +
-      ggplot2::coord_cartesian(
-        xlim = c(min(plot.df$x), quantile(plot.df$x, 0.95)),
-        ylim = c(min(plot.df$y), quantile(plot.df$y, 0.95))
-      ) +
       ggplot2::theme(
         plot.title = ggplot2::element_text(hjust = 0.5),
       )

@@ -95,7 +95,8 @@ The package is not yet in the CRAN repositories, so at the moment it must be ins
 remotes::install_github(
   repo = "blasbenito/spatialRF", 
   ref = "development",
-  force = TRUE
+  force = TRUE,
+  quiet = TRUE
   )
 library(spatialRF)
 ```
@@ -214,13 +215,13 @@ spatialRF::plot_training_df(
 
 The function [`plot_training_df_moran()`](https://blasbenito.github.io/spatialRF/reference/plot_training_df_moran.html) helps assessing the spatial autocorrelation of the response variable and the predictors across different distance thresholds. Low Moran's I and p-values equal or larger than 0.05 indicate that there is no spatial autocorrelation for the given variable and distance threshold.
 
-```{r, echo=TRUE, fig.width=10, fig.height=5}
+```{r, echo=TRUE, fig.width=8, fig.height=5}
 spatialRF::plot_training_df_moran(
   data = plant_richness_df,
   dependent.variable.name = dependent.variable.name,
   predictor.variable.names = predictor.variable.names,
   distance.matrix = distance.matrix,
-  distance.thresholds = distance.thresholds = c(0, 1500, 3000),
+  distance.thresholds = distance.thresholds,
   fill.color = viridis::viridis(
     100,
     option = "F",
@@ -230,48 +231,9 @@ spatialRF::plot_training_df_moran(
 )
 ```
 
-# Finding promising variable interactions
-
-Random Forests already takes into account variable interactions of the form "variable `a` becomes important when `b` is higher than x". However, Random Forest can also take advantage of variable interactions of the form `a * b`, as they are commonly defined in regression models.
-
-The function [`rf_interactions()`](https://blasbenito.github.io/spatialRF/reference/rf_interactions.html) tests all possible interactions among predictors by using each one of them in a separate model, and suggesting the ones with the higher potential contribution to the model's R squared and the higher relative importance (presented as a percentage of the maximum importance of a variable in the model).
-
-```{r, fig.width=12, fig.height=4}
-interactions <- spatialRF::rf_interactions(
-  data = plant_richness_df,
-  dependent.variable.name = dependent.variable.name,
-  predictor.variable.names = predictor.variable.names,
-  seed = random.seed,
-  verbose = FALSE
-  )
-```
-
-```{r, echo=TRUE, fig.width = 8, fig.height = 3}
-kableExtra::kbl(
-  interactions$selected,
-  format = "html"
-) %>%
-  kableExtra::kable_paper("hover", full_width = F)
-patchwork::wrap_plots(interactions$plot)
-```
-
-Here `rf_interactions()` suggests several candidate interactions ordered by their impact on the model. The function cannot say whether an interaction *makes sense*, and it is up to the user to choose wisely whether to select an interaction or not.
-
-For the sake of the example, I will choose `climate_bio1_average_X_bias_area_km2`, hypothesizing that ecoregions with higher area (bias_area_km2) and energy (represented by the annual temperature, climate_bio1_average) will have more species of vascular plants (this is just an example, many other rationales are possible when choosing between candidate interactions). The data required to add the interaction to the training data is in the output of `rf_interactions()`.
-
-```{r}
-#adding interaction column to the training data
-plant_richness_df[, "climate_bio1_average_X_bias_area_km2"] <- interactions$df[, "climate_bio1_average_X_bias_area_km2"]
-
-#adding interaction name to predictor.variable.names
-predictor.variable.names <- c(predictor.variable.names, "climate_bio1_average_X_bias_area_km2")
-```
-
 # Reducing multicollinearity in the predictors
 
-The functions [`auto_cor()`](https://blasbenito.github.io/spatialRF/reference/auto_cor.html) and [`auto_vif()`](https://blasbenito.github.io/spatialRF/reference/auto_vif.html) help reduce redundancy in the predictors by using different criteria (bivariate R squared vs. [variance inflation factor](https://www.statisticshowto.com/variance-inflation-factor/)), while allowing the user to define an *order of preference*, which can be based either on domain expertise or on a quantitative assessment. The preference order is defined as a character vector in the `preference.order` argument of both functions, and does not need to include the names of all predictors, but just the ones the user would like to keep in the analysis.
-
-In the example below I give preference to the interaction suggested by `rf_interactions()` over it's two components, and prioritize climate over other types of predictors (any other choice would be valid, it just depends on the scope of the study). These rules are applied to both `auto_cor()` and `auto_vif()`, that are executed sequentially by using the `%>%` pipe from the [magrittr](https://magrittr.tidyverse.org/) package.
+The functions [`auto_cor()`](https://blasbenito.github.io/spatialRF/reference/auto_cor.html) and [`auto_vif()`](https://blasbenito.github.io/spatialRF/reference/auto_vif.html) help reduce redundancy in the predictors by using different criteria (bivariate R squared vs. [variance inflation factor](https://www.statisticshowto.com/variance-inflation-factor/)), while allowing the user to define an *order of preference*, which can be based either on domain expertise or on a quantitative assessment (e.g., order of preference based on variable importance scores or model coefficients). The preference order is defined as a character vector in the `preference.order` argument of both functions, and does not need to include the names of all predictors, but just the ones the user would like to keep in the analysis.
 
 Notice that I have set `cor.threshold` and `vif.threshold` to low values because the predictors in `plant_richness_df` already have little multicollinearity,. The default values (`cor.threshold = 0.75` and `vif.threshold = 5`) should work well when combined together for any other set of predictors.
 
@@ -296,7 +258,7 @@ predictor.variable.names <- spatialRF::auto_cor(
   )
 ```
 
-The output of `auto_cor()` or `auto_vif()` is of the class "variable_selection", that can be used as input for the argument `predictor.variable.names` of any modeling function within the package. An example is shown in the next section.
+The output of `auto_cor()` or `auto_vif()` has the class "variable_selection", that can be used as input for the argument `predictor.variable.names` of any modeling function within the package.
 
 ```{r}
 names(predictor.variable.names)
@@ -307,6 +269,47 @@ The slot `selected.variables` contains the names of the selected predictors.
 ```{r}
 predictor.variable.names$selected.variables
 ```
+
+
+# Finding promising variable interactions
+
+Random Forests already takes into account variable interactions of the form "variable `a` becomes important when `b` is higher than x". However, Random Forest can also take advantage of variable interactions of the form `a * b`, across the complete ranges of the predictors, as they are commonly defined in regression models, and "interactions" (not the proper name, but used here for simplicity) represented by the first component of a PCA on `a` and `b`.
+
+The function [`rf_interactions()`](https://blasbenito.github.io/spatialRF/reference/rf_interactions.html) tests all possible interactions of both types among the most important predictors, and suggesting the ones not correlated among themselves and with the other predictors that have an importance above the median, and a positive increase in the model's R squared (as computed on the out-of-bag data).
+
+```{r, fig.width=12, fig.height=4}
+interactions <- rf_interactions(
+  data = plant_richness_df,
+  dependent.variable.name = dependent.variable.name,
+  predictor.variable.names = predictor.variable.names,
+  cor.threshold = 0.75,
+  verbose = FALSE
+  )
+```
+
+```{r, echo=TRUE, fig.width = 5, fig.height = 4}
+patchwork::wrap_plots(interactions$plot)
+```
+Here `rf_interactions()` suggests several candidate interactions ordered by their impact on the model. Interactions computed via multiplication are named `a..x..b`, while interactions computed via PCA are named `a..pca..b`. The function cannot say whether an interaction *makes sense*, and it is up to the user to choose wisely whether to select an interaction or not.
+
+The function returns the data, including the selected interactions, required to fit models with the functions within the package.
+
+```{r, eval = FALSE}
+interactions$data
+interactions$dependent.variable.name
+interactions$predictor.variable.names
+```
+
+We can use the values slots to prepare new training data.
+
+```{r}
+#adding interaction column to the training data
+plant_richness_df <- interactions$data
+
+#adding interaction name to predictor.variable.names
+predictor.variable.names <- interactions$predictor.variable.names
+```
+
 
 # Fitting a (non-spatial) Random Forest model with `rf()`
 
@@ -447,7 +450,7 @@ p2 <- ggplot2::ggplot() +
     ggplot2::aes(
       x = x,
       y = y,
-      color = human_population_density
+      color = human_population
     )
   ) +
   ggplot2::scale_x_continuous(limits = c(-170, -30)) +
@@ -455,7 +458,7 @@ p2 <- ggplot2::ggplot() +
   ggplot2::scale_color_gradient2(low = "red", high = "blue") +
   ggplot2::theme_bw() +
   ggplot2::theme(legend.position = "bottom") +
-  ggplot2::ggtitle("human_population_density") +
+  ggplot2::ggtitle("human_population") +
   ggplot2::theme(
     plot.title = ggplot2::element_text(hjust = 0.5),
     legend.key.width = ggplot2::unit(1,"cm")

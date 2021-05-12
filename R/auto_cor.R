@@ -105,6 +105,8 @@ auto_cor <- function(
 
   }
 
+  #vector to store variables to remove
+  removed.vars <- vector()
 
   #iterating through columns
   for(i in seq(ncol(x.cor), 1)){
@@ -118,18 +120,25 @@ auto_cor <- function(
       #identify column name
       variable.to.remove <- names(x.cor.max[i])
 
+      #adding it to removed.vars
+      removed.vars <- c(removed.vars, variable.to.remove)
+
       #remove it from x.cor
       x.cor <- x.cor[
         rownames(x.cor) != variable.to.remove,
         rownames(x.cor) != variable.to.remove
       ]
+
+    }
+
+    if(is.null(dim(x.cor))){
+      break
     }
 
   }
 
   #message
   if(verbose == TRUE){
-    removed.vars <- setdiff(colnames(x), colnames(x.cor))
     message(
       paste0(
         "[auto_cor()]: Removed variables: ",
@@ -143,9 +152,13 @@ auto_cor <- function(
 
   #return output
   output.list <- list()
-  output.list$cor <- round(cor(x[, colnames(x.cor)]), 3)
-  output.list$selected.variables <- colnames(x.cor)
-  output.list$selected.variables.df <- x[, colnames(x.cor)]
+  output.list$cor <- ifelse(
+    length(x.cor) == 0,
+    NULL,
+    round(cor(x[, colnames(x.cor)]), 3)
+    )
+  output.list$selected.variables <- setdiff(colnames(x), removed.vars)
+  output.list$selected.variables.df <- x[, output.list$selected.variables]
 
   class(output.list) <- "variable_selection"
 
