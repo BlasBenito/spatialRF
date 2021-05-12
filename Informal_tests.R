@@ -51,28 +51,28 @@ x <- rf_spatial(
   dependent.variable.name = dependent.variable.name,
   predictor.variable.names = predictor.variable.names,
   distance.matrix = distance_matrix,
+  xy = xy,
   verbose = FALSE
 ) %>%
   rf_tuning(
-    xy = xy,
     verbose = FALSE
   ) %>%
   rf_evaluate(
-    xy = xy,
     verbose = FALSE
   ) %>%
   rf_repeat(
-    repetitions = 30,
-    verbose = FALSE
+    repetitions = 30
   )
 
 
 #rf_interactions()
 #############################################
-interactions <- spatialRF::rf_interactions(
+interactions <- rf_interactions(
   data = plant_richness_df,
   dependent.variable.name = "richness_species_vascular",
-  predictor.variable.names = colnames(plant_richness_df)[5:21]
+  predictor.variable.names = colnames(plant_richness_df)[5:21],
+  cor.threshold = 0.75,
+  seed = 100
 )
 
 

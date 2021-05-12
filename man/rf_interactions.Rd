@@ -10,6 +10,7 @@ rf_interactions(
   predictor.variable.names = NULL,
   ranger.arguments = NULL,
   importance.threshold = NULL,
+  cor.threshold = 0.5,
   point.color = viridis::viridis(100, option = "F"),
   seed = NULL,
   verbose = TRUE,
@@ -31,31 +32,46 @@ rf_interactions(
 
 \item{importance.threshold}{Value of variable importance from \code{model} used as threshold to select variables to generate candidate interactions. Default: Quantile 0.75 of the variable importance in \code{model}.}
 
+\item{cor.threshold}{Numeric, maximum Pearson correlation between any pair of the selected interactions, and between any interaction and the predictors in \code{predictor.variable.names}. Default: \code{0.50}}
+
 \item{point.color}{Colors of the plotted points. Can be a single color name (e.g. "red4"), a character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. \code{viridis::viridis(100)}). Default: \code{viridis::viridis(100, option = "F")}}
 
-\item{seed}{Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same.}
+\item{seed}{Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same. Default: \code{NULL}}
 
-\item{verbose}{Logical If \code{TRUE}, messages and plots generated during the execution of the function are displayed, Default: \code{TRUE}}
+\item{verbose}{Logical If \code{TRUE}, messages and plots generated during the execution of the function are displayed. Default: \code{TRUE}}
 
-\item{n.cores}{Integer, number of cores to use. Default = \code{parallel::detectCores() - 1}}
+\item{n.cores}{Integer, number of cores to use. Default: \code{parallel::detectCores() - 1}}
 
-\item{cluster.ips}{Character vector with the IPs of the machines in a cluster. The machine with the first IP will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.}
+\item{cluster.ips}{Character vector with the IPs of the machines in a cluster. The machine with the first IP will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed. Default: \code{NULL}}
 
-\item{cluster.cores}{Numeric integer vector, number of cores to use on each machine.}
+\item{cluster.cores}{Numeric integer vector, number of cores to use on each machine. Default: \code{NULL}}
 
 \item{cluster.user}{Character string, name of the user (should be the same throughout machines). Defaults to the current system user.}
 
 \item{cluster.port}{Integer, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: \code{11000}}
 }
 \value{
-A list with four slots: \code{screening}, with the complete screening results; \code{selected}, with the names and the R squared improvement produced by each variable interaction; \code{columns}, data frame with the interactions computed from the training data, and \code{plot}, with the list of plots of the selected interactions versus the response variable. The output list can be plotted all at once with \code{patchwork::wrap_plots(p)} or \code{cowplot::plot_grid(plotlist = p)}, or one by one by extracting each plot from the list.
+A list with seven slots:
+\itemize{
+\item \code{screening}: Data frame with selection scores of all the interactions considered.
+\item \code{selected}: Data frame with selection scores of the selected interactions.
+\item \code{df}: Data frame with the computed interactions.
+\item \code{plot}: List of plots of the selected interactions versus the response variable. The output list can be plotted all at once with \code{patchwork::wrap_plots(p)} or \code{cowplot::plot_grid(plotlist = p)}, or one by one by extracting each plot from the list.
+\item \code{data}: Data frame with the response variable, the predictors, and the selected interactions, ready to be used as \code{data} argument in the package functions.
+\item \code{dependent.variable.name}: Character, name of the response.
+\item \code{predictor.variable.names}: Character vector with the names of the predictors and the selected interactions.
+}
 }
 \description{
-Suggests candidate variable interactions by selecting the variables above a given variable importance threshold (given by the argument \code{importance.threshold}) from a model and combining them in pairs through multiplication (\code{a * b}). The interacting variables are scaled between 1 and 100 before multiplication to avoid artifacts when a variable has 0 somewhere in the middle of its range (i.e. temperature).
+Suggests candidate variable interactions for random forest models. For a pair of predictors \code{a} and \code{b}, interactions are build via multiplication (\code{a * b}), and by extracting the first factor of a principal component analysis performed with \code{\link[=pca]{pca()}}, after rescaling \code{a} and \code{b} between 1 and 100. Interactions based on multiplication are named \code{a..x..b}, and interactions based on PCA factors are named \code{a..pca..b}.
 
-For each variable interaction, a model including all the predictors plus the interaction is fitted, and it's R squared is compared with the R squared of the model without interactions. This model without interactions can either be provided through the argument \code{model}, or is fitted on the fly with \code{\link[=rf_repeat]{rf_repeat()}} if the user provides the data.
+Candidate variables \code{a} and \code{b} are selected from those predictors in \code{predictor.variable.names} with a variable importance above \code{importance.threshold} (set by default to the median of the importance scores).
 
-Users should not use the suggested variable interactions hastily. Most likely, only one or a few of the suggested interactions may make sense from a domain expertise standpoint.
+For each variable interaction, a model including all the predictors plus the interaction is fitted, and it's R squared is compared with the R squared of the model without interactions.
+
+From all the potential interactions screened, only those with a positive increase in the oub-of-bag R squared of the model, a variable importance above the median, and a maximum correlation among themselves and with the predictors in \code{predictor.variable.names} not higher than \code{cor.threshold} (set to 0.5 by default) are selected. Such a restrictive set of rules ensures that the selected interactions can be used right away for modeling purposes without increasing model complexity unnecessarily. However, the suggested variable interactions should not be used hastily. Most likely, only one or a few of the suggested interactions may make sense from a domain expertise standpoint.
+
+The function returns the criteria used to select the interactions, and the data required to use these interactions a modeling workflow.
 }
 \examples{
 \donttest{

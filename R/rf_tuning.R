@@ -71,25 +71,35 @@ rf_tuning <- function(
   min.node.size.i <- NULL
 
   if(is.null(model)){
+
     stop("The argument 'model' is empty, there is no model to tune.")
-  }
-
-  if(is.null(xy)){
-    stop("The argument 'xy' is required for spatial cross-validation.")
-  }
-
-  #getting arguments from model rather than ranger.arguments
-  ranger.arguments <- model$ranger.arguments
-  data <- ranger.arguments$data
-  dependent.variable.name <- ranger.arguments$dependent.variable.name
-  predictor.variable.names <- ranger.arguments$predictor.variable.names
-  distance.matrix <- ranger.arguments$distance.matrix
-  distance.thresholds <- ranger.arguments$distance.thresholds
-  if(is.null(xy) & !is.null(ranger.arguments$xy)){
-    xy <- ranger.arguments$xy
   } else {
-    stop("Argument 'xy' is required for model tuning.")
+
+    #getting arguments from model rather than ranger.arguments
+    ranger.arguments <- model$ranger.arguments
+    data <- ranger.arguments$data
+    dependent.variable.name <- ranger.arguments$dependent.variable.name
+    predictor.variable.names <- ranger.arguments$predictor.variable.names
+    distance.matrix <- ranger.arguments$distance.matrix
+    distance.thresholds <- ranger.arguments$distance.thresholds
+
+    #getting xy
+    if(is.null(xy)){
+      if(is.null(model$ranger.arguments$xy)){
+        stop("The argument 'xy' is required for spatial cross-validation.")
+      } else {
+        xy <- model$ranger.arguments$xy
+      }
+    }
   }
+  if(sum(c("x", "y") %in% colnames(xy)) < 2){
+    stop("The column names of 'xy' must be 'x' and 'y'.")
+  }
+  if(nrow(xy) != nrow(data)){
+    stop("nrow(xy) and nrow(data) (stored in model$ranger.arguments$data) must be the same.")
+  }
+
+  #saving model class for later
   model.class <- class(model)
 
   #testing if the data is binary
@@ -356,6 +366,7 @@ rf_tuning <- function(
     ranger.arguments = ranger.arguments,
     distance.matrix = distance.matrix,
     distance.thresholds = distance.thresholds,
+    xy = xy,
     verbose = FALSE
   )
 

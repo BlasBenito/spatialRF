@@ -85,11 +85,43 @@ rf_evaluate <- function(
   metric <- NULL
   value <- NULL
 
-  #capturing user options
-  user.options <- options()
-  #avoid dplyr messages
-  options(dplyr.summarise.inform = FALSE)
-  on.exit(options <- user.options)
+
+  if(is.null(model)){
+
+    stop("The argument 'model' is empty, there is no model to evaluate")
+
+  } else {
+
+    #getting data and ranger arguments from the model
+    data <- model$ranger.arguments$data
+    dependent.variable.name <- model$ranger.arguments$dependent.variable.name
+    predictor.variable.names <- model$ranger.arguments$predictor.variable.names
+    ranger.arguments <- model$ranger.arguments
+    ranger.arguments$data <- NULL
+    ranger.arguments$dependent.variable.name <- NULL
+    ranger.arguments$predictor.variable.names <- NULL
+    ranger.arguments$importance <- "none"
+    ranger.arguments$local.importance <- FALSE
+    ranger.arguments$data <- NULL
+    ranger.arguments$scaled.importance <- FALSE
+    ranger.arguments$distance.matrix <- NULL
+    ranger.arguments$num.threads <- 1
+
+    #getting xy
+    if(is.null(xy)){
+      if(is.null(model$ranger.arguments$xy)){
+        stop("The argument 'xy' is required for spatial cross-validation.")
+      } else {
+        xy <- model$ranger.arguments$xy
+      }
+    }
+  }
+  if(sum(c("x", "y") %in% colnames(xy)) < 2){
+    stop("The column names of 'xy' must be 'x' and 'y'.")
+  }
+  if(nrow(xy) != nrow(data)){
+    stop("nrow(xy) and nrow(data) (stored in model$ranger.arguments$data) must be the same.")
+  }
 
   #testing method argument
   metrics <- match.arg(
@@ -103,6 +135,20 @@ rf_evaluate <- function(
   if(repetitions < 5){
     stop("Argument 'repetitions' must be an integer equal or larger than 5")
   }
+  if(repetitions > nrow(xy)){
+    if(verbose == TRUE){
+      message("Argument 'repetitions' larger than number of cases, setting it to the number of cases.")
+    }
+    repetitions <- nrow(xy)
+  }
+
+
+  #capturing user options
+  user.options <- options()
+  #avoid dplyr messages
+  options(dplyr.summarise.inform = FALSE)
+  on.exit(options <- user.options)
+
 
   #training fraction limits
   if(training.fraction < 0.2){
@@ -112,51 +158,18 @@ rf_evaluate <- function(
     training.fraction <- 0.9
   }
 
-  #getting data and ranger arguments from the model
-  data <- model$ranger.arguments$data
-  dependent.variable.name <- model$ranger.arguments$dependent.variable.name
-  predictor.variable.names <- model$ranger.arguments$predictor.variable.names
-  ranger.arguments <- model$ranger.arguments
-  ranger.arguments$data <- NULL
-  ranger.arguments$dependent.variable.name <- NULL
-  ranger.arguments$predictor.variable.names <- NULL
-  ranger.arguments$importance <- "none"
-  ranger.arguments$local.importance <- FALSE
-  ranger.arguments$data <- NULL
-  ranger.arguments$scaled.importance <- FALSE
-  ranger.arguments$distance.matrix <- NULL
-  ranger.arguments$num.threads <- 1
-
-  #preparing xy
-  #if null, stop
-  if(is.null(xy) & !is.null(ranger.arguments$xy)){
-    xy <- ranger.arguments$xy
-  } else {
-    stop("Argument 'xy' is required for model tuning.")
-  }
-  if(sum(c("x", "y") %in% colnames(xy)) < 2){
-    stop("The column names of 'xy' must be 'x' and 'y'.")
-  }
-  if(nrow(xy) != nrow(data)){
-    stop("nrow(xy) and nrow(data) (stored in model$ranger.arguments$data) must be the same.")
-  }
-
   #add id to data and xy
   data$id <- xy$id <- seq(1, nrow(data))
 
   #thinning coordinates to get a systematic sample of reference points
-  if(repetitions < nrow(xy)){
-    if(verbose == TRUE){
-      message("Selecting pairs of coordinates as trainnig fold origins.")
-    }
-    xy.reference.records <- thinning_til_n(
-      xy = xy,
-      n = repetitions,
-      distance.step = distance.step
-    )
-  } else {
-    stop("The argument 'repetitions' is larger than the number of available records.")
+  if(verbose == TRUE){
+    message("Selecting pairs of coordinates as trainnig fold origins.")
   }
+  xy.reference.records <- thinning_til_n(
+    xy = xy,
+    n = repetitions,
+    distance.step = distance.step
+  )
 
   #generates spatial folds
   ####################################
@@ -242,7 +255,7 @@ rf_evaluate <- function(
   evaluation.df <- foreach::foreach(
     i = seq(1, length(spatial.folds), by = 1),
     .combine = "rbind",
-    .verbose = verbose
+    .verbose = FALSE
     ) %dopar% {
 
     #separating training and testing data
@@ -335,9 +348,6 @@ rf_evaluate <- function(
   if(exists("temp.cluster")){
     parallel::stopCluster(cl = temp.cluster)
   }
-
-  #removing columns with NA
-  # evaluation.df <- evaluation.df[, colSums(is.na(evaluation.df)) != nrow(evaluation.df)]
 
   #preparing data frames for plotting and printing
   #select columns with "training"

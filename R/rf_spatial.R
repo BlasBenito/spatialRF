@@ -6,6 +6,7 @@
 #' @param predictor.variable.names Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Default: `NULL`
 #' @param distance.matrix Squared matrix with the distances among the records in `data`. The number of rows of `distance.matrix` and `data` must be the same. If not provided, the computation of the Moran's I of the residuals is omitted. Default: `NULL`
 #' @param distance.thresholds Numeric vector, distances below each value are set to 0 on separated copies of the distance matrix for the computation of Moran's I at different neighborhood distances. If `NULL`, it defaults to `seq(0, max(distance.matrix)/4, length.out = 2)`. Default: `NULL`
+#' @param xy (optional) Data frame or matrix with two columns containing coordinates and named "x" and "y". It is not used by this function, but it is stored in the slot `ranger.arguments$xy` of the model, so it can be used by [rf_evaluate()] and [rf_tuning()]. Default: `NULL`
 #' @param ranger.arguments Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.
 #' @param scaled.importance Logical. If `TRUE`, and 'importance = "permutation', the function scales 'data' with \link[base]{scale} and fits a new model to compute scaled variable importance scores. Default: `TRUE`
 #' @param method Character, method to build, rank, and select spatial predictors. One of:
@@ -121,6 +122,7 @@ rf_spatial <- function(
   predictor.variable.names = NULL,
   distance.matrix = NULL,
   distance.thresholds = NULL,
+  xy = NULL,
   ranger.arguments = NULL,
   scaled.importance = TRUE,
   method = c(
@@ -278,6 +280,7 @@ rf_spatial <- function(
       predictor.variable.names = predictor.variable.names,
       distance.matrix = distance.matrix,
       distance.thresholds = distance.thresholds,
+      xy = xy,
       ranger.arguments = ranger.arguments,
       scaled.importance = FALSE,
       seed = seed,
@@ -587,6 +590,7 @@ rf_spatial <- function(
     predictor.variable.names = predictor.variable.names.spatial,
     distance.matrix = distance.matrix,
     distance.thresholds = distance.thresholds,
+    xy = xy,
     ranger.arguments = ranger.arguments,
     seed = seed,
     verbose = FALSE

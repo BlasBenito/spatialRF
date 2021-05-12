@@ -57,7 +57,7 @@ I will do my best to solve any issues ASAP!
 
 The goal of `spatialRF` is to help fitting *explanatory spatial regression*, where the target is to understand how a set of predictors and the spatial structure of the data influences response variable. Therefore, the spatial analyses implemented in the package can be applied to any spatial dataset, regular or irregular, with a sample size between \~100 and \~5000 cases (the higher end will depend on the RAM memory available), a quantitative or binary (values 0 and 1) response variable, and a more or less large set of predictive variables.
 
-All functions but `rf_spatial()` work with non-spatial data as well if the arguments `distance.matrix` and `distance.thresholds` are ignored. In such case, the number of training cases is no longer limited by the size of the distance matrix, and models can be trained with hundreds of thousands of rows. 
+All functions but `rf_spatial()` work with non-spatial data as well if the arguments `distance.matrix` and `distance.thresholds` are not provided In such case, the number of training cases is no longer limited by the size of the distance matrix, and models can be trained with hundreds of thousands of rows. In such case, the spatial autocorrelation of the model's residuals is not assessed.
 
 However, **when the focus is on fitting spatial models**, and due to the nature of the *spatial predictors* used to represent the spatial structure of the training data, **there are many things this package cannot do**:
 
@@ -106,6 +106,7 @@ There are a few other libraries that will be useful during this tutorial.
 library(kableExtra)
 library(rnaturalearth)
 library(rnaturalearthdata)
+library(tidyverse)
 library(randomForestExplainer)
 library(pdp)
 ```
@@ -126,7 +127,19 @@ The data required to fit random forest models with `spatialRF` must fulfill seve
 
 The package includes an example dataset that fulfills the conditions mentioned above, named [`plant_richness_df`](https://blasbenito.github.io/spatialRF/reference/plant_richness_df.html). It is a data frame with plant species richness and predictors for 227 ecoregions in the Americas, and a distance matrix among the ecoregion edges named, well, [`distance_matrix`](https://blasbenito.github.io/spatialRF/reference/distance_matrix.html).
 
+The package follows a convention throughout functions:
+
+  + The argument `data` requires a training data frame.
+  + The argument `dependent.variable.name` is the column name of the response variable.
+  + The argument `predictor.variable.names` contains the column names of the predictors.
+  + The argument `xy` takes a data frame or matrix with two columns named "x" and "y", in that order, with the case coordinates.
+  + The argument `distance.matrix` requires a matrix of distances between the cases in `data`.
+  + The argument `distance.thresholds` is a numeric vector of distances at with spatial autocorrelation wants to be computed.
+  
+It is therefore convenient to define these arguments at the beginning of the workflow.
+
 ```{r}
+#loading ddata
 data(plant_richness_df)
 data(distance_matrix)
 
@@ -137,9 +150,17 @@ predictor.variable.names <- colnames(plant_richness_df)[5:21]
 #coordinates of the cases
 xy <- plant_richness_df[, c("x", "y")]
 
+#distance matrix
+distance.matrix <- distance_matrix
+
+#distance thresholds
+distance.thresholds <- c(0, 1000, 2000, 4000, 8000)
+
 #random seed for reproducibility
 random.seed <- 100
 ```
+
+
 
 The response variable of `plant_richness_df` is "richness_species_vascular", that represents the total count of vascular plant species found on each ecoregion. The figure below shows the centroids of each ecoregion along with their associated value of the response variable.
 
@@ -198,10 +219,8 @@ spatialRF::plot_training_df_moran(
   data = plant_richness_df,
   dependent.variable.name = dependent.variable.name,
   predictor.variable.names = predictor.variable.names,
-  distance.matrix = distance_matrix,
-  distance.thresholds = c(
-    0, 1000, 2000, 4000, 8000
-  ),
+  distance.matrix = distance.matrix,
+  distance.thresholds = distance.thresholds = c(0, 1500, 3000),
   fill.color = viridis::viridis(
     100,
     option = "F",
@@ -242,7 +261,7 @@ For the sake of the example, I will choose `climate_bio1_average_X_bias_area_km2
 
 ```{r}
 #adding interaction column to the training data
-plant_richness_df[, "climate_bio1_average_X_bias_area_km2"] <- interactions$columns[, "climate_bio1_average_X_bias_area_km2"]
+plant_richness_df[, "climate_bio1_average_X_bias_area_km2"] <- interactions$df[, "climate_bio1_average_X_bias_area_km2"]
 
 #adding interaction name to predictor.variable.names
 predictor.variable.names <- c(predictor.variable.names, "climate_bio1_average_X_bias_area_km2")
@@ -302,8 +321,8 @@ model.non.spatial <- spatialRF::rf(
   data = plant_richness_df,
   dependent.variable.name = dependent.variable.name,
   predictor.variable.names = predictor.variable.names,
-  distance.matrix = distance_matrix,
-  distance.thresholds = c(0, 1500, 3000),
+  distance.matrix = distance.matrix,
+  distance.thresholds = distance.thresholds,
   seed = random.seed,
   verbose = FALSE
 )
@@ -840,14 +859,14 @@ model.full <- rf_spatial(
   dependent.variable.name = dependent.variable.name,
   predictor.variable.names = predictor.variable.names,
   distance.matrix = distance_matrix,
+  distance.thresholds = distance.thresholds,
+  xy = xy,
   verbose = FALSE
 ) %>%
   rf_tuning(
-    xy = xy,
     verbose = FALSE
   ) %>%
   rf_evaluate(
-    xy = xy,
     verbose = FALSE
   ) %>%
   rf_repeat(
@@ -919,8 +938,8 @@ model.non.spatial <- spatialRF::rf(
   data = plant_richness_df,
   dependent.variable.name = "response_binomial",
   predictor.variable.names = predictor.variable.names,
-  distance.matrix = distance_matrix,
-  distance.thresholds = c(0, 1500, 3000),
+  distance.matrix = distance.matrix,
+  distance.thresholds = distance.thresholds,
   seed = random.seed,
   verbose = FALSE
 )
@@ -985,8 +1004,8 @@ mems <- spatialRF::mem(distance.matrix = distance_matrix)
 
 #several distances
 mems <- spatialRF::mem_multithreshold(
-  distance.matrix = distance_matrix,
-  distance.thresholds = c(0, 1000, 2000)
+  distance.matrix = distance.matrix,
+  distance.thresholds = distance.thresholds
 )
 ```
 
