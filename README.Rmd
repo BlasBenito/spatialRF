@@ -281,7 +281,7 @@ The function [`rf_interactions()`](https://blasbenito.github.io/spatialRF/refere
 interactions <- rf_interactions(
   data = plant_richness_df,
   dependent.variable.name = dependent.variable.name,
-  predictor.variable.names = predictor.variable.names,
+  predictor.variable.names = predictor.variable.names$selected.variables,
   cor.threshold = 0.75,
   verbose = FALSE
   )
@@ -856,26 +856,18 @@ spatialRF::print_performance(model.spatial.tuned.repeat)
 
 The modeling functions of `spatialRF` are designed to facilitate using the pipe to combine them. The code below fits a spatial model, tunes its hyperparameters, evaluates it using spatial cross-validation, and repeats the execution several times, just by passing the model from one function to another.
 
-```{r}
+```{r, results = "hide", message = FALSE, error = FALSE, warning = FALSE}
 model.full <- rf_spatial(
   data = plant_richness_df,
   dependent.variable.name = dependent.variable.name,
   predictor.variable.names = predictor.variable.names,
   distance.matrix = distance_matrix,
   distance.thresholds = distance.thresholds,
-  xy = xy,
-  verbose = FALSE
+  xy = xy
 ) %>%
-  rf_tuning(
-    verbose = FALSE
-  ) %>%
-  rf_evaluate(
-    verbose = FALSE
-  ) %>%
-  rf_repeat(
-    repetitions = 30,
-    verbose = FALSE
-  )
+  rf_tuning() %>%
+  rf_evaluate() %>%
+  rf_repeat(repetitions = 30)
 ```
 
 Once the model is fitted, the slots added by each function can be examined with functions such as `plot_tuning()`, `plot_evaluation()` and the likes.

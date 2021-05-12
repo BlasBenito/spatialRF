@@ -26,7 +26,7 @@ rf_interactions(
 
 \item{dependent.variable.name}{Character string with the name of the response variable. Must be in the column names of \code{data}. If the dependent variable is binary with values 1 and 0, the argument \code{case.weights} of \code{ranger} is populated by the function \code{\link[=case_weights]{case_weights()}}. Default: \code{NULL}}
 
-\item{predictor.variable.names}{Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. Default: \code{NULL}}
+\item{predictor.variable.names}{Character vector with the names of the predictive variables, or object of class \code{"variable_selection"} produced by \code{\link[=auto_vif]{auto_vif()}} and/or \code{\link[=auto_cor]{auto_cor()}}. Every element of this vector must be in the column names of \code{data}. Default: \code{NULL}}
 
 \item{ranger.arguments}{Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.}
 
