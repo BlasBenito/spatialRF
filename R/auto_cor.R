@@ -154,15 +154,17 @@ auto_cor <- function(
     }
   }
 
+  #selected variables
+  selected.variables <- setdiff(colnames(x), removed.vars)
+  selected.variables.df <- x[, selected.variables]
+
   #return output
   output.list <- list()
-  output.list$cor <- ifelse(
-    length(x.cor) == 0,
-    NULL,
-    round(cor(x[, colnames(x.cor)]), 3)
-    )
-  output.list$selected.variables <- setdiff(colnames(x), removed.vars)
-  output.list$selected.variables.df <- x[, output.list$selected.variables]
+  if(length(selected.variables) > 1){
+    output.list$cor <- round(cor(selected.variables.df), 2)
+  }
+  output.list$selected.variables <- selected.variables
+  output.list$selected.variables.df <- selected.variables.df
 
   class(output.list) <- "variable_selection"
 

@@ -53,7 +53,7 @@ on regular or irregular data with Random Forest. It does so by
 generating *spatial predictors* that help the model “understand” the
 spatial structure of the training data with the end goal of minimizing
 the spatial autocorrelation of the model residuals and offering honest
-ariable importance scores.
+variable importance scores.
 
 Two main methods to generate *spatial predictors* from the distance
 matrix of the data points are implemented in the package:
@@ -63,9 +63,9 @@ matrix of the data points are implemented in the package:
 -   Distance matrix columns as explanatory variables [(Hengl et
     al. 2018)](https://peerj.com/articles/5518/).
 
-The package is designed to minimize the amount of code required to fit a
-spatial model from a training dataset, the names of the response and the
-predictors, and a distance matrix, as the example below shows.
+The package is designed to minimize the code required to fit a spatial
+model from a training dataset, the names of the response and the
+predictors, and a distance matrix, as shown below.
 
 ``` r
 spatial.model <- spatialRF::rf_spatial(
@@ -197,9 +197,9 @@ fulfill several conditions:
     fully supported.
 -   **The number of rows must be somewhere between 100 and \~5000**, at
     least if your target is fitting spatial models. This limitation
-    comes from the fact that the distance matrix grows in size very fast
-    with increasing number of training records, so for large datasets
-    there might not be enough RAM memory in your machine.
+    comes from the fact that the distance matrix grows very fast with an
+    increasing number of training records, so for large datasets, there
+    might not be enough RAM in your machine.
 -   **The number of predictors should be larger than 3**. Fitting a
     Random Forest model is moot otherwise.
 -   **Factors in the response or the predictors are not explicitly
@@ -249,7 +249,7 @@ It is therefore convenient to define these arguments at the beginning of
 the workflow.
 
 ``` r
-#loading ddata
+#loading training data and distance matrix from the package
 data(plant_richness_df)
 data(distance_matrix)
 
@@ -263,11 +263,11 @@ xy <- plant_richness_df[, c("x", "y")]
 #distance matrix
 distance.matrix <- distance_matrix
 
-#distance thresholds
+#distance thresholds (same units as distance_matrix)
 distance.thresholds <- c(0, 1000, 2000, 4000, 8000)
 
 #random seed for reproducibility
-random.seed <- 100
+random.seed <- 1
 ```
 
 The response variable of `plant_richness_df` is
@@ -406,11 +406,11 @@ predictor.variable.names <- spatialRF::auto_cor(
 
     ## [auto_cor()]: Removed variables: human_footprint_average
 
-    ## [auto_vif()]: Removed variables:
+    ## [auto_vif()]: Variables are not collinear.
 
 The output of `auto_cor()` or `auto_vif()` has the class
-“variable\_selection”, that can be used as input for the argument
-`predictor.variable.names` of any modeling function within the package.
+“variable\_selection”, which can be used as input in every function
+having the argument `predictor.variable.names`.
 
 ``` r
 names(predictor.variable.names)
@@ -448,31 +448,45 @@ The function
 [`rf_interactions()`](https://blasbenito.github.io/spatialRF/reference/rf_interactions.html)
 tests all possible interactions of both types among the most important
 predictors, and suggesting the ones not correlated among themselves and
-with the other predictors that have an importance above the median, and
-a positive increase in the model’s R squared (as computed on the
-out-of-bag data).
+with the other predictors inducing an increase in the model’s R squared
+(as computed on the out-of-bag data).
 
 ``` r
 interactions <- rf_interactions(
   data = plant_richness_df,
   dependent.variable.name = dependent.variable.name,
-  predictor.variable.names = predictor.variable.names$selected.variables,
-  cor.threshold = 0.75,
-  verbose = FALSE
+  predictor.variable.names = predictor.variable.names,
+  importance.threshold = 0.75, #uses 25% best predictors
+  cor.threshold = 0.5,
+  seed = random.seed,
+  verbose = TRUE
   )
 ```
+
+    ## Testing 120 candidate interactions.
+
+    ## Interactions identified: 1
+
+    ##  ┌──────────────────┬──────────────────┬──────────────────┬──────────────────┐
+    ##  │ Interaction      │ Importance (% of │        R-squared │     Max cor with │
+    ##  │                  │             max) │      improvement │       predictors │
+    ##  ├──────────────────┼──────────────────┼──────────────────┼──────────────────┤
+    ##  │ climate_bio1_ave │             98.1 │            0.012 │             0.34 │
+    ##  │ rage..pca..human │                  │                  │                  │
+    ##  │ _population_dens │                  │                  │                  │
+    ##  │ ity              │                  │                  │                  │
+    ##  └──────────────────┴──────────────────┴──────────────────┴──────────────────┘
 
 ``` r
 patchwork::wrap_plots(interactions$plot)
 ```
 
 ![](README_files/figure-gfm/unnamed-chunk-12-1.png)<!-- --> Here
-`rf_interactions()` suggests several candidate interactions ordered by
-their impact on the model. Interactions computed via multiplication are
-named `a..x..b`, while interactions computed via PCA are named
-`a..pca..b`. The function cannot say whether an interaction *makes
-sense*, and it is up to the user to choose wisely whether to select an
-interaction or not.
+`rf_interactions()` one candidate interaction. Notice that interactions
+computed via multiplication are named `a..x..b`, while interactions
+computed via PCA are named `a..pca..b`. The function cannot say whether
+an interaction *makes sense*, and it is up to the user to choose wisely
+whether to select an interaction or not.
 
 The function returns the data, including the selected interactions,
 required to fit models with the functions within the package.
@@ -551,7 +565,8 @@ The upper panels show the results of the normality test (interpretation
 in the title), the middle panel shows the relationship between the
 residuals and the fitted values, important to understand the behavior of
 the residuals, and the lower panel shows the Moran’s I of the residuals
-across distance thresholds and their respective p-values.
+across distance thresholds and their respective p-values (positive for 0
+and 1000 km).
 
 ## Variable importance
 
@@ -637,13 +652,13 @@ p\_value
 human\_population
 </td>
 <td style="text-align:right;">
-2.297428
+2.250180
 </td>
 <td style="text-align:right;">
-2673
+2682
 </td>
 <td style="text-align:right;">
-80
+101
 </td>
 <td style="text-align:right;">
 0.0000
@@ -651,33 +666,16 @@ human\_population
 </tr>
 <tr>
 <td style="text-align:left;">
-climate\_bio1\_average..pca..human\_population\_density
-</td>
-<td style="text-align:right;">
-2.379140
-</td>
-<td style="text-align:right;">
-2293
-</td>
-<td style="text-align:right;">
-96
-</td>
-<td style="text-align:right;">
-0.0119
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
 climate\_hypervolume
 </td>
 <td style="text-align:right;">
-2.454000
+2.480962
 </td>
 <td style="text-align:right;">
-2425
+2490
 </td>
 <td style="text-align:right;">
-78
+70
 </td>
 <td style="text-align:right;">
 0.0000
@@ -688,16 +686,33 @@ climate\_hypervolume
 climate\_bio1\_average
 </td>
 <td style="text-align:right;">
-2.611428
+2.619238
 </td>
 <td style="text-align:right;">
-2368
+2462
 </td>
 <td style="text-align:right;">
-91
+69
 </td>
 <td style="text-align:right;">
-0.0001
+0.0000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+climate\_bio1\_average..pca..human\_population\_density
+</td>
+<td style="text-align:right;">
+2.624930
+</td>
+<td style="text-align:right;">
+2270
+</td>
+<td style="text-align:right;">
+88
+</td>
+<td style="text-align:right;">
+0.0473
 </td>
 </tr>
 <tr>
@@ -705,13 +720,13 @@ climate\_bio1\_average
 neighbors\_count
 </td>
 <td style="text-align:right;">
-2.848284
+2.709299
 </td>
 <td style="text-align:right;">
-1950
+1930
 </td>
 <td style="text-align:right;">
-58
+62
 </td>
 <td style="text-align:right;">
 1.0000
@@ -722,16 +737,16 @@ neighbors\_count
 human\_population\_density
 </td>
 <td style="text-align:right;">
-3.125712
+2.942405
 </td>
 <td style="text-align:right;">
-2236
+2247
 </td>
 <td style="text-align:right;">
-27
+36
 </td>
 <td style="text-align:right;">
-0.1541
+0.1210
 </td>
 </tr>
 <tr>
@@ -739,13 +754,13 @@ human\_population\_density
 bias\_species\_per\_record
 </td>
 <td style="text-align:right;">
-3.219428
+3.260521
 </td>
 <td style="text-align:right;">
-2773
+2815
 </td>
 <td style="text-align:right;">
-4
+3
 </td>
 <td style="text-align:right;">
 0.0000
@@ -756,16 +771,16 @@ bias\_species\_per\_record
 bias\_area\_km2
 </td>
 <td style="text-align:right;">
-3.361996
+3.350381
 </td>
 <td style="text-align:right;">
-2235
+2307
 </td>
 <td style="text-align:right;">
-15
+29
 </td>
 <td style="text-align:right;">
-0.1593
+0.0067
 </td>
 </tr>
 <tr>
@@ -773,33 +788,16 @@ bias\_area\_km2
 neighbors\_percent\_shared\_edge
 </td>
 <td style="text-align:right;">
-3.705712
+3.468297
 </td>
 <td style="text-align:right;">
-2102
+2255
 </td>
 <td style="text-align:right;">
-10
+9
 </td>
 <td style="text-align:right;">
-0.9739
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-neighbors\_area
-</td>
-<td style="text-align:right;">
-3.881140
-</td>
-<td style="text-align:right;">
-2149
-</td>
-<td style="text-align:right;">
-4
-</td>
-<td style="text-align:right;">
-0.8151
+0.0894
 </td>
 </tr>
 <tr>
@@ -807,33 +805,33 @@ neighbors\_area
 topography\_elevation\_average
 </td>
 <td style="text-align:right;">
-3.933424
+3.757395
 </td>
 <td style="text-align:right;">
-2146
+2194
 </td>
 <td style="text-align:right;">
 2
 </td>
 <td style="text-align:right;">
-0.8323
+0.4969
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-climate\_velocity\_lgm\_average
+neighbors\_area
 </td>
 <td style="text-align:right;">
-4.011424
+3.880481
 </td>
 <td style="text-align:right;">
-2034
+2029
 </td>
 <td style="text-align:right;">
-9
+3
 </td>
 <td style="text-align:right;">
-0.9997
+0.9999
 </td>
 </tr>
 <tr>
@@ -841,13 +839,30 @@ climate\_velocity\_lgm\_average
 fragmentation\_cohesion
 </td>
 <td style="text-align:right;">
-4.193420
+4.006413
 </td>
 <td style="text-align:right;">
-1889
+1903
 </td>
 <td style="text-align:right;">
-18
+14
+</td>
+<td style="text-align:right;">
+1.0000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+climate\_velocity\_lgm\_average
+</td>
+<td style="text-align:right;">
+4.200802
+</td>
+<td style="text-align:right;">
+1991
+</td>
+<td style="text-align:right;">
+8
 </td>
 <td style="text-align:right;">
 1.0000
@@ -858,16 +873,16 @@ fragmentation\_cohesion
 climate\_aridity\_index\_average
 </td>
 <td style="text-align:right;">
-4.278284
+4.234669
 </td>
 <td style="text-align:right;">
-2116
+2014
 </td>
 <td style="text-align:right;">
-6
+5
 </td>
 <td style="text-align:right;">
-0.9484
+1.0000
 </td>
 </tr>
 <tr>
@@ -875,16 +890,16 @@ climate\_aridity\_index\_average
 landcover\_herbs\_percent\_average
 </td>
 <td style="text-align:right;">
-4.423424
+4.386653
 </td>
 <td style="text-align:right;">
-2090
+2041
 </td>
 <td style="text-align:right;">
-0
+1
 </td>
 <td style="text-align:right;">
-0.9864
+0.9997
 </td>
 </tr>
 <tr>
@@ -892,13 +907,13 @@ landcover\_herbs\_percent\_average
 climate\_bio15\_minimum
 </td>
 <td style="text-align:right;">
-4.424568
+4.438237
 </td>
 <td style="text-align:right;">
-1915
+1935
 </td>
 <td style="text-align:right;">
-2
+0
 </td>
 <td style="text-align:right;">
 1.0000
@@ -909,10 +924,10 @@ climate\_bio15\_minimum
 fragmentation\_division
 </td>
 <td style="text-align:right;">
-4.704564
+4.524930
 </td>
 <td style="text-align:right;">
-1823
+1721
 </td>
 <td style="text-align:right;">
 0
@@ -972,172 +987,172 @@ bias\_area\_km2
 <tbody>
 <tr>
 <td style="text-align:right;">
--859
+-263
 </td>
 <td style="text-align:right;">
-1405
+1359
 </td>
 <td style="text-align:right;">
-103
+220
 </td>
 <td style="text-align:right;">
-338
+133
 </td>
 <td style="text-align:right;">
-281
+813
 </td>
 </tr>
 <tr>
 <td style="text-align:right;">
-166
+390
+</td>
+<td style="text-align:right;">
+-644
+</td>
+<td style="text-align:right;">
+-907
+</td>
+<td style="text-align:right;">
+379
+</td>
+<td style="text-align:right;">
+783
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+118
+</td>
+<td style="text-align:right;">
+197
+</td>
+<td style="text-align:right;">
+2188
+</td>
+<td style="text-align:right;">
+216
+</td>
+<td style="text-align:right;">
+270
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+405
+</td>
+<td style="text-align:right;">
+1051
+</td>
+<td style="text-align:right;">
+707
+</td>
+<td style="text-align:right;">
+-127
+</td>
+<td style="text-align:right;">
+645
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+-478
+</td>
+<td style="text-align:right;">
+-271
+</td>
+<td style="text-align:right;">
+721
+</td>
+<td style="text-align:right;">
+467
+</td>
+<td style="text-align:right;">
+-1439
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+159
+</td>
+<td style="text-align:right;">
+1412
+</td>
+<td style="text-align:right;">
+1125
+</td>
+<td style="text-align:right;">
+595
+</td>
+<td style="text-align:right;">
+358
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+-496
+</td>
+<td style="text-align:right;">
+773
+</td>
+<td style="text-align:right;">
+504
+</td>
+<td style="text-align:right;">
+257
+</td>
+<td style="text-align:right;">
+463
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+-133
+</td>
+<td style="text-align:right;">
+-752
+</td>
+<td style="text-align:right;">
+496
+</td>
+<td style="text-align:right;">
+411
+</td>
+<td style="text-align:right;">
+-502
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+308
 </td>
 <td style="text-align:right;">
 -526
 </td>
 <td style="text-align:right;">
--751
+1247
 </td>
 <td style="text-align:right;">
-845
+-112
 </td>
 <td style="text-align:right;">
-1128
+202
 </td>
 </tr>
 <tr>
-<td style="text-align:right;">
-83
-</td>
-<td style="text-align:right;">
-274
-</td>
-<td style="text-align:right;">
-1522
-</td>
-<td style="text-align:right;">
-69
-</td>
-<td style="text-align:right;">
-351
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-445
-</td>
-<td style="text-align:right;">
-938
-</td>
-<td style="text-align:right;">
-880
-</td>
-<td style="text-align:right;">
-398
-</td>
-<td style="text-align:right;">
-1055
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
--1173
-</td>
-<td style="text-align:right;">
--608
-</td>
-<td style="text-align:right;">
-647
-</td>
-<td style="text-align:right;">
-851
-</td>
-<td style="text-align:right;">
--856
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
--615
-</td>
-<td style="text-align:right;">
-1541
-</td>
-<td style="text-align:right;">
-573
-</td>
-<td style="text-align:right;">
-209
-</td>
-<td style="text-align:right;">
--235
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-185
-</td>
-<td style="text-align:right;">
-291
-</td>
-<td style="text-align:right;">
-450
-</td>
 <td style="text-align:right;">
 683
 </td>
 <td style="text-align:right;">
-1133
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-119
+1577
 </td>
 <td style="text-align:right;">
--767
+382
 </td>
 <td style="text-align:right;">
-556
+272
 </td>
 <td style="text-align:right;">
-542
-</td>
-<td style="text-align:right;">
--392
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
--177
-</td>
-<td style="text-align:right;">
--492
-</td>
-<td style="text-align:right;">
-1182
-</td>
-<td style="text-align:right;">
--7
-</td>
-<td style="text-align:right;">
-940
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-232
-</td>
-<td style="text-align:right;">
-1388
-</td>
-<td style="text-align:right;">
-480
-</td>
-<td style="text-align:right;">
--49
-</td>
-<td style="text-align:right;">
-853
+668
 </td>
 </tr>
 </tbody>
@@ -1319,10 +1334,10 @@ response.name
 <tbody>
 <tr>
 <td style="text-align:right;">
-2374.806
+2258.902
 </td>
 <td style="text-align:right;">
--4.428994
+0.0
 </td>
 <td style="text-align:left;">
 0.1
@@ -1331,7 +1346,7 @@ response.name
 1
 </td>
 <td style="text-align:left;">
-climate\_bio1\_average..pca..human\_population\_density
+human\_population
 </td>
 <td style="text-align:left;">
 richness\_species\_vascular
@@ -1339,10 +1354,10 @@ richness\_species\_vascular
 </tr>
 <tr>
 <td style="text-align:right;">
-2374.806
+2432.372
 </td>
 <td style="text-align:right;">
--4.393562
+230912.3
 </td>
 <td style="text-align:left;">
 0.1
@@ -1351,7 +1366,7 @@ richness\_species\_vascular
 1
 </td>
 <td style="text-align:left;">
-climate\_bio1\_average..pca..human\_population\_density
+human\_population
 </td>
 <td style="text-align:left;">
 richness\_species\_vascular
@@ -1359,10 +1374,10 @@ richness\_species\_vascular
 </tr>
 <tr>
 <td style="text-align:right;">
-2374.806
+2524.830
 </td>
 <td style="text-align:right;">
--4.358129
+461824.5
 </td>
 <td style="text-align:left;">
 0.1
@@ -1371,7 +1386,7 @@ richness\_species\_vascular
 1
 </td>
 <td style="text-align:left;">
-climate\_bio1\_average..pca..human\_population\_density
+human\_population
 </td>
 <td style="text-align:left;">
 richness\_species\_vascular
@@ -1379,10 +1394,10 @@ richness\_species\_vascular
 </tr>
 <tr>
 <td style="text-align:right;">
-2374.806
+2565.388
 </td>
 <td style="text-align:right;">
--4.322697
+692736.8
 </td>
 <td style="text-align:left;">
 0.1
@@ -1391,7 +1406,7 @@ richness\_species\_vascular
 1
 </td>
 <td style="text-align:left;">
-climate\_bio1\_average..pca..human\_population\_density
+human\_population
 </td>
 <td style="text-align:left;">
 richness\_species\_vascular
@@ -1399,10 +1414,10 @@ richness\_species\_vascular
 </tr>
 <tr>
 <td style="text-align:right;">
-2374.806
+2642.821
 </td>
 <td style="text-align:right;">
--4.287265
+923649.1
 </td>
 <td style="text-align:left;">
 0.1
@@ -1411,7 +1426,7 @@ richness\_species\_vascular
 1
 </td>
 <td style="text-align:left;">
-climate\_bio1\_average..pca..human\_population\_density
+human\_population
 </td>
 <td style="text-align:left;">
 richness\_species\_vascular
@@ -1419,10 +1434,10 @@ richness\_species\_vascular
 </tr>
 <tr>
 <td style="text-align:right;">
-2374.806
+2691.166
 </td>
 <td style="text-align:right;">
--4.251833
+1154561.4
 </td>
 <td style="text-align:left;">
 0.1
@@ -1431,7 +1446,7 @@ richness\_species\_vascular
 1
 </td>
 <td style="text-align:left;">
-climate\_bio1\_average..pca..human\_population\_density
+human\_population
 </td>
 <td style="text-align:left;">
 richness\_species\_vascular
@@ -1439,10 +1454,10 @@ richness\_species\_vascular
 </tr>
 <tr>
 <td style="text-align:right;">
-2374.806
+2712.523
 </td>
 <td style="text-align:right;">
--4.216400
+1385473.6
 </td>
 <td style="text-align:left;">
 0.1
@@ -1451,7 +1466,7 @@ richness\_species\_vascular
 1
 </td>
 <td style="text-align:left;">
-climate\_bio1\_average..pca..human\_population\_density
+human\_population
 </td>
 <td style="text-align:left;">
 richness\_species\_vascular
@@ -1459,10 +1474,10 @@ richness\_species\_vascular
 </tr>
 <tr>
 <td style="text-align:right;">
-2374.806
+2776.262
 </td>
 <td style="text-align:right;">
--4.180968
+1616385.9
 </td>
 <td style="text-align:left;">
 0.1
@@ -1471,7 +1486,7 @@ richness\_species\_vascular
 1
 </td>
 <td style="text-align:left;">
-climate\_bio1\_average..pca..human\_population\_density
+human\_population
 </td>
 <td style="text-align:left;">
 richness\_species\_vascular
@@ -1479,10 +1494,10 @@ richness\_species\_vascular
 </tr>
 <tr>
 <td style="text-align:right;">
-2374.806
+2903.049
 </td>
 <td style="text-align:right;">
--4.145536
+1847298.2
 </td>
 <td style="text-align:left;">
 0.1
@@ -1491,7 +1506,7 @@ richness\_species\_vascular
 1
 </td>
 <td style="text-align:left;">
-climate\_bio1\_average..pca..human\_population\_density
+human\_population
 </td>
 <td style="text-align:left;">
 richness\_species\_vascular
@@ -1499,10 +1514,10 @@ richness\_species\_vascular
 </tr>
 <tr>
 <td style="text-align:right;">
-2374.806
+2933.677
 </td>
 <td style="text-align:right;">
--4.110104
+2078210.4
 </td>
 <td style="text-align:left;">
 0.1
@@ -1511,7 +1526,7 @@ richness\_species\_vascular
 1
 </td>
 <td style="text-align:left;">
-climate\_bio1\_average..pca..human\_population\_density
+human\_population
 </td>
 <td style="text-align:left;">
 richness\_species\_vascular
@@ -1560,12 +1575,12 @@ spatialRF::print_performance(model.non.spatial)
 
     ## 
     ## Model performance 
-    ##   - R squared (oob):                  0.5667786
-    ##   - R squared (cor(obs, pred)^2):     0.9527108
-    ##   - Pseudo R squared (cor(obs, pred)):0.976069
-    ##   - RMSE (oob):                       2218.147
-    ##   - RMSE:                             931.7425
-    ##   - Normalized RMSE:                  0.2689788
+    ##   - R squared (oob):                  0.5888542
+    ##   - R squared (cor(obs, pred)^2):     0.9508461
+    ##   - Pseudo R squared (cor(obs, pred)):0.9751134
+    ##   - RMSE (oob):                       2160.894
+    ##   - RMSE:                             941.8518
+    ##   - Normalized RMSE:                  0.2718972
 
 -   `R squared (oob)` and `RMSE (oob)` are the R squared of the model
     and its root mean squared error when predicting the out-of-bag data
@@ -1720,8 +1735,8 @@ spatialRF::print_evaluation(model.non.spatial)
     ##   - Training fraction:             0.75
     ##   - Spatial folds:                 25
     ## 
-    ##     Metric Median  MAD Minimum Maximum
-    ##  r.squared  0.402 0.11   0.084   0.723
+    ##     Metric Median   MAD Minimum Maximum
+    ##  r.squared  0.428 0.101   0.116   0.723
 
 ## Other important things stored in the model
 
@@ -1754,11 +1769,11 @@ spatialRF::plot_moran(
 
 ![](README_files/figure-gfm/unnamed-chunk-38-1.png)<!-- --> According to
 the plot, the spatial autocorrelation of the residuals of
-`model.non.spatial` is highly positive for a neighborhood of 0 km, while
-it becomes non-significant (p-value &gt; 0.05) at 1500 and 3000 km. To
-reduce the spatial autocorrelation of the residuals as much as possible,
-the non-spatial model can be transformed into a *spatial model* very
-easily with the function
+`model.non.spatial` is highly positive for a neighborhood of 0 and 1000
+km, while it becomes non-significant (p-value &gt; 0.05) at 2000, 4000,
+and 8000 km. To reduce the spatial autocorrelation of the residuals as
+much as possible, the non-spatial model can be transformed into a
+*spatial model* very easily with the function
 [`rf_spatial()`](https://blasbenito.github.io/spatialRF/reference/rf_spatial.html).
 This function is the true core of the package!
 
@@ -1772,8 +1787,8 @@ model.spatial <- spatialRF::rf_spatial(
 ```
 
 The plot below shows the Moran’s I of the residuals of the spatial
-model. It indicates that the residuals are not autocorrelated at a
-distance of 0 km any longer.
+model, and indicates that the residuals are not autocorrelated at any
+distance.
 
 ``` r
 spatialRF::plot_moran(
@@ -1834,34 +1849,10 @@ importance
 <tbody>
 <tr>
 <td style="text-align:left;">
-climate\_hypervolume
-</td>
-<td style="text-align:right;">
-1285.054
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-human\_population
-</td>
-<td style="text-align:right;">
-1253.309
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-climate\_bio1\_average..pca..human\_population\_density
-</td>
-<td style="text-align:right;">
-1177.854
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
 spatial\_predictor\_0\_2
 </td>
 <td style="text-align:right;">
-1156.344
+1277.721
 </td>
 </tr>
 <tr>
@@ -1869,7 +1860,31 @@ spatial\_predictor\_0\_2
 climate\_bio1\_average
 </td>
 <td style="text-align:right;">
-1053.562
+1107.307
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+climate\_hypervolume
+</td>
+<td style="text-align:right;">
+1096.471
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+climate\_bio1\_average..pca..human\_population\_density
+</td>
+<td style="text-align:right;">
+1087.476
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+human\_population
+</td>
+<td style="text-align:right;">
+1054.152
 </td>
 </tr>
 <tr>
@@ -1877,15 +1892,31 @@ climate\_bio1\_average
 bias\_area\_km2
 </td>
 <td style="text-align:right;">
-1038.105
+879.965
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-spatial\_predictor\_0\_1
+neighbors\_count
 </td>
 <td style="text-align:right;">
-890.248
+776.693
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+spatial\_predictor\_0\_6
+</td>
+<td style="text-align:right;">
+765.580
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+spatial\_predictor\_0\_5
+</td>
+<td style="text-align:right;">
+736.824
 </td>
 </tr>
 <tr>
@@ -1893,23 +1924,7 @@ spatial\_predictor\_0\_1
 human\_population\_density
 </td>
 <td style="text-align:right;">
-823.305
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-bias\_species\_per\_record
-</td>
-<td style="text-align:right;">
-795.859
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-neighbors\_area
-</td>
-<td style="text-align:right;">
-731.939
+696.857
 </td>
 </tr>
 </tbody>
@@ -2093,12 +2108,12 @@ spatialRF::print_performance(model.spatial.tuned.repeat)
 
     ## 
     ## Model performance (median +/- mad) 
-    ##   - R squared (oob):              0.592 +/- 0.0091
-    ##   - R squared (cor(obs, pred)^2): 0.955 +/- 0.0016
-    ##   - Pseudo R squared:             0.977 +/- 8e-04
-    ##   - RMSE (oob):                   2153.227 +/- 23.8057
-    ##   - RMSE:                         882.414 +/- 18.2521
-    ##   - Normalized RMSE:              0.255 +/- 0.0053
+    ##   - R squared (oob):              0.575 +/- 0.0038
+    ##   - R squared (cor(obs, pred)^2): 0.96 +/- 0.0017
+    ##   - Pseudo R squared:             0.98 +/- 9e-04
+    ##   - RMSE (oob):                   2196.022 +/- 9.8466
+    ##   - RMSE:                         897.489 +/- 13.3842
+    ##   - Normalized RMSE:              0.259 +/- 0.0039
 
 # Taking advantage of the `%>%` pipe
 
@@ -2115,14 +2130,16 @@ model.full <- rf_spatial(
   predictor.variable.names = predictor.variable.names,
   distance.matrix = distance_matrix,
   distance.thresholds = distance.thresholds,
-  xy = xy
+  xy = xy,
+  verbose = FALSE #to avoid cluttering the console with results
 ) %>%
-  rf_tuning() %>%
-  rf_evaluate() %>%
-  rf_repeat(repetitions = 30)
+  rf_tuning(verbose = FALSE) %>%
+  rf_evaluate(verbose = FALSE) %>%
+  rf_repeat(
+    repetitions = 30,
+    verbose = FALSE
+    )
 ```
-
-![](README_files/figure-gfm/unnamed-chunk-50-1.png)<!-- -->![](README_files/figure-gfm/unnamed-chunk-50-2.png)<!-- -->![](README_files/figure-gfm/unnamed-chunk-50-3.png)<!-- -->![](README_files/figure-gfm/unnamed-chunk-50-4.png)<!-- -->![](README_files/figure-gfm/unnamed-chunk-50-5.png)<!-- -->![](README_files/figure-gfm/unnamed-chunk-50-6.png)<!-- -->![](README_files/figure-gfm/unnamed-chunk-50-7.png)<!-- -->![](README_files/figure-gfm/unnamed-chunk-50-8.png)<!-- -->
 
 Once the model is fitted, the slots added by each function can be
 examined with functions such as `plot_tuning()`, `plot_evaluation()` and
@@ -2190,7 +2207,7 @@ Non-spatial
 r.squared
 </td>
 <td style="text-align:right;">
-0.384
+0.411
 </td>
 </tr>
 <tr>
@@ -2201,7 +2218,7 @@ Spatial
 r.squared
 </td>
 <td style="text-align:right;">
-0.194
+0.184
 </td>
 </tr>
 <tr>
@@ -2212,7 +2229,7 @@ Spatial tuned
 r.squared
 </td>
 <td style="text-align:right;">
-0.216
+0.237
 </td>
 </tr>
 </tbody>
@@ -2314,43 +2331,8 @@ spatialRF::print_evaluation(model.non.spatial)
     ##   - Training fraction:             0.75
     ##   - Spatial folds:                 25
     ## 
-    ##  Metric Median  MAD Minimum Maximum
-    ##     auc   0.91 0.03   0.723   0.968
-
-Now, let’s see if this model needs spatial predictors (beyond this
-point, SDMs are no longer possible, because the spatial predictors
-cannot be represented as rasters, as they are mathematical
-representations of the distances among the training points).
-
-``` r
-spatialRF::plot_moran(
-  model.non.spatial,
-  verbose = FALSE
-  )
-```
-
-![](README_files/figure-gfm/unnamed-chunk-58-1.png)<!-- -->
-
-The Moran’s I tests of the residuals shows that they are spatially
-autocorrelated for a neighborhood distance of 0 km. Let’s try to fix
-that with a spatial model.
-
-``` r
-model.spatial <- spatialRF::rf_spatial(
-  model = model.non.spatial,
-  verbose = FALSE,
-  seed = random.seed
-  )
-
-spatialRF::plot_moran(
-  model.spatial,
-  verbose = FALSE
-  )
-```
-
-![](README_files/figure-gfm/unnamed-chunk-59-1.png)<!-- -->
-
-*Et voilá*, the problem went away!
+    ##  Metric Median   MAD Minimum Maximum
+    ##     auc   0.91 0.027    0.72   0.966
 
 The **take away message** here is that you can work with a binomial
 response with `spatialRF`, just as you would do with a continuous
@@ -2626,7 +2608,7 @@ moran.test <- spatialRF::moran(
 moran.test$plot
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-64-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-62-1.png)<!-- -->
 
 According to the Moran’s I test, the model residuals show spatial
 autocorrelation. Let’s introduce MEMs one by one until the problem is
@@ -2683,7 +2665,7 @@ for(mem.i in colnames(mems)){
 moran.test.i$plot
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-65-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-63-1.png)<!-- -->
 
 Now we can compare the model without spatial predictors `m` and the
 model with spatial predictors `m.i`.

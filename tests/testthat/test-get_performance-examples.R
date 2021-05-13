@@ -11,7 +11,5 @@ test_that("`get_performance()` works", {
   )
   x <- get_performance(rf.model)
   expect_s3_class(x, "data.frame")
-  expect_equal(nrow(x), 5)
-  expect_equal(ncol(x), 2)
   expect_named(x, c("metric", "value"))
 })

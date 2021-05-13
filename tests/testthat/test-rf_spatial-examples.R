@@ -12,7 +12,7 @@ test_that("`rf_spatial()` works", {
     verbose = FALSE
   )
   expect_equal(inherits(out, "rf_spatial"), TRUE)
-  expect_equal(inherits(out$variable.importance$per.variable.plot, "ggplot"), TRUE)
+  expect_equal(inherits(out$importance$per.variable.plot, "ggplot"), TRUE)
   expect_equal(inherits(out$residuals$autocorrelation$plot, "ggplot"), TRUE)
   expect_equal(length(out$performance$rmse), 1)
   expect_equal(length(out$performance$nrmse), 1)
@@ -30,7 +30,7 @@ test_that("`rf_spatial()` works", {
     verbose = FALSE
   )
   expect_equal(inherits(out, "rf_spatial"), TRUE)
-  expect_equal(inherits(out$variable.importance$per.variable.plot, "ggplot"), TRUE)
+  expect_equal(inherits(out$importance$per.variable.plot, "ggplot"), TRUE)
   expect_equal(inherits(out$residuals$autocorrelation$plot, "ggplot"), TRUE)
   expect_equal(length(out$performance$rmse), 1)
   expect_equal(length(out$performance$nrmse), 1)
@@ -48,7 +48,7 @@ test_that("`rf_spatial()` works", {
     verbose = FALSE
   )
   expect_equal(inherits(out, "rf_spatial"), TRUE)
-  expect_equal(inherits(out$variable.importance$per.variable.plot, "ggplot"), TRUE)
+  expect_equal(inherits(out$importance$per.variable.plot, "ggplot"), TRUE)
   expect_equal(inherits(out$residuals$autocorrelation$plot, "ggplot"), TRUE)
   expect_equal(length(out$performance$rmse), 1)
   expect_equal(length(out$performance$nrmse), 1)

@@ -12,7 +12,7 @@ test_that("`rf_repeat()` works", {
     verbose = FALSE
   )
   expect_s3_class(out, "rf_repeat")
-  expect_s3_class(out$variable.importance$per.variable, "data.frame")
+  expect_s3_class(out$importance$per.variable, "data.frame")
   expect_s3_class(out$residuals$autocorrelation$per.distance, "data.frame")
   expect_named(out$residuals$autocorrelation$per.distance, c("distance.threshold", "moran.i", "p.value", "interpretation"))
 })

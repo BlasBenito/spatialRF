@@ -963,15 +963,6 @@ model.non.spatial <- spatialRF::rf_evaluate(
 spatialRF::print_evaluation(model.non.spatial)
 ```
 
-Now, let's see if this model needs spatial predictors (beyond this point, SDMs are no longer possible, because the spatial predictors cannot be represented as rasters, as they are mathematical representations of the distances among the training points).
-
-```{r, fig.width=4, fig.height=2.5, message=FALSE, warning=FALSE}
-spatialRF::plot_moran(
-  model.non.spatial,
-  verbose = FALSE
-  )
-```
-
 The **take away message** here is that you can work with a binomial response with `spatialRF`, just as you would do with a continuous response, as long as it is represented with zeros and ones. Just remember that the class imbalance problem is tackled via case weights, and that predictive performance is also measured using the Area Under the ROC Curve (AUC).
 
 # Generating spatial predictors for other modelling methods
