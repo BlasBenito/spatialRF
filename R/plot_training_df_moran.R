@@ -57,6 +57,13 @@ plot_training_df_moran <- function(
     stop("No variables to plot.")
   }
 
+  #predictor.variable.names comes from auto_vif or auto_cor
+  if(!is.null(predictor.variable.names)){
+    if(inherits(predictor.variable.names, "variable_selection")){
+      predictor.variable.names <- predictor.variable.names$selected.variables
+    }
+  }
+
   if(is.null(distance.matrix)){
     stop("distance.matrix is missing.")
   }

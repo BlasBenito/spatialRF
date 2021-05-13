@@ -119,6 +119,7 @@ rf_repeat <- function(
 
   #getting arguments from model rather than ranger.arguments
   if(!is.null(model)){
+
     ranger.arguments <- model$ranger.arguments
     data <- ranger.arguments$data
     dependent.variable.name <- ranger.arguments$dependent.variable.name
@@ -135,6 +136,13 @@ rf_repeat <- function(
       evaluation <- model$evaluation
     }
 
+  }
+
+  #predictor.variable.names comes from auto_vif or auto_cor
+  if(!is.null(predictor.variable.names)){
+    if(inherits(predictor.variable.names, "variable_selection")){
+      predictor.variable.names <- predictor.variable.names$selected.variables
+    }
   }
 
   if(is.null(ranger.arguments)){

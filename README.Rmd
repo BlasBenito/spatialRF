@@ -23,14 +23,14 @@ always_allow_html: yes
 
 # Introduction
 
-The package **spatialRF** facilitates fitting spatial regression models on regular or irregular data with Random Forest. It does so by generating *spatial predictors* that help the model "understand" the spatial structure of the training data with the end goal of minimizing the spatial autocorrelation of the model residuals and offering honest ariable importance scores.
+The package **spatialRF** facilitates fitting spatial regression models on regular or irregular data with Random Forest. It does so by generating *spatial predictors* that help the model "understand" the spatial structure of the training data with the end goal of minimizing the spatial autocorrelation of the model residuals and offering honest variable importance scores.
 
 Two main methods to generate *spatial predictors* from the distance matrix of the data points are implemented in the package:
 
 -   Moran's Eigenvector Maps [(Dray, Legendre, and Peres-Neto 2006)](https://www.sciencedirect.com/science/article/abs/pii/S0304380006000925).
 -   Distance matrix columns as explanatory variables [(Hengl et al. 2018)](https://peerj.com/articles/5518/).
 
-The package is designed to minimize the amount of code required to fit a spatial model from a training dataset, the names of the response and the predictors, and a distance matrix, as the example below shows.
+The package is designed to minimize the code required to fit a spatial model from a training dataset, the names of the response and the predictors, and a distance matrix, as shown below.
 
 ```{r, eval=FALSE}
 spatial.model <- spatialRF::rf_spatial(
@@ -117,7 +117,7 @@ library(pdp)
 The data required to fit random forest models with `spatialRF` must fulfill several conditions:
 
   + **The input format is data.frame**. At the moment, tibbles are not fully supported.
-  + **The number of rows must be somewhere between 100 and ~5000**, at least if your target is fitting spatial models. This limitation comes from the fact that the distance matrix grows in size very fast with increasing number of training records, so for large datasets there might not be enough RAM memory in your machine.
+  + **The number of rows must be somewhere between 100 and ~5000**, at least if your target is fitting spatial models. This limitation comes from the fact that the distance matrix grows very fast with an increasing number of training records, so for large datasets, there might not be enough RAM in your machine.
   + **The number of predictors should be larger than 3**. Fitting a Random Forest model is moot otherwise.
   + **Factors in the response or the predictors are not explicitly supported in the package**. They may work, or they won't, but in any case, I designed this package for quantitative data alone. However, binary responses with values 0 and 1 are partially supported.
   + **Must be free of `NA`**. You can check if there are NA records with `sum(apply(df, 2, is.na))`. If the result is larger than 0, then just execute `df <- na.omit(df)` to remove rows with empty cells.
@@ -140,7 +140,7 @@ The package follows a convention throughout functions:
 It is therefore convenient to define these arguments at the beginning of the workflow.
 
 ```{r}
-#loading ddata
+#loading training data and distance matrix from the package
 data(plant_richness_df)
 data(distance_matrix)
 
@@ -154,14 +154,12 @@ xy <- plant_richness_df[, c("x", "y")]
 #distance matrix
 distance.matrix <- distance_matrix
 
-#distance thresholds
+#distance thresholds (same units as distance_matrix)
 distance.thresholds <- c(0, 1000, 2000, 4000, 8000)
 
 #random seed for reproducibility
-random.seed <- 100
+random.seed <- 1
 ```
-
-
 
 The response variable of `plant_richness_df` is "richness_species_vascular", that represents the total count of vascular plant species found on each ecoregion. The figure below shows the centroids of each ecoregion along with their associated value of the response variable.
 
@@ -258,7 +256,7 @@ predictor.variable.names <- spatialRF::auto_cor(
   )
 ```
 
-The output of `auto_cor()` or `auto_vif()` has the class "variable_selection", that can be used as input for the argument `predictor.variable.names` of any modeling function within the package.
+The output of `auto_cor()` or `auto_vif()` has the class "variable_selection", which can be used as input in every function having the argument `predictor.variable.names`.
 
 ```{r}
 names(predictor.variable.names)
@@ -281,14 +279,15 @@ The function [`rf_interactions()`](https://blasbenito.github.io/spatialRF/refere
 interactions <- rf_interactions(
   data = plant_richness_df,
   dependent.variable.name = dependent.variable.name,
-  predictor.variable.names = predictor.variable.names$selected.variables,
+  predictor.variable.names = predictor.variable.names,
   cor.threshold = 0.75,
-  verbose = FALSE
+  seed = random.seed,
+  verbose = TRUE
   )
 ```
 
 ```{r, echo=TRUE, fig.width = 5, fig.height = 4}
-patchwork::wrap_plots(interactions$plot)
+interactions$plot
 ```
 Here `rf_interactions()` suggests several candidate interactions ordered by their impact on the model. Interactions computed via multiplication are named `a..x..b`, while interactions computed via PCA are named `a..pca..b`. The function cannot say whether an interaction *makes sense*, and it is up to the user to choose wisely whether to select an interaction or not.
 

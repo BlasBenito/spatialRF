@@ -139,15 +139,19 @@ auto_cor <- function(
 
   #message
   if(verbose == TRUE){
-    message(
-      paste0(
-        "[auto_cor()]: Removed variables: ",
+    if(length(removed.vars) != 0){
+      message(
         paste0(
-          removed.vars,
-          collapse = ", "
+          "[auto_cor()]: Removed variables: ",
+          paste0(
+            removed.vars,
+            collapse = ", "
+          )
         )
       )
-    )
+    } else {
+      message("[auto_cor()]: Variables are not collinear.")
+    }
   }
 
   #return output

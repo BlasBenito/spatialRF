@@ -83,8 +83,10 @@ rf_interactions <- function(
   y <- NULL
 
   #predictor.variable.names comes from auto_vif or auto_cor
-  if(inherits(predictor.variable.names, "variable_selection")){
-    predictor.variable.names <- predictor.variable.names$selected.variables
+  if(!is.null(predictor.variable.names)){
+    if(inherits(predictor.variable.names, "variable_selection")){
+      predictor.variable.names <- predictor.variable.names$selected.variables
+    }
   }
 
   #fitting model
@@ -562,19 +564,8 @@ rf_interactions <- function(
 
   }
 
-  #plot list of plots
-  if(length(plot.list) == 1){
-    plot.list.out <- plot.list[[1]]
-  }
-  if(length(plot.list) == 2){
-    plot.list.out <- patchwork::wrap_plots(plot.list)
-  }
-  if(length(plot.list) > 2){
-    plot.list.out <- patchwork::wrap_plots(plot.list)
-  }
-
   if(verbose == TRUE){
-    print(plot.list.out)
+    print(patchwork::wrap_plots(plot.list))
   }
 
   #generating training df

@@ -145,15 +145,19 @@ auto_vif <- function(
   #message
   if(verbose == TRUE){
     removed.vars <- setdiff(colnames(x), output.list$selected.variables)
-    message(
-      paste0(
-        "[auto_vif()]: Removed variables: ",
+    if(length(removed.vars) != 0){
+      message(
         paste0(
-          removed.vars,
-          collapse = ", "
+          "[auto_vif()]: Removed variables: ",
+          paste0(
+            removed.vars,
+            collapse = ", "
+          )
         )
       )
-    )
+    } else {
+      message("[auto_vif()]: Variables are not collinear.")
+    }
   }
 
   #adding class

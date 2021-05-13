@@ -36,6 +36,13 @@ filter_spatial_predictors <- function(
   cor.threshold = 0.50
 ){
 
+  #predictor.variable.names comes from auto_vif or auto_cor
+  if(!is.null(predictor.variable.names)){
+    if(inherits(predictor.variable.names, "variable_selection")){
+      predictor.variable.names <- predictor.variable.names$selected.variables
+    }
+  }
+
   #filtering spatial predictors by pair-wise correlation
   spatial.predictors.df <- auto_cor(
     x = spatial.predictors.df,
