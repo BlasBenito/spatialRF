@@ -9,8 +9,8 @@ rf_interactions(
   dependent.variable.name = NULL,
   predictor.variable.names = NULL,
   ranger.arguments = NULL,
-  importance.threshold = NULL,
-  cor.threshold = 0.5,
+  importance.threshold = 0.75,
+  cor.threshold = 0.75,
   point.color = viridis::viridis(100, option = "F"),
   seed = NULL,
   verbose = TRUE,
@@ -30,9 +30,9 @@ rf_interactions(
 
 \item{ranger.arguments}{Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.}
 
-\item{importance.threshold}{Value of variable importance from \code{model} used as threshold to select variables to generate candidate interactions. Default: Quantile 0.75 of the variable importance in \code{model}.}
+\item{importance.threshold}{Numeric between 0 and 1, quantile of variable importance scores over which to select individual predictors to explore interactions among them. Larger values reduce the number of potential interactions explored. Default: \code{0.75}}
 
-\item{cor.threshold}{Numeric, maximum Pearson correlation between any pair of the selected interactions, and between any interaction and the predictors in \code{predictor.variable.names}. Default: \code{0.50}}
+\item{cor.threshold}{Numeric, maximum Pearson correlation between any pair of the selected interactions, and between any interaction and the predictors in \code{predictor.variable.names}. Default: \code{0.75}}
 
 \item{point.color}{Colors of the plotted points. Can be a single color name (e.g. "red4"), a character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. \code{viridis::viridis(100)}). Default: \code{viridis::viridis(100, option = "F")}}
 

@@ -13,8 +13,8 @@
 #' @param dependent.variable.name Character string with the name of the response variable. Must be in the column names of `data`. If the dependent variable is binary with values 1 and 0, the argument `case.weights` of `ranger` is populated by the function [case_weights()]. Default: `NULL`
 #' @param predictor.variable.names Character vector with the names of the predictive variables, or object of class `"variable_selection"` produced by [auto_vif()] and/or [auto_cor()]. Every element of this vector must be in the column names of `data`. Default: `NULL`
 #' @param ranger.arguments Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.
-#' @param importance.threshold Value of variable importance from `model` used as threshold to select variables to generate candidate interactions. Default: Quantile 0.75 of the variable importance in `model`.
-#' @param cor.threshold Numeric, maximum Pearson correlation between any pair of the selected interactions, and between any interaction and the predictors in `predictor.variable.names`. Default: `0.50`
+#' @param importance.threshold Numeric between 0 and 1, quantile of variable importance scores over which to select individual predictors to explore interactions among them. Larger values reduce the number of potential interactions explored. Default: `0.75`
+#' @param cor.threshold Numeric, maximum Pearson correlation between any pair of the selected interactions, and between any interaction and the predictors in `predictor.variable.names`. Default: `0.75`
 #' @param point.color Colors of the plotted points. Can be a single color name (e.g. "red4"), a character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. `viridis::viridis(100)`). Default: `viridis::viridis(100, option = "F")`
 #' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same. Default: `NULL`
 #' @param verbose Logical If `TRUE`, messages and plots generated during the execution of the function are displayed. Default: `TRUE`
@@ -63,8 +63,8 @@ rf_interactions <- function(
   dependent.variable.name = NULL,
   predictor.variable.names = NULL,
   ranger.arguments = NULL,
-  importance.threshold = NULL,
-  cor.threshold = 0.50,
+  importance.threshold = 0.75,
+  cor.threshold = 0.75,
   point.color = viridis::viridis(
     100,
     option = "F"
@@ -87,6 +87,13 @@ rf_interactions <- function(
     if(inherits(predictor.variable.names, "variable_selection")){
       predictor.variable.names <- predictor.variable.names$selected.variables
     }
+  }
+
+  if(importance.threshold > 1){
+    importance.threshold <- 0.99
+  }
+  if(importance.threshold < 0){
+    importance.threshold <- 0.01
   }
 
   #fitting model
@@ -114,7 +121,7 @@ rf_interactions <- function(
   if(is.null(importance.threshold)){
     importance.threshold <- quantile(
       x = model$importance$per.variable$importance,
-      probs = 0.75
+      probs = importance.threshold
       )
   }
   variables.to.test <- model$importance$per.variable[
@@ -383,7 +390,7 @@ rf_interactions <- function(
 
   #adding column of selected interactions
   interaction.screening$selected <- ifelse(
-    interaction.screening$interaction.r.squared.gain > 0 &
+    interaction.screening$interaction.r.squared.gain > 0.01 &
     interaction.screening$max.cor.with.predictors < cor.threshold,
     TRUE,
     FALSE
@@ -472,15 +479,15 @@ rf_interactions <- function(
       interaction.screening.selected$interaction.name %in% interaction.selection$selected.variables,
       ]
 
-    interaction.df <- interaction.df[, interaction.selection$selected.variables]
+    interaction.df <- interaction.df[, interaction.selection$selected.variables, drop = FALSE]
 
   }
 
   if(verbose == TRUE){
     message(
       paste0(
-        nrow(interaction.screening.selected),
-        " potential interactions identified."
+        "Interactions identified: ",
+        nrow(interaction.screening.selected)
       )
     )
   }
@@ -564,8 +571,12 @@ rf_interactions <- function(
 
   }
 
+  if(length(plot.list) == 1){
+    plot.list <- plot.list[[1]]
+  }
+
   if(verbose == TRUE){
-    print(patchwork::wrap_plots(plot.list))
+    patchwork::wrap_plots(plot.list)
   }
 
   #generating training df

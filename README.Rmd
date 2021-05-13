@@ -273,23 +273,24 @@ predictor.variable.names$selected.variables
 
 Random Forests already takes into account variable interactions of the form "variable `a` becomes important when `b` is higher than x". However, Random Forest can also take advantage of variable interactions of the form `a * b`, across the complete ranges of the predictors, as they are commonly defined in regression models, and "interactions" (not the proper name, but used here for simplicity) represented by the first component of a PCA on `a` and `b`.
 
-The function [`rf_interactions()`](https://blasbenito.github.io/spatialRF/reference/rf_interactions.html) tests all possible interactions of both types among the most important predictors, and suggesting the ones not correlated among themselves and with the other predictors that have an importance above the median, and a positive increase in the model's R squared (as computed on the out-of-bag data).
+The function [`rf_interactions()`](https://blasbenito.github.io/spatialRF/reference/rf_interactions.html) tests all possible interactions of both types among the most important predictors, and suggesting the ones not correlated among themselves and with the other predictors inducing an increase in the model's R squared (as computed on the out-of-bag data).
 
 ```{r, fig.width=12, fig.height=4}
 interactions <- rf_interactions(
   data = plant_richness_df,
   dependent.variable.name = dependent.variable.name,
   predictor.variable.names = predictor.variable.names,
-  cor.threshold = 0.75,
+  importance.threshold = 0.75, #uses 25% best predictors
+  cor.threshold = 0.5,
   seed = random.seed,
   verbose = TRUE
   )
 ```
 
 ```{r, echo=TRUE, fig.width = 5, fig.height = 4}
-interactions$plot
+patchwork::wrap_plots(interactions$plot)
 ```
-Here `rf_interactions()` suggests several candidate interactions ordered by their impact on the model. Interactions computed via multiplication are named `a..x..b`, while interactions computed via PCA are named `a..pca..b`. The function cannot say whether an interaction *makes sense*, and it is up to the user to choose wisely whether to select an interaction or not.
+Here `rf_interactions()` one candidate interaction. Notice that interactions computed via multiplication are named `a..x..b`, while interactions computed via PCA are named `a..pca..b`. The function cannot say whether an interaction *makes sense*, and it is up to the user to choose wisely whether to select an interaction or not.
 
 The function returns the data, including the selected interactions, required to fit models with the functions within the package.
 
@@ -343,7 +344,7 @@ spatialRF::plot_residuals_diagnostics(
   )
 ```
 
-The upper panels show the results of the normality test (interpretation in the title), the middle panel shows the relationship between the residuals and the fitted values, important to understand the behavior of the residuals, and the lower panel shows the Moran's I of the residuals across distance thresholds and their respective p-values.
+The upper panels show the results of the normality test (interpretation in the title), the middle panel shows the relationship between the residuals and the fitted values, important to understand the behavior of the residuals, and the lower panel shows the Moran's I of the residuals across distance thresholds and their respective p-values (positive for 0 and 1000 km).
 
 ## Variable importance
 
@@ -681,7 +682,7 @@ spatialRF::plot_moran(
   verbose = FALSE
   )
 ```
-According to the plot, the spatial autocorrelation of the residuals of `model.non.spatial` is highly positive for a neighborhood of 0 km, while it becomes non-significant (p-value \> 0.05) at 1500 and 3000 km. To reduce the spatial autocorrelation of the residuals as much as possible, the non-spatial model can be transformed into a *spatial model* very easily with the function [`rf_spatial()`](https://blasbenito.github.io/spatialRF/reference/rf_spatial.html). This function is the true core of the package!
+According to the plot, the spatial autocorrelation of the residuals of `model.non.spatial` is highly positive for a neighborhood of 0 and 1000 km, while it becomes non-significant (p-value \> 0.05) at 2000, 4000, and 8000 km. To reduce the spatial autocorrelation of the residuals as much as possible, the non-spatial model can be transformed into a *spatial model* very easily with the function [`rf_spatial()`](https://blasbenito.github.io/spatialRF/reference/rf_spatial.html). This function is the true core of the package!
 
 ```{r}
 model.spatial <- spatialRF::rf_spatial(
@@ -692,7 +693,7 @@ model.spatial <- spatialRF::rf_spatial(
   )
 ```
 
-The plot below shows the Moran's I of the residuals of the spatial model. It indicates that the residuals are not autocorrelated at a distance of 0 km any longer.
+The plot below shows the Moran's I of the residuals of the spatial model, and indicates that the residuals are not autocorrelated at any distance.
 
 ```{r, fig.width=4, fig.height=2.5, message=FALSE, warning=FALSE}
 spatialRF::plot_moran(
@@ -785,7 +786,6 @@ The spatial predictors are included in the model one by one, in the order of the
 p <- spatialRF::plot_optimization(model.spatial)
 ```
 
-
 # Tuning Random Forest hyperparameters
 
 The model fitted above was based on the default random forest hyperparameters of `ranger()`, and those might not be the most adequate ones for a given dataset. The function [`rf_tuning()`](https://blasbenito.github.io/spatialRF/reference/rf_tuning.html) helps the user to choose sensible values for three Random Forest hyperparameters that are critical to model performance:
@@ -811,6 +811,7 @@ model.spatial.tuned <- rf_tuning(
   verbose = FALSE
 )
 ```
+
 The results of the function indicate that the model has a higher transferability (ability to predict on data not used to train the model assessed via spatial cross-validation with `rf_evaluate()`) when `mtry` is 29, `min.node.size` is 5, and `num.trees` is 500, but also indicates that the gain in transferability is rather low (increased R squared of `model.spatial.tuned$tuning$performance.gain`). The function returns a tuned model only if the tuning finds a solution better than the original model. Otherwise the original model is returned (only a new slot named `tuning`is added). 
 
 # Repeating a model execution
@@ -862,11 +863,15 @@ model.full <- rf_spatial(
   predictor.variable.names = predictor.variable.names,
   distance.matrix = distance_matrix,
   distance.thresholds = distance.thresholds,
-  xy = xy
+  xy = xy,
+  verbose = FALSE #to avoid cluttering the console with results
 ) %>%
-  rf_tuning() %>%
-  rf_evaluate() %>%
-  rf_repeat(repetitions = 30)
+  rf_tuning(verbose = FALSE) %>%
+  rf_evaluate(verbose = FALSE) %>%
+  rf_repeat(
+    repetitions = 30,
+    verbose = FALSE
+    )
 ```
 
 Once the model is fitted, the slots added by each function can be examined with functions such as `plot_tuning()`, `plot_evaluation()` and the likes.
@@ -966,23 +971,6 @@ spatialRF::plot_moran(
   verbose = FALSE
   )
 ```
-
-The Moran's I tests of the residuals shows that they are spatially autocorrelated for a neighborhood distance of 0 km. Let's try to fix that with a spatial model.
-
-```{r, fig.width=4, fig.height=2.5, message=FALSE, warning=FALSE}
-model.spatial <- spatialRF::rf_spatial(
-  model = model.non.spatial,
-  verbose = FALSE,
-  seed = random.seed
-  )
-
-spatialRF::plot_moran(
-  model.spatial,
-  verbose = FALSE
-  )
-```
-
-*Et voilá*, the problem went away!
 
 The **take away message** here is that you can work with a binomial response with `spatialRF`, just as you would do with a continuous response, as long as it is represented with zeros and ones. Just remember that the class imbalance problem is tackled via case weights, and that predictive performance is also measured using the Area Under the ROC Curve (AUC).
 
