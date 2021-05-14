@@ -8,10 +8,11 @@ rf_interactions(
   data = NULL,
   dependent.variable.name = NULL,
   predictor.variable.names = NULL,
+  xy = NULL,
   ranger.arguments = NULL,
   importance.threshold = 0.75,
   cor.threshold = 0.75,
-  point.color = viridis::viridis(100, option = "F"),
+  point.color = viridis::viridis(100, option = "F", alpha = 0.8),
   seed = NULL,
   verbose = TRUE,
   n.cores = parallel::detectCores() - 1,
@@ -28,13 +29,15 @@ rf_interactions(
 
 \item{predictor.variable.names}{Character vector with the names of the predictive variables, or object of class \code{"variable_selection"} produced by \code{\link[=auto_vif]{auto_vif()}} and/or \code{\link[=auto_cor]{auto_cor()}}. Every element of this vector must be in the column names of \code{data}. Default: \code{NULL}}
 
+\item{xy}{Data frame or matrix with two columns containing coordinates and named "x" and "y". If not provided, the comparison between models with and without variable interactions is not done.}
+
 \item{ranger.arguments}{Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.}
 
 \item{importance.threshold}{Numeric between 0 and 1, quantile of variable importance scores over which to select individual predictors to explore interactions among them. Larger values reduce the number of potential interactions explored. Default: \code{0.75}}
 
 \item{cor.threshold}{Numeric, maximum Pearson correlation between any pair of the selected interactions, and between any interaction and the predictors in \code{predictor.variable.names}. Default: \code{0.75}}
 
-\item{point.color}{Colors of the plotted points. Can be a single color name (e.g. "red4"), a character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. \code{viridis::viridis(100)}). Default: \code{viridis::viridis(100, option = "F")}}
+\item{point.color}{Colors of the plotted points. Can be a single color name (e.g. "red4"), a character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. \code{viridis::viridis(100)}). Default: \code{viridis::viridis(100, option = "F", alpha = 0.8)}}
 
 \item{seed}{Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same. Default: \code{NULL}}
 
@@ -63,7 +66,7 @@ A list with seven slots:
 }
 }
 \description{
-Suggests candidate variable interactions for random forest models. For a pair of predictors \code{a} and \code{b}, interactions are build via multiplication (\code{a * b}), and by extracting the first factor of a principal component analysis performed with \code{\link[=pca]{pca()}}, after rescaling \code{a} and \code{b} between 1 and 100. Interactions based on multiplication are named \code{a..x..b}, and interactions based on PCA factors are named \code{a..pca..b}.
+Suggests candidate variable interactions for random forest models. For a pair of predictors \code{a} and \code{b}, interactions are build via multiplication (\code{a * b}), and by extracting the first factor of a principal component analysis performed with \code{\link[=pca]{pca()}}, after rescaling \code{a} and \code{b} between 1 and 100. Interactions based on multiplication are named \code{a..x..b}, and interactions based on PCA factors are named \code{a..pca..b}. If \code{xy} is provided, \code{\link[=rf_compare]{rf_compare()}} is used to evaluate via spatial cross-validation (100 spatial folds using 0.8 as training fraction) a model fitted with the original data with a model fitted with the selected interactions.
 
 Candidate variables \code{a} and \code{b} are selected from those predictors in \code{predictor.variable.names} with a variable importance above \code{importance.threshold} (set by default to the median of the importance scores).
 

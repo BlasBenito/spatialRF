@@ -1,7 +1,7 @@
 #' @title Compares the performance of several models on independent data
 #' @description Uses [rf_evaluate()] to compare the performance of several models based on the same pairs of coordinates on independent spatial folds.
 #' @param models Named list with models based on the same pairs of coordinates. Example: `models = list(a = model.a, b = model.b)`. Default: `NULL`
-#' @param xy Data frame or matrix with two columns containing coordinates and named "x" and "y". The same `xy` is used for all models, that's why all models must be based on the same pairs of coordinates. If `NULL`, the function will throw an error. Default: `NULL`
+#' @param xy Data frame or matrix with two columns containing coordinates and named "x" and "y". Default: `NULL`
 #' @param repetitions Integer, must be lower than the total number of rows available in the model's data. Default: `30`
 #' @param training.fraction Proportion between 0.5 and 0.9 indicating the number of records to be used in model training. Default: `0.8`
 #' @param metrics Character vector, names of the performance metrics selected. The possible values are: "r.squared" (`cor(obs, pred) ^ 2`), "pseudo.r.squared" (`cor(obs, pred)`), "rmse" (`sqrt(sum((obs - pred)^2)/length(obs))`), "nrmse" (`rmse/(quantile(obs, 0.75) - quantile(obs, 0.25))`). Default: `c("r.squared", "pseudo.r.squared", "rmse", "nrmse")`
@@ -51,7 +51,7 @@ rf_compare <- function(
   xy = NULL,
   repetitions = 30,
   training.fraction = 0.8,
-  metrics = c("r.squared", "pseudo.r.squared", "rmse", "nrmse"),
+  metrics = c("r.squared", "pseudo.r.squared", "rmse", "nrmse", "auc"),
   fill.color = viridis::viridis(
     100,
     option = "F",
@@ -83,7 +83,7 @@ rf_compare <- function(
   #testing method argument
   metrics <- match.arg(
     arg = metrics,
-    choices = c("r.squared", "pseudo.r.squared", "rmse", "nrmse"),
+    choices = c("r.squared", "pseudo.r.squared", "rmse", "nrmse", "auc"),
     several.ok = TRUE
   )
 
@@ -164,24 +164,26 @@ rf_compare <- function(
   }
 
   #plot
-  p <- ggplot2::ggplot() +
-    ggplot2::geom_violin(
-      data = x,
-      ggplot2::aes(
-        group = model,
-        y = reorder(
-          model,
-          value,
-          FUN = stats::median
-          ),
-        x = value,
-        fill = reorder(
-          model,
-          value,
-          FUN = stats::median
-        )
+  p <- ggplot2::ggplot(data = x) +
+    ggplot2::aes(
+      group = model,
+      y = reorder(
+        model,
+        value,
+        FUN = stats::median
       ),
-      draw_quantiles = 0.5,
+      x = value,
+      fill = reorder(
+        model,
+        value,
+        FUN = stats::median
+      )
+    ) +
+    ggplot2::geom_violin(color = line.color) +
+    ggplot2::geom_boxplot(
+      notch = TRUE,
+      fill = NA,
+      width = 0.2,
       color = line.color
     ) +
     ggplot2::facet_wrap(
@@ -200,7 +202,7 @@ rf_compare <- function(
       paste0(
         "Evaluation results on ",
         repetitions,
-        " spatial folds."
+        " spatial folds"
       )
     ) +
     ggplot2::theme(plot.title = element_text(hjust = 0.5))

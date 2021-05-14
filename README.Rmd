@@ -280,6 +280,7 @@ interactions <- rf_interactions(
   data = plant_richness_df,
   dependent.variable.name = dependent.variable.name,
   predictor.variable.names = predictor.variable.names,
+  xy = xy,
   importance.threshold = 0.75, #uses 25% best predictors
   cor.threshold = 0.5,
   seed = random.seed,
@@ -287,20 +288,27 @@ interactions <- rf_interactions(
   )
 ```
 
-```{r, echo=TRUE, fig.width = 5, fig.height = 4}
-patchwork::wrap_plots(interactions$plot)
-```
-Here `rf_interactions()` one candidate interaction. Notice that interactions computed via multiplication are named `a..x..b`, while interactions computed via PCA are named `a..pca..b`. The function cannot say whether an interaction *makes sense*, and it is up to the user to choose wisely whether to select an interaction or not.
+The function also returns a data frame with all the interactions considered. Interactions computed via multiplication are named `a..x..b`, while interactions computed via PCA are named `a..pca..b`. The function cannot say whether an interaction *makes sense*, and it is up to the user to choose wisely whether to select an interaction or not.
 
-The function returns the data, including the selected interactions, required to fit models with the functions within the package.
-
-```{r, eval = FALSE}
-interactions$data
-interactions$dependent.variable.name
-interactions$predictor.variable.names
+```{r, echo=TRUE}
+kableExtra::kbl(
+  head(interactions$screening, 10),
+  format = "html"
+) %>%
+  kableExtra::kable_paper("hover", full_width = F)
 ```
 
-We can use the values slots to prepare new training data.
+```{r, echo=TRUE, fig.width = 7, fig.height = 8}
+patchwork::wrap_plots(
+  interactions$plot, 
+  ncol = 1, 
+  heights = c(1, 2)
+  )
+```
+
+The upper panel in the plot plot below shows the relationship between the interaction and the response variable. It also indicates the gain in R squared (+R2), the importance, in percentage, when used in a model along the other predictors (Imp. (%)), and the maximum Pearson correlation of the interaction with the predictors. The lower panel shows a comparison of the model with and without the selected interaction made via spatial cross-validation using 100 repetitions (see [`rf_evaluate()`](https://blasbenito.github.io/spatialRF/reference/rf_evaluate.html) and [`rf_compare()`](https://blasbenito.github.io/spatialRF/reference/rf_compare.html) for further details).
+
+The function returns the training data, now including the selected interactions. We can now replace the original training data frame with the new one.
 
 ```{r}
 #adding interaction column to the training data
@@ -794,7 +802,24 @@ The model fitted above was based on the default random forest hyperparameters of
 -   `mtry`: number of variables to choose from on each tree split.
 -   `min.node.size`: minimum number of cases on a terminal node.
 
-Model tuning is done via spatial cross-validation, to ensure that the selected combination of hyperparameters maximizes the ability of the model to predict over data not used to train it. **Warning**: model tuning consumes a lot of computational resources, using it on large datasets might freeze your computer.
+These values can be modified in any model fitted with the package using the `ranger.arguments` argument. The example below shows how to fit the spatial model  with a set of chosen hyperparameters.
+
+```{r, eval = FALSE}
+model.spatial <- spatialRF::rf_spatial(
+  model = model.non.spatial,
+  method = "mem.moran.sequential", #default method
+  ranger.arguments = list(
+    mtry = 5,
+    min.node.size = 20,
+    num.trees = 1000
+  ),
+  verbose = FALSE,
+  seed = random.seed
+  )
+```
+
+The usual method for model tuning relies on a grid search exploring the results of all the combinations of hyperparameters selected by the user. In `spatialRF`,
+model tuning is done via spatial cross-validation, to ensure that the selected combination of hyperparameters maximizes the ability of the model to predict over data not used to train it. **Warning**: model tuning consumes a lot of computational resources, using it on large datasets might freeze your computer.
 
 ```{r, fig.width=6, fig.height=4.5}
 model.spatial.tuned <- rf_tuning(

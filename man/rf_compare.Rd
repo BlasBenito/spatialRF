@@ -9,7 +9,7 @@ rf_compare(
   xy = NULL,
   repetitions = 30,
   training.fraction = 0.8,
-  metrics = c("r.squared", "pseudo.r.squared", "rmse", "nrmse"),
+  metrics = c("r.squared", "pseudo.r.squared", "rmse", "nrmse", "auc"),
   fill.color = viridis::viridis(100, option = "F", direction = -1, alpha = 0.8),
   line.color = "gray30",
   seed = NULL,
@@ -24,7 +24,7 @@ rf_compare(
 \arguments{
 \item{models}{Named list with models based on the same pairs of coordinates. Example: \code{models = list(a = model.a, b = model.b)}. Default: \code{NULL}}
 
-\item{xy}{Data frame or matrix with two columns containing coordinates and named "x" and "y". The same \code{xy} is used for all models, that's why all models must be based on the same pairs of coordinates. If \code{NULL}, the function will throw an error. Default: \code{NULL}}
+\item{xy}{Data frame or matrix with two columns containing coordinates and named "x" and "y". Default: \code{NULL}}
 
 \item{repetitions}{Integer, must be lower than the total number of rows available in the model's data. Default: \code{30}}
 

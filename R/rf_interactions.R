@@ -1,5 +1,5 @@
 #' @title Suggest variable interactions for random forest models
-#' @description Suggests candidate variable interactions for random forest models. For a pair of predictors `a` and `b`, interactions are build via multiplication (`a * b`), and by extracting the first factor of a principal component analysis performed with [pca()], after rescaling `a` and `b` between 1 and 100. Interactions based on multiplication are named `a..x..b`, and interactions based on PCA factors are named `a..pca..b`.
+#' @description Suggests candidate variable interactions for random forest models. For a pair of predictors `a` and `b`, interactions are build via multiplication (`a * b`), and by extracting the first factor of a principal component analysis performed with [pca()], after rescaling `a` and `b` between 1 and 100. Interactions based on multiplication are named `a..x..b`, and interactions based on PCA factors are named `a..pca..b`. If `xy` is provided, [rf_compare()] is used to evaluate via spatial cross-validation (100 spatial folds using 0.8 as training fraction) a model fitted with the original data with a model fitted with the selected interactions.
 #'
 #'Candidate variables `a` and `b` are selected from those predictors in `predictor.variable.names` with a variable importance above `importance.threshold` (set by default to the median of the importance scores).
 #'
@@ -12,10 +12,11 @@
 #' @param data Data frame with a response variable and a set of predictors. Default: `NULL`
 #' @param dependent.variable.name Character string with the name of the response variable. Must be in the column names of `data`. If the dependent variable is binary with values 1 and 0, the argument `case.weights` of `ranger` is populated by the function [case_weights()]. Default: `NULL`
 #' @param predictor.variable.names Character vector with the names of the predictive variables, or object of class `"variable_selection"` produced by [auto_vif()] and/or [auto_cor()]. Every element of this vector must be in the column names of `data`. Default: `NULL`
+#' @param xy Data frame or matrix with two columns containing coordinates and named "x" and "y". If not provided, the comparison between models with and without variable interactions is not done.
 #' @param ranger.arguments Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.
 #' @param importance.threshold Numeric between 0 and 1, quantile of variable importance scores over which to select individual predictors to explore interactions among them. Larger values reduce the number of potential interactions explored. Default: `0.75`
 #' @param cor.threshold Numeric, maximum Pearson correlation between any pair of the selected interactions, and between any interaction and the predictors in `predictor.variable.names`. Default: `0.75`
-#' @param point.color Colors of the plotted points. Can be a single color name (e.g. "red4"), a character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. `viridis::viridis(100)`). Default: `viridis::viridis(100, option = "F")`
+#' @param point.color Colors of the plotted points. Can be a single color name (e.g. "red4"), a character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. `viridis::viridis(100)`). Default: `viridis::viridis(100, option = "F", alpha = 0.8)`
 #' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same. Default: `NULL`
 #' @param verbose Logical If `TRUE`, messages and plots generated during the execution of the function are displayed. Default: `TRUE`
 #' @param n.cores Integer, number of cores to use. Default: `parallel::detectCores() - 1`
@@ -62,12 +63,14 @@ rf_interactions <- function(
   data = NULL,
   dependent.variable.name = NULL,
   predictor.variable.names = NULL,
+  xy = NULL,
   ranger.arguments = NULL,
   importance.threshold = 0.75,
   cor.threshold = 0.75,
   point.color = viridis::viridis(
     100,
-    option = "F"
+    option = "F",
+    alpha = 0.8
     ),
   seed = NULL,
   verbose = TRUE,
@@ -571,14 +574,6 @@ rf_interactions <- function(
 
   }
 
-  if(length(plot.list) == 1){
-    plot.list <- plot.list[[1]]
-  }
-
-  if(verbose == TRUE){
-    patchwork::wrap_plots(plot.list)
-  }
-
   #generating training df
   training.df <- cbind(
     data,
@@ -589,7 +584,6 @@ rf_interactions <- function(
   out.list <- list()
   out.list$screening <- interaction.screening
   out.list$selected <- interaction.screening.selected
-  out.list$df <- interaction.df
   out.list$plot <- plot.list
   out.list$data <- training.df
   out.list$dependent.variable.name <- dependent.variable.name
@@ -597,6 +591,85 @@ rf_interactions <- function(
     predictor.variable.names,
     colnames(interaction.df)
   )
+
+  #compare models if xy is provided
+  if(!is.null(xy)){
+
+    if(verbose == TRUE){
+      message("Comparing models with and without interactions via spatial cross-validation with 100 repetitions.")
+    }
+
+    #fitting models with and without the selected interactions
+
+    #without
+    without.interactions <- spatialRF::rf(
+      data = data,
+      dependent.variable.name = dependent.variable.name,
+      predictor.variable.names = predictor.variable.names,
+      ranger.arguments = ranger.arguments,
+      verbose = FALSE
+    )
+
+    #with
+    with.interactions <- spatialRF::rf(
+      data = training.df,
+      dependent.variable.name = dependent.variable.name,
+      predictor.variable.names = c(
+        predictor.variable.names,
+        colnames(interaction.df)
+      ),
+      ranger.arguments = ranger.arguments,
+      verbose = FALSE
+    )
+
+    #checking if response is binary to select metris
+    is.binary <- is_binary(
+      data = data,
+      dependent.variable.name = dependent.variable.name
+    )
+
+    #pick colors for comparison from the palette
+    n.colors <- length(point.color)
+    line.color = point.color[1]
+    color.a <- point.color[floor(n.colors/4)]
+    color.b <- point.color[floor((n.colors/4)*3)]
+
+    #comparison
+    comparison <- rf_compare(
+      models = list(
+        with.interactions = with.interactions,
+        without.interactions = without.interactions
+      ),
+      repetitions = 100,
+      xy = xy,
+      metrics = if(is.binary == TRUE){
+        "auc"
+      } else {
+        c("r.squared", "rmse")
+      },
+      fill.color = c(color.a, color.b),
+      line.color = line.color,
+      seed = seed,
+      verbose = FALSE,
+      n.cores = n.cores,
+      cluster.ips = cluster.ips,
+      cluster.cores = cluster.cores,
+      cluster.user = cluster.user,
+      cluster.port = cluster.port
+    )
+
+    #adding it to the plot list
+    plot.list[[length(plot.list) + 1]] <- comparison$plot
+
+    #saving new elements into the output list
+    out.list$comparison.df <- comparison$comparison.df
+    out.list$plot <- plot.list
+
+  }
+
+  if(verbose == TRUE){
+    patchwork::wrap_plots(plot.list)
+  }
 
   out.list
 
