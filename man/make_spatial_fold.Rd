@@ -9,8 +9,9 @@ make_spatial_fold(
   dependent.variable.name = NULL,
   xy.i = NULL,
   xy = NULL,
-  distance.step = NULL,
-  training.fraction = 0.6
+  distance.step.x = NULL,
+  distance.step.y = NULL,
+  training.fraction = 0.8
 )
 }
 \arguments{
@@ -22,9 +23,11 @@ make_spatial_fold(
 
 \item{xy}{A data frame with at least three columns: "x" (longitude), "y" (latitude), and "id" (integer, index of the record). Default: \code{NULL}.}
 
-\item{distance.step}{Numeric, distance step used during the thinning iterations. If \code{NULL}, the maximum distance between two points in \code{xy} divided by 100 is used. Default: \code{NULL}}
+\item{distance.step.x}{Numeric, distance step used during the growth in the x axis of the buffers defining the training folds. Default: \code{NULL} (1/1000th the range of the x coordinates).}
 
-\item{training.fraction}{Numeric, fraction of the data to be included in the training fold, Default: \code{0.6}.}
+\item{distance.step.y}{Numeric, distance step used during the growth in the y axis of the buffers defining the training folds. Default: \code{NULL} (1/1000th the range of the y coordinates).}
+
+\item{training.fraction}{Numeric, fraction of the data to be included in the training fold, Default: \code{0.8}.}
 }
 \value{
 A list with two slots named \code{training} and \code{testing} with the former having the indices of the training records selected from \code{xy}, and the latter having the indices of the testing records.
@@ -43,7 +46,6 @@ if(interactive()){
  out <- make_spatial_fold(
    xy.i = xy[1, ],
    xy = xy,
-   distance.step = 0.05, #degrees
    training.fraction = 0.6
  )
 

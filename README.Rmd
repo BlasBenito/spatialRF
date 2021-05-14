@@ -420,6 +420,16 @@ local.importance <- cbind(
 
 
 ```{r, echo=TRUE, fig.width=8, fig.height=5}
+#colors
+color.low <- viridis::viridis(
+    3,
+    option = "F"
+    )[2]
+color.high <- viridis::viridis(
+    3,
+    option = "F"
+    )[3]
+
 #plot of climate_bio1_average
 p1 <- ggplot2::ggplot() +
   ggplot2::geom_sf(
@@ -436,7 +446,10 @@ p1 <- ggplot2::ggplot() +
   ) +
   ggplot2::scale_x_continuous(limits = c(-170, -30)) +
   ggplot2::scale_y_continuous(limits = c(-58, 80)) +
-  ggplot2::scale_color_gradient2(low = "red", high = "blue") +
+  ggplot2::scale_color_gradient2(
+    low = color.low, 
+    high = color.high
+    ) +
   ggplot2::theme_bw() +
   ggplot2::theme(legend.position = "bottom") + 
   ggplot2::ggtitle("climate_bio1_average") +
@@ -463,7 +476,10 @@ p2 <- ggplot2::ggplot() +
   ) +
   ggplot2::scale_x_continuous(limits = c(-170, -30)) +
   ggplot2::scale_y_continuous(limits = c(-58, 80)) +
-  ggplot2::scale_color_gradient2(low = "red", high = "blue") +
+  ggplot2::scale_color_gradient2(
+    low = color.low, 
+    high = color.high
+    ) +
   ggplot2::theme_bw() +
   ggplot2::theme(legend.position = "bottom") +
   ggplot2::ggtitle("human_population") +

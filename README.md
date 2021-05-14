@@ -456,6 +456,7 @@ interactions <- rf_interactions(
   data = plant_richness_df,
   dependent.variable.name = dependent.variable.name,
   predictor.variable.names = predictor.variable.names,
+  xy = xy,
   importance.threshold = 0.75, #uses 25% best predictors
   cor.threshold = 0.5,
   seed = random.seed,
@@ -477,27 +478,307 @@ interactions <- rf_interactions(
     ##  │ ity              │                  │                  │                  │
     ##  └──────────────────┴──────────────────┴──────────────────┴──────────────────┘
 
-``` r
-patchwork::wrap_plots(interactions$plot)
-```
+    ## Comparing models with and without interactions via spatial cross-validation with 100 repetitions.
 
-![](README_files/figure-gfm/unnamed-chunk-12-1.png)<!-- --> Here
-`rf_interactions()` one candidate interaction. Notice that interactions
-computed via multiplication are named `a..x..b`, while interactions
-computed via PCA are named `a..pca..b`. The function cannot say whether
-an interaction *makes sense*, and it is up to the user to choose wisely
-whether to select an interaction or not.
-
-The function returns the data, including the selected interactions,
-required to fit models with the functions within the package.
+The function also returns a data frame with all the interactions
+considered. Interactions computed via multiplication are named
+`a..x..b`, while interactions computed via PCA are named `a..pca..b`.
+The function cannot say whether an interaction *makes sense*, and it is
+up to the user to choose wisely whether to select an interaction or not.
 
 ``` r
-interactions$data
-interactions$dependent.variable.name
-interactions$predictor.variable.names
+kableExtra::kbl(
+  head(interactions$screening, 10),
+  format = "html"
+) %>%
+  kableExtra::kable_paper("hover", full_width = F)
 ```
 
-We can use the values slots to prepare new training data.
+<table class=" lightable-paper lightable-hover" style="font-family: &quot;Arial Narrow&quot;, arial, helvetica, sans-serif; width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+interaction.name
+</th>
+<th style="text-align:right;">
+interaction.importance
+</th>
+<th style="text-align:right;">
+interaction.r.squared.gain
+</th>
+<th style="text-align:right;">
+max.cor.with.predictors
+</th>
+<th style="text-align:left;">
+variable.a.name
+</th>
+<th style="text-align:left;">
+variable.b.name
+</th>
+<th style="text-align:left;">
+selected
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+climate\_bio1\_average..pca..climate\_velocity\_lgm\_average
+</td>
+<td style="text-align:right;">
+100.000
+</td>
+<td style="text-align:right;">
+0.0209545
+</td>
+<td style="text-align:right;">
+0.7969589
+</td>
+<td style="text-align:left;">
+climate\_bio1\_average
+</td>
+<td style="text-align:left;">
+climate\_velocity\_lgm\_average
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+human\_population..x..neighbors\_percent\_shared\_edge
+</td>
+<td style="text-align:right;">
+100.000
+</td>
+<td style="text-align:right;">
+0.0066537
+</td>
+<td style="text-align:right;">
+0.9436066
+</td>
+<td style="text-align:left;">
+human\_population
+</td>
+<td style="text-align:left;">
+neighbors\_percent\_shared\_edge
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+climate\_bio1\_average..x..climate\_hypervolume
+</td>
+<td style="text-align:right;">
+100.000
+</td>
+<td style="text-align:right;">
+0.0034568
+</td>
+<td style="text-align:right;">
+0.9731593
+</td>
+<td style="text-align:left;">
+climate\_bio1\_average
+</td>
+<td style="text-align:left;">
+climate\_hypervolume
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+climate\_bio1\_average..x..bias\_area\_km2
+</td>
+<td style="text-align:right;">
+89.691
+</td>
+<td style="text-align:right;">
+0.0159639
+</td>
+<td style="text-align:right;">
+0.8595321
+</td>
+<td style="text-align:left;">
+climate\_bio1\_average
+</td>
+<td style="text-align:left;">
+bias\_area\_km2
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+human\_population..x..bias\_area\_km2
+</td>
+<td style="text-align:right;">
+98.033
+</td>
+<td style="text-align:right;">
+0.0226976
+</td>
+<td style="text-align:right;">
+0.6373850
+</td>
+<td style="text-align:left;">
+human\_population
+</td>
+<td style="text-align:left;">
+bias\_area\_km2
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+climate\_bio1\_average..x..neighbors\_percent\_shared\_edge
+</td>
+<td style="text-align:right;">
+89.434
+</td>
+<td style="text-align:right;">
+0.0203846
+</td>
+<td style="text-align:right;">
+0.7461680
+</td>
+<td style="text-align:left;">
+climate\_bio1\_average
+</td>
+<td style="text-align:left;">
+neighbors\_percent\_shared\_edge
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+neighbors\_count..x..neighbors\_percent\_shared\_edge
+</td>
+<td style="text-align:right;">
+65.899
+</td>
+<td style="text-align:right;">
+0.0318263
+</td>
+<td style="text-align:right;">
+0.7567699
+</td>
+<td style="text-align:left;">
+neighbors\_count
+</td>
+<td style="text-align:left;">
+neighbors\_percent\_shared\_edge
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+bias\_area\_km2..pca..bias\_species\_per\_record
+</td>
+<td style="text-align:right;">
+69.567
+</td>
+<td style="text-align:right;">
+0.0277316
+</td>
+<td style="text-align:right;">
+0.7780788
+</td>
+<td style="text-align:left;">
+bias\_area\_km2
+</td>
+<td style="text-align:left;">
+bias\_species\_per\_record
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+climate\_hypervolume..x..fragmentation\_cohesion
+</td>
+<td style="text-align:right;">
+100.000
+</td>
+<td style="text-align:right;">
+-0.0032603
+</td>
+<td style="text-align:right;">
+0.9949285
+</td>
+<td style="text-align:left;">
+climate\_hypervolume
+</td>
+<td style="text-align:left;">
+fragmentation\_cohesion
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+human\_population..x..fragmentation\_cohesion
+</td>
+<td style="text-align:right;">
+96.256
+</td>
+<td style="text-align:right;">
+-0.0014768
+</td>
+<td style="text-align:right;">
+0.9978338
+</td>
+<td style="text-align:left;">
+human\_population
+</td>
+<td style="text-align:left;">
+fragmentation\_cohesion
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+</tr>
+</tbody>
+</table>
+
+``` r
+patchwork::wrap_plots(
+  interactions$plot, 
+  ncol = 1, 
+  heights = c(1, 2)
+  )
+```
+
+![](README_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+
+The upper panel in the plot plot below shows the relationship between
+the interaction and the response variable. It also indicates the gain in
+R squared (+R2), the importance, in percentage, when used in a model
+along the other predictors (Imp. (%)), and the maximum Pearson
+correlation of the interaction with the predictors. The lower panel
+shows a comparison of the model with and without the selected
+interaction made via spatial cross-validation using 100 repetitions (see
+[`rf_evaluate()`](https://blasbenito.github.io/spatialRF/reference/rf_evaluate.html)
+and
+[`rf_compare()`](https://blasbenito.github.io/spatialRF/reference/rf_compare.html)
+for further details).
+
+The function returns the training data, now including the selected
+interactions. We can now replace the original training data frame with
+the new one.
 
 ``` r
 #adding interaction column to the training data
@@ -2018,11 +2299,31 @@ hyperparameters that are critical to model performance:
 -   `mtry`: number of variables to choose from on each tree split.
 -   `min.node.size`: minimum number of cases on a terminal node.
 
-Model tuning is done via spatial cross-validation, to ensure that the
-selected combination of hyperparameters maximizes the ability of the
-model to predict over data not used to train it. **Warning**: model
-tuning consumes a lot of computational resources, using it on large
-datasets might freeze your computer.
+These values can be modified in any model fitted with the package using
+the `ranger.arguments` argument. The example below shows how to fit the
+spatial model with a set of chosen hyperparameters.
+
+``` r
+model.spatial <- spatialRF::rf_spatial(
+  model = model.non.spatial,
+  method = "mem.moran.sequential", #default method
+  ranger.arguments = list(
+    mtry = 5,
+    min.node.size = 20,
+    num.trees = 1000
+  ),
+  verbose = FALSE,
+  seed = random.seed
+  )
+```
+
+The usual method for model tuning relies on a grid search exploring the
+results of all the combinations of hyperparameters selected by the user.
+In `spatialRF`, model tuning is done via spatial cross-validation, to
+ensure that the selected combination of hyperparameters maximizes the
+ability of the model to predict over data not used to train it.
+**Warning**: model tuning consumes a lot of computational resources,
+using it on large datasets might freeze your computer.
 
 ``` r
 model.spatial.tuned <- rf_tuning(
@@ -2081,7 +2382,7 @@ spatialRF::plot_importance(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-47-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-48-1.png)<!-- -->
 
 The response curves of models fitted with `rf_repeat()` can be plotted
 with `plot_response_curves()` as well. The median prediction is shown
@@ -2095,7 +2396,7 @@ spatialRF::plot_response_curves(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-48-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-49-1.png)<!-- -->
 
 The function `print_performance()` generates a summary of the
 performance scores across model repetitions. As every other function of
@@ -2168,7 +2469,7 @@ comparison <- rf_compare(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-51-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-52-1.png)<!-- -->
 
 ``` r
 x <- comparison$comparison.df %>% 
@@ -2608,7 +2909,7 @@ moran.test <- spatialRF::moran(
 moran.test$plot
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-62-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-63-1.png)<!-- -->
 
 According to the Moran’s I test, the model residuals show spatial
 autocorrelation. Let’s introduce MEMs one by one until the problem is
@@ -2665,7 +2966,7 @@ for(mem.i in colnames(mems)){
 moran.test.i$plot
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-63-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-64-1.png)<!-- -->
 
 Now we can compare the model without spatial predictors `m` and the
 model with spatial predictors `m.i`.

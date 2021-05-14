@@ -4,8 +4,10 @@
 #' @param xy Data frame or matrix with two columns containing coordinates and named "x" and "y". If `NULL`, the function will throw an error. Default: `NULL`
 #' @param repetitions Integer, must be lower than the total number of rows available in the model's data. Default: `30`
 #' @param training.fraction Proportion between 0.5 and 0.9 indicating the number of records to be used in model training. Default: `0.75`
-#' @param distance.step Numeric, distance step used during the thinning iterations. Argument of [thinning_til_n()], [make_spatial_folds()], and [make_spatial_fold()]. If `NULL`, the maximum distance between two points in `xy` divided by 100 is used. Default: `NULL`
 #' @param metrics Character vector, names of the performance metrics selected. The possible values are: "r.squared" (`cor(obs, pred) ^ 2`), "pseudo.r.squared" (`cor(obs, pred)`), "rmse" (`sqrt(sum((obs - pred)^2)/length(obs))`), "nrmse" (`rmse/(quantile(obs, 0.75) - quantile(obs, 0.25))`), and "auc" (only for binary responses with values 1 and 0). Default: `c("r.squared", "pseudo.r.squared", "rmse", "nrmse")`
+#' @param distance.step Numeric, argument `distance.step` of [thinning_til_n()]. distance step used during the selection of the centers of the training folds. These fold centers are selected by thinning the data until a number of folds equal or lower than `repetitions` is reached. Its default value is 1/1000th the maximum distance within records in `xy`. Reduce it if the number of training folds is lower than expected.
+#' @param distance.step.x Numeric, argument `distance.step.x` of [make_spatial_folds()]. Distance step used during the growth in the x axis of the buffers defining the training folds. Default: `NULL` (1/1000th the range of the x coordinates).
+#' @param distance.step.y Numeric, argument `distance.step.x` of [make_spatial_folds()]. Distance step used during the growth in the y axis of the buffers defining the training folds. Default: `NULL` (1/1000th the range of the y coordinates).
 #' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same.
 #' @param verbose Logical. If `TRUE`, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
 #' @param n.cores Integer, number of cores to use. Default = `parallel::detectCores() - 1`
@@ -63,14 +65,16 @@ rf_evaluate <- function(
   xy = NULL,
   repetitions = 30,
   training.fraction = 0.75,
-  distance.step = NULL,
   metrics = c(
     "r.squared",
     "pseudo.r.squared",
     "rmse",
     "nrmse",
     "auc"
-    ),
+  ),
+  distance.step = NULL,
+  distance.step.x = NULL,
+  distance.step.y = NULL,
   seed = NULL,
   verbose = TRUE,
   n.cores = parallel::detectCores() - 1,
@@ -181,7 +185,8 @@ rf_evaluate <- function(
     dependent.variable.name = dependent.variable.name,
     xy.selected = xy.reference.records,
     xy = xy,
-    distance.step = distance.step,
+    distance.step.x = distance.step.x,
+    distance.step.y = distance.step.y,
     training.fraction = training.fraction,
     n.cores = n.cores
   )

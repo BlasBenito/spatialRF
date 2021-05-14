@@ -60,7 +60,7 @@ thinning_til_n <- function(
     xy.distances <- sort(as.vector(dist(xy[, c("x", "y")])))
 
     #getting the 1%
-    min.distance <- distance.i <- max(xy.distances) / 100
+    min.distance <- distance.i <- max(xy.distances) / 1000
 
     rm(xy.distances)
 

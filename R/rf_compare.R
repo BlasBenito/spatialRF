@@ -5,6 +5,9 @@
 #' @param repetitions Integer, must be lower than the total number of rows available in the model's data. Default: `30`
 #' @param training.fraction Proportion between 0.5 and 0.9 indicating the number of records to be used in model training. Default: `0.8`
 #' @param metrics Character vector, names of the performance metrics selected. The possible values are: "r.squared" (`cor(obs, pred) ^ 2`), "pseudo.r.squared" (`cor(obs, pred)`), "rmse" (`sqrt(sum((obs - pred)^2)/length(obs))`), "nrmse" (`rmse/(quantile(obs, 0.75) - quantile(obs, 0.25))`). Default: `c("r.squared", "pseudo.r.squared", "rmse", "nrmse")`
+#' @param distance.step Numeric, argument `distance.step` of [thinning_til_n()]. distance step used during the selection of the centers of the training folds. These fold centers are selected by thinning the data until a number of folds equal or lower than `repetitions` is reached. Its default value is 1/1000th the maximum distance within records in `xy`. Reduce it if the number of training folds is lower than expected.
+#' @param distance.step.x Numeric, argument `distance.step.x` of [make_spatial_folds()]. Distance step used during the growth in the x axis of the buffers defining the training folds. Default: `NULL` (1/1000th the range of the x coordinates).
+#' @param distance.step.y Numeric, argument `distance.step.x` of [make_spatial_folds()]. Distance step used during the growth in the y axis of the buffers defining the training folds. Default: `NULL` (1/1000th the range of the y coordinates).
 #' @param fill.color Character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. `viridis::viridis(100)`). Default: `viridis::viridis(100, option = "F", direction = -1)`
 #' @param line.color Character string, color of the line produced by `ggplot2::geom_smooth()`. Default: `"gray30"`
 #' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same.
@@ -51,7 +54,16 @@ rf_compare <- function(
   xy = NULL,
   repetitions = 30,
   training.fraction = 0.8,
-  metrics = c("r.squared", "pseudo.r.squared", "rmse", "nrmse", "auc"),
+  metrics = c(
+    "r.squared",
+    "pseudo.r.squared",
+    "rmse",
+    "nrmse",
+    "auc"
+    ),
+  distance.step = NULL,
+  distance.step.x = NULL,
+  distance.step.y = NULL,
   fill.color = viridis::viridis(
     100,
     option = "F",
@@ -107,6 +119,9 @@ rf_compare <- function(
       xy = xy,
       repetitions = repetitions,
       training.fraction = training.fraction,
+      distance.step = distance.step,
+      distance.step.x = distance.step.x,
+      distance.step.y = distance.step.y,
       metrics = metrics,
       seed = seed,
       verbose = FALSE,
