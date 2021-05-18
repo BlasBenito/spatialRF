@@ -1,13 +1,38 @@
 library(spatialRF)
-library(tictoc)
 
-#BASIC MODELS TO TEST OTHER THINGIES
-#############################################
-data(plant_richness_df)
-data(distance_matrix)
-xy <- plant_richness_df[, c("x", "y")]
-dependent.variable.name <- "richness_species_vascular"
-predictor.variable.names <- colnames(plant_richness_df)[5:21]
+
+
+
+model <- rf(
+  data = data,
+  dependent.variable.name = dependent.variable.name,
+  predictor.variable.names = predictor.variable.names,
+  distance.matrix = distance.matrix,
+  verbose = FALSE
+)
+
+model <- rf_evaluate(
+  model = model,
+  xy = xy,
+  n.cores = 1
+)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 rf.repeat <- rf_repeat(

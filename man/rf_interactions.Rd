@@ -10,8 +10,10 @@ rf_interactions(
   predictor.variable.names = NULL,
   xy = NULL,
   ranger.arguments = NULL,
+  repetitions = 30,
+  training.fraction = 0.75,
   importance.threshold = 0.75,
-  cor.threshold = 0.75,
+  cor.threshold = 0.5,
   point.color = viridis::viridis(100, option = "F", alpha = 0.8),
   seed = NULL,
   verbose = TRUE,
@@ -32,6 +34,10 @@ rf_interactions(
 \item{xy}{Data frame or matrix with two columns containing coordinates and named "x" and "y". If not provided, the comparison between models with and without variable interactions is not done.}
 
 \item{ranger.arguments}{Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.}
+
+\item{repetitions}{Integer, number of spatial folds to use during cross-validation. Must be lower than the total number of rows available in the model's data. Default: \code{30}}
+
+\item{training.fraction}{Proportion between 0.5 and 0.9 indicating the proportion of records to be used as training set during spatial cross-validation. Default: \code{0.75}}
 
 \item{importance.threshold}{Numeric between 0 and 1, quantile of variable importance scores over which to select individual predictors to explore interactions among them. Larger values reduce the number of potential interactions explored. Default: \code{0.75}}
 

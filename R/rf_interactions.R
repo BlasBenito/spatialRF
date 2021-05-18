@@ -14,6 +14,8 @@
 #' @param predictor.variable.names Character vector with the names of the predictive variables, or object of class `"variable_selection"` produced by [auto_vif()] and/or [auto_cor()]. Every element of this vector must be in the column names of `data`. Default: `NULL`
 #' @param xy Data frame or matrix with two columns containing coordinates and named "x" and "y". If not provided, the comparison between models with and without variable interactions is not done.
 #' @param ranger.arguments Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.
+#' @param repetitions Integer, number of spatial folds to use during cross-validation. Must be lower than the total number of rows available in the model's data. Default: `30`
+#' @param training.fraction Proportion between 0.5 and 0.9 indicating the proportion of records to be used as training set during spatial cross-validation. Default: `0.75`
 #' @param importance.threshold Numeric between 0 and 1, quantile of variable importance scores over which to select individual predictors to explore interactions among them. Larger values reduce the number of potential interactions explored. Default: `0.75`
 #' @param cor.threshold Numeric, maximum Pearson correlation between any pair of the selected interactions, and between any interaction and the predictors in `predictor.variable.names`. Default: `0.75`
 #' @param point.color Colors of the plotted points. Can be a single color name (e.g. "red4"), a character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. `viridis::viridis(100)`). Default: `viridis::viridis(100, option = "F", alpha = 0.8)`
@@ -65,8 +67,10 @@ rf_interactions <- function(
   predictor.variable.names = NULL,
   xy = NULL,
   ranger.arguments = NULL,
+  repetitions = 30,
+  training.fraction = 0.75,
   importance.threshold = 0.75,
-  cor.threshold = 0.75,
+  cor.threshold = 0.50,
   point.color = viridis::viridis(
     100,
     option = "F",
@@ -80,6 +84,18 @@ rf_interactions <- function(
   cluster.user = Sys.info()[["user"]],
   cluster.port = "11000"
   ){
+
+
+  #finding out if the response is binary
+  is.binary <- is_binary(
+    data = data,
+    dependent.variable.name = dependent.variable.name
+  )
+  if(is.binary == TRUE){
+    metric <- "auc"
+  } else {
+    metric <- "r.squared"
+  }
 
   #declaring variables
   variable <- NULL
@@ -99,36 +115,58 @@ rf_interactions <- function(
     importance.threshold <- 0.01
   }
 
-  #fitting model
-  model <- rf_repeat(
+  if(verbose == TRUE){
+    message("Fitting and evaluating a model without interactions.")
+  }
+
+  #without
+  model.without.interactions <- rf(
     data = data,
     dependent.variable.name = dependent.variable.name,
     predictor.variable.names = predictor.variable.names,
     ranger.arguments = ranger.arguments,
-    repetitions = 10,
     seed = seed,
     verbose = FALSE
   )
 
-  #r squared
-  model.r.squared <- median(model$performance$r.squared.oob)
+  #evaluation
+  model.without.interactions <- rf_evaluate(
+    model = model.without.interactions,
+    repetitions = repetitions,
+    training.fraction = training.fraction,
+    xy = xy,
+    metrics = metric,
+    seed = seed,
+    verbose = FALSE,
+    n.cores = 1,
+    cluster.ips = cluster.ips,
+    cluster.cores = cluster.cores,
+    cluster.user = cluster.user,
+    cluster.port = cluster.port
+  )
+
+  #metric
+  model.without.interactions.evaluation <- model.without.interactions$evaluation$aggregated
+  model.without.interactions.metric <- model.without.interactions.evaluation[
+    model.without.interactions.evaluation$model == "Testing",
+    "median"
+    ]
 
   #ranger.arguments.i
   ranger.arguments.i <- ranger.arguments
   ranger.arguments.i$data <- NULL
   ranger.arguments.i$dependent.variable.name <- NULL
   ranger.arguments.i$predictor.variable.names <- NULL
-  ranger.arguments.i$num.trees <- 1000
 
   #select variables to test
   if(is.null(importance.threshold)){
     importance.threshold <- quantile(
-      x = model$importance$per.variable$importance,
+      x = model.without.interactions$importance$per.variable$importance,
       probs = importance.threshold
       )
   }
-  variables.to.test <- model$importance$per.variable[
-    model$importance$per.variable$importance >= importance.threshold,
+  variables.to.test <- model.without.interactions$importance$per.variable[
+    model.without.interactions$importance$per.variable$importance >= importance.threshold,
     "variable"
     ]
 
@@ -262,20 +300,37 @@ rf_interactions <- function(
       pair.i.name
     )
 
-    #fitting model
-    model.i <- spatialRF::rf_repeat(
+    #without
+    model.i <- spatialRF::rf(
       data = data.i,
       dependent.variable.name = dependent.variable.name,
       predictor.variable.names = predictor.variable.names.i,
       ranger.arguments = ranger.arguments.i,
-      repetitions = 10,
+      seed = seed,
+      verbose = FALSE
+    )
+
+    #evaluation
+    model.i <- spatialRF::rf_evaluate(
+      model = model.i,
+      repetitions = repetitions,
+      training.fraction = training.fraction,
+      xy = xy,
+      metrics = metric,
       seed = seed,
       verbose = FALSE,
       n.cores = 1
     )
 
-    #importance data frames
+    #importance data frame
     model.i.importance <- model.i$importance$per.variable
+
+    #metric
+    model.i.evaluation <- model.i$evaluation$aggregated
+    model.i.metric <- model.i.evaluation[
+      model.i.evaluation$model == "Testing",
+      "median"
+    ]
 
     #computing max correlation with predictors
     cor.out <- cor(data.i[, predictor.variable.names.i])
@@ -286,7 +341,7 @@ rf_interactions <- function(
     out.df <- data.frame(
       interaction.name = pair.i.name,
       interaction.importance = round((model.i.importance[model.i.importance$variable == pair.i.name, "importance"] * 100) / max(model.i.importance$importance), 3),
-      interaction.r.squared.gain = median(model.i$performance$r.squared.oob) - model.r.squared,
+      interaction.metric.gain = model.i.metric - model.without.interactions.metric,
       max.cor.with.predictors = max.cor,
       variable.a.name = pair.i[1],
       variable.b.name = pair.i[2],
@@ -341,20 +396,37 @@ rf_interactions <- function(
       pair.i.name
     )
 
-    #fitting model
-    model.i <- spatialRF::rf_repeat(
+    #without
+    model.i <- spatialRF::rf(
       data = data.i,
       dependent.variable.name = dependent.variable.name,
       predictor.variable.names = predictor.variable.names.i,
       ranger.arguments = ranger.arguments.i,
-      repetitions = 10,
+      seed = seed,
+      verbose = FALSE
+    )
+
+    #evaluation
+    model.i <- spatialRF::rf_evaluate(
+      model = model.i,
+      repetitions = repetitions,
+      training.fraction = training.fraction,
+      xy = xy,
+      metrics = metric,
       seed = seed,
       verbose = FALSE,
       n.cores = 1
     )
 
-    #importance data frames
+    #importance data frame
     model.i.importance <- model.i$importance$per.variable
+
+    #metric
+    model.i.evaluation <- model.i$evaluation$aggregated
+    model.i.metric <- model.i.evaluation[
+      model.i.evaluation$model == "Testing",
+      "median"
+    ]
 
     #computing max correlation with predictors
     cor.out <- cor(data.i[, predictor.variable.names.i])
@@ -365,7 +437,7 @@ rf_interactions <- function(
     out.df <- data.frame(
       interaction.name = pair.i.name,
       interaction.importance = round((model.i.importance[model.i.importance$variable == pair.i.name, "importance"] * 100) / max(model.i.importance$importance), 3),
-      interaction.r.squared.gain = median(model.i$performance$r.squared.oob) - model.r.squared,
+      interaction.metric.gain = model.i.metric - model.without.interactions.metric,
       max.cor.with.predictors = max.cor,
       variable.a.name = pair.i[1],
       variable.b.name = pair.i[2],
@@ -393,8 +465,9 @@ rf_interactions <- function(
 
   #adding column of selected interactions
   interaction.screening$selected <- ifelse(
-    interaction.screening$interaction.r.squared.gain > 0.01 &
-    interaction.screening$max.cor.with.predictors < cor.threshold,
+    interaction.screening$interaction.metric.gain > 0.01 &
+    interaction.screening$max.cor.with.predictors < cor.threshold &
+    interaction.screening$interaction.metric.gain > 0.01,
     TRUE,
     FALSE
   )
@@ -407,7 +480,7 @@ rf_interactions <- function(
   #compute order
   interaction.screening$order <-
     spatialRF::rescale_vector(interaction.screening$interaction.importance) +
-    spatialRF::rescale_vector(interaction.screening$interaction.r.squared.gain) -
+    spatialRF::rescale_vector(interaction.screening$interaction.metric.gain) -
     spatialRF::rescale_vector(1 - interaction.screening$max.cor.with.predictors)
 
   #arrange by gain
@@ -424,7 +497,7 @@ rf_interactions <- function(
   interaction.screening.selected <- interaction.screening.selected[, c(
     "interaction.name",
     "interaction.importance",
-    "interaction.r.squared.gain",
+    "interaction.metric.gain",
     "max.cor.with.predictors",
     "variable.a.name",
     "variable.b.name"
@@ -500,7 +573,13 @@ rf_interactions <- function(
   if(verbose == TRUE){
 
     x <- interaction.screening.selected
-    colnames(x) <- c("Interaction", "Importance (% of max)", "R-squared improvement", "Max cor with predictors")
+    if(metric == "r.squared"){
+      colnames(x) <- c("Interaction", "Importance (% of max)", "R-squared improvement", "Max cor with predictors")
+
+    }
+    if(metric == "auc"){
+      colnames(x) <- c("Interaction", "Importance (% of max)", "AUC improvement", "Max cor with predictors")
+    }
 
     x.hux <- huxtable::hux(x) %>%
       huxtable::set_bold(
@@ -545,7 +624,7 @@ rf_interactions <- function(
           round(
             interaction.screening.selected[
             interaction.screening.selected$interaction.name == variable,
-            "interaction.r.squared.gain"
+            "interaction.metric.gain"
             ],
             3
             ),
@@ -601,17 +680,8 @@ rf_interactions <- function(
 
     #fitting models with and without the selected interactions
 
-    #without
-    without.interactions <- spatialRF::rf(
-      data = data,
-      dependent.variable.name = dependent.variable.name,
-      predictor.variable.names = predictor.variable.names,
-      ranger.arguments = ranger.arguments,
-      verbose = FALSE
-    )
-
     #with
-    with.interactions <- spatialRF::rf(
+    model.with.interactions <- spatialRF::rf(
       data = training.df,
       dependent.variable.name = dependent.variable.name,
       predictor.variable.names = c(
@@ -620,12 +690,6 @@ rf_interactions <- function(
       ),
       ranger.arguments = ranger.arguments,
       verbose = FALSE
-    )
-
-    #checking if response is binary to select metris
-    is.binary <- is_binary(
-      data = data,
-      dependent.variable.name = dependent.variable.name
     )
 
     #pick colors for comparison from the palette
@@ -637,16 +701,12 @@ rf_interactions <- function(
     #comparison
     comparison <- rf_compare(
       models = list(
-        with.interactions = with.interactions,
-        without.interactions = without.interactions
+        with.interactions = model.with.interactions,
+        without.interactions = model.without.interactions
       ),
-      repetitions = 100,
+      repetitions = repetitions,
       xy = xy,
-      metrics = if(is.binary == TRUE){
-        "auc"
-      } else {
-        c("r.squared", "rmse")
-      },
+      metrics = metric,
       fill.color = c(color.a, color.b),
       line.color = line.color,
       seed = seed,
@@ -668,7 +728,7 @@ rf_interactions <- function(
   }
 
   if(verbose == TRUE){
-    patchwork::wrap_plots(plot.list)
+    patchwork::wrap_plots(out.list$plot)
   }
 
   out.list
