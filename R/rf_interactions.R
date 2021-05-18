@@ -727,7 +727,7 @@ rf_interactions <- function(
   out.list$plot <- plot.list
 
   if(verbose == TRUE){
-    patchwork::wrap_plots(out.list$plot)
+    print(patchwork::wrap_plots(out.list$plot))
   }
 
   out.list
