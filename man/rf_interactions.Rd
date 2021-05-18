@@ -2,7 +2,7 @@
 % Please edit documentation in R/rf_interactions.R
 \name{rf_interactions}
 \alias{rf_interactions}
-\title{Suggest variable interactions for random forest models}
+\title{Suggest variable interactions and composite features for random forest models}
 \usage{
 rf_interactions(
   data = NULL,
@@ -41,13 +41,13 @@ rf_interactions(
 
 \item{importance.threshold}{Numeric between 0 and 1, quantile of variable importance scores over which to select individual predictors to explore interactions among them. Larger values reduce the number of potential interactions explored. Default: \code{0.75}}
 
-\item{cor.threshold}{Numeric, maximum Pearson correlation between any pair of the selected interactions, and between any interaction and the predictors in \code{predictor.variable.names}. Default: \code{0.75}}
+\item{cor.threshold}{Numeric, maximum Pearson correlation between any pair of the selected interactions, and between any interaction and the predictors in \code{predictor.variable.names}. Default: \code{0.50}}
 
 \item{point.color}{Colors of the plotted points. Can be a single color name (e.g. "red4"), a character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. \code{viridis::viridis(100)}). Default: \code{viridis::viridis(100, option = "F", alpha = 0.8)}}
 
 \item{seed}{Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same. Default: \code{NULL}}
 
-\item{verbose}{Logical If \code{TRUE}, messages and plots generated during the execution of the function are displayed. Default: \code{TRUE}}
+\item{verbose}{Logical. If \code{TRUE}, messages and plots generated during the execution of the function are displayed. Default: \code{TRUE}}
 
 \item{n.cores}{Integer, number of cores to use. Default: \code{parallel::detectCores() - 1}}
 
@@ -72,15 +72,15 @@ A list with seven slots:
 }
 }
 \description{
-Suggests candidate variable interactions for random forest models. For a pair of predictors \code{a} and \code{b}, interactions are build via multiplication (\code{a * b}), and by extracting the first factor of a principal component analysis performed with \code{\link[=pca]{pca()}}, after rescaling \code{a} and \code{b} between 1 and 100. Interactions based on multiplication are named \code{a..x..b}, and interactions based on PCA factors are named \code{a..pca..b}. If \code{xy} is provided, \code{\link[=rf_compare]{rf_compare()}} is used to evaluate via spatial cross-validation (100 spatial folds using 0.8 as training fraction) a model fitted with the original data with a model fitted with the selected interactions.
+Suggests candidate variable interactions and composite features able to improve predictive accuracy over data not used to train the model via spatial cross-validation with \code{\link[=rf_evaluate]{rf_evaluate()}}. For a pair of predictors \code{a} and \code{b}, interactions are build via multiplication (\code{a * b}), while composite features are built by extracting the first factor of a principal component analysis performed with \code{\link[=pca]{pca()}}, after rescaling \code{a} and \code{b} between 1 and 100. Interactions and composite features are named \code{a..x..b} and \code{a..pca..b} respectively.
 
 Candidate variables \code{a} and \code{b} are selected from those predictors in \code{predictor.variable.names} with a variable importance above \code{importance.threshold} (set by default to the median of the importance scores).
 
-For each variable interaction, a model including all the predictors plus the interaction is fitted, and it's R squared is compared with the R squared of the model without interactions.
+For each interaction and composite feature, a model including all the predictors plus the interaction or composite feature is fitted, and it's R squared (or AUC if the response is binary) computed via spatial cross-validation is compared with the R squared of the model without interactions or composite features.
 
-From all the potential interactions screened, only those with a positive increase in the oub-of-bag R squared of the model, a variable importance above the median, and a maximum correlation among themselves and with the predictors in \code{predictor.variable.names} not higher than \code{cor.threshold} (set to 0.5 by default) are selected. Such a restrictive set of rules ensures that the selected interactions can be used right away for modeling purposes without increasing model complexity unnecessarily. However, the suggested variable interactions should not be used hastily. Most likely, only one or a few of the suggested interactions may make sense from a domain expertise standpoint.
+From all the potential interactions screened, only those with a positive increase in R squared (or AUC) of the model, a variable importance above the median, and a maximum correlation among themselves and with the predictors in \code{predictor.variable.names} not higher than \code{cor.threshold} (set to 0.5 by default) are selected. Such a restrictive set of rules ensures that the selected interactions can be used right away for modeling purposes without increasing model complexity unnecessarily. However, the suggested variable interactions might not make sense from a domain expertise standpoint, so please, examine them with care.
 
-The function returns the criteria used to select the interactions, and the data required to use these interactions a modeling workflow.
+The function returns the criteria used to select the interactions, and the data required to use these interactions a model.
 }
 \examples{
 \donttest{

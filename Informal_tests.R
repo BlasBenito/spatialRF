@@ -1,6 +1,26 @@
 library(spatialRF)
 
+#BASIC MODELS TO TEST OTHER THINGIES
+#############################################
+data(plant_richness_df)
+data(distance_matrix)
+data <- plant_richness_df
+distance.matrix <- distance_matrix
+xy <- plant_richness_df[, c("x", "y")]
+dependent.variable.name <- "richness_species_vascular"
+predictor.variable.names <- colnames(plant_richness_df)[5:21]
 
+
+#############################################
+interactions <- rf_interactions(
+  data = data,
+  dependent.variable.name = dependent.variable.name,
+  predictor.variable.names = predictor.variable.names,
+  xy = xy,
+  importance.threshold = 0.75,
+  cor.threshold = 0.75,
+  seed = 100
+)
 
 
 model <- rf(

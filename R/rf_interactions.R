@@ -1,13 +1,13 @@
-#' @title Suggest variable interactions for random forest models
-#' @description Suggests candidate variable interactions for random forest models. For a pair of predictors `a` and `b`, interactions are build via multiplication (`a * b`), and by extracting the first factor of a principal component analysis performed with [pca()], after rescaling `a` and `b` between 1 and 100. Interactions based on multiplication are named `a..x..b`, and interactions based on PCA factors are named `a..pca..b`. If `xy` is provided, [rf_compare()] is used to evaluate via spatial cross-validation (100 spatial folds using 0.8 as training fraction) a model fitted with the original data with a model fitted with the selected interactions.
+#' @title Suggest variable interactions and composite features for random forest models
+#' @description Suggests candidate variable interactions and composite features able to improve predictive accuracy over data not used to train the model via spatial cross-validation with [rf_evaluate()]. For a pair of predictors `a` and `b`, interactions are build via multiplication (`a * b`), while composite features are built by extracting the first factor of a principal component analysis performed with [pca()], after rescaling `a` and `b` between 1 and 100. Interactions and composite features are named `a..x..b` and `a..pca..b` respectively.
 #'
 #'Candidate variables `a` and `b` are selected from those predictors in `predictor.variable.names` with a variable importance above `importance.threshold` (set by default to the median of the importance scores).
 #'
-#' For each variable interaction, a model including all the predictors plus the interaction is fitted, and it's R squared is compared with the R squared of the model without interactions.
+#' For each interaction and composite feature, a model including all the predictors plus the interaction or composite feature is fitted, and it's R squared (or AUC if the response is binary) computed via spatial cross-validation is compared with the R squared of the model without interactions or composite features.
 #'
-#'From all the potential interactions screened, only those with a positive increase in the oub-of-bag R squared of the model, a variable importance above the median, and a maximum correlation among themselves and with the predictors in `predictor.variable.names` not higher than `cor.threshold` (set to 0.5 by default) are selected. Such a restrictive set of rules ensures that the selected interactions can be used right away for modeling purposes without increasing model complexity unnecessarily. However, the suggested variable interactions should not be used hastily. Most likely, only one or a few of the suggested interactions may make sense from a domain expertise standpoint.
+#'From all the potential interactions screened, only those with a positive increase in R squared (or AUC) of the model, a variable importance above the median, and a maximum correlation among themselves and with the predictors in `predictor.variable.names` not higher than `cor.threshold` (set to 0.5 by default) are selected. Such a restrictive set of rules ensures that the selected interactions can be used right away for modeling purposes without increasing model complexity unnecessarily. However, the suggested variable interactions might not make sense from a domain expertise standpoint, so please, examine them with care.
 #'
-#'The function returns the criteria used to select the interactions, and the data required to use these interactions a modeling workflow.
+#'The function returns the criteria used to select the interactions, and the data required to use these interactions a model.
 #'
 #' @param data Data frame with a response variable and a set of predictors. Default: `NULL`
 #' @param dependent.variable.name Character string with the name of the response variable. Must be in the column names of `data`. If the dependent variable is binary with values 1 and 0, the argument `case.weights` of `ranger` is populated by the function [case_weights()]. Default: `NULL`
@@ -17,10 +17,10 @@
 #' @param repetitions Integer, number of spatial folds to use during cross-validation. Must be lower than the total number of rows available in the model's data. Default: `30`
 #' @param training.fraction Proportion between 0.5 and 0.9 indicating the proportion of records to be used as training set during spatial cross-validation. Default: `0.75`
 #' @param importance.threshold Numeric between 0 and 1, quantile of variable importance scores over which to select individual predictors to explore interactions among them. Larger values reduce the number of potential interactions explored. Default: `0.75`
-#' @param cor.threshold Numeric, maximum Pearson correlation between any pair of the selected interactions, and between any interaction and the predictors in `predictor.variable.names`. Default: `0.75`
+#' @param cor.threshold Numeric, maximum Pearson correlation between any pair of the selected interactions, and between any interaction and the predictors in `predictor.variable.names`. Default: `0.50`
 #' @param point.color Colors of the plotted points. Can be a single color name (e.g. "red4"), a character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. `viridis::viridis(100)`). Default: `viridis::viridis(100, option = "F", alpha = 0.8)`
 #' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same. Default: `NULL`
-#' @param verbose Logical If `TRUE`, messages and plots generated during the execution of the function are displayed. Default: `TRUE`
+#' @param verbose Logical. If `TRUE`, messages and plots generated during the execution of the function are displayed. Default: `TRUE`
 #' @param n.cores Integer, number of cores to use. Default: `parallel::detectCores() - 1`
 #' @param cluster.ips Character vector with the IPs of the machines in a cluster. The machine with the first IP will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed. Default: `NULL`
 #' @param cluster.cores Numeric integer vector, number of cores to use on each machine. Default: `NULL`
@@ -75,7 +75,7 @@ rf_interactions <- function(
     100,
     option = "F",
     alpha = 0.8
-    ),
+  ),
   seed = NULL,
   verbose = TRUE,
   n.cores = parallel::detectCores() - 1,
@@ -83,7 +83,7 @@ rf_interactions <- function(
   cluster.cores = NULL,
   cluster.user = Sys.info()[["user"]],
   cluster.port = "11000"
-  ){
+){
 
 
   #finding out if the response is binary
@@ -95,6 +95,10 @@ rf_interactions <- function(
     metric <- "auc"
   } else {
     metric <- "r.squared"
+  }
+
+  if(is.null(xy)){
+    stop("Argument 'xy' is required to compute spatial cross-validation.")
   }
 
   #declaring variables
@@ -150,7 +154,7 @@ rf_interactions <- function(
   model.without.interactions.metric <- model.without.interactions.evaluation[
     model.without.interactions.evaluation$model == "Testing",
     "median"
-    ]
+  ]
 
   #ranger.arguments.i
   ranger.arguments.i <- ranger.arguments
@@ -163,12 +167,12 @@ rf_interactions <- function(
     importance.threshold <- quantile(
       x = model.without.interactions$importance$per.variable$importance,
       probs = importance.threshold
-      )
+    )
   }
   variables.to.test <- model.without.interactions$importance$per.variable[
     model.without.interactions$importance$per.variable$importance >= importance.threshold,
     "variable"
-    ]
+  ]
 
   #pairs of variables
   variables.pairs <- as.data.frame(
@@ -176,10 +180,10 @@ rf_interactions <- function(
       utils::combn(
         variables.to.test,
         2
-        )
-      ),
+      )
+    ),
     stringsAsFactors = FALSE
-    )
+  )
 
   if(verbose == TRUE){
     message(paste0("Testing ", nrow(variables.pairs), " candidate interactions."))
@@ -273,19 +277,19 @@ rf_interactions <- function(
     pair.i.name <- paste0(
       pair.i,
       collapse = "..x.."
-      )
+    )
 
     #get interaction values
     pair.i.1 <- spatialRF::rescale_vector(
       x = data[, pair.i[1]],
       new.min = 1,
       new.max = 100
-      )
+    )
     pair.i.2 <- spatialRF::rescale_vector(
       x = data[, pair.i[2]],
       new.min = 1,
       new.max = 100
-      )
+    )
 
     #prepare data.i
     data.i <- data.frame(
@@ -364,7 +368,7 @@ rf_interactions <- function(
       pair.i[1],
       "..pca..",
       pair.i[2]
-      )
+    )
 
     #get interaction values
     pair.i.1 <- spatialRF::rescale_vector(
@@ -466,8 +470,8 @@ rf_interactions <- function(
   #adding column of selected interactions
   interaction.screening$selected <- ifelse(
     interaction.screening$interaction.metric.gain > 0.01 &
-    interaction.screening$max.cor.with.predictors < cor.threshold &
-    interaction.screening$interaction.metric.gain > 0.01,
+      interaction.screening$max.cor.with.predictors < cor.threshold &
+      interaction.screening$interaction.metric.gain > 0.01,
     TRUE,
     FALSE
   )
@@ -487,7 +491,7 @@ rf_interactions <- function(
   interaction.screening <- dplyr::arrange(
     interaction.screening,
     dplyr::desc(order)
-    )
+  )
 
   #remove order
   interaction.screening$order <- NULL
@@ -501,7 +505,7 @@ rf_interactions <- function(
     "max.cor.with.predictors",
     "variable.a.name",
     "variable.b.name"
-    )]
+  )]
 
 
   #preparing data frame of interactions
@@ -515,12 +519,12 @@ rf_interactions <- function(
       x = data[, interaction.screening.selected[i, "variable.a.name"]],
       new.min = 1,
       new.max = 100
-      )
+    )
     pair.i.2 <- rescale_vector(
       x = data[, interaction.screening.selected[i, "variable.b.name"]],
       new.min = 1,
       new.max = 100
-      )
+    )
     pair.i.name <- interaction.screening.selected[i, "interaction.name"]
 
     #find what type of interaction
@@ -553,7 +557,7 @@ rf_interactions <- function(
 
     interaction.screening.selected <- interaction.screening.selected[
       interaction.screening.selected$interaction.name %in% interaction.selection$selected.variables,
-      ]
+    ]
 
     interaction.df <- interaction.df[, interaction.selection$selected.variables, drop = FALSE]
 
@@ -623,26 +627,26 @@ rf_interactions <- function(
           "+R2: ",
           round(
             interaction.screening.selected[
-            interaction.screening.selected$interaction.name == variable,
-            "interaction.metric.gain"
+              interaction.screening.selected$interaction.name == variable,
+              "interaction.metric.gain"
             ],
             3
-            ),
+          ),
           "; Imp. (%): ",
           round(
             interaction.screening.selected[
-            interaction.screening.selected$interaction.name == variable,
-            "interaction.importance"
+              interaction.screening.selected$interaction.name == variable,
+              "interaction.importance"
             ],
             0
-            ),
+          ),
           "; Max cor: ",
           round(
             interaction.screening.selected[
               interaction.screening.selected$interaction.name == variable,
               "max.cor.with.predictors"],
             2
-            )
+          )
         )
       ) +
       ggplot2::theme_bw() +
@@ -671,61 +675,56 @@ rf_interactions <- function(
     colnames(interaction.df)
   )
 
-  #compare models if xy is provided
-  if(!is.null(xy)){
-
-    if(verbose == TRUE){
-      message("Comparing models with and without interactions via spatial cross-validation with 100 repetitions.")
-    }
-
-    #fitting models with and without the selected interactions
-
-    #with
-    model.with.interactions <- spatialRF::rf(
-      data = training.df,
-      dependent.variable.name = dependent.variable.name,
-      predictor.variable.names = c(
-        predictor.variable.names,
-        colnames(interaction.df)
-      ),
-      ranger.arguments = ranger.arguments,
-      verbose = FALSE
-    )
-
-    #pick colors for comparison from the palette
-    n.colors <- length(point.color)
-    line.color = point.color[1]
-    color.a <- point.color[floor(n.colors/4)]
-    color.b <- point.color[floor((n.colors/4)*3)]
-
-    #comparison
-    comparison <- rf_compare(
-      models = list(
-        with.interactions = model.with.interactions,
-        without.interactions = model.without.interactions
-      ),
-      repetitions = repetitions,
-      xy = xy,
-      metrics = metric,
-      fill.color = c(color.a, color.b),
-      line.color = line.color,
-      seed = seed,
-      verbose = FALSE,
-      n.cores = n.cores,
-      cluster.ips = cluster.ips,
-      cluster.cores = cluster.cores,
-      cluster.user = cluster.user,
-      cluster.port = cluster.port
-    )
-
-    #adding it to the plot list
-    plot.list[[length(plot.list) + 1]] <- comparison$plot
-
-    #saving new elements into the output list
-    out.list$comparison.df <- comparison$comparison.df
-    out.list$plot <- plot.list
-
+  if(verbose == TRUE){
+    message("Comparing models with and without interactions via spatial cross-validation.")
   }
+
+  #fitting models with and without the selected interactions
+
+  #with
+  model.with.interactions <- spatialRF::rf(
+    data = training.df,
+    dependent.variable.name = dependent.variable.name,
+    predictor.variable.names = c(
+      predictor.variable.names,
+      colnames(interaction.df)
+    ),
+    ranger.arguments = ranger.arguments,
+    verbose = FALSE
+  )
+
+  #pick colors for comparison from the palette
+  n.colors <- length(point.color)
+  line.color = point.color[1]
+  color.a <- point.color[floor(n.colors/4)]
+  color.b <- point.color[floor((n.colors/4)*3)]
+
+  #comparison
+  comparison <- rf_compare(
+    models = list(
+      with.interactions = model.with.interactions,
+      without.interactions = model.without.interactions
+    ),
+    repetitions = repetitions,
+    xy = xy,
+    metrics = metric,
+    fill.color = c(color.a, color.b),
+    line.color = line.color,
+    seed = seed,
+    verbose = FALSE,
+    n.cores = n.cores,
+    cluster.ips = cluster.ips,
+    cluster.cores = cluster.cores,
+    cluster.user = cluster.user,
+    cluster.port = cluster.port
+  )
+
+  #adding it to the plot list
+  plot.list[[length(plot.list) + 1]] <- comparison$plot
+
+  #saving new elements into the output list
+  out.list$comparison.df <- comparison$comparison.df
+  out.list$plot <- plot.list
 
   if(verbose == TRUE){
     patchwork::wrap_plots(out.list$plot)
