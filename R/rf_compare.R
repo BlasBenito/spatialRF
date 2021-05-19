@@ -197,7 +197,7 @@ rf_compare <- function(
     ggplot2::geom_violin(color = line.color) +
     ggplot2::geom_boxplot(
       notch = TRUE,
-      fill = NA,
+      fill = "white",
       width = 0.2,
       color = line.color
     ) +
