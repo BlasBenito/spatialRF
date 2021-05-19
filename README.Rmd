@@ -275,20 +275,21 @@ Random Forests already takes into account variable interactions of the form "var
 
 The function [`rf_interactions()`](https://blasbenito.github.io/spatialRF/reference/rf_interactions.html) tests all possible interactions of both types among the most important predictors, and suggesting the ones not correlated among themselves and with the other predictors inducing an increase in the model's R squared on independent data.
 
-```{r, fig.width=12, fig.height=4}
+```{r, fig.width=12, fig.height=12}
 interactions <- rf_interactions(
   data = plant_richness_df,
   dependent.variable.name = dependent.variable.name,
   predictor.variable.names = predictor.variable.names,
   xy = xy,
-  importance.threshold = 0.75, #uses 25% best predictors
+  importance.threshold = 0.50, #uses 50% best predictors
   cor.threshold = 0.75,
   seed = random.seed,
+  repetitions = 100,
   verbose = TRUE
   )
 ```
 
-The function also returns a data frame with all the interactions considered. Interactions computed via multiplication are named `a..x..b`, while interactions computed via PCA are named `a..pca..b`. The function cannot say whether an interaction *makes sense*, and it is up to the user to choose wisely whether to select an interaction or not.
+The function returns a data frame with all the interactions considered. Interactions computed via multiplication are named `a..x..b`, while interactions computed via PCA are named `a..pca..b`. The function cannot say whether an interaction *makes sense*, and it is up to the user to choose wisely whether to select an interaction or not.
 
 ```{r, echo=TRUE}
 kableExtra::kbl(

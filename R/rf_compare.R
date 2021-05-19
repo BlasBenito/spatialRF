@@ -198,7 +198,7 @@ rf_compare <- function(
     ggplot2::geom_boxplot(
       notch = TRUE,
       fill = "white",
-      width = 0.1,
+      width = 0.075,
       color = line.color
     ) +
     ggplot2::facet_wrap(

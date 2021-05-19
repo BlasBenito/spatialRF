@@ -17,7 +17,7 @@
 #' @param repetitions Integer, number of spatial folds to use during cross-validation. Must be lower than the total number of rows available in the model's data. Default: `30`
 #' @param training.fraction Proportion between 0.5 and 0.9 indicating the proportion of records to be used as training set during spatial cross-validation. Default: `0.75`
 #' @param importance.threshold Numeric between 0 and 1, quantile of variable importance scores over which to select individual predictors to explore interactions among them. Larger values reduce the number of potential interactions explored. Default: `0.75`
-#' @param cor.threshold Numeric, maximum Pearson correlation between any pair of the selected interactions, and between any interaction and the predictors in `predictor.variable.names`. Default: `0.50`
+#' @param cor.threshold Numeric, maximum Pearson correlation between any pair of the selected interactions, and between any interaction and the predictors in `predictor.variable.names`. Default: `0.75`
 #' @param point.color Colors of the plotted points. Can be a single color name (e.g. "red4"), a character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. `viridis::viridis(100)`). Default: `viridis::viridis(100, option = "F", alpha = 0.8)`
 #' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same. Default: `NULL`
 #' @param verbose Logical. If `TRUE`, messages and plots generated during the execution of the function are displayed. Default: `TRUE`
@@ -70,7 +70,7 @@ rf_interactions <- function(
   repetitions = 30,
   training.fraction = 0.75,
   importance.threshold = 0.75,
-  cor.threshold = 0.50,
+  cor.threshold = 0.75,
   point.color = viridis::viridis(
     100,
     option = "F",
@@ -162,13 +162,13 @@ rf_interactions <- function(
   ranger.arguments.i$dependent.variable.name <- NULL
   ranger.arguments.i$predictor.variable.names <- NULL
 
-  #select variables to test
-  if(is.null(importance.threshold)){
-    importance.threshold <- quantile(
-      x = model.without.interactions$importance$per.variable$importance,
-      probs = importance.threshold
-    )
-  }
+  #setting quantile of the importance threshold
+  importance.threshold <- quantile(
+    x = model.without.interactions$importance$per.variable$importance,
+    probs = importance.threshold
+  )
+
+  #selected variables
   variables.to.test <- model.without.interactions$importance$per.variable[
     model.without.interactions$importance$per.variable$importance >= importance.threshold,
     "variable"
@@ -304,53 +304,69 @@ rf_interactions <- function(
       pair.i.name
     )
 
-    #without
-    model.i <- spatialRF::rf(
-      data = data.i,
-      dependent.variable.name = dependent.variable.name,
-      predictor.variable.names = predictor.variable.names.i,
-      ranger.arguments = ranger.arguments.i,
-      seed = seed,
-      verbose = FALSE
-    )
-
-    #evaluation
-    model.i <- spatialRF::rf_evaluate(
-      model = model.i,
-      repetitions = repetitions,
-      training.fraction = training.fraction,
-      xy = xy,
-      metrics = metric,
-      seed = seed,
-      verbose = FALSE,
-      n.cores = 1
-    )
-
-    #importance data frame
-    model.i.importance <- model.i$importance$per.variable
-
-    #metric
-    model.i.evaluation <- model.i$evaluation$aggregated
-    model.i.metric <- model.i.evaluation[
-      model.i.evaluation$model == "Testing",
-      "median"
-    ]
-
     #computing max correlation with predictors
     cor.out <- cor(data.i[, predictor.variable.names.i])
     diag(cor.out) <- NA
     max.cor <- max(cor.out[pair.i.name, ], na.rm = TRUE)
 
-    #gathering results
-    out.df <- data.frame(
-      interaction.name = pair.i.name,
-      interaction.importance = round((model.i.importance[model.i.importance$variable == pair.i.name, "importance"] * 100) / max(model.i.importance$importance), 3),
-      interaction.metric.gain = model.i.metric - model.without.interactions.metric,
-      max.cor.with.predictors = max.cor,
-      variable.a.name = pair.i[1],
-      variable.b.name = pair.i[2],
-      stringsAsFactors = FALSE
-    )
+    #if the maximum correlation is lower than the threshold, fit model
+    if(max.cor <= cor.threshold){
+
+      #without
+      model.i <- spatialRF::rf(
+        data = data.i,
+        dependent.variable.name = dependent.variable.name,
+        predictor.variable.names = predictor.variable.names.i,
+        ranger.arguments = ranger.arguments.i,
+        seed = seed,
+        verbose = FALSE
+      )
+
+      #evaluation
+      model.i <- spatialRF::rf_evaluate(
+        model = model.i,
+        repetitions = repetitions,
+        training.fraction = training.fraction,
+        xy = xy,
+        metrics = metric,
+        seed = seed,
+        verbose = FALSE,
+        n.cores = 1
+      )
+
+      #importance data frame
+      model.i.importance <- model.i$importance$per.variable
+
+      #metric
+      model.i.evaluation <- model.i$evaluation$aggregated
+      model.i.metric <- model.i.evaluation[
+        model.i.evaluation$model == "Testing",
+        "median"
+      ]
+
+      #gathering results
+      out.df <- data.frame(
+        interaction.name = pair.i.name,
+        interaction.importance = round((model.i.importance[model.i.importance$variable == pair.i.name, "importance"] * 100) / max(model.i.importance$importance), 3),
+        interaction.metric.gain = model.i.metric - model.without.interactions.metric,
+        max.cor.with.predictors = max.cor,
+        variable.a.name = pair.i[1],
+        variable.b.name = pair.i[2]
+      )
+
+    } else {
+
+      #gathering results
+      out.df <- data.frame(
+        interaction.name = NA,
+        interaction.importance = NA,
+        interaction.metric.gain = NA,
+        max.cor.with.predictors = NA,
+        variable.a.name = NA,
+        variable.b.name = NA
+      )
+
+    }
 
     return(out.df)
 
@@ -400,53 +416,69 @@ rf_interactions <- function(
       pair.i.name
     )
 
-    #without
-    model.i <- spatialRF::rf(
-      data = data.i,
-      dependent.variable.name = dependent.variable.name,
-      predictor.variable.names = predictor.variable.names.i,
-      ranger.arguments = ranger.arguments.i,
-      seed = seed,
-      verbose = FALSE
-    )
-
-    #evaluation
-    model.i <- spatialRF::rf_evaluate(
-      model = model.i,
-      repetitions = repetitions,
-      training.fraction = training.fraction,
-      xy = xy,
-      metrics = metric,
-      seed = seed,
-      verbose = FALSE,
-      n.cores = 1
-    )
-
-    #importance data frame
-    model.i.importance <- model.i$importance$per.variable
-
-    #metric
-    model.i.evaluation <- model.i$evaluation$aggregated
-    model.i.metric <- model.i.evaluation[
-      model.i.evaluation$model == "Testing",
-      "median"
-    ]
-
     #computing max correlation with predictors
     cor.out <- cor(data.i[, predictor.variable.names.i])
     diag(cor.out) <- NA
     max.cor <- max(cor.out[pair.i.name, ], na.rm = TRUE)
 
-    #gathering results
-    out.df <- data.frame(
-      interaction.name = pair.i.name,
-      interaction.importance = round((model.i.importance[model.i.importance$variable == pair.i.name, "importance"] * 100) / max(model.i.importance$importance), 3),
-      interaction.metric.gain = model.i.metric - model.without.interactions.metric,
-      max.cor.with.predictors = max.cor,
-      variable.a.name = pair.i[1],
-      variable.b.name = pair.i[2],
-      stringsAsFactors = FALSE
-    )
+    #if the maximum correlation is lower than the threshold, fit model
+    if(max.cor <= cor.threshold){
+
+      #without
+      model.i <- spatialRF::rf(
+        data = data.i,
+        dependent.variable.name = dependent.variable.name,
+        predictor.variable.names = predictor.variable.names.i,
+        ranger.arguments = ranger.arguments.i,
+        seed = seed,
+        verbose = FALSE
+      )
+
+      #evaluation
+      model.i <- spatialRF::rf_evaluate(
+        model = model.i,
+        repetitions = repetitions,
+        training.fraction = training.fraction,
+        xy = xy,
+        metrics = metric,
+        seed = seed,
+        verbose = FALSE,
+        n.cores = 1
+      )
+
+      #importance data frame
+      model.i.importance <- model.i$importance$per.variable
+
+      #metric
+      model.i.evaluation <- model.i$evaluation$aggregated
+      model.i.metric <- model.i.evaluation[
+        model.i.evaluation$model == "Testing",
+        "median"
+      ]
+
+      #gathering results
+      out.df <- data.frame(
+        interaction.name = pair.i.name,
+        interaction.importance = round((model.i.importance[model.i.importance$variable == pair.i.name, "importance"] * 100) / max(model.i.importance$importance), 3),
+        interaction.metric.gain = model.i.metric - model.without.interactions.metric,
+        max.cor.with.predictors = max.cor,
+        variable.a.name = pair.i[1],
+        variable.b.name = pair.i[2]
+      )
+
+    } else {
+
+      #gathering results
+      out.df <- data.frame(
+        interaction.name = NA,
+        interaction.importance = NA,
+        interaction.metric.gain = NA,
+        max.cor.with.predictors = NA,
+        variable.a.name = NA,
+        variable.b.name = NA
+      )
+
+    }
 
     return(out.df)
 
@@ -455,7 +487,8 @@ rf_interactions <- function(
   interaction.screening <- rbind(
     interaction.screening.1,
     interaction.screening.2
-  )
+  ) %>%
+    na.omit()
 
   #stopping cluster
   if(exists("temp.cluster")){
@@ -470,7 +503,6 @@ rf_interactions <- function(
   #adding column of selected interactions
   interaction.screening$selected <- ifelse(
     interaction.screening$interaction.metric.gain > 0.01 &
-      interaction.screening$max.cor.with.predictors < cor.threshold &
       interaction.screening$interaction.metric.gain > 0.01,
     TRUE,
     FALSE
@@ -720,7 +752,7 @@ rf_interactions <- function(
   )
 
   #adding it to the plot list
-  plot.list[[length(plot.list) + 1]] <- comparison$plot
+  plot.list[["comparison"]] <- comparison$plot
 
   #saving new elements into the output list
   out.list$comparison.df <- comparison$comparison.df

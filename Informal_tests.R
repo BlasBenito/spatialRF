@@ -3,25 +3,51 @@ library(spatialRF)
 #BASIC MODELS TO TEST OTHER THINGIES
 #############################################
 data(plant_richness_df)
-data(distance_matrix)
-data <- plant_richness_df
-distance.matrix <- distance_matrix
+
+
+#loading the example data
+data(plant_richness_df)
+
+#data required to execute the function
 xy <- plant_richness_df[, c("x", "y")]
 dependent.variable.name <- "richness_species_vascular"
 predictor.variable.names <- colnames(plant_richness_df)[5:21]
 
-
-#############################################
-interactions <- rf_interactions(
-  data = data,
+#finding useful variable combinations
+combinations <- rf_interactions(
+  data = plant_richness_df,
   dependent.variable.name = dependent.variable.name,
   predictor.variable.names = predictor.variable.names,
   xy = xy,
-  importance.threshold = 0.75,
-  cor.threshold = 0.75,
-  verbose = TRUE,
-  seed = 100
+  importance.threshold = 0.50, #selects predictors with importance above quantile 0.5
+  cor.threshold = 0.75,        #Pearson correlation threshold to remove redundant combinations
+  repetitions = 100,           #number of independent spatial folds to perform spatial cross-validation
+  training.fraction = 0.75,    #fraction of records to train and evaluate models via spatial cross-validation
+  seed = 1,                    #for reproducibility, results might change with different random seeds
+  verbose = TRUE
 )
+
+#data frame with all the screened variable combinations
+combinations$screening
+
+#data frame with the selected variable combinations
+combinations$selected
+
+#plotting the whole thing
+patchwork::wrap_plots(combinations$plot)
+
+#fitting a model with all the variable combinations
+m <- rf(
+  data = combinations$data,
+  dependent.variable.name = combinations$dependent.variable.name,
+  predictor.variable.names = combinations$predictor.variable.names
+)
+
+
+
+
+
+
 
 
 model <- rf(
