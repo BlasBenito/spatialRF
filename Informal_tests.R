@@ -19,6 +19,7 @@ interactions <- rf_interactions(
   xy = xy,
   importance.threshold = 0.75,
   cor.threshold = 0.75,
+  verbose = TRUE,
   seed = 100
 )
 
