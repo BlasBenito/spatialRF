@@ -282,7 +282,7 @@ interactions <- rf_interactions(
   predictor.variable.names = predictor.variable.names,
   xy = xy,
   importance.threshold = 0.50, #uses 50% best predictors
-  cor.threshold = 0.75,
+  cor.threshold = 0.60,
   seed = random.seed,
   repetitions = 100,
   verbose = TRUE
@@ -299,11 +299,10 @@ kableExtra::kbl(
   kableExtra::kable_paper("hover", full_width = F)
 ```
 
-```{r, echo=TRUE, fig.width = 7, fig.height = 8}
+```{r, echo=TRUE, fig.width = 10, fig.height = 8}
 patchwork::wrap_plots(
-  interactions$plot, 
-  ncol = 1, 
-  heights = c(1, 2)
+  interactions$plot,
+  ncol = 2
   )
 ```
 

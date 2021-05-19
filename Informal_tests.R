@@ -18,9 +18,9 @@ combinations <- rf_interactions(
   data = plant_richness_df,
   dependent.variable.name = dependent.variable.name,
   predictor.variable.names = predictor.variable.names,
-  xy = xy,
+  xy = xy,                     #case coordinates for spatial cross-validation
   importance.threshold = 0.50, #selects predictors with importance above quantile 0.5
-  cor.threshold = 0.75,        #Pearson correlation threshold to remove redundant combinations
+  cor.threshold = 0.60,        #Pearson correlation threshold to remove redundant combinations
   repetitions = 100,           #number of independent spatial folds to perform spatial cross-validation
   training.fraction = 0.75,    #fraction of records to train and evaluate models via spatial cross-validation
   seed = 1,                    #for reproducibility, results might change with different random seeds
