@@ -1,5 +1,5 @@
-#' @title Compares the performance of several models on independent data
-#' @description Uses [rf_evaluate()] to compare the performance of several models based on the same pairs of coordinates on independent spatial folds.
+#' @title Compares the performance of several models via spatial cross-validation
+#' @description Uses [rf_evaluate()] to compare the performance of several models trained with the same pairs of coordinates on independent spatial folds via spatial cross-validation.
 #' @param models Named list with models based on the same pairs of coordinates. Example: `models = list(a = model.a, b = model.b)`. Default: `NULL`
 #' @param xy Data frame or matrix with two columns containing coordinates and named "x" and "y". Default: `NULL`
 #' @param repetitions Integer, number of spatial folds to use during cross-validation. Must be lower than the total number of rows available in the model's data. Default: `30`
@@ -17,7 +17,12 @@
 #' @param cluster.cores Numeric integer vector, number of cores to use on each machine.
 #' @param cluster.user Character string, name of the user (should be the same throughout machines). Defaults to the current system user.
 #' @param cluster.port Character, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: `"11000"`
-#' @return A list with three slots: `comparison.df`, a data frame with one performance value per spatial fold, metric, and model; `spatial.folds`, a list with the indices of the training and testing records for each evaluation repetition; `plot` a boxplot of `comparison.df`.
+#' @return A list with three slots:
+#' \itemize{
+#' \item `comparison.df`: Data frame with one performance value per spatial fold, metric, and model.
+#' \item `spatial.folds`: List with the indices of the training and testing records for each evaluation repetition.
+#' \item `plot`: Violin-plot of `comparison.df`.
+#' }
 #' @examples
 #' \donttest{
 #' if(interactive()){

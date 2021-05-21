@@ -2,7 +2,7 @@
 % Please edit documentation in R/rf_compare.R
 \name{rf_compare}
 \alias{rf_compare}
-\title{Compares the performance of several models on independent data}
+\title{Compares the performance of several models via spatial cross-validation}
 \usage{
 rf_compare(
   models = NULL,
@@ -60,10 +60,15 @@ rf_compare(
 \item{cluster.port}{Character, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: \code{"11000"}}
 }
 \value{
-A list with three slots: \code{comparison.df}, a data frame with one performance value per spatial fold, metric, and model; \code{spatial.folds}, a list with the indices of the training and testing records for each evaluation repetition; \code{plot} a boxplot of \code{comparison.df}.
+A list with three slots:
+\itemize{
+\item \code{comparison.df}: Data frame with one performance value per spatial fold, metric, and model.
+\item \code{spatial.folds}: List with the indices of the training and testing records for each evaluation repetition.
+\item \code{plot}: Violin-plot of \code{comparison.df}.
+}
 }
 \description{
-Uses \code{\link[=rf_evaluate]{rf_evaluate()}} to compare the performance of several models based on the same pairs of coordinates on independent spatial folds.
+Uses \code{\link[=rf_evaluate]{rf_evaluate()}} to compare the performance of several models trained with the same pairs of coordinates on independent spatial folds via spatial cross-validation.
 }
 \examples{
 \donttest{
