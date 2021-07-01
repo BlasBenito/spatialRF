@@ -38,7 +38,7 @@
 -->
 <!-- badges: start -->
 
-[![Devel-version](https://img.shields.io/badge/devel%20version-1.1.1-blue.svg)](https://github.com/blasbenito/spatialRF)
+[![Devel-version](https://img.shields.io/badge/devel%20version-1.1.2-blue.svg)](https://github.com/blasbenito/spatialRF)
 [![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html)
 [![CRAN](https://img.shields.io/badge/CRAN-not_published_yet-red)](https://github.com/blasbenito/spatialRF)
 [![License](https://img.shields.io/badge/license-GPL--3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
@@ -458,7 +458,7 @@ interactions <- rf_interactions(
   predictor.variable.names = predictor.variable.names,
   xy = xy,
   importance.threshold = 0.50, #uses 50% best predictors
-  cor.threshold = 0.60,
+  cor.threshold = 0.60, #max corr between interactions and predictors
   seed = random.seed,
   repetitions = 100,
   verbose = TRUE
@@ -500,13 +500,45 @@ interactions <- rf_interactions(
 
     ## Comparing models with and without interactions via spatial cross-validation.
 
-![](README_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-11-1.png)<!-- --> The upper
+panel in the plot plot above shows the relationship between the
+interaction and the response variable. It also indicates the gain in R
+squared (+R2), the importance, in percentage, when used in a model along
+the other predictors (Imp. (%)), and the maximum Pearson correlation of
+the interaction with the predictors. The violin-plot shows a comparison
+of the model with and without the selected interaction made via spatial
+cross-validation using 100 repetitions (see
+[`rf_evaluate()`](https://blasbenito.github.io/spatialRF/reference/rf_evaluate.html)
+and
+[`rf_compare()`](https://blasbenito.github.io/spatialRF/reference/rf_compare.html)
+for further details).
 
-The function returns a data frame with all the interactions considered.
-Interactions computed via multiplication are named `a..x..b`, while
-interactions computed via PCA are named `a..pca..b`. The function cannot
-say whether an interaction *makes sense*, and it is up to the user to
-choose wisely whether to select an interaction or not.
+The function also returns a data frame with all the interactions
+considered. The columns are:
+
+-   `interaction.name`: Interactions computed via multiplication are
+    named `a..x..b`, while interactions computed via PCA are named
+    `a..pca..b`.
+-   `interaction.importance`: Importance of the interaction expressed as
+    a percentage. If `interaction.importance == 100`, that means that
+    the interaction is the most important predictor in the model fitted
+    with the interaction and the predictors named in
+    `predictor.variable.names`.
+-   `interaction.metric.gain`: Difference in R squared (or AUC for
+    models fitting a binary response) between a model with and a model
+    without the interaction.
+-   `max.cor.with.predictors`: The maximum Pearson correlation of the
+    interaction with the predictors named in `predictor.variable.names`.
+    Gives an idea of the amount of multicollinearity the interaction
+    introduces in the model.
+-   `variable.a.name` and `variable.b.name`: Names of the predictors
+    involved in the interaction.
+-   `selected`: `TRUE` if the interaction fulfills the selection
+    criteria (importance higher than a threshold, positive gain in R
+    squared or AUC, and Pearson correlation with other predictors lower
+    than a threshold). The selected interactions have a correlation
+    among themselves always lower than the value of the argument
+    `cor.threshold`.
 
 ``` r
 kableExtra::kbl(
@@ -776,30 +808,13 @@ TRUE
 </tbody>
 </table>
 
-``` r
-patchwork::wrap_plots(
-  interactions$plot,
-  ncol = 2
-  )
-```
-
-![](README_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
-
-The upper panel in the plot plot below shows the relationship between
-the interaction and the response variable. It also indicates the gain in
-R squared (+R2), the importance, in percentage, when used in a model
-along the other predictors (Imp. (%)), and the maximum Pearson
-correlation of the interaction with the predictors. The lower panel
-shows a comparison of the model with and without the selected
-interaction made via spatial cross-validation using 100 repetitions (see
-[`rf_evaluate()`](https://blasbenito.github.io/spatialRF/reference/rf_evaluate.html)
-and
-[`rf_compare()`](https://blasbenito.github.io/spatialRF/reference/rf_compare.html)
-for further details).
-
-The function returns the training data, now including the selected
-interactions. We can now replace the original training data frame with
-the new one.
+The function returns a data frame with the response variables, the
+predictors, and the selected interactions that can be used right away as
+a training data frame. However, the function cannot say whether an
+interaction *makes sense*, and it is up to the user to choose wisely
+whether to select an interaction or not. In this particular case, and
+just for the sake of simplicity, we will be using the resulting data
+frame as training data.
 
 ``` r
 #adding interaction column to the training data
@@ -861,7 +876,7 @@ spatialRF::plot_residuals_diagnostics(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
 
 The upper panels show the results of the normality test (interpretation
 in the title), the middle panel shows the relationship between the
@@ -889,7 +904,7 @@ spatialRF::plot_importance(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
 
 Variable importance represents the increase in mean error (computed on
 the out-of-bag data) across trees when a predictor is permuted. Values
@@ -1549,7 +1564,7 @@ color.low <- viridis::viridis(
 color.high <- viridis::viridis(
     3,
     option = "F"
-    )[3]
+    )[1]
 
 #plot of climate_bio1_average
 p1 <- ggplot2::ggplot() +
@@ -1615,7 +1630,7 @@ p2 <- ggplot2::ggplot() +
 p1 + p2
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
 
 In these maps, values lower than 0 indicate that for a given record, the
 permuted version of the variable led to an accuracy score even higher
@@ -1648,7 +1663,7 @@ spatialRF::plot_response_curves(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
 
 Setting the argument `quantiles` to 0.5 and setting `show.data` to
 `FALSE` (default optioin) accentuates the shape of the response curves.
@@ -1661,7 +1676,7 @@ spatialRF::plot_response_curves(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
 
 The package [`pdp`](https://bgreenwell.github.io/pdp/index.html)
 provides a general way to plot partial dependence plots.
@@ -1676,7 +1691,7 @@ pdp::partial(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->
 
 If you need to do your own plots in a different way, the function
 [`get_response_curves()`](https://blasbenito.github.io/spatialRF/reference/get_response_curves.html)
@@ -1932,7 +1947,7 @@ spatialRF::plot_response_surface(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-29-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-28-1.png)<!-- -->
 
 This can be done as well with the `pdp` package, that uses a slightly
 different algorithm to plot interaction surfaces.
@@ -1946,7 +1961,7 @@ pdp::partial(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-30-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-29-1.png)<!-- -->
 
 ## Model performance
 
@@ -2089,7 +2104,7 @@ p2 <- ggplot2::ggplot() +
 p1 | p2
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-34-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-33-1.png)<!-- -->
 
 The information available in this new slot can be accessed with the
 functions
@@ -2102,7 +2117,7 @@ and
 spatialRF::plot_evaluation(model.non.spatial)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-35-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-34-1.png)<!-- -->
 
 `Full` represents the R squared of the model trained on the full
 dataset. `Training` are the R-squared of the models fitted on the
@@ -2153,7 +2168,7 @@ spatialRF::plot_moran(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-38-1.png)<!-- --> According to
+![](README_files/figure-gfm/unnamed-chunk-37-1.png)<!-- --> According to
 the plot, the spatial autocorrelation of the residuals of
 `model.non.spatial` is highly positive for a neighborhood of 0 and 1000
 km, while it becomes non-significant (p-value &gt; 0.05) at 2000, 4000,
@@ -2183,7 +2198,7 @@ spatialRF::plot_moran(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-40-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-39-1.png)<!-- -->
 
 If we compare the variable importance plots of both models, we can see
 that the spatial model has an additional set of dots under the name
@@ -2205,7 +2220,7 @@ p2 <- spatialRF::plot_importance(
 p1 | p2 
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-41-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-40-1.png)<!-- -->
 
 If we look at the ten most important variables in `model.spatial` we
 will see that a few of them are *spatial predictors*. Spatial predictors
@@ -2374,7 +2389,7 @@ p2 <- ggplot2::ggplot() +
 p1 | p2
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-43-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-42-1.png)<!-- -->
 
 The spatial predictors are included in the model one by one, in the
 order of their Moran’s I (spatial predictors with Moran’s I lower than 0
@@ -2389,7 +2404,7 @@ the selected spatial predictors).
 p <- spatialRF::plot_optimization(model.spatial)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-44-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-43-1.png)<!-- -->
 
 # Tuning Random Forest hyperparameters
 
@@ -2405,8 +2420,8 @@ hyperparameters that are critical to model performance:
 -   `min.node.size`: minimum number of cases on a terminal node.
 
 These values can be modified in any model fitted with the package using
-the `ranger.arguments` argument. The example below shows how to fit the
-spatial model with a set of chosen hyperparameters.
+the `ranger.arguments` argument. The example below shows how to fit a
+spatial model with a given set of hyperparameters.
 
 ``` r
 model.spatial <- spatialRF::rf_spatial(
@@ -2487,7 +2502,7 @@ spatialRF::plot_importance(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-48-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-47-1.png)<!-- -->
 
 The response curves of models fitted with `rf_repeat()` can be plotted
 with `plot_response_curves()` as well. The median prediction is shown
@@ -2501,7 +2516,7 @@ spatialRF::plot_response_curves(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-49-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-48-1.png)<!-- -->
 
 The function `print_performance()` generates a summary of the
 performance scores across model repetitions. As every other function of
@@ -2527,7 +2542,8 @@ The modeling functions of `spatialRF` are designed to facilitate using
 the pipe to combine them. The code below fits a spatial model, tunes its
 hyperparameters, evaluates it using spatial cross-validation, and
 repeats the execution several times, just by passing the model from one
-function to another.
+function to another. Replace `eval = FALSE` with `eval = TRUE` if you
+want to execute the code chunk.
 
 ``` r
 model.full <- rf_spatial(
@@ -2536,20 +2552,39 @@ model.full <- rf_spatial(
   predictor.variable.names = predictor.variable.names,
   distance.matrix = distance_matrix,
   distance.thresholds = distance.thresholds,
-  xy = xy,
-  verbose = FALSE #to avoid cluttering the console with results
+  xy = xy
 ) %>%
-  rf_tuning(verbose = FALSE) %>%
-  rf_evaluate(verbose = FALSE) %>%
-  rf_repeat(
-    repetitions = 30,
-    verbose = FALSE
-    )
+  rf_tuning() %>%
+  rf_evaluate() %>%
+  rf_repeat()
 ```
 
-Once the model is fitted, the slots added by each function can be
-examined with functions such as `plot_tuning()`, `plot_evaluation()` and
-the likes.
+The code structure shown above can also be used to take advantage of a
+custom cluster, either defined in the local host, or a Beowulf cluster.
+
+``` r
+my.cluster <- parallel::makeCluster(
+  parallel::detectCores() - 1,
+  type = "PSOCK"
+)
+
+#fitting, tuning, evaluating, and repeating a model
+model.full <- rf_spatial(
+  data = plant_richness_df,
+  dependent.variable.name = dependent.variable.name,
+  predictor.variable.names = predictor.variable.names,
+  distance.matrix = distance_matrix,
+  distance.thresholds = distance.thresholds,
+  xy = xy,
+  cluster = my.cluster #is passed via pipe to the other functions
+) %>%
+  rf_tuning() %>%
+  rf_evaluate() %>%
+  rf_repeat()
+
+#stopping the cluster
+parallel::stopCluster(cl = my.cluster)
+```
 
 # Comparing several models
 
