@@ -685,11 +685,6 @@ rf_interactions <- function(
     cluster = cluster
   )
 
-  #stopping cluster
-  if(!is.null(n.cores)){
-    parallel::stopCluster(cl = cluster)
-  }
-
   #adding it to the plot list
   plot.list[["comparison"]] <- comparison$plot
 
