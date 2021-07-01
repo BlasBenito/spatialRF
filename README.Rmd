@@ -275,7 +275,7 @@ Random Forests already takes into account variable interactions of the form "var
 
 The function [`rf_interactions()`](https://blasbenito.github.io/spatialRF/reference/rf_interactions.html) tests all possible interactions of both types among the most important predictors, and suggesting the ones not correlated among themselves and with the other predictors inducing an increase in the model's R squared on independent data.
 
-```{r, fig.width=12, fig.height=6}
+```{r, fig.width=13, fig.height=6}
 interactions <- rf_interactions(
   data = plant_richness_df,
   dependent.variable.name = dependent.variable.name,
@@ -288,8 +288,16 @@ interactions <- rf_interactions(
   verbose = TRUE
   )
 ```
+The upper panel in the plot plot above shows the relationship between the interaction and the response variable. It also indicates the gain in R squared (+R2), the importance, in percentage, when used in a model along the other predictors (Imp. (%)), and the maximum Pearson correlation of the interaction with the predictors. The violin-plot shows a comparison of the model with and without the selected interaction made via spatial cross-validation using 100 repetitions (see [`rf_evaluate()`](https://blasbenito.github.io/spatialRF/reference/rf_evaluate.html) and [`rf_compare()`](https://blasbenito.github.io/spatialRF/reference/rf_compare.html) for further details).
 
-The function returns a data frame with all the interactions considered. Interactions computed via multiplication are named `a..x..b`, while interactions computed via PCA are named `a..pca..b`. The function cannot say whether an interaction *makes sense*, and it is up to the user to choose wisely whether to select an interaction or not.
+The function also returns a data frame with all the interactions considered.  The columns are:
+
+  + `interaction.name`: Interactions computed via multiplication are named `a..x..b`, while interactions computed via PCA are named `a..pca..b`.
+  + `interaction.importance`: Importance of the interaction expressed as a percentage. If `interaction.importance == 100`, that means that the interaction is the most important predictor in the model fitted with the interaction and the predictors named in `predictor.variable.names`.
+  + `interaction.metric.gain`: Difference in R squared (or AUC for models fitting a binary response) between a model with and a model without the interaction.
+  + `max.cor.with.predictors`: The maximum Pearson correlation of the interaction with the predictors named in `predictor.variable.names`. Gives an idea of the amount of multicollinearity the interaction introduces in the model.
+  + `variable.a.name` and `variable.b.name`: Names of the predictors involved in the interaction.
+  + `selected`: `TRUE` if the interaction fulfills the selection criteria (importance higher than a threshold, positive gain in R squared or AUC, and Pearson correlation with other predictors lower than a threshold). The selected interactions have a correlation among themselves always lower than the value of the argument `cor.threshold`.
 
 ```{r, echo=TRUE}
 kableExtra::kbl(
@@ -299,16 +307,7 @@ kableExtra::kbl(
   kableExtra::kable_paper("hover", full_width = F)
 ```
 
-```{r, echo=TRUE, fig.width = 10, fig.height = 8}
-patchwork::wrap_plots(
-  interactions$plot,
-  ncol = 2
-  )
-```
-
-The upper panel in the plot plot below shows the relationship between the interaction and the response variable. It also indicates the gain in R squared (+R2), the importance, in percentage, when used in a model along the other predictors (Imp. (%)), and the maximum Pearson correlation of the interaction with the predictors. The lower panel shows a comparison of the model with and without the selected interaction made via spatial cross-validation using 100 repetitions (see [`rf_evaluate()`](https://blasbenito.github.io/spatialRF/reference/rf_evaluate.html) and [`rf_compare()`](https://blasbenito.github.io/spatialRF/reference/rf_compare.html) for further details).
-
-The function returns the training data, now including the selected interactions. We can now replace the original training data frame with the new one.
+The function returns a data frame with the response variables, the predictors, and the selected interactions that can be used right away as a training data frame. However, the function cannot say whether an interaction *makes sense*, and it is up to the user to choose wisely whether to select an interaction or not. In this particular case, and just for the sake of simplicity, we will be using the resulting data frame as training data.
 
 ```{r}
 #adding interaction column to the training data
@@ -345,14 +344,14 @@ The output is a list with several slots containing the information required to i
 
 The slot **residuals** (`model.non.spatial$residuals`) stores the values of the residuals and the results of the normality and spatial autocorrelation tests. The best function to interrogate it is [`plot_residuals_diagnostics()`].
 
-```{r, fig.width=6, fig.height=6}
+```{r, fig.width=6, fig.height=7}
 spatialRF::plot_residuals_diagnostics(
   model.non.spatial,
   verbose = FALSE
   )
 ```
 
-The upper panels show the results of the normality test (interpretation in the title), the middle panel shows the relationship between the residuals and the fitted values, important to understand the behavior of the residuals, and the lower panel shows the Moran's I of the residuals across distance thresholds and their respective p-values (positive for 0 and 1000 km).
+The upper panels show the results of the normality test (interpretation in the title), the middle panel shows the relationship between the residuals and the fitted values, important to understand the behavior of the residuals, and the lower panel shows the Moran's I of the residuals across distance thresholds and their respective p-values (positive for 0 and 1000 km). 
 
 ## Variable importance
 
@@ -419,6 +418,7 @@ local.importance <- cbind(
 ```
 
 
+
 ```{r, echo=TRUE, fig.width=8, fig.height=5}
 #colors
 color.low <- viridis::viridis(
@@ -428,7 +428,7 @@ color.low <- viridis::viridis(
 color.high <- viridis::viridis(
     3,
     option = "F"
-    )[3]
+    )[1]
 
 #plot of climate_bio1_average
 p1 <- ggplot2::ggplot() +
@@ -818,7 +818,7 @@ The model fitted above was based on the default random forest hyperparameters of
 -   `mtry`: number of variables to choose from on each tree split.
 -   `min.node.size`: minimum number of cases on a terminal node.
 
-These values can be modified in any model fitted with the package using the `ranger.arguments` argument. The example below shows how to fit the spatial model  with a set of chosen hyperparameters.
+These values can be modified in any model fitted with the package using the `ranger.arguments` argument. The example below shows how to fit a spatial model with a given set of hyperparameters.
 
 ```{r, eval = FALSE}
 model.spatial <- spatialRF::rf_spatial(
@@ -895,9 +895,31 @@ spatialRF::print_performance(model.spatial.tuned.repeat)
 
 # Taking advantage of the ` %>%` pipe
 
-The modeling functions of `spatialRF` are designed to facilitate using the pipe to combine them. The code below fits a spatial model, tunes its hyperparameters, evaluates it using spatial cross-validation, and repeats the execution several times, just by passing the model from one function to another.
+The modeling functions of `spatialRF` are designed to facilitate using the pipe to combine them. The code below fits a spatial model, tunes its hyperparameters, evaluates it using spatial cross-validation, and repeats the execution several times, just by passing the model from one function to another. Replace `eval = FALSE` with `eval = TRUE` if you want to execute the code chunk.
 
-```{r, results = "hide", message = FALSE, error = FALSE, warning = FALSE}
+```{r, eval = FALSE}
+model.full <- rf_spatial(
+  data = plant_richness_df,
+  dependent.variable.name = dependent.variable.name,
+  predictor.variable.names = predictor.variable.names,
+  distance.matrix = distance_matrix,
+  distance.thresholds = distance.thresholds,
+  xy = xy
+) %>%
+  rf_tuning() %>%
+  rf_evaluate() %>%
+  rf_repeat()
+```
+
+The code structure shown above can also be used to take advantage of a custom cluster, either defined in the local host, or a Beowulf cluster.
+
+```{r, eval = FALSE}
+my.cluster <- parallel::makeCluster(
+  parallel::detectCores() - 1,
+  type = "PSOCK"
+)
+
+#fitting, tuning, evaluating, and repeating a model
 model.full <- rf_spatial(
   data = plant_richness_df,
   dependent.variable.name = dependent.variable.name,
@@ -905,17 +927,15 @@ model.full <- rf_spatial(
   distance.matrix = distance_matrix,
   distance.thresholds = distance.thresholds,
   xy = xy,
-  verbose = FALSE #to avoid cluttering the console with results
+  cluster = my.cluster #is passed via pipe to the other functions
 ) %>%
-  rf_tuning(verbose = FALSE) %>%
-  rf_evaluate(verbose = FALSE) %>%
-  rf_repeat(
-    repetitions = 30,
-    verbose = FALSE
-    )
-```
+  rf_tuning() %>%
+  rf_evaluate() %>%
+  rf_repeat()
 
-Once the model is fitted, the slots added by each function can be examined with functions such as `plot_tuning()`, `plot_evaluation()` and the likes.
+#stopping the cluster
+parallel::stopCluster(cl = my.cluster)
+```
 
 # Comparing several models
 

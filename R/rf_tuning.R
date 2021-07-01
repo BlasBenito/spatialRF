@@ -381,11 +381,6 @@ rf_tuning <- function(
     3
   )
 
-  #stopping cluster
-  if(stop.cluster == TRUE){
-    parallel::stopCluster(cl = cluster)
-  }
-
   #performance difference
   performance.gain <- new.performance - old.performance
 
@@ -418,8 +413,12 @@ rf_tuning <- function(
 
     }
 
-    #adding cluster to model
-    model.tuned$cluster <- cluster
+    #stopping cluster
+    if(stop.cluster == TRUE){
+      parallel::stopCluster(cl = cluster)
+    } else {
+      model$cluster <- cluster
+    }
 
     return(model.tuned)
 
