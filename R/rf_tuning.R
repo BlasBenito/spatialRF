@@ -413,13 +413,6 @@ rf_tuning <- function(
 
     }
 
-    #stopping cluster
-    if(stop.cluster == TRUE){
-      parallel::stopCluster(cl = cluster)
-    } else {
-      model$cluster <- cluster
-    }
-
     return(model.tuned)
 
     #tuned model worse than original one
