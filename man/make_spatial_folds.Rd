@@ -11,8 +11,9 @@ make_spatial_folds(
   xy = NULL,
   distance.step.x = NULL,
   distance.step.y = NULL,
-  training.fraction = 0.8,
-  n.cores = NULL
+  training.fraction = 0.75,
+  n.cores = parallel::detectCores() - 1,
+  cluster = NULL
 )
 }
 \arguments{
@@ -28,9 +29,11 @@ make_spatial_folds(
 
 \item{distance.step.y}{Numeric, distance step used during the growth in the y axis of the buffers defining the training folds. Default: \code{NULL} (1/1000th the range of the y coordinates).}
 
-\item{training.fraction}{numeric, fraction of the data to be included in the growing buffer as training data, Default: \code{0.8}}
+\item{training.fraction}{numeric, fraction of the data to be included in the growing buffer as training data, Default: \code{0.75}}
 
-\item{n.cores}{number of cores to use to generate spatial folds in parallel. Default: \code{NULL}.}
+\item{n.cores}{Integer, number of cores to use for parallel execution. Creates a socket cluster with \code{parallel::makeCluster()}, runs operations in parallel with \code{foreach} and \verb{\%dopar\%}, and stops the cluster with \code{parallel::clusterStop()} when the job is done. Default: \code{parallel::detectCores() - 1}}
+
+\item{cluster}{A cluster definition generated with \code{parallel::makeCluster()}. If provided, overrides \code{n.cores}. When \code{cluster = NULL} (default value), and \code{model} is provided, the cluster in \code{model}, if any, is used instead. If this cluster is \code{NULL}, then the function uses \code{n.cores} instead. The function does not stop a provided cluster, so it should be stopped with \code{parallel::stopCluster()} afterwards. The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the \code{model} argument, or using the \verb{\%>\%} pipe. Default: \code{NULL}}
 }
 \value{
 A list with as many slots as rows are in \code{xy.selected}. Each slot has two slots named \code{training} and \code{testing}, with the former having the indices of the training records selected from xy, and the latter having the indices of the testing records.

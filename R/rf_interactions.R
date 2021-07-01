@@ -21,11 +21,8 @@
 #' @param point.color Colors of the plotted points. Can be a single color name (e.g. "red4"), a character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. `viridis::viridis(100)`). Default: `viridis::viridis(100, option = "F", alpha = 0.8)`
 #' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same. Default: `NULL`
 #' @param verbose Logical. If `TRUE`, messages and plots generated during the execution of the function are displayed. Default: `TRUE`
-#' @param n.cores Integer, number of cores to use. Default: `parallel::detectCores() - 1`
-#' @param cluster.ips Character vector with the IPs of the machines in a cluster. The machine with the first IP will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed. Default: `NULL`
-#' @param cluster.cores Numeric integer vector, number of cores to use on each machine. Default: `NULL`
-#' @param cluster.user Character string, name of the user (should be the same throughout machines). Defaults to the current system user.
-#' @param cluster.port Integer, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: `11000`
+#' @param n.cores Integer, number of cores to use for parallel execution. Creates a socket cluster with `parallel::makeCluster()`, runs operations in parallel with `foreach` and `%dopar%`, and stops the cluster with `parallel::clusterStop()` when the job is done. Default: `parallel::detectCores() - 1`
+#' @param cluster A cluster definition generated with `parallel::makeCluster()`. If provided, overrides `n.cores`. When `cluster = NULL` (default value), and `model` is provided, the cluster in `model`, if any, is used instead. If this cluster is `NULL`, then the function uses `n.cores` instead. The function does not stop a provided cluster, so it should be stopped with `parallel::stopCluster()` afterwards. The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the `model` argument, or using the `%>%` pipe. Default: `NULL`
 #' @return A list with seven slots:
 #' \itemize{
 #'   \item `screening`: Data frame with selection scores of all the interactions considered.
@@ -79,12 +76,34 @@ rf_interactions <- function(
   seed = NULL,
   verbose = TRUE,
   n.cores = parallel::detectCores() - 1,
-  cluster.ips = NULL,
-  cluster.cores = NULL,
-  cluster.user = Sys.info()[["user"]],
-  cluster.port = "11000"
+  cluster = NULL
 ){
 
+  #CLUSTER SETUP
+  #cluster is provided
+  if(!is.null(cluster)){
+
+    #n.cores <- NULL
+    n.cores <- NULL
+
+    #flat to not stop cluster after execution
+    stop.cluster <- FALSE
+
+  } else {
+
+    #creates and registers cluster
+    cluster <- parallel::makeCluster(
+      n.cores,
+      type = "PSOCK"
+    )
+
+    #registering cluster
+    doParallel::registerDoParallel(cl = cluster)
+
+    #flag to stop cluster
+    stop.cluster <- TRUE
+
+  }
 
   #finding out if the response is binary
   is.binary <- is_binary(
@@ -142,11 +161,8 @@ rf_interactions <- function(
     metrics = metric,
     seed = seed,
     verbose = FALSE,
-    n.cores = 1,
-    cluster.ips = cluster.ips,
-    cluster.cores = cluster.cores,
-    cluster.user = cluster.user,
-    cluster.port = cluster.port
+    n.cores = n.cores,
+    cluster = cluster
   )
 
   #metric
@@ -189,80 +205,6 @@ rf_interactions <- function(
     message(paste0("Testing ", nrow(variables.pairs), " candidate interactions."))
   }
 
-
-  #setup of parallel execution
-  if(is.null(n.cores)){
-
-    n.cores <- parallel::detectCores() - 1
-    `%dopar%` <- foreach::`%dopar%`
-
-  } else {
-
-    #only one core, no cluster
-    if(n.cores == 1){
-
-      #replaces dopar (parallel) by do (serial)
-      `%dopar%` <- foreach::`%do%`
-      on.exit(`%dopar%` <- foreach::`%dopar%`)
-
-    } else {
-
-      `%dopar%` <- foreach::`%dopar%`
-
-    }
-
-  }
-
-  #local cluster
-  if(is.null(cluster.ips) & n.cores > 1){
-
-    #creating the cluster
-    temp.cluster <- parallel::makeCluster(
-      n.cores,
-      type = "PSOCK"
-    )
-
-    #register cluster and close on exit
-    doParallel::registerDoParallel(cl = temp.cluster)
-
-  }
-
-  #beowulf cluster
-  if(!is.null(cluster.ips)){
-
-    #cluster port
-    Sys.setenv(R_PARALLEL_PORT = cluster.port)
-
-    #preparing the cluster specification
-    cluster.spec <- cluster_specification(
-      cluster.ips = cluster.ips,
-      cluster.cores = cluster.cores,
-      cluster.user = cluster.user
-    )
-
-    #cluster setup
-    if(verbose == TRUE){
-      outfile <- ""
-    } else {
-      if(.Platform$OS.type == "windows"){
-        outfile <- "nul:"
-      } else {
-        outfile <- "/dev/null"
-      }
-    }
-    temp.cluster <- parallel::makeCluster(
-      master = cluster.ips[1],
-      spec = cluster.spec,
-      port = cluster.port,
-      outfile = outfile,
-      homogeneous = TRUE
-    )
-
-    #register cluster and close on exit
-    doParallel::registerDoParallel(cl = temp.cluster)
-    on.exit(parallel::stopCluster(cl = temp.cluster))
-
-  }
 
   #testing interactions
   i <- NULL
@@ -489,11 +431,6 @@ rf_interactions <- function(
     interaction.screening.2
   ) %>%
     na.omit()
-
-  #stopping cluster
-  if(exists("temp.cluster")){
-    parallel::stopCluster(cl = temp.cluster)
-  }
 
   if(nrow(interaction.screening) == 0){
     message("No promising interactions found. \n")
@@ -745,11 +682,13 @@ rf_interactions <- function(
     seed = seed,
     verbose = FALSE,
     n.cores = n.cores,
-    cluster.ips = cluster.ips,
-    cluster.cores = cluster.cores,
-    cluster.user = cluster.user,
-    cluster.port = cluster.port
+    cluster = cluster
   )
+
+  #stopping cluster
+  if(!is.null(n.cores)){
+    parallel::stopCluster(cl = cluster)
+  }
 
   #adding it to the plot list
   plot.list[["comparison"]] <- comparison$plot
@@ -761,6 +700,12 @@ rf_interactions <- function(
   if(verbose == TRUE){
     print(patchwork::wrap_plots(out.list$plot))
   }
+
+  #stopping cluster
+  if(stop.cluster == TRUE){
+    parallel::stopCluster(cl = cluster)
+  }
+
 
   out.list
 

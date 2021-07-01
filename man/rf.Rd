@@ -14,7 +14,9 @@ rf(
   ranger.arguments = NULL,
   scaled.importance = FALSE,
   seed = NULL,
-  verbose = TRUE
+  verbose = TRUE,
+  n.cores = parallel::detectCores() - 1,
+  cluster = NULL
 )
 }
 \arguments{
@@ -37,9 +39,13 @@ rf(
 \item{seed}{Integer, random seed to facilitate reproducibility. If set to a given number, the returned model is always the same. Default: \code{NULL}}
 
 \item{verbose}{Boolean. If TRUE, messages and plots generated during the execution of the function are displayed. Default: \code{TRUE}}
+
+\item{n.cores}{Integer, number of cores to use. Default: \code{parallel::detectCores() - 1}}
+
+\item{cluster}{A cluster definition generated with \code{parallel::makeCluster()}. This function does not use the cluster, but can pass it on to other functions when using the \verb{\%>\%} pipe. It will be stored in the slot \code{cluster} of the output list. Default: \code{NULL}}
 }
 \value{
-A ranger model with several new slots:
+A ranger model with several extra slots:
 \itemize{
 \item \code{ranger.arguments}: Stores the values of the arguments used to fit the ranger model.
 \item \code{importance}: A list containing a data frame with the predictors ordered by their importance, a ggplot showing the importance values, and local importance scores (difference in accuracy between permuted and non permuted variables for every case, computed on the out-of-bag data).

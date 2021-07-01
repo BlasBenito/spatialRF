@@ -27,11 +27,8 @@
 #' @param weight.penalization.n.predictors Numeric between 0 and 1, weight of the penalization for adding an increasing number of spatial predictors during selection. Default: `NULL`
 #' @param seed Integer, random seed to facilitate reproducibility.
 #' @param verbose Logical. If TRUE, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
-#' @param n.cores Integer, number of cores to use. Default = `parallel::detectCores() - 1`
-#' @param cluster.ips Character vector with the IPs of the machines in a cluster. The machine with the first IP will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.
-#' @param cluster.cores Numeric integer vector, number of cores to use on each machine.
-#' @param cluster.user Character string, name of the user (should be the same throughout machines). Defaults to the current system user.
-#' @param cluster.port Character, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: `"11000"`
+#' @param n.cores Integer, number of cores to use for parallel execution. Creates a socket cluster with `parallel::makeCluster()`, runs operations in parallel with `foreach` and `%dopar%`, and stops the cluster with `parallel::clusterStop()` when the job is done. Default: `parallel::detectCores() - 1`
+#' @param cluster A cluster definition generated with `parallel::makeCluster()`. If provided, overrides `n.cores`. When `cluster = NULL` (default value), and `model` is provided, the cluster in `model`, if any, is used instead. If this cluster is `NULL`, then the function uses `n.cores` instead. The function does not stop a provided cluster, so it should be stopped with `parallel::stopCluster()` afterwards. The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the `model` argument, or using the `%>%` pipe. Default: `NULL`
 #' @return A ranger model with several new slots:
 #' \itemize{
 #'   \item `ranger.arguments`: Values of the arguments used to fit the ranger model.
@@ -143,10 +140,7 @@ rf_spatial <- function(
   seed = NULL,
   verbose = TRUE,
   n.cores = parallel::detectCores() - 1,
-  cluster.ips = NULL,
-  cluster.cores = NULL,
-  cluster.user = Sys.info()[["user"]],
-  cluster.port = "11000"
+  cluster = NULL
 ){
 
   #declaring variables
@@ -171,75 +165,6 @@ rf_spatial <- function(
     ),
     several.ok = FALSE
   )
-
-  #CLUSTER SETUP
-  ########################################
-
-  #if no cluster.ips, local cluster
-  if(is.null(cluster.ips)){
-
-    #sequential execution
-    if(n.cores == 1){
-
-      #replaces dopar (parallel) by do (serial)
-      `%dopar%` <- foreach::`%do%`
-      on.exit(`%dopar%` <- foreach::`%dopar%`)
-
-      #sets other cluster values to NULL
-      cluster.ips <- NULL
-      temp.cluster <- NULL
-
-      #parallel execution
-    } else {
-
-      #creates and registers cluster
-      temp.cluster <- parallel::makeCluster(
-        n.cores,
-        type = "PSOCK"
-      )
-
-    }
-
-    #beowulf cluster
-  } else {
-
-    #cluster port
-    Sys.setenv(R_PARALLEL_PORT = cluster.port)
-
-    #preparing the cluster specification
-    cluster.spec <- cluster_specification(
-      cluster.ips = cluster.ips,
-      cluster.cores = cluster.cores,
-      cluster.user = cluster.user
-    )
-
-    #cluster setup
-    if(verbose == TRUE){
-      outfile <- ""
-    } else {
-      if(.Platform$OS.type == "windows"){
-        outfile <- "nul:"
-      } else {
-        outfile <- "/dev/null"
-      }
-    }
-    temp.cluster <- parallel::makeCluster(
-      master = cluster.ips[1],
-      spec = cluster.spec,
-      port = cluster.port,
-      outfile = outfile,
-      homogeneous = TRUE
-    )
-
-  }
-
-  #registering cluster if it exists
-  if(exists("temp.cluster")){
-    doParallel::registerDoParallel(cl = temp.cluster)
-  } else {
-    temp.cluster <- NULL
-  }
-
 
   # FITTING NON-SPATIAL model or
   # GETTING ARGUMENTS FROM model
@@ -291,28 +216,53 @@ rf_spatial <- function(
 
       #getting arguments from model
       ranger.arguments <- model$ranger.arguments
-
       data <- ranger.arguments$data
-
       dependent.variable.name <- ranger.arguments$dependent.variable.name
-
       predictor.variable.names <- ranger.arguments$predictor.variable.names
-
       distance.matrix <- ranger.arguments$distance.matrix
       if(is.null(distance.matrix)){
         stop("The argument 'distance.matrix' is missing.")
       }
-
       distance.thresholds <- ranger.arguments$distance.thresholds
       if(is.null(distance.thresholds)){
         distance.thresholds <- default_distance_thresholds(distance.matrix = distance.matrix)
       }
-
       scaled.importance <- ranger.arguments$scaled.importance
-
       seed <- model$ranger.arguments$seed
 
+      #getting cluster from model if "cluster" is not provided
+      if(is.null(cluster) & "cluster" %in% names(model)){
+          cluster <- model$cluster
+      }
+
+
     }
+
+  #CLUSTER SETUP
+  #cluster is provided
+  if(!is.null(cluster)){
+
+    #n.cores <- NULL
+    n.cores <- NULL
+
+    #flat to not stop cluster after execution
+    stop.cluster <- FALSE
+
+  } else {
+
+    #creates and registers cluster
+    cluster <- parallel::makeCluster(
+      n.cores,
+      type = "PSOCK"
+    )
+
+    #registering cluster
+    doParallel::registerDoParallel(cl = cluster)
+
+    #flag to stop cluster
+    stop.cluster <- TRUE
+
+  }
 
   #reference moran's I for selection of spatial predictors
   if(!is.null(model$residuals$autocorrelation$max.moran)){
@@ -478,8 +428,8 @@ rf_spatial <- function(
       ranking.method = ranking.method,
       reference.moran.i = reference.moran.i,
       verbose = FALSE,
-      cluster = temp.cluster,
-      n.cores = n.cores
+      n.cores = n.cores,
+      cluster = cluster
     )
 
   }
@@ -515,8 +465,8 @@ rf_spatial <- function(
       weight.r.squared = weight.r.squared,
       weight.penalization.n.predictors = weight.penalization.n.predictors,
       verbose = FALSE,
-      cluster = temp.cluster,
-      n.cores = n.cores
+      n.cores = n.cores,
+      cluster = cluster
     )
 
     #names of the selected spatial predictors
@@ -549,8 +499,9 @@ rf_spatial <- function(
       spatial.predictors.ranking = spatial.predictors.ranking,
       weight.r.squared = weight.r.squared,
       weight.penalization.n.predictors = weight.penalization.n.predictors,
-      cluster = temp.cluster,
-      n.cores = n.cores
+      n.cores = n.cores,
+      cluster = cluster
+
     )
 
     #broadcast spatial.predictors.selected
@@ -598,11 +549,6 @@ rf_spatial <- function(
 
   class(model.spatial) <- c("rf", "rf_spatial", "ranger")
 
-  #stopping cluster
-  if(exists("temp.cluster") & !is.null(temp.cluster)){
-    parallel::stopCluster(temp.cluster)
-  }
-
   #add moran's I plot
   model.spatial$residuals$autocorrelation$plot <- plot_moran(
     model.spatial,
@@ -634,7 +580,14 @@ rf_spatial <- function(
   if(verbose == TRUE){
     print(model.spatial)
     plot_importance(model.spatial)
-    plot_moran(model.spatial)
+    plot_residuals_diagnostics(model.spatial)
+  }
+
+  #stopping cluster
+  if(stop.cluster == TRUE){
+    parallel::stopCluster(cl = cluster)
+  } else {
+    model.spatial$cluster <- cluster
   }
 
   #return output

@@ -125,7 +125,7 @@ plot_moran <- function(
         ggplot2::theme(legend.position = "bottom") +
         ggplot2::labs(size = "Moran's I p-value") +
         ggplot2::theme(plot.title = element_text(hjust = 0.5)) +
-        ggplot2::guides(fill = FALSE)
+        ggplot2::guides(fill = "none")
 
     } else {
 
@@ -165,7 +165,7 @@ plot_moran <- function(
         ggplot2::theme(legend.position = "bottom") +
         ggplot2::labs(size = "Moran's I p-value") +
         ggplot2::theme(plot.title = element_text(hjust = 0.5)) +
-        ggplot2::guides(fill = FALSE)
+        ggplot2::guides(fill = "none")
 
     }
 

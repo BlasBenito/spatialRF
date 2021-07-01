@@ -9,11 +9,8 @@
 #' @param training.fraction Proportion between 0.2 and 0.9 indicating the number of records to be used in model training. Default: `0.75`
 #' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same.
 #' @param verbose Logical. If TRUE, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
-#' @param n.cores Integer, number of cores to use. Default = `parallel::detectCores() - 1`
-#' @param cluster.ips Character vector with the IPs of the machines in a cluster. The machine with the first IP will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.
-#' @param cluster.cores Numeric integer vector, number of cores to use on each machine.
-#' @param cluster.user Character string, name of the user (should be the same throughout machines). Defaults to the current system user.
-#' @param cluster.port Character, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: `"11000"`
+#' @param n.cores Integer, number of cores to use for parallel execution. Creates a socket cluster with `parallel::makeCluster()`, runs operations in parallel with `foreach` and `%dopar%`, and stops the cluster with `parallel::clusterStop()` when the job is done. Default: `parallel::detectCores() - 1`
+#' @param cluster A cluster definition generated with `parallel::makeCluster()`. If provided, overrides `n.cores`. When `cluster = NULL` (default value), and `model` is provided, the cluster in `model`, if any, is used instead. If this cluster is `NULL`, then the function uses `n.cores` instead. The function does not stop a provided cluster, so it should be stopped with `parallel::stopCluster()` afterwards. The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the `model` argument, or using the `%>%` pipe. Default: `NULL`
 #' @return A model with a new slot named `tuning`, with a data frame with the results of the tuning analysis.
 #' @seealso [rf_evaluate()]
 #' @examples
@@ -58,10 +55,7 @@ rf_tuning <- function(
   seed = NULL,
   verbose = TRUE,
   n.cores = parallel::detectCores() - 1,
-  cluster.ips = NULL,
-  cluster.cores = NULL,
-  cluster.user = Sys.info()[["user"]],
-  cluster.port = "11000"
+  cluster = NULL
 ){
 
   #declaring variables
@@ -82,6 +76,11 @@ rf_tuning <- function(
     predictor.variable.names <- ranger.arguments$predictor.variable.names
     distance.matrix <- ranger.arguments$distance.matrix
     distance.thresholds <- ranger.arguments$distance.thresholds
+
+    #getting cluster from model if "cluster" is not provided
+    if(is.null(cluster) & "cluster" %in% names(model)){
+      cluster <- model$cluster
+    }
 
     #getting xy
     if(is.null(xy)){
@@ -173,71 +172,30 @@ rf_tuning <- function(
   }
 
   #CLUSTER SETUP
-  #if no cluster.ips, local cluster
-  if(is.null(cluster.ips)){
+  #cluster is provided
+  if(!is.null(cluster)){
 
-    #sequential execution
-    if(n.cores == 1){
+    #n.cores <- NULL
+    n.cores <- NULL
 
-      #replaces dopar (parallel) by do (serial)
-      `%dopar%` <- foreach::`%do%`
-      on.exit(`%dopar%` <- foreach::`%dopar%`)
+    #flat to not stop cluster after execution
+    stop.cluster <- FALSE
 
-      #sets other cluster values to NULL
-      cluster.ips <- NULL
-
-      #parallel execution
-    } else {
-
-      #creates and registers cluster
-      temp.cluster <- parallel::makeCluster(
-        n.cores,
-        type = "PSOCK"
-      )
-
-      #sets dopar in case it was not setup
-      `%dopar%` <- foreach::`%dopar%`
-
-    }
-
-    #beowulf cluster
   } else {
 
-    #cluster port
-    Sys.setenv(R_PARALLEL_PORT = cluster.port)
-
-    #preparing the cluster specification
-    cluster.spec <- cluster_specification(
-      cluster.ips = cluster.ips,
-      cluster.cores = cluster.cores,
-      cluster.user = cluster.user
+    #creates and registers cluster
+    cluster <- parallel::makeCluster(
+      n.cores,
+      type = "PSOCK"
     )
 
-    #cluster setup
-    if(verbose == TRUE){
-      outfile <- ""
-    } else {
-      if(.Platform$OS.type == "windows"){
-        outfile <- "nul:"
-      } else {
-        outfile <- "/dev/null"
-      }
-    }
-    temp.cluster <- parallel::makeCluster(
-      master = cluster.ips[1],
-      spec = cluster.spec,
-      port = cluster.port,
-      outfile = outfile,
-      homogeneous = TRUE
-    )
+    #registering cluster
+    doParallel::registerDoParallel(cl = cluster)
+
+    #flag to stop cluster
+    stop.cluster <- TRUE
 
   }
-
-  #registering cluster if it exists
-  if(exists("temp.cluster")){
-    doParallel::registerDoParallel(cl = temp.cluster)
-  }
-
 
   #looping through combinations
   tuning <- foreach::foreach(
@@ -267,6 +225,7 @@ rf_tuning <- function(
       ranger.arguments = ranger.arguments.i,
       scaled.importance = FALSE,
       seed = seed,
+      n.cores = 1,
       verbose = FALSE
     )
 
@@ -311,11 +270,6 @@ rf_tuning <- function(
     return(m.i.performance)
 
   }#end of parallelized loop
-
-
-  if(exists("temp.cluster")){
-    parallel::stopCluster(cl = temp.cluster)
-  }
 
   #binding with combinations
   tuning <- cbind(
@@ -367,6 +321,7 @@ rf_tuning <- function(
     distance.matrix = distance.matrix,
     distance.thresholds = distance.thresholds,
     xy = xy,
+    n.cores = n.cores,
     verbose = FALSE
   )
 
@@ -394,10 +349,7 @@ rf_tuning <- function(
     seed = seed,
     verbose = FALSE,
     n.cores = n.cores,
-    cluster.ips = cluster.ips,
-    cluster.cores = cluster.cores,
-    cluster.user = cluster.user,
-    cluster.port = cluster.port
+    cluster = cluster
   )
 
   #evaluate model tuned
@@ -409,10 +361,7 @@ rf_tuning <- function(
     seed = seed,
     verbose = FALSE,
     n.cores = n.cores,
-    cluster.ips = cluster.ips,
-    cluster.cores = cluster.cores,
-    cluster.user = cluster.user,
-    cluster.port = cluster.port
+    cluster = cluster
   )
 
   #extract r.squared values
@@ -431,6 +380,11 @@ rf_tuning <- function(
     ],
     3
   )
+
+  #stopping cluster
+  if(stop.cluster == TRUE){
+    parallel::stopCluster(cl = cluster)
+  }
 
   #performance difference
   performance.gain <- new.performance - old.performance
@@ -464,6 +418,9 @@ rf_tuning <- function(
 
     }
 
+    #adding cluster to model
+    model.tuned$cluster <- cluster
+
     return(model.tuned)
 
     #tuned model worse than original one
@@ -496,6 +453,13 @@ rf_tuning <- function(
 
     #adding r squared gain
     model$tuning$performance.gain <- performance.gain
+
+    #stopping cluster
+    if(stop.cluster == TRUE){
+      parallel::stopCluster(cl = cluster)
+    } else {
+      model$cluster <- cluster
+    }
 
     return(model)
 

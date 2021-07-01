@@ -1,6 +1,6 @@
-#' @title Compares the performance of several models via spatial cross-validation
-#' @description Uses [rf_evaluate()] to compare the performance of several models trained with the same pairs of coordinates on independent spatial folds via spatial cross-validation.
-#' @param models Named list with models based on the same pairs of coordinates. Example: `models = list(a = model.a, b = model.b)`. Default: `NULL`
+#' @title Compares models via spatial cross-validation
+#' @description Uses [rf_evaluate()] to compare the performance of several models on independent spatial folds via spatial cross-validation.
+#' @param models Named list with models resulting from [rf()], [rf_spatial()], [rf_tuning()], or [rf_evaluate()]. Example: `models = list(a = model.a, b = model.b)`. Default: `NULL`
 #' @param xy Data frame or matrix with two columns containing coordinates and named "x" and "y". Default: `NULL`
 #' @param repetitions Integer, number of spatial folds to use during cross-validation. Must be lower than the total number of rows available in the model's data. Default: `30`
 #' @param training.fraction Proportion between 0.5 and 0.9 indicating the proportion of records to be used as training set during spatial cross-validation. Default: `0.75`
@@ -12,11 +12,8 @@
 #' @param line.color Character string, color of the line produced by `ggplot2::geom_smooth()`. Default: `"gray30"`
 #' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same.
 #' @param verbose Logical. If `TRUE`, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
-#' @param n.cores Integer, number of cores to use. Default = `parallel::detectCores() - 1`
-#' @param cluster.ips Character vector with the IPs of the machines in a cluster. The machine with the first IP will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.
-#' @param cluster.cores Numeric integer vector, number of cores to use on each machine.
-#' @param cluster.user Character string, name of the user (should be the same throughout machines). Defaults to the current system user.
-#' @param cluster.port Character, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: `"11000"`
+#' @param n.cores Integer, number of cores to use for parallel execution. Creates a socket cluster with `parallel::makeCluster()`, runs operations in parallel with `foreach` and `%dopar%`, and stops the cluster with `parallel::clusterStop()` when the job is done. Default: `parallel::detectCores() - 1`
+#' @param cluster A cluster definition generated with `parallel::makeCluster()`. If provided, overrides `n.cores`. When `cluster = NULL` (default value), and `model` is provided, the cluster in `model`, if any, is used instead. If this cluster is `NULL`, then the function uses `n.cores` instead. The function does not stop a provided cluster, so it should be stopped with `parallel::stopCluster()` afterwards. The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the `model` argument, or using the `%>%` pipe. Default: `NULL`
 #' @return A list with three slots:
 #' \itemize{
 #' \item `comparison.df`: Data frame with one performance value per spatial fold, metric, and model.
@@ -79,10 +76,7 @@ rf_compare <- function(
   seed = NULL,
   verbose = TRUE,
   n.cores = parallel::detectCores() - 1,
-  cluster.ips = NULL,
-  cluster.cores = NULL,
-  cluster.user = Sys.info()[["user"]],
-  cluster.port = "11000"
+  cluster = NULL
 ){
 
   #declaring variables
@@ -112,6 +106,33 @@ rf_compare <- function(
     stop("Case coordinates 'xy' is missing.")
   }
 
+
+  #CLUSTER SETUP
+  #cluster is provided
+  if(!is.null(cluster)){
+
+    #n.cores <- NULL
+    n.cores <- NULL
+
+    #flat to not stop cluster after execution
+    stop.cluster <- FALSE
+
+  } else {
+
+    #creates and registers cluster
+    cluster <- parallel::makeCluster(
+      n.cores,
+      type = "PSOCK"
+    )
+
+    #registering cluster
+    doParallel::registerDoParallel(cl = cluster)
+
+    #flag to stop cluster
+    stop.cluster <- TRUE
+
+  }
+
   #list to store evaluation outputs
   evaluation.list <- list()
 
@@ -130,11 +151,8 @@ rf_compare <- function(
       metrics = metrics,
       seed = seed,
       verbose = FALSE,
-      n.cores = n.cores,
-      cluster.ips = cluster.ips,
-      cluster.cores = cluster.cores,
-      cluster.user = cluster.user,
-      cluster.port = cluster.port
+      n.cores = NULL,
+      cluster = cluster
     )
 
     #getting evaluation data frame
@@ -144,7 +162,7 @@ rf_compare <- function(
     #adding it to the evaluation list
     evaluation.list[[model.i]] <- evaluation.df.i
 
-  }
+  }#end of loop
 
   #binding data frames
   evaluation.df <- do.call("rbind", evaluation.list)
@@ -235,7 +253,11 @@ rf_compare <- function(
 
   if(verbose == TRUE){
     suppressMessages(print(p))
+  }
 
+  #stopping cluster
+  if(stop.cluster == TRUE){
+    parallel::stopCluster(cl = cluster)
   }
 
   out.list

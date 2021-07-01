@@ -227,7 +227,7 @@ plot_importance <- function(
   }
 
   if(verbose == TRUE){
-    suppressMessages(print(p))
+    suppressWarnings(print(p))
   }
 
   return(p)

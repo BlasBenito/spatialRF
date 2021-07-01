@@ -10,11 +10,8 @@
 #' @param distance.step.y Numeric, argument `distance.step.x` of [make_spatial_folds()]. Distance step used during the growth in the y axis of the buffers defining the training folds. Default: `NULL` (1/1000th the range of the y coordinates).
 #' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same.
 #' @param verbose Logical. If `TRUE`, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
-#' @param n.cores Integer, number of cores to use. Default = `parallel::detectCores() - 1`
-#' @param cluster.ips Character vector with the IPs of the machines in a cluster. The machine with the first IP will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.
-#' @param cluster.cores Numeric integer vector, number of cores to use on each machine.
-#' @param cluster.user Character string, name of the user (should be the same throughout machines). Defaults to the current system user.
-#' @param cluster.port Character, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: `"11000"`
+#' @param n.cores Integer, number of cores to use for parallel execution. Creates a socket cluster with `parallel::makeCluster()`, runs operations in parallel with `foreach` and `%dopar%`, and stops the cluster with `parallel::clusterStop()` when the job is done. Default: `parallel::detectCores() - 1`
+#' @param cluster A cluster definition generated with `parallel::makeCluster()`. If provided, overrides `n.cores`. When `cluster = NULL` (default value), and `model` is provided, the cluster in `model`, if any, is used instead. If this cluster is `NULL`, then the function uses `n.cores` instead. The function does not stop a provided cluster, so it should be stopped with `parallel::stopCluster()` afterwards. The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the `model` argument, or using the `%>%` pipe. Default: `NULL`
 #' @return A model of the class "rf_evaluate" with a new slot named "evaluation", that is a list with the following slots:
 #' \itemize{
 #'   \item `training.fraction`: Value of the argument `training.fraction`.
@@ -78,17 +75,13 @@ rf_evaluate <- function(
   seed = NULL,
   verbose = TRUE,
   n.cores = parallel::detectCores() - 1,
-  cluster.ips = NULL,
-  cluster.cores = NULL,
-  cluster.user = Sys.info()[["user"]],
-  cluster.port = "11000"
+  cluster = NULL
 ){
 
   #declaring variables
   i <- NULL
   metric <- NULL
   value <- NULL
-
 
   if(is.null(model)){
 
@@ -111,6 +104,11 @@ rf_evaluate <- function(
     ranger.arguments$distance.matrix <- NULL
     ranger.arguments$num.threads <- 1
 
+    #getting cluster from model if "cluster" is not provided
+    if(is.null(cluster) & "cluster" %in% names(model)){
+      cluster <- model$cluster
+    }
+
     #getting xy
     if(is.null(xy)){
       if(is.null(model$ranger.arguments$xy)){
@@ -120,11 +118,39 @@ rf_evaluate <- function(
       }
     }
   }
+
   if(sum(c("x", "y") %in% colnames(xy)) < 2){
     stop("The column names of 'xy' must be 'x' and 'y'.")
   }
+
   if(nrow(xy) != nrow(data)){
     stop("nrow(xy) and nrow(data) (stored in model$ranger.arguments$data) must be the same.")
+  }
+
+  #CLUSTER SETUP
+  #cluster is provided
+  if(!is.null(cluster)){
+
+    #n.cores <- NULL
+    n.cores <- NULL
+
+    #flat to not stop cluster after execution
+    stop.cluster <- FALSE
+
+  } else {
+
+    #creates and registers cluster
+    cluster <- parallel::makeCluster(
+      n.cores,
+      type = "PSOCK"
+    )
+
+    #registering cluster
+    doParallel::registerDoParallel(cl = cluster)
+
+    #flag to stop cluster
+    stop.cluster <- TRUE
+
   }
 
   #testing method argument
@@ -188,72 +214,10 @@ rf_evaluate <- function(
     distance.step.x = distance.step.x,
     distance.step.y = distance.step.y,
     training.fraction = training.fraction,
-    n.cores = n.cores
+    n.cores = n.cores,
+    cluster = cluster
   )
 
-
-  #CLUSTER SETUP
-  #if no cluster.ips, local cluster
-  if(is.null(cluster.ips)){
-
-    #sequential execution
-    if(n.cores == 1){
-
-      #replaces dopar (parallel) by do (serial)
-      `%dopar%` <- foreach::`%do%`
-      on.exit(`%dopar%` <- foreach::`%dopar%`)
-
-      #sets other cluster values to NULL
-      cluster.ips <- NULL
-
-      #parallel execution
-    } else {
-
-      #creates and registers cluster
-      temp.cluster <- parallel::makeCluster(
-        n.cores,
-        type = "PSOCK"
-      )
-
-    }
-
-    #beowulf cluster
-  } else {
-
-    #cluster port
-    Sys.setenv(R_PARALLEL_PORT = cluster.port)
-
-    #preparing the cluster specification
-    cluster.spec <- cluster_specification(
-      cluster.ips = cluster.ips,
-      cluster.cores = cluster.cores,
-      cluster.user = cluster.user
-    )
-
-    #cluster setup
-    if(verbose == TRUE){
-      outfile <- ""
-    } else {
-      if(.Platform$OS.type == "windows"){
-        outfile <- "nul:"
-      } else {
-        outfile <- "/dev/null"
-      }
-    }
-    temp.cluster <- parallel::makeCluster(
-      master = cluster.ips[1],
-      spec = cluster.spec,
-      port = cluster.port,
-      outfile = outfile,
-      homogeneous = TRUE
-    )
-
-  }
-
-  #registering cluster if it exists
-  if(exists("temp.cluster")){
-    doParallel::registerDoParallel(cl = temp.cluster)
-  }
 
   #loop to evaluate models
   #####################################
@@ -348,11 +312,6 @@ rf_evaluate <- function(
     return(out.df)
 
   }#end of parallelized loop
-
-  #stopping cluster
-  if(exists("temp.cluster")){
-    parallel::stopCluster(cl = temp.cluster)
-  }
 
   #preparing data frames for plotting and printing
   #select columns with "training"
@@ -468,6 +427,13 @@ rf_evaluate <- function(
 
   if(verbose == TRUE){
     print_evaluation(model = model)
+  }
+
+  #stopping cluster
+  if(stop.cluster == TRUE){
+    parallel::stopCluster(cl = cluster)
+  } else {
+    model$cluster <- cluster
   }
 
   model

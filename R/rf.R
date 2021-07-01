@@ -10,7 +10,9 @@
 #' @param scaled.importance Logical, if `TRUE`, the function scales `data` with \link[base]{scale} and fits a new model to compute scaled variable importance scores. This makes variable importance scores of different models somewhat comparable. Default: `FALSE`
 #' @param seed Integer, random seed to facilitate reproducibility. If set to a given number, the returned model is always the same. Default: `NULL`
 #' @param verbose Boolean. If TRUE, messages and plots generated during the execution of the function are displayed. Default: `TRUE`
-#' @return A ranger model with several new slots:
+#' @param n.cores Integer, number of cores to use. Default: `parallel::detectCores() - 1`
+#' @param cluster A cluster definition generated with `parallel::makeCluster()`. This function does not use the cluster, but can pass it on to other functions when using the `%>%` pipe. It will be stored in the slot `cluster` of the output list. Default: `NULL`
+#' @return A ranger model with several extra slots:
 #' \itemize{
 #'   \item `ranger.arguments`: Stores the values of the arguments used to fit the ranger model.
 #'   \item `importance`: A list containing a data frame with the predictors ordered by their importance, a ggplot showing the importance values, and local importance scores (difference in accuracy between permuted and non permuted variables for every case, computed on the out-of-bag data).
@@ -88,7 +90,9 @@ rf <- function(
   ranger.arguments = NULL,
   scaled.importance = FALSE,
   seed = NULL,
-  verbose = TRUE
+  verbose = TRUE,
+  n.cores = parallel::detectCores() - 1,
+  cluster = NULL
 ){
 
   #giving priority to data not from ranger.arguments
@@ -127,7 +131,7 @@ rf <- function(
   holdout <- FALSE
   quantreg <- FALSE
   oob.error <- TRUE
-  num.threads <- parallel::detectCores() - 1
+  num.threads <- n.cores
   save.memory <- FALSE
   classification <- NULL
 
@@ -454,6 +458,11 @@ rf <- function(
     m,
     verbose = verbose
   )
+
+  #adding cluster
+  if(!is.null(cluster)){
+    m$cluster <- cluster
+  }
 
   #adding rf class
   class(m) <- c("rf", "ranger")

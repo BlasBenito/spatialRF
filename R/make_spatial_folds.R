@@ -6,8 +6,9 @@
 #' @param xy data frame with at least three columns: "x" (longitude), "y" (latitude), and "id" (integer, index of the record). Default: `NULL`.
 #' @param distance.step.x Numeric, distance step used during the growth in the x axis of the buffers defining the training folds. Default: `NULL` (1/1000th the range of the x coordinates).
 #' @param distance.step.y Numeric, distance step used during the growth in the y axis of the buffers defining the training folds. Default: `NULL` (1/1000th the range of the y coordinates).
-#' @param training.fraction numeric, fraction of the data to be included in the growing buffer as training data, Default: `0.8`
-#' @param n.cores number of cores to use to generate spatial folds in parallel. Default: `NULL`.
+#' @param training.fraction numeric, fraction of the data to be included in the growing buffer as training data, Default: `0.75`
+#' @param n.cores Integer, number of cores to use for parallel execution. Creates a socket cluster with `parallel::makeCluster()`, runs operations in parallel with `foreach` and `%dopar%`, and stops the cluster with `parallel::clusterStop()` when the job is done. Default: `parallel::detectCores() - 1`
+#' @param cluster A cluster definition generated with `parallel::makeCluster()`. If provided, overrides `n.cores`. When `cluster = NULL` (default value), and `model` is provided, the cluster in `model`, if any, is used instead. If this cluster is `NULL`, then the function uses `n.cores` instead. The function does not stop a provided cluster, so it should be stopped with `parallel::stopCluster()` afterwards. The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the `model` argument, or using the `%>%` pipe. Default: `NULL`
 #' @return A list with as many slots as rows are in `xy.selected`. Each slot has two slots named `training` and `testing`, with the former having the indices of the training records selected from xy, and the latter having the indices of the testing records.
 #' @seealso [make_spatial_fold()], [rf_evaluate()]
 #' @examples
@@ -52,48 +53,36 @@ make_spatial_folds <- function(
   xy = NULL,
   distance.step.x = NULL,
   distance.step.y = NULL,
-  training.fraction = 0.8,
-  n.cores = NULL
+  training.fraction = 0.75,
+  n.cores = parallel::detectCores() - 1,
+  cluster = NULL
 ){
 
-  #setup of parallel execution
-  if(is.null(n.cores)){
+  #CLUSTER SETUP
+  #cluster is provided
+  if(!is.null(cluster)){
 
-    n.cores <- parallel::detectCores() - 1
-    `%dopar%` <- foreach::`%dopar%`
+    #n.cores <- NULL
+    n.cores <- NULL
+
+    #flat to not stop cluster after execution
+    stop.cluster <- FALSE
 
   } else {
 
-    #only one core, no cluster
-    if(n.cores == 1){
-
-      #replaces dopar (parallel) by do (serial)
-      `%dopar%` <- foreach::`%do%`
-      on.exit(`%dopar%` <- foreach::`%dopar%`)
-
-    } else {
-
-      `%dopar%` <- foreach::`%dopar%`
-
-    }
-
-  }
-
-  if(.Platform$OS.type == "windows"){
-    temp.cluster <- parallel::makeCluster(
+    #creates and registers cluster
+    cluster <- parallel::makeCluster(
       n.cores,
       type = "PSOCK"
     )
-  } else {
-    temp.cluster <- parallel::makeCluster(
-      n.cores,
-      type = "FORK"
-    )
-  }
 
-  #register cluster and close on exit
-  doParallel::registerDoParallel(cl = temp.cluster)
-  on.exit(parallel::stopCluster(cl = temp.cluster))
+    #registering cluster
+    doParallel::registerDoParallel(cl = cluster)
+
+    #flag to stop cluster
+    stop.cluster <- TRUE
+
+  }
 
   #parallelized loop
   i <- NULL
@@ -113,6 +102,11 @@ make_spatial_folds <- function(
 
     return(spatial.fold.i)
 
+  }
+
+  #stopping cluster
+  if(stop.cluster == TRUE){
+    parallel::stopCluster(cl = cluster)
   }
 
   spatial.folds

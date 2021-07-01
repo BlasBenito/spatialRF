@@ -1,3 +1,47 @@
+## Version 1.1.2 (1/7/2021)
+
+Overhaul of the methods used for parallelization. The functions `rf_spatial()`, `rf_repeat()`, `rf_evaluate()`, `rf_tuning()`, `rf_compare()`, and `rf_interactions()` can now accept a cluster definition generated with `parallel::makeCluster()` via the `cluster` argument. Also, models resulting from these functions and `rf()` carry the cluster definition with themselves in the slot `model$cluster`, so the cluster definition can be passed from function to function using a pipe, as shown below:
+
+```
+library(spatialRF)
+library(magrittr)
+
+#loading the example data
+data(plant_richness_df)
+data("distance_matrix")
+xy <- plant_richness_df[, c("x", "y")]
+dependent.variable.name <- "richness_species_vascular"
+predictor.variable.names <- colnames(plant_richness_df)[5:21]
+
+
+#creating cluster
+my.cluster <- parallel::makeCluster(
+  4,
+  type = "PSOCK"
+)
+
+  #fitting model
+  m <- rf(
+    data = plant_richness_df,
+    dependent.variable.name = dependent.variable.name,
+    predictor.variable.names = predictor.variable.names,
+    distance.matrix = distance_matrix,
+    xy = xy,
+    cluster = my.cluster
+  ) %>%
+  rf_spatial() %>%
+  rf_tuning() %>%
+  rf_evaluate() %>%
+  rf_repeat()
+
+#stopping cluster
+parallel::stopCluster(cl = my.cluster)
+```
+
+The system works as follows: If `cluster` is not `NULL` and `model` is provided, the function looks into the model. If there is a cluster definition there, it is used to parallelize computations, but the cluster is not stopped within the function. If there is not a cluster in `model`, then the function falls back to the argument `n.cores` to generate a cluster that is stopped when the function ends its operations.
+
+These changes should improve performance when working with several functions in the same script, becuase these functions do not have to waste time in generating their own clusters.
+
 ## Version 1.1.1 (11/5/2021)
 
 rf_repeat() now generates a proper "importance" slot for models fitted with rf_spatial(), and preserves the "evaluation" and "tuning" slots if they exist.

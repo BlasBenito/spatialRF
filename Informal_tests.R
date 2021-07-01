@@ -1,4 +1,233 @@
 library(spatialRF)
+library(magrittr)
+
+#loading the example data
+data(plant_richness_df)
+data("distance_matrix")
+xy <- plant_richness_df[, c("x", "y")]
+dependent.variable.name <- "richness_species_vascular"
+predictor.variable.names <- colnames(plant_richness_df)[5:21]
+
+
+#chaining cluster with pipes
+##################################
+my.cluster <- parallel::makeCluster(
+  4,
+  type = "PSOCK"
+)
+
+  m <- rf(
+    data = plant_richness_df,
+    dependent.variable.name = dependent.variable.name,
+    predictor.variable.names = predictor.variable.names,
+    distance.matrix = distance_matrix,
+    xy = xy,
+    cluster = my.cluster
+  ) %>%
+  rf_spatial() %>%
+  rf_tuning() %>%
+  rf_evaluate() %>%
+  rf_repeat()
+
+parallel::stopCluster(cl = my.cluster)
+
+#without cluster
+m <- rf(
+  data = plant_richness_df,
+  dependent.variable.name = dependent.variable.name,
+  predictor.variable.names = predictor.variable.names,
+  distance.matrix = distance_matrix,
+  xy = xy
+) %>%
+  rf_spatial() %>%
+  # rf_tuning() %>%
+  rf_evaluate() %>%
+  rf_repeat()
+
+m <- rf(
+  data = plant_richness_df,
+  dependent.variable.name = dependent.variable.name,
+  predictor.variable.names = predictor.variable.names,
+  distance.matrix = distance_matrix,
+  xy = xy,
+  n.cores = 1
+) %>%
+  rf_spatial(n.cores = 1) %>%
+  # rf_tuning() %>%
+  rf_evaluate(n.cores = 1) %>%
+  rf_repeat(n.cores = 1)
+
+
+#testing cluster
+##############################
+my.cluster <- parallel::makeCluster(
+  4,
+  type = "PSOCK"
+)
+
+doParallel::registerDoParallel(cl = my.cluster)
+
+interactions <- rf_interactions(
+  data = plant_richness_df,
+  dependent.variable.name = dependent.variable.name,
+  predictor.variable.names = predictor.variable.names,
+  xy = xy,
+  importance.threshold = 0.50, #uses 50% best predictors
+  cor.threshold = 0.60,
+  repetitions = 100,
+  verbose = TRUE,
+  cluster = my.cluster
+)
+
+parallel::stopCluster(cl = my.cluster)
+
+#testing n.cores
+##############################
+
+
+
+#NEW SIMPLIFIED CLUSTER DEFINITION
+#this works
+rf.repeat <- rf_repeat(
+  data = plant_richness_df,
+  dependent.variable.name = "richness_species_vascular",
+  predictor.variable.names = colnames(plant_richness_df)[5:21],
+  distance.matrix = distance_matrix
+)
+
+
+
+#this works
+rf.repeat <- rf_repeat(
+  data = plant_richness_df,
+  dependent.variable.name = "richness_species_vascular",
+  predictor.variable.names = colnames(plant_richness_df)[5:21],
+  distance.matrix = distance_matrix,
+  n.cores = 4
+)
+
+#this works
+rf.repeat <- rf_repeat(
+  data = plant_richness_df,
+  dependent.variable.name = "richness_species_vascular",
+  predictor.variable.names = colnames(plant_richness_df)[5:21],
+  distance.matrix = distance_matrix,
+  n.cores = 1
+)
+
+#this works
+my.cluster <- parallel::makeCluster(
+  4,
+  type = "PSOCK"
+)
+
+doParallel::registerDoParallel(cl = my.cluster)
+
+rf.repeat <- rf_repeat(
+  data = plant_richness_df,
+  dependent.variable.name = "richness_species_vascular",
+  predictor.variable.names = colnames(plant_richness_df)[5:21],
+  distance.matrix = distance_matrix,
+  cluster = my.cluster
+)
+
+parallel::stopCluster(cl = my.cluster)
+
+
+##rf_spatial
+#this works
+rf.spatial <- rf_spatial(
+  data = plant_richness_df,
+  dependent.variable.name = "richness_species_vascular",
+  predictor.variable.names = colnames(plant_richness_df)[5:21],
+  distance.matrix = distance_matrix,
+  method = "mem.moran.sequential",
+  n.cores = 1
+)
+
+
+
+#this works
+rf.spatial <- rf_spatial(
+  data = plant_richness_df,
+  dependent.variable.name = "richness_species_vascular",
+  predictor.variable.names = colnames(plant_richness_df)[5:21],
+  distance.matrix = distance_matrix,
+  method = "mem.moran.sequential",
+  n.cores = 7
+)
+
+rf.spatial <- rf_evaluate(
+  model = rf.spatial,
+  xy = xy,
+  n.cores = 7
+)
+
+#this works
+my.cluster <- parallel::makeCluster(
+  4,
+  type = "PSOCK"
+)
+
+doParallel::registerDoParallel(cl = my.cluster)
+
+#this works
+rf.spatial <- rf_spatial(
+  data = plant_richness_df,
+  dependent.variable.name = "richness_species_vascular",
+  predictor.variable.names = colnames(plant_richness_df)[5:21],
+  distance.matrix = distance_matrix,
+  method = "mem.moran.sequential",
+  cluster = my.cluster
+)
+
+rf.spatial <- rf_evaluate(
+  model = rf.spatial,
+  xy = xy,
+  cluster = my.cluster
+)
+
+parallel::stopCluster(cl = my.cluster)
+
+
+#this works
+rf.spatial <- rf_spatial(
+  data = plant_richness_df,
+  dependent.variable.name = "richness_species_vascular",
+  predictor.variable.names = colnames(plant_richness_df)[5:21],
+  distance.matrix = distance_matrix,
+  method = "mem.effect.recursive",
+  n.cores = 1
+)
+
+#this works
+rf.spatial <- rf_spatial(
+  data = plant_richness_df,
+  dependent.variable.name = "richness_species_vascular",
+  predictor.variable.names = colnames(plant_richness_df)[5:21],
+  distance.matrix = distance_matrix,
+  method = "mem.effect.recursive",
+  n.cores = 7
+)
+
+#this works
+my.cluster <- parallel::makeCluster(
+  7,
+  type = "PSOCK"
+)
+
+rf.spatial <- rf_spatial(
+  data = plant_richness_df,
+  dependent.variable.name = "richness_species_vascular",
+  predictor.variable.names = colnames(plant_richness_df)[5:21],
+  distance.matrix = distance_matrix,
+  method = "mem.effect.recursive",
+  cluster = my.cluster
+)
+
+parallel::stopCluster(cl = my.cluster)
+
+
 
 #BASIC MODELS TO TEST OTHER THINGIES
 #############################################
