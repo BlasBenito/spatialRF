@@ -9,6 +9,7 @@
 #'  /item `interpretation` Character vector, one of "x is normal", "x is not normal".
 #'  /item `plot` A patchwork plot with the qq plot and the histogram of x.
 #' }
+#' @details The function `shapiro.test()` has a hard limit of 5000 cases. If the model residuals have more than 5000 cases, then `sample(x = residuals, size = 5000)` is applied to the model residuals before the test.
 #' @examples
 #' \dontrun{
 #' if(interactive()){
@@ -30,7 +31,7 @@ residuals_diagnostics <- function(
   predictions
   ){
 
-  #declaring varialbes
+  #declaring variables
   Predicted <- NULL
   Residuals <- NULL
 
@@ -38,7 +39,17 @@ residuals_diagnostics <- function(
   y <- list()
 
   #normality of x
-  shapiro.out <- shapiro.test(residuals)
+  if(length(residuals) > 5000){
+    shapiro.out <- shapiro.test(
+      sample(
+        x = residuals,
+        size = 5000
+        )
+      )
+  } else {
+    shapiro.out <- shapiro.test(residuals)
+  }
+
 
   #writing results to list
   names(shapiro.out$statistic) <- NULL

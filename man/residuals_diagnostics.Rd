@@ -23,6 +23,9 @@ A list with four slots:
 \description{
 Applies a Shapiro-Wilks test to a numeric vector, and plots the qq plot and the histogram.
 }
+\details{
+The function \code{shapiro.test()} has a hard limit of 5000 cases. If the model residuals have more than 5000 cases, then \code{sample(x = residuals, size = 5000)} is applied to the model residuals before the test.
+}
 \examples{
 \dontrun{
 if(interactive()){
