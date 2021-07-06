@@ -913,11 +913,15 @@ model.full <- rf_spatial(
 
 The code structure shown above can also be used to take advantage of a custom cluster, either defined in the local host, or a Beowulf cluster.
 
+When working with a single machine, a cluster can be defined and used as follows:
+
 ```{r, eval = FALSE}
+#creating and registering the cluster
 my.cluster <- parallel::makeCluster(
   parallel::detectCores() - 1,
   type = "PSOCK"
 )
+doParallel::registerDoParallel(cl = my.cluster)
 
 #fitting, tuning, evaluating, and repeating a model
 model.full <- rf_spatial(
@@ -936,6 +940,39 @@ model.full <- rf_spatial(
 #stopping the cluster
 parallel::stopCluster(cl = my.cluster)
 ```
+
+To facilitate working with Beowulf clusters ([just several computers connected via SSH](https://www.blasbenito.com/post/01_home_cluster/)), the package provides the function `beowulf_cluster()`, that generates the cluster definition from details such as the IPs of the machines, the number of cores to be used on each machine, the user name, and the connection port.
+
+```{r, eval = FALSE}
+#creating and registering the cluster
+beowulf.cluster <- beowulf_cluster(
+  cluster.ips = c(
+    "10.42.0.1",
+    "10.42.0.34",
+    "10.42.0.104"
+  ),
+  cluster.cores = c(7, 4, 4),
+  cluster.user = "blas",
+  cluster.port = "11000"
+)
+
+#fitting, tuning, evaluating, and repeating a model
+model.full <- rf_spatial(
+  data = plant_richness_df,
+  dependent.variable.name = dependent.variable.name,
+  predictor.variable.names = predictor.variable.names,
+  distance.matrix = distance_matrix,
+  distance.thresholds = distance.thresholds,
+  xy = xy,
+  cluster = beowulf.cluster #is passed via pipe to the other functions
+) %>%
+  rf_tuning() %>%
+  rf_evaluate() %>%
+  rf_repeat()
+
+doParallel::registerDoParallel(cl = beowulf.cluster)
+```
+
 
 # Comparing several models
 

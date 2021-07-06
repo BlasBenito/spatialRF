@@ -445,14 +445,15 @@ the proper name, but used here for simplicity) represented by the first
 component of a PCA on the predictors `a` and `b`.
 
 The function
-[`rf_interactions()`](https://blasbenito.github.io/spatialRF/reference/rf_interactions.html)
+[`the_feature_engineer()`](https://blasbenito.github.io/spatialRF/reference/the_feature_engineer.html)
 tests all possible interactions of both types among the most important
 predictors, and suggesting the ones not correlated among themselves and
 with the other predictors inducing an increase in the model’s R squared
-on independent data.
+(or AUC when the response is binary) on independent data via spatial
+cross-validation (see `rf_evaluate()`).
 
 ``` r
-interactions <- rf_interactions(
+interactions <- the_feature_engineer(
   data = plant_richness_df,
   dependent.variable.name = dependent.variable.name,
   predictor.variable.names = predictor.variable.names,
@@ -2562,11 +2563,16 @@ model.full <- rf_spatial(
 The code structure shown above can also be used to take advantage of a
 custom cluster, either defined in the local host, or a Beowulf cluster.
 
+When working with a single machine, a cluster can be defined and used as
+follows:
+
 ``` r
+#creating and registering the cluster
 my.cluster <- parallel::makeCluster(
   parallel::detectCores() - 1,
   type = "PSOCK"
 )
+doParallel::registerDoParallel(cl = my.cluster)
 
 #fitting, tuning, evaluating, and repeating a model
 model.full <- rf_spatial(
@@ -2584,6 +2590,43 @@ model.full <- rf_spatial(
 
 #stopping the cluster
 parallel::stopCluster(cl = my.cluster)
+```
+
+To facilitate working with Beowulf clusters ([just several computers
+connected via SSH](https://www.blasbenito.com/post/01_home_cluster/)),
+the package provides the function `beowulf_cluster()`, that generates
+the cluster definition from details such as the IPs of the machines, the
+number of cores to be used on each machine, the user name, and the
+connection port.
+
+``` r
+#creating and registering the cluster
+beowulf.cluster <- beowulf_cluster(
+  cluster.ips = c(
+    "10.42.0.1",
+    "10.42.0.34",
+    "10.42.0.104"
+  ),
+  cluster.cores = c(7, 4, 4),
+  cluster.user = "blas",
+  cluster.port = "11000"
+)
+
+#fitting, tuning, evaluating, and repeating a model
+model.full <- rf_spatial(
+  data = plant_richness_df,
+  dependent.variable.name = dependent.variable.name,
+  predictor.variable.names = predictor.variable.names,
+  distance.matrix = distance_matrix,
+  distance.thresholds = distance.thresholds,
+  xy = xy,
+  cluster = beowulf.cluster #is passed via pipe to the other functions
+) %>%
+  rf_tuning() %>%
+  rf_evaluate() %>%
+  rf_repeat()
+
+doParallel::registerDoParallel(cl = beowulf.cluster)
 ```
 
 # Comparing several models
@@ -2609,7 +2652,7 @@ comparison <- rf_compare(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-52-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-53-1.png)<!-- -->
 
 ``` r
 x <- comparison$comparison.df %>% 
@@ -3049,7 +3092,7 @@ moran.test <- spatialRF::moran(
 moran.test$plot
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-63-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-64-1.png)<!-- -->
 
 According to the Moran’s I test, the model residuals show spatial
 autocorrelation. Let’s introduce MEMs one by one until the problem is
@@ -3106,7 +3149,7 @@ for(mem.i in colnames(mems)){
 moran.test.i$plot
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-64-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-65-1.png)<!-- -->
 
 Now we can compare the model without spatial predictors `m` and the
 model with spatial predictors `m.i`.
