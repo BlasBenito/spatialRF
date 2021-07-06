@@ -2568,11 +2568,11 @@ follows:
 
 ``` r
 #creating and registering the cluster
-my.cluster <- parallel::makeCluster(
+local.cluster <- parallel::makeCluster(
   parallel::detectCores() - 1,
   type = "PSOCK"
 )
-doParallel::registerDoParallel(cl = my.cluster)
+doParallel::registerDoParallel(cl = local.cluster)
 
 #fitting, tuning, evaluating, and repeating a model
 model.full <- rf_spatial(
@@ -2582,14 +2582,14 @@ model.full <- rf_spatial(
   distance.matrix = distance_matrix,
   distance.thresholds = distance.thresholds,
   xy = xy,
-  cluster = my.cluster #is passed via pipe to the other functions
+  cluster = local.cluster #is passed via pipe to the other functions
 ) %>%
   rf_tuning() %>%
   rf_evaluate() %>%
   rf_repeat()
 
 #stopping the cluster
-parallel::stopCluster(cl = my.cluster)
+parallel::stopCluster(cl = local.cluster)
 ```
 
 To facilitate working with Beowulf clusters ([just several computers
@@ -2620,7 +2620,7 @@ model.full <- rf_spatial(
   distance.matrix = distance_matrix,
   distance.thresholds = distance.thresholds,
   xy = xy,
-  cluster = beowulf.cluster #is passed via pipe to the other functions
+  cluster = beowulf.cluster 
 ) %>%
   rf_tuning() %>%
   rf_evaluate() %>%
