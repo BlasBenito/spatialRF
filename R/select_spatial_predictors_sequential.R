@@ -130,6 +130,9 @@ select_spatial_predictors_sequential <- function(
     #n.cores <- NULL
     n.cores <- NULL
 
+    #flat to not stop cluster after execution
+    stop.cluster <- FALSE
+
   } else {
 
     #creates and registers cluster
@@ -138,10 +141,14 @@ select_spatial_predictors_sequential <- function(
       type = "PSOCK"
     )
 
-    #registering cluster
-    doParallel::registerDoParallel(cl = cluster)
+    #flag to stop cluster
+    stop.cluster <- TRUE
 
   }
+
+
+  #registering cluster
+  doParallel::registerDoParallel(cl = cluster)
 
   #parallelized loop
   spatial.predictors.i <- NULL

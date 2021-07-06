@@ -256,13 +256,13 @@ rf_spatial <- function(
       type = "PSOCK"
     )
 
-    #registering cluster
-    doParallel::registerDoParallel(cl = cluster)
-
     #flag to stop cluster
     stop.cluster <- TRUE
 
   }
+
+  #registering cluster
+  doParallel::registerDoParallel(cl = cluster)
 
   #reference moran's I for selection of spatial predictors
   if(!is.null(model$residuals$autocorrelation$max.moran)){

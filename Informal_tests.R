@@ -8,13 +8,43 @@ xy <- plant_richness_df[, c("x", "y")]
 dependent.variable.name <- "richness_species_vascular"
 predictor.variable.names <- colnames(plant_richness_df)[5:21]
 
+#cluster without pipes
+##################################
+my.cluster <- parallel::makeCluster(
+  7,
+  type = "PSOCK"
+)
+
+doParallel::registerDoParallel(cl = my.cluster)
+
+m <- rf(
+  data = plant_richness_df,
+  dependent.variable.name = dependent.variable.name,
+  predictor.variable.names = predictor.variable.names,
+  distance.matrix = distance_matrix,
+  xy = xy,
+  cluster = my.cluster
+)
+
+m <- rf_spatial(model = m)
+
+m <- rf_tuning(model = m)
+
+m <- rf_evaluate(model = m)
+
+m <- rf_repeat(model = m)
+
+parallel::stopCluster(cl = my.cluster)
+
 
 #chaining cluster with pipes
 ##################################
 my.cluster <- parallel::makeCluster(
-  4,
+  7,
   type = "PSOCK"
 )
+
+doParallel::registerDoParallel(cl = my.cluster)
 
   m <- rf(
     data = plant_richness_df,
@@ -42,7 +72,6 @@ beowulf.cluster <- beowulf_cluster(
   cluster.cores = c(7, 4, 4),
   cluster.user = "blas"
 )
-
 
 doParallel::registerDoParallel(cl = beowulf.cluster)
 

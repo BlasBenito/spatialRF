@@ -97,13 +97,13 @@ the_feature_engineer <- function(
       type = "PSOCK"
     )
 
-    #registering cluster
-    doParallel::registerDoParallel(cl = cluster)
-
     #flag to stop cluster
     stop.cluster <- TRUE
 
   }
+
+  #registering cluster
+  doParallel::registerDoParallel(cl = cluster)
 
   #finding out if the response is binary
   is.binary <- is_binary(

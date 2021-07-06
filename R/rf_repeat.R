@@ -156,13 +156,13 @@ rf_repeat <- function(
       type = "PSOCK"
     )
 
-    #registering cluster
-    doParallel::registerDoParallel(cl = cluster)
-
     #flag to stop cluster
     stop.cluster <- TRUE
 
   }
+
+  #registering cluster
+  doParallel::registerDoParallel(cl = cluster)
 
   #predictor.variable.names comes from auto_vif or auto_cor
   if(!is.null(predictor.variable.names)){

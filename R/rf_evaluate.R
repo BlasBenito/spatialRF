@@ -145,13 +145,13 @@ rf_evaluate <- function(
       type = "PSOCK"
     )
 
-    #registering cluster
-    doParallel::registerDoParallel(cl = cluster)
-
     #flag to stop cluster
     stop.cluster <- TRUE
 
   }
+
+  #registering cluster
+  doParallel::registerDoParallel(cl = cluster)
 
   #testing method argument
   metrics <- match.arg(

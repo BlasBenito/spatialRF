@@ -125,13 +125,13 @@ rf_compare <- function(
       type = "PSOCK"
     )
 
-    #registering cluster
-    doParallel::registerDoParallel(cl = cluster)
-
     #flag to stop cluster
     stop.cluster <- TRUE
 
   }
+
+  #registering cluster
+  doParallel::registerDoParallel(cl = cluster)
 
   #list to store evaluation outputs
   evaluation.list <- list()
