@@ -273,10 +273,10 @@ predictor.variable.names$selected.variables
 
 Random Forests already takes into account variable interactions of the form "variable `a` becomes important when `b` is higher than x". However, Random Forest can also take advantage of variable interactions of the form `a * b`, across the complete ranges of the predictors, as they are commonly defined in regression models, and "interactions" (not the proper name, but used here for simplicity) represented by the first component of a PCA on the predictors `a` and `b`.
 
-The function [`rf_interactions()`](https://blasbenito.github.io/spatialRF/reference/rf_interactions.html) tests all possible interactions of both types among the most important predictors, and suggesting the ones not correlated among themselves and with the other predictors inducing an increase in the model's R squared on independent data.
+The function [`the_feature_engineer()`](https://blasbenito.github.io/spatialRF/reference/the_feature_engineer.html) tests all possible interactions of both types among the most important predictors, and suggesting the ones not correlated among themselves and with the other predictors inducing an increase in the model's R squared (or AUC when the response is binary) on independent data via spatial cross-validation (see `rf_evaluate()`).
 
 ```{r, fig.width=13, fig.height=6}
-interactions <- rf_interactions(
+interactions <- the_feature_engineer(
   data = plant_richness_df,
   dependent.variable.name = dependent.variable.name,
   predictor.variable.names = predictor.variable.names,

@@ -41,7 +41,7 @@
 #'
 #'  data(plant_richness_df)
 #'
-#'  interactions <- rf_interactions(
+#'  interactions <- the_feature_engineer(
 #'    data = plant_richness_df,
 #'    dependent.variable.name = "richness_species_vascular",
 #'    predictor.variable.names = colnames(plant_richness_df)[5:21],
@@ -56,9 +56,9 @@
 #' }
 #' @importFrom utils combn
 #' @importFrom foreach %do%
-#' @rdname rf_interactions
+#' @rdname the_feature_engineer
 #' @export
-rf_interactions <- function(
+the_feature_engineer <- function(
   data = NULL,
   dependent.variable.name = NULL,
   predictor.variable.names = NULL,

@@ -15,12 +15,8 @@ rank_spatial_predictors(
   ranking.method = c("moran", "effect"),
   reference.moran.i = 1,
   verbose = FALSE,
-  cluster = NULL,
-  n.cores = NULL,
-  cluster.ips = NULL,
-  cluster.cores = NULL,
-  cluster.user = Sys.info()[["user"]],
-  cluster.port = "11000"
+  n.cores = parallel::detectCores() - 1,
+  cluster = NULL
 )
 }
 \arguments{
@@ -44,17 +40,9 @@ rank_spatial_predictors(
 
 \item{verbose}{Logical, ff \code{TRUE}, messages and plots generated during the execution of the function are displayed, Default: \code{TRUE}}
 
-\item{cluster}{A cluster definition made with \code{parallel::makeCluster()}.}
+\item{n.cores}{Integer, number of cores to use for parallel execution. Creates a socket cluster with \code{parallel::makeCluster()}, runs operations in parallel with \code{foreach} and \verb{\%dopar\%}, and stops the cluster with \code{parallel::clusterStop()} when the job is done. Default: \code{parallel::detectCores() - 1}}
 
-\item{n.cores}{Integer, number of cores to use during computations. If \code{NULL}, all cores but one are used, unless a cluster is used. Default = \code{NULL}}
-
-\item{cluster.ips}{Character vector with the IPs of the machines in a cluster. The machine with the first IP will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.}
-
-\item{cluster.cores}{Numeric integer vector, number of cores to use on each machine.}
-
-\item{cluster.user}{Character string, name of the user (should be the same throughout machines). Defaults to the current system user.}
-
-\item{cluster.port}{Character, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: \code{"11000"}}
+\item{cluster}{A cluster definition generated with \code{parallel::makeCluster()}. If provided, overrides \code{n.cores}. When \code{cluster = NULL} (default value), and \code{model} is provided, the cluster in \code{model}, if any, is used instead. If this cluster is \code{NULL}, then the function uses \code{n.cores} instead. The function does not stop a provided cluster, so it should be stopped with \code{parallel::stopCluster()} afterwards. The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the \code{model} argument, or using the \verb{\%>\%} pipe. Default: \code{NULL}}
 }
 \value{
 A list with four slots:

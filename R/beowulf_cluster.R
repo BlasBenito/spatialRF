@@ -1,35 +1,30 @@
-#' @title Generates a cluster definition
-#' @description Defines a Beowulf cluster for \link[parallel]{makeCluster} from the IPs of the machines in the cluster, the number of cores of each machine, and the user name.
+#' @title Defines a beowulf cluster
+#' @description Defines a Beowulf cluster from the IPs of the machines in the cluster, the number of cores of each machine, and the user name. The returned cluster has to be registered with `doParallel::registerDoParallel()`.
 #' @param cluster.ips Character vector with the IPs of the machines in the cluster. The first machine will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed. Default: `NULL`.
 #' @param cluster.cores Numeric integer vector, number of cores on each machine. Default: `NULL`.
 #' @param cluster.user Character string, name of the user (should be the same throughout machines), Defaults to the current system user.
+#' @param cluster.port Character, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: `"11000"`
 #' @return A list ready to be used as input for the `spec` argument of the function \link[parallel]{makeCluster}.
-#' @details This function is used internally by several other functions in the package, but can be useful for a user working with \link[foreach]{foreach} to parallelize loops in a small cluster.
 #' @examples
 #' \donttest{
 #'
-#'#cluster.specification <- beowulf_cluster(
+#'#beowulf.cluster <- beowulf_cluster(
 #'#  cluster.ips = c(
 #'#    "10.42.0.1",
 #'#    "10.42.0.34",
 #'#    "10.42.0.104"
 #'#  ),
 #' # cluster.cores = c(7, 4, 4),
-#' # cluster.user = "blas"
-#'#)
-#'#
-#'#my.cluster <- parallel::makeCluster(
-#'#  master = "10.42.0.1",
-#'#  spec = cluster.specification,
-#'#  port = "11000",
-#'#  homogeneous = TRUE
+#' # cluster.user = "blas",
+#' # cluster.port = "11000"
 #'#)
 #'
-#'doParallel::registerDoParallel(cl = my.cluster)
 #'
-#'#PARALLELIZED foreach LOOP HERE
+#'#doParallel::registerDoParallel(cl = beowulf.cluster)
 #'
-#'parallel::stopCluster(cl = my.cluster)
+#'##PARALLELIZED foreach LOOP HERE
+#'
+#'#parallel::stopCluster(cl = beowulf.cluster)
 #'
 #'}
 #'

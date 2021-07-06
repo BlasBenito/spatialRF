@@ -19,7 +19,7 @@
 #'   \item `performance`: performance scores: R squared on out-of-bag data, R squared (cor(observed, predicted) ^ 2), pseudo R squared (cor(observed, predicted)), RMSE, and normalized RMSE (NRMSE).
 #'   \item `residuals`: residuals, normality test of the residuals computed with [residuals_test()], and spatial autocorrelation of the residuals computed with [moran_multithreshold()].
 #' }
-#' @details Please read the help file of \link[ranger]{ranger} for further details. Notice that the `formula` interface of \link[ranger]{ranger} is supported through `ranger.arguments`, but variable interactions are not allowed (but check [rf_interactions()]).
+#' @details Please read the help file of \link[ranger]{ranger} for further details. Notice that the `formula` interface of \link[ranger]{ranger} is supported through `ranger.arguments`, but variable interactions are not allowed (but check [the_feature_engineer()]).
 #' @examples
 #' \donttest{
 #' if(interactive()){
