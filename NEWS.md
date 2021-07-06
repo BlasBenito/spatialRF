@@ -20,6 +20,9 @@ my.cluster <- parallel::makeCluster(
   type = "PSOCK"
 )
 
+#registering cluster (rf functions register it anyway)
+doParallel::registerDoParallel(cl = cluster)
+
   #fitting model
   m <- rf(
     data = plant_richness_df,
@@ -41,6 +44,10 @@ parallel::stopCluster(cl = my.cluster)
 The system works as follows: If `cluster` is not `NULL` and `model` is provided, the function looks into the model. If there is a cluster definition there, it is used to parallelize computations, but the cluster is not stopped within the function. If there is not a cluster in `model`, then the function falls back to the argument `n.cores` to generate a cluster that is stopped when the function ends its operations.
 
 These changes should improve performance when working with several functions in the same script, becuase these functions do not have to waste time in generating their own clusters.
+
+The function `rf_interactions()` is now named `the_feature_engineer()`.
+
+The function `cluster_definition()` is now named `beowulf_cluster()`, and returns a cluster instead of a cluster definition to be used as input for `parallel::makeCluster()`.
 
 ## Version 1.1.1 (11/5/2021)
 
