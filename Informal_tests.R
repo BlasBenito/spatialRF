@@ -31,6 +31,42 @@ my.cluster <- parallel::makeCluster(
 
 parallel::stopCluster(cl = my.cluster)
 
+#using beowulf cluster
+#######################################
+beowulf.cluster <- beowulf_cluster(
+  cluster.ips = c(
+    "10.42.0.1",
+    "10.42.0.34",
+    "10.42.0.104"
+  ),
+  cluster.cores = c(7, 4, 4),
+  cluster.user = "blas"
+)
+
+
+doParallel::registerDoParallel(cl = beowulf.cluster)
+
+m <- rf(
+  data = plant_richness_df,
+  dependent.variable.name = dependent.variable.name,
+  predictor.variable.names = predictor.variable.names,
+  distance.matrix = distance_matrix,
+  xy = xy,
+  cluster = my.cluster
+) %>%
+  rf_spatial() %>%
+  rf_tuning() %>%
+  rf_evaluate() %>%
+  rf_repeat()
+
+parallel::stopCluster(cl = beowulf.cluster)
+
+
+
+
+
+
+
 #without cluster
 m <- rf(
   data = plant_richness_df,

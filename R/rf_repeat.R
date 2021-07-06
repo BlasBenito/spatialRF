@@ -681,7 +681,7 @@ rf_repeat <- function(
   if(stop.cluster == TRUE){
     parallel::stopCluster(cl = cluster)
   } else {
-    model.spatial$cluster <- cluster
+    m$cluster <- cluster
   }
 
   #return m.curves

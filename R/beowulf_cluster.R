@@ -6,20 +6,40 @@
 #' @return A list ready to be used as input for the `spec` argument of the function \link[parallel]{makeCluster}.
 #' @details This function is used internally by several other functions in the package, but can be useful for a user working with \link[foreach]{foreach} to parallelize loops in a small cluster.
 #' @examples
+#' \donttest{
 #'
-#'  cluster.spec <- cluster_specification(
-#'    cluster.ips = c("10.0.1.40", "10.0.1.41"),
-#'    cluster.cores = c(6, 4),
-#'    cluster.user = Sys.info()[["user"]]
-#'  )
-#'  cluster.spec
+#'#cluster.specification <- beowulf_cluster(
+#'#  cluster.ips = c(
+#'#    "10.42.0.1",
+#'#    "10.42.0.34",
+#'#    "10.42.0.104"
+#'#  ),
+#' # cluster.cores = c(7, 4, 4),
+#' # cluster.user = "blas"
+#'#)
+#'#
+#'#my.cluster <- parallel::makeCluster(
+#'#  master = "10.42.0.1",
+#'#  spec = cluster.specification,
+#'#  port = "11000",
+#'#  homogeneous = TRUE
+#'#)
 #'
-#' @rdname cluster_specification
+#'doParallel::registerDoParallel(cl = my.cluster)
+#'
+#'#PARALLELIZED foreach LOOP HERE
+#'
+#'parallel::stopCluster(cl = my.cluster)
+#'
+#'}
+#'
+#' @rdname beowulf_cluster
 #' @export
-cluster_specification <- function(
+beowulf_cluster <- function(
   cluster.ips = NULL,
   cluster.cores = NULL,
-  cluster.user = Sys.info()[["user"]]
+  cluster.user = Sys.info()[["user"]],
+  cluster.port = "11000"
 ){
 
   if(is.null(cluster.ips)){
@@ -58,6 +78,14 @@ cluster_specification <- function(
     recursive = FALSE
   )
 
-  spec
+  #defining beowulf cluster
+  beowulf.cluster <- parallel::makeCluster(
+    master = "10.42.0.1",
+    spec = spec,
+    port = cluster.port,
+    homogeneous = TRUE
+  )
+
+  beowulf.cluster
 
 }
