@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Gets the global importance data frame from a model — get_importance • spatialRF</title>
+<title>Defines a beowulf cluster — beowulf_cluster • spatialRF</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,8 @@
 
 
 
-<meta property="og:title" content="Gets the global importance data frame from a model — get_importance" />
-<meta property="og:description" content="Gets variable importance scores from rf(), rf_repeat(), and rf_spatial() models." />
+<meta property="og:title" content="Defines a beowulf cluster — beowulf_cluster" />
+<meta property="og:description" content="Defines a Beowulf cluster from the IPs of the machines in the cluster, the number of cores of each machine, and the user name. The returned cluster has to be registered with doParallel::registerDoParallel()." />
 
 
 
@@ -111,54 +111,71 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Gets the global importance data frame from a model</h1>
-    <small class="dont-index">Source: <a href='https://github.com/BlasBenito/spatialRF/blob/master/R/get_importance.R'><code>R/get_importance.R</code></a></small>
-    <div class="hidden name"><code>get_importance.Rd</code></div>
+    <h1>Defines a beowulf cluster</h1>
+    <small class="dont-index">Source: <a href='https://github.com/BlasBenito/spatialRF/blob/master/R/beowulf_cluster.R'><code>R/beowulf_cluster.R</code></a></small>
+    <div class="hidden name"><code>beowulf_cluster.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Gets variable importance scores from <code><a href='rf.html'>rf()</a></code>, <code><a href='rf_repeat.html'>rf_repeat()</a></code>, and <code><a href='rf_spatial.html'>rf_spatial()</a></code> models.</p>
+    <p>Defines a Beowulf cluster from the IPs of the machines in the cluster, the number of cores of each machine, and the user name. The returned cluster has to be registered with <code><a href='https://rdrr.io/pkg/doParallel/man/registerDoParallel.html'>doParallel::registerDoParallel()</a></code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>get_importance</span>(<span class='no'>model</span>)</pre>
+    <pre class="usage"><span class='fu'>beowulf_cluster</span>(
+  <span class='kw'>cluster.ips</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>cluster.cores</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>cluster.user</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Sys.info.html'>Sys.info</a></span>()<span class='kw'>[[</span><span class='st'>"user"</span>]],
+  <span class='kw'>cluster.port</span> <span class='kw'>=</span> <span class='st'>"11000"</span>
+)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>model</th>
-      <td><p>A model fitted with <code><a href='rf.html'>rf()</a></code>, <code><a href='rf_repeat.html'>rf_repeat()</a></code>, or <code><a href='rf_spatial.html'>rf_spatial()</a></code>. Default: NULL</p></td>
+      <th>cluster.ips</th>
+      <td><p>Character vector with the IPs of the machines in the cluster. The first machine will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed. Default: <code>NULL</code>.</p></td>
+    </tr>
+    <tr>
+      <th>cluster.cores</th>
+      <td><p>Numeric integer vector, number of cores on each machine. Default: <code>NULL</code>.</p></td>
+    </tr>
+    <tr>
+      <th>cluster.user</th>
+      <td><p>Character string, name of the user (should be the same throughout machines), Defaults to the current system user.</p></td>
+    </tr>
+    <tr>
+      <th>cluster.port</th>
+      <td><p>Character, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: <code>"11000"</code></p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A data frame with variable names and importance scores.</p>
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
-
-    <div class='dont-index'><p><code><a href='rf.html'>rf()</a></code>, <code><a href='rf_repeat.html'>rf_repeat()</a></code>, <code><a href='rf_spatial.html'>rf_spatial()</a></code>, <code><a href='plot_importance.html'>plot_importance()</a></code>, <code><a href='print_importance.html'>print_importance()</a></code>.</p></div>
+    <p>A list ready to be used as input for the <code>spec</code> argument of the function <a href='https://rdrr.io/r/parallel/makeCluster.html'>makeCluster</a>.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='co'># \donttest{</span>
-<span class='kw'>if</span>(<span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span>()){
+    <pre class="examples"><div class='input'># \donttest{
 
-<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>plant_richness_df</span>)
-<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>distance_matrix</span>)
+#beowulf.cluster &lt;- beowulf_cluster(
+#  cluster.ips = c(
+#    "10.42.0.1",
+#    "10.42.0.34",
+#    "10.42.0.104"
+#  ),
+# cluster.cores = c(7, 4, 4),
+# cluster.user = "blas",
+# cluster.port = "11000"
+#)
 
-<span class='no'>rf.model</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='rf.html'>rf</a></span>(
-  <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>plant_richness_df</span>,
-  <span class='kw'>dependent.variable.name</span> <span class='kw'>=</span> <span class='st'>"richness_species_vascular"</span>,
-  <span class='kw'>predictor.variable.names</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span>(<span class='no'>plant_richness_df</span>)[<span class='fl'>5</span>:<span class='fl'>21</span>],
-  <span class='kw'>distance.matrix</span> <span class='kw'>=</span> <span class='no'>distance_matrix</span>,
-  <span class='kw'>distance.thresholds</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0</span>, <span class='fl'>1000</span>, <span class='fl'>2000</span>),
-  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
-)
 
-<span class='no'>x</span> <span class='kw'>&lt;-</span> <span class='fu'>get_importance</span>(<span class='no'>rf.model</span>)
-<span class='no'>x</span>
+#doParallel::registerDoParallel(cl = beowulf.cluster)
 
-}
-<span class='co'># }</span></div></pre>
+##PARALLELIZED foreach LOOP HERE
+
+#parallel::stopCluster(cl = beowulf.cluster)
+
+# }
+
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

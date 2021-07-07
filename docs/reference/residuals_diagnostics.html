@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">spatialRF</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.2</span>
       </span>
     </div>
 
@@ -144,6 +144,9 @@
 /item <code>plot</code> A patchwork plot with the qq plot and the histogram of x.</p></li>
 </ul>
 
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>The function <code><a href='https://rdrr.io/r/stats/shapiro.test.html'>shapiro.test()</a></code> has a hard limit of 5000 cases. If the model residuals have more than 5000 cases, then <code><a href='https://rdrr.io/r/base/sample.html'>sample(x = residuals, size = 5000)</a></code> is applied to the model residuals before the test.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></code>,<code><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></code>,<code><a href='https://ggplot2.tidyverse.org/reference/geom_qq.html'>geom_qq_line</a></code>,<code>ggtheme</code>,<code><a href='https://ggplot2.tidyverse.org/reference/labs.html'>labs</a></code>,<code><a href='https://ggplot2.tidyverse.org/reference/geom_histogram.html'>geom_freqpoly</a></code>,<code><a href='https://ggplot2.tidyverse.org/reference/geom_abline.html'>geom_abline</a></code>

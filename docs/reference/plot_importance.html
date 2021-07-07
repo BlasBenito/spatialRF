@@ -40,7 +40,7 @@
 
 
 <meta property="og:title" content="Plots the variable importance of a model — plot_importance" />
-<meta property="og:description" content="Plots variable importance scores of rf(), rf_repeat(), and rf_spatial() models." />
+<meta property="og:description" content="Plots variable importance scores of rf(), rf_repeat(), and rf_spatial() models. Distributions of importance scores produced with rf_repeat() are plotted using ggplot2::geom_violin, which shows the median of the density estimate rather than the actual median of the data. However, the violin plots are ordered from top to bottom by the real median of the data to make small differences in median importance easier to spot." />
 
 
 
@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">spatialRF</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.2</span>
       </span>
     </div>
 
@@ -117,7 +117,7 @@
     </div>
 
     <div class="ref-description">
-    <p>Plots variable importance scores of <code><a href='rf.html'>rf()</a></code>, <code><a href='rf_repeat.html'>rf_repeat()</a></code>, and <code><a href='rf_spatial.html'>rf_spatial()</a></code> models.</p>
+    <p>Plots variable importance scores of <code><a href='rf.html'>rf()</a></code>, <code><a href='rf_repeat.html'>rf_repeat()</a></code>, and <code><a href='rf_spatial.html'>rf_spatial()</a></code> models. Distributions of importance scores produced with <code><a href='rf_repeat.html'>rf_repeat()</a></code> are plotted using <code><a href='https://ggplot2.tidyverse.org/reference/geom_violin.html'>ggplot2::geom_violin</a></code>, which shows the median of the density estimate rather than the actual median of the data. However, the violin plots are ordered from top to bottom by the real median of the data to make small differences in median importance easier to spot.</p>
     </div>
 
     <pre class="usage"><span class='fu'>plot_importance</span>(
@@ -126,9 +126,10 @@
     <span class='fl'>100</span>,
     <span class='kw'>option</span> <span class='kw'>=</span> <span class='st'>"F"</span>,
     <span class='kw'>direction</span> <span class='kw'>=</span> -<span class='fl'>1</span>,
-    <span class='kw'>alpha</span> <span class='kw'>=</span> <span class='fl'>0.8</span>
+    <span class='kw'>alpha</span> <span class='kw'>=</span> <span class='fl'>0.8</span>,
+    <span class='kw'>end</span> <span class='kw'>=</span> <span class='fl'>0.9</span>
    ),
-  <span class='kw'>line.color</span> <span class='kw'>=</span> <span class='st'>"gray30"</span>,
+  <span class='kw'>line.color</span> <span class='kw'>=</span> <span class='st'>"white"</span>,
   <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
 )</pre>
 
@@ -137,15 +138,15 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>model</th>
-      <td><p>A model fitted with <code><a href='rf.html'>rf()</a></code>, <code><a href='rf_repeat.html'>rf_repeat()</a></code>, or <code><a href='rf_spatial.html'>rf_spatial()</a></code>.</p></td>
+      <td><p>A model fitted with <code><a href='rf.html'>rf()</a></code>, <code><a href='rf_repeat.html'>rf_repeat()</a></code>, or <code><a href='rf_spatial.html'>rf_spatial()</a></code>, or a data frame with variable importance scores (only for internal use within the package functions).</p></td>
     </tr>
     <tr>
       <th>fill.color</th>
-      <td><p>Character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. <code><a href='https://sjmgarnier.github.io/viridis/reference/reexports.html'>viridis::viridis(100)</a></code>). Default: <code><a href='https://sjmgarnier.github.io/viridis/reference/reexports.html'>viridis::viridis(100, option = "F", direction = -1)</a></code></p></td>
+      <td><p>Character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. <code><a href='https://sjmgarnier.github.io/viridis/reference/reexports.html'>viridis::viridis(100)</a></code>). Default: <code><a href='https://sjmgarnier.github.io/viridis/reference/reexports.html'>viridis::viridis(100, option = "F", direction = -1, alpha = 0.8, end = 0.9)</a></code></p></td>
     </tr>
     <tr>
       <th>line.color</th>
-      <td><p>Character string, color of the line produced by <code><a href='https://ggplot2.tidyverse.org/reference/geom_smooth.html'>ggplot2::geom_smooth()</a></code>. Default: <code>"gray30"</code></p></td>
+      <td><p>Character string, color of the line produced by <code><a href='https://ggplot2.tidyverse.org/reference/geom_smooth.html'>ggplot2::geom_smooth()</a></code>. Default: <code>"white"</code></p></td>
     </tr>
     <tr>
       <th>verbose</th>
@@ -168,7 +169,7 @@
 <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>distance_matrix</span>)
 
 <span class='no'>rf.model</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='rf.html'>rf</a></span>(
-  <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>plant_richness_df</span>,
+ <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>plant_richness_df</span>,
  <span class='kw'>dependent.variable.name</span> <span class='kw'>=</span> <span class='st'>"richness_species_vascular"</span>,
  <span class='kw'>predictor.variable.names</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span>(<span class='no'>plant_richness_df</span>)[<span class='fl'>5</span>:<span class='fl'>21</span>],
  <span class='kw'>distance.matrix</span> <span class='kw'>=</span> <span class='no'>distance_matrix</span>,

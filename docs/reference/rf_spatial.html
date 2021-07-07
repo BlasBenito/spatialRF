@@ -40,7 +40,7 @@
 
 
 <meta property="og:title" content="Fits spatial random forest models — rf_spatial" />
-<meta property="og:description" content="Fits spatial random forest models using different methods to generate, rank, and select spatial predictors. The end goal is to provide the model with information about the spatial structure of the data in order to minimize the spatial correlation (Moran's I) of the model residuals." />
+<meta property="og:description" content="Fits spatial random forest models using different methods to generate, rank, and select spatial predictors acting as proxies of spatial processes not considered by the non-spatial predictors. The end goal is providing the model with information about the spatial structure of the data to minimize the spatial correlation (Moran's I) of the model residuals and generate honest variable importance scores." />
 
 
 
@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">spatialRF</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.2</span>
       </span>
     </div>
 
@@ -117,7 +117,7 @@
     </div>
 
     <div class="ref-description">
-    <p>Fits spatial random forest models using different methods to generate, rank, and select spatial predictors. The end goal is to provide the model with information about the spatial structure of the data in order to minimize the spatial correlation (Moran's I) of the model residuals.</p>
+    <p>Fits spatial random forest models using different methods to generate, rank, and select spatial predictors acting as proxies of spatial processes not considered by the non-spatial predictors. The end goal is providing the model with information about the spatial structure of the data to minimize the spatial correlation (Moran's I) of the model residuals and generate honest variable importance scores.</p>
     </div>
 
     <pre class="usage"><span class='fu'>rf_spatial</span>(
@@ -127,10 +127,9 @@
   <span class='kw'>predictor.variable.names</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>distance.matrix</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>distance.thresholds</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>xy</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>ranger.arguments</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>scaled.importance</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>repetitions</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-  <span class='kw'>keep.models</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
   <span class='kw'>method</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"mem.moran.sequential"</span>, <span class='st'>"mem.effect.sequential"</span>, <span class='st'>"mem.effect.recursive"</span>,
     <span class='st'>"hengl"</span>, <span class='st'>"hengl.moran.sequential"</span>, <span class='st'>"hengl.effect.sequential"</span>,
     <span class='st'>"hengl.effect.recursive"</span>, <span class='st'>"pca.moran.sequential"</span>, <span class='st'>"pca.effect.sequential"</span>,
@@ -141,10 +140,7 @@
   <span class='kw'>seed</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>n.cores</span> <span class='kw'>=</span> <span class='kw pkg'>parallel</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/r/parallel/detectCores.html'>detectCores</a></span>() - <span class='fl'>1</span>,
-  <span class='kw'>cluster.ips</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>cluster.cores</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>cluster.user</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Sys.info.html'>Sys.info</a></span>()<span class='kw'>[[</span><span class='st'>"user"</span>]],
-  <span class='kw'>cluster.port</span> <span class='kw'>=</span> <span class='st'>"11000"</span>
+  <span class='kw'>cluster</span> <span class='kw'>=</span> <span class='kw'>NULL</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -152,7 +148,7 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>model</th>
-      <td><p>A model produced by <code><a href='rf.html'>rf()</a></code> or <code><a href='rf_repeat.html'>rf_repeat()</a></code>. If used, the arguments <code>data</code>, <code>dependent.variable.name</code>, <code>predictor.variable.names</code>, <code>distance.matrix</code>, <code>distance.thresholds</code>, <code>ranger.arguments</code>, and <code>scaled.importance</code> are taken directly from the model definition. Default: NULL</p></td>
+      <td><p>A model fitted with <code><a href='rf.html'>rf()</a></code>. If used, the arguments <code>data</code>, <code>dependent.variable.name</code>, <code>predictor.variable.names</code>, <code>distance.matrix</code>, <code>distance.thresholds</code>, <code>ranger.arguments</code>, and <code>scaled.importance</code> are taken directly from the model definition. Default: NULL</p></td>
     </tr>
     <tr>
       <th>data</th>
@@ -172,7 +168,11 @@
     </tr>
     <tr>
       <th>distance.thresholds</th>
-      <td><p>Numeric vector, distances below each value are set to 0 on separated copies of the distance matrix for the computation of Moran's I at different neighborhood distances. If <code>NULL</code>, it defaults to <code><a href='https://rdrr.io/r/base/seq.html'>seq(0, max(distance.matrix)/4, length.out = 2)</a></code>. Default: <code>NULL</code></p></td>
+      <td><p>Numeric vector with distances in the same units as <code>distance.matrix</code> Distances below each distance threshold are set to 0 on separated copies of the distance matrix to compute Moran's I at different neighborhood distances. If <code>NULL</code>, it defaults to <code><a href='https://rdrr.io/r/base/seq.html'>seq(0, max(distance.matrix)/2, length.out = 4)</a></code> (defined by <code><a href='default_distance_thresholds.html'>default_distance_thresholds()</a></code>). Default: <code>NULL</code></p></td>
+    </tr>
+    <tr>
+      <th>xy</th>
+      <td><p>(optional) Data frame or matrix with two columns containing coordinates and named "x" and "y". It is not used by this function, but it is stored in the slot <code>ranger.arguments$xy</code> of the model, so it can be used by <code><a href='rf_evaluate.html'>rf_evaluate()</a></code> and <code><a href='rf_tuning.html'>rf_tuning()</a></code>. Default: <code>NULL</code></p></td>
     </tr>
     <tr>
       <th>ranger.arguments</th>
@@ -181,14 +181,6 @@
     <tr>
       <th>scaled.importance</th>
       <td><p>Logical. If <code>TRUE</code>, and 'importance = "permutation', the function scales 'data' with <a href='https://rdrr.io/r/base/scale.html'>scale</a> and fits a new model to compute scaled variable importance scores. Default: <code>TRUE</code></p></td>
-    </tr>
-    <tr>
-      <th>repetitions</th>
-      <td><p>Integer, number of repetitions. If 1, <code><a href='rf.html'>rf()</a></code> is used to fit the non-spatial and spatial models. If higher than one, <code><a href='rf_repeat.html'>rf_repeat()</a></code> is used instead. Notice that using more than one repetition can get computationally costly if the selected method generated a large number of spatial predictors, as it is the case of the "hengl" method. Default: <code>1</code></p></td>
-    </tr>
-    <tr>
-      <th>keep.models</th>
-      <td><p>Logical. If <code>TRUE</code>, the fitted models are returned in the "models" slot. If <code>repetitions</code> is very high and <code>method</code> is "hengl", setting <code>keep.models</code> to <code>TRUE</code> may cause memory issues. Default: <code>FALSE</code></p></td>
     </tr>
     <tr>
       <th>method</th>
@@ -219,7 +211,7 @@
     </tr>
     <tr>
       <th>seed</th>
-      <td><p>Integer, random seed to facilitate reproducibility. If set to a given number, the returned model is always the same. Only relevant if <code>repetitions = 1</code>. Default: <code>NULL</code></p></td>
+      <td><p>Integer, random seed to facilitate reproducibility.</p></td>
     </tr>
     <tr>
       <th>verbose</th>
@@ -227,23 +219,11 @@
     </tr>
     <tr>
       <th>n.cores</th>
-      <td><p>Integer, number of cores to use. Default = <code>parallel::detectCores() - 1</code></p></td>
+      <td><p>Integer, number of cores to use for parallel execution. Creates a socket cluster with <code><a href='https://rdrr.io/r/parallel/makeCluster.html'>parallel::makeCluster()</a></code>, runs operations in parallel with <code>foreach</code> and <code>%dopar%</code>, and stops the cluster with <code>parallel::clusterStop()</code> when the job is done. Default: <code>parallel::detectCores() - 1</code></p></td>
     </tr>
     <tr>
-      <th>cluster.ips</th>
-      <td><p>Character vector with the IPs of the machines in a cluster. The machine with the first IP will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.</p></td>
-    </tr>
-    <tr>
-      <th>cluster.cores</th>
-      <td><p>Numeric integer vector, number of cores to use on each machine.</p></td>
-    </tr>
-    <tr>
-      <th>cluster.user</th>
-      <td><p>Character string, name of the user (should be the same throughout machines). Defaults to the current system user.</p></td>
-    </tr>
-    <tr>
-      <th>cluster.port</th>
-      <td><p>Character, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: <code>"11000"</code></p></td>
+      <th>cluster</th>
+      <td><p>A cluster definition generated with <code><a href='https://rdrr.io/r/parallel/makeCluster.html'>parallel::makeCluster()</a></code>. If provided, overrides <code>n.cores</code>. When <code>cluster = NULL</code> (default value), and <code>model</code> is provided, the cluster in <code>model</code>, if any, is used instead. If this cluster is <code>NULL</code>, then the function uses <code>n.cores</code> instead. The function does not stop a provided cluster, so it should be stopped with <code><a href='https://rdrr.io/r/parallel/makeCluster.html'>parallel::stopCluster()</a></code> afterwards. The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the <code>model</code> argument, or using the <code>%&gt;%</code> pipe. Default: <code>NULL</code></p></td>
     </tr>
     </table>
 
@@ -251,7 +231,7 @@
 
     <p>A ranger model with several new slots:</p><ul>
 <li><p><code>ranger.arguments</code>: Values of the arguments used to fit the ranger model.</p></li>
-<li><p><code>variable.importance</code>: A list containing the vector of variable importance as originally returned by ranger (scaled or not depending on the value of 'scaled.importance'), a data frame with the predictors ordered by their importance, and a ggplot showing the importance values.</p></li>
+<li><p><code>importance</code>: A list containing the vector of variable importance as originally returned by ranger (scaled or not depending on the value of 'scaled.importance'), a data frame with the predictors ordered by their importance, and a ggplot showing the importance values.</p></li>
 <li><p><code>performance</code>: With the out-of-bag R squared, pseudo R squared, RMSE and NRMSE of the model.</p></li>
 <li><p><code>residuals</code>: residuals, normality test of the residuals computed with <code><a href='normality.html'>residuals_test()</a></code>, and spatial autocorrelation of the residuals computed with <code><a href='moran_multithreshold.html'>moran_multithreshold()</a></code>.</p></li>
 <li><p><code>spatial</code>: A list with four slots:</p><ul>
@@ -323,19 +303,6 @@ Methods to generate spatial predictors:</p><ul>
  <span class='no'>rf.spatial</span> <span class='kw'>&lt;-</span> <span class='fu'>rf_spatial</span>(<span class='kw'>model</span> <span class='kw'>=</span> <span class='no'>rf.model</span>)
  <span class='no'>rf.spatial</span>$<span class='no'>spatial.correlation.residuals</span>$<span class='no'>plot</span>
 
- <span class='co'>#fitting an rf_spatial model from an rf_repeat model</span>
- <span class='no'>rf.repeat</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='rf_repeat.html'>rf_repeat</a></span>(
-   <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>plant_richness_df</span>,
-   <span class='kw'>dependent.variable.name</span> <span class='kw'>=</span> <span class='st'>"richness_species_vascular"</span>,
-   <span class='kw'>predictor.variable.names</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span>(<span class='no'>plant_richness_df</span>)[<span class='fl'>5</span>:<span class='fl'>21</span>],
-   <span class='kw'>distance.matrix</span> <span class='kw'>=</span> <span class='no'>distance_matrix</span>,
-   <span class='kw'>distance.thresholds</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0</span>, <span class='fl'>1000</span>, <span class='fl'>2000</span>),
-   <span class='kw'>repetitions</span> <span class='kw'>=</span> <span class='fl'>5</span>
- )
- <span class='no'>rf.repeat</span>$<span class='no'>spatial.correlation.residuals</span>$<span class='no'>plot</span>
-
- <span class='no'>rf.spatial</span> <span class='kw'>&lt;-</span> <span class='fu'>rf_spatial</span>(<span class='kw'>model</span> <span class='kw'>=</span> <span class='no'>rf.repeat</span>)
- <span class='no'>rf.spatial</span>$<span class='no'>spatial.correlation.residuals</span>$<span class='no'>plot</span>
 
 }
 <span class='co'># }</span></div></pre>

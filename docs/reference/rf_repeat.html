@@ -40,7 +40,7 @@
 
 
 <meta property="og:title" content="Fits several random forest models on the same data — rf_repeat" />
-<meta property="og:description" content="Fits several random forest models on the same data in order to capture the effect of the algorithm's stochasticity on the variable importance scores, predictions, residuals, and performance measures. The function relies on the median to aggregate values across repetitions." />
+<meta property="og:description" content="Fits several random forest models on the same data in order to capture the effect of the algorithm's stochasticity on the variable importance scores, predictions, residuals, and performance measures. The function relies on the median to aggregate performance and importance values across repetitions. It is recommended to use it after a model is fitted (rf() or rf_spatial()), tuned (rf_tuning()), and/or evaluated (rf_evaluate()). This function is designed to be used after fitting a model with rf() or rf_spatial(), tuning it with rf_tuning() and evaluating it with rf_evaluate()." />
 
 
 
@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">spatialRF</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.2</span>
       </span>
     </div>
 
@@ -117,7 +117,7 @@
     </div>
 
     <div class="ref-description">
-    <p>Fits several random forest models on the same data in order to capture the effect of the algorithm's stochasticity on the variable importance scores, predictions, residuals, and performance measures. The function relies on the median to aggregate values across repetitions.</p>
+    <p>Fits several random forest models on the same data in order to capture the effect of the algorithm's stochasticity on the variable importance scores, predictions, residuals, and performance measures. The function relies on the median to aggregate performance and importance values across repetitions. It is recommended to use it after a model is fitted (<code><a href='rf.html'>rf()</a></code> or <code><a href='rf_spatial.html'>rf_spatial()</a></code>), tuned (<code><a href='rf_tuning.html'>rf_tuning()</a></code>), and/or evaluated (<code><a href='rf_evaluate.html'>rf_evaluate()</a></code>). This function is designed to be used after fitting a model with <code><a href='rf.html'>rf()</a></code> or <code><a href='rf_spatial.html'>rf_spatial()</a></code>, tuning it with <code><a href='rf_tuning.html'>rf_tuning()</a></code> and evaluating it with <code><a href='rf_evaluate.html'>rf_evaluate()</a></code>.</p>
     </div>
 
     <pre class="usage"><span class='fu'>rf_repeat</span>(
@@ -127,6 +127,7 @@
   <span class='kw'>predictor.variable.names</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>distance.matrix</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>distance.thresholds</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>xy</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>ranger.arguments</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>scaled.importance</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
   <span class='kw'>repetitions</span> <span class='kw'>=</span> <span class='fl'>10</span>,
@@ -134,10 +135,7 @@
   <span class='kw'>seed</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>n.cores</span> <span class='kw'>=</span> <span class='kw pkg'>parallel</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/r/parallel/detectCores.html'>detectCores</a></span>() - <span class='fl'>1</span>,
-  <span class='kw'>cluster.ips</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>cluster.cores</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>cluster.user</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Sys.info.html'>Sys.info</a></span>()<span class='kw'>[[</span><span class='st'>"user"</span>]],
-  <span class='kw'>cluster.port</span> <span class='kw'>=</span> <span class='st'>"11000"</span>
+  <span class='kw'>cluster</span> <span class='kw'>=</span> <span class='kw'>NULL</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -168,6 +166,10 @@
       <td><p>Numeric vector with neighborhood distances. All distances in the distance matrix below each value in <code>dustance.thresholds</code> are set to 0 for the computation of Moran's I. If <code>NULL</code>, it defaults to seq(0, max(distance.matrix), length.out = 4). Default: <code>NULL</code></p></td>
     </tr>
     <tr>
+      <th>xy</th>
+      <td><p>(optional) Data frame or matrix with two columns containing coordinates and named "x" and "y". It is not used by this function, but it is stored in the slot <code>ranger.arguments$xy</code> of the model, so it can be used by <code><a href='rf_evaluate.html'>rf_evaluate()</a></code> and <code><a href='rf_tuning.html'>rf_tuning()</a></code>. Default: <code>NULL</code></p></td>
+    </tr>
+    <tr>
       <th>ranger.arguments</th>
       <td><p>Named list with <a href='https://rdrr.io/pkg/ranger/man/ranger.html'>ranger</a> arguments (other arguments of this function can also go here). All <a href='https://rdrr.io/pkg/ranger/man/ranger.html'>ranger</a> arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of <a href='https://rdrr.io/pkg/ranger/man/ranger.html'>ranger</a> if you are not familiar with the arguments of this function.</p></td>
     </tr>
@@ -193,23 +195,11 @@
     </tr>
     <tr>
       <th>n.cores</th>
-      <td><p>Integer, number of cores to use. Default = <code>parallel::detectCores() - 1</code></p></td>
+      <td><p>Integer, number of cores to use for parallel execution. Creates a socket cluster with <code><a href='https://rdrr.io/r/parallel/makeCluster.html'>parallel::makeCluster()</a></code>, runs operations in parallel with <code>foreach</code> and <code>%dopar%</code>, and stops the cluster with <code>parallel::clusterStop()</code> when the job is done. Default: <code>parallel::detectCores() - 1</code></p></td>
     </tr>
     <tr>
-      <th>cluster.ips</th>
-      <td><p>Character vector with the IPs of the machines in a cluster. The machine with the first IP will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.</p></td>
-    </tr>
-    <tr>
-      <th>cluster.cores</th>
-      <td><p>Numeric integer vector, number of cores to use on each machine.</p></td>
-    </tr>
-    <tr>
-      <th>cluster.user</th>
-      <td><p>Character string, name of the user (should be the same throughout machines). Defaults to the current system user.</p></td>
-    </tr>
-    <tr>
-      <th>cluster.port</th>
-      <td><p>Character, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: <code>"11000"</code></p></td>
+      <th>cluster</th>
+      <td><p>A cluster definition generated with <code><a href='https://rdrr.io/r/parallel/makeCluster.html'>parallel::makeCluster()</a></code>. If provided, overrides <code>n.cores</code>. When <code>cluster = NULL</code> (default value), and <code>model</code> is provided, the cluster in <code>model</code>, if any, is used instead. If this cluster is <code>NULL</code>, then the function uses <code>n.cores</code> instead. The function does not stop a provided cluster, so it should be stopped with <code><a href='https://rdrr.io/r/parallel/makeCluster.html'>parallel::stopCluster()</a></code> afterwards. The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the <code>model</code> argument, or using the <code>%&gt;%</code> pipe. Default: <code>NULL</code></p></td>
     </tr>
     </table>
 

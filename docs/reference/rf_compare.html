@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Compares the performance of several models on independent data — rf_compare • spatialRF</title>
+<title>Compares models via spatial cross-validation — rf_compare • spatialRF</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,8 @@
 
 
 
-<meta property="og:title" content="Compares the performance of several models on independent data — rf_compare" />
-<meta property="og:description" content="Uses rf_evaluate() to compare the performance of several models based on the same pairs of coordinates on independent spatial folds." />
+<meta property="og:title" content="Compares models via spatial cross-validation — rf_compare" />
+<meta property="og:description" content="Uses rf_evaluate() to compare the performance of several models on independent spatial folds via spatial cross-validation." />
 
 
 
@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">spatialRF</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.2</span>
       </span>
     </div>
 
@@ -111,30 +111,30 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Compares the performance of several models on independent data</h1>
+    <h1>Compares models via spatial cross-validation</h1>
     <small class="dont-index">Source: <a href='https://github.com/BlasBenito/spatialRF/blob/master/R/rf_compare.R'><code>R/rf_compare.R</code></a></small>
     <div class="hidden name"><code>rf_compare.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Uses <code><a href='rf_evaluate.html'>rf_evaluate()</a></code> to compare the performance of several models based on the same pairs of coordinates on independent spatial folds.</p>
+    <p>Uses <code><a href='rf_evaluate.html'>rf_evaluate()</a></code> to compare the performance of several models on independent spatial folds via spatial cross-validation.</p>
     </div>
 
     <pre class="usage"><span class='fu'>rf_compare</span>(
   <span class='kw'>models</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>xy</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>repetitions</span> <span class='kw'>=</span> <span class='fl'>30</span>,
-  <span class='kw'>training.fraction</span> <span class='kw'>=</span> <span class='fl'>0.8</span>,
-  <span class='kw'>metrics</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"r.squared"</span>, <span class='st'>"pseudo.r.squared"</span>, <span class='st'>"rmse"</span>, <span class='st'>"nrmse"</span>),
+  <span class='kw'>training.fraction</span> <span class='kw'>=</span> <span class='fl'>0.75</span>,
+  <span class='kw'>metrics</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"r.squared"</span>, <span class='st'>"pseudo.r.squared"</span>, <span class='st'>"rmse"</span>, <span class='st'>"nrmse"</span>, <span class='st'>"auc"</span>),
+  <span class='kw'>distance.step</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>distance.step.x</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>distance.step.y</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>fill.color</span> <span class='kw'>=</span> <span class='kw pkg'>viridis</span><span class='kw ns'>::</span><span class='fu'><a href='https://sjmgarnier.github.io/viridis/reference/reexports.html'>viridis</a></span>(<span class='fl'>100</span>, <span class='kw'>option</span> <span class='kw'>=</span> <span class='st'>"F"</span>, <span class='kw'>direction</span> <span class='kw'>=</span> -<span class='fl'>1</span>, <span class='kw'>alpha</span> <span class='kw'>=</span> <span class='fl'>0.8</span>),
   <span class='kw'>line.color</span> <span class='kw'>=</span> <span class='st'>"gray30"</span>,
   <span class='kw'>seed</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>n.cores</span> <span class='kw'>=</span> <span class='kw pkg'>parallel</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/r/parallel/detectCores.html'>detectCores</a></span>() - <span class='fl'>1</span>,
-  <span class='kw'>cluster.ips</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>cluster.cores</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>cluster.user</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Sys.info.html'>Sys.info</a></span>()<span class='kw'>[[</span><span class='st'>"user"</span>]],
-  <span class='kw'>cluster.port</span> <span class='kw'>=</span> <span class='st'>"11000"</span>
+  <span class='kw'>cluster</span> <span class='kw'>=</span> <span class='kw'>NULL</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -142,23 +142,35 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>models</th>
-      <td><p>Named list with models based on the same pairs of coordinates. Example: <code>models = list(a = model.a, b = model.b)</code>. Default: <code>NULL</code></p></td>
+      <td><p>Named list with models resulting from <code><a href='rf.html'>rf()</a></code>, <code><a href='rf_spatial.html'>rf_spatial()</a></code>, <code><a href='rf_tuning.html'>rf_tuning()</a></code>, or <code><a href='rf_evaluate.html'>rf_evaluate()</a></code>. Example: <code>models = list(a = model.a, b = model.b)</code>. Default: <code>NULL</code></p></td>
     </tr>
     <tr>
       <th>xy</th>
-      <td><p>Data frame or matrix with two columns containing coordinates and named "x" and "y". The same <code>xy</code> is used for all models, that's why all models must be based on the same pairs of coordinates. If <code>NULL</code>, the function will throw an error. Default: <code>NULL</code></p></td>
+      <td><p>Data frame or matrix with two columns containing coordinates and named "x" and "y". Default: <code>NULL</code></p></td>
     </tr>
     <tr>
       <th>repetitions</th>
-      <td><p>Integer, must be lower than the total number of rows available in the model's data. Default: <code>30</code></p></td>
+      <td><p>Integer, number of spatial folds to use during cross-validation. Must be lower than the total number of rows available in the model's data. Default: <code>30</code></p></td>
     </tr>
     <tr>
       <th>training.fraction</th>
-      <td><p>Proportion between 0.5 and 0.9 indicating the number of records to be used in model training. Default: <code>0.8</code></p></td>
+      <td><p>Proportion between 0.5 and 0.9 indicating the proportion of records to be used as training set during spatial cross-validation. Default: <code>0.75</code></p></td>
     </tr>
     <tr>
       <th>metrics</th>
       <td><p>Character vector, names of the performance metrics selected. The possible values are: "r.squared" (<code>cor(obs, pred) ^ 2</code>), "pseudo.r.squared" (<code><a href='https://rdrr.io/r/stats/cor.html'>cor(obs, pred)</a></code>), "rmse" (<code><a href='https://rdrr.io/r/base/MathFun.html'>sqrt(sum((obs - pred)^2)/length(obs))</a></code>), "nrmse" (<code>rmse/(quantile(obs, 0.75) - quantile(obs, 0.25))</code>). Default: <code><a href='https://rdrr.io/r/base/c.html'>c("r.squared", "pseudo.r.squared", "rmse", "nrmse")</a></code></p></td>
+    </tr>
+    <tr>
+      <th>distance.step</th>
+      <td><p>Numeric, argument <code>distance.step</code> of <code><a href='thinning_til_n.html'>thinning_til_n()</a></code>. distance step used during the selection of the centers of the training folds. These fold centers are selected by thinning the data until a number of folds equal or lower than <code>repetitions</code> is reached. Its default value is 1/1000th the maximum distance within records in <code>xy</code>. Reduce it if the number of training folds is lower than expected.</p></td>
+    </tr>
+    <tr>
+      <th>distance.step.x</th>
+      <td><p>Numeric, argument <code>distance.step.x</code> of <code><a href='make_spatial_folds.html'>make_spatial_folds()</a></code>. Distance step used during the growth in the x axis of the buffers defining the training folds. Default: <code>NULL</code> (1/1000th the range of the x coordinates).</p></td>
+    </tr>
+    <tr>
+      <th>distance.step.y</th>
+      <td><p>Numeric, argument <code>distance.step.x</code> of <code><a href='make_spatial_folds.html'>make_spatial_folds()</a></code>. Distance step used during the growth in the y axis of the buffers defining the training folds. Default: <code>NULL</code> (1/1000th the range of the y coordinates).</p></td>
     </tr>
     <tr>
       <th>fill.color</th>
@@ -178,29 +190,22 @@
     </tr>
     <tr>
       <th>n.cores</th>
-      <td><p>Integer, number of cores to use. Default = <code>parallel::detectCores() - 1</code></p></td>
+      <td><p>Integer, number of cores to use for parallel execution. Creates a socket cluster with <code><a href='https://rdrr.io/r/parallel/makeCluster.html'>parallel::makeCluster()</a></code>, runs operations in parallel with <code>foreach</code> and <code>%dopar%</code>, and stops the cluster with <code>parallel::clusterStop()</code> when the job is done. Default: <code>parallel::detectCores() - 1</code></p></td>
     </tr>
     <tr>
-      <th>cluster.ips</th>
-      <td><p>Character vector with the IPs of the machines in a cluster. The machine with the first IP will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.</p></td>
-    </tr>
-    <tr>
-      <th>cluster.cores</th>
-      <td><p>Numeric integer vector, number of cores to use on each machine.</p></td>
-    </tr>
-    <tr>
-      <th>cluster.user</th>
-      <td><p>Character string, name of the user (should be the same throughout machines). Defaults to the current system user.</p></td>
-    </tr>
-    <tr>
-      <th>cluster.port</th>
-      <td><p>Character, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: <code>"11000"</code></p></td>
+      <th>cluster</th>
+      <td><p>A cluster definition generated with <code><a href='https://rdrr.io/r/parallel/makeCluster.html'>parallel::makeCluster()</a></code>. If provided, overrides <code>n.cores</code>. When <code>cluster = NULL</code> (default value), and <code>model</code> is provided, the cluster in <code>model</code>, if any, is used instead. If this cluster is <code>NULL</code>, then the function uses <code>n.cores</code> instead. The function does not stop a provided cluster, so it should be stopped with <code><a href='https://rdrr.io/r/parallel/makeCluster.html'>parallel::stopCluster()</a></code> afterwards. The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the <code>model</code> argument, or using the <code>%&gt;%</code> pipe. Default: <code>NULL</code></p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A list with three slots: <code>comparison.df</code>, a data frame with one performance value per spatial fold, metric, and model; <code>spatial.folds</code>, a list with the indices of the training and testing records for each evaluation repetition; <code>plot</code> a boxplot of <code>comparison.df</code>.</p>
+    <p>A list with three slots:</p><ul>
+<li><p><code>comparison.df</code>: Data frame with one performance value per spatial fold, metric, and model.</p></li>
+<li><p><code>spatial.folds</code>: List with the indices of the training and testing records for each evaluation repetition.</p></li>
+<li><p><code>plot</code>: Violin-plot of <code>comparison.df</code>.</p></li>
+</ul>
+
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code><a href='rf_evaluate.html'>rf_evaluate()</a></code></p></div>

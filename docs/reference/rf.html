@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">spatialRF</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.2</span>
       </span>
     </div>
 
@@ -126,10 +126,13 @@
   <span class='kw'>predictor.variable.names</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>distance.matrix</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>distance.thresholds</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>xy</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>ranger.arguments</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>scaled.importance</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
   <span class='kw'>seed</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
+  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>n.cores</span> <span class='kw'>=</span> <span class='kw pkg'>parallel</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/r/parallel/detectCores.html'>detectCores</a></span>() - <span class='fl'>1</span>,
+  <span class='kw'>cluster</span> <span class='kw'>=</span> <span class='kw'>NULL</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -145,7 +148,7 @@
     </tr>
     <tr>
       <th>predictor.variable.names</th>
-      <td><p>Character vector with the names of the predictive variables. Every element of this vector must be in the column names of <code>data</code>. Optionally, the result of <code><a href='auto_cor.html'>auto_cor()</a></code> or <code><a href='auto_vif.html'>auto_vif()</a></code> Default: <code>NULL</code></p></td>
+      <td><p>Character vector with the names of the predictive variables. Every element of this vector must be in the column names of <code>data</code>. Optionally, the result of <code><a href='auto_cor.html'>auto_cor()</a></code> or <code><a href='auto_vif.html'>auto_vif()</a></code>. Default: <code>NULL</code></p></td>
     </tr>
     <tr>
       <th>distance.matrix</th>
@@ -154,6 +157,10 @@
     <tr>
       <th>distance.thresholds</th>
       <td><p>Numeric vector with neighborhood distances. All distances in the distance matrix below each value in <code>dustance.thresholds</code> are set to 0 for the computation of Moran's I. If <code>NULL</code>, it defaults to seq(0, max(distance.matrix), length.out = 4). Default: <code>NULL</code></p></td>
+    </tr>
+    <tr>
+      <th>xy</th>
+      <td><p>(optional) Data frame or matrix with two columns containing coordinates and named "x" and "y". It is not used by this function, but it is stored in the slot <code>ranger.arguments$xy</code> of the model, so it can be used by <code><a href='rf_evaluate.html'>rf_evaluate()</a></code> and <code><a href='rf_tuning.html'>rf_tuning()</a></code>. Default: <code>NULL</code></p></td>
     </tr>
     <tr>
       <th>ranger.arguments</th>
@@ -171,11 +178,19 @@
       <th>verbose</th>
       <td><p>Boolean. If TRUE, messages and plots generated during the execution of the function are displayed. Default: <code>TRUE</code></p></td>
     </tr>
+    <tr>
+      <th>n.cores</th>
+      <td><p>Integer, number of cores to use. Default: <code>parallel::detectCores() - 1</code></p></td>
+    </tr>
+    <tr>
+      <th>cluster</th>
+      <td><p>A cluster definition generated with <code><a href='https://rdrr.io/r/parallel/makeCluster.html'>parallel::makeCluster()</a></code>. This function does not use the cluster, but can pass it on to other functions when using the <code>%&gt;%</code> pipe. It will be stored in the slot <code>cluster</code> of the output list. Default: <code>NULL</code></p></td>
+    </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A ranger model with several new slots:</p><ul>
+    <p>A ranger model with several extra slots:</p><ul>
 <li><p><code>ranger.arguments</code>: Stores the values of the arguments used to fit the ranger model.</p></li>
 <li><p><code>importance</code>: A list containing a data frame with the predictors ordered by their importance, a ggplot showing the importance values, and local importance scores (difference in accuracy between permuted and non permuted variables for every case, computed on the out-of-bag data).</p></li>
 <li><p><code>performance</code>: performance scores: R squared on out-of-bag data, R squared (cor(observed, predicted) ^ 2), pseudo R squared (cor(observed, predicted)), RMSE, and normalized RMSE (NRMSE).</p></li>
@@ -184,7 +199,7 @@
 
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>Please read the help file of <a href='https://rdrr.io/pkg/ranger/man/ranger.html'>ranger</a> for further details. Notice that the <code>formula</code> interface of <a href='https://rdrr.io/pkg/ranger/man/ranger.html'>ranger</a> is supported through <code>ranger.arguments</code>, but variable interactions are not allowed (but check <code><a href='rf_interactions.html'>rf_interactions()</a></code>).</p>
+    <p>Please read the help file of <a href='https://rdrr.io/pkg/ranger/man/ranger.html'>ranger</a> for further details. Notice that the <code>formula</code> interface of <a href='https://rdrr.io/pkg/ranger/man/ranger.html'>ranger</a> is supported through <code>ranger.arguments</code>, but variable interactions are not allowed (but check <code><a href='the_feature_engineer.html'>the_feature_engineer()</a></code>).</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># \donttest{</span>

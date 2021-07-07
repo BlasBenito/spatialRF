@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">spatialRF</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.2</span>
       </span>
     </div>
 
@@ -131,10 +131,7 @@
   <span class='kw'>seed</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>n.cores</span> <span class='kw'>=</span> <span class='kw pkg'>parallel</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/r/parallel/detectCores.html'>detectCores</a></span>() - <span class='fl'>1</span>,
-  <span class='kw'>cluster.ips</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>cluster.cores</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>cluster.user</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Sys.info.html'>Sys.info</a></span>()<span class='kw'>[[</span><span class='st'>"user"</span>]],
-  <span class='kw'>cluster.port</span> <span class='kw'>=</span> <span class='st'>"11000"</span>
+  <span class='kw'>cluster</span> <span class='kw'>=</span> <span class='kw'>NULL</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -178,29 +175,17 @@
     </tr>
     <tr>
       <th>n.cores</th>
-      <td><p>Integer, number of cores to use. Default = <code>parallel::detectCores() - 1</code></p></td>
+      <td><p>Integer, number of cores to use for parallel execution. Creates a socket cluster with <code><a href='https://rdrr.io/r/parallel/makeCluster.html'>parallel::makeCluster()</a></code>, runs operations in parallel with <code>foreach</code> and <code>%dopar%</code>, and stops the cluster with <code>parallel::clusterStop()</code> when the job is done. Default: <code>parallel::detectCores() - 1</code></p></td>
     </tr>
     <tr>
-      <th>cluster.ips</th>
-      <td><p>Character vector with the IPs of the machines in a cluster. The machine with the first IP will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed.</p></td>
-    </tr>
-    <tr>
-      <th>cluster.cores</th>
-      <td><p>Numeric integer vector, number of cores to use on each machine.</p></td>
-    </tr>
-    <tr>
-      <th>cluster.user</th>
-      <td><p>Character string, name of the user (should be the same throughout machines). Defaults to the current system user.</p></td>
-    </tr>
-    <tr>
-      <th>cluster.port</th>
-      <td><p>Character, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: <code>"11000"</code></p></td>
+      <th>cluster</th>
+      <td><p>A cluster definition generated with <code><a href='https://rdrr.io/r/parallel/makeCluster.html'>parallel::makeCluster()</a></code>. If provided, overrides <code>n.cores</code>. When <code>cluster = NULL</code> (default value), and <code>model</code> is provided, the cluster in <code>model</code>, if any, is used instead. If this cluster is <code>NULL</code>, then the function uses <code>n.cores</code> instead. The function does not stop a provided cluster, so it should be stopped with <code><a href='https://rdrr.io/r/parallel/makeCluster.html'>parallel::stopCluster()</a></code> afterwards. The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the <code>model</code> argument, or using the <code>%&gt;%</code> pipe. Default: <code>NULL</code></p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A list with four slots: <code>tuning</code> data frame with the results of the tuning analysis; <code>tuning.long</code>, a long version of the previous data frame; <code>tuning.plot</code>, ggplot of <code>tuning.long</code>; <code>ranger.arguments</code>, a list ready to be used as the argument <code>ranger.arguments</code> in <code><a href='rf_repeat.html'>rf_repeat()</a></code> or <code><a href='rf_spatial.html'>rf_spatial()</a></code>.</p>
+    <p>A model with a new slot named <code>tuning</code>, with a data frame with the results of the tuning analysis.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code><a href='rf_evaluate.html'>rf_evaluate()</a></code></p></div>
