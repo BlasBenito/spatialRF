@@ -207,7 +207,11 @@ rf_tuning <- function(
   ) %dopar% {
 
     #filling ranger arguments
-    ranger.arguments.i <- list()
+    if(!is.null(ranger.arguments)){
+      ranger.arguments.i <- ranger.arguments
+    } else {
+      ranger.arguments.i <- list()
+    }
     ranger.arguments.i$num.trees <- num.trees.i
     ranger.arguments.i$mtry <- mtry.i
     ranger.arguments.i$min.node.size <- min.node.size.i
