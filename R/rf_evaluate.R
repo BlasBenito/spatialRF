@@ -218,6 +218,8 @@ rf_evaluate <- function(
     cluster = cluster
   )
 
+  #copy of ranger arguments for training mdoels
+  ranger.arguments.training <- ranger.arguments
 
   #loop to evaluate models
   #####################################
@@ -231,12 +233,17 @@ rf_evaluate <- function(
     data.training <- data[data$id %in% spatial.folds[[i]]$training, ]
     data.testing <- data[data$id %in% spatial.folds[[i]]$testing, ]
 
+    #subsetting case.weights if definec
+    if(!is.null(ranger.arguments.training$case.weights)){
+      ranger.arguments.training$case.weights <- ranger.arguments.training$case.weights[spatial.folds[[i]]$training]
+    }
+
     #training model
     m.training <- spatialRF::rf(
       data = data.training,
       dependent.variable.name = dependent.variable.name,
       predictor.variable.names = predictor.variable.names,
-      ranger.arguments = ranger.arguments,
+      ranger.arguments = ranger.arguments.training,
       seed = seed,
       verbose = FALSE
     )
