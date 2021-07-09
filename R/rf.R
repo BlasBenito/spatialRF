@@ -200,7 +200,7 @@ rf <- function(
     data = data,
     dependent.variable.name = dependent.variable.name
   )
-  if(is.binary == TRUE){
+  if(is.binary == TRUE & is.null(case.weights)){
     case.weights <- case_weights(
       data = data,
       dependent.variable.name = dependent.variable.name
