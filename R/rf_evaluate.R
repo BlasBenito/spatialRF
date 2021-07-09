@@ -235,7 +235,7 @@ rf_evaluate <- function(
 
     #subsetting case.weights if definec
     if(!is.null(ranger.arguments.training$case.weights)){
-      ranger.arguments.training$case.weights <- ranger.arguments.training$case.weights[spatial.folds[[i]]$training]
+      ranger.arguments.training$case.weights <- ranger.arguments$case.weights[spatial.folds[[i]]$training]
     }
 
     #training model
@@ -261,7 +261,7 @@ rf_evaluate <- function(
 
     #computing evaluation scores
     out.df <- data.frame(
-      fold.id = xy.reference.records[i, "id"],
+      fold.id = i,
       fold.center.x = xy.reference.records[i, "x"],
       fold.center.y = xy.reference.records[i, "y"],
       training.records = nrow(data.training),
