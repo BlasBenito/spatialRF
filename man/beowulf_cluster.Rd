@@ -8,7 +8,8 @@ beowulf_cluster(
   cluster.ips = NULL,
   cluster.cores = NULL,
   cluster.user = Sys.info()[["user"]],
-  cluster.port = "11000"
+  cluster.port = "11000",
+  outfile = NULL
 )
 }
 \arguments{
@@ -19,6 +20,8 @@ beowulf_cluster(
 \item{cluster.user}{Character string, name of the user (should be the same throughout machines), Defaults to the current system user.}
 
 \item{cluster.port}{Character, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: \code{"11000"}}
+
+\item{outfile}{Where to direct the messages provided by the workers. When working on a local computer, \code{""} prints the worker's messages in the console. A text file path will append worker's messages on the given file.  Default: \verb{/dev/null} en Linux and  \verb{nul:} on windows.}
 }
 \value{
 A list ready to be used as input for the \code{spec} argument of the function \link[parallel]{makeCluster}.

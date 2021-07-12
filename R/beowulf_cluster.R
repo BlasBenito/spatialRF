@@ -4,6 +4,7 @@
 #' @param cluster.cores Numeric integer vector, number of cores on each machine. Default: `NULL`.
 #' @param cluster.user Character string, name of the user (should be the same throughout machines), Defaults to the current system user.
 #' @param cluster.port Character, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: `"11000"`
+#' @param outfile Where to direct the messages provided by the workers. When working on a local computer, `""` prints the worker's messages in the console. A text file path will append worker's messages on the given file.  Default: `/dev/null` en Linux and  `nul:` on windows.
 #' @return A list ready to be used as input for the `spec` argument of the function \link[parallel]{makeCluster}.
 #' @examples
 #' \donttest{
@@ -34,7 +35,8 @@ beowulf_cluster <- function(
   cluster.ips = NULL,
   cluster.cores = NULL,
   cluster.user = Sys.info()[["user"]],
-  cluster.port = "11000"
+  cluster.port = "11000",
+  outfile = NULL
 ){
 
   if(is.null(cluster.ips)){
@@ -78,7 +80,8 @@ beowulf_cluster <- function(
     master = "10.42.0.1",
     spec = spec,
     port = cluster.port,
-    homogeneous = TRUE
+    homogeneous = FALSE,
+    outfile = outfile
   )
 
   beowulf.cluster
