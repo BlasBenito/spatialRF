@@ -94,7 +94,7 @@ The package is not yet in the CRAN repositories, so at the moment it must be ins
 ```{r, message = FALSE, eval = TRUE}
 remotes::install_github(
   repo = "blasbenito/spatialRF", 
-  ref = "development",
+  ref = "main",
   force = TRUE,
   quiet = TRUE
   )

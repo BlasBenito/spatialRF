@@ -169,7 +169,7 @@ the repository:
 ``` r
 remotes::install_github(
   repo = "blasbenito/spatialRF", 
-  ref = "development",
+  ref = "main",
   force = TRUE,
   quiet = TRUE
   )
@@ -416,7 +416,9 @@ having the argument `predictor.variable.names`.
 names(predictor.variable.names)
 ```
 
-    ## [1] "vif"                   "selected.variables"    "selected.variables.df"
+    ## [1] "vif"                  
+    ## [2] "selected.variables"   
+    ## [3] "selected.variables.df"
 
 The slot `selected.variables` contains the names of the selected
 predictors.
@@ -425,14 +427,22 @@ predictors.
 predictor.variable.names$selected.variables
 ```
 
-    ##  [1] "climate_aridity_index_average"   "climate_hypervolume"            
-    ##  [3] "climate_bio1_average"            "climate_bio15_minimum"          
-    ##  [5] "bias_area_km2"                   "bias_species_per_record"        
-    ##  [7] "climate_velocity_lgm_average"    "neighbors_count"                
-    ##  [9] "neighbors_percent_shared_edge"   "human_population_density"       
-    ## [11] "topography_elevation_average"    "landcover_herbs_percent_average"
-    ## [13] "fragmentation_cohesion"          "fragmentation_division"         
-    ## [15] "neighbors_area"                  "human_population"
+    ##  [1] "climate_aridity_index_average"  
+    ##  [2] "climate_hypervolume"            
+    ##  [3] "climate_bio1_average"           
+    ##  [4] "climate_bio15_minimum"          
+    ##  [5] "bias_area_km2"                  
+    ##  [6] "bias_species_per_record"        
+    ##  [7] "climate_velocity_lgm_average"   
+    ##  [8] "neighbors_count"                
+    ##  [9] "neighbors_percent_shared_edge"  
+    ## [10] "human_population_density"       
+    ## [11] "topography_elevation_average"   
+    ## [12] "landcover_herbs_percent_average"
+    ## [13] "fragmentation_cohesion"         
+    ## [14] "fragmentation_division"         
+    ## [15] "neighbors_area"                 
+    ## [16] "human_population"
 
 # Finding promising variable interactions
 
@@ -472,32 +482,39 @@ interactions <- the_feature_engineer(
 
     ## Interactions identified: 5
 
-    ##  ┌──────────────────┬──────────────────┬──────────────────┬──────────────────┐
-    ##  │ Interaction      │ Importance (% of │        R-squared │     Max cor with │
-    ##  │                  │             max) │      improvement │       predictors │
-    ##  ├──────────────────┼──────────────────┼──────────────────┼──────────────────┤
-    ##  │ bias_area_km2..x │             59.5 │            0.096 │            0.60  │
-    ##  │ ..bias_species_p │                  │                  │                  │
-    ##  │ er_record        │                  │                  │                  │
-    ##  ├──────────────────┼──────────────────┼──────────────────┼──────────────────┤
-    ##  │ climate_bio1_ave │             97.6 │            0.067 │            0.34  │
-    ##  │ rage..pca..human │                  │                  │                  │
-    ##  │ _population_dens │                  │                  │                  │
-    ##  │ ity              │                  │                  │                  │
-    ##  ├──────────────────┼──────────────────┼──────────────────┼──────────────────┤
-    ##  │ climate_bio1_ave │             96.3 │            0.049 │            0.24  │
-    ##  │ rage..pca..neigh │                  │                  │                  │
-    ##  │ bors_count       │                  │                  │                  │
-    ##  ├──────────────────┼──────────────────┼──────────────────┼──────────────────┤
-    ##  │ human_population │             68.8 │            0.021 │            0.55  │
-    ##  │ ..x..bias_specie │                  │                  │                  │
-    ##  │ s_per_record     │                  │                  │                  │
-    ##  ├──────────────────┼──────────────────┼──────────────────┼──────────────────┤
-    ##  │ bias_area_km2..p │             63.4 │            0.029 │            0.305 │
-    ##  │ ca..neighbors_pe │                  │                  │                  │
-    ##  │ rcent_shared_edg │                  │                  │                  │
-    ##  │ e                │                  │                  │                  │
-    ##  └──────────────────┴──────────────────┴──────────────────┴──────────────────┘
+    ## ┌──────────────┬──────────────┐
+    ## │ Interaction  │   Importance │
+    ## │              │   (% of max) │
+    ## ├──────────────┼──────────────┤
+    ## │ bias_area_km │         59.5 │
+    ## │ 2..x..bias_s │              │
+    ## │ pecies_per_r │              │
+    ## │ ecord        │              │
+    ## ├──────────────┼──────────────┤
+    ## │ climate_bio1 │         97.6 │
+    ## │ _average..pc │              │
+    ## │ a..human_pop │              │
+    ## │ ulation_dens │              │
+    ## │ ity          │              │
+    ## ├──────────────┼──────────────┤
+    ## │ climate_bio1 │         96.3 │
+    ## │ _average..pc │              │
+    ## │ a..neighbors │              │
+    ## │ _count       │              │
+    ## ├──────────────┼──────────────┤
+    ## │ human_popula │         68.8 │
+    ## │ tion..x..bia │              │
+    ## │ s_species_pe │              │
+    ## │ r_record     │              │
+    ## ├──────────────┼──────────────┤
+    ## │ bias_area_km │         63.4 │
+    ## │ 2..pca..neig │              │
+    ## │ hbors_percen │              │
+    ## │ t_shared_edg │              │
+    ## │ e            │              │
+    ## └──────────────┴──────────────┘
+    ## 
+    ## 2/4 columns shown.
 
     ## Comparing models with and without interactions via spatial cross-validation.
 
@@ -2031,8 +2048,12 @@ spatial cross-validation results.
 names(model.non.spatial$evaluation)
 ```
 
-    ## [1] "metrics"           "training.fraction" "spatial.folds"    
-    ## [4] "per.fold"          "per.fold.long"     "per.model"        
+    ## [1] "metrics"          
+    ## [2] "training.fraction"
+    ## [3] "spatial.folds"    
+    ## [4] "per.fold"         
+    ## [5] "per.fold.long"    
+    ## [6] "per.model"        
     ## [7] "aggregated"
 
 The slot “spatial.folds”, produced by
@@ -2137,8 +2158,10 @@ spatialRF::print_evaluation(model.non.spatial)
     ##   - Training fraction:             0.75
     ##   - Spatial folds:                 29
     ## 
-    ##     Metric Median   MAD Minimum Maximum
-    ##  r.squared  0.517 0.085   0.122   0.781
+    ##     Metric Median   MAD Minimum
+    ##  r.squared  0.517 0.085   0.122
+    ##  Maximum
+    ##    0.781
 
 ## Other important things stored in the model
 
@@ -2815,8 +2838,10 @@ spatialRF::print_evaluation(model.non.spatial)
     ##   - Training fraction:             0.75
     ##   - Spatial folds:                 29
     ## 
-    ##  Metric Median   MAD Minimum Maximum
-    ##     auc  0.925 0.019   0.803   0.977
+    ##  Metric Median   MAD Minimum
+    ##     auc  0.932 0.024    0.83
+    ##  Maximum
+    ##    0.977
 
 The **take away message** here is that you can work with a binomial
 response with `spatialRF`, just as you would do with a continuous

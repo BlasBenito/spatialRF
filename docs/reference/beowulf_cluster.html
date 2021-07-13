@@ -124,7 +124,8 @@
   <span class='kw'>cluster.ips</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>cluster.cores</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>cluster.user</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Sys.info.html'>Sys.info</a></span>()<span class='kw'>[[</span><span class='st'>"user"</span>]],
-  <span class='kw'>cluster.port</span> <span class='kw'>=</span> <span class='st'>"11000"</span>
+  <span class='kw'>cluster.port</span> <span class='kw'>=</span> <span class='st'>"11000"</span>,
+  <span class='kw'>outfile</span> <span class='kw'>=</span> <span class='kw'>NULL</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -145,6 +146,10 @@
     <tr>
       <th>cluster.port</th>
       <td><p>Character, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: <code>"11000"</code></p></td>
+    </tr>
+    <tr>
+      <th>outfile</th>
+      <td><p>Where to direct the messages provided by the workers. When working on a local computer, <code>""</code> prints the worker's messages in the console. A text file path will append worker's messages on the given file.  Default: <code>/dev/null</code> en Linux and  <code>nul:</code> on windows.</p></td>
     </tr>
     </table>
 
