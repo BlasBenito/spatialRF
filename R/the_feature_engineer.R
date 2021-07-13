@@ -79,6 +79,11 @@ the_feature_engineer <- function(
   cluster = NULL
 ){
 
+  #coerce to data frame if tibble
+  if(inherits(data, "tbl_df") | inherits(data, "tbl")){
+    data <- as.data.frame(data)
+  }
+
   #CLUSTER SETUP
   #cluster is provided
   if(!is.null(cluster)){

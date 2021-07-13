@@ -46,6 +46,11 @@ auto_cor <- function(
     x <- x$selected.variables.df
   }
 
+  #coerce to data frame if tibble
+  if(inherits(x, "tbl_df") | inherits(x, "tbl")){
+    x <- as.data.frame(x)
+  }
+
   #removing NA
   x <- na.omit(x)
 

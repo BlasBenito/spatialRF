@@ -145,6 +145,10 @@ rf <- function(
     data <- as.data.frame(data)
   }
 
+  if(inherits(xy, "tbl_df") | inherits(xy, "tbl")){
+    xy <- as.data.frame(xy)
+  }
+
   #predictor.variable.names comes from auto_vif or auto_cor
   if(inherits(predictor.variable.names, "variable_selection")){
     predictor.variable.names <- predictor.variable.names$selected.variables

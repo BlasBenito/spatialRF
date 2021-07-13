@@ -35,7 +35,10 @@ thinning_til_n <- function(
   distance.step = NULL
   ){
 
-
+  #coerce to data frame if tibble
+  if(inherits(xy, "tbl_df") | inherits(xy, "tbl")){
+    xy <- as.data.frame(xy)
+  }
   if(!is.data.frame(xy) | is.null(xy)){
     stop("xy must be a data frame.")
   }
