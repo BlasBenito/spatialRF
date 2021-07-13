@@ -57,6 +57,9 @@ plot_training_df_moran <- function(
     stop("No variables to plot.")
   }
 
+  #coerce data to data frame in case it is a tibble
+  data <- as.data.frame(data)
+
   #predictor.variable.names comes from auto_vif or auto_cor
   if(!is.null(predictor.variable.names)){
     if(inherits(predictor.variable.names, "variable_selection")){
@@ -73,8 +76,10 @@ plot_training_df_moran <- function(
     distance.thresholds <- default_distance_thresholds(distance.matrix = distance.matrix)
   }
 
+
   #iterating through variables in the training data frame
   df.list <- list()
+
   for(variable in c(
     dependent.variable.name,
     predictor.variable.names
