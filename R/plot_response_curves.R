@@ -315,14 +315,19 @@ plot_response_curves <- function(
     ncol <- floor(sqrt(length(variables.plots)))
   }
 
-  variables.plots.out <- patchwork::wrap_plots(
-    variables.plots,
-    guides = "collect",
-    ncol = ncol
-  )
+  if(length(variables) == 1){
+    variables.plots.out <- variables.plots[[1]]
+  }else{
+    variables.plots.out <- patchwork::wrap_plots(
+      variables.plots,
+      guides = "collect",
+      ncol = ncol
+    )
+  }
 
   if(verbose == TRUE){
     variables.plots.out
   }
+
 
 }
