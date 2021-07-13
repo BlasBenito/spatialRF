@@ -175,8 +175,23 @@ rf_spatial <- function(
 
     #stopping if no data
     if(is.null(data)){
+
       stop("The argument 'data' is missing.")
+
+    } else {
+
+      #coerce to data frame if tibble
+      if(inherits(data, "tbl_df") | inherits(data, "tbl")){
+        data <- as.data.frame(data)
+      }
+
     }
+
+    #coerce to data frame if tibble
+    if(inherits(xy, "tbl_df") | inherits(xy, "tbl")){
+      xy <- as.data.frame(xy)
+    }
+
     #stopping if no distance matrix
     if(is.null(distance.matrix)){
       stop("The argument 'distance.matrix' is missing.")

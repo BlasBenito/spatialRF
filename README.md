@@ -463,7 +463,7 @@ with the other predictors inducing an increase in the model’s R squared
 cross-validation (see `rf_evaluate()`).
 
 ``` r
-interactions <- the_feature_engineer(
+interactions <- spatialRF::the_feature_engineer(
   data = plant_richness_df,
   dependent.variable.name = dependent.variable.name,
   predictor.variable.names = predictor.variable.names,
@@ -2838,10 +2838,15 @@ spatialRF::print_evaluation(model.non.spatial)
     ##   - Training fraction:             0.75
     ##   - Spatial folds:                 29
     ## 
+<<<<<<< HEAD
     ##  Metric Median   MAD Minimum
     ##     auc  0.932 0.024    0.83
     ##  Maximum
     ##    0.977
+=======
+    ##  Metric Median   MAD Minimum Maximum
+    ##     auc  0.932 0.024    0.83   0.977
+>>>>>>> development
 
 The **take away message** here is that you can work with a binomial
 response with `spatialRF`, just as you would do with a continuous

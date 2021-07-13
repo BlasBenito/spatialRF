@@ -60,9 +60,16 @@ auto_vif <- function(
     x <- x$selected.variables.df
   }
 
+  #coercing to data frame
+  #coerce to data frame if tibble
+  if(inherits(x, "tbl_df") | inherits(x, "tbl")){
+    x <- as.data.frame(x)
+  }
+
   #removing non-numeric and zero variance columns
   #removing NA
   x <- na.omit(x)
+
 
   #finding and removing non-numeric columns
   non.numeric.columns <- colnames(x)[!sapply(x, is.numeric)]

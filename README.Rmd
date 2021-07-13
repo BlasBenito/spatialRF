@@ -276,7 +276,7 @@ Random Forests already takes into account variable interactions of the form "var
 The function [`the_feature_engineer()`](https://blasbenito.github.io/spatialRF/reference/the_feature_engineer.html) tests all possible interactions of both types among the most important predictors, and suggesting the ones not correlated among themselves and with the other predictors inducing an increase in the model's R squared (or AUC when the response is binary) on independent data via spatial cross-validation (see `rf_evaluate()`).
 
 ```{r, fig.width=13, fig.height=6}
-interactions <- the_feature_engineer(
+interactions <- spatialRF::the_feature_engineer(
   data = plant_richness_df,
   dependent.variable.name = dependent.variable.name,
   predictor.variable.names = predictor.variable.names,

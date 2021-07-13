@@ -79,6 +79,23 @@ the_feature_engineer <- function(
   cluster = NULL
 ){
 
+  #coerce to data frame if tibble
+  if(is.null(data)){
+    stop("Argument 'data' is missing.")
+  } else {
+    if(inherits(data, "tbl_df") | inherits(data, "tbl")){
+      data <- as.data.frame(data)
+    }
+  }
+
+  if(is.null(xy)){
+    stop("Argument 'xy' is missing")
+  } else {
+    if(inherits(xy, "tbl_df") | inherits(xy, "tbl")){
+      xy <- as.data.frame(xy)
+    }
+  }
+
   #CLUSTER SETUP
   #cluster is provided
   if(!is.null(cluster)){
@@ -116,9 +133,6 @@ the_feature_engineer <- function(
     metric <- "r.squared"
   }
 
-  if(is.null(xy)){
-    stop("Argument 'xy' is required to compute spatial cross-validation.")
-  }
 
   #declaring variables
   variable <- NULL
@@ -204,7 +218,6 @@ the_feature_engineer <- function(
   if(verbose == TRUE){
     message(paste0("Testing ", nrow(variables.pairs), " candidate interactions."))
   }
-
 
   #testing interactions
   i <- NULL
@@ -481,6 +494,7 @@ the_feature_engineer <- function(
   interaction.df <- data.frame(
     dummy.column = rep(NA, nrow(data))
   )
+
   for(i in seq(1, nrow(interaction.screening.selected))){
 
     #get interaction values

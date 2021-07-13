@@ -29,6 +29,10 @@ pca <- function(
   colnames.prefix = "pca_factor"
 ){
 
+  if(inherits(x, "tbl_df") | inherits(x, "tbl")){
+    x <- as.data.frame(x)
+  }
+
   #removing columns with zero variance
   x <- x[ , which(apply(x, 2, var) != 0)]
 

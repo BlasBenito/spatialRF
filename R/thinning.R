@@ -22,7 +22,15 @@
 #' }
 #' @rdname thinning
 #' @export
-thinning <- function(xy, minimum.distance = NULL){
+thinning <- function(
+  xy,
+  minimum.distance = NULL
+  ){
+
+  #coerce to data frame if tibble
+  if(inherits(xy, "tbl_df") | inherits(xy, "tbl")){
+    xy <- as.data.frame(xy)
+  }
 
   if(!is.data.frame(xy)){
     stop("xy must be a data frame.")
