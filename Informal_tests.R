@@ -24,7 +24,8 @@ m <- rf(
   distance.matrix = distance_matrix,
   xy = xy,
   cluster = my.cluster
-)
+) %>%
+  rf_importance()
 
 m <- rf_spatial(model = m)
 

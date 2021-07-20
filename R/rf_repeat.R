@@ -388,8 +388,8 @@ rf_repeat <- function(
           max(spatial.predictors$importance),
           min(spatial.predictors$importance),
           median(spatial.predictors$importance),
-          quantile(spatial.predictors$importanc, probs = 0.25),
-          quantile(spatial.predictors$importanc, probs = 0.75)
+          quantile(spatial.predictors$importance, probs = 0.25),
+          quantile(spatial.predictors$importance, probs = 0.75)
         )
       )
 
