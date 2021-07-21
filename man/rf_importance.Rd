@@ -2,7 +2,7 @@
 % Please edit documentation in R/rf_importance.R
 \name{rf_importance}
 \alias{rf_importance}
-\title{Contribution of predictors to model transferability}
+\title{Contribution of each predictor to model transferability}
 \usage{
 rf_importance(
   model = NULL,

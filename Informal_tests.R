@@ -33,7 +33,9 @@ rf_compare(
   models = list(
     m1 = m,
     m2 = m2
-  )
+  ),
+  xy = xy,
+  repetitions = 200
 )
 
 

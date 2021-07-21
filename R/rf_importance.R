@@ -1,4 +1,4 @@
-#' @title Contribution of predictors to model transferability
+#' @title Contribution of each predictor to model transferability
 #' @description Evaluates the contribution of the predictors to model transferability via spatial cross-validation. The function returns the median increase or decrease in a given evaluation metric (R2, pseudo R2, RMSE, nRMSE, or AUC) when a variable is introduced in a model, by comparing and evaluating via spatial cross-validation models with and without the given variable. This function was devised to provide importance scores that would be less sensitive to spatial autocorrelation than those computed internally by random forest on the out-of-bag data. This function is experimental.
 #' @param model Model fitted with [rf()], [rf_repeat()], or [rf_spatial()].
 #' @param xy Data frame or matrix with two columns containing coordinates and named "x" and "y". If `NULL`, the function will throw an error. Default: `NULL`
@@ -302,6 +302,7 @@ rf_importance <- function(
   #adding objects to the model
   model$importance.cv <- list()
   model$importance.cv$spatial.folds <- model$evaluation$spatial.folds
+  model$importance.cv$predictors.with.positive.effect <- importance.per.variable[importance.per.variable$importance > 0, "variable"]
   model$importance.cv$per.repetition <- importance.per.repetition
   model$importance.cv$per.variable <- importance.per.variable
   model$importance.cv$per.variable.plot <- importance.per.variable.plot
