@@ -8,6 +8,20 @@ xy <- plant_richness_df[, c("x", "y")]
 dependent.variable.name <- "richness_species_vascular"
 predictor.variable.names <- colnames(plant_richness_df)[5:21]
 
+m <- rf(
+  data = plant_richness_df,
+  dependent.variable.name = dependent.variable.name,
+  predictor.variable.names = predictor.variable.names,
+  distance.matrix = distance_matrix,
+  xy = xy,
+  cluster = my.cluster
+) %>%
+  rf_spatial() %>%
+  rf_importance()
+
+
+#rf importance
+
 #cluster without pipes
 ##################################
 my.cluster <- parallel::makeCluster(

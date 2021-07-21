@@ -37,7 +37,9 @@
 #'
 #' }
 #' }
+#'
 #' @rdname rf_importance
+#' @export
 rf_importance <- function(
   model = NULL,
   xy = NULL,
@@ -76,8 +78,8 @@ rf_importance <- function(
   importance <- NULL
 
   #testing method argument
-  metrics <- match.arg(
-    arg = metrics,
+  metric <- match.arg(
+    arg = metric,
     choices = c("r.squared", "pseudo.r.squared", "rmse", "nrmse", "auc"),
     several.ok = FALSE
   )

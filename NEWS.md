@@ -1,3 +1,7 @@
+## Version 1.1.3 (in progress)
+
+Added the function `rf_importance()`. It fits models with and without each predictor, compares them via spatial cross validation with `rf_evaluate()`, and returns the increase/decrease in performance when a given variable is included in the model.
+
 ## Version 1.1.2 (1/7/2021)
 
 Overhaul of the methods used for parallelization. The functions `rf_spatial()`, `rf_repeat()`, `rf_evaluate()`, `rf_tuning()`, `rf_compare()`, and `rf_interactions()` can now accept a cluster definition generated with `parallel::makeCluster()` via the `cluster` argument. Also, models resulting from these functions and `rf()` carry the cluster definition with themselves in the slot `model$cluster`, so the cluster definition can be passed from function to function using a pipe, as shown below:
