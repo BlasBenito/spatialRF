@@ -13,11 +13,28 @@ m <- rf(
   dependent.variable.name = dependent.variable.name,
   predictor.variable.names = predictor.variable.names,
   distance.matrix = distance_matrix,
-  xy = xy,
-  cluster = my.cluster
+  xy = xy
 ) %>%
   rf_spatial() %>%
-  rf_importance()
+  rf_importance() %>%
+  rf_evaluate()
+
+m2 <- rf(
+  data = m$ranger.arguments$data,
+  dependent.variable.name = dependent.variable.name,
+  predictor.variable.names = m$importance.cv$per.variable[m$importance.cv$per.variable$importance > 0, "variable"],
+  distance.matrix = distance_matrix,
+  xy = xy
+) %>%
+  rf_importance() %>%
+  rf_evaluate()
+
+rf_compare(
+  models = list(
+    m1 = m,
+    m2 = m2
+  )
+)
 
 
 #rf importance

@@ -249,7 +249,8 @@ rf_importance <- function(
       with,
       without,
       importance
-    )
+    ) %>%
+    as.data.frame()
 
   #pretty metric name
   if(metric == "r.squared"){
