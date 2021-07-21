@@ -76,6 +76,7 @@ rf_importance <- function(
   variable <- NULL
   without <- NULL
   importance <- NULL
+  testing.records <- NULL
 
   #testing method argument
   metric <- match.arg(
@@ -135,11 +136,12 @@ rf_importance <- function(
   evaluation.df <- model$evaluation$per.fold %>%
     dplyr::select(
       fold.id,
-      testing.r.squared
+      dplyr::contains("testing.")
     ) %>%
-    dplyr::rename(
-      with = testing.r.squared
+    dplyr::select(
+      -testing.records
     )
+  colnames(evaluation.df)[2] <- "with"
 
   #getting training data
   data <- model$ranger.arguments$data
@@ -175,6 +177,11 @@ rf_importance <- function(
   #list to store evaluation dataframes
   evaluation.list <- list()
 
+  #evaluating the full model
+  if(verbose == TRUE){
+    message("Evaluating models fitted without each predictor.")
+  }
+
   #iterating across predictors
   for(predictor.i in predictor.variable.names){
 
@@ -198,6 +205,7 @@ rf_importance <- function(
     ) %>%
       rf_evaluate(
         repetitions = repetitions,
+        xy = xy,
         training.fraction = training.fraction,
         distance.step = distance.step,
         distance.step.x = distance.step.x,
@@ -209,8 +217,11 @@ rf_importance <- function(
 
     #getting evaluation data frame
     evaluation.list[[predictor.i]] <- model.i$evaluation$per.fold %>%
+      dplyr::select(
+        -testing.records
+      ) %>%
       dplyr::rename(
-        without = testing.r.squared
+        `without` = dplyr::contains("testing.")
       ) %>%
       dplyr::left_join(
         y = evaluation.df,
@@ -221,8 +232,9 @@ rf_importance <- function(
         .before = fold.id
       ) %>%
       dplyr::select(
-        -training.r.squared
-      )
+        -dplyr::contains("training.")
+      ) %>%
+      as.data.frame()
   }
 
   #putting together the evaluation data frames
@@ -289,11 +301,9 @@ rf_importance <- function(
     ggplot2::ylab("") +
     ggplot2::xlab(
       paste0(
-        "Median change in ",
+        "Effect on ",
         metric.pretty,
-        " (",
-        repetitions,
-        " CV repetitions) when included in the model."
+        " when included in the model."
       )
     ) +
     ggplot2::theme_bw() +

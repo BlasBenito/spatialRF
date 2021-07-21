@@ -7,6 +7,16 @@ data("distance_matrix")
 xy <- plant_richness_df[, c("x", "y")]
 dependent.variable.name <- "richness_species_vascular"
 predictor.variable.names <- colnames(plant_richness_df)[5:21]
+distance.matrix <- distance_matrix
+
+df.moran <- plot_training_df_moran(
+  data = plant_richness_df,
+  dependent.variable.name = dependent.variable.name,
+  predictor.variable.names = predictor.variable.names,
+  distance.matrix = distance.matrix
+)$data %>%
+  dplyr::filter(distance.threshold == 0) %>%
+  dplyr::select(variable, moran.i)
 
 m <- rf(
   data = plant_richness_df,
@@ -15,28 +25,48 @@ m <- rf(
   distance.matrix = distance_matrix,
   xy = xy
 ) %>%
-  rf_spatial() %>%
-  rf_importance() %>%
-  rf_evaluate()
+  # rf_spatial() %>%
+  rf_importance()
+
+df.moran <- dplyr::left_join(
+  x = df.moran,
+  y = m$importance$per.variable,
+  by = "variable"
+) %>%
+  na.omit() %>%
+  dplyr::left_join(
+    y = m$importance.cv$per.variable,
+    by = "variable"
+  )
 
 m2 <- rf(
   data = m$ranger.arguments$data,
   dependent.variable.name = dependent.variable.name,
-  predictor.variable.names = m$importance.cv$per.variable[m$importance.cv$per.variable$importance > 0, "variable"],
+  predictor.variable.names = m$importance.cv$predictors.with.positive.effect,
   distance.matrix = distance_matrix,
   xy = xy
 ) %>%
-  rf_importance() %>%
-  rf_evaluate()
+  rf_importance()
 
-rf_compare(
-  models = list(
-    m1 = m,
-    m2 = m2
-  ),
-  xy = xy,
-  repetitions = 200
-)
+m3 <- rf(
+  data = m2$ranger.arguments$data,
+  dependent.variable.name = dependent.variable.name,
+  predictor.variable.names = m2$importance.cv$predictors.with.positive.effect,
+  distance.matrix = distance_matrix,
+  xy = xy
+) %>%
+  rf_importance()
+
+m4 <- rf(
+  data = m3$ranger.arguments$data,
+  dependent.variable.name = dependent.variable.name,
+  predictor.variable.names = m3$importance.cv$predictors.with.positive.effect,
+  distance.matrix = distance_matrix,
+  xy = xy
+) %>%
+  rf_importance()
+
+
 
 
 #rf importance

@@ -333,6 +333,7 @@ model.non.spatial <- spatialRF::rf(
   predictor.variable.names = predictor.variable.names,
   distance.matrix = distance.matrix,
   distance.thresholds = distance.thresholds,
+  xy = xy, #not needed by rf, but other functions read it from the model
   seed = random.seed,
   verbose = FALSE
 )
@@ -388,6 +389,43 @@ kableExtra::kbl(
 ) %>%
   kableExtra::kable_paper("hover", full_width = F)
 ```
+
+### Contribution of predictors to model transferability
+
+The new function `rf_importance()` offers a way to assess to what extent each predictor contributes to model transferability (predictive ability on independent spatial folds measured with `rf_evaluate()`, see below). It does so by comparing the performance of the full model with models fitted without each one of the predictors. The difference in performance between the full model and a model without a given predictor represents the contribution of such predictor to model transferability.
+
+```{r, fig.width = 8, fig.height=4.5, message=FALSE, warning=FALSE}
+model.non.spatial <- rf_importance(
+  model = model.non.spatial
+  )
+```
+
+The function adds a new slot to the model named `importance.cv`. It contains the spatial folds used in the spatial cross-validation, the names of the predictors with a positive effect (using only these predictors in a new model improves model transferability!), dataframes with the raw and aggregated results of the spatial cross-validation, and the plot shown above.
+
+```{r}
+names(model.non.spatial$importance.cv)
+```
+
+The importance computed by random forest on the out-of-bag data by permutating each predictor (as computed by `rf()`) and the contribution of each predictor to model transferability (as computed by `rf_importance()`) show a moderate correlation, indicating that both importance measures capture different aspects of the effect of the variables on the model results.
+
+```{r, fig.width = 6, fig.height=4.5, message=FALSE, warning=FALSE}
+dplyr::left_join(
+  x = model.non.spatial$importance$per.variable,
+  y = model.non.spatial$importance.cv$per.variable,
+  by = "variable"
+) %>% 
+  ggplot2::ggplot() +
+  ggplot2::aes(
+    x = importance.x,
+    y = importance.y
+  ) + 
+  ggplot2::geom_point(size = 3) + 
+  ggplot2::theme_bw() +
+  ggplot2::xlab("Importance (out-of-bag)") + 
+  ggplot2::ylab("Contribution to transferability") + 
+  ggplot2::geom_smooth(method = "lm", formula = y ~ x, color = "red4")
+```
+
 
 ### Local variable importance
 
@@ -837,8 +875,10 @@ model.spatial <- spatialRF::rf_spatial(
 The usual method for model tuning relies on a grid search exploring the results of all the combinations of hyperparameters selected by the user. In `spatialRF`,
 model tuning is done via spatial cross-validation, to ensure that the selected combination of hyperparameters maximizes the ability of the model to predict over data not used to train it. **Warning**: model tuning consumes a lot of computational resources, using it on large datasets might freeze your computer.
 
-```{r, fig.width=6, fig.height=4.5}
-model.spatial.tuned <- rf_tuning(
+**WARNING**: model tunning is very RAM-hungry, but you can control RAM usage by defining a lower value for the argument `n.cores`.
+
+```{r, fig.width=6, fig.height=4.5, eval = FALSE}
+model.spatial <- rf_tuning(
   model = model.spatial,
   xy = xy,
   repetitions = 30,
@@ -853,15 +893,15 @@ model.spatial.tuned <- rf_tuning(
 )
 ```
 
-The results of the function indicate that the model has a higher transferability (ability to predict on data not used to train the model assessed via spatial cross-validation with `rf_evaluate()`) when `mtry` is 29, `min.node.size` is 5, and `num.trees` is 500, but also indicates that the gain in transferability is rather low (increased R squared of `model.spatial.tuned$tuning$performance.gain`). The function returns a tuned model only if the tuning finds a solution better than the original model. Otherwise the original model is returned (only a new slot named `tuning`is added). 
+The function returns a tuned model only if the tuning finds a solution better than the original model. Otherwise the original model is returned. The results of the tuning are stored in the model under the name "tuning". 
 
 # Repeating a model execution
 
 Random Forest is an stochastic algorithm that yields slightly different results on each run unless a random seed is set. This particularity has implications for the interpretation of variable importance scores and response curves. The function [`rf_repeat()`](https://blasbenito.github.io/spatialRF/reference/rf_repeat.html) repeats a model execution and yields the distribution of importance scores of the predictors across executions. **NOTE**: this function works better when used at the end of a workflow
 
 ```{r, fig.width = 6, fig.height=4.5}
-model.spatial.tuned.repeat <- rf_repeat(
-  model = model.spatial.tuned, 
+model.spatial.repeat <- rf_repeat(
+  model = model.spatial, 
   repetitions = 30,
   seed = random.seed,
   verbose = FALSE
@@ -872,7 +912,7 @@ The importance scores of a model fitted with `rf_repeat()` are plotted as a viol
 
 ```{r, fig.width = 6, fig.height=5}
 spatialRF::plot_importance(
-  model.spatial.tuned.repeat, 
+  model.spatial.repeat, 
   verbose = FALSE
   )
 ```
@@ -881,7 +921,7 @@ The response curves of models fitted with `rf_repeat()` can be plotted with `plo
 
 ```{r, fig.width = 9, fig.height=7}
 spatialRF::plot_response_curves(
-  model.spatial.tuned.repeat, 
+  model.spatial.repeat, 
   quantiles = 0.5,
   ncol = 3
   )
@@ -890,7 +930,7 @@ spatialRF::plot_response_curves(
 The function `print_performance()` generates a summary of the performance scores across model repetitions. As every other function of the package involving repetitions, the provided stats are the median, and the median absolute deviation (mad).
 
 ```{r}
-spatialRF::print_performance(model.spatial.tuned.repeat)
+spatialRF::print_performance(model.spatial.repeat)
 ```
 
 # Taking advantage of the ` %>%` pipe
@@ -982,8 +1022,7 @@ The function [`rf_compare()`](https://blasbenito.github.io/spatialRF/reference/r
 comparison <- rf_compare(
   models = list(
     `Non-spatial` = model.non.spatial,
-    `Spatial` = model.spatial,
-    `Spatial tuned` = model.spatial.tuned
+    `Spatial` = model.spatial
   ),
   xy = xy,
   repetitions = 30,
@@ -1042,6 +1081,7 @@ model.non.spatial <- spatialRF::rf(
 )
 ```
 
+
 The function detects that the response variable is binary (using the function [`is_binary()`](https://blasbenito.github.io/spatialRF/reference/is_binary.html)), and computes *case weights* for the ones and the zeros. These case weights are stored in the `ranger.arguments` slot of the model, and are used to give preference to the cases with larger weights during the selection of the out-of-bag data (check the `case.weights` argument in `ranger::ranger()`). As a result, each individual tree in the forest is trained with a similar proportion of zeros and ones, which helps mitigate the class imbalance issue. This method is named *weighted Random Forest*, and is very well explained in this [white paper](https://statistics.berkeley.edu/sites/default/files/tech-reports/666.pdf) that includes the father of Random Forest, Leo Breiman, as coauthor.
 
 ```{r}
@@ -1054,7 +1094,7 @@ This model could be projected right away onto a raster stack with maps of the pr
 model.non.spatial <- spatialRF::rf_evaluate(
   model.non.spatial,
   xy = xy,
-  metrics = "auc", #surprise!
+  metrics = "auc",
   verbose = FALSE
 )
 

@@ -160,6 +160,15 @@ rf_evaluate <- function(
     several.ok = TRUE
   )
 
+  #if data is binary, "auc" is used
+  is.binary <- is_binary(
+    data = data,
+    dependent.variable.name = dependent.variable.name
+  )
+  if(is.binary == TRUE & !("auc" %in% metrics)){
+    metrics <- "auc"
+  }
+
   #checking repetitions
   repetitions <- floor(repetitions)
   if(repetitions < 5){
