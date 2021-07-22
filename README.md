@@ -42,7 +42,7 @@
 [![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html)
 [![CRAN](https://img.shields.io/badge/CRAN-not_published_yet-red)](https://github.com/blasbenito/spatialRF)
 [![License](https://img.shields.io/badge/license-GPL--3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4745208.svg)](https://doi.org/10.5281/zenodo.4745208)
+<!-- [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4745208.svg)](https://doi.org/10.5281/zenodo.4745208) -->
 
 <!-- badges: end -->
 

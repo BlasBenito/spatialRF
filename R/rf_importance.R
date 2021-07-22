@@ -381,11 +381,9 @@ rf_importance <- function(
       ggplot2::ylab("") +
       ggplot2::xlab(
         paste0(
-          "Median change in ",
+          "Effect on ",
           metric.pretty,
-          " (",
-          repetitions,
-          " CV repetitions) when included in the model."
+          " when included in the model."
         )
       ) +
       ggplot2::theme_bw() +
