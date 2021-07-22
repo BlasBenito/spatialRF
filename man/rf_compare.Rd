@@ -15,7 +15,7 @@ rf_compare(
   distance.step.y = NULL,
   fill.color = viridis::viridis(100, option = "F", direction = -1, alpha = 0.8),
   line.color = "gray30",
-  seed = NULL,
+  seed = 1,
   verbose = TRUE,
   n.cores = parallel::detectCores() - 1,
   cluster = NULL
@@ -42,7 +42,7 @@ rf_compare(
 
 \item{line.color}{Character string, color of the line produced by \code{ggplot2::geom_smooth()}. Default: \code{"gray30"}}
 
-\item{seed}{Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same.}
+\item{seed}{Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same. Default: \code{1}.}
 
 \item{verbose}{Logical. If \code{TRUE}, messages and plots generated during the execution of the function are displayed, Default: \code{TRUE}}
 

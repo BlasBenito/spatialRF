@@ -7,7 +7,7 @@
 #' @param xy Data frame or matrix with two columns containing coordinates and named "x" and "y". If `NULL`, the function will throw an error. Default: `NULL`
 #' @param repetitions Integer, number of independent spatial folds to use during the cross-validation. Default: `30`.
 #' @param training.fraction Proportion between 0.2 and 0.9 indicating the number of records to be used in model training. Default: `0.75`
-#' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same.
+#' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same. Default: `1`.
 #' @param verbose Logical. If TRUE, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
 #' @param n.cores Integer, number of cores to use for parallel execution. Creates a socket cluster with `parallel::makeCluster()`, runs operations in parallel with `foreach` and `%dopar%`, and stops the cluster with `parallel::clusterStop()` when the job is done. Default: `parallel::detectCores() - 1`
 #' @param cluster A cluster definition generated with `parallel::makeCluster()`. If provided, overrides `n.cores`. When `cluster = NULL` (default value), and `model` is provided, the cluster in `model`, if any, is used instead. If this cluster is `NULL`, then the function uses `n.cores` instead. The function does not stop a provided cluster, so it should be stopped with `parallel::stopCluster()` afterwards. The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the `model` argument, or using the `%>%` pipe. Default: `NULL`
@@ -52,7 +52,7 @@ rf_tuning <- function(
   xy = NULL,
   repetitions = 30,
   training.fraction = 0.75,
-  seed = NULL,
+  seed = 1,
   verbose = TRUE,
   n.cores = parallel::detectCores() - 1,
   cluster = NULL
@@ -455,6 +455,10 @@ rf_tuning <- function(
       parallel::stopCluster(cl = cluster)
     } else {
       model$cluster <- cluster
+    }
+
+    if(verbose == TRUE){
+      message("Tuning results stored in model$tuning.")
     }
 
     return(model)

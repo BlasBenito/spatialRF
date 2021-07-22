@@ -12,7 +12,7 @@ rf_tuning(
   xy = NULL,
   repetitions = 30,
   training.fraction = 0.75,
-  seed = NULL,
+  seed = 1,
   verbose = TRUE,
   n.cores = parallel::detectCores() - 1,
   cluster = NULL
@@ -33,7 +33,7 @@ rf_tuning(
 
 \item{training.fraction}{Proportion between 0.2 and 0.9 indicating the number of records to be used in model training. Default: \code{0.75}}
 
-\item{seed}{Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same.}
+\item{seed}{Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same. Default: \code{1}.}
 
 \item{verbose}{Logical. If TRUE, messages and plots generated during the execution of the function are displayed, Default: \code{TRUE}}
 

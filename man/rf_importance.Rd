@@ -13,10 +13,10 @@ rf_importance(
   distance.step = NULL,
   distance.step.x = NULL,
   distance.step.y = NULL,
-  fill.color = viridis::viridis(100, option = "F", direction = -1, alpha = 0.8, end =
+  fill.color = viridis::viridis(100, option = "F", direction = -1, alpha = 1, end =
     0.9),
   line.color = "white",
-  seed = NULL,
+  seed = 1,
   verbose = TRUE,
   n.cores = parallel::detectCores() - 1,
   cluster = NULL
@@ -43,7 +43,7 @@ rf_importance(
 
 \item{line.color}{Character string, color of the line produced by \code{ggplot2::geom_smooth()}. Default: \code{"white"}}
 
-\item{seed}{Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same.}
+\item{seed}{Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same. Default: \code{1}.}
 
 \item{verbose}{Logical. If \code{TRUE}, messages and plots generated during the execution of the function are displayed, Default: \code{TRUE}}
 
@@ -52,7 +52,7 @@ rf_importance(
 \item{cluster}{A cluster definition generated with \code{parallel::makeCluster()}. If provided, overrides \code{n.cores}. When \code{cluster = NULL} (default value), and \code{model} is provided, the cluster in \code{model}, if any, is used instead. If this cluster is \code{NULL}, then the function uses \code{n.cores} instead. The function does not stop a provided cluster, so it should be stopped with \code{parallel::stopCluster()} afterwards. The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the \code{model} argument, or using the \verb{\%>\%} pipe. Default: \code{NULL}}
 }
 \value{
-A model of the class "rf_importance" with a new slot named "importance.cv" containing the data frames and plots describing the contribution of each predictor to model transferability.
+The input model with new data in its "importance" slot. The new importance scores are included in the data frame \code{model$importance$per.variable}, under the column names "importance.cv" (median contribution to transferability over spatial cross-validation repetitions), "importance.cv.mad" (median absolute deviation of the performance scores over spatial cross-validation repetitions), "importance.cv.percent" ("importance.cv" expressed as a percent, taking the full model's performance as baseline), and "importance.cv.mad" (median absolute deviation of "importance.cv"). The plot is stored as "cv.per.variable.plot".
 }
 \description{
 Evaluates the contribution of the predictors to model transferability via spatial cross-validation. The function returns the median increase or decrease in a given evaluation metric (R2, pseudo R2, RMSE, nRMSE, or AUC) when a variable is introduced in a model, by comparing and evaluating via spatial cross-validation models with and without the given variable. This function was devised to provide importance scores that would be less sensitive to spatial autocorrelation than those computed internally by random forest on the out-of-bag data. This function is experimental.

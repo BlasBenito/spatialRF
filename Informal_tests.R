@@ -9,15 +9,6 @@ dependent.variable.name <- "richness_species_vascular"
 predictor.variable.names <- colnames(plant_richness_df)[5:21]
 distance.matrix <- distance_matrix
 
-df.moran <- plot_training_df_moran(
-  data = plant_richness_df,
-  dependent.variable.name = dependent.variable.name,
-  predictor.variable.names = predictor.variable.names,
-  distance.matrix = distance.matrix
-)$data %>%
-  dplyr::filter(distance.threshold == 0) %>%
-  dplyr::select(variable, moran.i)
-
 m <- rf(
   data = plant_richness_df,
   dependent.variable.name = dependent.variable.name,
@@ -25,28 +16,9 @@ m <- rf(
   distance.matrix = distance_matrix,
   xy = xy
 ) %>%
-  # rf_spatial() %>%
   rf_importance()
 
-df.moran <- dplyr::left_join(
-  x = df.moran,
-  y = m$importance$per.variable,
-  by = "variable"
-) %>%
-  na.omit() %>%
-  dplyr::left_join(
-    y = m$importance.cv$per.variable,
-    by = "variable"
-  )
-
-m2 <- rf(
-  data = m$ranger.arguments$data,
-  dependent.variable.name = dependent.variable.name,
-  predictor.variable.names = m$importance.cv$predictors.with.positive.effect,
-  distance.matrix = distance_matrix,
-  xy = xy
-) %>%
-  rf_importance()
+plot_importance(m)
 
 m3 <- rf(
   data = m2$ranger.arguments$data,

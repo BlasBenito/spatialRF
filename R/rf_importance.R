@@ -10,11 +10,11 @@
 #' @param distance.step.y Numeric, argument `distance.step.x` of [make_spatial_folds()]. Distance step used during the growth in the y axis of the buffers defining the training folds. Default: `NULL` (1/1000th the range of the y coordinates).
 #' @param fill.color Character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. `viridis::viridis(100)`). Default: `viridis::viridis(100, option = "F", direction = -1, alpha = 0.8, end = 0.9)`
 #' @param line.color Character string, color of the line produced by `ggplot2::geom_smooth()`. Default: `"white"`
-#' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same.
+#' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same. Default: `1`.
 #' @param verbose Logical. If `TRUE`, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
 #' @param n.cores Integer, number of cores to use for parallel execution. Creates a socket cluster with `parallel::makeCluster()`, runs operations in parallel with `foreach` and `%dopar%`, and stops the cluster with `parallel::clusterStop()` when the job is done. Default: `parallel::detectCores() - 1`
 #' @param cluster A cluster definition generated with `parallel::makeCluster()`. If provided, overrides `n.cores`. When `cluster = NULL` (default value), and `model` is provided, the cluster in `model`, if any, is used instead. If this cluster is `NULL`, then the function uses `n.cores` instead. The function does not stop a provided cluster, so it should be stopped with `parallel::stopCluster()` afterwards. The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the `model` argument, or using the `%>%` pipe. Default: `NULL`
-#' @return A model of the class "rf_importance" with a new slot named "importance.cv" containing the data frames and plots describing the contribution of each predictor to model transferability.
+#' @return The input model with new data in its "importance" slot. The new importance scores are included in the data frame `model$importance$per.variable`, under the column names "importance.cv" (median contribution to transferability over spatial cross-validation repetitions), "importance.cv.mad" (median absolute deviation of the performance scores over spatial cross-validation repetitions), "importance.cv.percent" ("importance.cv" expressed as a percent, taking the full model's performance as baseline), and "importance.cv.mad" (median absolute deviation of "importance.cv"). The plot is stored as "cv.per.variable.plot".
 #' @examples
 #' \donttest{
 #' if(interactive()){
@@ -59,11 +59,11 @@ rf_importance <- function(
     100,
     option = "F",
     direction = -1,
-    alpha = 0.8,
+    alpha = 1,
     end = 0.9
   ),
   line.color = "white",
-  seed = NULL,
+  seed = 1,
   verbose = TRUE,
   n.cores = parallel::detectCores() - 1,
   cluster = NULL
@@ -77,6 +77,11 @@ rf_importance <- function(
   without <- NULL
   importance <- NULL
   testing.records <- NULL
+  importance.mad <- NULL
+  importance.percent <- NULL
+  importance.percent.mad <- NULL
+  importance.x <- NULL
+  importance.y <- NULL
 
   #testing method argument
   metric <- match.arg(
@@ -248,19 +253,25 @@ rf_importance <- function(
   importance.per.variable <- importance.per.repetition %>%
     dplyr::group_by(variable) %>%
     dplyr::mutate(
+      importance.mad = stats::mad(with - without) %>% round(3),
+      importance.percent.mad = stats::mad((with * 100 / with[1]) - (without * 100 / with[1])) %>% round(1),
       without = median(without),
       with = median(with),
-      importance = with - without
+      importance = with - without,
+      importance.percent = (importance * 100 / with[1]) %>% round(1)
     ) %>%
     dplyr::slice(1) %>%
     dplyr::arrange(
       dplyr::desc(importance)
     ) %>%
-    dplyr::select(
+    dplyr::transmute(
       variable,
       with,
       without,
-      importance
+      importance,
+      importance.mad,
+      importance.percent,
+      importance.percent.mad
     ) %>%
     as.data.frame()
 
@@ -291,115 +302,72 @@ rf_importance <- function(
       ),
       fill = importance
     ) +
-    ggplot2::geom_vline(xintercept = 0, linetype = "dashed", color = "gray50") +
+    ggplot2::geom_vline(
+      xintercept = 0,
+      linetype = "dashed",
+      color = "gray50"
+      ) +
+    ggplot2::geom_linerange(
+      ggplot2::aes(
+        xmin = importance - importance.mad,
+        xmax = importance + importance.mad,
+        color = importance
+      ),
+      size = 1
+    ) +
     ggplot2::geom_point(
       size = 4,
       shape = 21,
       color = line.color
     ) +
-    ggplot2::scale_fill_gradientn(colors = fill.color) +
-    ggplot2::ylab("") +
-    ggplot2::xlab(
-      paste0(
-        "Effect on ",
-        metric.pretty,
-        " when included in the model."
-      )
+    ggplot2::scale_x_continuous(
+      sec.axis = ggplot2::sec_axis(~ . * 100 / importance.per.variable$with[1], name = "Percentage")
     ) +
+    ggplot2::scale_fill_gradientn(colors = fill.color) +
+    ggplot2::scale_color_gradientn(colors = fill.color) +
+    ggplot2::ylab("") +
+    ggplot2::xlab(paste0(metric.pretty)) +
     ggplot2::theme_bw() +
-    ggplot2::theme(legend.position = "none")
-
-  #adding objects to the model
-  model$importance.cv <- list()
-  model$importance.cv$spatial.folds <- model$evaluation$spatial.folds
-  model$importance.cv$predictors.with.positive.effect <- importance.per.variable[importance.per.variable$importance > 0, "variable"]
-  model$importance.cv$per.repetition <- importance.per.repetition
-  model$importance.cv$per.variable <- importance.per.variable
-  model$importance.cv$per.variable.plot <- importance.per.variable.plot
-
-  #stats of spatial predictors if model is rf_spatial
-  if(inherits(model, "rf_spatial")){
-
-    #spatial predictors only
-    spatial.predictors <- importance.per.variable[grepl(
-      "spatial_predictor",
-      importance.per.variable$variable
-    ),]
-    spatial.predictors$variable <- "spatial_predictors"
-
-    #non-spatial predictors
-    non.spatial.predictors <- importance.per.variable[!grepl(
-      "spatial_predictor",
-      importance.per.variable$variable
-    ),]
-
-    #spatial.predictors.stat
-    #min, max, median and mean of the spatial predictors
-    #aggregating spatial predictors
-    #min, max, median and mean of the spatial predictors
-    spatial.predictors.stats <- data.frame(
-      variable = c(
-        "spatial_predictors (max)",
-        "spatial_predictors (min)",
-        "spatial_predictors (median)",
-        "spatial_predictors (quantile 0.25)",
-        "spatial_predictors (quantile 0.75)"
-      ),
-      importance = c(
-        max(spatial.predictors$importance),
-        min(spatial.predictors$importance),
-        median(spatial.predictors$importance),
-        quantile(spatial.predictors$importance, probs = 0.25),
-        quantile(spatial.predictors$importance, probs = 0.75)
+    ggplot2::theme(legend.position = "none") +
+    ggplot2::ggtitle(
+      paste0(
+        "Median contribution to model transferability\n    across ",
+        repetitions,
+        " cross-validation repetitions"
+        )
       )
+
+  #adding to the model's importance slot
+  model$importance$per.variable <- dplyr::left_join(
+    x = model$importance$per.variable,
+    y = importance.per.variable,
+    by = "variable"
+  ) %>%
+    dplyr::rename(
+      importance.oob = importance.x,
+      importance.cv = importance.y,
+      importance.cv.mad = importance.mad,
+      importance.cv.percent = importance.percent,
+      importance.cv.percent.mad = importance.percent.mad
+      ) %>%
+    dplyr::select(
+      -with,
+      -without
     )
 
-    #binding both dataframes
-    spatial.predictors.stats <- rbind(
-      spatial.predictors.stats,
-      non.spatial.predictors[, c("variable", "importance")]
-    ) %>%
-      dplyr::arrange(dplyr::desc(importance))
+  #changing names
+  model$importance$oob.per.variable.plot <- model$importance$per.variable.plot
+  model$importance$per.variable.plot <- NULL
+  model$importance$cv.per.variable.plot <- importance.per.variable.plot
 
-    spatial.predictors.stats.plot <- ggplot2::ggplot(data = spatial.predictors.stats) +
-      ggplot2::aes(
-        x = importance,
-        y = reorder(
-          variable,
-          importance,
-          FUN = max
-        ),
-        fill = importance
-      ) +
-      ggplot2::geom_vline(xintercept = 0, linetype = "dashed", color = "gray50") +
-      ggplot2::geom_point(
-        size = 4,
-        shape = 21,
-        color = line.color
-      ) +
-      ggplot2::scale_fill_gradientn(colors = fill.color) +
-      ggplot2::ylab("") +
-      ggplot2::xlab(
-        paste0(
-          "Effect on ",
-          metric.pretty,
-          " when included in the model."
-        )
-      ) +
-      ggplot2::theme_bw() +
-      ggplot2::theme(legend.position = "none")
-
-    #adding objects to the model
-    model$importance.cv$spatial.predictors.stats <- spatial.predictors.stats
-    model$importance.cv$spatial.predictors.stats.plot <- spatial.predictors.stats.plot
-
+  if(verbose == TRUE){
+    message("Importance scores stored in model$importance$per.variable.")
+    message("Importance plot stored in model$importance$cv.per.variable.plot.")
   }
 
   if(verbose == TRUE){
     print(importance.per.variable.plot)
   }
-
-  class(model) <- c(class(model), "rf_importance")
 
   model
 

@@ -1,5 +1,5 @@
 #' @title Plots the variable importance of a model
-#' @description Plots variable importance scores of [rf()], [rf_repeat()], and [rf_spatial()] models. Distributions of importance scores produced with [rf_repeat()] are plotted using `ggplot2::geom_violin`, which shows the median of the density estimate rather than the actual median of the data. However, the violin plots are ordered from top to bottom by the real median of the data to make small differences in median importance easier to spot.
+#' @description Plots variable importance scores of [rf()], [rf_repeat()], and [rf_spatial()] models. Distributions of importance scores produced with [rf_repeat()] are plotted using `ggplot2::geom_violin`, which shows the median of the density estimate rather than the actual median of the data. However, the violin plots are ordered from top to bottom by the real median of the data to make small differences in median importance easier to spot. Ths function does not plot the result of [rf_importance()] yet, but you can find it under `model$importance$cv.per.variable.plot`.
 #' @usage
 #' plot_importance(
 #'   model,
@@ -7,7 +7,7 @@
 #'     100,
 #'     option = "F",
 #'     direction = -1,
-#'     alpha = 0.8,
+#'     alpha = 1,
 #'     end = 0.9
 #'    ),
 #'   line.color = "white",
@@ -49,7 +49,7 @@ plot_importance <- function(
     100,
     option = "F",
     direction = -1,
-    alpha = 0.8,
+    alpha = 1,
     end = 0.9
   ),
   line.color = "white",
@@ -59,6 +59,7 @@ plot_importance <- function(
   #declaring variables
   importance <- NULL
   variable <- NULL
+  importance.oob <- NULL
 
   #if x is not a data frame
   if(!is.data.frame(model)){
@@ -66,6 +67,14 @@ plot_importance <- function(
     #importance from rf
     if(inherits(model, "rf") & !inherits(model, "rf_spatial") & !inherits(model, "rf_repeat")){
       x <- model$importance$per.variable
+
+      if("importance.oob" %in% colnames(x)){
+        x <- dplyr::rename(
+          x,
+          importance = importance.oob
+        )
+      }
+
     }
 
     #importance from rf_repeat
@@ -107,7 +116,8 @@ plot_importance <- function(
       ggplot2::ylab("") +
       ggplot2::xlab("Mean error increase when permuted") +
       ggplot2::theme_bw() +
-      ggplot2::theme(legend.position = "none")
+      ggplot2::theme(legend.position = "none") +
+      ggplot2::ggtitle("Permutation importance\ncomputed on the out-of-bag data")
 
   } else {
 
@@ -147,9 +157,10 @@ plot_importance <- function(
           ) +
         ggplot2::scale_fill_manual(values = fill.color) +
         ggplot2::ylab("") +
-        ggplot2::xlab("Mean error increase when permuted") +
+        ggplot2::xlab("Increase in error when permuted") +
         ggplot2::theme_bw() +
-        ggplot2::theme(legend.position = "none")
+        ggplot2::theme(legend.position = "none") +
+        ggplot2::ggtitle("Permutation importance\ncomputed on the out-of-bag data")
 
     }
 
@@ -176,9 +187,10 @@ plot_importance <- function(
           ) +
           ggplot2::scale_fill_gradientn(colors = fill.color) +
           ggplot2::ylab("") +
-          ggplot2::xlab("Mean error increase when permuted") +
+          ggplot2::xlab("Increase in error when permuted") +
           ggplot2::theme_bw() +
-          ggplot2::theme(legend.position = "none")
+          ggplot2::theme(legend.position = "none") +
+          ggplot2::ggtitle("Permutation importance\ncomputed on the out-of-bag data")
 
         #rf_spatial rf_repeat
       } else {
@@ -216,9 +228,10 @@ plot_importance <- function(
             ) +
           ggplot2::scale_fill_manual(values = fill.color) +
           ggplot2::ylab("") +
-          ggplot2::xlab("Mean error increase when permuted") +
+          ggplot2::xlab("Increase in error when permuted") +
           ggplot2::theme_bw() +
-          ggplot2::theme(legend.position = "none")
+          ggplot2::theme(legend.position = "none")+
+          ggplot2::ggtitle("Permutation importance\ncomputed on the out-of-bag data")
 
       }
 

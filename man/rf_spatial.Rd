@@ -21,7 +21,7 @@ rf_spatial(
   max.spatial.predictors = NULL,
   weight.r.squared = NULL,
   weight.penalization.n.predictors = NULL,
-  seed = NULL,
+  seed = 1,
   verbose = TRUE,
   n.cores = parallel::detectCores() - 1,
   cluster = NULL
@@ -66,7 +66,7 @@ rf_spatial(
 
 \item{weight.penalization.n.predictors}{Numeric between 0 and 1, weight of the penalization for adding an increasing number of spatial predictors during selection. Default: \code{NULL}}
 
-\item{seed}{Integer, random seed to facilitate reproducibility.}
+\item{seed}{Integer, random seed to facilitate reproducibility. Default: \code{1}.}
 
 \item{verbose}{Logical. If TRUE, messages and plots generated during the execution of the function are displayed, Default: \code{TRUE}}
 
@@ -143,7 +143,7 @@ if(interactive()){
    distance.matrix = distance.matrix,
    distance.thresholds = distance.thresholds,
    method = "mem.moran.sequential",
-   seed = 10
+   seed = 1
  )
 
  #fitting an rf_spatial model from an rf model

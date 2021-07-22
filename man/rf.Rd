@@ -13,7 +13,7 @@ rf(
   xy = NULL,
   ranger.arguments = NULL,
   scaled.importance = FALSE,
-  seed = NULL,
+  seed = 1,
   verbose = TRUE,
   n.cores = parallel::detectCores() - 1,
   cluster = NULL
@@ -36,7 +36,7 @@ rf(
 
 \item{scaled.importance}{Logical, if \code{TRUE}, the function scales \code{data} with \link[base]{scale} and fits a new model to compute scaled variable importance scores. This makes variable importance scores of different models somewhat comparable. Default: \code{FALSE}}
 
-\item{seed}{Integer, random seed to facilitate reproducibility. If set to a given number, the returned model is always the same. Default: \code{NULL}}
+\item{seed}{Integer, random seed to facilitate reproducibility. If set to a given number, the returned model is always the same. Default: \code{1}}
 
 \item{verbose}{Boolean. If TRUE, messages and plots generated during the execution of the function are displayed. Default: \code{TRUE}}
 

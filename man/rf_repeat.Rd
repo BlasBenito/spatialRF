@@ -16,7 +16,7 @@ rf_repeat(
   scaled.importance = FALSE,
   repetitions = 10,
   keep.models = TRUE,
-  seed = NULL,
+  seed = 1,
   verbose = TRUE,
   n.cores = parallel::detectCores() - 1,
   cluster = NULL
@@ -45,7 +45,7 @@ rf_repeat(
 
 \item{keep.models}{Logical, if \code{TRUE}, the fitted models are returned in the \code{models} slot. Set to \code{FALSE} if the accumulation of models is creating issues with the RAM memory available. Default: \code{TRUE}.}
 
-\item{seed}{Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same.}
+\item{seed}{Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same. Default: \code{1}.}
 
 \item{verbose}{Logical, ff \code{TRUE}, messages and plots generated during the execution of the function are displayed, Default: \code{TRUE}}
 

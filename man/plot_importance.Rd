@@ -10,7 +10,7 @@ plot_importance(
     100,
     option = "F",
     direction = -1,
-    alpha = 0.8,
+    alpha = 1,
     end = 0.9
    ),
   line.color = "white",
@@ -30,7 +30,7 @@ plot_importance(
 A ggplot.
 }
 \description{
-Plots variable importance scores of \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, and \code{\link[=rf_spatial]{rf_spatial()}} models. Distributions of importance scores produced with \code{\link[=rf_repeat]{rf_repeat()}} are plotted using \code{ggplot2::geom_violin}, which shows the median of the density estimate rather than the actual median of the data. However, the violin plots are ordered from top to bottom by the real median of the data to make small differences in median importance easier to spot.
+Plots variable importance scores of \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, and \code{\link[=rf_spatial]{rf_spatial()}} models. Distributions of importance scores produced with \code{\link[=rf_repeat]{rf_repeat()}} are plotted using \code{ggplot2::geom_violin}, which shows the median of the density estimate rather than the actual median of the data. However, the violin plots are ordered from top to bottom by the real median of the data to make small differences in median importance easier to spot. Ths function does not plot the result of \code{\link[=rf_importance]{rf_importance()}} yet, but you can find it under \code{model$importance$cv.per.variable.plot}.
 }
 \examples{
 \donttest{

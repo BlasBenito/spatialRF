@@ -25,7 +25,7 @@
 #' @param max.spatial.predictors Integer, maximum number of spatial predictors to generate. Useful when memory problems arise due to a large number of spatial predictors, Default: `NULL`
 #' @param weight.r.squared Numeric between 0 and 1, weight of R-squared in the selection of spatial components. See Details, Default: `NULL`
 #' @param weight.penalization.n.predictors Numeric between 0 and 1, weight of the penalization for adding an increasing number of spatial predictors during selection. Default: `NULL`
-#' @param seed Integer, random seed to facilitate reproducibility.
+#' @param seed Integer, random seed to facilitate reproducibility. Default: `1`.
 #' @param verbose Logical. If TRUE, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
 #' @param n.cores Integer, number of cores to use for parallel execution. Creates a socket cluster with `parallel::makeCluster()`, runs operations in parallel with `foreach` and `%dopar%`, and stops the cluster with `parallel::clusterStop()` when the job is done. Default: `parallel::detectCores() - 1`
 #' @param cluster A cluster definition generated with `parallel::makeCluster()`. If provided, overrides `n.cores`. When `cluster = NULL` (default value), and `model` is provided, the cluster in `model`, if any, is used instead. If this cluster is `NULL`, then the function uses `n.cores` instead. The function does not stop a provided cluster, so it should be stopped with `parallel::stopCluster()` afterwards. The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the `model` argument, or using the `%>%` pipe. Default: `NULL`
@@ -91,7 +91,7 @@
 #'    distance.matrix = distance.matrix,
 #'    distance.thresholds = distance.thresholds,
 #'    method = "mem.moran.sequential",
-#'    seed = 10
+#'    seed = 1
 #'  )
 #'
 #'  #fitting an rf_spatial model from an rf model
@@ -137,7 +137,7 @@ rf_spatial <- function(
   max.spatial.predictors = NULL,
   weight.r.squared = NULL,
   weight.penalization.n.predictors = NULL,
-  seed = NULL,
+  seed = 1,
   verbose = TRUE,
   n.cores = parallel::detectCores() - 1,
   cluster = NULL
@@ -590,6 +590,10 @@ rf_spatial <- function(
       verbose = FALSE
     )
 
+  }
+
+  if(verbose == TRUE){
+    message("Details about the spatial predictors stored in model$spatial.")
   }
 
   if(verbose == TRUE){
