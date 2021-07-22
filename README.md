@@ -1344,14 +1344,20 @@ model.non.spatial <- rf_importance(
 
 ![](README_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
 
-The function results are added to the “importance” slot of the model.
+The function adds a new slot to the model named `importance.cv`. It
+contains the spatial folds used in the spatial cross-validation, the
+names of the predictors with a positive effect (using only these
+predictors in a new model improves model transferability!), dataframes
+with the raw and aggregated results of the spatial cross-validation, and
+the plot shown above.
 
 ``` r
-names(model.non.spatial$importance)
+names(model.non.spatial$importance.cv)
 ```
 
-    ## [1] "per.variable"          "local"                 "oob.per.variable.plot"
-    ## [4] "cv.per.variable.plot"
+    ## [1] "spatial.folds"                   "predictors.with.positive.effect"
+    ## [3] "per.repetition"                  "per.variable"                   
+    ## [5] "per.variable.plot"
 
 The importance computed by random forest on the out-of-bag data by
 permutating each predictor (as computed by `rf()`) and the contribution
@@ -1361,11 +1367,15 @@ importance measures capture different aspects of the effect of the
 variables on the model results.
 
 ``` r
-model.non.spatial$importance$per.variable %>% 
+dplyr::left_join(
+  x = model.non.spatial$importance$per.variable,
+  y = model.non.spatial$importance.cv$per.variable,
+  by = "variable"
+) %>% 
   ggplot2::ggplot() +
   ggplot2::aes(
-    x = importance.oob,
-    y = importance.cv
+    x = importance.x,
+    y = importance.y
   ) + 
   ggplot2::geom_point(size = 3) + 
   ggplot2::theme_bw() +
@@ -1375,9 +1385,6 @@ model.non.spatial$importance$per.variable %>%
 ```
 
 ![](README_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
-
-Note: the function `plot_importance()` does not plot this new variable
-importance metric yet.
 
 ### Local variable importance
 
