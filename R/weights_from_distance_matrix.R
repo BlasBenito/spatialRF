@@ -35,6 +35,8 @@ weights_from_distance_matrix <- function(
 
   #thresholding distance matrix
   distance.matrix[distance.matrix <= distance.threshold] <- 1
+
+  #diagonal as NA
   diag(distance.matrix) <- NA
 
   #computing weights

@@ -4,6 +4,8 @@ Added the function `rf_importance()`. It fits models with and without each predi
 
 The default random seed for all functions have changed from `NULL` to `1` to facilitate reproducibility.
 
+The function `rf_evaluate()` has a new argument named `grow.testing.folds`. When set to `TRUE`, it uses `1 - training.fraction` instead of `training.fraction` to grow the spatial folds, and then flips the names of the training and testing folds. As a result, the testing folds are generally surrounded by the training folds (just the opposite of the default behavior of the function), which might be beneficial for particular spatial structures of the training data. Thanks to **Aleksandra Kulawska** for the suggestion!
+
 ## Version 1.1.2 (1/7/2021)
 
 Overhaul of the methods used for parallelization. The functions `rf_spatial()`, `rf_repeat()`, `rf_evaluate()`, `rf_tuning()`, `rf_compare()`, and `rf_interactions()` can now accept a cluster definition generated with `parallel::makeCluster()` via the `cluster` argument. Also, models resulting from these functions and `rf()` carry the cluster definition with themselves in the slot `model$cluster`, so the cluster definition can be passed from function to function using a pipe, as shown below:

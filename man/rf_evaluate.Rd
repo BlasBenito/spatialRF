@@ -13,6 +13,7 @@ rf_evaluate(
   distance.step = NULL,
   distance.step.x = NULL,
   distance.step.y = NULL,
+  grow.testing.folds = FALSE,
   seed = 1,
   verbose = TRUE,
   n.cores = parallel::detectCores() - 1,
@@ -35,6 +36,8 @@ rf_evaluate(
 \item{distance.step.x}{Numeric, argument \code{distance.step.x} of \code{\link[=make_spatial_folds]{make_spatial_folds()}}. Distance step used during the growth in the x axis of the buffers defining the training folds. Default: \code{NULL} (1/1000th the range of the x coordinates).}
 
 \item{distance.step.y}{Numeric, argument \code{distance.step.x} of \code{\link[=make_spatial_folds]{make_spatial_folds()}}. Distance step used during the growth in the y axis of the buffers defining the training folds. Default: \code{NULL} (1/1000th the range of the y coordinates).}
+
+\item{grow.testing.folds}{Logic. By default, this function grows contiguous training folds to keep the spatial structure of the data as intact as possible. However, when setting \code{grow.testing.folds = TRUE}, the argument \code{training.fraction} is set to \code{1 - training.fraction}, and the training and testing folds are switched. This option might be useful when the training data has a spatial structure that does not match well with the default behavior of the function. Default: \code{FALSE}}
 
 \item{seed}{Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same. Default: \code{1}.}
 

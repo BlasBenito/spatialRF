@@ -26,7 +26,7 @@
 -   [Tuning Random Forest
     hyperparameters](#tuning-random-forest-hyperparameters)
 -   [Repeating a model execution](#repeating-a-model-execution)
--   [Taking advantage of the `%>%` pipe](#taking-advantage-of-the-pipe)
+-   [Taking advantage of the `%>%` pipe](#taking-advantage-of-the--pipe)
 -   [Comparing several models](#comparing-several-models)
 -   [Working with a binomial
     response](#working-with-a-binomial-response)
@@ -1337,7 +1337,7 @@ between the full model and a model without a given predictor represents
 the contribution of such predictor to model transferability.
 
 ``` r
-model.non.spatial <- rf_importance(
+model.non.spatial <- spatialRF::rf_importance(
   model = model.non.spatial
   )
 ```

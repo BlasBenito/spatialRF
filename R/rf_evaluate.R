@@ -8,6 +8,7 @@
 #' @param distance.step Numeric, argument `distance.step` of [thinning_til_n()]. distance step used during the selection of the centers of the training folds. These fold centers are selected by thinning the data until a number of folds equal or lower than `repetitions` is reached. Its default value is 1/1000th the maximum distance within records in `xy`. Reduce it if the number of training folds is lower than expected.
 #' @param distance.step.x Numeric, argument `distance.step.x` of [make_spatial_folds()]. Distance step used during the growth in the x axis of the buffers defining the training folds. Default: `NULL` (1/1000th the range of the x coordinates).
 #' @param distance.step.y Numeric, argument `distance.step.x` of [make_spatial_folds()]. Distance step used during the growth in the y axis of the buffers defining the training folds. Default: `NULL` (1/1000th the range of the y coordinates).
+#' @param grow.testing.folds Logic. By default, this function grows contiguous training folds to keep the spatial structure of the data as intact as possible. However, when setting `grow.testing.folds = TRUE`, the argument `training.fraction` is set to `1 - training.fraction`, and the training and testing folds are switched. This option might be useful when the training data has a spatial structure that does not match well with the default behavior of the function. Default: `FALSE`
 #' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same. Default: `1`.
 #' @param verbose Logical. If `TRUE`, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
 #' @param n.cores Integer, number of cores to use for parallel execution. Creates a socket cluster with `parallel::makeCluster()`, runs operations in parallel with `foreach` and `%dopar%`, and stops the cluster with `parallel::clusterStop()` when the job is done. Default: `parallel::detectCores() - 1`
@@ -72,6 +73,7 @@ rf_evaluate <- function(
   distance.step = NULL,
   distance.step.x = NULL,
   distance.step.y = NULL,
+  grow.testing.folds = FALSE,
   seed = 1,
   verbose = TRUE,
   n.cores = parallel::detectCores() - 1,
@@ -190,11 +192,16 @@ rf_evaluate <- function(
 
 
   #training fraction limits
-  if(training.fraction < 0.2){
-    training.fraction <- 0.2
+  if(training.fraction < 0.1){
+    training.fraction <- 0.1
   }
   if(training.fraction > 0.9){
     training.fraction <- 0.9
+  }
+
+  #flipping training fraction if grow.testing.folds is TRUE
+  if(grow.testing.folds == TRUE){
+    training.fraction <- 1 - training.fraction
   }
 
   #add id to data and xy
@@ -226,6 +233,13 @@ rf_evaluate <- function(
     n.cores = n.cores,
     cluster = cluster
   )
+
+  #flipping spatial folds if grow.testing.folds = TRUE
+  if(grow.testing.folds == TRUE){
+    for(i in 1:length(spatial.folds)){
+      names(spatial.folds[[i]]) <- c("testing", "training")
+    }
+  }
 
   #copy of ranger arguments for training mdoels
   ranger.arguments.training <- ranger.arguments

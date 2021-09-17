@@ -23,7 +23,7 @@ rf_importance(
 )
 }
 \arguments{
-\item{model}{Model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}.}
+\item{model}{Model fitted with \code{\link[=rf]{rf()}} and/or \code{\link[=rf_spatial]{rf_spatial()}}. The function doesn't work with models fitted with \code{\link[=rf_repeat]{rf_repeat()}}. Default: \code{NULL}}
 
 \item{xy}{Data frame or matrix with two columns containing coordinates and named "x" and "y". If \code{NULL}, the function will throw an error. Default: \code{NULL}}
 

@@ -66,7 +66,7 @@ m <- rf_spatial(model = m)
 
 m <- rf_tuning(model = m)
 
-m <- rf_evaluate(model = m)
+m <- rf_evaluate(model = m, grow.testing.folds = FALSE )
 
 m <- rf_repeat(model = m)
 

@@ -48,7 +48,7 @@ mem <- function(
     symmetric = TRUE
     )
 
-  #criteria to select mem
+  #normalize eigenvalues
   mem.values.normalized <- mem$values/max(abs(mem$values))
 
   #get positive mem

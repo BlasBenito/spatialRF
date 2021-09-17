@@ -395,7 +395,7 @@ kableExtra::kbl(
 The new function `rf_importance()` offers a way to assess to what extent each predictor contributes to model transferability (predictive ability on independent spatial folds measured with `rf_evaluate()`, see below). It does so by comparing the performance of the full model with models fitted without each one of the predictors. The difference in performance between the full model and a model without a given predictor represents the contribution of such predictor to model transferability.
 
 ```{r, fig.width = 8, fig.height=4.5, message=FALSE, warning=FALSE}
-model.non.spatial <- rf_importance(
+model.non.spatial <- spatialRF::rf_importance(
   model = model.non.spatial
   )
 ```
