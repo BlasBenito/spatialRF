@@ -319,7 +319,7 @@ predictor.variable.names <- interactions$predictor.variable.names
 ```
 
 
-# Fitting a (non-spatial) Random Forest model with `rf()`
+# Fitting a non-spatial Random Forest model with `rf()`
 
 The function [`rf()`](https://blasbenito.github.io/spatialRF/reference/rf.html) is a convenient wrapper for `ranger::ranger()` used in every modelling function of the *spatialRF* package. It takes the training data, the names of the response and the predictors, and optionally (to assess the spatial autocorrelation of the residuals), the distance matrix, and a vector of distance thresholds (in the same units as the distances in **distance_matrix**).
 
@@ -344,7 +344,7 @@ The output is a list with several slots containing the information required to i
 
 ## Residuals
 
-The slot **residuals** (`model.non.spatial$residuals`) stores the values of the residuals and the results of the normality and spatial autocorrelation tests. The best function to interrogate it is [`plot_residuals_diagnostics()`].
+The slot **residuals** (`model.non.spatial$residuals`) stores the values of the residuals and the results of the normality and spatial autocorrelation tests, and its content can be plotted with [`plot_residuals_diagnostics()`](https://blasbenito.github.io/spatialRF/reference/plot_residuals_diagnostics.html).
 
 ```{r, fig.width=6, fig.height=7}
 spatialRF::plot_residuals_diagnostics(

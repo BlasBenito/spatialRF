@@ -12,7 +12,7 @@
     predictors](#reducing-multicollinearity-in-the-predictors)
 -   [Finding promising variable
     interactions](#finding-promising-variable-interactions)
--   [Fitting a (non-spatial) Random Forest model with
+-   [Fitting a non-spatial Random Forest model with
     `rf()`](#fitting-a-non-spatial-random-forest-model-with-rf)
     -   [Residuals](#residuals)
     -   [Variable importance](#variable-importance)
@@ -416,7 +416,8 @@ having the argument `predictor.variable.names`.
 names(predictor.variable.names)
 ```
 
-    ## [1] "vif"                   "selected.variables"    "selected.variables.df"
+    ## [1] "vif"                   "selected.variables"   
+    ## [3] "selected.variables.df"
 
 The slot `selected.variables` contains the names of the selected
 predictors.
@@ -425,14 +426,22 @@ predictors.
 predictor.variable.names$selected.variables
 ```
 
-    ##  [1] "climate_aridity_index_average"   "climate_hypervolume"            
-    ##  [3] "climate_bio1_average"            "climate_bio15_minimum"          
-    ##  [5] "bias_area_km2"                   "bias_species_per_record"        
-    ##  [7] "climate_velocity_lgm_average"    "neighbors_count"                
-    ##  [9] "neighbors_percent_shared_edge"   "human_population_density"       
-    ## [11] "topography_elevation_average"    "landcover_herbs_percent_average"
-    ## [13] "fragmentation_cohesion"          "fragmentation_division"         
-    ## [15] "neighbors_area"                  "human_population"
+    ##  [1] "climate_aridity_index_average"  
+    ##  [2] "climate_hypervolume"            
+    ##  [3] "climate_bio1_average"           
+    ##  [4] "climate_bio15_minimum"          
+    ##  [5] "bias_area_km2"                  
+    ##  [6] "bias_species_per_record"        
+    ##  [7] "climate_velocity_lgm_average"   
+    ##  [8] "neighbors_count"                
+    ##  [9] "neighbors_percent_shared_edge"  
+    ## [10] "human_population_density"       
+    ## [11] "topography_elevation_average"   
+    ## [12] "landcover_herbs_percent_average"
+    ## [13] "fragmentation_cohesion"         
+    ## [14] "fragmentation_division"         
+    ## [15] "neighbors_area"                 
+    ## [16] "human_population"
 
 # Finding promising variable interactions
 
@@ -472,32 +481,42 @@ interactions <- spatialRF::the_feature_engineer(
 
     ## Interactions identified: 5
 
-    ##  ┌──────────────────┬──────────────────┬──────────────────┬──────────────────┐
-    ##  │ Interaction      │ Importance (% of │        R-squared │     Max cor with │
-    ##  │                  │             max) │      improvement │       predictors │
-    ##  ├──────────────────┼──────────────────┼──────────────────┼──────────────────┤
-    ##  │ bias_area_km2..x │             59.5 │            0.096 │            0.60  │
-    ##  │ ..bias_species_p │                  │                  │                  │
-    ##  │ er_record        │                  │                  │                  │
-    ##  ├──────────────────┼──────────────────┼──────────────────┼──────────────────┤
-    ##  │ climate_bio1_ave │             97.6 │            0.067 │            0.34  │
-    ##  │ rage..pca..human │                  │                  │                  │
-    ##  │ _population_dens │                  │                  │                  │
-    ##  │ ity              │                  │                  │                  │
-    ##  ├──────────────────┼──────────────────┼──────────────────┼──────────────────┤
-    ##  │ climate_bio1_ave │             96.3 │            0.049 │            0.24  │
-    ##  │ rage..pca..neigh │                  │                  │                  │
-    ##  │ bors_count       │                  │                  │                  │
-    ##  ├──────────────────┼──────────────────┼──────────────────┼──────────────────┤
-    ##  │ human_population │             68.8 │            0.021 │            0.55  │
-    ##  │ ..x..bias_specie │                  │                  │                  │
-    ##  │ s_per_record     │                  │                  │                  │
-    ##  ├──────────────────┼──────────────────┼──────────────────┼──────────────────┤
-    ##  │ bias_area_km2..p │             63.4 │            0.029 │            0.305 │
-    ##  │ ca..neighbors_pe │                  │                  │                  │
-    ##  │ rcent_shared_edg │                  │                  │                  │
-    ##  │ e                │                  │                  │                  │
-    ##  └──────────────────┴──────────────────┴──────────────────┴──────────────────┘
+    ##  ┌────────────┬────────────┬────────────┬────────────┐
+    ##  │ Interactio │ Importance │  R-squared │    Max cor │
+    ##  │ n          │ (% of max) │ improvemen │       with │
+    ##  │            │            │          t │ predictors │
+    ##  ├────────────┼────────────┼────────────┼────────────┤
+    ##  │ bias_area_ │       59.5 │      0.096 │      0.60  │
+    ##  │ km2..x..bi │            │            │            │
+    ##  │ as_species │            │            │            │
+    ##  │ _per_recor │            │            │            │
+    ##  │ d          │            │            │            │
+    ##  ├────────────┼────────────┼────────────┼────────────┤
+    ##  │ climate_bi │       97.6 │      0.067 │      0.34  │
+    ##  │ o1_average │            │            │            │
+    ##  │ ..pca..hum │            │            │            │
+    ##  │ an_populat │            │            │            │
+    ##  │ ion_densit │            │            │            │
+    ##  │ y          │            │            │            │
+    ##  ├────────────┼────────────┼────────────┼────────────┤
+    ##  │ climate_bi │       96.3 │      0.049 │      0.24  │
+    ##  │ o1_average │            │            │            │
+    ##  │ ..pca..nei │            │            │            │
+    ##  │ ghbors_cou │            │            │            │
+    ##  │ nt         │            │            │            │
+    ##  ├────────────┼────────────┼────────────┼────────────┤
+    ##  │ human_popu │       68.8 │      0.021 │      0.55  │
+    ##  │ lation..x. │            │            │            │
+    ##  │ .bias_spec │            │            │            │
+    ##  │ ies_per_re │            │            │            │
+    ##  │ cord       │            │            │            │
+    ##  ├────────────┼────────────┼────────────┼────────────┤
+    ##  │ bias_area_ │       63.4 │      0.029 │      0.305 │
+    ##  │ km2..pca.. │            │            │            │
+    ##  │ neighbors_ │            │            │            │
+    ##  │ percent_sh │            │            │            │
+    ##  │ ared_edge  │            │            │            │
+    ##  └────────────┴────────────┴────────────┴────────────┘
 
     ## Comparing models with and without interactions via spatial cross-validation.
 
@@ -826,7 +845,7 @@ plant_richness_df <- interactions$data
 predictor.variable.names <- interactions$predictor.variable.names
 ```
 
-# Fitting a (non-spatial) Random Forest model with `rf()`
+# Fitting a non-spatial Random Forest model with `rf()`
 
 The function
 [`rf()`](https://blasbenito.github.io/spatialRF/reference/rf.html) is a
@@ -869,8 +888,8 @@ slots can be plotted (functions named `plot_...()`), printed to screen
 
 The slot **residuals** (`model.non.spatial$residuals`) stores the values
 of the residuals and the results of the normality and spatial
-autocorrelation tests. The best function to interrogate it is
-\[`plot_residuals_diagnostics()`\].
+autocorrelation tests, and its content can be plotted with
+[`plot_residuals_diagnostics()`](https://blasbenito.github.io/spatialRF/reference/plot_residuals_diagnostics.html).
 
 ``` r
 spatialRF::plot_residuals_diagnostics(
@@ -1351,8 +1370,8 @@ The function results are added to the “importance” slot of the model.
 names(model.non.spatial$importance)
 ```
 
-    ## [1] "per.variable"          "local"                 "oob.per.variable.plot"
-    ## [4] "cv.per.variable.plot"
+    ## [1] "per.variable"          "local"                
+    ## [3] "oob.per.variable.plot" "cv.per.variable.plot"
 
 The data frame “per.variable” contains the columns “importance.cv”
 (median importance), “importance.cv.mad” (median absolute deviation),
@@ -2091,8 +2110,9 @@ spatial cross-validation results.
 names(model.non.spatial$evaluation)
 ```
 
-    ## [1] "metrics"           "training.fraction" "spatial.folds"    
-    ## [4] "per.fold"          "per.fold.long"     "per.model"        
+    ## [1] "metrics"           "training.fraction"
+    ## [3] "spatial.folds"     "per.fold"         
+    ## [5] "per.fold.long"     "per.model"        
     ## [7] "aggregated"
 
 The slot “spatial.folds”, produced by
