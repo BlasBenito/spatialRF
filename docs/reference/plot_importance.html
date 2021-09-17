@@ -40,7 +40,7 @@
 
 
 <meta property="og:title" content="Plots the variable importance of a model — plot_importance" />
-<meta property="og:description" content="Plots variable importance scores of rf(), rf_repeat(), and rf_spatial() models. Distributions of importance scores produced with rf_repeat() are plotted using ggplot2::geom_violin, which shows the median of the density estimate rather than the actual median of the data. However, the violin plots are ordered from top to bottom by the real median of the data to make small differences in median importance easier to spot." />
+<meta property="og:description" content="Plots variable importance scores of rf(), rf_repeat(), and rf_spatial() models. Distributions of importance scores produced with rf_repeat() are plotted using ggplot2::geom_violin, which shows the median of the density estimate rather than the actual median of the data. However, the violin plots are ordered from top to bottom by the real median of the data to make small differences in median importance easier to spot. Ths function does not plot the result of rf_importance() yet, but you can find it under model$importance$cv.per.variable.plot." />
 
 
 
@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">spatialRF</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.3</span>
       </span>
     </div>
 
@@ -80,7 +80,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -94,7 +94,7 @@
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/BlasBenito/spatialRF/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -117,7 +117,7 @@
     </div>
 
     <div class="ref-description">
-    <p>Plots variable importance scores of <code><a href='rf.html'>rf()</a></code>, <code><a href='rf_repeat.html'>rf_repeat()</a></code>, and <code><a href='rf_spatial.html'>rf_spatial()</a></code> models. Distributions of importance scores produced with <code><a href='rf_repeat.html'>rf_repeat()</a></code> are plotted using <code><a href='https://ggplot2.tidyverse.org/reference/geom_violin.html'>ggplot2::geom_violin</a></code>, which shows the median of the density estimate rather than the actual median of the data. However, the violin plots are ordered from top to bottom by the real median of the data to make small differences in median importance easier to spot.</p>
+    <p>Plots variable importance scores of <code><a href='rf.html'>rf()</a></code>, <code><a href='rf_repeat.html'>rf_repeat()</a></code>, and <code><a href='rf_spatial.html'>rf_spatial()</a></code> models. Distributions of importance scores produced with <code><a href='rf_repeat.html'>rf_repeat()</a></code> are plotted using <code><a href='https://ggplot2.tidyverse.org/reference/geom_violin.html'>ggplot2::geom_violin</a></code>, which shows the median of the density estimate rather than the actual median of the data. However, the violin plots are ordered from top to bottom by the real median of the data to make small differences in median importance easier to spot. Ths function does not plot the result of <code><a href='rf_importance.html'>rf_importance()</a></code> yet, but you can find it under <code>model$importance$cv.per.variable.plot</code>.</p>
     </div>
 
     <pre class="usage"><span class='fu'>plot_importance</span>(
@@ -126,7 +126,7 @@
     <span class='fl'>100</span>,
     <span class='kw'>option</span> <span class='kw'>=</span> <span class='st'>"F"</span>,
     <span class='kw'>direction</span> <span class='kw'>=</span> -<span class='fl'>1</span>,
-    <span class='kw'>alpha</span> <span class='kw'>=</span> <span class='fl'>0.8</span>,
+    <span class='kw'>alpha</span> <span class='kw'>=</span> <span class='fl'>1</span>,
     <span class='kw'>end</span> <span class='kw'>=</span> <span class='fl'>0.9</span>
    ),
   <span class='kw'>line.color</span> <span class='kw'>=</span> <span class='st'>"white"</span>,

@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">spatialRF</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.3</span>
       </span>
     </div>
 
@@ -80,7 +80,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -94,7 +94,7 @@
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/BlasBenito/spatialRF/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -129,7 +129,8 @@
   <span class='kw'>distance.step</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>distance.step.x</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>distance.step.y</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>seed</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>grow.testing.folds</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>seed</span> <span class='kw'>=</span> <span class='fl'>1</span>,
   <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>n.cores</span> <span class='kw'>=</span> <span class='kw pkg'>parallel</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/r/parallel/detectCores.html'>detectCores</a></span>() - <span class='fl'>1</span>,
   <span class='kw'>cluster</span> <span class='kw'>=</span> <span class='kw'>NULL</span>
@@ -171,8 +172,12 @@
       <td><p>Numeric, argument <code>distance.step.x</code> of <code><a href='make_spatial_folds.html'>make_spatial_folds()</a></code>. Distance step used during the growth in the y axis of the buffers defining the training folds. Default: <code>NULL</code> (1/1000th the range of the y coordinates).</p></td>
     </tr>
     <tr>
+      <th>grow.testing.folds</th>
+      <td><p>Logic. By default, this function grows contiguous training folds to keep the spatial structure of the data as intact as possible. However, when setting <code>grow.testing.folds = TRUE</code>, the argument <code>training.fraction</code> is set to <code>1 - training.fraction</code>, and the training and testing folds are switched. This option might be useful when the training data has a spatial structure that does not match well with the default behavior of the function. Default: <code>FALSE</code></p></td>
+    </tr>
+    <tr>
       <th>seed</th>
-      <td><p>Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same.</p></td>
+      <td><p>Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same. Default: <code>1</code>.</p></td>
     </tr>
     <tr>
       <th>verbose</th>
