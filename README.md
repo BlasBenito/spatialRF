@@ -169,7 +169,7 @@ the repository:
 ``` r
 remotes::install_github(
   repo = "blasbenito/spatialRF", 
-  ref = "development",
+  ref = "main",
   force = TRUE,
   quiet = TRUE
   )
@@ -501,14 +501,15 @@ interactions <- spatialRF::the_feature_engineer(
 
     ## Comparing models with and without interactions via spatial cross-validation.
 
-![](README_files/figure-gfm/unnamed-chunk-11-1.png)<!-- --> The upper
-panel in the plot plot above shows the relationship between the
-interaction and the response variable. It also indicates the gain in R
-squared (+R2), the importance, in percentage, when used in a model along
-the other predictors (Imp. (%)), and the maximum Pearson correlation of
-the interaction with the predictors. The violin-plot shows a comparison
-of the model with and without the selected interaction made via spatial
-cross-validation using 100 repetitions (see
+![](README_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+
+The upper panel in the plot plot above shows the relationship between
+the interaction and the response variable. It also indicates the gain in
+R squared (+R2), the importance, in percentage, when used in a model
+along the other predictors (Imp. (%)), and the maximum Pearson
+correlation of the interaction with the predictors. The violin-plot
+shows a comparison of the model with and without the selected
+interaction made via spatial cross-validation using 100 repetitions (see
 [`rf_evaluate()`](https://blasbenito.github.io/spatialRF/reference/rf_evaluate.html)
 and
 [`rf_compare()`](https://blasbenito.github.io/spatialRF/reference/rf_compare.html)
@@ -1344,20 +1345,22 @@ model.non.spatial <- spatialRF::rf_importance(
 
 ![](README_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
 
-The function adds a new slot to the model named `importance.cv`. It
-contains the spatial folds used in the spatial cross-validation, the
-names of the predictors with a positive effect (using only these
-predictors in a new model improves model transferability!), dataframes
-with the raw and aggregated results of the spatial cross-validation, and
-the plot shown above.
+The function results are added to the “importance” slot of the model.
 
 ``` r
-names(model.non.spatial$importance.cv)
+names(model.non.spatial$importance)
 ```
 
-    ## [1] "spatial.folds"                   "predictors.with.positive.effect"
-    ## [3] "per.repetition"                  "per.variable"                   
-    ## [5] "per.variable.plot"
+    ## [1] "per.variable"          "local"                 "oob.per.variable.plot"
+    ## [4] "cv.per.variable.plot"
+
+The data frame “per.variable” contains the columns “importance.cv”
+(median importance), “importance.cv.mad” (median absolute deviation),
+“importance.cv.percent” (median importance in percentage), and
+“importance.cv.percent.mad” (median absolute deviation of the importance
+in percent). The ggplot object “cv.per.variable.plot” contains the
+importance plot with the median and the median absolute deviation shown
+above.
 
 The importance computed by random forest on the out-of-bag data by
 permutating each predictor (as computed by `rf()`) and the contribution
@@ -1367,15 +1370,11 @@ importance measures capture different aspects of the effect of the
 variables on the model results.
 
 ``` r
-dplyr::left_join(
-  x = model.non.spatial$importance$per.variable,
-  y = model.non.spatial$importance.cv$per.variable,
-  by = "variable"
-) %>% 
+model.non.spatial$importance$per.variable %>% 
   ggplot2::ggplot() +
   ggplot2::aes(
-    x = importance.x,
-    y = importance.y
+    x = importance.oob,
+    y = importance.cv
   ) + 
   ggplot2::geom_point(size = 3) + 
   ggplot2::theme_bw() +
