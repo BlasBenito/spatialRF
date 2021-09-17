@@ -41,7 +41,9 @@ spatial.model <- spatialRF::rf_spatial(
   )
 ```
 
-**spatialRF** uses the fast and efficient `ranger` package under the hood [(Wright and Ziegler 2017)](https://arxiv.org/abs/1508.04409). It also provides tools to identify potentially interesting variable interactions, tune random forest hyperparameters, assess model performance on spatially independent data folds, and examine the resulting models via importance plots, response curves, and response surfaces.
+**spatialRF** uses the fast and efficient `ranger` package under the hood [(Wright and Ziegler 2017)](https://arxiv.org/abs/1508.04409), so please, cite the `ranger` package when using `spatialRF`!
+
+This pacakge also provides tools to identify potentially interesting variable interactions, tune random forest hyperparameters, assess model performance on spatially independent data folds, and examine the resulting models via importance plots, response curves, and response surfaces.
 
 # Development
 

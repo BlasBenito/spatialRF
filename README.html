@@ -653,7 +653,8 @@ body {
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">predictor.variable.names =</span> <span class="fu">c</span>(<span class="st">&quot;predictor1&quot;</span>, <span class="st">&quot;predictor2&quot;</span>, ..., <span class="st">&quot;predictorN&quot;</span>),</span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">distance.matrix =</span> your_distance_matrix</span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
-<p><strong>spatialRF</strong> uses the fast and efficient <code>ranger</code> package under the hood <a href="https://arxiv.org/abs/1508.04409">(Wright and Ziegler 2017)</a>. It also provides tools to identify potentially interesting variable interactions, tune random forest hyperparameters, assess model performance on spatially independent data folds, and examine the resulting models via importance plots, response curves, and response surfaces.</p>
+<p><strong>spatialRF</strong> uses the fast and efficient <code>ranger</code> package under the hood <a href="https://arxiv.org/abs/1508.04409">(Wright and Ziegler 2017)</a>, so please, cite the <code>ranger</code> package when using <code>spatialRF</code>!</p>
+<p>This pacakge also provides tools to identify potentially interesting variable interactions, tune random forest hyperparameters, assess model performance on spatially independent data folds, and examine the resulting models via importance plots, response curves, and response surfaces.</p>
 <h1 id="development">Development</h1>
 <p>This package is reaching its final form, and big changes are not expected at this stage. However, it has many functions, and even though all them have been tested, only one dataset has been used for those tests. You will find bugs, and something will go wrong almost surely. If you have time to report bugs, please, do so in any of the following ways:</p>
 <ul>
