@@ -16,12 +16,13 @@ A data frame with Moran's I test results produced by \code{\link[=moran_multithr
 Returns the Moran's I test on the residuals of a model produced by \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}.
 }
 \examples{
-\donttest{
 if(interactive()){
 
+ #loading example data
  data(plant_richness_df)
  data(distance_matrix)
 
+ #fitting a random forest model
  rf.model <- rf(
    data = plant_richness_df,
    dependent.variable.name = "richness_species_vascular",
@@ -31,9 +32,9 @@ if(interactive()){
    verbose = FALSE
  )
 
+ #getting Moran's I of the residuals
  x <- get_moran(rf.model)
 
-}
 }
 }
 \seealso{

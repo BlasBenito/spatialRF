@@ -27,21 +27,31 @@ A ggplot.
 Plots the tuning of the hyperparameters \code{num.trees}, \code{mtry}, and \code{min.node.size} performed by \code{\link[=rf_tuning]{rf_tuning()}}.
 }
 \examples{
-\donttest{
 if(interactive()){
 
+#load example data
 data(plant_richness_df)
 
+#fit random forest model
+rf.model <- rf(
+  data = plant_richness_df,
+  dependent.variable.name = "richness_species_vascular",
+  predictor.variable.names = colnames(plant_richness_df)[5:21],
+  distance.matrix = distance_matrix,
+  distance.thresholds = c(0, 1000, 2000),
+  verbose = FALSE
+)
+
+#tune random forest model
 rf.model <- rf_tuning(
- data = plant_richness_df,
- dependent.variable.name = "richness_species_vascular",
- predictor.variable.names = colnames(plant_richness_df)[5:21],
+ model = rf.model,
+ xy = plant_richness_df[, c("x", "y")],
  verbose = FALSE
 )
 
-plot_tuning(x = rf.model)
+#generate tuning plot
+plot_tuning(model = rf.model)
 
-}
 }
 }
 \seealso{

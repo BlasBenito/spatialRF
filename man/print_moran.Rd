@@ -24,12 +24,13 @@ Prints a table in the console using the \link[huxtable]{huxtable} package.
 Prints the results of a Moran's I test on the residuals of a model.
 }
 \examples{
-\donttest{
 if(interactive()){
 
+ #loading example data
  data(plant_richness_df)
  data(distance.matrix)
 
+ #fitting random forest model
  rf.model <- rf(
    data = plant_richness_df,
    dependent.variable.name = "richness_species_vascular",
@@ -39,9 +40,9 @@ if(interactive()){
    verbose = FALSE
  )
 
+ #printing Moran's I of model's residuals
  print_moran(rf.model)
 
-}
 }
 }
 \seealso{

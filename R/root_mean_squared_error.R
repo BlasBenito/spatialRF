@@ -13,15 +13,13 @@
 #'   \item "`iq"`: RMSE divided by the interquartile range of the observations (rmse/(quantile(o, 0.75) - quantile(o, 0.25)))
 #' }
 #' @examples
-#' \donttest{
 #' if(interactive()){
 #'
-#'  out <- root_mean_squared_error(
+#'  root_mean_squared_error(
 #'    o = runif(10),
 #'    p = runif(10)
 #'    )
 #'
-#' }
 #' }
 #' @rdname root_mean_squared_error
 #' @importFrom stats na.omit quantile

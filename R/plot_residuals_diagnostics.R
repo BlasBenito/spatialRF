@@ -9,12 +9,13 @@
 #' @param verbose Logical, if `TRUE`, the resulting plot is printed, Default: `TRUE`
 #' @return A patchwork object.
 #' @examples
-#' \dontrun{
 #' if(interactive()){
 #'
+#'  #load example data
 #'  data(plant_richness_df)
 #'  data(distance_matrix)
 #'
+#'  #fit a random forest model
 #'  x <- rf(
 #'    data = plant_richness_df,
 #'    dependent.variable.name = "richness_species_vascular",
@@ -22,9 +23,9 @@
 #'    distance.matrix = distance_matrix
 #'  )
 #'
+#'  #residuals diagnostics
 #'  plot_residuals_diagnostics(x)
 #'
-#'  }
 #' }
 #' @rdname plot_residuals_diagnostics
 #' @importFrom ggplot2 stat_qq stat_qq_line geom_histogram element_text

@@ -27,17 +27,19 @@ A data frame with non-redundant spatial predictors.
 Removes spatial predictors that are pair-wise correlated with other spatial predictors (which happens when there are several close distance thresholds), and spatial predictors correlated with non-spatial predictors.
 }
 \examples{
-\dontrun{
 if(interactive()){
 
+#loading data
 data("distance_matrix")
 data("plant_richness_df")
 
+#computing Moran's Eigenvector Maps
 spatial.predictors.df <- mem_multithreshold(
   distance_matrix = distance_matrix,
   distance.thresholds = c(0, 100, 200, 1000, 2000)
   )
 
+#filtering spatial predictors
 spatial.predictors.df <- filter_spatial_predictors(
   data = plant_richness_df,
   predictor.variable.names = colnames(plant_richness_df)[5:21],
@@ -46,6 +48,5 @@ spatial.predictors.df <- filter_spatial_predictors(
  )
 
 
- }
 }
 }

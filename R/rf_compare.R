@@ -21,12 +21,13 @@
 #' \item `plot`: Violin-plot of `comparison.df`.
 #' }
 #' @examples
-#' \donttest{
 #' if(interactive()){
 #'
+#'  #loading example data
 #'  data(distance_matrix)
 #'  data(plant_richness_df)
 #'
+#'  #fitting random forest model
 #'  rf.model <- rf(
 #'    data = plant_richness_df,
 #'    dependent.variable.name = "richness_species_vascular",
@@ -35,18 +36,19 @@
 #'    distance.thresholds = c(0, 1000, 2000)
 #'  )
 #'
+#'  #fitting a spatial model with Moran's Eigenvector Maps
 #'  rf.spatial <- rf_spatial(model = rf.model)
 #'
-#'comparison <- rf_compare(
+#'  #comparing the spatial and non spatial models
+#'  comparison <- rf_compare(
 #'  models = list(
 #'    `Non spatial` = rf.model,
 #'    Spatial = rf.spatial
 #'  ),
 #'  xy = plant_richness_df[, c("x", "y")],
 #'  metrics = c("r.squared", "rmse")
-#')
+#'  )
 #'
-#'  }
 #' }
 #' @seealso [rf_evaluate()]
 #' @rdname rf_compare

@@ -18,12 +18,12 @@ double_center_distance_matrix (
 A double-centered matrix of the same dimensions as \code{x}.
 }
 \description{
-Generates a double-centered matrix from the weights of a distance matrix (see \code{\link[=weights_from_distance_matrix]{weights_from_distance_matrix()}}) and a distance threshold. This is a required step before the computation of Moran's Eigenvector Maps.
+Generates a double-centered matrix (row and column means are zero) from the weights of a distance matrix (see \code{\link[=weights_from_distance_matrix]{weights_from_distance_matrix()}}) and a distance threshold. This is a required step before the computation of Moran's Eigenvector Maps.
 }
 \examples{
-\donttest{
 if(interactive()){
 
+ #loading the distance matrix
  data(distance_matrix)
 
  x <- double_center_distance_matrix(
@@ -32,7 +32,6 @@ if(interactive()){
  x
 
  }
-}
 }
 \seealso{
 \code{\link[=weights_from_distance_matrix]{weights_from_distance_matrix()}}, \code{\link[=mem]{mem()}}, \code{\link[=mem_multithreshold]{mem_multithreshold()}}

@@ -4,7 +4,6 @@
 #' @param dependent.variable.name Character string with the name of the response variable. Must be in the column names of `data`. Default: `NULL`
 #' @return A vector with a length equal to `nrow(data)` with the respective weights of the cases.
 #' @examples
-#' \dontrun{
 #' if(interactive()){
 #'
 #'  data <- data.frame(
@@ -17,7 +16,6 @@
 #'  )
 #'
 #'  }
-#' }
 #' @rdname case_weights
 #' @export
 case_weights <- function(

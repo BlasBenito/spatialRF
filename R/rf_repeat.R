@@ -25,12 +25,13 @@
 #' }
 #'
 #' @examples
-#' \donttest{
 #' if(interactive()){
 #'
+#'  #loading example data
 #'  data(plant_richness_df)
 #'  data(distance_matrix)
 #'
+#'  #fitting 5 random forest models
 #'  out <- rf_repeat(
 #'    data = plant_richness_df,
 #'    dependent.variable.name = "richness_species_vascular",
@@ -40,8 +41,6 @@
 #'    repetitions = 5,
 #'    n.cores = 1
 #'  )
-#'
-#'  class(out)
 #'
 #'  #data frame with ordered variable importance
 #'  out$importance$per.variable
@@ -71,11 +70,13 @@
 #'    distance.thresholds = c(0, 1000, 2000)
 #'    )
 #'
+#'  #repeating the model 5 times
 #'  rf.repeat <- rf_repeat(model = rf.model)
+#'
+#'
 #'  rf.repeat$performance
 #'  rf.repeat$importance$per.repetition.plot
 #'
-#' }
 #' }
 #' @importFrom tidyselect all_of
 #' @rdname rf_repeat

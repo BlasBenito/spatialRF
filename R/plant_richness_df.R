@@ -13,7 +13,7 @@
 #'   \item `bias_species_per_record`: Number of species divided by the number of spatial GBIF records available in the ecoregion as a measure of sampling bias.
 #'   \item `climate_aridity_index_average`: Average [aridity index](https://figshare.com/articles/dataset/Global_Aridity_Index_and_Potential_Evapotranspiration_ET0_Climate_Database_v2/7504448) of the ecoregion.
 #'   \item `climate_hypervolume`: Volume of the climatic envelope of the ecoregion, computed with the [hypervolume](https://cran.r-project.org/package=hypervolume) package.
-#'   \item `climate_velocity_lgm_average`: Average [climate velocity](https://science.sciencemag.org/content/334/6056/660) of the ecoregion since the Last Glacial Maximum.
+#'   \item `climate_velocity_lgm_average`: Average [climate velocity](https://www.science.org/doi/10.1126/science.1210173) of the ecoregion since the Last Glacial Maximum.
 #'   \item `neighbors_count`: Number of immediate neighbors of the ecoregion as a measure of connectivity/isolation.
 #'   \item `neighbors_percent_shared_edge`: Percentage of shared edge with the neighbors as a measure of connectivity/isolation.
 #'   \item `human_population_density`: Population density of the ecoregion.

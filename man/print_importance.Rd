@@ -21,12 +21,13 @@ A table printed to the standard output.
 Prints variable importance scores from \link{rf}, \link{rf_repeat}, and \link{rf_spatial} models.
 }
 \examples{
-\donttest{
 if(interactive()){
 
+#loading example data
 data(plant_richness_df)
 data(distance.matrix)
 
+#fitting a random forest model
 rf.model <- rf(
   data = plant_richness_df,
   dependent.variable.name = "richness_species_vascular",
@@ -36,9 +37,9 @@ rf.model <- rf(
   verbose = FALSE
 )
 
+#printing variable importance scores
 print_importance(model = rf.model)
 
-}
 }
 }
 \seealso{

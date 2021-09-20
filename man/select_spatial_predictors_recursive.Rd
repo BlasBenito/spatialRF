@@ -60,53 +60,51 @@ This method allows to select the smallest set of spatial predictors that have th
 The algorithm works as follows. If the function \code{\link[=rank_spatial_predictors]{rank_spatial_predictors()}} returns 10 ranked spatial predictors (sp1 to sp10, being sp7 the best one), \code{\link[=select_spatial_predictors_recursive]{select_spatial_predictors_recursive()}} is going to first fit the model \code{y ~ predictors + sp7}. Then, the spatial predictors sp2 to sp9 are again ranked with \code{\link[=rank_spatial_predictors]{rank_spatial_predictors()}} using the model \code{y ~ predictors + sp7} as reference (at this stage, some of the spatial predictors might be dropped due to lack of effect). When the new ranking of spatial predictors is ready (let's say they are sp5, sp3, and sp4), the best one (sp5) is included in the model \code{y ~ predictors + sp7 + sp5}, and the remaining ones go again to \code{\link[=rank_spatial_predictors]{rank_spatial_predictors()}} to repeat the process until spatial predictors are depleted.
 }
 \examples{
-\donttest{
 if(interactive()){
 
+#loading example data
 data(distance_matrix)
 data(plant_richness_df)
 
-#common arguments
-data = plant_richness_df
+#response and preditor names
 dependent.variable.name = "richness_species_vascular"
 predictor.variable.names = colnames(plant_richness_df)[5:21]
-distance.matrix = distance_matrix
 distance.thresholds = c(0, 100, 1000)
 
 #non-spatial model
 model <- rf(
-  data = data,
+  data = plant_richness_df,
   dependent.variable.name = dependent.variable.name,
   predictor.variable.names = predictor.variable.names,
-  distance.matrix = distance.matrix,
+  distance.matrix = distance_matrix,
   distance.thresholds = distance.thresholds
 )
 
 #preparing spatial predictors
 spatial.predictors <- mem_multithreshold(
-  distance.matrix = distance.matrix,
+  distance.matrix = distance_matrix,
   distance.thresholds = distance.thresholds
 )
 
 #ranking spatial predictors
 spatial.predictors.ranking <- rank_spatial_predictors(
-  data = data,
+  data = plant_richness_df,
   dependent.variable.name = dependent.variable.name,
   predictor.variable.names = predictor.variable.names,
   spatial.predictors.df = spatial.predictors,
   ranking.method = "moran",
   reference.moran.i = model$spatial.correlation.residuals$max.moran,
-  distance.matrix = distance.matrix,
+  distance.matrix = distance_matrix,
   distance.thresholds = distance.thresholds,
   n.cores = 1
 )
 
 #selecting the best subset of predictors
 selection <- select_spatial_predictors_recursive(
-  data = data,
+  data = plant_richness_df,
   dependent.variable.name = dependent.variable.name,
   predictor.variable.names = predictor.variable.names,
-  distance.matrix = distance.matrix,
+  distance.matrix = distance_matrix,
   distance.thresholds = distance.thresholds,
   spatial.predictors.df = spatial.predictors,
   spatial.predictors.ranking = spatial.predictors.ranking,
@@ -117,6 +115,5 @@ selection$optimization
 selection$best.spatial.predictors
 plot_optimization(selection$optimization)
 
-}
 }
 }

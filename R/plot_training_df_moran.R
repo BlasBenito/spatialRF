@@ -9,10 +9,13 @@
 #' @param point.color Character vector with a color name (e.g. "red4"). Default: `gray30`
 #' @return A ggplot2 object.
 #' @examples
-#' \dontrun{
 #' if(interactive()){
+#'
+#'    #load example data
 #'    data(plant_richness_df)
 #'    data(distance_matrix)
+#'
+#'    #plot Moran's I of training data
 #'    plot_moran_training_data(
 #'      data = plant_richness_df,
 #'      dependent.variable.name = "richness_species_vascular",
@@ -26,7 +29,6 @@
 #'        8000
 #'        )
 #'      )
-#'  }
 #' }
 #' @rdname plot_training_df_moran
 #' @export

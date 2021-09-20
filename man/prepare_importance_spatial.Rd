@@ -16,12 +16,13 @@ A list with importance data frames in different formats depending on whether the
 Prepares variable importance data frames and plots for models fitted with \code{\link[=rf_spatial]{rf_spatial()}}.
 }
 \examples{
-\dontrun{
 if(interactive()){
 
+ #loading example data
  data(distance_matrix)
  data(plant_richness_df)
 
+ #fittind spatial model
  model <- rf_spatial(
    data = plant_richness_df,
    dependent.variable.name = "richness_species_vascular",
@@ -30,9 +31,9 @@ if(interactive()){
    distance.thresholds =  c(0, 500, 1000)
  )
 
+ #preparing the importance data frame
  importance <- prepare_importance_spatial(model)
  names(importance)
 
- }
 }
 }

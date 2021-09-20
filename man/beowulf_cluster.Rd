@@ -30,25 +30,25 @@ A list ready to be used as input for the \code{spec} argument of the function \l
 Defines a Beowulf cluster from the IPs of the machines in the cluster, the number of cores of each machine, and the user name. The returned cluster has to be registered with \code{doParallel::registerDoParallel()}.
 }
 \examples{
-\donttest{
+if(interactive()){
 
-#beowulf.cluster <- beowulf_cluster(
-#  cluster.ips = c(
-#    "10.42.0.1",
-#    "10.42.0.34",
-#    "10.42.0.104"
-#  ),
-# cluster.cores = c(7, 4, 4),
-# cluster.user = "blas",
-# cluster.port = "11000"
-#)
+beowulf.cluster <- beowulf_cluster(
+ cluster.ips = c(
+   "10.42.0.1",
+   "10.42.0.34",
+   "10.42.0.104"
+   ),
+cluster.cores = c(7, 4, 4),
+cluster.user = "blas",
+cluster.port = "11000"
+)
 
 
-#doParallel::registerDoParallel(cl = beowulf.cluster)
+doParallel::registerDoParallel(cl = beowulf.cluster)
 
-##PARALLELIZED foreach LOOP HERE
+#PARALLELIZED foreach LOOP HERE
 
-#parallel::stopCluster(cl = beowulf.cluster)
+parallel::stopCluster(cl = beowulf.cluster)
 
 }
 

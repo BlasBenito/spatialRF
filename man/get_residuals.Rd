@@ -19,8 +19,10 @@ Returns the residuals of models fitted with \code{\link[=rf]{rf()}}, \code{\link
 \donttest{
 if(interactive()){
 
+#load example data
 data(plant_richness_df)
 
+#fit random forest model
 rf.model <- rf(
   data = plant_richness_df,
   dependent.variable.name = "richness_species_vascular",
@@ -28,6 +30,7 @@ rf.model <- rf(
   verbose = FALSE
 )
 
+#getting vector with residuals
 x <- get_residuals(rf.model)
 x
 

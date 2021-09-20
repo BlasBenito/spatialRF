@@ -14,11 +14,12 @@
 #' @details All variables that are not `a` or `b` in a response curve are set to the values of their respective quantiles to plot the response surfaces. The output list can be plotted all at once with `patchwork::wrap_plots(p)` or `cowplot::plot_grid(plotlist = p)`, or one by one by extracting each plot from the list.
 #' @seealso [plot_response_curves()]
 #' @examples
-#' \donttest{
 #' if(interactive()){
 #'
+#'#load example data
 #'data(plant_richness_df)
 #'
+#'#fit random forest model
 #'out <- rf(
 #'  data = plant_richness_df,
 #'  dependent.variable.name = "richness_species_vascular",
@@ -26,10 +27,10 @@
  #'  verbose = FALSE
 #')
 #'
-#'p <- plot_response_surfaces(x = out)
-#'p
+#'#plot interactions between most important predictors
+#'plot_response_surfaces(x = out)
 #'
-#' }
+#'
 #' }
 #' @rdname plot_response_surface
 #' @export

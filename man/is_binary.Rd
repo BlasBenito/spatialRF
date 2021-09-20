@@ -18,18 +18,18 @@ Logical.
 Returns \code{TRUE} if \code{dependent.variable.name} is a binary variable with the values 1 and 0.
 }
 \examples{
-\dontrun{
 if(interactive()){
 
+ #dummy data frame
  data <- data.frame(
    response = c(0, 0, 0, 1, 1)
  )
 
+ #checking if response is binary
  is_binary(
    data = data,
    dependent.variable.name = "response"
  )
 
- }
 }
 }

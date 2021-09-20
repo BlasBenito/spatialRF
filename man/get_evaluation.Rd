@@ -22,12 +22,13 @@ A data frame with evaluation scores. The following columns are shown:
 Returns performance metrics produced by \code{\link[=rf_evaluate]{rf_evaluate()}}.
 }
 \examples{
-\donttest{
 if(interactive()){
 
+#loading data
 data(plant_richness_df)
 data(distance_matrix)
 
+#fitting a random forest model
 rf.model <- rf(
   data = plant_richness_df,
   dependent.variable.name = "richness_species_vascular",
@@ -37,16 +38,17 @@ rf.model <- rf(
   verbose = FALSE
 )
 
+#evaluating the model with spatial cross-validation
 rf.model <- rf_evaluate(
   model = rf.model,
   xy = plant_richness_df[, c("x", "y")],
   verbose = FALSE
 )
 
+#getting evaluation results from the model
 x <- get_evaluation(rf.model)
 x
 
-}
 }
 }
 \seealso{

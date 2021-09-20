@@ -16,13 +16,14 @@ A data frame with the row names indicating the object name, the field 'Type' ind
 Shows the size of the objects currently in the R environment. Helps to locate large objects cluttering the R environment and/or causing memory problems during the execution of large workflows.
 }
 \examples{
-\donttest{
 if(interactive()){
 
+ #creating dummy objects
  x <- matrix(runif(100), 10, 10)
  y <- matrix(runif(10000), 100, 100)
+
+ #reading their in-memory size
  objects_size()
 
-}
 }
 }

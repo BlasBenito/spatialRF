@@ -6,17 +6,18 @@
 #' @return A data frame with as many rows as the distance matrix `x` containing positive Moran's Eigenvector Maps. The data frame columns are named "spatial_predictor_DISTANCE_COLUMN", where DISTANCE is the given distance threshold, and COLUMN is the column index of the given spatial predictor.
 #' @details The function takes the distance matrix `x`, computes its weights at difference distance thresholds, double-centers the resulting weight matrices with [double_center_distance_matrix()], applies \link[base]{eigen} to each double-centered matrix, and returns eigenvectors with positive normalized eigenvalues for different distance thresholds.
 #' @examples
-#' \donttest{
 #' if(interactive()){
 #'
+#'  #loading example data
 #'  data(distance_matrix)
 #'
+#'  #computing Moran's eigenvector maps for 0, 1000, and 2000 km
 #'  mem.df <- mem_multithreshold(
 #'    distance.matrix = distance_matrix,
 #'    distance.thresholds = c(0, 1000, 2000)
 #'    )
 #'  head(mem.df)
-#' }
+#'
 #' }
 #' @rdname mem_multithreshold
 #' @export

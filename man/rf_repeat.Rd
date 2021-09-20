@@ -67,12 +67,13 @@ A ranger model with several new slots:
 Fits several random forest models on the same data in order to capture the effect of the algorithm's stochasticity on the variable importance scores, predictions, residuals, and performance measures. The function relies on the median to aggregate performance and importance values across repetitions. It is recommended to use it after a model is fitted (\code{\link[=rf]{rf()}} or \code{\link[=rf_spatial]{rf_spatial()}}), tuned (\code{\link[=rf_tuning]{rf_tuning()}}), and/or evaluated (\code{\link[=rf_evaluate]{rf_evaluate()}}). This function is designed to be used after fitting a model with \code{\link[=rf]{rf()}} or \code{\link[=rf_spatial]{rf_spatial()}}, tuning it with \code{\link[=rf_tuning]{rf_tuning()}} and evaluating it with \code{\link[=rf_evaluate]{rf_evaluate()}}.
 }
 \examples{
-\donttest{
 if(interactive()){
 
+ #loading example data
  data(plant_richness_df)
  data(distance_matrix)
 
+ #fitting 5 random forest models
  out <- rf_repeat(
    data = plant_richness_df,
    dependent.variable.name = "richness_species_vascular",
@@ -82,8 +83,6 @@ if(interactive()){
    repetitions = 5,
    n.cores = 1
  )
-
- class(out)
 
  #data frame with ordered variable importance
  out$importance$per.variable
@@ -113,10 +112,12 @@ if(interactive()){
    distance.thresholds = c(0, 1000, 2000)
    )
 
+ #repeating the model 5 times
  rf.repeat <- rf_repeat(model = rf.model)
+
+
  rf.repeat$performance
  rf.repeat$importance$per.repetition.plot
 
-}
 }
 }

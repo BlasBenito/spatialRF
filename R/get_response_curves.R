@@ -17,22 +17,23 @@
 #' @details All variables that are not plotted in a particular response curve are set to the values of their respective quantiles, and the response curve for each one of these quantiles is shown in the plot.
 #' @seealso [plot_response_curves()]
 #' @examples
-#' \donttest{
 #' if(interactive()){
 #'
-#'data(plant_richness_df)
+#' #loading example data
+#' data(plant_richness_df)
 #'
-#'out <- rf(
+#' #fitting random forest model
+#' out <- rf(
 #'  data = plant_richness_df,
 #'  dependent.variable.name = "richness_species_vascular",
 #'  predictor.variable.names = colnames(plant_richness_df)[5:21],
 #'  verbose = FALSE
 #')
 #'
+#'#getting data frame with response curves
 #'p <- get_response_curves(out)
 #'head(p)
 #'
-#' }
 #' }
 #' @rdname get_response_curves
 #' @export

@@ -12,12 +12,13 @@
 #' @return Prints a table in the console using the \link[huxtable]{huxtable} package.
 #' @seealso [moran()], [moran_multithreshold()], [get_moran()], [plot_moran()]
 #' @examples
-#' \donttest{
 #' if(interactive()){
 #'
+#'  #loading example data
 #'  data(plant_richness_df)
 #'  data(distance.matrix)
 #'
+#'  #fitting random forest model
 #'  rf.model <- rf(
 #'    data = plant_richness_df,
 #'    dependent.variable.name = "richness_species_vascular",
@@ -27,9 +28,9 @@
 #'    verbose = FALSE
 #'  )
 #'
+#'  #printing Moran's I of model's residuals
 #'  print_moran(rf.model)
 #'
-#' }
 #' }
 #' @rdname print_moran
 #' @export

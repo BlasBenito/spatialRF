@@ -10,22 +10,27 @@
 #' @return A list with two slots named `training` and `testing` with the former having the indices of the training records selected from `xy`, and the latter having the indices of the testing records.
 #' @seealso [make_spatial_folds()], [rf_evaluate()]
 #' @examples
-#' \donttest{
 #' if(interactive()){
 #'
+#'  #loading example data
 #'  data(plant_richness_df)
 #'
+#'  #getting case coordinates
 #'  xy <- plant_richness_df[, 1:3]
 #'  colnames(xy) <- c("id", "x", "y")
+#'
+#'  #building a spatial fold centered in the first pair of coordinates
 #'  out <- make_spatial_fold(
 #'    xy.i = xy[1, ],
 #'    xy = xy,
 #'    training.fraction = 0.6
 #'  )
 #'
+#'  #indices of the training and testing folds
 #'  out$training
 #'  out$testing
 #'
+#'  #plotting the data
 #'  plot(xy[ c("x", "y")], type = "n", xlab = "", ylab = "")
 #'  #plots training points
 #'  points(xy[out$training, c("x", "y")], col = "red4", pch = 15)
@@ -34,7 +39,6 @@
 #'  #plots xy.i
 #'  points(xy[1, c("x", "y")], col = "black", pch = 15, cex = 2)
 #'
-#' }
 #' }
 #' @rdname make_spatial_fold
 #' @export

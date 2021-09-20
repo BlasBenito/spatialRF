@@ -4,12 +4,13 @@
 #' @return A data frame with Moran's I test results produced by [moran_multithreshold()].
 #' @seealso [moran()], [moran_multithreshold()], [plot_moran()], [print_moran()].
 #' @examples
-#' \donttest{
 #' if(interactive()){
 #'
+#'  #loading example data
 #'  data(plant_richness_df)
 #'  data(distance_matrix)
 #'
+#'  #fitting a random forest model
 #'  rf.model <- rf(
 #'    data = plant_richness_df,
 #'    dependent.variable.name = "richness_species_vascular",
@@ -19,9 +20,9 @@
 #'    verbose = FALSE
 #'  )
 #'
+#'  #getting Moran's I of the residuals
 #'  x <- get_moran(rf.model)
 #'
-#' }
 #' }
 #' @rdname get_moran
 #' @export

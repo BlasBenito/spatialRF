@@ -15,7 +15,7 @@ A data frame with 227 rows and 22 columns:
 \item \code{bias_species_per_record}: Number of species divided by the number of spatial GBIF records available in the ecoregion as a measure of sampling bias.
 \item \code{climate_aridity_index_average}: Average \href{https://figshare.com/articles/dataset/Global_Aridity_Index_and_Potential_Evapotranspiration_ET0_Climate_Database_v2/7504448}{aridity index} of the ecoregion.
 \item \code{climate_hypervolume}: Volume of the climatic envelope of the ecoregion, computed with the \href{https://cran.r-project.org/package=hypervolume}{hypervolume} package.
-\item \code{climate_velocity_lgm_average}: Average \href{https://science.sciencemag.org/content/334/6056/660}{climate velocity} of the ecoregion since the Last Glacial Maximum.
+\item \code{climate_velocity_lgm_average}: Average \href{https://www.science.org/doi/10.1126/science.1210173}{climate velocity} of the ecoregion since the Last Glacial Maximum.
 \item \code{neighbors_count}: Number of immediate neighbors of the ecoregion as a measure of connectivity/isolation.
 \item \code{neighbors_percent_shared_edge}: Percentage of shared edge with the neighbors as a measure of connectivity/isolation.
 \item \code{human_population_density}: Population density of the ecoregion.

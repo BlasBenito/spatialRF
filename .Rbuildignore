@@ -20,6 +20,8 @@ _config.yml
 ^\.github$
 tests
 README.html
+README.md
+README.Rmd
 data_Blas.Rdata
 .Rhistory
 comparison_with_other_methods.R

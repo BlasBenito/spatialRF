@@ -14,9 +14,9 @@
 #' @return A model with a new slot named `tuning`, with a data frame with the results of the tuning analysis.
 #' @seealso [rf_evaluate()]
 #' @examples
-#' \donttest{
 #' if(interactive()){
 #'
+#' #loading example data
 #' data(plant_richness_df)
 #' data(distance_matrix)
 #'
@@ -39,7 +39,6 @@
 #'   n.cores = 1
 #' )
 #'
-#' }
 #' }
 #' @importFrom rlang sym
 #' @rdname rf_tuning

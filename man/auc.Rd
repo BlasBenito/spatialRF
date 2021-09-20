@@ -22,8 +22,8 @@ Computes the area under the ROC curve in models with binary responses.
 if(interactive()){
 
  out <- auc(
-   o = runif(10),
-   p = runif(10)
+   o = c(0, 0, 1, 1),
+   p = c(0.1, 0.6, 0.4, 0.8)
    )
 
 }

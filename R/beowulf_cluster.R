@@ -7,25 +7,25 @@
 #' @param outfile Where to direct the messages provided by the workers. When working on a local computer, `""` prints the worker's messages in the console. A text file path will append worker's messages on the given file.  Default: `/dev/null` en Linux and  `nul:` on windows.
 #' @return A list ready to be used as input for the `spec` argument of the function \link[parallel]{makeCluster}.
 #' @examples
-#' \donttest{
+#' if(interactive()){
 #'
-#'#beowulf.cluster <- beowulf_cluster(
-#'#  cluster.ips = c(
-#'#    "10.42.0.1",
-#'#    "10.42.0.34",
-#'#    "10.42.0.104"
-#'#  ),
-#' # cluster.cores = c(7, 4, 4),
-#' # cluster.user = "blas",
-#' # cluster.port = "11000"
-#'#)
+#'beowulf.cluster <- beowulf_cluster(
+#'  cluster.ips = c(
+#'    "10.42.0.1",
+#'    "10.42.0.34",
+#'    "10.42.0.104"
+#'    ),
+#' cluster.cores = c(7, 4, 4),
+#' cluster.user = "blas",
+#' cluster.port = "11000"
+#')
 #'
 #'
-#'#doParallel::registerDoParallel(cl = beowulf.cluster)
+#'doParallel::registerDoParallel(cl = beowulf.cluster)
 #'
-#'##PARALLELIZED foreach LOOP HERE
+#'#PARALLELIZED foreach LOOP HERE
 #'
-#'#parallel::stopCluster(cl = beowulf.cluster)
+#'parallel::stopCluster(cl = beowulf.cluster)
 #'
 #'}
 #'

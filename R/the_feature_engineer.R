@@ -36,23 +36,22 @@
 #'
 #'
 #' @examples
-#' \donttest{
 #' if(interactive()){
 #'
+#'  #load example data
 #'  data(plant_richness_df)
 #'
-#'  interactions <- the_feature_engineer(
+#'  new.features <- the_feature_engineer(
 #'    data = plant_richness_df,
 #'    dependent.variable.name = "richness_species_vascular",
 #'    predictor.variable.names = colnames(plant_richness_df)[5:21],
 #'    verbose = TRUE
 #'  )
 #'
-#'  interactions$screening
-#'  interactions$selected
-#'  interactions$columns
+#'  new.features$screening
+#'  new.features$selected
+#'  new.features$columns
 #'
-#' }
 #' }
 #' @importFrom utils combn
 #' @importFrom foreach %do%

@@ -65,27 +65,30 @@ In both cases, spatial predictors that are redundant with others at a Pearson co
 This function has been designed to be used internally by \code{\link[=rf_spatial]{rf_spatial()}} rather than directly by a user.
 }
 \examples{
-\donttest{
 if(interactive()){
 
- data("distance_matrix")
+ #loading distance matrix
+ data(distance_matrix)
 
-mem.df <- mem(
- distance_matrix = distance_matrix[1:50, 1:50],
- distance.threshold = 0
-)
+ #computing Moran's Eigenvector Maps
+ mem.df <- mem(
+  distance.matrix = distance_matrix[1:50, 1:50],
+  distance.threshold = 0
+ )
 
-#ranking by the Moran's I of the spatial predictor
-rank <- rank_spatial_predictors(
- distance.matrix = distance_matrix[1:50, 1:50],
- distance.thresholds = 0,
- spatial.predictors.df = mem.df,
- ranking.method = "moran",
- n.cores = 1
-)
-rank$criteria
-rank$ranking
+ #ranking by the Moran's I of the spatial predictor
+ rank <- rank_spatial_predictors(
+  distance.matrix = distance_matrix[1:50, 1:50],
+  distance.thresholds = 0,
+  spatial.predictors.df = mem.df,
+  ranking.method = "moran",
+  n.cores = 1
+ )
 
- }
+ #checking Moran's I of MEMs
+ rank$criteria
+
+ #checking rank of MEMs
+ rank$ranking
 }
 }

@@ -58,13 +58,14 @@ The input model with new data in its "importance" slot. The new importance score
 Evaluates the contribution of the predictors to model transferability via spatial cross-validation. The function returns the median increase or decrease in a given evaluation metric (R2, pseudo R2, RMSE, nRMSE, or AUC) when a variable is introduced in a model, by comparing and evaluating via spatial cross-validation models with and without the given variable. This function was devised to provide importance scores that would be less sensitive to spatial autocorrelation than those computed internally by random forest on the out-of-bag data. This function is experimental.
 }
 \examples{
-\donttest{
 if(interactive()){
 
+#loading example data
 data(plant_richness_df)
 data(distance_matrix)
 xy <- plant_richness_df[, c("x", "y")]
 
+#fitting random forest model
 rf.model <- rf(
   data = plant_richness_df,
   dependent.variable.name = "richness_species_vascular",
@@ -75,9 +76,9 @@ rf.model <- rf(
   verbose = FALSE
 )
 
+#computing predictor contribution to model transferability
 rf.model <- rf_importance(rf.model)
 
-}
 }
 
 }

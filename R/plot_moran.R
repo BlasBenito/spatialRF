@@ -22,12 +22,13 @@
 #' @return A ggplot.
 #' @seealso [moran()], [moran_multithreshold()]
 #' @examples
-#' \donttest{
 #' if(interactive()){
 #'
+#'  #loading example data
 #'  data(plant_richness_df)
 #'  data(distance.matrix)
 #'
+#'  #fitting a random forest model
 #'  rf.model <- rf(
 #'    data = plant_richness_df,
 #'    dependent.variable.name = "richness_species_vascular",
@@ -37,13 +38,12 @@
 #'    verbose = FALSE
 #'  )
 #'
-#'  #line plot
+#'  #Incremental/multiscale Moran's I
 #'  plot_moran(rf.model)
 #'
-#'  #scatterplot
+#'  #Moran's scatterplot
 #'  plot_moran(rf.model, option = 2)
 #'
-#' }
 #' }
 #' @rdname plot_moran
 #' @export

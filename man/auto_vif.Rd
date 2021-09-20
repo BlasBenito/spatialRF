@@ -40,23 +40,32 @@ This function has two modes of operation:
 Can be chained together with \code{\link[=auto_cor]{auto_cor()}} through pipes, see the examples below.
 }
 \examples{
-\donttest{
 if(interactive()){
 
- out <- auto_vif(x = plant_richness_df[, 5:20])
- out$selected.variables
+#loading data
+data(plant_richness_df)
 
- #on the result of auto_cor
- out <- auto_cor(x = plant_richness_df[, 5:20])
- out <- auto_vif(x = out)
+#on a data frame
+out <- auto_vif(x = plant_richness_df[, 5:21])
 
- #with pipes (cor and vif thresholds are arbitrary)
- out <- plant_richness_df[, 5:20] \%>\%
- auto_cor(cor.threshold = 0.4) \%>\%
- auto_vif(vif.threshold = 2.5)
+#getting out the vif data frame
+out$vif
 
+#getting the names of the selected variables
+out$selected.variables
 
- }
+#getting the data frame of selected variables
+out$selected.variables.df
+
+#on the result of auto_cor
+out <- auto_cor(x = plant_richness_df[, 5:21])
+out <- auto_vif(x = out)
+
+#with pipes
+out <- plant_richness_df[, 5:21] \%>\%
+ auto_cor() \%>\%
+ auto_vif()
+
 }
 }
 \seealso{

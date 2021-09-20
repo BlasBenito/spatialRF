@@ -9,7 +9,6 @@ test_that("`make_spatial_folds()` works", {
   out <- make_spatial_folds(
     xy.selected = xy.selected,
     xy = xy,
-    distance.step = 0.05,
     training.fraction = 0.6,
     n.cores = 1
   )

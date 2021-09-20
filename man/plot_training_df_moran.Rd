@@ -36,10 +36,13 @@ A ggplot2 object.
 Plots the the Moran's I test of the response and the predictors in a training data frame.
 }
 \examples{
-\dontrun{
 if(interactive()){
+
+   #load example data
    data(plant_richness_df)
    data(distance_matrix)
+
+   #plot Moran's I of training data
    plot_moran_training_data(
      data = plant_richness_df,
      dependent.variable.name = "richness_species_vascular",
@@ -53,6 +56,5 @@ if(interactive()){
        8000
        )
      )
- }
 }
 }

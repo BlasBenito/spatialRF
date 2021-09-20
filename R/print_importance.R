@@ -10,12 +10,13 @@
 #' @return A table printed to the standard output.
 #' @seealso [plot_importance()], [get_importance()]
 #' @examples
-#' \donttest{
 #' if(interactive()){
 #'
+#' #loading example data
 #' data(plant_richness_df)
 #' data(distance.matrix)
 #'
+#' #fitting a random forest model
 #' rf.model <- rf(
 #'   data = plant_richness_df,
 #'   dependent.variable.name = "richness_species_vascular",
@@ -25,9 +26,9 @@
 #'   verbose = FALSE
 #' )
 #'
+#' #printing variable importance scores
 #' print_importance(model = rf.model)
 #'
-#' }
 #' }
 #' @rdname print_importance
 #' @export

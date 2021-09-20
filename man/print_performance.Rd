@@ -13,12 +13,13 @@ print_performance(model)
 Prints the performance slot of a model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}. For models fitted with \code{\link[=rf_repeat]{rf_repeat()}} it shows the median and the median absolute deviation of each performance measure.
 }
 \examples{
-\donttest{
 if(interactive()){
 
+ #loading example data
  data(plant_richness_df)
  data(distance.matrix)
 
+ #fitting a random forest model
  rf.model <- rf(
    data = plant_richness_df,
    dependent.variable.name = "richness_species_vascular",
@@ -28,9 +29,9 @@ if(interactive()){
    verbose = FALSE
  )
 
+ #printing performance scores
  print_performance(rf.model)
 
-}
 }
 }
 \seealso{

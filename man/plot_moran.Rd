@@ -37,12 +37,13 @@ A ggplot.
 Plots the results of spatial autocorrelation tests for a variety of functions within the package. The x axis represents the Moran's I estimate, the y axis contains the values of the distance thresholds, the dot sizes represent the p-values of the Moran's I estimate, and the red dashed line represents the theoretical null value of the Moran's I estimate.
 }
 \examples{
-\donttest{
 if(interactive()){
 
+ #loading example data
  data(plant_richness_df)
  data(distance.matrix)
 
+ #fitting a random forest model
  rf.model <- rf(
    data = plant_richness_df,
    dependent.variable.name = "richness_species_vascular",
@@ -52,13 +53,12 @@ if(interactive()){
    verbose = FALSE
  )
 
- #line plot
+ #Incremental/multiscale Moran's I
  plot_moran(rf.model)
 
- #scatterplot
+ #Moran's scatterplot
  plot_moran(rf.model, option = 2)
 
-}
 }
 }
 \seealso{

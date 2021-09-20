@@ -1,16 +1,17 @@
-#' @title Default distance thresholds from distance matrix
+#' @title Default distance thresholds to generate spatial predictors
 #' @description Generates four distance thresholds, from 0 to max(distance.matrix)/2.
 #' @param distance.matrix Distance matrix. Default: `NULL`.
 #' @return A numeric vector with distance thresholds.
 #' @examples
-#' \dontrun{
 #' if(interactive()){
 #'
+#'  #loading example distance matrix
 #'  data(distance_matrix)
+#'
+#'  #computing set of default distance thresholds
 #'  default_distance_thresholds(distance_matrix)
 #'
 #'  }
-#' }
 #' @rdname default_distance_thresholds
 #' @export
 default_distance_thresholds <- function(
