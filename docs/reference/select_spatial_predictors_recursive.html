@@ -204,53 +204,51 @@ This method allows to select the smallest set of spatial predictors that have th
     <p>The algorithm works as follows. If the function <code><a href='rank_spatial_predictors.html'>rank_spatial_predictors()</a></code> returns 10 ranked spatial predictors (sp1 to sp10, being sp7 the best one), <code>select_spatial_predictors_recursive()</code> is going to first fit the model <code>y ~ predictors + sp7</code>. Then, the spatial predictors sp2 to sp9 are again ranked with <code><a href='rank_spatial_predictors.html'>rank_spatial_predictors()</a></code> using the model <code>y ~ predictors + sp7</code> as reference (at this stage, some of the spatial predictors might be dropped due to lack of effect). When the new ranking of spatial predictors is ready (let's say they are sp5, sp3, and sp4), the best one (sp5) is included in the model <code>y ~ predictors + sp7 + sp5</code>, and the remaining ones go again to <code><a href='rank_spatial_predictors.html'>rank_spatial_predictors()</a></code> to repeat the process until spatial predictors are depleted.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='co'># \donttest{</span>
-<span class='kw'>if</span>(<span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span>()){
+    <pre class="examples"><div class='input'><span class='kw'>if</span>(<span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span>()){
 
+<span class='co'>#loading example data</span>
 <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>distance_matrix</span>)
 <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>plant_richness_df</span>)
 
-<span class='co'>#common arguments</span>
-<span class='no'>data</span> <span class='kw'>=</span> <span class='no'>plant_richness_df</span>
+<span class='co'>#response and preditor names</span>
 <span class='no'>dependent.variable.name</span> <span class='kw'>=</span> <span class='st'>"richness_species_vascular"</span>
 <span class='no'>predictor.variable.names</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span>(<span class='no'>plant_richness_df</span>)[<span class='fl'>5</span>:<span class='fl'>21</span>]
-<span class='no'>distance.matrix</span> <span class='kw'>=</span> <span class='no'>distance_matrix</span>
 <span class='no'>distance.thresholds</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0</span>, <span class='fl'>100</span>, <span class='fl'>1000</span>)
 
 <span class='co'>#non-spatial model</span>
 <span class='no'>model</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='rf.html'>rf</a></span>(
-  <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>data</span>,
+  <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>plant_richness_df</span>,
   <span class='kw'>dependent.variable.name</span> <span class='kw'>=</span> <span class='no'>dependent.variable.name</span>,
   <span class='kw'>predictor.variable.names</span> <span class='kw'>=</span> <span class='no'>predictor.variable.names</span>,
-  <span class='kw'>distance.matrix</span> <span class='kw'>=</span> <span class='no'>distance.matrix</span>,
+  <span class='kw'>distance.matrix</span> <span class='kw'>=</span> <span class='no'>distance_matrix</span>,
   <span class='kw'>distance.thresholds</span> <span class='kw'>=</span> <span class='no'>distance.thresholds</span>
 )
 
 <span class='co'>#preparing spatial predictors</span>
 <span class='no'>spatial.predictors</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='mem_multithreshold.html'>mem_multithreshold</a></span>(
-  <span class='kw'>distance.matrix</span> <span class='kw'>=</span> <span class='no'>distance.matrix</span>,
+  <span class='kw'>distance.matrix</span> <span class='kw'>=</span> <span class='no'>distance_matrix</span>,
   <span class='kw'>distance.thresholds</span> <span class='kw'>=</span> <span class='no'>distance.thresholds</span>
 )
 
 <span class='co'>#ranking spatial predictors</span>
 <span class='no'>spatial.predictors.ranking</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='rank_spatial_predictors.html'>rank_spatial_predictors</a></span>(
-  <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>data</span>,
+  <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>plant_richness_df</span>,
   <span class='kw'>dependent.variable.name</span> <span class='kw'>=</span> <span class='no'>dependent.variable.name</span>,
   <span class='kw'>predictor.variable.names</span> <span class='kw'>=</span> <span class='no'>predictor.variable.names</span>,
   <span class='kw'>spatial.predictors.df</span> <span class='kw'>=</span> <span class='no'>spatial.predictors</span>,
   <span class='kw'>ranking.method</span> <span class='kw'>=</span> <span class='st'>"moran"</span>,
   <span class='kw'>reference.moran.i</span> <span class='kw'>=</span> <span class='no'>model</span>$<span class='no'>spatial.correlation.residuals</span>$<span class='no'>max.moran</span>,
-  <span class='kw'>distance.matrix</span> <span class='kw'>=</span> <span class='no'>distance.matrix</span>,
+  <span class='kw'>distance.matrix</span> <span class='kw'>=</span> <span class='no'>distance_matrix</span>,
   <span class='kw'>distance.thresholds</span> <span class='kw'>=</span> <span class='no'>distance.thresholds</span>,
   <span class='kw'>n.cores</span> <span class='kw'>=</span> <span class='fl'>1</span>
 )
 
 <span class='co'>#selecting the best subset of predictors</span>
 <span class='no'>selection</span> <span class='kw'>&lt;-</span> <span class='fu'>select_spatial_predictors_recursive</span>(
-  <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>data</span>,
+  <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>plant_richness_df</span>,
   <span class='kw'>dependent.variable.name</span> <span class='kw'>=</span> <span class='no'>dependent.variable.name</span>,
   <span class='kw'>predictor.variable.names</span> <span class='kw'>=</span> <span class='no'>predictor.variable.names</span>,
-  <span class='kw'>distance.matrix</span> <span class='kw'>=</span> <span class='no'>distance.matrix</span>,
+  <span class='kw'>distance.matrix</span> <span class='kw'>=</span> <span class='no'>distance_matrix</span>,
   <span class='kw'>distance.thresholds</span> <span class='kw'>=</span> <span class='no'>distance.thresholds</span>,
   <span class='kw'>spatial.predictors.df</span> <span class='kw'>=</span> <span class='no'>spatial.predictors</span>,
   <span class='kw'>spatial.predictors.ranking</span> <span class='kw'>=</span> <span class='no'>spatial.predictors.ranking</span>,
@@ -261,8 +259,7 @@ This method allows to select the smallest set of spatial predictors that have th
 <span class='no'>selection</span>$<span class='no'>best.spatial.predictors</span>
 <span class='fu'><a href='plot_optimization.html'>plot_optimization</a></span>(<span class='no'>selection</span>$<span class='no'>optimization</span>)
 
-}
-<span class='co'># }</span></div></pre>
+}</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

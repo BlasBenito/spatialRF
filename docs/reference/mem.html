@@ -154,16 +154,15 @@
     <div class='dont-index'><p><code><a href='mem_multithreshold.html'>mem_multithreshold()</a></code>, <code><a href='rf_spatial.html'>rf_spatial()</a></code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='co'># \donttest{</span>
-<span class='kw'>if</span>(<span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span>()){
+    <pre class="examples"><div class='input'><span class='kw'>if</span>(<span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span>()){
 
+ <span class='co'>#loading example distance matrix</span>
  <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>distance_matrix</span>)
 
- <span class='no'>distance_matrix.mem</span> <span class='kw'>&lt;-</span> <span class='fu'>mem</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>distance_matrix</span>)
- <span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span>(<span class='no'>distance_matrix.mem</span>)
+ <span class='co'>#Moran's Eigenvector Maps of the distance matrix</span>
+ <span class='no'>mem</span> <span class='kw'>&lt;-</span> <span class='fu'>mem</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>distance_matrix</span>)
 
-}
-<span class='co'># }</span></div></pre>
+}</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

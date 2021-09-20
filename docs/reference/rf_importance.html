@@ -204,13 +204,14 @@
     <p>The input model with new data in its "importance" slot. The new importance scores are included in the data frame <code>model$importance$per.variable</code>, under the column names "importance.cv" (median contribution to transferability over spatial cross-validation repetitions), "importance.cv.mad" (median absolute deviation of the performance scores over spatial cross-validation repetitions), "importance.cv.percent" ("importance.cv" expressed as a percent, taking the full model's performance as baseline), and "importance.cv.mad" (median absolute deviation of "importance.cv"). The plot is stored as "cv.per.variable.plot".</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='co'># \donttest{</span>
-<span class='kw'>if</span>(<span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span>()){
+    <pre class="examples"><div class='input'><span class='kw'>if</span>(<span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span>()){
 
+<span class='co'>#loading example data</span>
 <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>plant_richness_df</span>)
 <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>distance_matrix</span>)
 <span class='no'>xy</span> <span class='kw'>&lt;-</span> <span class='no'>plant_richness_df</span>[, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"x"</span>, <span class='st'>"y"</span>)]
 
+<span class='co'>#fitting random forest model</span>
 <span class='no'>rf.model</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='rf.html'>rf</a></span>(
   <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>plant_richness_df</span>,
   <span class='kw'>dependent.variable.name</span> <span class='kw'>=</span> <span class='st'>"richness_species_vascular"</span>,
@@ -221,10 +222,10 @@
   <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
 )
 
+<span class='co'>#computing predictor contribution to model transferability</span>
 <span class='no'>rf.model</span> <span class='kw'>&lt;-</span> <span class='fu'>rf_importance</span>(<span class='no'>rf.model</span>)
 
-}
-<span class='co'># }</span></div></pre>
+}</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

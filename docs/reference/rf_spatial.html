@@ -258,33 +258,33 @@ Methods to generate spatial predictors:</p><ul>
 </ul><p>Once ranking procedure is completed, an algorithm is used to select the minimal subset of spatial predictors that reduce the most the Moran's I of the residuals: for each new spatial predictor introduced in the model, the Moran's I of the residuals, it's p-value, a binary version of the p-value (0 if &lt; 0.05 and 1 if &gt;= 0.05), the R-squared of the model, and a penalization linear with the number of spatial predictors introduced (computed as <code>(1 / total spatial predictors) * introduced spatial predictors</code>) are rescaled between 0 and 1. Then, the optimization criteria is computed as <code>max(1 - Moran's I, p-value binary) + (weight.r.squared * R-squared) - (weight.penalization.n.predictors * penalization)</code>. The predictors from the first one to the one with the highest optimization criteria are then selected as the best ones in reducing the spatial correlation of the model residuals, and used along with <code>data</code> to fit the final spatial model.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='co'># \donttest{</span>
-<span class='kw'>if</span>(<span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span>()){
+    <pre class="examples"><div class='input'><span class='kw'>if</span>(<span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span>()){
 
+ <span class='co'>#loading example data</span>
  <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>distance_matrix</span>)
  <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>plant_richness_df</span>)
- <span class='no'>data</span> <span class='kw'>&lt;-</span> <span class='no'>plant_richness_df</span>
+
+ <span class='co'>#names of the response and predictors</span>
  <span class='no'>dependent.variable.name</span> <span class='kw'>&lt;-</span> <span class='st'>"richness_species_vascular"</span>
  <span class='no'>predictor.variable.names</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span>(<span class='no'>plant_richness_df</span>)[<span class='fl'>5</span>:<span class='fl'>21</span>]
- <span class='no'>distance.matrix</span> <span class='kw'>&lt;-</span> <span class='no'>distance_matrix</span>
  <span class='no'>distance.thresholds</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0</span>, <span class='fl'>500</span>, <span class='fl'>1000</span>)
 
  <span class='co'>#hengl</span>
  <span class='no'>model</span> <span class='kw'>&lt;-</span> <span class='fu'>rf_spatial</span>(
-   <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>data</span>,
+   <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>plant_richness_df</span>,
    <span class='kw'>dependent.variable.name</span> <span class='kw'>=</span> <span class='no'>dependent.variable.name</span>,
    <span class='kw'>predictor.variable.names</span> <span class='kw'>=</span> <span class='no'>predictor.variable.names</span>,
-   <span class='kw'>distance.matrix</span> <span class='kw'>=</span> <span class='no'>distance.matrix</span>,
+   <span class='kw'>distance.matrix</span> <span class='kw'>=</span> <span class='no'>distance_matrix</span>,
    <span class='kw'>distance.thresholds</span> <span class='kw'>=</span> <span class='no'>distance.thresholds</span>,
    <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"hengl"</span>
  )
 
  <span class='co'>#mem.moran.sequential</span>
  <span class='no'>model</span> <span class='kw'>&lt;-</span> <span class='fu'>rf_spatial</span>(
-   <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>data</span>,
+   <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>plant_richness_df</span>,
    <span class='kw'>dependent.variable.name</span> <span class='kw'>=</span> <span class='no'>dependent.variable.name</span>,
    <span class='kw'>predictor.variable.names</span> <span class='kw'>=</span> <span class='no'>predictor.variable.names</span>,
-   <span class='kw'>distance.matrix</span> <span class='kw'>=</span> <span class='no'>distance.matrix</span>,
+   <span class='kw'>distance.matrix</span> <span class='kw'>=</span> <span class='no'>distance_matrix</span>,
    <span class='kw'>distance.thresholds</span> <span class='kw'>=</span> <span class='no'>distance.thresholds</span>,
    <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"mem.moran.sequential"</span>,
    <span class='kw'>seed</span> <span class='kw'>=</span> <span class='fl'>1</span>
@@ -300,12 +300,12 @@ Methods to generate spatial predictors:</p><ul>
  )
  <span class='no'>rf.model</span>$<span class='no'>spatial.correlation.residuals</span>$<span class='no'>plot</span>
 
+ <span class='co'>#spatial version of the rf model</span>
  <span class='no'>rf.spatial</span> <span class='kw'>&lt;-</span> <span class='fu'>rf_spatial</span>(<span class='kw'>model</span> <span class='kw'>=</span> <span class='no'>rf.model</span>)
  <span class='no'>rf.spatial</span>$<span class='no'>spatial.correlation.residuals</span>$<span class='no'>plot</span>
 
 
-}
-<span class='co'># }</span></div></pre>
+}</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

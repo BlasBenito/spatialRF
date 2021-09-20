@@ -151,20 +151,20 @@
     <div class='dont-index'><p><code><a href='thinning.html'>thinning()</a></code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='co'># \donttest{</span>
-<span class='kw'>if</span>(<span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span>()){
+    <pre class="examples"><div class='input'><span class='kw'>if</span>(<span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span>()){
 
- <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>plant_richness</span>)
+ <span class='co'>#loading example data</span>
+ <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>plant_richness_df</span>)
 
+ <span class='co'>#thinning to ~20 records</span>
  <span class='no'>plant_richness.thin</span> <span class='kw'>&lt;-</span> <span class='fu'>thinning_til_n</span>(
    <span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>plant_richness_df</span>,
-   <span class='kw'>n</span> <span class='kw'>=</span> <span class='fl'>100</span>
+   <span class='kw'>n</span> <span class='kw'>=</span> <span class='fl'>20</span>
    )
 
  <span class='no'>plant_richness.thin</span>
 
-}
-<span class='co'># }</span></div></pre>
+}</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

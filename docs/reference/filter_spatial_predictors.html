@@ -153,17 +153,19 @@
     <p>A data frame with non-redundant spatial predictors.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
-<span class='kw'>if</span>(<span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span>()){
+    <pre class="examples"><div class='input'><span class='kw'>if</span>(<span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span>()){
 
+<span class='co'>#loading data</span>
 <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='st'>"distance_matrix"</span>)
 <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='st'>"plant_richness_df"</span>)
 
+<span class='co'>#computing Moran's Eigenvector Maps</span>
 <span class='no'>spatial.predictors.df</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='mem_multithreshold.html'>mem_multithreshold</a></span>(
   <span class='kw'>distance_matrix</span> <span class='kw'>=</span> <span class='no'>distance_matrix</span>,
   <span class='kw'>distance.thresholds</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0</span>, <span class='fl'>100</span>, <span class='fl'>200</span>, <span class='fl'>1000</span>, <span class='fl'>2000</span>)
   )
 
+<span class='co'>#filtering spatial predictors</span>
 <span class='no'>spatial.predictors.df</span> <span class='kw'>&lt;-</span> <span class='fu'>filter_spatial_predictors</span>(
   <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>plant_richness_df</span>,
   <span class='kw'>predictor.variable.names</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span>(<span class='no'>plant_richness_df</span>)[<span class='fl'>5</span>:<span class='fl'>21</span>],
@@ -172,7 +174,6 @@
  )
 
 
- }
 }</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

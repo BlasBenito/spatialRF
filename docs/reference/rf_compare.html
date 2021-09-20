@@ -211,12 +211,13 @@
     <div class='dont-index'><p><code><a href='rf_evaluate.html'>rf_evaluate()</a></code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='co'># \donttest{</span>
-<span class='kw'>if</span>(<span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span>()){
+    <pre class="examples"><div class='input'><span class='kw'>if</span>(<span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span>()){
 
+ <span class='co'>#loading example data</span>
  <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>distance_matrix</span>)
  <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>plant_richness_df</span>)
 
+ <span class='co'>#fitting random forest model</span>
  <span class='no'>rf.model</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='rf.html'>rf</a></span>(
    <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>plant_richness_df</span>,
    <span class='kw'>dependent.variable.name</span> <span class='kw'>=</span> <span class='st'>"richness_species_vascular"</span>,
@@ -225,19 +226,20 @@
    <span class='kw'>distance.thresholds</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0</span>, <span class='fl'>1000</span>, <span class='fl'>2000</span>)
  )
 
+ <span class='co'>#fitting a spatial model with Moran's Eigenvector Maps</span>
  <span class='no'>rf.spatial</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='rf_spatial.html'>rf_spatial</a></span>(<span class='kw'>model</span> <span class='kw'>=</span> <span class='no'>rf.model</span>)
 
-<span class='no'>comparison</span> <span class='kw'>&lt;-</span> <span class='fu'>rf_compare</span>(
+ <span class='co'>#comparing the spatial and non spatial models</span>
+ <span class='no'>comparison</span> <span class='kw'>&lt;-</span> <span class='fu'>rf_compare</span>(
  <span class='kw'>models</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(
    <span class='kw'>`Non spatial`</span> <span class='kw'>=</span> <span class='no'>rf.model</span>,
    <span class='kw'>Spatial</span> <span class='kw'>=</span> <span class='no'>rf.spatial</span>
  ),
  <span class='kw'>xy</span> <span class='kw'>=</span> <span class='no'>plant_richness_df</span>[, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"x"</span>, <span class='st'>"y"</span>)],
  <span class='kw'>metrics</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"r.squared"</span>, <span class='st'>"rmse"</span>)
-)
+ )
 
- }
-<span class='co'># }</span></div></pre>
+}</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

@@ -208,12 +208,13 @@
     <p>The evaluation algorithm works as follows: the number of <code>repetitions</code> and the input dataset (stored in <code>model$ranger.arguments$data</code>) are used as inputs for the function <code><a href='thinning_til_n.html'>thinning_til_n()</a></code>, that applies <code><a href='thinning.html'>thinning()</a></code> to the input data until as many cases as <code>repetitions</code> are left, and as separated as possible. Each of these remaining records will be used as a "fold center". From that point, the fold grows, until a number of points equal (or close) to <code>training.fraction</code> is reached. The indices of the records within the grown spatial fold are stored as "training" in the output list, and the remaining ones as "testing". Then, for each spatial fold, a "training model" is fitted using the cases corresponding with the training indices, and predicted over the cases corresponding with the testing indices. The model predictions on the "unseen" data are compared with the observations, and the performance measures (R squared, pseudo R squared, RMSE and NRMSE) computed.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='co'># \donttest{</span>
-<span class='kw'>if</span>(<span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span>()){
+    <pre class="examples"><div class='input'><span class='kw'>if</span>(<span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span>()){
 
+<span class='co'>#loading example data</span>
 <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>plant_richness_df</span>)
 <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>distance_matrix</span>)
 
+<span class='co'>#fitting random forest model</span>
 <span class='no'>rf.model</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='rf.html'>rf</a></span>(
   <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>plant_richness_df</span>,
   <span class='kw'>dependent.variable.name</span> <span class='kw'>=</span> <span class='st'>"richness_species_vascular"</span>,
@@ -223,18 +224,19 @@
   <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
 )
 
+<span class='co'>#evaluation with spatial cross-validation</span>
 <span class='no'>rf.model</span> <span class='kw'>&lt;-</span> <span class='fu'>rf_evaluate</span>(
   <span class='kw'>model</span> <span class='kw'>=</span> <span class='no'>rf.model</span>,
   <span class='kw'>xy</span> <span class='kw'>=</span> <span class='no'>plant_richness_df</span>[, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"x"</span>, <span class='st'>"y"</span>)],
   <span class='kw'>n.cores</span> <span class='kw'>=</span> <span class='fl'>1</span>
 )
 
+<span class='co'>#checking evaluation results</span>
 <span class='fu'><a href='plot_evaluation.html'>plot_evaluation</a></span>(<span class='no'>rf.model</span>)
 <span class='fu'><a href='print_evaluation.html'>print_evaluation</a></span>(<span class='no'>rf.model</span>)
 <span class='no'>x</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='get_evaluation.html'>get_evaluation</a></span>(<span class='no'>rf.model</span>)
 
-}
-<span class='co'># }</span></div></pre>
+}</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

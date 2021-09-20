@@ -215,12 +215,13 @@
 
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='co'># \donttest{</span>
-<span class='kw'>if</span>(<span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span>()){
+    <pre class="examples"><div class='input'><span class='kw'>if</span>(<span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span>()){
 
+ <span class='co'>#loading example data</span>
  <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>plant_richness_df</span>)
  <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>distance_matrix</span>)
 
+ <span class='co'>#fitting 5 random forest models</span>
  <span class='no'>out</span> <span class='kw'>&lt;-</span> <span class='fu'>rf_repeat</span>(
    <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>plant_richness_df</span>,
    <span class='kw'>dependent.variable.name</span> <span class='kw'>=</span> <span class='st'>"richness_species_vascular"</span>,
@@ -230,8 +231,6 @@
    <span class='kw'>repetitions</span> <span class='kw'>=</span> <span class='fl'>5</span>,
    <span class='kw'>n.cores</span> <span class='kw'>=</span> <span class='fl'>1</span>
  )
-
- <span class='fu'><a href='https://rdrr.io/r/base/class.html'>class</a></span>(<span class='no'>out</span>)
 
  <span class='co'>#data frame with ordered variable importance</span>
  <span class='no'>out</span>$<span class='no'>importance</span>$<span class='no'>per.variable</span>
@@ -261,12 +260,14 @@
    <span class='kw'>distance.thresholds</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0</span>, <span class='fl'>1000</span>, <span class='fl'>2000</span>)
    )
 
+ <span class='co'>#repeating the model 5 times</span>
  <span class='no'>rf.repeat</span> <span class='kw'>&lt;-</span> <span class='fu'>rf_repeat</span>(<span class='kw'>model</span> <span class='kw'>=</span> <span class='no'>rf.model</span>)
+
+
  <span class='no'>rf.repeat</span>$<span class='no'>performance</span>
  <span class='no'>rf.repeat</span>$<span class='no'>importance</span>$<span class='no'>per.repetition.plot</span>
 
-}
-<span class='co'># }</span></div></pre>
+}</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

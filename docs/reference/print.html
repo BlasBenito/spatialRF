@@ -144,13 +144,14 @@
     <div class='dont-index'><p><code><a href='print_evaluation.html'>print_evaluation()</a></code>, <code><a href='print_importance.html'>print_importance()</a></code>, <code><a href='print_moran.html'>print_moran()</a></code>, <code><a href='print_performance.html'>print_performance()</a></code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='co'># \donttest{</span>
-<span class='kw'>if</span>(<span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span>()){
+    <pre class="examples"><div class='input'><span class='kw'>if</span>(<span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span>()){
 
+ <span class='co'>#loading example data</span>
  <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='st'>"plant_richness_df"</span>)
  <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='st'>"distance_matrix"</span>)
 
- <span class='no'>out</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='rf.html'>rf</a></span>(
+ <span class='co'>#fitting random forest model</span>
+ <span class='no'>rf.model</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='rf.html'>rf</a></span>(
    <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>plant_richness_df</span>,
    <span class='kw'>dependent.variable.name</span> <span class='kw'>=</span> <span class='st'>"richness_species_vascular"</span>,
    <span class='kw'>predictor.variable.names</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span>(<span class='no'>plant_richness_df</span>)[<span class='fl'>5</span>:<span class='fl'>21</span>],
@@ -158,9 +159,9 @@
    <span class='kw'>distance.thresholds</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0</span>, <span class='fl'>100</span>, <span class='fl'>1000</span>, <span class='fl'>10000</span>)
  )
 
- <span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='no'>out</span>)
-}
-<span class='co'># }</span></div></pre>
+ <span class='co'>#printing model summary</span>
+ <span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='no'>rf.model</span>)
+}</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

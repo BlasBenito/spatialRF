@@ -114,9 +114,9 @@
       <small>Source: <a href='https://github.com/BlasBenito/spatialRF/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
-    <div id="version-113-in-progress" class="section level2">
+    <div id="version-113" class="section level2">
 <h2 class="hasAnchor">
-<a href="#version-113-in-progress" class="anchor"></a>Version 1.1.3 (in progress)</h2>
+<a href="#version-113" class="anchor"></a>Version 1.1.3</h2>
 <p>Added the function <code><a href="../reference/rf_importance.html">rf_importance()</a></code>. It fits models with and without each predictor, compares them via spatial cross validation with <code><a href="../reference/rf_evaluate.html">rf_evaluate()</a></code>, and returns the increase/decrease in performance when a given variable is included in the model.</p>
 <p>The default random seed for all functions have changed from <code>NULL</code> to <code>1</code> to facilitate reproducibility.</p>
 <p>The function <code><a href="../reference/rf_evaluate.html">rf_evaluate()</a></code> has a new argument named <code>grow.testing.folds</code>. When set to <code>TRUE</code>, it uses <code>1 - training.fraction</code> instead of <code>training.fraction</code> to grow the spatial folds, and then flips the names of the training and testing folds. As a result, the testing folds are generally surrounded by the training folds (just the opposite of the default behavior of the function), which might be beneficial for particular spatial structures of the training data. Thanks to <strong>Aleksandra Kulawska</strong> for the suggestion!</p>

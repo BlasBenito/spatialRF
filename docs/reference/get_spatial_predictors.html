@@ -139,10 +139,11 @@
     <pre class="examples"><div class='input'><span class='co'># \donttest{</span>
 <span class='kw'>if</span>(<span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span>()){
 
+ <span class='co'>#loading example data</span>
  <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>distance_matrix</span>)
  <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>plant_richness_df</span>)
 
-
+ <span class='co'>#fittind spatial model</span>
  <span class='no'>model</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='rf_spatial.html'>rf_spatial</a></span>(
    <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>plant_richness_df</span>,
    <span class='kw'>dependent.variable.name</span> <span class='kw'>=</span> <span class='st'>"richness_species_vascular"</span>,
@@ -152,8 +153,10 @@
    <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"mem.moran.sequential"</span>
  )
 
+<span class='co'>#getting data frame with the selected spatial predictors</span>
 <span class='no'>spatial.predictors</span> <span class='kw'>&lt;-</span> <span class='fu'>get_spatial_predictors</span>(<span class='no'>model</span>)
 <span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span>(<span class='no'>spatial.predictors</span>)
+
 }
 <span class='co'># }</span></div></pre>
   </div>
