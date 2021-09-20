@@ -9,12 +9,13 @@
 #' }
 #' @seealso [print_performance()]
 #' @examples
-#' \donttest{
 #' if(interactive()){
 #'
+#'  #loading example data
 #'  data(plant_richness_df)
 #'  data(distance.matrix)
 #'
+#'  #fitting random forest model
 #'  rf.model <- rf(
 #'    data = plant_richness_df,
 #'    dependent.variable.name = "richness_species_vascular",
@@ -24,10 +25,10 @@
 #'    verbose = FALSE
 #'  )
 #'
+#'  #getting model performance
 #'  x <- get_performance(rf.model)
 #'  x
 #'
-#' }
 #' }
 #' @rdname get_performance
 #' @export

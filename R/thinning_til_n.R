@@ -12,19 +12,19 @@
 #' @return A data frame with the same columns as xy with a row number close to n.
 #' @seealso [thinning()]
 #' @examples
-#' \donttest{
 #' if(interactive()){
 #'
-#'  data(plant_richness)
+#'  #loading example data
+#'  data(plant_richness_df)
 #'
+#'  #thinning to ~20 records
 #'  plant_richness.thin <- thinning_til_n(
 #'    x = plant_richness_df,
-#'    n = 100
+#'    n = 20
 #'    )
 #'
 #'  plant_richness.thin
 #'
-#' }
 #' }
 #' @rdname thinning_til_n
 #' @importFrom stats dist

@@ -3,12 +3,13 @@
 #' @param model An importance data frame with spatial predictors, or a model fitted with [rf_spatial()].
 #' @return A list with importance data frames in different formats depending on whether the model was fitted with [rf()] or [rf_repeat()].
 #' @examples
-#' \dontrun{
 #' if(interactive()){
 #'
+#'  #loading example data
 #'  data(distance_matrix)
 #'  data(plant_richness_df)
 #'
+#'  #fittind spatial model
 #'  model <- rf_spatial(
 #'    data = plant_richness_df,
 #'    dependent.variable.name = "richness_species_vascular",
@@ -17,10 +18,10 @@
 #'    distance.thresholds =  c(0, 500, 1000)
 #'  )
 #'
+#'  #preparing the importance data frame
 #'  importance <- prepare_importance_spatial(model)
 #'  names(importance)
 #'
-#'  }
 #' }
 #' @rdname prepare_importance_spatial
 #' @importFrom stats median

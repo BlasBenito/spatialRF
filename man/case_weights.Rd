@@ -18,7 +18,6 @@ A vector with a length equal to \code{nrow(data)} with the respective weights of
 When the data is binary, setting the \code{ranager} argument \code{case.weights} helps to minimize the issues produced by class imbalance. This function takes a binary response variable and returns a vector of weights populated with the values \verb{1/#zeros} and \verb{1/#ones}. It is used internally by the function \code{\link[=rf]{rf()}}.
 }
 \examples{
-\dontrun{
 if(interactive()){
 
  data <- data.frame(
@@ -31,5 +30,4 @@ if(interactive()){
  )
 
  }
-}
 }

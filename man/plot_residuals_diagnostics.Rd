@@ -36,12 +36,13 @@ A patchwork object.
 Plots normality and autocorrelation tests of model residuals.
 }
 \examples{
-\dontrun{
 if(interactive()){
 
+ #load example data
  data(plant_richness_df)
  data(distance_matrix)
 
+ #fit a random forest model
  x <- rf(
    data = plant_richness_df,
    dependent.variable.name = "richness_species_vascular",
@@ -49,8 +50,8 @@ if(interactive()){
    distance.matrix = distance_matrix
  )
 
+ #residuals diagnostics
  plot_residuals_diagnostics(x)
 
- }
 }
 }

@@ -16,11 +16,12 @@ A vector with predictions, or median of the predictions across repetitions if th
 Returns model predictions from a model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}.
 }
 \examples{
-\donttest{
 if(interactive()){
 
+#loading example data
 data(plant_richness_df)
 
+#fitting a random forest model
 rf.model <- rf(
   data = plant_richness_df,
   dependent.variable.name = "richness_species_vascular",
@@ -28,9 +29,9 @@ rf.model <- rf(
   verbose = FALSE
 )
 
+#get vector of predictions
 x <- get_predictions(rf.model)
 x
 
-}
 }
 }

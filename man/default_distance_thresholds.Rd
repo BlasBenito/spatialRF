@@ -2,7 +2,7 @@
 % Please edit documentation in R/default_distance_thresholds.R
 \name{default_distance_thresholds}
 \alias{default_distance_thresholds}
-\title{Default distance thresholds from distance matrix}
+\title{Default distance thresholds to generate spatial predictors}
 \usage{
 default_distance_thresholds(distance.matrix = NULL)
 }
@@ -16,12 +16,13 @@ A numeric vector with distance thresholds.
 Generates four distance thresholds, from 0 to max(distance.matrix)/2.
 }
 \examples{
-\dontrun{
 if(interactive()){
 
+ #loading example distance matrix
  data(distance_matrix)
+
+ #computing set of default distance thresholds
  default_distance_thresholds(distance_matrix)
 
  }
-}
 }

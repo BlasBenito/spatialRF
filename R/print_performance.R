@@ -3,12 +3,13 @@
 #' @param model Model fitted with [rf()], [rf_repeat()], or [rf_spatial()].
 #' @seealso [print_performance()], [get_performance()]
 #' @examples
-#' \donttest{
 #' if(interactive()){
 #'
+#'  #loading example data
 #'  data(plant_richness_df)
 #'  data(distance.matrix)
 #'
+#'  #fitting a random forest model
 #'  rf.model <- rf(
 #'    data = plant_richness_df,
 #'    dependent.variable.name = "richness_species_vascular",
@@ -18,9 +19,9 @@
 #'    verbose = FALSE
 #'  )
 #'
+#'  #printing performance scores
 #'  print_performance(rf.model)
 #'
-#' }
 #' }
 #' @rdname print_performance
 #' @export

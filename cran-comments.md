@@ -3,19 +3,34 @@
   + local Ubuntu 20.04, R 4.0.3
   PENDING:
   + rhub
-    + "macos-highsierra-release-cran"
-    + "debian-clang-devel"
-    + "debian-gcc-devel"
-    + "debian-gcc-release"
-    + "solaris-x86-patched"
-    + "solaris-x86-patched-ods"
-    + "windows-x86_64-devel"
-    + "windows-x86_64-release"
+    + "macos-highsierra-release-cran": 0 errors ✓ | 0 warnings ✓ | 0 notes ✓
+    + "debian-clang-devel": 0 errors ✓ | 0 warnings ✓ | 1 note x
+    + "debian-gcc-devel": PREPERROR (docker issues)
+    + "debian-gcc-release": PREPERROR (docker issues)
+    + "solaris-x86-patched": 0 errors ✓ | 0 warnings ✓ | 2 notes x
+    + "solaris-x86-patched-ods":  errors ✓ | 0 warnings ✓ | 2 notes x
+    + "windows-x86_64-devel": 0 errors ✓ | 0 warnings ✓ | 1 note x
+    + "windows-x86_64-release": 0 errors ✓ | 0 warnings ✓ | 1 note x
   
-
-
 ## R CMD check results
 0 ERRORs | 0 WARNINGs | 1 NOTE.
+
+NOTE (all builds):
+
+Possibly misspelled words in DESCRIPTION:
+  al (12:515)
+  et (12:512)
+  Hengl (12:506)
+  MEMs (12:351)
+  multicollinearity (12:815)
+  Neto (12:383)
+  Peres (12:377)
+  RFsp (12:500)
+  transferability (12:924)
+  
+NOTE (solaris):
+
+Files ‘README.md’ or ‘NEWS.md’ cannot be checked without ‘pandoc’ being installed.
   
 ## Pre-release checks
 

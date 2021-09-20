@@ -4,14 +4,12 @@
 #' @return A data frame with two columns having the name of the variables in 'x' and their respective VIF values.
 #' @seealso [auto_vif()], [auto_cor()]
 #' @examples
-#' \donttest{
 #' if(interactive()){
 #'
 #'  data(plant_richness_df)
 #'
 #'  vif(plant_richness_df[, 5:21])
 #'
-#' }
 #' }
 #' @rdname vif
 #' @importFrom tibble rownames_to_column

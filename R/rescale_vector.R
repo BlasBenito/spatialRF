@@ -13,7 +13,6 @@
 #' @param integer Logical, if `TRUE`, coerces the output to integer. Default: `FALSE`
 #' @return A numeric vector of the same length as x, but with its values rescaled between `new.min` and `new.max.`
 #' @examples
-#' \donttest{
 #' if(interactive()){
 #'
 #'  out <- rescale_vector(
@@ -24,7 +23,6 @@
 #'    )
 #'    out
 #'
-#' }
 #' }
 #' @rdname rescale_vector
 #' @export

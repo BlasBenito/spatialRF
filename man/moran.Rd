@@ -35,19 +35,19 @@ Computes the spatial correlation coefficient (Moran's I) of a vector given a dis
 Inspired in the \code{Moran.I()} function of the \href{https://cran.r-project.org/package=ape}{ape} package.
 }
 \examples{
-\donttest{
 if(interactive()){
 
+ #loading example data
  data(distance_matrix)
  data(plant_richness)
 
- moran.out <- moran(
+ #Moran's I of the response variable
+ out <- moran(
    x = plant_richness$richness_species_vascular,
    distance.matrix = distance_matrix
    )
- moran.out
+ out
 
-}
 }
 }
 \seealso{

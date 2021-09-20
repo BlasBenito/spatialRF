@@ -36,14 +36,16 @@ A \link[patchwork]{wrap_plots} object.
 Plots the dependent variable against each predictor.
 }
 \examples{
-\dontrun{
 if(interactive()){
+
+   #load example data
    data(plant_richness_df)
+
+   #scatterplot of the training data
    plot_training_data(
      data = plant_richness_df,
      dependent.variable.name = "richness_species_vascular",
      predictor.variable.names = colnames(plant_richness_df)[5:21]
      )
  }
-}
 }

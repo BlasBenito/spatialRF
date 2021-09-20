@@ -12,25 +12,32 @@
 #' }
 #' @details Can be chained together with [auto_vif()] through pipes, see the examples below.
 #' @examples
-#' \donttest{
 #' if(interactive()){
 #'
+#'  #load data
 #'  data(plant_richness_df)
 #'
 #'  #on a data frame
-#'  out <- auto_cor(x = plant_richness_df[, 4:21])
+#'  out <- auto_cor(x = plant_richness_df[, 5:21])
+#'
+#'  #getting the correlation matrix
+#'  out$cor
+#'
+#'  #getting the names of the selected variables
 #'  out$selected.variables
 #'
+#'  #getting the data frame of selected variables
+#'  out$selected.variables.df
+#'
 #'  #on the result of auto_vif
-#'  out <- auto_vif(x = plant_richness_df[, 5:20])
+#'  out <- auto_vif(x = plant_richness_df[, 5:21])
 #'  out <- auto_cor(x = out)
 #'
-#'  #with pipes (cor and vif thresholds are arbitrary)
-#'  out <- plant_richness_df[, 5:20] %>%
-#'  auto_vif(vif.threshold = 2.5) %>%
-#'  auto_cor(cor.threshold = 0.4)
+#'  #with pipes
+#'  out <- plant_richness_df[, 5:21] %>%
+#'  auto_vif() %>%
+#'  auto_cor()
 #'
-#'  }
 #' }
 #' @seealso [auto_vif()]
 #' @rdname auto_cor

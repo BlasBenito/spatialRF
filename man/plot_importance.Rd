@@ -33,12 +33,13 @@ A ggplot.
 Plots variable importance scores of \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, and \code{\link[=rf_spatial]{rf_spatial()}} models. Distributions of importance scores produced with \code{\link[=rf_repeat]{rf_repeat()}} are plotted using \code{ggplot2::geom_violin}, which shows the median of the density estimate rather than the actual median of the data. However, the violin plots are ordered from top to bottom by the real median of the data to make small differences in median importance easier to spot. Ths function does not plot the result of \code{\link[=rf_importance]{rf_importance()}} yet, but you can find it under \code{model$importance$cv.per.variable.plot}.
 }
 \examples{
-\donttest{
 if(interactive()){
 
+#loading example data
 data(plant_richness_df)
 data(distance_matrix)
 
+#fitting a random forest model
 rf.model <- rf(
  data = plant_richness_df,
  dependent.variable.name = "richness_species_vascular",
@@ -48,9 +49,9 @@ rf.model <- rf(
  verbose = FALSE
 )
 
+#plotting variable importance scores
 plot_importance(model = rf.model)
 
-}
 }
 }
 \seealso{

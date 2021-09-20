@@ -18,13 +18,14 @@ Prints model details to the console.
 Custom print method for models fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, and \code{\link[=rf_spatial]{rf_spatial()}}.
 }
 \examples{
-\donttest{
 if(interactive()){
 
+ #loading example data
  data("plant_richness_df")
  data("distance_matrix")
 
- out <- rf(
+ #fitting random forest model
+ rf.model <- rf(
    data = plant_richness_df,
    dependent.variable.name = "richness_species_vascular",
    predictor.variable.names = colnames(plant_richness_df)[5:21],
@@ -32,8 +33,8 @@ if(interactive()){
    distance.thresholds = c(0, 100, 1000, 10000)
  )
 
- print(out)
-}
+ #printing model summary
+ print(rf.model)
 }
 }
 \seealso{

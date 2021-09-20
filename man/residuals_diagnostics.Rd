@@ -27,13 +27,14 @@ Applies a Shapiro-Wilks test to a numeric vector, and plots the qq plot and the 
 The function \code{shapiro.test()} has a hard limit of 5000 cases. If the model residuals have more than 5000 cases, then \code{sample(x = residuals, size = 5000)} is applied to the model residuals before the test.
 }
 \examples{
-\dontrun{
 if(interactive()){
 
- normality(x = runif(100))
+ residuals_diagnostics(
+   residuals = runif(100),
+   predictions = runif(100)
+ )
 
  }
-}
 }
 \seealso{
 \code{\link[ggplot2]{ggplot}},\code{\link[ggplot2]{aes}},\code{\link[ggplot2]{geom_qq_line}},\code{\link[ggplot2]{ggtheme}},\code{\link[ggplot2]{labs}},\code{\link[ggplot2]{geom_freqpoly}},\code{\link[ggplot2]{geom_abline}}

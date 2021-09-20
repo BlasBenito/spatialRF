@@ -9,16 +9,18 @@
 #' @param line.color Character string, color of the line produced by `ggplot2::geom_smooth()`. Default: `"gray30"`
 #' @return A \link[patchwork]{wrap_plots} object.
 #' @examples
-#' \dontrun{
 #' if(interactive()){
+#'
+#'    #load example data
 #'    data(plant_richness_df)
+#'
+#'    #scatterplot of the training data
 #'    plot_training_data(
 #'      data = plant_richness_df,
 #'      dependent.variable.name = "richness_species_vascular",
 #'      predictor.variable.names = colnames(plant_richness_df)[5:21]
 #'      )
 #'  }
-#' }
 #' @importFrom ggplot2 ggplot aes_string geom_point scale_color_viridis_c theme_bw theme geom_smooth
 #' @importFrom patchwork wrap_plots
 #' @rdname plot_training_df

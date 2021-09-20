@@ -22,12 +22,10 @@ A list with four slots:
 Applies a Shapiro-Wilks test to a numeric vector, and returns a list with the statistic W, its p-value, and a character string with the interpretation.
 }
 \examples{
-\dontrun{
 if(interactive()){
 
- normality(x = runif(100))
+ residuals_test(residuals = runif(100))
 
- }
 }
 }
 \seealso{

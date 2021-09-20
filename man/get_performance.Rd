@@ -21,12 +21,13 @@ A data frame with four columns:
 Returns the performance slot of an \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}} model computed on the out-of-bag data.
 }
 \examples{
-\donttest{
 if(interactive()){
 
+ #loading example data
  data(plant_richness_df)
  data(distance.matrix)
 
+ #fitting random forest model
  rf.model <- rf(
    data = plant_richness_df,
    dependent.variable.name = "richness_species_vascular",
@@ -36,10 +37,10 @@ if(interactive()){
    verbose = FALSE
  )
 
+ #getting model performance
  x <- get_performance(rf.model)
  x
 
-}
 }
 }
 \seealso{

@@ -3,7 +3,7 @@
 \docType{data}
 \name{distance_matrix}
 \alias{distance_matrix}
-\title{Matrix of distances among the American ecoregions.}
+\title{Matrix of distances among ecoregion edges.}
 \format{
 A numeric matrix with 227 rows and columns.
 }
@@ -11,7 +11,7 @@ A numeric matrix with 227 rows and columns.
 data(distance_matrix)
 }
 \description{
-Distance matrix (in km) among the edges of the American ecoregions described in the \link{plant_richness_df} dataset. The polygons themselves are not available as example data due to the size limitations imposed by CRAN for R packages.
+Distance matrix (in km) among the edges of the American ecoregions described in the \link{plant_richness_df} dataset.
 }
 \seealso{
 \link{plant_richness_df}

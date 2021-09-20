@@ -3,14 +3,15 @@
 #' @param n Number of objects to show, Default: `10`
 #' @return A data frame with the row names indicating the object name, the field 'Type' indicating the object type, 'Size' indicating the object size, and the columns 'Length/Rows' and 'Columns' indicating the object dimensions if applicable.
 #' @examples
-#' \donttest{
 #' if(interactive()){
 #'
+#'  #creating dummy objects
 #'  x <- matrix(runif(100), 10, 10)
 #'  y <- matrix(runif(10000), 100, 100)
+#'
+#'  #reading their in-memory size
 #'  objects_size()
 #'
-#' }
 #' }
 #' @rdname objects_size
 #' @importFrom utils object.size

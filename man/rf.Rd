@@ -60,12 +60,13 @@ A convenient wrapper for \link[ranger]{ranger} that completes its output by prov
 Please read the help file of \link[ranger]{ranger} for further details. Notice that the \code{formula} interface of \link[ranger]{ranger} is supported through \code{ranger.arguments}, but variable interactions are not allowed (but check \code{\link[=the_feature_engineer]{the_feature_engineer()}}).
 }
 \examples{
-\donttest{
 if(interactive()){
 
+ #loading example data
  data("plant_richness_df")
  data("distance_matrix")
 
+ #fittind random forest model
  out <- rf(
    data = plant_richness_df,
    dependent.variable.name = "richness_species_vascular",
@@ -102,14 +103,16 @@ if(interactive()){
  ###############################
 
  #ranger.arguments can contain ranger arguments and any other rf argument
- my.arguments <- list()
- my.arguments$data <- plant_richness_df
- my.arguments$dependent.variable.name <- "richness_species_vascular"
- my.arguments$predictor.variable.names <- colnames(plant_richness_df)[8:21]
- my.arguments$distance.matrix <- distance_matrix
- my.arguments$distance.thresholds <- c(0, 100, 1000)
- out <- rf(ranger.arguments = my.arguments)
+ my.ranger.arguments <- list(
+ data = plant_richness_df,
+ dependent.variable.name = "richness_species_vascular",
+ predictor.variable.names = colnames(plant_richness_df)[8:21],
+ distance.matrix = distance_matrix,
+ distance.thresholds = c(0, 100, 1000)
+ )
 
-}
+ #fitting model with these ranger arguments
+ out <- rf(ranger.arguments = my.ranger.arguments)
+
 }
 }

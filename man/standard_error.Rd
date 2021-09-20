@@ -19,11 +19,9 @@ Computes the standard error of the mean of a numeric vector as \code{round(sqrt(
 The function removes \code{NA} values before computing the standard error, and rounds the result to 3 decimal places.
 }
 \examples{
-\donttest{
 if(interactive()){
 
  standard_error(runif(10))
 
-}
 }
 }

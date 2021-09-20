@@ -48,11 +48,12 @@ Plots response surfaces for any given pair of predictors in a \code{\link[=rf]{r
 All variables that are not \code{a} or \code{b} in a response curve are set to the values of their respective quantiles to plot the response surfaces. The output list can be plotted all at once with \code{patchwork::wrap_plots(p)} or \code{cowplot::plot_grid(plotlist = p)}, or one by one by extracting each plot from the list.
 }
 \examples{
-\donttest{
 if(interactive()){
 
+#load example data
 data(plant_richness_df)
 
+#fit random forest model
 out <- rf(
  data = plant_richness_df,
  dependent.variable.name = "richness_species_vascular",
@@ -60,10 +61,10 @@ out <- rf(
  verbose = FALSE
 )
 
-p <- plot_response_surfaces(x = out)
-p
+#plot interactions between most important predictors
+plot_response_surfaces(x = out)
 
-}
+
 }
 }
 \seealso{

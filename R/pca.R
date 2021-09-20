@@ -11,15 +11,15 @@
 #' @details Columns in `x` with zero variance are removed before computing the PCA.
 #' @seealso [pca_multithreshold()]
 #' @examples
-#' \donttest{
 #' if(interactive()){
 #'
+#'  #load example distance matrix
 #'  data(distance_matrix)
 #'
+#'  #PCA of the distance matrix
 #'  out <- pca(x = distance_matrix)
 #'  out
 #'
-#' }
 #' }
 #' @rdname pca
 #' @importFrom stats prcomp var

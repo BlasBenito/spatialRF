@@ -27,16 +27,17 @@ Computes Moran's Eigenvector Maps of a distance matrix (using \code{\link[=mem]{
 The function takes the distance matrix \code{x}, computes its weights at difference distance thresholds, double-centers the resulting weight matrices with \code{\link[=double_center_distance_matrix]{double_center_distance_matrix()}}, applies \link[base]{eigen} to each double-centered matrix, and returns eigenvectors with positive normalized eigenvalues for different distance thresholds.
 }
 \examples{
-\donttest{
 if(interactive()){
 
+ #loading example data
  data(distance_matrix)
 
+ #computing Moran's eigenvector maps for 0, 1000, and 2000 km
  mem.df <- mem_multithreshold(
    distance.matrix = distance_matrix,
    distance.thresholds = c(0, 1000, 2000)
    )
  head(mem.df)
-}
+
 }
 }

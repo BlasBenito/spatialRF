@@ -5,7 +5,6 @@ test_that("`make_spatial_fold()` works", {
   out <- make_spatial_fold(
     xy.i = xy[1, ],
     xy = xy,
-    distance.step = 0.05,
     training.fraction = 0.6
   )
   expect_type(out, "list")

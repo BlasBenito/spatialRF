@@ -6,10 +6,11 @@
 #' \donttest{
 #' if(interactive()){
 #'
+#'  #loading example data
 #'  data(distance_matrix)
 #'  data(plant_richness_df)
 #'
-#'
+#'  #fittind spatial model
 #'  model <- rf_spatial(
 #'    data = plant_richness_df,
 #'    dependent.variable.name = "richness_species_vascular",
@@ -19,8 +20,10 @@
 #'    method = "mem.moran.sequential"
 #'  )
 #'
+#' #getting data frame with the selected spatial predictors
 #' spatial.predictors <- get_spatial_predictors(model)
 #' head(spatial.predictors)
+#'
 #' }
 #' }
 #' @rdname get_spatial_predictors

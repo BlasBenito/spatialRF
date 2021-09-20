@@ -9,18 +9,18 @@
 #' @param distance.threshold Numeric, positive, in the range of values of `distance.matrix`. Distances below this value in the distance matrix are set to 0., Default: `0`.
 #' @return A weighted distance matrix.
 #' @examples
-#' \donttest{
 #' if(interactive()){
 #'
+#'  #loading example distance matrix
 #'  data(distance_matrix)
 #'
+#'  #computing matrix of weights
 #'  distance.matrix.weights <- weights_from_distance_matrix(
 #'    distance.matrix = distance_matrix
 #'    )
 #'
 #'  distance.matrix.weights
 #'
-#' }
 #' }
 #' @rdname weights_from_distance_matrix
 #' @export

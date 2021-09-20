@@ -4,19 +4,19 @@
 #' @param dependent.variable.name Character string with the name of the response variable. Must be in the column names of `data`. Default: `NULL`
 #' @return Logical.
 #' @examples
-#' \dontrun{
 #' if(interactive()){
 #'
+#'  #dummy data frame
 #'  data <- data.frame(
 #'    response = c(0, 0, 0, 1, 1)
 #'  )
 #'
+#'  #checking if response is binary
 #'  is_binary(
 #'    data = data,
 #'    dependent.variable.name = "response"
 #'  )
 #'
-#'  }
 #' }
 #' @rdname is_binary
 #' @export

@@ -3,11 +3,12 @@
 #' @param model A model produced by [rf()], [rf_repeat()], or [rf_spatial()].
 #' @return A vector with predictions, or median of the predictions across repetitions if the model was fitted with [rf_repeat()].
 #' @examples
-#' \donttest{
 #' if(interactive()){
 #'
+#' #loading example data
 #' data(plant_richness_df)
 #'
+#' #fitting a random forest model
 #' rf.model <- rf(
 #'   data = plant_richness_df,
 #'   dependent.variable.name = "richness_species_vascular",
@@ -15,10 +16,10 @@
 #'   verbose = FALSE
 #' )
 #'
+#' #get vector of predictions
 #' x <- get_predictions(rf.model)
 #' x
 #'
-#' }
 #' }
 #' @rdname get_predictions
 #' @export

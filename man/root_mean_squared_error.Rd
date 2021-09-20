@@ -34,14 +34,12 @@ The normalization methods go as follows:
 }
 }
 \examples{
-\donttest{
 if(interactive()){
 
- out <- root_mean_squared_error(
+ root_mean_squared_error(
    o = runif(10),
    p = runif(10)
    )
 
-}
 }
 }

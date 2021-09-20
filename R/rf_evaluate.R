@@ -23,12 +23,13 @@
 #' }
 #' @details The evaluation algorithm works as follows: the number of `repetitions` and the input dataset (stored in `model$ranger.arguments$data`) are used as inputs for the function [thinning_til_n()], that applies [thinning()] to the input data until as many cases as `repetitions` are left, and as separated as possible. Each of these remaining records will be used as a "fold center". From that point, the fold grows, until a number of points equal (or close) to `training.fraction` is reached. The indices of the records within the grown spatial fold are stored as "training" in the output list, and the remaining ones as "testing". Then, for each spatial fold, a "training model" is fitted using the cases corresponding with the training indices, and predicted over the cases corresponding with the testing indices. The model predictions on the "unseen" data are compared with the observations, and the performance measures (R squared, pseudo R squared, RMSE and NRMSE) computed.
 #' @examples
-#' \donttest{
 #' if(interactive()){
 #'
+#' #loading example data
 #' data(plant_richness_df)
 #' data(distance_matrix)
 #'
+#' #fitting random forest model
 #' rf.model <- rf(
 #'   data = plant_richness_df,
 #'   dependent.variable.name = "richness_species_vascular",
@@ -38,17 +39,18 @@
 #'   verbose = FALSE
 #' )
 #'
+#' #evaluation with spatial cross-validation
 #' rf.model <- rf_evaluate(
 #'   model = rf.model,
 #'   xy = plant_richness_df[, c("x", "y")],
 #'   n.cores = 1
 #' )
 #'
+#' #checking evaluation results
 #' plot_evaluation(rf.model)
 #' print_evaluation(rf.model)
 #' x <- get_evaluation(rf.model)
 #'
-#' }
 #' }
 #' @rdname rf_evaluate
 #' @export

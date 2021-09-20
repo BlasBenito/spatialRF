@@ -24,19 +24,19 @@ A data frame with the same columns as xy with a row number close to n.
 Resamples a set of points with x and y coordinates by increasing the distance step by step until a given sample size is obtained.
 }
 \examples{
-\donttest{
 if(interactive()){
 
- data(plant_richness)
+ #loading example data
+ data(plant_richness_df)
 
+ #thinning to ~20 records
  plant_richness.thin <- thinning_til_n(
    x = plant_richness_df,
-   n = 100
+   n = 20
    )
 
  plant_richness.thin
 
-}
 }
 }
 \seealso{

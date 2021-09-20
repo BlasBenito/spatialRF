@@ -12,18 +12,22 @@
 #' @return A list with as many slots as rows are in `xy.selected`. Each slot has two slots named `training` and `testing`, with the former having the indices of the training records selected from xy, and the latter having the indices of the testing records.
 #' @seealso [make_spatial_fold()], [rf_evaluate()]
 #' @examples
-#' \donttest{
 #' if(interactive()){
 #'
+#'  #loading example data
 #'  data(plant_richness_df)
 #'
+#'  #getting case coordinates
 #'  xy <- plant_richness_df[, 1:3]
 #'  colnames(xy) <- c("id", "x", "y")
+#'
+#'  #thining til 20 cases
 #'  xy.selected <- thinning_til_n(
 #'    xy = xy,
 #'    n = 20
 #'    )
 #'
+#'  #making spatial folds centered on these 20 cases
 #'  out <- make_spatial_folds(
 #'    xy.selected = xy.selected,
 #'    xy = xy,
@@ -32,8 +36,7 @@
 #'    n.cores = 1
 #'  )
 #'
-#'  length(out)
-#'
+#'  #plotting training and testing folds
 #'  plot(xy[ c("x", "y")], type = "n", xlab = "", ylab = "")
 #'  #plots training points
 #'  points(xy[out[[10]]$training, c("x", "y")], col = "red4", pch = 15)
@@ -41,7 +44,7 @@
 #'  points(xy[out[[10]]$testing, c("x", "y")], col = "blue4", pch = 15)
 #'  #plots xy.i
 #'  points(xy[10, c("x", "y")], col = "black", pch = 15, cex = 2)
-#' }
+#'
 #' }
 #' @rdname make_spatial_folds
 #' @importFrom foreach %dopar%

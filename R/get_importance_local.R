@@ -7,9 +7,11 @@
 #' \donttest{
 #' if(interactive()){
 #'
+#' #loading example data
 #' data(plant_richness_df)
 #' data(distance_matrix)
 #'
+#' #fittinga random forest model
 #' rf.model <- rf(
 #'   data = plant_richness_df,
 #'   dependent.variable.name = "richness_species_vascular",
@@ -19,6 +21,7 @@
 #'   verbose = FALSE
 #' )
 #'
+#' #getting importance scores
 #' x <- get_importance_local(rf.model)
 #' x
 #'

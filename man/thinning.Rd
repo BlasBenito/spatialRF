@@ -21,11 +21,12 @@ Resamples a set of points with x and y coordinates to impose a minimum distance 
 Generally used to remove redundant points that could produce pseudo-replication, and to limit sampling bias by disaggregating clusters of points.
 }
 \examples{
-\donttest{
 if(interactive()){
 
- data(plant_richness)
+ #load example data
+ data(plant_richness_df)
 
+ #thinning to points separated by 5 degrees
  plant_richness.thin <- thinning(
    x = plant_richness_df,
    minimum.distance = 5 #points separated by at least 5 degrees
@@ -33,7 +34,6 @@ if(interactive()){
 
  plant_richness.thin
 
-}
 }
 }
 \seealso{

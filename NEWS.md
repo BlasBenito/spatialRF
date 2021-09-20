@@ -1,4 +1,4 @@
-## Version 1.1.3 (in progress)
+## Version 1.1.3
 
 Added the function `rf_importance()`. It fits models with and without each predictor, compares them via spatial cross validation with `rf_evaluate()`, and returns the increase/decrease in performance when a given variable is included in the model.
 

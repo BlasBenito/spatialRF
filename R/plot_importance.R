@@ -20,12 +20,14 @@
 #' @return A ggplot.
 #' @seealso [print_importance()], [get_importance()]
 #' @examples
-#' \donttest{
+
 #' if(interactive()){
 #'
+#' #loading example data
 #' data(plant_richness_df)
 #' data(distance_matrix)
 #'
+#' #fitting a random forest model
 #' rf.model <- rf(
 #'  data = plant_richness_df,
 #'  dependent.variable.name = "richness_species_vascular",
@@ -35,9 +37,9 @@
 #'  verbose = FALSE
 #' )
 #'
+#' #plotting variable importance scores
 #' plot_importance(model = rf.model)
 #'
-#' }
 #' }
 #' @rdname plot_importance
 #' @export

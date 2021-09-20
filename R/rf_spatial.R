@@ -62,33 +62,33 @@
 #' }
 #' Once ranking procedure is completed, an algorithm is used to select the minimal subset of spatial predictors that reduce the most the Moran's I of the residuals: for each new spatial predictor introduced in the model, the Moran's I of the residuals, it's p-value, a binary version of the p-value (0 if < 0.05 and 1 if >= 0.05), the R-squared of the model, and a penalization linear with the number of spatial predictors introduced (computed as `(1 / total spatial predictors) * introduced spatial predictors`) are rescaled between 0 and 1. Then, the optimization criteria is computed as `max(1 - Moran's I, p-value binary) + (weight.r.squared * R-squared) - (weight.penalization.n.predictors * penalization)`. The predictors from the first one to the one with the highest optimization criteria are then selected as the best ones in reducing the spatial correlation of the model residuals, and used along with `data` to fit the final spatial model.
 #' @examples
-#' \donttest{
 #' if(interactive()){
 #'
+#'  #loading example data
 #'  data(distance_matrix)
 #'  data(plant_richness_df)
-#'  data <- plant_richness_df
+#'
+#'  #names of the response and predictors
 #'  dependent.variable.name <- "richness_species_vascular"
 #'  predictor.variable.names <- colnames(plant_richness_df)[5:21]
-#'  distance.matrix <- distance_matrix
 #'  distance.thresholds <- c(0, 500, 1000)
 #'
 #'  #hengl
 #'  model <- rf_spatial(
-#'    data = data,
+#'    data = plant_richness_df,
 #'    dependent.variable.name = dependent.variable.name,
 #'    predictor.variable.names = predictor.variable.names,
-#'    distance.matrix = distance.matrix,
+#'    distance.matrix = distance_matrix,
 #'    distance.thresholds = distance.thresholds,
 #'    method = "hengl"
 #'  )
 #'
 #'  #mem.moran.sequential
 #'  model <- rf_spatial(
-#'    data = data,
+#'    data = plant_richness_df,
 #'    dependent.variable.name = dependent.variable.name,
 #'    predictor.variable.names = predictor.variable.names,
-#'    distance.matrix = distance.matrix,
+#'    distance.matrix = distance_matrix,
 #'    distance.thresholds = distance.thresholds,
 #'    method = "mem.moran.sequential",
 #'    seed = 1
@@ -104,11 +104,11 @@
 #'  )
 #'  rf.model$spatial.correlation.residuals$plot
 #'
+#'  #spatial version of the rf model
 #'  rf.spatial <- rf_spatial(model = rf.model)
 #'  rf.spatial$spatial.correlation.residuals$plot
 #'
 #'
-#' }
 #' }
 #' @rdname rf_spatial
 #' @export
