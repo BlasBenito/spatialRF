@@ -210,7 +210,6 @@
 <span class='co'>#common arguments</span>
 <span class='no'>dependent.variable.name</span> <span class='kw'>=</span> <span class='st'>"richness_species_vascular"</span>
 <span class='no'>predictor.variable.names</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span>(<span class='no'>plant_richness_df</span>)[<span class='fl'>5</span>:<span class='fl'>21</span>]
-<span class='no'>distance.thresholds</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0</span>, <span class='fl'>100</span>, <span class='fl'>1000</span>)
 
 <span class='co'>#non-spatial model</span>
 <span class='no'>model</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='rf.html'>rf</a></span>(
@@ -218,13 +217,14 @@
   <span class='kw'>dependent.variable.name</span> <span class='kw'>=</span> <span class='no'>dependent.variable.name</span>,
   <span class='kw'>predictor.variable.names</span> <span class='kw'>=</span> <span class='no'>predictor.variable.names</span>,
   <span class='kw'>distance.matrix</span> <span class='kw'>=</span> <span class='no'>distance_matrix</span>,
-  <span class='kw'>distance.thresholds</span> <span class='kw'>=</span> <span class='no'>distance.thresholds</span>
+  <span class='kw'>distance.thresholds</span> <span class='kw'>=</span> <span class='fl'>0</span>,
+  <span class='kw'>n.cores</span> <span class='kw'>=</span> <span class='fl'>1</span>
 )
 
 <span class='co'>#preparing spatial predictors</span>
 <span class='no'>spatial.predictors</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='mem_multithreshold.html'>mem_multithreshold</a></span>(
   <span class='kw'>distance.matrix</span> <span class='kw'>=</span> <span class='no'>distance.matrix</span>,
-  <span class='kw'>distance.thresholds</span> <span class='kw'>=</span> <span class='no'>distance.thresholds</span>
+  <span class='kw'>distance.thresholds</span> <span class='kw'>=</span> <span class='fl'>0</span>
 )
 <span class='co'>#ranking spatial predictors by their Moran's I (faster option)</span>
 <span class='no'>spatial.predictors.ranking</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='rank_spatial_predictors.html'>rank_spatial_predictors</a></span>(
@@ -232,7 +232,7 @@
   <span class='kw'>spatial.predictors.df</span> <span class='kw'>=</span> <span class='no'>spatial.predictors</span>,
   <span class='kw'>reference.moran.i</span> <span class='kw'>=</span> <span class='no'>model</span>$<span class='no'>spatial.correlation.residuals</span>$<span class='no'>max.moran</span>,
   <span class='kw'>distance.matrix</span> <span class='kw'>=</span> <span class='no'>distance.matrix</span>,
-  <span class='kw'>distance.thresholds</span> <span class='kw'>=</span> <span class='no'>distance.thresholds</span>,
+  <span class='kw'>distance.thresholds</span> <span class='kw'>=</span> <span class='fl'>0</span>,
   <span class='kw'>n.cores</span> <span class='kw'>=</span> <span class='fl'>1</span>
 )
 
@@ -242,7 +242,7 @@
   <span class='kw'>dependent.variable.name</span> <span class='kw'>=</span> <span class='no'>dependent.variable.name</span>,
   <span class='kw'>predictor.variable.names</span> <span class='kw'>=</span> <span class='no'>predictor.variable.names</span>,
   <span class='kw'>distance.matrix</span> <span class='kw'>=</span> <span class='no'>distance_matrix</span>,
-  <span class='kw'>distance.thresholds</span> <span class='kw'>=</span> <span class='no'>distance.thresholds</span>,
+  <span class='kw'>distance.thresholds</span> <span class='kw'>=</span> <span class='fl'>0</span>,
   <span class='kw'>spatial.predictors.df</span> <span class='kw'>=</span> <span class='no'>spatial.predictors</span>,
   <span class='kw'>spatial.predictors.ranking</span> <span class='kw'>=</span> <span class='no'>spatial.predictors.ranking</span>,
   <span class='kw'>n.cores</span> <span class='kw'>=</span> <span class='fl'>1</span>

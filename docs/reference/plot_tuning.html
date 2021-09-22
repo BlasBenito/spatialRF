@@ -165,7 +165,8 @@
   <span class='kw'>dependent.variable.name</span> <span class='kw'>=</span> <span class='st'>"richness_species_vascular"</span>,
   <span class='kw'>predictor.variable.names</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span>(<span class='no'>plant_richness_df</span>)[<span class='fl'>5</span>:<span class='fl'>21</span>],
   <span class='kw'>distance.matrix</span> <span class='kw'>=</span> <span class='no'>distance_matrix</span>,
-  <span class='kw'>distance.thresholds</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0</span>, <span class='fl'>1000</span>, <span class='fl'>2000</span>),
+  <span class='kw'>distance.thresholds</span> <span class='kw'>=</span> <span class='fl'>0</span>,
+  <span class='kw'>n.cores</span> <span class='kw'>=</span> <span class='fl'>1</span>,
   <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
 )
 
@@ -173,6 +174,7 @@
 <span class='no'>rf.model</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='rf_tuning.html'>rf_tuning</a></span>(
  <span class='kw'>model</span> <span class='kw'>=</span> <span class='no'>rf.model</span>,
  <span class='kw'>xy</span> <span class='kw'>=</span> <span class='no'>plant_richness_df</span>[, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"x"</span>, <span class='st'>"y"</span>)],
+ <span class='kw'>n.cores</span> <span class='kw'>=</span> <span class='fl'>1</span>,
  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
 )
 

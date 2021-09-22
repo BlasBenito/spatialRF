@@ -25,7 +25,7 @@ A data frame with 227 rows and 22 columns:
 \item \code{fragmentation_division}: Another fragmentation index.
 \item \code{neighbors_area}: Total area of the ecoregions's immediate neighbors.
 \item \code{human_population}: Human population in the ecoregion.
-\item \code{human_footprint_average}: Average \href{https://doi.org/10.1641/0006-3568(2002)052[0891:THFATL]2.0.CO;2}{human footprint} in the ecoregion.
+\item \code{human_footprint_average}: Average human footprint \doi{10.1641/0006-3568(2002)052[0891:THFATL]2.0.CO;2} in the ecoregion.
 \item \code{climate_bio1_average}: Average mean annual temperature.
 \item \code{climate_bio15_minimum}: Average precipitation seasonality.
 

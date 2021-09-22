@@ -23,7 +23,7 @@
 #'   \item `fragmentation_division`: Another fragmentation index.
 #'   \item `neighbors_area`: Total area of the ecoregions's immediate neighbors.
 #'   \item `human_population`: Human population in the ecoregion.
-#'   \item `human_footprint_average`: Average [human footprint](https://doi.org/10.1641/0006-3568(2002)052[0891:THFATL]2.0.CO;2) in the ecoregion.
+#'   \item `human_footprint_average`: Average human footprint \doi{10.1641/0006-3568(2002)052[0891:THFATL]2.0.CO;2} in the ecoregion.
 #'   \item `climate_bio1_average`: Average mean annual temperature.
 #'   \item `climate_bio15_minimum`: Average precipitation seasonality.
 #'
