@@ -17,8 +17,36 @@
 #' @details If the method used to fit a model with [rf_spatial()] is "hengl", the function returns nothing, as this method does not require optimization.
 #' @return A ggplot.
 #' @rdname plot_optimization
-#' @export
+#' @examples
+#' if(interactive()){
+#'
+#'  #loading example data
+#'  data(distance_matrix)
+#'  data(plant_richness_df)
+#'
+#'  #names of the response and predictors
+#'  dependent.variable.name <- "richness_species_vascular"
+#'  predictor.variable.names <- colnames(plant_richness_df)[5:21]
+#'
+#'  #spatial model
+#'  model <- rf_spatial(
+#'    data = plant_richness_df,
+#'    dependent.variable.name = dependent.variable.name,
+#'    predictor.variable.names = predictor.variable.names,
+#'    distance.matrix = distance_matrix,
+#'    distance.thresholds = 0,
+#'    method = "mem.moran.sequential",
+#'    n.cores = 1,
+#'    seed = 1
+#'  )
+#'
+#'  #plotting selection of spatial predictors
+#'  plot_optimization(model = model)
+#'
+#'
+#' }
 #' @importFrom ggplot2 ggplot aes geom_point scale_color_viridis_c geom_path geom_vline labs xlab ylab ggtitle
+#' @export
 plot_optimization <- function(
   model,
   point.color = viridis::viridis(

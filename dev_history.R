@@ -46,7 +46,7 @@ g <- rhub::check_for_cran(platforms = "windows-x86_64-devel")
 h <- rhub::check_for_cran(platforms = "windows-x86_64-release")
 
 devtools::check_win_devel()
-devtools::check(remote = TRUE, manual = TRUE, run_dont_test = TRUE)
+devtools::check(remote = TRUE, manual = TRUE, run_dont_test = TRUE, cran = TRUE)
 
 #relevant links for release
 # https://github.com/tidyverse/multidplyr/issues/109?s=03

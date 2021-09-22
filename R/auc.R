@@ -4,7 +4,6 @@
 #' @param p Numeric vector with predictions, must have the same length as `o`.
 #' @return Numeric, AUC value.
 #' @examples
-#' \donttest{
 #' if(interactive()){
 #'
 #'  out <- auc(
@@ -12,7 +11,6 @@
 #'    p = c(0.1, 0.6, 0.4, 0.8)
 #'    )
 #'
-#' }
 #' }
 #' @rdname auc
 #' @export

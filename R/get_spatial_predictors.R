@@ -3,7 +3,6 @@
 #' @param model A model fitted with [rf_spatial()].
 #' @return A data frame with the spatial predictors included in the model.
 #' @examples
-#' \donttest{
 #' if(interactive()){
 #'
 #'  #loading example data
@@ -16,7 +15,8 @@
 #'    dependent.variable.name = "richness_species_vascular",
 #'    predictor.variable.names = colnames(plant_richness_df)[5:21],
 #'    distance.matrix = distance_matrix,
-#'    distance.thresholds = c(0, 500, 1000),
+#'    distance.thresholds = c(0, 1000),
+#'    n.cores = 1,
 #'    method = "mem.moran.sequential"
 #'  )
 #'
@@ -24,7 +24,6 @@
 #' spatial.predictors <- get_spatial_predictors(model)
 #' head(spatial.predictors)
 #'
-#' }
 #' }
 #' @rdname get_spatial_predictors
 #' @export

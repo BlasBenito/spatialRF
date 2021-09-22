@@ -74,11 +74,15 @@ if(interactive()){
    dependent.variable.name = "richness_species_vascular",
    predictor.variable.names = colnames(plant_richness_df)[5:21],
    distance.matrix = distance_matrix,
-   distance.thresholds = c(0, 1000, 2000)
+   distance.thresholds = 0,
+   n.cores = 1
  )
 
  #fitting a spatial model with Moran's Eigenvector Maps
- rf.spatial <- rf_spatial(model = rf.model)
+ rf.spatial <- rf_spatial(
+ model = rf.model,
+ n.cores = 1
+ )
 
  #comparing the spatial and non spatial models
  comparison <- rf_compare(
@@ -87,7 +91,8 @@ if(interactive()){
    Spatial = rf.spatial
  ),
  xy = plant_richness_df[, c("x", "y")],
- metrics = c("r.squared", "rmse")
+ metrics = c("r.squared", "rmse"),
+ n.cores = 1
  )
 
 }

@@ -36,7 +36,7 @@ data("plant_richness_df")
 #computing Moran's Eigenvector Maps
 spatial.predictors.df <- mem_multithreshold(
   distance_matrix = distance_matrix,
-  distance.thresholds = c(0, 100, 200, 1000, 2000)
+  distance.thresholds = c(0, 1000)
   )
 
 #filtering spatial predictors

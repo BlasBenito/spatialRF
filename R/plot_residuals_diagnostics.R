@@ -20,7 +20,8 @@
 #'    data = plant_richness_df,
 #'    dependent.variable.name = "richness_species_vascular",
 #'    predictor.variable.names = colnames(plant_richness_df)[5:21],
-#'    distance.matrix = distance_matrix
+#'    distance.matrix = distance_matrix,
+#'    n.cores = 1
 #'  )
 #'
 #'  #residuals diagnostics

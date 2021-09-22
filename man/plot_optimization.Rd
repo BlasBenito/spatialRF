@@ -31,3 +31,32 @@ and \code{\link[=select_spatial_predictors_recursive]{select_spatial_predictors_
 \details{
 If the method used to fit a model with \code{\link[=rf_spatial]{rf_spatial()}} is "hengl", the function returns nothing, as this method does not require optimization.
 }
+\examples{
+if(interactive()){
+
+ #loading example data
+ data(distance_matrix)
+ data(plant_richness_df)
+
+ #names of the response and predictors
+ dependent.variable.name <- "richness_species_vascular"
+ predictor.variable.names <- colnames(plant_richness_df)[5:21]
+
+ #spatial model
+ model <- rf_spatial(
+   data = plant_richness_df,
+   dependent.variable.name = dependent.variable.name,
+   predictor.variable.names = predictor.variable.names,
+   distance.matrix = distance_matrix,
+   distance.thresholds = 0,
+   method = "mem.moran.sequential",
+   n.cores = 1,
+   seed = 1
+ )
+
+ #plotting selection of spatial predictors
+ plot_optimization(model = model)
+
+
+}
+}

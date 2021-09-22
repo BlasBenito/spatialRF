@@ -3,7 +3,6 @@
 #' @param model A model fitted with [rf()], [rf_repeat()], or [rf_spatial()].
 #' @return A vector with model residuals, or the median of model residuals across repetitions if the model was fitted with [rf_repeat()].
 #' @examples
-#' \donttest{
 #' if(interactive()){
 #'
 #' #load example data
@@ -14,6 +13,7 @@
 #'   data = plant_richness_df,
 #'   dependent.variable.name = "richness_species_vascular",
 #'   predictor.variable.names = colnames(plant_richness_df)[5:21],
+#'   n.cores = 1,
 #'   verbose = FALSE
 #' )
 #'
@@ -21,7 +21,6 @@
 #' x <- get_residuals(rf.model)
 #' x
 #'
-#' }
 #' }
 #' @rdname get_residuals
 #' @export

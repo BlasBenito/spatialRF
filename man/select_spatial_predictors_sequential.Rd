@@ -66,7 +66,6 @@ data(plant_richness_df)
 #common arguments
 dependent.variable.name = "richness_species_vascular"
 predictor.variable.names = colnames(plant_richness_df)[5:21]
-distance.thresholds = c(0, 100, 1000)
 
 #non-spatial model
 model <- rf(
@@ -74,13 +73,14 @@ model <- rf(
   dependent.variable.name = dependent.variable.name,
   predictor.variable.names = predictor.variable.names,
   distance.matrix = distance_matrix,
-  distance.thresholds = distance.thresholds
+  distance.thresholds = 0,
+  n.cores = 1
 )
 
 #preparing spatial predictors
 spatial.predictors <- mem_multithreshold(
   distance.matrix = distance.matrix,
-  distance.thresholds = distance.thresholds
+  distance.thresholds = 0
 )
 #ranking spatial predictors by their Moran's I (faster option)
 spatial.predictors.ranking <- rank_spatial_predictors(
@@ -88,7 +88,7 @@ spatial.predictors.ranking <- rank_spatial_predictors(
   spatial.predictors.df = spatial.predictors,
   reference.moran.i = model$spatial.correlation.residuals$max.moran,
   distance.matrix = distance.matrix,
-  distance.thresholds = distance.thresholds,
+  distance.thresholds = 0,
   n.cores = 1
 )
 
@@ -98,7 +98,7 @@ selection <- select_spatial_predictors_sequential(
   dependent.variable.name = dependent.variable.name,
   predictor.variable.names = predictor.variable.names,
   distance.matrix = distance_matrix,
-  distance.thresholds = distance.thresholds,
+  distance.thresholds = 0,
   spatial.predictors.df = spatial.predictors,
   spatial.predictors.ranking = spatial.predictors.ranking,
   n.cores = 1

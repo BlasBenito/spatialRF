@@ -33,7 +33,8 @@
 #'    dependent.variable.name = "richness_species_vascular",
 #'    predictor.variable.names = colnames(plant_richness_df)[5:21],
 #'    distance.matrix = distance_matrix,
-#'    distance.thresholds = c(0, 100, 1000, 10000)
+#'    distance.thresholds = 0,
+#'    n.cores = 1
 #'  )
 #'
 #'  class(out)
@@ -69,11 +70,14 @@
 #'  dependent.variable.name = "richness_species_vascular",
 #'  predictor.variable.names = colnames(plant_richness_df)[8:21],
 #'  distance.matrix = distance_matrix,
-#'  distance.thresholds = c(0, 100, 1000)
+#'  distance.thresholds = c(0, 1000)
 #'  )
 #'
 #'  #fitting model with these ranger arguments
-#'  out <- rf(ranger.arguments = my.ranger.arguments)
+#'  out <- rf(
+#'    ranger.arguments = my.ranger.arguments,
+#'    n.cores = 1
+#'    )
 #'
 #' }
 #' @rdname rf

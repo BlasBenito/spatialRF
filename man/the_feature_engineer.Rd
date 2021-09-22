@@ -83,6 +83,7 @@ if(interactive()){
    data = plant_richness_df,
    dependent.variable.name = "richness_species_vascular",
    predictor.variable.names = colnames(plant_richness_df)[5:21],
+   n.cores = 1,
    verbose = TRUE
  )
 

@@ -71,7 +71,6 @@
 #'  #names of the response and predictors
 #'  dependent.variable.name <- "richness_species_vascular"
 #'  predictor.variable.names <- colnames(plant_richness_df)[5:21]
-#'  distance.thresholds <- c(0, 500, 1000)
 #'
 #'  #hengl
 #'  model <- rf_spatial(
@@ -79,8 +78,9 @@
 #'    dependent.variable.name = dependent.variable.name,
 #'    predictor.variable.names = predictor.variable.names,
 #'    distance.matrix = distance_matrix,
-#'    distance.thresholds = distance.thresholds,
-#'    method = "hengl"
+#'    distance.thresholds = 0,
+#'    method = "hengl",
+#'    n.cores = 1
 #'  )
 #'
 #'  #mem.moran.sequential
@@ -89,9 +89,9 @@
 #'    dependent.variable.name = dependent.variable.name,
 #'    predictor.variable.names = predictor.variable.names,
 #'    distance.matrix = distance_matrix,
-#'    distance.thresholds = distance.thresholds,
+#'    distance.thresholds = 0,
 #'    method = "mem.moran.sequential",
-#'    seed = 1
+#'    n.cores = 1
 #'  )
 #'
 #'  #fitting an rf_spatial model from an rf model
@@ -100,7 +100,9 @@
 #'    dependent.variable.name = "richness_species_vascular",
 #'    predictor.variable.names = colnames(plant_richness_df)[5:21],
 #'    distance.matrix = distance_matrix,
-#'    distance.thresholds = c(0, 1000, 2000)
+#'    distance.thresholds = 0,
+#'    n.cores = 1,
+#'    verbose = FALSE
 #'  )
 #'  rf.model$spatial.correlation.residuals$plot
 #'

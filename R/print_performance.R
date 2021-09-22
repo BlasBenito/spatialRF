@@ -1,6 +1,7 @@
 #' @title print_performance
 #' @description Prints the performance slot of a model fitted with [rf()], [rf_repeat()], or [rf_spatial()]. For models fitted with [rf_repeat()] it shows the median and the median absolute deviation of each performance measure.
 #' @param model Model fitted with [rf()], [rf_repeat()], or [rf_spatial()].
+#' @return Prints model performance scores to the console.
 #' @seealso [print_performance()], [get_performance()]
 #' @examples
 #' if(interactive()){
@@ -15,7 +16,8 @@
 #'    dependent.variable.name = "richness_species_vascular",
 #'    predictor.variable.names = colnames(plant_richness_df)[5:21],
 #'    distance.matrix = distance_matrix,
-#'    distance.thresholds = c(0, 1000, 2000),
+#'    distance.thresholds = 0,
+#'    n.cores = 1,
 #'    verbose = FALSE
 #'  )
 #'

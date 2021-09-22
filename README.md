@@ -175,8 +175,27 @@ remotes::install_github(
   force = TRUE,
   quiet = TRUE
   )
+```
+
+    ## These packages have more recent versions available.
+    ## It is recommended to update all of them.
+    ## Which would you like to update?
+    ## 
+    ## 1: All                          
+    ## 2: CRAN packages only           
+    ## 3: None                         
+    ## 4: cpp11 (0.3.1 -> 0.4.0) [CRAN]
+    ## 
+    ## Enter one or more numbers, or an empty line to skip updates:
+    ## Enter one or more numbers, or an empty line to skip updates:
+    ## Enter one or more numbers, or an empty line to skip updates:
+    ## Enter one or more numbers, or an empty line to skip updates:
+
+``` r
 library(spatialRF)
 ```
+
+![](README_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
 
 There are a few other libraries that will be useful during this
 tutorial.
@@ -484,46 +503,44 @@ interactions <- spatialRF::the_feature_engineer(
 
     ## Interactions identified: 5
 
-    ## ┌───────────┬───────────┬───────────┐
-    ## │ Interacti │ Importanc │ R-squared │
-    ## │ on        │         e │ improveme │
-    ## │           │     (% of │        nt │
-    ## │           │      max) │           │
-    ## ├───────────┼───────────┼───────────┤
-    ## │ bias_area │      59.5 │     0.096 │
-    ## │ _km2..x.. │           │           │
-    ## │ bias_spec │           │           │
-    ## │ ies_per_r │           │           │
-    ## │ ecord     │           │           │
-    ## ├───────────┼───────────┼───────────┤
-    ## │ climate_b │      97.6 │     0.067 │
-    ## │ io1_avera │           │           │
-    ## │ ge..pca.. │           │           │
-    ## │ human_pop │           │           │
-    ## │ ulation_d │           │           │
-    ## │ ensity    │           │           │
-    ## ├───────────┼───────────┼───────────┤
-    ## │ climate_b │      96.3 │     0.049 │
-    ## │ io1_avera │           │           │
-    ## │ ge..pca.. │           │           │
-    ## │ neighbors │           │           │
-    ## │ _count    │           │           │
-    ## ├───────────┼───────────┼───────────┤
-    ## │ human_pop │      68.8 │     0.021 │
-    ## │ ulation.. │           │           │
-    ## │ x..bias_s │           │           │
-    ## │ pecies_pe │           │           │
-    ## │ r_record  │           │           │
-    ## ├───────────┼───────────┼───────────┤
-    ## │ bias_area │      63.4 │     0.029 │
-    ## │ _km2..pca │           │           │
-    ## │ ..neighbo │           │           │
-    ## │ rs_percen │           │           │
-    ## │ t_shared_ │           │           │
-    ## │ edge      │           │           │
-    ## └───────────┴───────────┴───────────┘
-    ## 
-    ## 3/4 columns shown.
+    ## ┌───────────┬───────────┬───────────┬───────────┐
+    ## │ Interacti │ Importanc │ R-squared │   Max cor │
+    ## │ on        │         e │ improveme │      with │
+    ## │           │     (% of │        nt │ predictor │
+    ## │           │      max) │           │         s │
+    ## ├───────────┼───────────┼───────────┼───────────┤
+    ## │ bias_area │      59.5 │     0.096 │     0.60  │
+    ## │ _km2..x.. │           │           │           │
+    ## │ bias_spec │           │           │           │
+    ## │ ies_per_r │           │           │           │
+    ## │ ecord     │           │           │           │
+    ## ├───────────┼───────────┼───────────┼───────────┤
+    ## │ climate_b │      97.6 │     0.067 │     0.34  │
+    ## │ io1_avera │           │           │           │
+    ## │ ge..pca.. │           │           │           │
+    ## │ human_pop │           │           │           │
+    ## │ ulation_d │           │           │           │
+    ## │ ensity    │           │           │           │
+    ## ├───────────┼───────────┼───────────┼───────────┤
+    ## │ climate_b │      96.3 │     0.049 │     0.24  │
+    ## │ io1_avera │           │           │           │
+    ## │ ge..pca.. │           │           │           │
+    ## │ neighbors │           │           │           │
+    ## │ _count    │           │           │           │
+    ## ├───────────┼───────────┼───────────┼───────────┤
+    ## │ human_pop │      68.8 │     0.021 │     0.55  │
+    ## │ ulation.. │           │           │           │
+    ## │ x..bias_s │           │           │           │
+    ## │ pecies_pe │           │           │           │
+    ## │ r_record  │           │           │           │
+    ## ├───────────┼───────────┼───────────┼───────────┤
+    ## │ bias_area │      63.4 │     0.029 │     0.305 │
+    ## │ _km2..pca │           │           │           │
+    ## │ ..neighbo │           │           │           │
+    ## │ rs_percen │           │           │           │
+    ## │ t_shared_ │           │           │           │
+    ## │ edge      │           │           │           │
+    ## └───────────┴───────────┴───────────┴───────────┘
 
     ## Comparing models with and without interactions via spatial cross-validation.
 
@@ -2119,12 +2136,9 @@ spatial cross-validation results.
 names(model.non.spatial$evaluation)
 ```
 
-    ## [1] "metrics"          
-    ## [2] "training.fraction"
-    ## [3] "spatial.folds"    
-    ## [4] "per.fold"         
-    ## [5] "per.fold.long"    
-    ## [6] "per.model"        
+    ## [1] "metrics"           "training.fraction"
+    ## [3] "spatial.folds"     "per.fold"         
+    ## [5] "per.fold.long"     "per.model"        
     ## [7] "aggregated"
 
 The slot “spatial.folds”, produced by
@@ -2229,10 +2243,8 @@ spatialRF::print_evaluation(model.non.spatial)
     ##   - Training fraction:             0.75
     ##   - Spatial folds:                 29
     ## 
-    ##     Metric Median   MAD Minimum
-    ##  r.squared  0.517 0.085   0.122
-    ##  Maximum
-    ##    0.781
+    ##     Metric Median   MAD Minimum Maximum
+    ##  r.squared  0.517 0.085   0.122   0.781
 
 ## Other important things stored in the model
 

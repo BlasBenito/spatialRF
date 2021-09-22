@@ -8,7 +8,6 @@
 ^informal_tests\.R$
 ^optimization_sequential\.R$
 .github
-plot_post.R
 README.Rmd
 README_files
 checking_optimized_algorithm.R
@@ -24,6 +23,6 @@ README.md
 README.Rmd
 data_Blas.Rdata
 .Rhistory
-comparison_with_other_methods.R
 understanding_lmmorantest.R
 reviewing_moran.R
+^CRAN-RELEASE$

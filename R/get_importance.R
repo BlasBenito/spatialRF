@@ -4,7 +4,6 @@
 #' @return A data frame with variable names and importance scores.
 #' @seealso [rf()], [rf_repeat()], [rf_spatial()], [plot_importance()], [print_importance()].
 #' @examples
-#' \donttest{
 #' if(interactive()){
 #'
 #' data(plant_richness_df)
@@ -15,14 +14,14 @@
 #'   dependent.variable.name = "richness_species_vascular",
 #'   predictor.variable.names = colnames(plant_richness_df)[5:21],
 #'   distance.matrix = distance_matrix,
-#'   distance.thresholds = c(0, 1000, 2000),
+#'   distance.thresholds = 0,
+#'   n.cores = 1,
 #'   verbose = FALSE
 #' )
 #'
 #' x <- get_importance(rf.model)
 #' x
 #'
-#' }
 #' }
 #' @rdname get_importance
 #' @export

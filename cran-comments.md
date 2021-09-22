@@ -1,3 +1,13 @@
+## Resubmission
+
+This is a resubmission. In this version I have:
+
+* Removed \donttest{} from five functions that had it combined with if(interactive()).
+
+* Added a @return field to the file print_performance.Rd.
+
+* Ensured that all examples don't use more than two cores.
+
 ## Test environments
 
   + local Ubuntu 20.04, R 4.0.3

@@ -9,6 +9,9 @@ print_performance(model)
 \arguments{
 \item{model}{Model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}.}
 }
+\value{
+Prints model performance scores to the console.
+}
 \description{
 Prints the performance slot of a model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}. For models fitted with \code{\link[=rf_repeat]{rf_repeat()}} it shows the median and the median absolute deviation of each performance measure.
 }
@@ -25,7 +28,8 @@ if(interactive()){
    dependent.variable.name = "richness_species_vascular",
    predictor.variable.names = colnames(plant_richness_df)[5:21],
    distance.matrix = distance_matrix,
-   distance.thresholds = c(0, 1000, 2000),
+   distance.thresholds = 0,
+   n.cores = 1,
    verbose = FALSE
  )
 

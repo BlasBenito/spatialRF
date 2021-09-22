@@ -30,7 +30,8 @@ if(interactive()){
    dependent.variable.name = "richness_species_vascular",
    predictor.variable.names = colnames(plant_richness_df)[5:21],
    distance.matrix = distance_matrix,
-   distance.thresholds = c(0, 100, 1000, 10000)
+   distance.thresholds = 0,
+   n.cores = 1
  )
 
  #printing model summary

@@ -33,7 +33,8 @@ rf.model <- rf(
   dependent.variable.name = "richness_species_vascular",
   predictor.variable.names = colnames(plant_richness_df)[5:21],
   distance.matrix = distance_matrix,
-  distance.thresholds = c(0, 1000, 2000),
+  distance.thresholds = 0,
+  n.cores = 1,
   verbose = FALSE
 )
 

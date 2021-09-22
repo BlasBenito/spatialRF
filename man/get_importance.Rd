@@ -16,7 +16,6 @@ A data frame with variable names and importance scores.
 Gets variable importance scores from \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, and \code{\link[=rf_spatial]{rf_spatial()}} models.
 }
 \examples{
-\donttest{
 if(interactive()){
 
 data(plant_richness_df)
@@ -27,14 +26,14 @@ rf.model <- rf(
   dependent.variable.name = "richness_species_vascular",
   predictor.variable.names = colnames(plant_richness_df)[5:21],
   distance.matrix = distance_matrix,
-  distance.thresholds = c(0, 1000, 2000),
+  distance.thresholds = 0,
+  n.cores = 1,
   verbose = FALSE
 )
 
 x <- get_importance(rf.model)
 x
 
-}
 }
 }
 \seealso{
