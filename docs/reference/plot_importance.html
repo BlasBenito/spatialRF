@@ -117,7 +117,7 @@
     </div>
 
     <div class="ref-description">
-    <p>Plots variable importance scores of <code><a href='rf.html'>rf()</a></code>, <code><a href='rf_repeat.html'>rf_repeat()</a></code>, and <code><a href='rf_spatial.html'>rf_spatial()</a></code> models. Distributions of importance scores produced with <code><a href='rf_repeat.html'>rf_repeat()</a></code> are plotted using <code><a href='https://rdrr.io/pkg/ggplot2/man/geom_violin.html'>ggplot2::geom_violin</a></code>, which shows the median of the density estimate rather than the actual median of the data. However, the violin plots are ordered from top to bottom by the real median of the data to make small differences in median importance easier to spot. Ths function does not plot the result of <code><a href='rf_importance.html'>rf_importance()</a></code> yet, but you can find it under <code>model$importance$cv.per.variable.plot</code>.</p>
+    <p>Plots variable importance scores of <code><a href='rf.html'>rf()</a></code>, <code><a href='rf_repeat.html'>rf_repeat()</a></code>, and <code><a href='rf_spatial.html'>rf_spatial()</a></code> models. Distributions of importance scores produced with <code><a href='rf_repeat.html'>rf_repeat()</a></code> are plotted using <code><a href='https://ggplot2.tidyverse.org/reference/geom_violin.html'>ggplot2::geom_violin</a></code>, which shows the median of the density estimate rather than the actual median of the data. However, the violin plots are ordered from top to bottom by the real median of the data to make small differences in median importance easier to spot. Ths function does not plot the result of <code><a href='rf_importance.html'>rf_importance()</a></code> yet, but you can find it under <code>model$importance$cv.per.variable.plot</code>.</p>
     </div>
 
     <pre class="usage"><span class='fu'>plot_importance</span>(
@@ -146,7 +146,7 @@
     </tr>
     <tr>
       <th>line.color</th>
-      <td><p>Character string, color of the line produced by <code><a href='https://rdrr.io/pkg/ggplot2/man/geom_smooth.html'>ggplot2::geom_smooth()</a></code>. Default: <code>"white"</code></p></td>
+      <td><p>Character string, color of the line produced by <code><a href='https://ggplot2.tidyverse.org/reference/geom_smooth.html'>ggplot2::geom_smooth()</a></code>. Default: <code>"white"</code></p></td>
     </tr>
     <tr>
       <th>verbose</th>
