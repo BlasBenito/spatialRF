@@ -39,10 +39,10 @@
 <!-- badges: start -->
 
 [![Devel-version](https://img.shields.io/badge/devel%20version-1.1.3-blue.svg)](https://github.com/blasbenito/spatialRF)
-[![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html)
-[![CRAN](https://img.shields.io/badge/CRAN-not_published_yet-red)](https://github.com/blasbenito/spatialRF)
-[![License](https://img.shields.io/badge/license-GPL--3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
-<!-- [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4745208.svg)](https://doi.org/10.5281/zenodo.4745208) -->
+[![lifecycle](https://img.shields.io/badge/lifecycle-stable-green.svg)](https://lifecycle.r-lib.org/articles/stages.html)
+[![CRAN
+status](https://www.r-pkg.org/badges/version/spatialRF)](https://cran.r-project.org/package=spatialRF)[![License](https://img.shields.io/badge/license-GPL--3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
+[![DOI](https://zenodo.org/badge/330962704.svg)](https://zenodo.org/badge/latestdoi/330962704)
 
 <!-- badges: end -->
 
