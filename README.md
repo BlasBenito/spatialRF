@@ -159,14 +159,18 @@ Forest. R package version 1.1.0. doi: 10.5281/zenodo.4745208. url:
 
 # Install
 
-The package is not yet in the CRAN repositories, so at the moment it
-must be installed from GitHub as follows. There are several branches in
-the repository:
+The version 1.1.3 can be installed from CRAN:
+
+``` r
+install.packages("spatialRF")
+```
+
+The package can also be installed from GitHub as follows. There are
+several branches in the repository:
 
 -   `main`: latest stable version (1.1.0 currently).
 -   `development`: development version, usually very broken.
--   `v.1.0.9`: archived version.
--   `v.1.1.0`: archived version.
+-   `v.1.0.9` to `v.1.1.2`: archived versions.
 
 ``` r
 remotes::install_github(
@@ -175,13 +179,13 @@ remotes::install_github(
   force = TRUE,
   quiet = TRUE
   )
-library(spatialRF)
 ```
 
 There are a few other libraries that will be useful during this
 tutorial.
 
 ``` r
+library(spatialRF)
 library(kableExtra)
 library(rnaturalearth)
 library(rnaturalearthdata)
@@ -311,7 +315,7 @@ ggplot2::ggplot() +
   ggplot2::ylab("Latitude")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
 The predictors (columns 5 to 21) represent diverse factors that may
 influence plant richness such as sampling bias, the area of the
@@ -335,7 +339,7 @@ spatialRF::plot_training_df(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
 The function
 [`plot_training_df_moran()`](https://blasbenito.github.io/spatialRF/reference/plot_training_df_moran.html)
@@ -360,7 +364,7 @@ spatialRF::plot_training_df_moran(
 )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
 # Reducing multicollinearity in the predictors
 
@@ -418,9 +422,7 @@ having the argument `predictor.variable.names`.
 names(predictor.variable.names)
 ```
 
-    ## [1] "vif"                  
-    ## [2] "selected.variables"   
-    ## [3] "selected.variables.df"
+    ## [1] "vif"                   "selected.variables"    "selected.variables.df"
 
 The slot `selected.variables` contains the names of the selected
 predictors.
@@ -429,22 +431,14 @@ predictors.
 predictor.variable.names$selected.variables
 ```
 
-    ##  [1] "climate_aridity_index_average"  
-    ##  [2] "climate_hypervolume"            
-    ##  [3] "climate_bio1_average"           
-    ##  [4] "climate_bio15_minimum"          
-    ##  [5] "bias_area_km2"                  
-    ##  [6] "bias_species_per_record"        
-    ##  [7] "climate_velocity_lgm_average"   
-    ##  [8] "neighbors_count"                
-    ##  [9] "neighbors_percent_shared_edge"  
-    ## [10] "human_population_density"       
-    ## [11] "topography_elevation_average"   
-    ## [12] "landcover_herbs_percent_average"
-    ## [13] "fragmentation_cohesion"         
-    ## [14] "fragmentation_division"         
-    ## [15] "neighbors_area"                 
-    ## [16] "human_population"
+    ##  [1] "climate_aridity_index_average"   "climate_hypervolume"            
+    ##  [3] "climate_bio1_average"            "climate_bio15_minimum"          
+    ##  [5] "bias_area_km2"                   "bias_species_per_record"        
+    ##  [7] "climate_velocity_lgm_average"    "neighbors_count"                
+    ##  [9] "neighbors_percent_shared_edge"   "human_population_density"       
+    ## [11] "topography_elevation_average"    "landcover_herbs_percent_average"
+    ## [13] "fragmentation_cohesion"          "fragmentation_division"         
+    ## [15] "neighbors_area"                  "human_population"
 
 # Finding promising variable interactions
 
@@ -484,55 +478,36 @@ interactions <- spatialRF::the_feature_engineer(
 
     ## Interactions identified: 5
 
-    ## ┌──────────┬──────────┬──────────┐
-    ## │ Interact │ Importan │ R-square │
-    ## │ ion      │       ce │        d │
-    ## │          │    (% of │ improvem │
-    ## │          │     max) │      ent │
-    ## ├──────────┼──────────┼──────────┤
-    ## │ bias_are │     59.5 │    0.096 │
-    ## │ a_km2..x │          │          │
-    ## │ ..bias_s │          │          │
-    ## │ pecies_p │          │          │
-    ## │ er_recor │          │          │
-    ## │ d        │          │          │
-    ## ├──────────┼──────────┼──────────┤
-    ## │ climate_ │     97.6 │    0.067 │
-    ## │ bio1_ave │          │          │
-    ## │ rage..pc │          │          │
-    ## │ a..human │          │          │
-    ## │ _populat │          │          │
-    ## │ ion_dens │          │          │
-    ## │ ity      │          │          │
-    ## ├──────────┼──────────┼──────────┤
-    ## │ climate_ │     96.3 │    0.049 │
-    ## │ bio1_ave │          │          │
-    ## │ rage..pc │          │          │
-    ## │ a..neigh │          │          │
-    ## │ bors_cou │          │          │
-    ## │ nt       │          │          │
-    ## ├──────────┼──────────┼──────────┤
-    ## │ human_po │     68.8 │    0.021 │
-    ## │ pulation │          │          │
-    ## │ ..x..bia │          │          │
-    ## │ s_specie │          │          │
-    ## │ s_per_re │          │          │
-    ## │ cord     │          │          │
-    ## ├──────────┼──────────┼──────────┤
-    ## │ bias_are │     63.4 │    0.029 │
-    ## │ a_km2..p │          │          │
-    ## │ ca..neig │          │          │
-    ## │ hbors_pe │          │          │
-    ## │ rcent_sh │          │          │
-    ## │ ared_edg │          │          │
-    ## │ e        │          │          │
-    ## └──────────┴──────────┴──────────┘
-    ## 
-    ## 3/4 columns shown.
+    ##  ┌──────────────────┬──────────────────┬──────────────────┬──────────────────┐
+    ##  │ Interaction      │ Importance (% of │        R-squared │     Max cor with │
+    ##  │                  │             max) │      improvement │       predictors │
+    ##  ├──────────────────┼──────────────────┼──────────────────┼──────────────────┤
+    ##  │ bias_area_km2..x │             59.5 │            0.096 │            0.60  │
+    ##  │ ..bias_species_p │                  │                  │                  │
+    ##  │ er_record        │                  │                  │                  │
+    ##  ├──────────────────┼──────────────────┼──────────────────┼──────────────────┤
+    ##  │ climate_bio1_ave │             97.6 │            0.067 │            0.34  │
+    ##  │ rage..pca..human │                  │                  │                  │
+    ##  │ _population_dens │                  │                  │                  │
+    ##  │ ity              │                  │                  │                  │
+    ##  ├──────────────────┼──────────────────┼──────────────────┼──────────────────┤
+    ##  │ climate_bio1_ave │             96.3 │            0.049 │            0.24  │
+    ##  │ rage..pca..neigh │                  │                  │                  │
+    ##  │ bors_count       │                  │                  │                  │
+    ##  ├──────────────────┼──────────────────┼──────────────────┼──────────────────┤
+    ##  │ human_population │             68.8 │            0.021 │            0.55  │
+    ##  │ ..x..bias_specie │                  │                  │                  │
+    ##  │ s_per_record     │                  │                  │                  │
+    ##  ├──────────────────┼──────────────────┼──────────────────┼──────────────────┤
+    ##  │ bias_area_km2..p │             63.4 │            0.029 │            0.305 │
+    ##  │ ca..neighbors_pe │                  │                  │                  │
+    ##  │ rcent_shared_edg │                  │                  │                  │
+    ##  │ e                │                  │                  │                  │
+    ##  └──────────────────┴──────────────────┴──────────────────┴──────────────────┘
 
     ## Comparing models with and without interactions via spatial cross-validation.
 
-![](README_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
 
 The upper panel in the plot plot above shows the relationship between
 the interaction and the response variable. It also indicates the gain in
@@ -910,7 +885,7 @@ spatialRF::plot_residuals_diagnostics(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
 
 The upper panels show the results of the normality test (interpretation
 in the title), the middle panel shows the relationship between the
@@ -938,7 +913,7 @@ spatialRF::plot_importance(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
 
 Variable importance represents the increase in mean error (computed on
 the out-of-bag data) across trees when a predictor is permuted. Values
@@ -1374,7 +1349,7 @@ model.non.spatial <- spatialRF::rf_importance(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
 
 The function results are added to the “importance” slot of the model.
 
@@ -1382,9 +1357,7 @@ The function results are added to the “importance” slot of the model.
 names(model.non.spatial$importance)
 ```
 
-    ## [1] "per.variable"         
-    ## [2] "local"                
-    ## [3] "oob.per.variable.plot"
+    ## [1] "per.variable"          "local"                 "oob.per.variable.plot"
     ## [4] "cv.per.variable.plot"
 
 The data frame “per.variable” contains the columns “importance.cv”
@@ -1416,7 +1389,7 @@ model.non.spatial$importance$per.variable %>%
   ggplot2::geom_smooth(method = "lm", formula = y ~ x, color = "red4")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
 
 ### Local variable importance
 
@@ -1724,7 +1697,7 @@ p2 <- ggplot2::ggplot() +
 p1 + p2
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
 
 In these maps, values lower than 0 indicate that for a given record, the
 permuted version of the variable led to an accuracy score even higher
@@ -1757,7 +1730,7 @@ spatialRF::plot_response_curves(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->
 
 Setting the argument `quantiles` to 0.5 and setting `show.data` to
 `FALSE` (default optioin) accentuates the shape of the response curves.
@@ -1770,7 +1743,7 @@ spatialRF::plot_response_curves(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-28-1.png)<!-- -->
 
 The package [`pdp`](https://bgreenwell.github.io/pdp/index.html)
 provides a general way to plot partial dependence plots.
@@ -1785,7 +1758,7 @@ pdp::partial(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-28-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-29-1.png)<!-- -->
 
 If you need to do your own plots in a different way, the function
 [`get_response_curves()`](https://blasbenito.github.io/spatialRF/reference/get_response_curves.html)
@@ -2041,7 +2014,7 @@ spatialRF::plot_response_surface(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-31-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-32-1.png)<!-- -->
 
 This can be done as well with the `pdp` package, that uses a slightly
 different algorithm to plot interaction surfaces.
@@ -2055,7 +2028,7 @@ pdp::partial(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-32-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-33-1.png)<!-- -->
 
 ## Model performance
 
@@ -2124,12 +2097,8 @@ spatial cross-validation results.
 names(model.non.spatial$evaluation)
 ```
 
-    ## [1] "metrics"          
-    ## [2] "training.fraction"
-    ## [3] "spatial.folds"    
-    ## [4] "per.fold"         
-    ## [5] "per.fold.long"    
-    ## [6] "per.model"        
+    ## [1] "metrics"           "training.fraction" "spatial.folds"    
+    ## [4] "per.fold"          "per.fold.long"     "per.model"        
     ## [7] "aggregated"
 
 The slot “spatial.folds”, produced by
@@ -2202,7 +2171,7 @@ p2 <- ggplot2::ggplot() +
 p1 | p2
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-36-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-37-1.png)<!-- -->
 
 The information available in this new slot can be accessed with the
 functions
@@ -2215,7 +2184,7 @@ and
 spatialRF::plot_evaluation(model.non.spatial)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-37-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-38-1.png)<!-- -->
 
 `Full` represents the R squared of the model trained on the full
 dataset. `Training` are the R-squared of the models fitted on the
@@ -2234,10 +2203,8 @@ spatialRF::print_evaluation(model.non.spatial)
     ##   - Training fraction:             0.75
     ##   - Spatial folds:                 29
     ## 
-    ##     Metric Median   MAD Minimum
-    ##  r.squared  0.517 0.085   0.122
-    ##  Maximum
-    ##    0.781
+    ##     Metric Median   MAD Minimum Maximum
+    ##  r.squared  0.517 0.085   0.122   0.781
 
 ## Other important things stored in the model
 
@@ -2268,7 +2235,7 @@ spatialRF::plot_moran(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-40-1.png)<!-- --> According to
+![](README_files/figure-gfm/unnamed-chunk-41-1.png)<!-- --> According to
 the plot, the spatial autocorrelation of the residuals of
 `model.non.spatial` is highly positive for a neighborhood of 0 and 1000
 km, while it becomes non-significant (p-value &gt; 0.05) at 2000, 4000,
@@ -2298,7 +2265,7 @@ spatialRF::plot_moran(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-42-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-43-1.png)<!-- -->
 
 If we compare the variable importance plots of both models, we can see
 that the spatial model has an additional set of dots under the name
@@ -2320,7 +2287,7 @@ p2 <- spatialRF::plot_importance(
 p1 | p2 
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-43-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-44-1.png)<!-- -->
 
 If we look at the ten most important variables in `model.spatial` we
 will see that a few of them are *spatial predictors*. Spatial predictors
@@ -2489,7 +2456,7 @@ p2 <- ggplot2::ggplot() +
 p1 | p2
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-45-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-46-1.png)<!-- -->
 
 The spatial predictors are included in the model one by one, in the
 order of their Moran’s I (spatial predictors with Moran’s I lower than 0
@@ -2504,7 +2471,7 @@ the selected spatial predictors).
 p <- spatialRF::plot_optimization(model.spatial)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-46-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-47-1.png)<!-- -->
 
 # Tuning Random Forest hyperparameters
 
@@ -2581,7 +2548,7 @@ scores of the predictors across executions. **NOTE**: this function
 works better when used at the end of a workflow
 
 ``` r
-model.spatial.repeat <- rf_repeat(
+model.spatial.repeat <- spatialRF::rf_repeat(
   model = model.spatial, 
   repetitions = 30,
   seed = random.seed,
@@ -2600,7 +2567,7 @@ spatialRF::plot_importance(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-50-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-51-1.png)<!-- -->
 
 The response curves of models fitted with `rf_repeat()` can be plotted
 with `plot_response_curves()` as well. The median prediction is shown
@@ -2614,7 +2581,7 @@ spatialRF::plot_response_curves(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-51-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-52-1.png)<!-- -->
 
 The function `print_performance()` generates a summary of the
 performance scores across model repetitions. As every other function of
@@ -2735,7 +2702,7 @@ applies `rf_evaluate()` to each one of them to compare their predictive
 performances across spatial folds.
 
 ``` r
-comparison <- rf_compare(
+comparison <- spatialRF::rf_compare(
   models = list(
     `Non-spatial` = model.non.spatial,
     `Spatial` = model.spatial
@@ -2748,7 +2715,7 @@ comparison <- rf_compare(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-56-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-57-1.png)<!-- -->
 
 ``` r
 x <- comparison$comparison.df %>% 
@@ -2900,10 +2867,8 @@ spatialRF::print_evaluation(model.non.spatial)
     ##   - Training fraction:             0.75
     ##   - Spatial folds:                 29
     ## 
-    ##  Metric Median   MAD Minimum
-    ##     auc  0.932 0.024    0.83
-    ##  Maximum
-    ##    0.977
+    ##  Metric Median   MAD Minimum Maximum
+    ##     auc  0.932 0.024    0.83   0.977
 
 The **take away message** here is that you can work with a binomial
 response with `spatialRF`, just as you would do with a continuous
@@ -3179,7 +3144,7 @@ moran.test <- spatialRF::moran(
 moran.test$plot
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-67-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-68-1.png)<!-- -->
 
 According to the Moran’s I test, the model residuals show spatial
 autocorrelation. Let’s introduce MEMs one by one until the problem is
@@ -3236,7 +3201,7 @@ for(mem.i in colnames(mems)){
 moran.test.i$plot
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-68-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-69-1.png)<!-- -->
 
 Now we can compare the model without spatial predictors `m` and the
 model with spatial predictors `m.i`.

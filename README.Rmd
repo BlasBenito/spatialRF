@@ -88,12 +88,11 @@ There is a paper in the making about this package. In the meantime, if you find 
 
 # Install
 
-The version 1.1.3 is available on CRAN:
+The version 1.1.3 can be installed from CRAN:
 
-```{r}
+```{r, message=FALSE, error=FALSE, warning=FALSE}
 install.packages("spatialRF")
 ```
-
 
 The package can also be installed from GitHub as follows. There are several branches in the repository:
 
@@ -108,12 +107,12 @@ remotes::install_github(
   force = TRUE,
   quiet = TRUE
   )
-library(spatialRF)
 ```
 
 There are a few other libraries that will be useful during this tutorial.
 
 ```{r, message = FALSE}
+library(spatialRF)
 library(kableExtra)
 library(rnaturalearth)
 library(rnaturalearthdata)
@@ -909,7 +908,7 @@ The function returns a tuned model only if the tuning finds a solution better th
 Random Forest is an stochastic algorithm that yields slightly different results on each run unless a random seed is set. This particularity has implications for the interpretation of variable importance scores and response curves. The function [`rf_repeat()`](https://blasbenito.github.io/spatialRF/reference/rf_repeat.html) repeats a model execution and yields the distribution of importance scores of the predictors across executions. **NOTE**: this function works better when used at the end of a workflow
 
 ```{r, fig.width = 6, fig.height=4.5}
-model.spatial.repeat <- rf_repeat(
+model.spatial.repeat <- spatialRF::rf_repeat(
   model = model.spatial, 
   repetitions = 30,
   seed = random.seed,
@@ -1028,7 +1027,7 @@ doParallel::registerDoParallel(cl = beowulf.cluster)
 The function [`rf_compare()`](https://blasbenito.github.io/spatialRF/reference/rf_compare.html) takes named list with as many models as the user needs to compare, and applies `rf_evaluate()` to each one of them to compare their predictive performances across spatial folds.
 
 ```{r, fig.width=6, fig.height=3}
-comparison <- rf_compare(
+comparison <- spatialRF::rf_compare(
   models = list(
     `Non-spatial` = model.non.spatial,
     `Spatial` = model.spatial
