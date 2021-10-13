@@ -42,7 +42,7 @@
 [![lifecycle](https://img.shields.io/badge/lifecycle-stable-green.svg)](https://lifecycle.r-lib.org/articles/stages.html)
 [![License](https://img.shields.io/badge/license-GPL--3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
 [![DOI](https://zenodo.org/badge/330962704.svg)](https://zenodo.org/badge/latestdoi/330962704)[![CRAN
-status](https://www.r-pkg.org/badges/version/spatialRF)](https://cran.r-project.org/package=spatialRF)[![CRAN\_Download\_Badge](http://cranlogs.r-pkg.org/badges/spatialRF)](https://CRAN.R-project.org/package=spatialRF)
+status](https://www.r-pkg.org/badges/version/spatialRF)](https://cran.r-project.org/package=spatialRF)[![CRAN\_Download\_Badge](http://cranlogs.r-pkg.org/badges/grand-total/spatialRF)](https://CRAN.R-project.org/package=spatialRF)
 
 <!-- badges: end -->
 
