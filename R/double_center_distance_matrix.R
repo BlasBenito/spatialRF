@@ -14,10 +14,10 @@
 #' if(interactive()){
 #'
 #'  #loading the distance matrix
-#'  data(distance_matrix)
+#'  data(ecoregions_distance_matrix)
 #'
 #'  x <- double_center_distance_matrix(
-#'    distance.matrix = distance_matrix
+#'    distance.matrix = ecoregions_distance_matrix
 #'  )
 #'  x
 #'

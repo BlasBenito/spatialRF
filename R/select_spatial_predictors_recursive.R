@@ -24,48 +24,48 @@
 #' if(interactive()){
 #'
 #' #loading example data
-#' data(distance_matrix)
-#' data(plant_richness_df)
-#'
-#' #response and preditor names
-#' dependent.variable.name = "richness_species_vascular"
-#' predictor.variable.names = colnames(plant_richness_df)[5:21]
+#' data(
+#'   ecoregions_df,
+#'   ecoregions_distance_matrix,
+#'   ecoregions_predvar_names,
+#'   ecoregions_depvar_name
+#'   )
 #'
 #' #non-spatial model
 #' model <- rf(
-#'   data = plant_richness_df,
-#'   dependent.variable.name = dependent.variable.name,
-#'   predictor.variable.names = predictor.variable.names,
-#'   distance.matrix = distance_matrix,
+#'   data = ecoregions_df,
+#'   dependent.variable.name = ecoregions_depvar_name,
+#'   predictor.variable.names = ecoregions_predvar_names,
+#'   distance.matrix = ecoregions_distance_matrix,
 #'   distance.thresholds = 0,
 #'   n.cores = 1
 #' )
 #'
 #' #preparing spatial predictors
 #' spatial.predictors <- mem_multithreshold(
-#'   distance.matrix = distance_matrix,
+#'   distance.matrix = ecoregions_distance_matrix,
 #'   distance.thresholds = 0
 #' )
 #'
 #' #ranking spatial predictors
 #' spatial.predictors.ranking <- rank_spatial_predictors(
-#'   data = plant_richness_df,
-#'   dependent.variable.name = dependent.variable.name,
-#'   predictor.variable.names = predictor.variable.names,
+#'   data = ecoregions_df,
+#'   dependent.variable.name = ecoregions_depvar_name,
+#'   predictor.variable.names = ecoregions_predvar_names,
 #'   spatial.predictors.df = spatial.predictors,
 #'   ranking.method = "moran",
 #'   reference.moran.i = model$spatial.correlation.residuals$max.moran,
-#'   distance.matrix = distance_matrix,
+#'   distance.matrix = ecoregions_distance_matrix,
 #'   distance.thresholds = 0,
 #'   n.cores = 1
 #' )
 #'
 #' #selecting the best subset of predictors
 #' selection <- select_spatial_predictors_recursive(
-#'   data = plant_richness_df,
-#'   dependent.variable.name = dependent.variable.name,
-#'   predictor.variable.names = predictor.variable.names,
-#'   distance.matrix = distance_matrix,
+#'   data = ecoregions_df,
+#'   dependent.variable.name = ecoregions_depvar_name,
+#'   predictor.variable.names = ecoregions_predvar_names,
+#'   distance.matrix = ecoregions_distance_matrix,
 #'   distance.thresholds = 0,
 #'   spatial.predictors.df = spatial.predictors,
 #'   spatial.predictors.ranking = spatial.predictors.ranking,

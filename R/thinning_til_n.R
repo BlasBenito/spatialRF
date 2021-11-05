@@ -15,15 +15,15 @@
 #' if(interactive()){
 #'
 #'  #loading example data
-#'  data(plant_richness_df)
+#'  data(ecoregions_df)
 #'
 #'  #thinning to ~20 records
-#'  plant_richness.thin <- thinning_til_n(
-#'    x = plant_richness_df,
+#'  ecoregions_df.thin <- thinning_til_n(
+#'    x = ecoregions_df,
 #'    n = 20
 #'    )
 #'
-#'  plant_richness.thin
+#'  ecoregions_df.thin
 #'
 #' }
 #' @rdname thinning_til_n

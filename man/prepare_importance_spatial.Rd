@@ -18,16 +18,20 @@ Prepares variable importance data frames and plots for models fitted with \code{
 \examples{
 if(interactive()){
 
- #loading example data
- data(distance_matrix)
- data(plant_richness_df)
+#loading example data
+data(
+  ecoregions_df,
+  ecoregions_distance_matrix,
+  ecoregions_predvar_names,
+  ecoregions_depvar_name
+  )
 
  #fittind spatial model
  model <- rf_spatial(
-   data = plant_richness_df,
-   dependent.variable.name = "richness_species_vascular",
-   predictor.variable.names = colnames(plant_richness_df)[5:21],
-   distance.matrix = distance_matrix,
+   data = ecoregions_df,
+   dependent.variable.name = ecoregions_depvar_name,
+   predictor.variable.names = ecoregions_predvar_names,
+   distance.matrix = ecoregions_distance_matrix,
    distance.thresholds =  0,
    n.cores = 1
  )

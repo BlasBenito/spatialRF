@@ -123,40 +123,195 @@ usethis::use_github(
   protocol = "ssh"
 )
 
-usethis::use_data(plant_richness_sf, overwrite = TRUE)
-#generating example data
-# ecoregions_richness$ecoregion_name.1 <- NULL
-# usethis::use_data(plant_richness) #created from ecoregions$data and ecoregions$centroids in the project gbif_plantae
-# usethis::use_data(distance_matrix)
-# usethis::use_build_ignore("data/old")
-#
-# plant_richness_df <- sf::st_drop_geometry(plant_richness)
-# plant_richness_sf <- plant_richness
-#
-# usethis::use_data(plant_richness_df)
-# usethis::use_data(plant_richness_sf)
+#data preparation
+##########################
+##########################
 
-#making the data smaller
-# plant_richness_ <- plant_richness %>% dplyr::filter(x < -25)
-# plant_richness_$fragmentation_shape_mn <- NULL
-# plant_richness_$fragmentation_para_mn <- NULL
-# plant_richness_$fragmentation_ed <- NULL
-# plant_richness_$fragmentation_dcore_mn <- NULL
-# plant_richness_$fragmentation_core_mn <- NULL
-#
-# plant_richness_$ecoregion_id <- 1:nrow(plant_richness_)
-#
-# distance_matrix_ <- distance_matrix[plant_richness_$ecoregion_id, plant_richness_$ecoregion_id]
-# rownames(distance_matrix_) <- colnames(distance_matrix_) <- 1:nrow(plant_richness_)
-#
-# plant_richness <- plant_richness_
-# distance_matrix <- distance_matrix_
-# rm(plant_richness_, distance_matrix_)
-# usethis::use_data(plant_richness)
-# usethis::use_data(distance_matrix)
+#getting data frame and polygons
+load("/home/blas/Dropbox/GITHUB/gbif_plantae/ecoregions_plant_diversity.RData")
+
+#preparing ecoregions df
+ecoregions_df <- ecoregions %>%
+  dplyr::filter(
+    ecoregion_continent == "Americas",
+    geo_longitude_average > -159.93672
+    ) %>%
+  tibble::rowid_to_column("ecoregion_id") %>%
+  as.data.frame()
+
+#getting the ecoregion centroids
+colnames(ecoregions_centroids) <- c("ecoregion_name", "geom")
+st_geometry(ecoregions_centroids) <- "geom"
+ecoregions_xy <- ecoregions_centroids %>%
+  dplyr::filter(
+    ecoregion_name %in% all_of(ecoregions_df$ecoregion_name)
+  ) %>%
+  st_coordinates(ecoregions_centroids) %>%
+  as.data.frame() %>%
+  dplyr::rename(
+    x = "X",
+    y = "Y"
+  )
+
+#joining coordinates
+ecoregions_df <- cbind(ecoregions_df, ecoregions_xy)
+
+#preparing simplified polygons
+sf_use_s2(FALSE)
+ecoregions_polygons <- ecoregions_polygons %>%
+  dplyr::filter(
+    ecoregion_name %in% all_of(ecoregions_df$ecoregion_name)
+    ) %>%
+  tibble::rowid_to_column("ecoregion_id") %>%
+  dplyr::select(
+    ecoregion_id,
+    geom
+  ) %>%
+  sf::st_simplify(preserveTopology = FALSE, dTolerance = 0.25)
+ggplot(ecoregions_polygons) + geom_sf()
+objects_size()
+
+#loading distance matrix
+load("/home/blas/Dropbox/GITHUB/gbif_plantae/ecoregions_plant_diversity_ready.RData")
+
+#subsetting distance matrix
+ecoregions_distance_matrix <- distance_matrices$connection_distance
+ecoregions_distance_matrix <- ecoregions_distance_matrix[
+  ecoregions_df$ecoregion_name,
+  ecoregions_df$ecoregion_name
+]
+
+#getting response name
+ecoregions_depvar_name <- "richness_species_vascular"
+ecoregions_predvar_names <- c(
+  "ecoregion_area_km2",
+  "bias_species_per_record_per_km2",
+  "neighbors_count",
+  "neighbors_area",
+  "neighbors_percent_shared_edge",
+  "neighbors_average_aridity",
+  "human_population_density",
+  "human_footprint_average",
+  "climate_aridity_index_average",
+  "climate_bio1_average",
+  "climate_bio4_average",
+  "climate_bio5_average",
+  "climate_bio5_maximum",
+  "climate_bio12_minimum",
+  "climate_bio12_maximum",
+  "climate_bio12_average",
+  "climate_bio15_average",
+  "climate_hypervolume",
+  "landcover_bare_percent_average",
+  "landcover_herbs_percent_average",
+  "landcover_trees_percent_average",
+  "landcover_ndvi_average",
+  "topography_elevation_average",
+  "topography_elevation_range",
+  "fragmentation_ai",
+  "fragmentation_area_mn",
+  "fragmentation_ca",
+  "fragmentation_clumpy",
+  "fragmentation_cohesion",
+  "fragmentation_contig_mn",
+  "fragmentation_core_mn",
+  "fragmentation_cpland",
+  "fragmentation_dcad",
+  "fragmentation_dcore_mn",
+  "fragmentation_division",
+  "fragmentation_ed",
+  "fragmentation_lsi",
+  "fragmentation_mesh",
+  "fragmentation_ndca",
+  "fragmentation_nlsi",
+  "fragmentation_np",
+  "fragmentation_para_mn",
+  "fragmentation_pd",
+  "fragmentation_shape_mn",
+  "fragmentation_tca",
+  "fragmentation_te"
+)
+
+#subsetting ecoregions_df
+ecoregions_df <- ecoregions_df %>%
+  dplyr::select(
+    ecoregion_id,
+    ecoregion_name,
+    x,
+    y,
+    all_of(ecoregions_depvar_name),
+    all_of(ecoregions_predvar_names)
+  ) %>%
+  dplyr::rename(
+    sampling_bias = "bias_species_per_record_per_km2",
+    plant_richness = "richness_species_vascular"
+  )
+
+#renaming col and row names of ecoregions_distance_matrix
+colnames(ecoregions_distance_matrix) <- rownames(ecoregions_distance_matrix) <- ecoregions_df$ecoregion_id
+
+#replacing depvar name
+ecoregions_depvar_name <- "plant_richness"
+
+#replacing sampling bias in predvar
+ecoregions_predvar_names <- c(
+  "ecoregion_area_km2",
+  "sampling_bias",
+  "neighbors_count",
+  "neighbors_area",
+  "neighbors_percent_shared_edge",
+  "neighbors_average_aridity",
+  "human_population_density",
+  "human_footprint_average",
+  "climate_aridity_index_average",
+  "climate_bio1_average",
+  "climate_bio4_average",
+  "climate_bio5_average",
+  "climate_bio5_maximum",
+  "climate_bio12_minimum",
+  "climate_bio12_maximum",
+  "climate_bio12_average",
+  "climate_bio15_average",
+  "climate_hypervolume",
+  "landcover_bare_percent_average",
+  "landcover_herbs_percent_average",
+  "landcover_trees_percent_average",
+  "landcover_ndvi_average",
+  "topography_elevation_average",
+  "topography_elevation_range",
+  "fragmentation_ai",
+  "fragmentation_area_mn",
+  "fragmentation_ca",
+  "fragmentation_clumpy",
+  "fragmentation_cohesion",
+  "fragmentation_contig_mn",
+  "fragmentation_core_mn",
+  "fragmentation_cpland",
+  "fragmentation_dcore_mn",
+  "fragmentation_division",
+  "fragmentation_ed",
+  "fragmentation_lsi",
+  "fragmentation_mesh",
+  "fragmentation_ndca",
+  "fragmentation_nlsi",
+  "fragmentation_np",
+  "fragmentation_shape_mn",
+  "fragmentation_tca",
+  "fragmentation_te"
+)
+
+#testing the data with autovif and autocor
+x <- auto_cor(
+  x = ecoregions_df[, ecoregions_predvar_names],
+  preference.order = ecoregions_predvar_names
+) %>%
+  auto_vif()
+
+#saving data
+usethis::use_data(ecoregions_df, ecoregions_polygons, ecoregions_distance_matrix, ecoregions_predvar_names, ecoregions_depvar_name, overwrite = TRUE)
 
 #documenting the data
-usethis::use_r("plant_richness")
+usethis::use_r("ecoregions_df")
 usethis::use_r("distance_matrix")
 
 #loading functions from their original location

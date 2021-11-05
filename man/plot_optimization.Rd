@@ -35,19 +35,20 @@ If the method used to fit a model with \code{\link[=rf_spatial]{rf_spatial()}} i
 if(interactive()){
 
  #loading example data
- data(distance_matrix)
- data(plant_richness_df)
-
- #names of the response and predictors
- dependent.variable.name <- "richness_species_vascular"
- predictor.variable.names <- colnames(plant_richness_df)[5:21]
+#loading example data
+data(
+  ecoregions_df,
+  ecoregions_distance_matrix,
+  ecoregions_predvar_names,
+  ecoregions_depvar_name
+  )
 
  #spatial model
- model <- rf_spatial(
-   data = plant_richness_df,
-   dependent.variable.name = dependent.variable.name,
-   predictor.variable.names = predictor.variable.names,
-   distance.matrix = distance_matrix,
+ rf.model <- rf_spatial(
+   data = ecoregions_df,
+   dependent.variable.name = ecoregions_depvar_name,
+   predictor.variable.names = ecoregions_predvar_names,
+   distance.matrix = ecoregions_distance_matrix,
    distance.thresholds = 0,
    method = "mem.moran.sequential",
    n.cores = 1,
@@ -55,7 +56,7 @@ if(interactive()){
  )
 
  #plotting selection of spatial predictors
- plot_optimization(model = model)
+ plot_optimization(model = rf.model)
 
 
 }

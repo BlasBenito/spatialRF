@@ -14,11 +14,14 @@
 #' @examples
 #' if(interactive()){
 #'
-#'  #load data
-#'  data(plant_richness_df)
+#'  #loading example data
+#'  data(
+#'   ecoregions_df,
+#'   ecoregions_predvar_names
+#'   )
 #'
 #'  #on a data frame
-#'  out <- auto_cor(x = plant_richness_df[, 5:21])
+#'  out <- auto_cor(x = ecoregions_df[, ecoregions_predvar_names])
 #'
 #'  #getting the correlation matrix
 #'  out$cor
@@ -30,11 +33,11 @@
 #'  out$selected.variables.df
 #'
 #'  #on the result of auto_vif
-#'  out <- auto_vif(x = plant_richness_df[, 5:21])
+#'  out <- auto_vif(x = ecoregions_df[, ecoregions_predvar_names])
 #'  out <- auto_cor(x = out)
 #'
 #'  #with pipes
-#'  out <- plant_richness_df[, 5:21] %>%
+#'  out <- ecoregions_df[, ecoregions_predvar_names] %>%
 #'  auto_vif() %>%
 #'  auto_cor()
 #'

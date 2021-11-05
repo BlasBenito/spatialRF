@@ -27,10 +27,10 @@ Columns in \code{x} with zero variance are removed before computing the PCA.
 if(interactive()){
 
  #load example distance matrix
- data(distance_matrix)
+ data(ecoregions_distance_matrix)
 
  #PCA of the distance matrix
- out <- pca(x = distance_matrix)
+ out <- pca(x = ecoregions_distance_matrix)
  out
 
 }

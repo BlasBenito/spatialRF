@@ -6,10 +6,10 @@
 #' if(interactive()){
 #'
 #'  #loading example distance matrix
-#'  data(distance_matrix)
+#'  data(ecoregions_distance_matrix)
 #'
 #'  #computing set of default distance thresholds
-#'  default_distance_thresholds(distance_matrix)
+#'  default_distance_thresholds(ecoregions_distance_matrix)
 #'
 #'  }
 #' @rdname default_distance_thresholds

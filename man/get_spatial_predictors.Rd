@@ -18,23 +18,27 @@ Returns spatial predictors from a model fitted with \code{\link[=rf_spatial]{rf_
 \examples{
 if(interactive()){
 
- #loading example data
- data(distance_matrix)
- data(plant_richness_df)
+#loading example data
+data(
+  ecoregions_df,
+  ecoregions_distance_matrix,
+  ecoregions_predvar_names,
+  ecoregions_depvar_name
+  )
 
- #fittind spatial model
- model <- rf_spatial(
-   data = plant_richness_df,
-   dependent.variable.name = "richness_species_vascular",
-   predictor.variable.names = colnames(plant_richness_df)[5:21],
-   distance.matrix = distance_matrix,
+ #fitting spatial model
+ rf.model <- rf_spatial(
+   data = ecoregions_df,
+   dependent.variable.name = ecoregions_depvar_name,
+   predictor.variable.names = ecoregions_predvar_names,
+   distance.matrix = ecoregions_distance_matrix,
    distance.thresholds = c(0, 1000),
    n.cores = 1,
    method = "mem.moran.sequential"
  )
 
 #getting data frame with the selected spatial predictors
-spatial.predictors <- get_spatial_predictors(model)
+spatial.predictors <- get_spatial_predictors(rf.model)
 head(spatial.predictors)
 
 }

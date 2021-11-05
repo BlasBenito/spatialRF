@@ -9,15 +9,15 @@
 #' if(interactive()){
 #'
 #'  #load example data
-#'  data(plant_richness_df)
+#'  data(ecoregions_df)
 #'
 #'  #thinning to points separated by 5 degrees
-#'  plant_richness.thin <- thinning(
-#'    x = plant_richness_df,
-#'    minimum.distance = 5 #points separated by at least 5 degrees
+#'  ecoregions_df.thin <- thinning(
+#'    x = ecoregions_df,
+#'    minimum.distance = 5 #output points separated by at least 5 degrees
 #'    )
 #'
-#'  plant_richness.thin
+#'  ecoregions_df.thin
 #'
 #' }
 #' @rdname thinning

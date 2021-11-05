@@ -24,11 +24,11 @@ Transforms a distance matrix into weights (1/distance.matrix) normalized by the 
 if(interactive()){
 
  #loading example distance matrix
- data(distance_matrix)
+ data(ecoregions_distance_matrix)
 
  #computing matrix of weights
  distance.matrix.weights <- weights_from_distance_matrix(
-   distance.matrix = distance_matrix
+   distance.matrix = ecoregions_distance_matrix
    )
 
  distance.matrix.weights

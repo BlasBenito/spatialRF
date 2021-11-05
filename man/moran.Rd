@@ -38,13 +38,16 @@ Inspired in the \code{Moran.I()} function of the \href{https://cran.r-project.or
 if(interactive()){
 
  #loading example data
- data(distance_matrix)
- data(plant_richness)
+data(
+  ecoregions_df,
+  ecoregions_distance_matrix,
+  ecoregions_depvar_name
+  )
 
  #Moran's I of the response variable
  out <- moran(
-   x = plant_richness$richness_species_vascular,
-   distance.matrix = distance_matrix
+   x = ecoregions_df[, ecoregions_depvar_name],
+   distance.matrix = ecoregions_distance_matrix
    )
  out
 

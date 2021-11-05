@@ -9,11 +9,11 @@
 #' if(interactive()){
 #'
 #'  #loading example data
-#'  data(distance_matrix)
+#'  data(ecoregions_distance_matrix)
 #'
 #'  #computing Moran's eigenvector maps for 0, 1000, and 2000 km
 #'  mem.df <- mem_multithreshold(
-#'    distance.matrix = distance_matrix,
+#'    distance.matrix = ecoregions_distance_matrix,
 #'    distance.thresholds = c(0, 1000, 2000)
 #'    )
 #'  head(mem.df)

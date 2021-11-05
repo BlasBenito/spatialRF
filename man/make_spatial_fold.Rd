@@ -39,11 +39,10 @@ Used internally by \code{\link[=make_spatial_folds]{make_spatial_folds()}} and \
 if(interactive()){
 
  #loading example data
- data(plant_richness_df)
+ data(ecoregions_df)
 
  #getting case coordinates
- xy <- plant_richness_df[, 1:3]
- colnames(xy) <- c("id", "x", "y")
+ xy <- ecoregions_df[, c("x", "y")]
 
  #building a spatial fold centered in the first pair of coordinates
  out <- make_spatial_fold(

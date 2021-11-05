@@ -11,14 +11,18 @@
 #' @examples
 #' if(interactive()){
 #'
-#'    #load example data
-#'    data(plant_richness_df)
+#' #loading example data
+#' data(
+#'   ecoregions_df,
+#'   ecoregions_predvar_names,
+#'   ecoregions_depvar_name
+#'   )
 #'
 #'    #scatterplot of the training data
 #'    plot_training_data(
-#'      data = plant_richness_df,
-#'      dependent.variable.name = "richness_species_vascular",
-#'      predictor.variable.names = colnames(plant_richness_df)[5:21]
+#'      data = ecoregions_df,
+#'      dependent.variable.name = ecoregions_depvar_name,
+#'      predictor.variable.names = ecoregions_predvar_names
 #'      )
 #'  }
 #' @importFrom ggplot2 ggplot aes_string geom_point scale_color_viridis_c theme_bw theme geom_smooth

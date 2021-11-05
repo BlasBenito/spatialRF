@@ -77,12 +77,12 @@ The function returns the criteria used to select the interactions, and the data 
 if(interactive()){
 
  #load example data
- data(plant_richness_df)
+ data(ecoregions_df, ecoregions_depvar_name, ecoregions_predvar_names)
 
  new.features <- the_feature_engineer(
-   data = plant_richness_df,
-   dependent.variable.name = "richness_species_vascular",
-   predictor.variable.names = colnames(plant_richness_df)[5:21],
+   data = ecoregions_df,
+   dependent.variable.name = ecoregions_depvar_name,
+   predictor.variable.names = ecoregions_predvar_names,
    n.cores = 1,
    verbose = TRUE
  )

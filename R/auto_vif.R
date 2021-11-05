@@ -29,11 +29,13 @@
 #' @examples
 #' if(interactive()){
 #'
-#'#loading data
-#'data(plant_richness_df)
+#' data(
+#'   ecoregions_df,
+#'   ecoregions_predvar_names
+#'   )
 #'
 #'#on a data frame
-#'out <- auto_vif(x = plant_richness_df[, 5:21])
+#'out <- auto_vif(x = ecoregions_df[, ecoregions_predvar_names])
 #'
 #'#getting out the vif data frame
 #'out$vif
@@ -45,11 +47,11 @@
 #'out$selected.variables.df
 #'
 #'#on the result of auto_cor
-#'out <- auto_cor(x = plant_richness_df[, 5:21])
+#'out <- auto_cor(x = ecoregions_df[, ecoregions_predvar_names])
 #'out <- auto_vif(x = out)
 #'
 #'#with pipes
-#'out <- plant_richness_df[, 5:21] %>%
+#'out <- ecoregions_df[, ecoregions_predvar_names] %>%
 #'  auto_cor() %>%
 #'  auto_vif()
 #'

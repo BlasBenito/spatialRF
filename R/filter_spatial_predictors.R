@@ -8,23 +8,28 @@
 #' @examples
 #' if(interactive()){
 #'
-#' #loading data
-#' data("distance_matrix")
-#' data("plant_richness_df")
+#' data(
+#'   ecoregions_df,
+#'   ecoregions_distance_matrix,
+#'   ecoregions_predvar_names,
+#'   ecoregions_depvar_name
+#'   )
 #'
 #' #computing Moran's Eigenvector Maps
 #' spatial.predictors.df <- mem_multithreshold(
-#'   distance_matrix = distance_matrix,
+#'   distance_matrix = ecoregions_distance_matrix,
 #'   distance.thresholds = c(0, 1000)
 #'   )
 #'
 #' #filtering spatial predictors
 #' spatial.predictors.df <- filter_spatial_predictors(
-#'   data = plant_richness_df,
-#'   predictor.variable.names = colnames(plant_richness_df)[5:21],
+#'   data = ecoregions_df,
+#'   predictor.variable.names = ecoregions_predvar_names,
 #'   spatial.predictors.df = spatial.predictors.df,
 #'   cor.threshold = 0.50
 #'  )
+#'
+#'  spatial.predictors.df
 #'
 #'
 #' }

@@ -15,11 +15,10 @@
 #' if(interactive()){
 #'
 #'  #loading example data
-#'  data(plant_richness_df)
+#'  data(ecoregions_df)
 #'
 #'  #getting case coordinates
-#'  xy <- plant_richness_df[, 1:3]
-#'  colnames(xy) <- c("id", "x", "y")
+#'  xy <- ecoregions_df[, c("x", "y")]
 #'
 #'  #thining til 20 cases
 #'  xy.selected <- thinning_til_n(

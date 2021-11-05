@@ -1,3 +1,15 @@
+## Version 1.1.4 (work in progress)
+
+Changed the names of the example data, added new predictors, and a couple of new objects. All these objects are documented in the file `ecoregions_df.R`.
+
+  - `plant_richness_df` is now `ecoregions_df`. I added new predictors to this data frame, and removed two ecoregions.
+  - `distance_matrix` is now `ecoregions_distance_matrix`.
+  - `ecoregion_polygons` is an "sf" data frame with the simplified ecoregion polygons.
+  - `ecoregions_predvar_names` is a character vector with the names of the predictors in `ecoregions_df`. 
+  - `ecoregions_depvar_name` is a character string with the name of the dependent variable in `ecoregions_df`.
+  
+Changed the names of these objects in the package documentation, the README, and the tests folder.
+
 ## Version 1.1.3 (22/9/2021)
 
 Added the function `rf_importance()`. It fits models with and without each predictor, compares them via spatial cross validation with `rf_evaluate()`, and returns the increase/decrease in performance when a given variable is included in the model.

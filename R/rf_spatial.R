@@ -65,19 +65,19 @@
 #' if(interactive()){
 #'
 #'  #loading example data
-#'  data(distance_matrix)
-#'  data(plant_richness_df)
-#'
-#'  #names of the response and predictors
-#'  dependent.variable.name <- "richness_species_vascular"
-#'  predictor.variable.names <- colnames(plant_richness_df)[5:21]
+#' data(
+#'   ecoregions_df,
+#'   ecoregions_distance_matrix,
+#'   ecoregions_predvar_names,
+#'   ecoregions_depvar_name
+#'   )
 #'
 #'  #hengl
 #'  model <- rf_spatial(
-#'    data = plant_richness_df,
-#'    dependent.variable.name = dependent.variable.name,
-#'    predictor.variable.names = predictor.variable.names,
-#'    distance.matrix = distance_matrix,
+#'    data = ecoregions_df,
+#'    dependent.variable.name = ecoregions_depvar_name,
+#'    predictor.variable.names = ecoregions_predvar_names,
+#'    distance.matrix = ecoregions_distance_matrix,
 #'    distance.thresholds = 0,
 #'    method = "hengl",
 #'    n.cores = 1
@@ -85,10 +85,10 @@
 #'
 #'  #mem.moran.sequential
 #'  model <- rf_spatial(
-#'    data = plant_richness_df,
-#'    dependent.variable.name = dependent.variable.name,
-#'    predictor.variable.names = predictor.variable.names,
-#'    distance.matrix = distance_matrix,
+#'    data = ecoregions_df,
+#'    dependent.variable.name = ecoregions_depvar_name,
+#'    predictor.variable.names = ecoregions_predvar_names,
+#'    distance.matrix = ecoregions_distance_matrix,
 #'    distance.thresholds = 0,
 #'    method = "mem.moran.sequential",
 #'    n.cores = 1
@@ -96,10 +96,10 @@
 #'
 #'  #fitting an rf_spatial model from an rf model
 #'  rf.model <- rf(
-#'    data = plant_richness_df,
-#'    dependent.variable.name = "richness_species_vascular",
-#'    predictor.variable.names = colnames(plant_richness_df)[5:21],
-#'    distance.matrix = distance_matrix,
+#'    data = ecoregions_df,
+#'    dependent.variable.name = ecoregions_depvar_name,
+#'    predictor.variable.names = ecoregions_predvar_names,
+#'    distance.matrix = ecoregions_distance_matrix,
 #'    distance.thresholds = 0,
 #'    n.cores = 1,
 #'    verbose = FALSE

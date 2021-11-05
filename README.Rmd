@@ -15,7 +15,7 @@ always_allow_html: yes
 
 <!-- badges: start -->
 
-[![Devel-version](https://img.shields.io/badge/devel%20version-1.1.3-blue.svg)](https://github.com/blasbenito/spatialRF) [![lifecycle](https://img.shields.io/badge/lifecycle-stable-green.svg)](https://lifecycle.r-lib.org/articles/stages.html)
+[![Devel-version](https://img.shields.io/badge/devel%20version-1.1.4-blue.svg)](https://github.com/blasbenito/spatialRF) [![lifecycle](https://img.shields.io/badge/lifecycle-stable-green.svg)](https://lifecycle.r-lib.org/articles/stages.html)
 [![License](https://img.shields.io/badge/license-GPL--3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html) [![DOI](https://zenodo.org/badge/330962704.svg)](https://zenodo.org/badge/latestdoi/330962704)[![CRAN status](https://www.r-pkg.org/badges/version/spatialRF)](https://cran.r-project.org/package=spatialRF)[![CRAN\_Download\_Badge](http://cranlogs.r-pkg.org/badges/grand-total/spatialRF)](https://CRAN.R-project.org/package=spatialRF)
 
 
@@ -25,7 +25,7 @@ always_allow_html: yes
 
 # Introduction
 
-The package **spatialRF** facilitates fitting spatial regression models on regular or irregular data with Random Forest. It does so by generating *spatial predictors* that help the model "understand" the spatial structure of the training data with the end goal of minimizing the spatial autocorrelation of the model residuals and offering honest variable importance scores.
+The package **spatialRF** facilitates fitting spatial regression models on regular or irregular data with Random Forest. It does so by generating *spatial predictors* that help the model "understand" the spatial structure of the training data. Spatial predictors act as proxies of spatio-temporal processes not represented in other environmental predictors, minimized the spatial autocorrelation of the model residuals, and offer more honest variable importance scores.
 
 Two main methods to generate *spatial predictors* from the distance matrix of the data points are implemented in the package:
 
@@ -45,9 +45,9 @@ spatial.model <- spatialRF::rf_spatial(
 
 **spatialRF** uses the fast and efficient `ranger` package under the hood [(Wright and Ziegler 2017)](https://arxiv.org/abs/1508.04409), so please, cite the `ranger` package when using `spatialRF`!
 
-This pacakge also provides tools to identify potentially interesting variable interactions, tune random forest hyperparameters, assess model performance on spatially independent data folds, and examine the resulting models via importance plots, response curves, and response surfaces.
+This pacakge also provides tools to select predictors while reducing multicollinearity, identify potentially interesting variable interactions, tune random forest hyperparameters, assess model performance on spatially independent data folds, and examine the resulting models via importance plots, response curves, and response surfaces.
 
-# Development
+# Development and bugs
 
 This package is reaching its final form, and big changes are not expected at this stage. However, it has many functions, and even though all them have been tested, only one dataset has been used for those tests. You will find bugs, and something will go wrong almost surely. If you have time to report bugs, please, do so in any of the following ways:
 
@@ -59,11 +59,11 @@ I will do my best to solve any issues ASAP!
 
 # Applications
 
-The goal of `spatialRF` is to help fitting *explanatory spatial regression*, where the target is to understand how a set of predictors and the spatial structure of the data influences response variable. Therefore, the spatial analyses implemented in the package can be applied to any spatial dataset, regular or irregular, with a sample size between \~100 and \~5000 cases (the higher end will depend on the RAM memory available), a quantitative or binary (values 0 and 1) response variable, and a more or less large set of predictive variables.
+The goal of `spatialRF` is to help fitting *explanatory spatial regression* to understand how a set of predictors and the spatial structure of the data influences the response variable. Therefore, the spatial analyses implemented in the package can be applied to any spatial dataset, regular or irregular, with a sample size between \~100 and \~5000 cases (the higher end will depend on the RAM memory available), a quantitative or binary (values 0 and 1) response variable, and a set of predictive variables.
 
-All functions but `rf_spatial()` work with non-spatial data as well if the arguments `distance.matrix` and `distance.thresholds` are not provided In such case, the number of training cases is no longer limited by the size of the distance matrix, and models can be trained with hundreds of thousands of rows. In such case, the spatial autocorrelation of the model's residuals is not assessed.
+All functions but `rf_spatial()` work with non-spatial data as well if the arguments `ecoregions_distance_matrix` and `distance_thresholds` are not provided. In such case, the number of training cases is no longer limited by the size of the distance matrix, and models can be trained with hundreds of thousands of rows. In such case, the spatial autocorrelation of the model's residuals is not assessed.
 
-However, **when the focus is on fitting spatial models**, and due to the nature of the *spatial predictors* used to represent the spatial structure of the training data, **there are many things this package cannot do**:
+However, **when the focus is on fitting spatial models**, and due to the nature of the *spatial predictors* used to represent the spatial structure of the training data, **there are many things this package cannot do** if you aim to use the spatial analyses implemented in it:
 
 -   Predict model results over raster data.
 
@@ -83,7 +83,7 @@ There is a paper in the making about this package. In the meantime, if you find 
 
 *Marvin N. Wright, Andreas Ziegler (2017). ranger: A Fast Implementation of Random Forests for High Dimensional Data in C++ and R. Journal of Statistical Software, 77(1), 1-17. doi:10.18637/jss.v077.i01*
 
-*Blas M. Benito (2021). spatialRF: Easy Spatial Regression with Random Forest. R package version 1.1.0. doi: 10.5281/zenodo.4745208. url: https://blasbenito.github.io/spatialRF/*
+*Blas M. Benito (2021). spatialRF: Easy Spatial Regression with Random Forest. R package version 1.1.0. doi: 10.5281/zenodo.4745208. URL: https://blasbenito.github.io/spatialRF/*
 
 
 # Install
@@ -94,11 +94,11 @@ The version 1.1.3 can be installed from CRAN:
 install.packages("spatialRF")
 ```
 
-The package can also be installed from GitHub as follows. There are several branches in the repository:
+The package can also be installed from GitHub as WELL There are several branches in the repository:
 
-  + `main`: latest stable version (1.1.0 currently).
-  + `development`: development version, usually very broken.
-  + `v.1.0.9` to `v.1.1.2`: archived versions.
+  + `main`: latest stable version (1.1.3 currently).
+  + `development`: development version, only for the brave.
+  + `v.1.0.9` to `v.1.1.3`: archived versions.
 
 ```{r, message = FALSE, eval = FALSE}
 remotes::install_github(
@@ -130,69 +130,65 @@ The data required to fit random forest models with `spatialRF` must fulfill seve
   + **The number of predictors should be larger than 3**. Fitting a Random Forest model is moot otherwise.
   + **Factors in the response or the predictors are not explicitly supported in the package**. They may work, or they won't, but in any case, I designed this package for quantitative data alone. However, binary responses with values 0 and 1 are partially supported.
   + **Must be free of `NA`**. You can check if there are NA records with `sum(apply(df, 2, is.na))`. If the result is larger than 0, then just execute `df <- na.omit(df)` to remove rows with empty cells.
-  + **Columns cannot have zero variance**. This condition can be checked with `apply(df, 2, var) == 0`. Columns yielding TRUE should be removed.
+  + **Columns cannot have zero variance**. This condition can be checked with `apply(df, 2, var) == 0`. Columns yielding TRUE should be removed (the functions `auto_vif()` and `auto_cor()` check for this condition).
   + **Columns must not yield `NaN` or `Inf` when scaled**. You can check each condition with `sum(apply(scale(df), 2, is.nan))` and `sum(apply(scale(df), 2, is.infinite))`. If higher than 0, you can find what columns are giving issues with `sapply(as.data.frame(scale(df)), function(x)any(is.nan(x)))` and `sapply(as.data.frame(scale(df)), function(x)any(is.infinite(x)))`. Any column yielding `TRUE` will generate issues while trying to fit models with `spatialRF`.
 
 # Example data
 
-The package includes an example dataset that fulfills the conditions mentioned above, named [`plant_richness_df`](https://blasbenito.github.io/spatialRF/reference/plant_richness_df.html). It is a data frame with plant species richness and predictors for 227 ecoregions in the Americas, and a distance matrix among the ecoregion edges named, well, [`distance_matrix`](https://blasbenito.github.io/spatialRF/reference/distance_matrix.html).
+The package includes an example dataset that fulfills the conditions mentioned above, named [`ecoregions_df`](https://blasbenito.github.io/spatialRF/reference/ecoregions_df.html). It is a data frame with plant species richness and predictors for 225 ecoregions in the Americas.
+
+It further includes:
+
+  - A distance matrix among the ecoregion edges named, well, [`ecoregions_distance_matrix`](https://blasbenito.github.io/spatialRF/reference/ecoregions_distance_matrix.html). 
+  
+  - The simplified ecoregion polygons are available as an "sf" data frame in the file [`ecoregions_polygons`](https://blasbenito.github.io/spatialRF/reference/ecoregions_polygons.html).
+  
+  - A character string named [`ecoregions_depvar_name`](https://blasbenito.github.io/spatialRF/reference/ecoregions_polygons.html) with the name of the response variable, and a character vector named [`ecoregions_predvar_names`](https://blasbenito.github.io/spatialRF/reference/ecoregions_predvar_names.html), with the names of the predictors. These two objects come in handy to simplify model fitting.
 
 The package follows a convention throughout functions:
 
-  + The argument `data` requires a training data frame.
-  + The argument `dependent.variable.name` is the column name of the response variable.
-  + The argument `predictor.variable.names` contains the column names of the predictors.
+  + The argument `data` requires a training data frame. We will use the data frame `ecoregions_df`.
+  + The argument `dependent.variable.name` is the column name of the response variable. We will use the character string `ecoregions_depvar_name`.
+  + The argument `predictor.variable.names` contains the column names of the predictors. We will use the character vector `ecoregions_predvar_names`.
   + The argument `xy` takes a data frame or matrix with two columns named "x" and "y", in that order, with the case coordinates.
-  + The argument `distance.matrix` requires a matrix of distances between the cases in `data`.
+  + The argument `distance.matrix` requires a matrix of distances between the cases in `data`. We will use the distance matrix `ecoregions_distance_matrix`.
   + The argument `distance.thresholds` is a numeric vector of distances at with spatial autocorrelation wants to be computed.
   
 It is therefore convenient to define these arguments at the beginning of the workflow.
 
 ```{r}
 #loading training data and distance matrix from the package
-data(plant_richness_df)
-data(distance_matrix)
-
-#names of the response variable and the predictors
-dependent.variable.name <- "richness_species_vascular"
-predictor.variable.names <- colnames(plant_richness_df)[5:21]
+data(
+  ecoregions_df,
+  ecoregions_polygons,
+  ecoregions_distance_matrix,
+  ecoregions_depvar_name,
+  ecoregions_predvar_names
+  )
 
 #coordinates of the cases
-xy <- plant_richness_df[, c("x", "y")]
-
-#distance matrix
-distance.matrix <- distance_matrix
+xy <- ecoregions_df[, c("x", "y")]
 
 #distance thresholds (same units as distance_matrix)
-distance.thresholds <- c(0, 1000, 2000, 4000, 8000)
+distance_thresholds <- c(0, 1000, 2000, 4000, 8000)
 
 #random seed for reproducibility
 random.seed <- 1
 ```
 
-The response variable of `plant_richness_df` is "richness_species_vascular", that represents the total count of vascular plant species found on each ecoregion. The figure below shows the centroids of each ecoregion along with their associated value of the response variable.
+The response variable of `ecoregions_df` is "richness_species_vascular", that represents the total count of vascular plant species found on each ecoregion. The figure below shows the centroids of each ecoregion along with their associated value of the response variable.
 
 ```{r, echo=TRUE, message=FALSE, warning=FALSE, fig.width=6, fig.height=5.5}
-world <- rnaturalearth::ne_countries(
-  scale = "medium", 
-  returnclass = "sf"
-  )
+temp.df <- data.frame(ecoregions_df, ecoregions_polygons)
+sf::st_geometry(temp.df) <- "geom"
 
 ggplot2::ggplot() +
   ggplot2::geom_sf(
-    data = world, 
-    fill = "white"
+    data = temp.df, 
+    aes(fill = plant_richness),
+    size = 0.1
     ) +
-  ggplot2::geom_point(
-    data = plant_richness_df,
-    ggplot2::aes(
-      x = x,
-      y = y,
-      color = richness_species_vascular
-    ),
-    size = 2.5
-  ) +
-  ggplot2::scale_color_viridis_c(
+  ggplot2::scale_fill_viridis_c(
     direction = -1, 
     option = "F"
     ) +
@@ -200,21 +196,24 @@ ggplot2::ggplot() +
   ggplot2::labs(color = "Plant richness") +
   ggplot2::scale_x_continuous(limits = c(-170, -30)) +
   ggplot2::scale_y_continuous(limits = c(-58, 80))  +
-  ggplot2::ggtitle("Plant richness of the American ecoregions") + 
-  ggplot2::xlab("Longitude") + 
-  ggplot2::ylab("Latitude")
+  ggplot2::labs(
+    title = "Plant richness of the American ecoregions",
+    x = "Longitude",
+    y = "Latitude",
+    fill = "Plant richness"
+  )
 ```
 
-The predictors (columns 5 to 21) represent diverse factors that may influence plant richness such as sampling bias, the area of the ecoregion, climatic variables, human presence and impact, topography, geographical fragmentation, and features of the neighbors of each ecoregion. The figure below shows the scatterplots of the response variable (y axis) against each predictor (x axis).
+The predictors, named in `ecoregions_predvar_names`, represent diverse factors that may influence plant richness such as sampling bias, the area of the ecoregion, climatic variables, human presence and impact, topography, geographical fragmentation, and features of the neighbors of each ecoregion. The figure below shows the scatterplots of the response variable (y axis) against each predictor (x axis).
 
 **Note:** Every plotting function in the package now allows changing the colors of their main features via specific arguments such as `point.color`, `line.color`, or `fill.color`.
 
 ```{r, echo=TRUE, fig.width=10, fig.height=14}
 spatialRF::plot_training_df(
-  data = plant_richness_df,
-  dependent.variable.name = dependent.variable.name,
-  predictor.variable.names = predictor.variable.names,
-  ncol = 3,
+  data = ecoregions_df,
+  dependent.variable.name = ecoregions_depvar_name,
+  predictor.variable.names = ecoregions_predvar_names,
+  ncol = 4,
   point.color = viridis::viridis(100, option = "F"),
   line.color = "gray30"
   )
@@ -222,13 +221,13 @@ spatialRF::plot_training_df(
 
 The function [`plot_training_df_moran()`](https://blasbenito.github.io/spatialRF/reference/plot_training_df_moran.html) helps assessing the spatial autocorrelation of the response variable and the predictors across different distance thresholds. Low Moran's I and p-values equal or larger than 0.05 indicate that there is no spatial autocorrelation for the given variable and distance threshold.
 
-```{r, echo=TRUE, fig.width=8, fig.height=5}
+```{r, echo=TRUE, fig.width=8, fig.height=8}
 spatialRF::plot_training_df_moran(
-  data = plant_richness_df,
-  dependent.variable.name = dependent.variable.name,
-  predictor.variable.names = predictor.variable.names,
-  distance.matrix = distance.matrix,
-  distance.thresholds = distance.thresholds,
+  data = ecoregions_df,
+  dependent.variable.name = ecoregions_depvar_name,
+  predictor.variable.names = ecoregions_predvar_names,
+  distance.matrix = ecoregions_distance_matrix,
+  distance.thresholds = distance_thresholds,
   fill.color = viridis::viridis(
     100,
     option = "F",
@@ -242,8 +241,6 @@ spatialRF::plot_training_df_moran(
 
 The functions [`auto_cor()`](https://blasbenito.github.io/spatialRF/reference/auto_cor.html) and [`auto_vif()`](https://blasbenito.github.io/spatialRF/reference/auto_vif.html) help reduce redundancy in the predictors by using different criteria (bivariate R squared vs. [variance inflation factor](https://www.statisticshowto.com/variance-inflation-factor/)), while allowing the user to define an *order of preference*, which can be based either on domain expertise or on a quantitative assessment (e.g., order of preference based on variable importance scores or model coefficients). The preference order is defined as a character vector in the `preference.order` argument of both functions, and does not need to include the names of all predictors, but just the ones the user would like to keep in the analysis.
 
-Notice that I have set `cor.threshold` and `vif.threshold` to low values because the predictors in `plant_richness_df` already have little multicollinearity,. The default values (`cor.threshold = 0.75` and `vif.threshold = 5`) should work well when combined together for any other set of predictors.
-
 ```{r}
 preference.order <- c(
     "climate_bio1_average_X_bias_area_km2",
@@ -255,17 +252,17 @@ preference.order <- c(
   )
 
 predictor.variable.names <- spatialRF::auto_cor(
-  x = plant_richness_df[, predictor.variable.names],
-  cor.threshold = 0.6,
+  x = ecoregions_df[, ecoregions_predvar_names],
+  cor.threshold = 0.75,
   preference.order = preference.order
 ) %>% 
   spatialRF::auto_vif(
-    vif.threshold = 2.5,
+    vif.threshold = 5,
     preference.order = preference.order
   )
 ```
 
-The output of `auto_cor()` or `auto_vif()` has the class "variable_selection", which can be used as input in every function having the argument `predictor.variable.names`.
+The output of `auto_cor()` or `auto_vif()` has the class "variable_selection", which can be used as input in every function having the argument `ecoregions_predvar_names`.
 
 ```{r}
 names(predictor.variable.names)
@@ -277,17 +274,16 @@ The slot `selected.variables` contains the names of the selected predictors.
 predictor.variable.names$selected.variables
 ```
 
-
 # Finding promising variable interactions
 
 Random Forests already takes into account variable interactions of the form "variable `a` becomes important when `b` is higher than x". However, Random Forest can also take advantage of variable interactions of the form `a * b`, across the complete ranges of the predictors, as they are commonly defined in regression models, and "interactions" (not the proper name, but used here for simplicity) represented by the first component of a PCA on the predictors `a` and `b`.
 
 The function [`the_feature_engineer()`](https://blasbenito.github.io/spatialRF/reference/the_feature_engineer.html) tests all possible interactions of both types among the most important predictors, and suggesting the ones not correlated among themselves and with the other predictors inducing an increase in the model's R squared (or AUC when the response is binary) on independent data via spatial cross-validation (see `rf_evaluate()`).
 
-```{r, fig.width=13, fig.height=6}
+```{r, fig.width=12, fig.height=9}
 interactions <- spatialRF::the_feature_engineer(
-  data = plant_richness_df,
-  dependent.variable.name = dependent.variable.name,
+  data = ecoregions_df,
+  dependent.variable.name = ecoregions_depvar_name,
   predictor.variable.names = predictor.variable.names,
   xy = xy,
   importance.threshold = 0.50, #uses 50% best predictors
@@ -303,9 +299,9 @@ The upper panel in the plot plot above shows the relationship between the intera
 The function also returns a data frame with all the interactions considered.  The columns are:
 
   + `interaction.name`: Interactions computed via multiplication are named `a..x..b`, while interactions computed via PCA are named `a..pca..b`.
-  + `interaction.importance`: Importance of the interaction expressed as a percentage. If `interaction.importance == 100`, that means that the interaction is the most important predictor in the model fitted with the interaction and the predictors named in `predictor.variable.names`.
+  + `interaction.importance`: Importance of the interaction expressed as a percentage. If `interaction.importance == 100`, that means that the interaction is the most important predictor in the model fitted with the interaction and the predictors named in `ecoregions_predvar_names`.
   + `interaction.metric.gain`: Difference in R squared (or AUC for models fitting a binary response) between a model with and a model without the interaction.
-  + `max.cor.with.predictors`: The maximum Pearson correlation of the interaction with the predictors named in `predictor.variable.names`. Gives an idea of the amount of multicollinearity the interaction introduces in the model.
+  + `max.cor.with.predictors`: The maximum Pearson correlation of the interaction with the predictors named in `ecoregions_predvar_names`. Gives an idea of the amount of multicollinearity the interaction introduces in the model.
   + `variable.a.name` and `variable.b.name`: Names of the predictors involved in the interaction.
   + `selected`: `TRUE` if the interaction fulfills the selection criteria (importance higher than a threshold, positive gain in R squared or AUC, and Pearson correlation with other predictors lower than a threshold). The selected interactions have a correlation among themselves always lower than the value of the argument `cor.threshold`.
 
@@ -321,7 +317,7 @@ The function returns a data frame with the response variables, the predictors, a
 
 ```{r}
 #adding interaction column to the training data
-plant_richness_df <- interactions$data
+ecoregions_df <- interactions$data
 
 #adding interaction name to predictor.variable.names
 predictor.variable.names <- interactions$predictor.variable.names
@@ -338,11 +334,11 @@ Notice that here I plug the object `predictor.variable.names`, output of `auto_c
 
 ```{r}
 model.non.spatial <- spatialRF::rf(
-  data = plant_richness_df,
-  dependent.variable.name = dependent.variable.name,
+  data = ecoregions_df,
+  dependent.variable.name = ecoregions_depvar_name,
   predictor.variable.names = predictor.variable.names,
-  distance.matrix = distance.matrix,
-  distance.thresholds = distance.thresholds,
+  distance.matrix = ecoregions_distance_matrix,
+  distance.thresholds = distance_thresholds,
   xy = xy, #not needed by rf, but other functions read it from the model
   seed = random.seed,
   verbose = FALSE
@@ -370,7 +366,7 @@ The upper panels show the results of the normality test (interpretation in the t
 
 The slot **importance** (`model.non.spatial$variable.importance`) contains the variable importance scores. These can be plotted with [`plot_importance()`](https://blasbenito.github.io/spatialRF/reference/plot_importance.html), printed with [`print_importance()`](https://blasbenito.github.io/spatialRF/reference/print_importance.html), and the dataframe retrieved with [`get_importance()`](https://blasbenito.github.io/spatialRF/reference/get_importance.html)
 
-```{r, fig.width = 6, fig.height=4.5}
+```{r, fig.width = 8, fig.height=6}
 spatialRF::plot_importance(
   model.non.spatial,
   verbose = FALSE
@@ -404,7 +400,7 @@ kableExtra::kbl(
 
 The new function `rf_importance()` offers a way to assess to what extent each predictor contributes to model transferability (predictive ability on independent spatial folds measured with `rf_evaluate()`, see below). It does so by comparing the performance of the full model with models fitted without each one of the predictors. The difference in performance between the full model and a model without a given predictor represents the contribution of such predictor to model transferability.
 
-```{r, fig.width = 8, fig.height=4.5, message=FALSE, warning=FALSE}
+```{r, fig.width = 8, fig.height=8, message=FALSE, warning=FALSE}
 model.non.spatial <- spatialRF::rf_importance(
   model = model.non.spatial
   )
@@ -453,14 +449,15 @@ kableExtra::kbl(
   kableExtra::kable_paper("hover", full_width = F)
 ```
 
-When case coordinates are joined with the local importance scores, it is possible to draw maps showing how variable importance changes over space.
+When case coordinates or polygons are joined with the local importance scores, it is possible to draw maps showing how variable importance changes over space.
 
 ```{r}
-#adding coordinates
-local.importance <- cbind(
-  xy,
+#adding polygons
+local.importance <- data.frame(
+  ecoregions_polygons,
   local.importance
   )
+sf::st_geometry(local.importance) <- "geom"
 ```
 
 
@@ -479,26 +476,19 @@ color.high <- viridis::viridis(
 #plot of climate_bio1_average
 p1 <- ggplot2::ggplot() +
   ggplot2::geom_sf(
-    data = world,
-    fill = "white"
-  ) +
-  ggplot2::geom_point(
     data = local.importance,
-    ggplot2::aes(
-      x = x,
-      y = y,
-      color = climate_bio1_average
-    )
+    aes(fill = climate_bio1_average),
+    size = 0.1
   ) +
   ggplot2::scale_x_continuous(limits = c(-170, -30)) +
   ggplot2::scale_y_continuous(limits = c(-58, 80)) +
-  ggplot2::scale_color_gradient2(
+  ggplot2::scale_fill_gradient2(
     low = color.low, 
     high = color.high
     ) +
   ggplot2::theme_bw() +
   ggplot2::theme(legend.position = "bottom") + 
-  ggplot2::ggtitle("climate_bio1_average") +
+  ggplot2::ggtitle("Mean annual temperature") +
   ggplot2::theme(
     plot.title = ggplot2::element_text(hjust = 0.5),
     legend.key.width = ggplot2::unit(1,"cm")
@@ -509,26 +499,19 @@ p1 <- ggplot2::ggplot() +
 
 p2 <- ggplot2::ggplot() +
   ggplot2::geom_sf(
-    data = world,
-    fill = "white"
-  ) +
-  ggplot2::geom_point(
     data = local.importance,
-    ggplot2::aes(
-      x = x,
-      y = y,
-      color = human_population
-    )
+    aes(fill = climate_aridity_index_average),
+    size = 0.1
   ) +
   ggplot2::scale_x_continuous(limits = c(-170, -30)) +
   ggplot2::scale_y_continuous(limits = c(-58, 80)) +
-  ggplot2::scale_color_gradient2(
+  ggplot2::scale_fill_gradient2(
     low = color.low, 
     high = color.high
     ) +
   ggplot2::theme_bw() +
   ggplot2::theme(legend.position = "bottom") +
-  ggplot2::ggtitle("human_population") +
+  ggplot2::ggtitle("Aridity index") +
   ggplot2::theme(
     plot.title = ggplot2::element_text(hjust = 0.5),
     legend.key.width = ggplot2::unit(1,"cm")
@@ -575,7 +558,7 @@ The package [`pdp`](https://bgreenwell.github.io/pdp/index.html) provides a gene
 ```{r, fig.width=4, fig.height=3}
 pdp::partial(
   model.non.spatial, 
-  train = plant_richness_df, 
+  train = ecoregions_df, 
   pred.var = "climate_bio1_average", 
   plot = TRUE, 
   grid.resolution = 200
@@ -611,7 +594,7 @@ This can be done as well with the `pdp` package, that uses a slightly different 
 ```{r, fig.height = 3.2, fig.width=4.5}
 pdp::partial(
   model.non.spatial, 
-  train = plant_richness_df, 
+  train = ecoregions_df, 
   pred.var = c("climate_bio1_average", "neighbors_count"), 
   plot = TRUE
   )
@@ -654,10 +637,15 @@ names(model.non.spatial$evaluation)
 The slot "spatial.folds", produced by [`make_spatial_folds()`](https://blasbenito.github.io/spatialRF/reference/make_spatial_folds.html), contains the indices of the training and testing cases for each cross-validation repetition. The maps below show two sets of training and testing folds.
 
 ```{r, echo=TRUE, fig.width=10, fig.height=5}
-pr <- plant_richness_df[, c("x", "y")]
+world <- rnaturalearth::ne_countries(
+  scale = "medium", 
+  returnclass = "sf"
+  )
+
+pr <- ecoregions_df[, c("x", "y")]
 pr$group.2 <- pr$group.1 <- "Training"
 pr[model.non.spatial$evaluation$spatial.folds[[1]]$testing, "group.1"] <- "Testing"
-pr[model.non.spatial$evaluation$spatial.folds[[25]]$testing, "group.2"] <- "Testing"
+pr[model.non.spatial$evaluation$spatial.folds[[15]]$testing, "group.2"] <- "Testing"
 
 p1 <- ggplot2::ggplot() +
   ggplot2::geom_sf(data = world, fill = "white") +
@@ -710,7 +698,7 @@ p2 <- ggplot2::ggplot() +
   ggplot2::theme(
     plot.title = ggplot2::element_text(hjust = 0.5)
   ) + 
-  ggplot2::ggtitle("Spatial fold 25") + 
+  ggplot2::ggtitle("Spatial fold 15") + 
   ggplot2::xlab("Longitude") + 
   ggplot2::ylab("")
 
@@ -736,7 +724,7 @@ The model predictions are stored in the slot **predictions**, the arguments used
 ```{r}
 predicted <- stats::predict(
   object = model.non.spatial,
-  data = plant_richness_df,
+  data = ecoregions_df,
   type = "response"
   )$predictions
 ```
@@ -752,6 +740,7 @@ spatialRF::plot_moran(
   verbose = FALSE
   )
 ```
+
 According to the plot, the spatial autocorrelation of the residuals of `model.non.spatial` is highly positive for a neighborhood of 0 and 1000 km, while it becomes non-significant (p-value \> 0.05) at 2000, 4000, and 8000 km. To reduce the spatial autocorrelation of the residuals as much as possible, the non-spatial model can be transformed into a *spatial model* very easily with the function [`rf_spatial()`](https://blasbenito.github.io/spatialRF/reference/rf_spatial.html). This function is the true core of the package!
 
 ```{r}
@@ -765,7 +754,7 @@ model.spatial <- spatialRF::rf_spatial(
 
 The plot below shows the Moran's I of the residuals of the spatial model, and indicates that the residuals are not autocorrelated at any distance.
 
-```{r, fig.width=4, fig.height=2.5, message=FALSE, warning=FALSE}
+```{r, fig.width=4, fig.height=3, message=FALSE, warning=FALSE}
 spatialRF::plot_moran(
   model.spatial, 
   verbose = FALSE
@@ -774,7 +763,7 @@ spatialRF::plot_moran(
 
 If we compare the variable importance plots of both models, we can see that the spatial model has an additional set of dots under the name "spatial_predictors", and that the maximum importance of a few of these *spatial predictors* matches the importance of the most relevant non-spatial predictors.
 
-```{r, fig.width=10, fig.height=4.5}
+```{r, fig.width=12, fig.height=6}
 p1 <- spatialRF::plot_importance(
   model.non.spatial, 
   verbose = FALSE) + 
@@ -802,46 +791,37 @@ But what are spatial predictors? Spatial predictors, as shown below, are smooth 
 
 ```{r, echo=TRUE, fig.width=12, fig.height=7}
 spatial.predictors <- spatialRF::get_spatial_predictors(model.spatial)
-pr <- data.frame(spatial.predictors, plant_richness_df[, c("x", "y")])
+pr <- data.frame(spatial.predictors, ecoregions_polygons)
+sf::st_geometry(pr) <- "geom"
 
 p1 <- ggplot2::ggplot() +
-  ggplot2::geom_sf(data = world, fill = "white") +
-  ggplot2::geom_point(
-    data = pr,
-    ggplot2::aes(
-      x = x,
-      y = y,
-      color = spatial_predictor_0_2
-    ),
-    size = 2.5
-  ) +
-  ggplot2::scale_color_viridis_c(option = "F") +
+  ggplot2::geom_sf(
+    data = pr, 
+    aes(fill = spatial_predictor_0_4),
+    size = 0.1
+    ) +
+  ggplot2::scale_fill_viridis_c(option = "F") +
   ggplot2::theme_bw() +
   ggplot2::labs(color = "Eigenvalue") +
   ggplot2::scale_x_continuous(limits = c(-170, -30)) +
   ggplot2::scale_y_continuous(limits = c(-58, 80))  +
-  ggplot2::ggtitle("Variable: spatial_predictor_0_2") + 
+  ggplot2::ggtitle("Variable: spatial_predictor_0_4") + 
   ggplot2::theme(legend.position = "bottom")+ 
   ggplot2::xlab("Longitude") + 
   ggplot2::ylab("Latitude")
 
 p2 <- ggplot2::ggplot() +
-  ggplot2::geom_sf(data = world, fill = "white") +
-  ggplot2::geom_point(
-    data = pr,
-    ggplot2::aes(
-      x = x,
-      y = y,
-      color = spatial_predictor_0_5,
-    ),
-    size = 2.5
-  ) +
-  ggplot2::scale_color_viridis_c(option = "F") +
+  ggplot2::geom_sf(
+    data = pr, 
+    aes(fill = spatial_predictor_1000_6),
+    size = 0.1
+    ) +
+  ggplot2::scale_fill_viridis_c(option = "F") +
   ggplot2::theme_bw() +
   ggplot2::labs(color = "Eigenvalue") +
   ggplot2::scale_x_continuous(limits = c(-170, -30)) +
   ggplot2::scale_y_continuous(limits = c(-58, 80))  +
-  ggplot2::ggtitle("Variable: spatial_predictor_0_5") + 
+  ggplot2::ggtitle("Variable: spatial_predictor_1000_6") + 
   ggplot2::theme(legend.position = "bottom") + 
   ggplot2::xlab("Longitude") + 
   ggplot2::ylab("")
@@ -918,7 +898,7 @@ model.spatial.repeat <- spatialRF::rf_repeat(
 
 The importance scores of a model fitted with `rf_repeat()` are plotted as a violin plot, with the distribution of the importance scores of each predictor across repetitions.
 
-```{r, fig.width = 6, fig.height=5}
+```{r, fig.width = 8, fig.height=6}
 spatialRF::plot_importance(
   model.spatial.repeat, 
   verbose = FALSE
@@ -947,11 +927,11 @@ The modeling functions of `spatialRF` are designed to facilitate using the pipe 
 
 ```{r, eval = FALSE}
 model.full <- rf_spatial(
-  data = plant_richness_df,
-  dependent.variable.name = dependent.variable.name,
+  data = ecoregions_df,
+  dependent.variable.name = ecoregions_depvar_name,
   predictor.variable.names = predictor.variable.names,
-  distance.matrix = distance_matrix,
-  distance.thresholds = distance.thresholds,
+  distance.matrix = ecoregions_distance_matrix,
+  distance.thresholds = distance_thresholds,
   xy = xy
 ) %>%
   rf_tuning() %>%
@@ -973,11 +953,11 @@ doParallel::registerDoParallel(cl = local.cluster)
 
 #fitting, tuning, evaluating, and repeating a model
 model.full <- rf_spatial(
-  data = plant_richness_df,
-  dependent.variable.name = dependent.variable.name,
+  data = ecoregions_df,
+  dependent.variable.name = ecoregions_depvar_name,
   predictor.variable.names = predictor.variable.names,
-  distance.matrix = distance_matrix,
-  distance.thresholds = distance.thresholds,
+  distance.matrix = ecoregions_distance_matrix,
+  distance.thresholds = distance_thresholds,
   xy = xy,
   cluster = local.cluster #is passed via pipe to the other functions
 ) %>%
@@ -1006,11 +986,11 @@ beowulf.cluster <- beowulf_cluster(
 
 #fitting, tuning, evaluating, and repeating a model
 model.full <- rf_spatial(
-  data = plant_richness_df,
-  dependent.variable.name = dependent.variable.name,
-  predictor.variable.names = predictor.variable.names,
-  distance.matrix = distance_matrix,
-  distance.thresholds = distance.thresholds,
+  data = ecoregions_df,
+  dependent.variable.name = ecoregions_depvar_name,
+  predictor.variable.names = ecoregions_predvar_names,
+  distance.matrix = ecoregions_distance_matrix,
+  distance.thresholds = distance_thresholds,
   xy = xy,
   cluster = beowulf.cluster 
 ) %>%
@@ -1060,8 +1040,8 @@ kableExtra::kbl(
 This package can also perform binomial regression on response variables with zeros and ones. Let's work on a quick example by turning the response variable of the previous models into a binomial one. 
 
 ```{r}
-plant_richness_df$response_binomial <- ifelse(
-  plant_richness_df$richness_species_vascular > 5000,
+ecoregions_df$response_binomial <- ifelse(
+  ecoregions_df$plant_richness > 5000,
   1,
   0
 )
@@ -1072,18 +1052,18 @@ The new response variable, `response_binomial`, will have ones where `richness_s
 There is something important to notice before moving forward though. The number of zeros in the new response variable is larger than the number of ones. 
 
 ```{r}
-table(plant_richness_df$response_binomial)
+table(ecoregions_df$response_binomial)
 ```
 
 This means that there is **class imbalance**, and under this scenario, any random forest model is going to get better at predicting the most abundant class, while in our case the "target" is the less abundant one. But the function `rf()` is ready to deal with this issue. Let's fit a model to see what am I talking about.
 
 ```{r}
 model.non.spatial <- spatialRF::rf(
-  data = plant_richness_df,
+  data = ecoregions_df,
   dependent.variable.name = "response_binomial",
   predictor.variable.names = predictor.variable.names,
-  distance.matrix = distance.matrix,
-  distance.thresholds = distance.thresholds,
+  distance.matrix = ecoregions_distance_matrix,
+  distance.thresholds = distance_thresholds,
   seed = random.seed,
   verbose = FALSE
 )
@@ -1119,12 +1099,12 @@ The first step requires generating Moran's Eigenvector Maps (MEMs) from the dist
 
 ```{r}
 #single distance (0km by default)
-mems <- spatialRF::mem(distance.matrix = distance_matrix)
+mems <- spatialRF::mem(distance.matrix = ecoregions_distance_matrix)
 
 #several distances
 mems <- spatialRF::mem_multithreshold(
-  distance.matrix = distance.matrix,
-  distance.thresholds = distance.thresholds
+  distance.matrix = ecoregions_distance_matrix,
+  distance.thresholds = distance_thresholds
 )
 ```
 
@@ -1142,7 +1122,7 @@ But not all MEMs are made equal, and you will need to rank them by their Moran's
 
 ```{r}
 mem.rank <- spatialRF::rank_spatial_predictors(
-  distance.matrix = distance_matrix,
+  distance.matrix = ecoregions_distance_matrix,
   spatial.predictors.df = mems,
   ranking.method = "moran"
 )
@@ -1162,16 +1142,12 @@ From here, spatial predictors can be included in any model one by one, in the or
 ```{r, fig.width = 5, fig.height=2.5}
 #model definition
 predictors <- c(
-  "climate_aridity_index_average ",
-  "climate_bio1_average",
-  "bias_species_per_record",
-  "human_population_density",
-  "topography_elevation_average",
-  "fragmentation_division"
+  predictor.variable.names[1:6]
 )
+
 model.formula <- as.formula(
   paste(
-    dependent.variable.name,
+    ecoregions_depvar_name,
     " ~ ",
     paste(
       predictors,
@@ -1180,9 +1156,15 @@ model.formula <- as.formula(
   )
 )
 
-#scaling the data
-model.data <- scale(plant_richness_df) %>% 
+#scaling the predictors
+scaled.predictors <- scale(ecoregions_df[,  predictors]) %>% 
   as.data.frame()
+
+#adding the response
+model.data <- data.frame(
+  plant_richness = ecoregions_df[, ecoregions_depvar_name],
+  scaled.predictors
+)
 
 #fitting the model
 m <- lm(model.formula, data = model.data)
@@ -1190,7 +1172,7 @@ m <- lm(model.formula, data = model.data)
 #Moran's I test of the residuals
 moran.test <- spatialRF::moran(
   x = residuals(m),
-  distance.matrix = distance_matrix,
+  distance.matrix = ecoregions_distance_matrix,
   verbose = FALSE
 )
 moran.test$plot
@@ -1200,12 +1182,18 @@ According to the Moran's I test, the model residuals show spatial autocorrelatio
 
 ```{r, fig.width=5, fig.height=2.5}
 #add mems to the data and applies scale()
-model.data <- data.frame(
-  plant_richness_df,
+scaled.predictors <- data.frame(
+  scaled.predictors,
   mems
 ) %>%
   scale() %>%
   as.data.frame()
+
+#adding the response
+model.data <- data.frame(
+  plant_richness = ecoregions_df[, ecoregions_depvar_name],
+  scaled.predictors
+)
 
 #initialize predictors.i
 predictors.i <- predictors
@@ -1219,7 +1207,7 @@ for(mem.i in colnames(mems)){
   #generate model formula with the new spatial predictor
   model.formula.i <- as.formula(
     paste(
-      dependent.variable.name,
+      ecoregions_depvar_name,
       " ~ ",
       paste(
         predictors.i,
@@ -1234,7 +1222,7 @@ for(mem.i in colnames(mems)){
   #Moran's I test
   moran.test.i <- moran(
     x = residuals(m.i),
-    distance.matrix = distance_matrix,
+    distance.matrix = ecoregions_distance_matrix,
     verbose = FALSE
   )
   

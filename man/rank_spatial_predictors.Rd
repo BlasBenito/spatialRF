@@ -68,17 +68,17 @@ This function has been designed to be used internally by \code{\link[=rf_spatial
 if(interactive()){
 
  #loading distance matrix
- data(distance_matrix)
+ data(ecoregions_distance_matrix)
 
  #computing Moran's Eigenvector Maps
  mem.df <- mem(
-  distance.matrix = distance_matrix[1:50, 1:50],
+  distance.matrix = ecoregions_distance_matrix[1:50, 1:50],
   distance.threshold = 0
  )
 
  #ranking by the Moran's I of the spatial predictor
  rank <- rank_spatial_predictors(
-  distance.matrix = distance_matrix[1:50, 1:50],
+  distance.matrix = ecoregions_distance_matrix[1:50, 1:50],
   distance.thresholds = 0,
   spatial.predictors.df = mem.df,
   ranking.method = "moran",

@@ -16,10 +16,10 @@
 #' if(interactive()){
 #'
 #'  #loading example distance matrix
-#'  data(distance_matrix)
+#'  data(ecoregions_distance_matrix)
 #'
 #'  #Moran's Eigenvector Maps of the distance matrix
-#'  mem <- mem(x = distance_matrix)
+#'  mem <- mem(x = ecoregions_distance_matrix)
 #'
 #' }
 #' @rdname mem

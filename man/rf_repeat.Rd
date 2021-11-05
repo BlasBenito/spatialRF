@@ -70,15 +70,19 @@ Fits several random forest models on the same data in order to capture the effec
 if(interactive()){
 
  #loading example data
- data(plant_richness_df)
- data(distance_matrix)
+data(
+  ecoregions_df,
+  ecoregions_distance_matrix,
+  ecoregions_predvar_names,
+  ecoregions_depvar_name
+  )
 
  #fitting 5 random forest models
  out <- rf_repeat(
-   data = plant_richness_df,
-   dependent.variable.name = "richness_species_vascular",
-   predictor.variable.names = colnames(plant_richness_df)[5:21],
-   distance.matrix = distance_matrix,
+   data = ecoregions_df,
+   dependent.variable.name = ecoregions_depvar_name,
+   predictor.variable.names = ecoregions_predvar_names,
+   distance.matrix = ecoregions_distance_matrix,
    distance.thresholds = 0,
    repetitions = 5,
    n.cores = 1
@@ -105,10 +109,10 @@ if(interactive()){
 
  #using a model as an input for rf_repeat()
  rf.model <- rf(
-   data = plant_richness_df,
-   dependent.variable.name = "richness_species_vascular",
-   predictor.variable.names = colnames(plant_richness_df)[8:21],
-   distance.matrix = distance_matrix,
+   data = ecoregions_df,
+   dependent.variable.name = ecoregions_depvar_name,
+   predictor.variable.names = ecoregions_predvar_names,
+   distance.matrix = ecoregions_distance_matrix,
    distance.thresholds = 0,
    n.cores = 1
    )

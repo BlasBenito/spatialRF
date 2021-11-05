@@ -39,13 +39,16 @@ Using different distance thresholds helps to take into account the uncertainty a
 if(interactive()){
 
  #loading example data
- data(distance_matrix)
- data(plant_richness)
+data(
+  ecoregions_df,
+  ecoregions_distance_matrix,
+  ecoregions_depvar_name
+  )
 
  #computing Moran's I for the response variable at several reference distances
  out <- moran_multithreshold(
-   x = plant_richness$richness_species_vascular,
-   distance.matrix = distance_matrix,
+   x = ecoregions_df[, ecoregions_depvar_name],
+   distance.matrix = ecoregions_distance_matrix,
    distance.thresholds = c(0, 100, 1000, 10000),
    plot = TRUE
    )

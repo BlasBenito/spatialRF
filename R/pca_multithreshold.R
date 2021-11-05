@@ -10,11 +10,11 @@
 #' if(interactive()){
 #'
 #'  #loading example distance matrix
-#'  load(distance_matrix)
+#'  load(ecoregions_distance_matrix)
 #'
 #'  #PCA factors of the distance matrix for two reference distances
 #'  x <- pca_multithreshold(
-#'    distance.matrix = distance_matrix,
+#'    distance.matrix = ecoregions_distance_matrix,
 #'    distance.thresholds = c(0, 1000)
 #'    )
 #'  head(x)

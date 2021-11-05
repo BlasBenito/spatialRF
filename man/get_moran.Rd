@@ -18,17 +18,21 @@ Returns the Moran's I test on the residuals of a model produced by \code{\link[=
 \examples{
 if(interactive()){
 
- #loading example data
- data(plant_richness_df)
- data(distance_matrix)
+#loading example data
+data(
+  ecoregions_df,
+  ecoregions_distance_matrix,
+  ecoregions_predvar_names,
+  ecoregions_depvar_name
+  )
 
- #fitting a random forest model
+ #fitting random forest model
  rf.model <- rf(
-   data = plant_richness_df,
-   dependent.variable.name = "richness_species_vascular",
-   predictor.variable.names = colnames(plant_richness_df)[5:21],
-   distance.matrix = distance_matrix,
-   distance.thresholds = c(0, 1000, 2000),
+   data = ecoregions_df,
+   dependent.variable.name = ecoregions_depvar_name,
+   predictor.variable.names = ecoregions_predvar_names,
+   distance.matrix = ecoregions_distance_matrix,
+   distance.thresholds = 0,
    n.cores = 1,
    verbose = FALSE
  )

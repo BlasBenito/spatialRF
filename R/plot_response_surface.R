@@ -16,20 +16,27 @@
 #' @examples
 #' if(interactive()){
 #'
-#'#load example data
-#'data(plant_richness_df)
+#' #loading example data
+#' data(
+#'   ecoregions_df,
+#'   ecoregions_distance_matrix,
+#'   ecoregions_predvar_names,
+#'   ecoregions_depvar_name
+#'   )
 #'
-#'#fit random forest model
-#'out <- rf(
-#'  data = plant_richness_df,
-#'  dependent.variable.name = "richness_species_vascular",
-#'  predictor.variable.names = colnames(plant_richness_df)[5:21],
-#'  n.cores = 1,
-#'  verbose = FALSE
-#')
+#'  #fitting random forest model
+#'  rf.model <- rf(
+#'    data = ecoregions_df,
+#'    dependent.variable.name = ecoregions_depvar_name,
+#'    predictor.variable.names = ecoregions_predvar_names,
+#'    distance.matrix = ecoregions_distance_matrix,
+#'    distance.thresholds = 0,
+#'    n.cores = 1,
+#'    verbose = FALSE
+#'  )
 #'
-#'#plot interactions between most important predictors
-#'plot_response_surfaces(x = out)
+#'  #plot interactions between most important predictors
+#'  plot_response_surfaces(x = rf.model)
 #'
 #'
 #' }
