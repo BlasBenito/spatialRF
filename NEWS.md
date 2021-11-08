@@ -10,6 +10,8 @@ Changed the names of the example data, added new predictors, and a couple of new
   
 Changed the names of these objects in the package documentation, the README, and the tests folder.
 
+Fixed an issue with `mem_multithreshold()`, `pca_multithreshold()`, and `moran_multithreshold()` where giving values of `distance.thresholds` larger than the maximum of the distance matrix would yield an error.
+
 ## Version 1.1.3 (22/9/2021)
 
 Added the function `rf_importance()`. It fits models with and without each predictor, compares them via spatial cross validation with `rf_evaluate()`, and returns the increase/decrease in performance when a given variable is included in the model.

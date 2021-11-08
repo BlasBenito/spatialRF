@@ -5,6 +5,7 @@ auc
 autocorrelated
 becuase
 beowulf
+Bioclimatic
 biogeographic
 Blas
 blasbenito
@@ -13,16 +14,18 @@ centroids
 CFF
 colums
 cv
+depvar
 disaggregating
 dividied
 doi
 DOI
 ecolmodel
 ecoregion
+Ecoregion
 ecoregions
 Ecoregions
-ecoregions's
 eigen
+EPSG
 et
 FDE
 gam
@@ -71,6 +74,7 @@ permutating
 prcomp
 prioritised
 qq
+README
 reproducibility
 reproduciblity
 rescaled
@@ -80,7 +84,9 @@ rf
 RFsp
 rmse
 sd
+seasonlality
 sp
+spatio
 stochasticity
 th
 Ths
@@ -89,7 +95,6 @@ Tomislav
 transferability
 tunning
 VIF
-WGS
 Wilks
 xy
 zenodo

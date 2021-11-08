@@ -35,6 +35,9 @@ mem_multithreshold <- function(
   #creating distance thresholds
   if(is.null(distance.thresholds)){
     distance.thresholds <- default_distance_thresholds(distance.matrix = distance.matrix)
+  } else {
+    #removing distance thresholds larger than max(distance.matrix)
+    distance.thresholds <- distance.thresholds[distance.thresholds < max(distance.matrix, na.rm = TRUE)]
   }
 
   #list to store mems
