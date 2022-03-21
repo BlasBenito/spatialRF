@@ -1,6 +1,6 @@
 Package: spatialRF
 Title: Easy Spatial Modeling with Random Forest
-Version: 1.1.3
+Version: 1.1.4
 Authors@R: 
     person(given = "Blas M.",
            family = "Benito",
