@@ -93,7 +93,7 @@ devtools::install()
 
 
 
-1#create package
+#create package
 usethis::create_package("/home/blas/Dropbox/GITHUB/R_packages/spatialRF")
 
 #ignore dev_history at build

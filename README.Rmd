@@ -90,7 +90,7 @@ There is a paper in the making about this package. In the meantime, if you find 
 
 The version 1.1.3 can be installed from CRAN:
 
-```{r, message=FALSE, error=FALSE, warning=FALSE, eval = FALSE}
+```{r, message=FALSE, error=FALSE, warning=FALSE, eval = TRUE}
 install.packages("spatialRF")
 ```
 
@@ -100,7 +100,7 @@ The package can also be installed from GitHub as WELL There are several branches
   + `development`: development version, only for the brave.
   + `v.1.0.9` to `v.1.1.3`: archived versions.
 
-```{r, message = FALSE, eval = TRUE}
+```{r, message = FALSE, eval = FALSE}
 remotes::install_github(
   repo = "blasbenito/spatialRF", 
   ref = "development",
@@ -752,6 +752,32 @@ model.spatial <- spatialRF::rf_spatial(
   )
 ```
 
+**NOTE:** You can find the complete data (including the selected spatial predictors) used to train this model in `model.spatial$ranger.arguments$data`.
+
+```{r, echo = FALSE}
+x <- model.spatial$ranger.arguments$data
+x <- round(x, 2)
+data.frame(
+  variable = names(x),
+  class = sapply(x, typeof),
+  values = sapply(x, function(x) paste0(head(x),  collapse = ", ")),
+  row.names = NULL
+) %>% 
+  kableExtra::kbl() %>% 
+  kableExtra::kable_styling()
+rm(x)
+```
+**NOTE:** You can use this data frame in functions from other packages as follows:
+
+```{r, fig.width=6, fig.height=4}
+pdp::partial(
+  model.spatial, 
+  train = model.spatial$ranger.arguments$data, 
+  pred.var = c("climate_bio1_average", "neighbors_count"), 
+  plot = TRUE
+)
+```
+
 The plot below shows the Moran's I of the residuals of the spatial model, and indicates that the residuals are not autocorrelated at any distance.
 
 ```{r, fig.width=4, fig.height=3, message=FALSE, warning=FALSE}
@@ -863,10 +889,10 @@ model.spatial <- spatialRF::rf_spatial(
 The usual method for model tuning relies on a grid search exploring the results of all the combinations of hyperparameters selected by the user. In `spatialRF`,
 model tuning is done via spatial cross-validation, to ensure that the selected combination of hyperparameters maximizes the ability of the model to predict over data not used to train it. **Warning**: model tuning consumes a lot of computational resources, using it on large datasets might freeze your computer.
 
-**WARNING**: model tunning is very RAM-hungry, but you can control RAM usage by defining a lower value for the argument `n.cores`.
+**WARNING**: model tuning is very RAM-hungry, but you can control RAM usage by defining a lower value for the argument `n.cores`.
 
 ```{r, fig.width=6, fig.height=4.5, eval = FALSE}
-model.spatial <- rf_tuning(
+model.spatial <- spatialRF::rf_tuning(
   model = model.spatial,
   xy = xy,
   repetitions = 30,

@@ -2439,6 +2439,636 @@ model.spatial <- spatialRF::rf_spatial(
   )
 ```
 
+**NOTE:** You can find the complete data (including the selected spatial
+predictors) used to train this model in
+`model.spatial$ranger.arguments$data`.
+
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+variable
+</th>
+<th style="text-align:left;">
+class
+</th>
+<th style="text-align:left;">
+values
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+plant\_richness
+</td>
+<td style="text-align:left;">
+double
+</td>
+<td style="text-align:left;">
+4835, 4360, 1362, 7818, 10394, 2690
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+climate\_aridity\_index\_average
+</td>
+<td style="text-align:left;">
+double
+</td>
+<td style="text-align:left;">
+-1.27, 0.01, 0.05, -0.58, -0.51, -0.76
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+climate\_hypervolume
+</td>
+<td style="text-align:left;">
+double
+</td>
+<td style="text-align:left;">
+0.02, 0.52, 0.03, 0.69, 0.05, 0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+climate\_bio1\_average
+</td>
+<td style="text-align:left;">
+double
+</td>
+<td style="text-align:left;">
+251.06, 261.09, 11.59, 173.21, 251.83, 255.8
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ecoregion\_area\_km2
+</td>
+<td style="text-align:left;">
+double
+</td>
+<td style="text-align:left;">
+268444.41, 26658.41, 140062.77, 31915.27, 716681.87, 173261.4
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+sampling\_bias
+</td>
+<td style="text-align:left;">
+double
+</td>
+<td style="text-align:left;">
+3.7, 0.12, 1.18, 0.1, 4.13, 11.25
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+neighbors\_count
+</td>
+<td style="text-align:left;">
+double
+</td>
+<td style="text-align:left;">
+10, 13, 8, 4, 10, 8
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+neighbors\_area
+</td>
+<td style="text-align:left;">
+double
+</td>
+<td style="text-align:left;">
+2005112.54, 720242.4, 15661626.94, 284153.95, 4646036.58, 2801093.14
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+neighbors\_percent\_shared\_edge
+</td>
+<td style="text-align:left;">
+double
+</td>
+<td style="text-align:left;">
+100, 56.46, 100, 35.48, 100, 100
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+human\_population\_density
+</td>
+<td style="text-align:left;">
+double
+</td>
+<td style="text-align:left;">
+7.07, 42.59, 0.87, 218.82, 3.05, 0.75
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+human\_footprint\_average
+</td>
+<td style="text-align:left;">
+double
+</td>
+<td style="text-align:left;">
+0.43, 8.3, 0.57, 11.98, 1.97, 0.65
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+climate\_bio12\_minimum
+</td>
+<td style="text-align:left;">
+double
+</td>
+<td style="text-align:left;">
+1797, 652, 309, 1170, 987, 1506
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+climate\_bio15\_average
+</td>
+<td style="text-align:left;">
+double
+</td>
+<td style="text-align:left;">
+25.4, 59.66, 27.59, 34.79, 61.52, 50.98
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+landcover\_bare\_percent\_average
+</td>
+<td style="text-align:left;">
+double
+</td>
+<td style="text-align:left;">
+0.1, 2.04, 4.99, 0.3, 0.13, 0.06
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+landcover\_herbs\_percent\_average
+</td>
+<td style="text-align:left;">
+double
+</td>
+<td style="text-align:left;">
+16.22, 53.9, 42.67, 54.37, 28.22, 18.41
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+topography\_elevation\_average
+</td>
+<td style="text-align:left;">
+double
+</td>
+<td style="text-align:left;">
+86.81, 6.92, 1130.22, 1872.9, 166.79, 86.9
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+topography\_elevation\_range
+</td>
+<td style="text-align:left;">
+double
+</td>
+<td style="text-align:left;">
+891, 616, 2610, 3886, 1089, 404
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+fragmentation\_ai
+</td>
+<td style="text-align:left;">
+double
+</td>
+<td style="text-align:left;">
+98.24, 77.14, 98.71, 92.58, 99.1, 98.84
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+fragmentation\_area\_mn
+</td>
+<td style="text-align:left;">
+double
+</td>
+<td style="text-align:left;">
+3388500, 21241.27, 7006400, 640080, 14339440, 2166050
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+fragmentation\_contig\_mn
+</td>
+<td style="text-align:left;">
+double
+</td>
+<td style="text-align:left;">
+0.39, 0.39, 0.49, 0.36, 0.7, 0.51
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+fragmentation\_cpland
+</td>
+<td style="text-align:left;">
+double
+</td>
+<td style="text-align:left;">
+26.73, 0.44, 16.78, 14.34, 35.01, 25.48
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+fragmentation\_dcore\_mn
+</td>
+<td style="text-align:left;">
+double
+</td>
+<td style="text-align:left;">
+1.88, 0.97, 1, 2.2, 5.4, 1.62
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+fragmentation\_ed
+</td>
+<td style="text-align:left;">
+double
+</td>
+<td style="text-align:left;">
+0.12, 0.05, 0.06, 0.32, 0.08, 0.09
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+fragmentation\_shape\_mn
+</td>
+<td style="text-align:left;">
+double
+</td>
+<td style="text-align:left;">
+1.8, 1.77, 2.2, 2.49, 2.42, 1.51
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+fragmentation\_te
+</td>
+<td style="text-align:left;">
+double
+</td>
+<td style="text-align:left;">
+11598000, 12736000, 5062000, 5386000, 16208000, 5626000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+fragmentation\_te..x..climate\_bio12\_minimum
+</td>
+<td style="text-align:left;">
+double
+</td>
+<td style="text-align:left;">
+1488.8, 608.4, 115.42, 441.37, 1162.89, 592.01
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+climate\_bio1\_average..pca..climate\_bio12\_minimum
+</td>
+<td style="text-align:left;">
+double
+</td>
+<td style="text-align:left;">
+-2.6, -0.87, 1.35, -1.09, -1.33, -2.17
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+climate\_bio12\_minimum..x..topography\_elevation\_range
+</td>
+<td style="text-align:left;">
+double
+</td>
+<td style="text-align:left;">
+1175.29, 305.91, 617.48, 3281.69, 793.2, 464.37
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ecoregion\_area\_km2..x..topography\_elevation\_average
+</td>
+<td style="text-align:left;">
+double
+</td>
+<td style="text-align:left;">
+41.56, 1.87, 212.56, 95.81, 179.57, 27.33
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+human\_population\_density..x..ecoregion\_area\_km2
+</td>
+<td style="text-align:left;">
+double
+</td>
+<td style="text-align:left;">
+28.72, 12.96, 8.72, 67.49, 53.89, 10.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+fragmentation\_te..pca..topography\_elevation\_range
+</td>
+<td style="text-align:left;">
+double
+</td>
+<td style="text-align:left;">
+0.37, 0.42, 0.03, -0.65, -0.12, 1.12
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+human\_population\_density..x..landcover\_bare\_percent\_average
+</td>
+<td style="text-align:left;">
+double
+</td>
+<td style="text-align:left;">
+2.17, 21.14, 6.75, 40.86, 1.6, 1.17
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+spatial\_predictor\_0\_4
+</td>
+<td style="text-align:left;">
+double
+</td>
+<td style="text-align:left;">
+0.04, -0.38, 0, 0, 0.05, 0.03
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+spatial\_predictor\_0\_3
+</td>
+<td style="text-align:left;">
+double
+</td>
+<td style="text-align:left;">
+-0.04, -0.13, 0.04, -0.03, -0.02, -0.02
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+spatial\_predictor\_0\_1
+</td>
+<td style="text-align:left;">
+double
+</td>
+<td style="text-align:left;">
+0.03, 0.1, 0, 0.02, 0.02, 0.02
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+spatial\_predictor\_0\_5
+</td>
+<td style="text-align:left;">
+double
+</td>
+<td style="text-align:left;">
+-0.03, 0.21, -0.03, -0.01, 0.01, -0.01
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+spatial\_predictor\_0\_2
+</td>
+<td style="text-align:left;">
+double
+</td>
+<td style="text-align:left;">
+0, 0.05, -0.01, 0, 0, 0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+spatial\_predictor\_1000\_3
+</td>
+<td style="text-align:left;">
+double
+</td>
+<td style="text-align:left;">
+0.07, -0.01, 0.1, 0.07, -0.01, 0.01
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+spatial\_predictor\_0\_10
+</td>
+<td style="text-align:left;">
+double
+</td>
+<td style="text-align:left;">
+0.01, -0.07, 0.04, 0, -0.05, -0.01
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+spatial\_predictor\_0\_13
+</td>
+<td style="text-align:left;">
+double
+</td>
+<td style="text-align:left;">
+0.19, 0.02, -0.03, -0.01, 0.16, 0.18
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+spatial\_predictor\_0\_7
+</td>
+<td style="text-align:left;">
+double
+</td>
+<td style="text-align:left;">
+0.01, -0.13, -0.08, 0, 0, 0.01
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+spatial\_predictor\_0\_8
+</td>
+<td style="text-align:left;">
+double
+</td>
+<td style="text-align:left;">
+0, 0.11, -0.05, 0.01, -0.02, -0.01
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+spatial\_predictor\_0\_9
+</td>
+<td style="text-align:left;">
+double
+</td>
+<td style="text-align:left;">
+0, 0.05, -0.03, 0, -0.02, -0.01
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+spatial\_predictor\_1000\_6
+</td>
+<td style="text-align:left;">
+double
+</td>
+<td style="text-align:left;">
+-0.03, 0.01, -0.01, -0.07, -0.01, -0.04
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+spatial\_predictor\_0\_11
+</td>
+<td style="text-align:left;">
+double
+</td>
+<td style="text-align:left;">
+0.01, -0.14, 0.03, -0.01, 0.01, 0.01
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+spatial\_predictor\_0\_6
+</td>
+<td style="text-align:left;">
+double
+</td>
+<td style="text-align:left;">
+0, 0.01, -0.02, 0, 0, 0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+spatial\_predictor\_0\_12
+</td>
+<td style="text-align:left;">
+double
+</td>
+<td style="text-align:left;">
+0.02, 0.04, 0.11, 0, 0.01, 0.01
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+spatial\_predictor\_1000\_7
+</td>
+<td style="text-align:left;">
+double
+</td>
+<td style="text-align:left;">
+0.04, -0.04, -0.07, 0, 0.07, 0.08
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+spatial\_predictor\_1000\_8
+</td>
+<td style="text-align:left;">
+double
+</td>
+<td style="text-align:left;">
+0.07, -0.03, 0, 0, 0.13, 0.14
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+spatial\_predictor\_0\_16
+</td>
+<td style="text-align:left;">
+double
+</td>
+<td style="text-align:left;">
+0.12, 0.01, -0.02, -0.03, 0.11, 0.09
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+spatial\_predictor\_0\_17
+</td>
+<td style="text-align:left;">
+double
+</td>
+<td style="text-align:left;">
+0.16, 0.03, 0.01, -0.02, 0.01, 0.08
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+spatial\_predictor\_0\_15
+</td>
+<td style="text-align:left;">
+double
+</td>
+<td style="text-align:left;">
+0.02, 0.07, -0.06, -0.01, 0.02, 0.01
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+spatial\_predictor\_0\_18
+</td>
+<td style="text-align:left;">
+double
+</td>
+<td style="text-align:left;">
+0.01, 0.04, 0.05, -0.01, 0.05, 0.01
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+spatial\_predictor\_1000\_9
+</td>
+<td style="text-align:left;">
+double
+</td>
+<td style="text-align:left;">
+0.01, 0, -0.08, 0.02, -0.1, -0.1
+</td>
+</tr>
+</tbody>
+</table>
+
+**NOTE:** You can use this data frame in functions from other packages
+as follows:
+
+``` r
+pdp::partial(
+  model.spatial, 
+  train = model.spatial$ranger.arguments$data, 
+  pred.var = c("climate_bio1_average", "neighbors_count"), 
+  plot = TRUE
+)
+```
+
+![](README_files/figure-gfm/unnamed-chunk-44-1.png)<!-- -->
+
 The plot below shows the Moran’s I of the residuals of the spatial
 model, and indicates that the residuals are not autocorrelated at any
 distance.
@@ -2450,7 +3080,7 @@ spatialRF::plot_moran(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-43-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-45-1.png)<!-- -->
 
 If we compare the variable importance plots of both models, we can see
 that the spatial model has an additional set of dots under the name
@@ -2472,7 +3102,7 @@ p2 <- spatialRF::plot_importance(
 p1 | p2 
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-44-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-46-1.png)<!-- -->
 
 If we look at the ten most important variables in `model.spatial` we
 will see that a few of them are *spatial predictors*. Spatial predictors
@@ -2632,7 +3262,7 @@ p2 <- ggplot2::ggplot() +
 p1 | p2
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-46-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-48-1.png)<!-- -->
 
 The spatial predictors are included in the model one by one, in the
 order of their Moran’s I (spatial predictors with Moran’s I lower than 0
@@ -2647,7 +3277,7 @@ the selected spatial predictors).
 p <- spatialRF::plot_optimization(model.spatial)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-47-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-49-1.png)<!-- -->
 
 # Tuning Random Forest hyperparameters
 
@@ -2688,11 +3318,11 @@ ability of the model to predict over data not used to train it.
 **Warning**: model tuning consumes a lot of computational resources,
 using it on large datasets might freeze your computer.
 
-**WARNING**: model tunning is very RAM-hungry, but you can control RAM
+**WARNING**: model tuning is very RAM-hungry, but you can control RAM
 usage by defining a lower value for the argument `n.cores`.
 
 ``` r
-model.spatial <- rf_tuning(
+model.spatial <- spatialRF::rf_tuning(
   model = model.spatial,
   xy = xy,
   repetitions = 30,
@@ -2743,7 +3373,7 @@ spatialRF::plot_importance(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-51-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-53-1.png)<!-- -->
 
 The response curves of models fitted with `rf_repeat()` can be plotted
 with `plot_response_curves()` as well. The median prediction is shown
@@ -2757,7 +3387,7 @@ spatialRF::plot_response_curves(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-52-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-54-1.png)<!-- -->
 
 The function `print_performance()` generates a summary of the
 performance scores across model repetitions. As every other function of
@@ -2891,7 +3521,7 @@ comparison <- spatialRF::rf_compare(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-57-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-59-1.png)<!-- -->
 
 ``` r
 x <- comparison$comparison.df %>% 
@@ -3322,7 +3952,7 @@ moran.test <- spatialRF::moran(
 moran.test$plot
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-68-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-70-1.png)<!-- -->
 
 According to the Moran’s I test, the model residuals show spatial
 autocorrelation. Let’s introduce MEMs one by one until the problem is
@@ -3385,7 +4015,7 @@ for(mem.i in colnames(mems)){
 moran.test.i$plot
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-69-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-71-1.png)<!-- -->
 
 Now we can compare the model without spatial predictors `m` and the
 model with spatial predictors `m.i`.

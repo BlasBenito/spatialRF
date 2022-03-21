@@ -178,7 +178,7 @@ rf <- function(
     }
   }
 
-  #checking if dependent.variable.name and predictor.variable.names are in colnames(data) and are numeric
+  #checking if dependent.variable.name and predictor.variable.names are in colnames(data)
   if(!(dependent.variable.name %in% colnames(data))){
     stop(
       paste0(
