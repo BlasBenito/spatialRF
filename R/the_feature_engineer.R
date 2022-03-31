@@ -23,15 +23,21 @@
 #' @param verbose Logical. If `TRUE`, messages and plots generated during the execution of the function are displayed. Default: `TRUE`
 #' @param n.cores Integer, number of cores to use for parallel execution. Creates a socket cluster with `parallel::makeCluster()`, runs operations in parallel with `foreach` and `%dopar%`, and stops the cluster with `parallel::clusterStop()` when the job is done. Default: `parallel::detectCores() - 1`
 #' @param cluster A cluster definition generated with `parallel::makeCluster()`. If provided, overrides `n.cores`. When `cluster = NULL` (default value), and `model` is provided, the cluster in `model`, if any, is used instead. If this cluster is `NULL`, then the function uses `n.cores` instead. The function does not stop a provided cluster, so it should be stopped with `parallel::stopCluster()` afterwards. The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the `model` argument, or using the `%>%` pipe. Default: `NULL`
-#' @return A list with seven slots:
+#' @return If the function finds no interactions, a list with four slots containing input arguments:
+#' \itemize{
+#' #'   \item `data`: Data frame with the response variable, the predictors, and the selected interactions, ready to be used as `data` argument in the package functions.
+#'   \item `dependent.variable.name`: Character, name of the response.
+#'   \item `predictor.variable.names`: Character vector with the names of the predictors and the selected interactions.
+#'   \item `xy`: Data frame or matrix with two columns containing coordinates and named "x" and "y".
+#' }
+#'
+#' If the function finds interesting interactions, then it adds several new slots to the output:
+#'
 #' \itemize{
 #'   \item `screening`: Data frame with selection scores of all the interactions considered.
 #'   \item `selected`: Data frame with selection scores of the selected interactions.
 #'   \item `df`: Data frame with the computed interactions.
 #'   \item `plot`: List of plots of the selected interactions versus the response variable. The output list can be plotted all at once with `patchwork::wrap_plots(p)` or `cowplot::plot_grid(plotlist = p)`, or one by one by extracting each plot from the list.
-#'   \item `data`: Data frame with the response variable, the predictors, and the selected interactions, ready to be used as `data` argument in the package functions.
-#'   \item `dependent.variable.name`: Character, name of the response.
-#'   \item `predictor.variable.names`: Character vector with the names of the predictors and the selected interactions.
 #' }
 #'
 #'
@@ -95,6 +101,13 @@ the_feature_engineer <- function(
       xy <- as.data.frame(xy)
     }
   }
+
+  #output list
+  out.list <- list()
+  out.list$data <- training.df
+  out.list$dependent.variable.name <- dependent.variable.name
+  out.list$predictor.variable.names <- predictor.variable.names
+  out.list$xy <- xy
 
   #CLUSTER SETUP
   #cluster is provided
@@ -447,7 +460,7 @@ the_feature_engineer <- function(
 
   if(nrow(interaction.screening) == 0){
     message("No promising interactions found. \n")
-    stop()
+    return(out.list)
   }
 
   #adding column of selected interactions
@@ -460,7 +473,7 @@ the_feature_engineer <- function(
 
   if(sum(interaction.screening$selected) == 0){
     message("No promising interactions found. \n")
-    return(NA)
+    return(out.list)
   }
 
   #compute order
@@ -647,16 +660,15 @@ the_feature_engineer <- function(
   )
 
   #preparing out list
-  out.list <- list()
-  out.list$screening <- interaction.screening
-  out.list$selected <- interaction.screening.selected
-  out.list$plot <- plot.list
   out.list$data <- training.df
   out.list$dependent.variable.name <- dependent.variable.name
   out.list$predictor.variable.names <- c(
     predictor.variable.names,
     colnames(interaction.df)
   )
+  out.list$screening <- interaction.screening
+  out.list$selected <- interaction.screening.selected
+  out.list$plot <- plot.list
 
   if(verbose == TRUE){
     message("Comparing models with and without interactions via spatial cross-validation.")

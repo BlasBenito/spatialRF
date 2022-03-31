@@ -171,7 +171,8 @@ The package can also be installed from GitHub as WELL There are several
 branches in the repository:
 
 -   `main`: latest stable version (1.1.3 currently).
--   `development`: development version, only for the brave.
+-   `development`: development version (1.1.4 at this time), only for
+    the brave.
 -   `v.1.0.9` to `v.1.1.3`: archived versions.
 
 ``` r

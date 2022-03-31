@@ -51,15 +51,21 @@ the_feature_engineer(
 \item{cluster}{A cluster definition generated with \code{parallel::makeCluster()}. If provided, overrides \code{n.cores}. When \code{cluster = NULL} (default value), and \code{model} is provided, the cluster in \code{model}, if any, is used instead. If this cluster is \code{NULL}, then the function uses \code{n.cores} instead. The function does not stop a provided cluster, so it should be stopped with \code{parallel::stopCluster()} afterwards. The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the \code{model} argument, or using the \verb{\%>\%} pipe. Default: \code{NULL}}
 }
 \value{
-A list with seven slots:
+If the function finds no interactions, a list with four slots containing input arguments:
+\itemize{
+#'   \item \code{data}: Data frame with the response variable, the predictors, and the selected interactions, ready to be used as \code{data} argument in the package functions.
+\item \code{dependent.variable.name}: Character, name of the response.
+\item \code{predictor.variable.names}: Character vector with the names of the predictors and the selected interactions.
+\item \code{xy}: Data frame or matrix with two columns containing coordinates and named "x" and "y".
+}
+
+If the function finds interesting interactions, then it adds several new slots to the output:
+
 \itemize{
 \item \code{screening}: Data frame with selection scores of all the interactions considered.
 \item \code{selected}: Data frame with selection scores of the selected interactions.
 \item \code{df}: Data frame with the computed interactions.
 \item \code{plot}: List of plots of the selected interactions versus the response variable. The output list can be plotted all at once with \code{patchwork::wrap_plots(p)} or \code{cowplot::plot_grid(plotlist = p)}, or one by one by extracting each plot from the list.
-\item \code{data}: Data frame with the response variable, the predictors, and the selected interactions, ready to be used as \code{data} argument in the package functions.
-\item \code{dependent.variable.name}: Character, name of the response.
-\item \code{predictor.variable.names}: Character vector with the names of the predictors and the selected interactions.
 }
 }
 \description{
