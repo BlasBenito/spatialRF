@@ -12,7 +12,7 @@
 #' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same. Default: `1`.
 #' @param verbose Logical. If `TRUE`, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
 #' @param n.cores Integer, number of cores to use for parallel execution. You can reduce the number of cores used to reduce RAM usage when the training data is large. Default: `parallel::detectCores() - 1`
-#' @param cluster A cluster definition generated with `parallel::makeCluster()`. If provided, overrides `n.cores`. When `cluster = NULL` (default value), and `model` is provided, the cluster in `model`, if any, is used instead. If this cluster is `NULL`, then the function uses `n.cores` instead. The function does not stop a provided cluster, so it should be stopped with `parallel::stopCluster()` afterwards. The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the `model` argument, or using the `%>%` pipe. Default: `NULL`
+#' @param cluster A cluster definition generated with `parallel::makeCluster()`. If provided, it overrides `n.cores`. If `NULL` but `model` has a cluster object in the "cluster" slot, then the model's cluster is used. Please notice that the function does not stop a provided cluster, so it should be stopped with `parallel::stopCluster()` afterwards. The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the `model` argument. Default: `NULL`
 #' @return A model of the class "rf_evaluate" with a new slot named "evaluation", that is a list with the following slots:
 #' \itemize{
 #'   \item `training.fraction`: Value of the argument `training.fraction`.
@@ -93,7 +93,7 @@ rf_evaluate <- function(
 
   if(is.null(model)){
 
-    stop("The argument 'model' is empty, there is no model to evaluate")
+    stop("The argument 'model' is empty, there is no model to evaluate.")
 
   } else {
 
@@ -112,11 +112,6 @@ rf_evaluate <- function(
     ranger.arguments$distance.matrix <- NULL
     ranger.arguments$num.threads <- 1
 
-    #getting cluster from model if "cluster" is not provided
-    if(is.null(cluster) & "cluster" %in% names(model)){
-      cluster <- model$cluster
-    }
-
     #getting xy
     if(is.null(xy)){
       if(is.null(model$ranger.arguments$xy)){
@@ -132,34 +127,10 @@ rf_evaluate <- function(
   }
 
   if(nrow(xy) != nrow(data)){
-    stop("nrow(xy) and nrow(data) (stored in model$ranger.arguments$data) must be the same.")
+    stop("nrow(xy) and nrow(data) must be the same.")
   }
 
-  #CLUSTER SETUP
-  #cluster is provided
-  if(!is.null(cluster)){
 
-    #n.cores <- NULL
-    n.cores <- NULL
-
-    #flat to not stop cluster after execution
-    stop.cluster <- FALSE
-
-  } else {
-
-    #creates and registers cluster
-    cluster <- parallel::makeCluster(
-      n.cores,
-      type = "PSOCK"
-    )
-
-    #flag to stop cluster
-    stop.cluster <- TRUE
-
-  }
-
-  #registering cluster
-  doParallel::registerDoParallel(cl = cluster)
 
   #testing method argument
   metrics <- match.arg(
@@ -226,16 +197,26 @@ rf_evaluate <- function(
   #copy of ranger arguments for training mdoels
   ranger.arguments.training <- ranger.arguments
 
-  #loop to evaluate models
-  #####################################
-  evaluation.df <- foreach::foreach(
-    i = seq(1, nrow(xy.reference.records), by = 1),
-    .combine = "rbind",
-    .verbose = FALSE
-  ) %dopar% {
+  #EVALUATION FUNCTION
+  ######################################
+  #function to evaluate a model once. It's the core of the two alternative loops below.
+  evaluate_once <- function(
+    data,
+    dependent.variable.name,
+    xy.selected,
+    xy,
+    distance.step.x,
+    distance.step.y,
+    training.fraction,
+    ranger.arguments.training,
+    predictor.variable.names,
+    grow.testing.folds,
+    seed ,
+    n.cores
+  ){
 
     #generating spatial folds
-    spatial.folds <- make_spatial_folds(
+    spatial.folds <- spatialRF::make_spatial_folds(
       data = data,
       dependent.variable.name = dependent.variable.name,
       xy.selected = xy.reference.records[i, ],
@@ -263,6 +244,7 @@ rf_evaluate <- function(
       ranger.arguments.training$case.weights <- ranger.arguments$case.weights[spatial.folds[[i]]$training]
     }
 
+
     #training model
     m.training <- spatialRF::rf(
       data = data.training,
@@ -270,6 +252,7 @@ rf_evaluate <- function(
       predictor.variable.names = predictor.variable.names,
       ranger.arguments = ranger.arguments.training,
       seed = seed,
+      n.cores = n.cores,
       verbose = FALSE
     )
 
@@ -278,7 +261,7 @@ rf_evaluate <- function(
       object = m.training,
       data = data.testing,
       type = "response",
-      num.threads = 1
+      num.threads = n.cores
     )$predictions
 
     #getting observed data
@@ -341,9 +324,75 @@ rf_evaluate <- function(
     }
     rownames(out.df) <- NULL
 
-    return(out.df)
+    out.df
 
-  }#end of parallelized loop
+  }
+  #end of function
+
+
+  #getting cluster from model if "cluster" is not provided
+  if(is.null(cluster) & "cluster" %in% names(model)){
+    cluster <- model$cluster
+  }
+
+  #LOOP FOR CLUSTERS
+  ###########################################
+  if("cluster" %in% class(cluster)){
+
+    #registering cluster
+    doParallel::registerDoParallel(cl = cluster)
+
+    #iterations
+    evaluation.df <- foreach::foreach(
+      i = seq(1, nrow(xy.reference.records), by = 1),
+      .combine = "rbind",
+      .verbose = FALSE
+    ) %dopar% {
+
+      out.df <- evaluate_once(
+        data = data,
+        dependent.variable.name = dependent.variable.name,
+        xy.selected = xy.reference.records[i, ],
+        xy = xy,
+        distance.step.x = distance.step.x,
+        distance.step.y = distance.step.y,
+        training.fraction = training.fraction,
+        ranger.arguments.training = ranger.arguments.training,
+        predictor.variable.names = predictor.variable.names,
+        grow.testing.folds = grow.testing.folds,
+        seed = seed,
+        n.cores = 1
+      )
+
+    }
+
+  } else {
+
+    #sequential iterations
+    evaluation.df <- foreach::foreach(
+      i = seq(1, nrow(xy.reference.records), by = 1),
+      .combine = "rbind",
+      .verbose = FALSE
+    ) %do% {
+
+      out.df <- evaluate_once(
+        data = data,
+        dependent.variable.name = dependent.variable.name,
+        xy.selected = xy.reference.records[i, ],
+        xy = xy,
+        distance.step.x = distance.step.x,
+        distance.step.y = distance.step.y,
+        training.fraction = training.fraction,
+        ranger.arguments.training = ranger.arguments.training,
+        predictor.variable.names = predictor.variable.names,
+        grow.testing.folds = grow.testing.folds,
+        seed = seed,
+        n.cores = n.cores
+      )
+
+    }
+
+  }
 
   #preparing data frames for plotting and printing
   #select columns with "training"
@@ -462,13 +511,6 @@ rf_evaluate <- function(
 
   if(verbose == TRUE){
     print_evaluation(model = model)
-  }
-
-  #stopping cluster
-  if(stop.cluster == TRUE){
-    parallel::stopCluster(cl = cluster)
-  } else {
-    model$cluster <- cluster
   }
 
   model
