@@ -12,8 +12,8 @@
 #' @param line.color Character string, color of the line produced by `ggplot2::geom_smooth()`. Default: `"gray30"`
 #' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same. Default: `1`.
 #' @param verbose Logical. If `TRUE`, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
-#' @param n.cores Integer, number of cores to use for parallel execution. Creates a socket cluster with `parallel::makeCluster()`, runs operations in parallel with `foreach` and `%dopar%`, and stops the cluster with `parallel::clusterStop()` when the job is done. Default: `parallel::detectCores() - 1`
-#' @param cluster A cluster definition generated with `parallel::makeCluster()`. If provided, overrides `n.cores`. When `cluster = NULL` (default value), and `model` is provided, the cluster in `model`, if any, is used instead. If this cluster is `NULL`, then the function uses `n.cores` instead. The function does not stop a provided cluster, so it should be stopped with `parallel::stopCluster()` afterwards. The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the `model` argument, or using the `%>%` pipe. Default: `NULL`
+#' @param n.cores Integer, number of cores to use for parallel execution. Default: `NULL`
+#' @param cluster A cluster definition generated with `parallel::makeCluster()`. If provided, it overrides `n.cores`. If `NULL` but `model` has a cluster object in the "cluster" slot, then the model's cluster is used. Please notice that the function does not stop a running cluster, so it should be stopped with `parallel::stopCluster()` afterwards (). The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the `model` argument. Default: `parallel::makeCluster(nnodes = parallel::detectCores() - 1, type = "PSOCK")`
 #' @return A list with three slots:
 #' \itemize{
 #' \item `comparison.df`: Data frame with one performance value per spatial fold, metric, and model.
@@ -86,8 +86,11 @@ rf_compare <- function(
   line.color = "gray30",
   seed = 1,
   verbose = TRUE,
-  n.cores = parallel::detectCores() - 1,
-  cluster = NULL
+  n.cores = NULL,
+  cluster = parallel::makeCluster(
+    spec = parallel::detectCores() - 1,
+    type = "PSOCK"
+  )
 ){
 
   #declaring variables
@@ -117,33 +120,6 @@ rf_compare <- function(
     stop("Case coordinates 'xy' is missing.")
   }
 
-
-  #CLUSTER SETUP
-  #cluster is provided
-  if(!is.null(cluster)){
-
-    #n.cores <- NULL
-    n.cores <- NULL
-
-    #flat to not stop cluster after execution
-    stop.cluster <- FALSE
-
-  } else {
-
-    #creates and registers cluster
-    cluster <- parallel::makeCluster(
-      n.cores,
-      type = "PSOCK"
-    )
-
-    #flag to stop cluster
-    stop.cluster <- TRUE
-
-  }
-
-  #registering cluster
-  doParallel::registerDoParallel(cl = cluster)
-
   #list to store evaluation outputs
   evaluation.list <- list()
 
@@ -162,7 +138,7 @@ rf_compare <- function(
       metrics = metrics,
       seed = seed,
       verbose = FALSE,
-      n.cores = NULL,
+      n.cores = n.cores,
       cluster = cluster
     )
 
@@ -266,11 +242,6 @@ rf_compare <- function(
 
   if(verbose == TRUE){
     suppressMessages(print(p))
-  }
-
-  #stopping cluster
-  if(stop.cluster == TRUE){
-    parallel::stopCluster(cl = cluster)
   }
 
   out.list

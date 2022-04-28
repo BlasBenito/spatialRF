@@ -17,8 +17,8 @@ rf_compare(
   line.color = "gray30",
   seed = 1,
   verbose = TRUE,
-  n.cores = parallel::detectCores() - 1,
-  cluster = NULL
+  n.cores = NULL,
+  cluster = parallel::makeCluster(spec = parallel::detectCores() - 1, type = "PSOCK")
 )
 }
 \arguments{
@@ -46,9 +46,9 @@ rf_compare(
 
 \item{verbose}{Logical. If \code{TRUE}, messages and plots generated during the execution of the function are displayed, Default: \code{TRUE}}
 
-\item{n.cores}{Integer, number of cores to use for parallel execution. Creates a socket cluster with \code{parallel::makeCluster()}, runs operations in parallel with \code{foreach} and \verb{\%dopar\%}, and stops the cluster with \code{parallel::clusterStop()} when the job is done. Default: \code{parallel::detectCores() - 1}}
+\item{n.cores}{Integer, number of cores to use for parallel execution. Default: \code{NULL}}
 
-\item{cluster}{A cluster definition generated with \code{parallel::makeCluster()}. If provided, overrides \code{n.cores}. When \code{cluster = NULL} (default value), and \code{model} is provided, the cluster in \code{model}, if any, is used instead. If this cluster is \code{NULL}, then the function uses \code{n.cores} instead. The function does not stop a provided cluster, so it should be stopped with \code{parallel::stopCluster()} afterwards. The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the \code{model} argument, or using the \verb{\%>\%} pipe. Default: \code{NULL}}
+\item{cluster}{A cluster definition generated with \code{parallel::makeCluster()}. If provided, it overrides \code{n.cores}. If \code{NULL} but \code{model} has a cluster object in the "cluster" slot, then the model's cluster is used. Please notice that the function does not stop a running cluster, so it should be stopped with \code{parallel::stopCluster()} afterwards (). The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the \code{model} argument. Default: \code{parallel::makeCluster(nnodes = parallel::detectCores() - 1, type = "PSOCK")}}
 }
 \value{
 A list with three slots:
