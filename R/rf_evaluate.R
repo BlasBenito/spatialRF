@@ -12,7 +12,7 @@
 #' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same. Default: `1`.
 #' @param verbose Logical. If `TRUE`, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
 #' @param n.cores Integer, number of cores to use for parallel execution. You can reduce the number of cores used to reduce RAM usage when the training data is large. Default: `parallel::detectCores() - 1`
-#' @param cluster A cluster definition generated with `parallel::makeCluster()`. If provided, it overrides `n.cores`. If `NULL` but `model` has a cluster object in the "cluster" slot, then the model's cluster is used. Please notice that the function does not stop a provided cluster, so it should be stopped with `parallel::stopCluster()` afterwards. The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the `model` argument. Default: `NULL`
+#' @param cluster A cluster definition generated with `parallel::makeCluster()`. If provided, it overrides `n.cores`. If `NULL` but `model` has a cluster object in the "cluster" slot, then the model's cluster is used. Please notice that the function does not stop a running cluster, so it should be stopped with `parallel::stopCluster()` afterwards (). The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the `model` argument. Default: `parallel::makeCluster(nnodes = parallel::detectCores() - 1, type = "PSOCK")`
 #' @return A model of the class "rf_evaluate" with a new slot named "evaluation", that is a list with the following slots:
 #' \itemize{
 #'   \item `training.fraction`: Value of the argument `training.fraction`.
@@ -82,8 +82,11 @@ rf_evaluate <- function(
   grow.testing.folds = FALSE,
   seed = 1,
   verbose = TRUE,
-  n.cores = parallel::detectCores() - 1,
-  cluster = NULL
+  n.cores = NULL,
+  cluster = parallel::makeCluster(
+    spec = parallel::detectCores() - 1,
+    type = "PSOCK"
+  )
 ){
 
   #declaring variables
@@ -163,6 +166,7 @@ rf_evaluate <- function(
 
   #capturing user options
   user.options <- options()
+
   #avoid dplyr messages
   options(dplyr.summarise.inform = FALSE)
   on.exit(options <- user.options)
@@ -365,6 +369,9 @@ rf_evaluate <- function(
       )
 
     }
+
+    #adding the cluster to the model
+    model$cluster <- cluster
 
   } else {
 

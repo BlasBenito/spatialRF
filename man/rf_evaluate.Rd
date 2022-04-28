@@ -16,8 +16,8 @@ rf_evaluate(
   grow.testing.folds = FALSE,
   seed = 1,
   verbose = TRUE,
-  n.cores = parallel::detectCores() - 1,
-  cluster = NULL
+  n.cores = NULL,
+  cluster = parallel::makeCluster(spec = parallel::detectCores() - 1, type = "PSOCK")
 )
 }
 \arguments{
@@ -45,7 +45,7 @@ rf_evaluate(
 
 \item{n.cores}{Integer, number of cores to use for parallel execution. You can reduce the number of cores used to reduce RAM usage when the training data is large. Default: \code{parallel::detectCores() - 1}}
 
-\item{cluster}{A cluster definition generated with \code{parallel::makeCluster()}. If provided, it overrides \code{n.cores}. If \code{NULL} but \code{model} has a cluster object in the "cluster" slot, then the model's cluster is used. Please notice that the function does not stop a provided cluster, so it should be stopped with \code{parallel::stopCluster()} afterwards. The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the \code{model} argument. Default: \code{NULL}}
+\item{cluster}{A cluster definition generated with \code{parallel::makeCluster()}. If provided, it overrides \code{n.cores}. If \code{NULL} but \code{model} has a cluster object in the "cluster" slot, then the model's cluster is used. Please notice that the function does not stop a running cluster, so it should be stopped with \code{parallel::stopCluster()} afterwards (). The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the \code{model} argument. Default: \code{parallel::makeCluster(nnodes = parallel::detectCores() - 1, type = "PSOCK")}}
 }
 \value{
 A model of the class "rf_evaluate" with a new slot named "evaluation", that is a list with the following slots:
