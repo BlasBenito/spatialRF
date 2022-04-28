@@ -1,17 +1,18 @@
 test_that("`rf_evaluate()` works", {
-  data(plant_richness_df)
-  data(distance_matrix)
+  library(spatialRF)
+  data(ecoregions_df)
+  data("ecoregions_distance_matrix")
   rf.model <- rf(
-    data = plant_richness_df, dependent.variable.name = "richness_species_vascular",
-    predictor.variable.names = colnames(plant_richness_df)[5:21],
-    distance.matrix = distance_matrix, distance.thresholds = c(
+    data = ecoregions_df, dependent.variable.name = ecoregions_depvar_name,
+    predictor.variable.names = ecoregions_predvar_names,
+    distance.matrix = ecoregions_distance_matrix, distance.thresholds = c(
       0,
       1000, 2000
     ), verbose = FALSE
   )
   rf.model <- rf_evaluate(
     model = rf.model,
-    xy = plant_richness_df[,c("x", "y")],
+    xy = ecoregions_df[,c("x", "y")],
     verbose = FALSE,
     n.cores = 7
     )

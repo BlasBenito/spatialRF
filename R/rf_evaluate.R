@@ -11,12 +11,11 @@
 #' @param grow.testing.folds Logic. By default, this function grows contiguous training folds to keep the spatial structure of the data as intact as possible. However, when setting `grow.testing.folds = TRUE`, the argument `training.fraction` is set to `1 - training.fraction`, and the training and testing folds are switched. This option might be useful when the training data has a spatial structure that does not match well with the default behavior of the function. Default: `FALSE`
 #' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same. Default: `1`.
 #' @param verbose Logical. If `TRUE`, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
-#' @param n.cores Integer, number of cores to use for parallel execution. Creates a socket cluster with `parallel::makeCluster()`, runs operations in parallel with `foreach` and `%dopar%`, and stops the cluster with `parallel::clusterStop()` when the job is done. Default: `parallel::detectCores() - 1`
+#' @param n.cores Integer, number of cores to use for parallel execution. You can reduce the number of cores used to reduce RAM usage when the training data is large. Default: `parallel::detectCores() - 1`
 #' @param cluster A cluster definition generated with `parallel::makeCluster()`. If provided, overrides `n.cores`. When `cluster = NULL` (default value), and `model` is provided, the cluster in `model`, if any, is used instead. If this cluster is `NULL`, then the function uses `n.cores` instead. The function does not stop a provided cluster, so it should be stopped with `parallel::stopCluster()` afterwards. The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the `model` argument, or using the `%>%` pipe. Default: `NULL`
 #' @return A model of the class "rf_evaluate" with a new slot named "evaluation", that is a list with the following slots:
 #' \itemize{
 #'   \item `training.fraction`: Value of the argument `training.fraction`.
-#'   \item `spatial.folds`: Result of applying [make_spatial_folds()] on the data coordinates. It is a list with as many slots as `repetitions` are indicated by the user. Each slot has two slots named "training" and "testing", each one having the indices of the cases used on the training and testing models.
 #'   \item `per.fold`: Data frame with the evaluation results per spatial fold (or repetition). It contains the ID of each fold, it's central coordinates, the number of training and testing cases, and the training and testing performance measures: R squared, pseudo R squared (cor(observed, predicted)), rmse, and normalized rmse.
 #'   \item `per.model`: Same data as above, but organized per fold and model ("Training", "Testing", and "Full").
 #'   \item `aggregated`: Same data, but aggregated by model and performance measure.
@@ -224,46 +223,42 @@ rf_evaluate <- function(
     distance.step = distance.step
   )
 
-  #generates spatial folds
-  ####################################
-  if(verbose == TRUE){
-    message("Generating spatial folds.")
-  }
-  spatial.folds <- make_spatial_folds(
-    data = data,
-    dependent.variable.name = dependent.variable.name,
-    xy.selected = xy.reference.records,
-    xy = xy,
-    distance.step.x = distance.step.x,
-    distance.step.y = distance.step.y,
-    training.fraction = training.fraction,
-    n.cores = n.cores,
-    cluster = cluster
-  )
-
-  #flipping spatial folds if grow.testing.folds = TRUE
-  if(grow.testing.folds == TRUE){
-    for(i in 1:length(spatial.folds)){
-      names(spatial.folds[[i]]) <- c("testing", "training")
-    }
-  }
-
   #copy of ranger arguments for training mdoels
   ranger.arguments.training <- ranger.arguments
 
   #loop to evaluate models
   #####################################
   evaluation.df <- foreach::foreach(
-    i = seq(1, length(spatial.folds), by = 1),
+    i = seq(1, nrow(xy.reference.records), by = 1),
     .combine = "rbind",
     .verbose = FALSE
-    ) %dopar% {
+  ) %dopar% {
+
+    #generating spatial folds
+    spatial.folds <- make_spatial_folds(
+      data = data,
+      dependent.variable.name = dependent.variable.name,
+      xy.selected = xy.reference.records[i, ],
+      xy = xy,
+      distance.step.x = distance.step.x,
+      distance.step.y = distance.step.y,
+      training.fraction = training.fraction,
+      n.cores = 1,
+      cluster = NULL
+    )
+
+    #flipping spatial folds if grow.testing.folds = TRUE
+    if(grow.testing.folds == TRUE){
+      for(j in 1:length(spatial.folds)){
+        names(spatial.folds[[j]]) <- c("testing", "training")
+      }
+    }
 
     #separating training and testing data
-    data.training <- data[data$id %in% spatial.folds[[i]]$training, ]
-    data.testing <- data[data$id %in% spatial.folds[[i]]$testing, ]
+    data.training <- data[data$id %in% spatial.folds[[1]]$training, ]
+    data.testing <- data[data$id %in% spatial.folds[[1]]$testing, ]
 
-    #subsetting case.weights if definec
+    #subsetting case.weights if defined
     if(!is.null(ranger.arguments.training$case.weights)){
       ranger.arguments.training$case.weights <- ranger.arguments$case.weights[spatial.folds[[i]]$training]
     }
@@ -296,7 +291,7 @@ rf_evaluate <- function(
       fold.center.y = xy.reference.records[i, "y"],
       training.records = nrow(data.training),
       testing.records = nrow(data.testing)
-      )
+    )
 
     if("r.squared" %in% metrics){
       out.df$training.r.squared = m.training$performance$r.squared
@@ -454,7 +449,6 @@ rf_evaluate <- function(
   model$evaluation <- list()
   model$evaluation$metrics <- metrics
   model$evaluation$training.fraction <- training.fraction
-  model$evaluation$spatial.folds <- spatial.folds
   model$evaluation$per.fold <- evaluation.df
   model$evaluation$per.fold.long <- performance.df.long
   model$evaluation$per.model <- performance.df

@@ -51,7 +51,6 @@ rf_evaluate(
 A model of the class "rf_evaluate" with a new slot named "evaluation", that is a list with the following slots:
 \itemize{
 \item \code{training.fraction}: Value of the argument \code{training.fraction}.
-\item \code{spatial.folds}: Result of applying \code{\link[=make_spatial_folds]{make_spatial_folds()}} on the data coordinates. It is a list with as many slots as \code{repetitions} are indicated by the user. Each slot has two slots named "training" and "testing", each one having the indices of the cases used on the training and testing models.
 \item \code{per.fold}: Data frame with the evaluation results per spatial fold (or repetition). It contains the ID of each fold, it's central coordinates, the number of training and testing cases, and the training and testing performance measures: R squared, pseudo R squared (cor(observed, predicted)), rmse, and normalized rmse.
 \item \code{per.model}: Same data as above, but organized per fold and model ("Training", "Testing", and "Full").
 \item \code{aggregated}: Same data, but aggregated by model and performance measure.
