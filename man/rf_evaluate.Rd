@@ -43,7 +43,11 @@ rf_evaluate(
 
 \item{verbose}{Logical. If \code{TRUE}, messages and plots generated during the execution of the function are displayed, Default: \code{TRUE}}
 
+<<<<<<< HEAD
 \item{n.cores}{Integer, number of cores used by \code{\link[ranger]{ranger}} for parallel execution (used as value for the argument \code{num.threads} in \code{ranger()}). Default: \code{NULL}}
+=======
+\item{n.cores}{Integer, number of cores to use for parallel execution. You can reduce the number of cores used to reduce RAM usage when the training data is large. Default: \code{parallel::detectCores() - 1}}
+>>>>>>> f2775a0bb33c7daec121e98ff0432036dfbcb7ec
 
 \item{cluster}{A cluster definition generated with \code{parallel::makeCluster()} or \code{\link{make_cluster}}. Faster than using \code{n.cores} for smaller models. If provided, overrides \code{n.cores}. The function does not stop a cluster, please remember to shut it down with \code{parallel::stopCluster(cl = cluster_name)} at the end of your pipeline. Default: \code{parallel::detectCores() - 1}}
 }

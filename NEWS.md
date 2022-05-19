@@ -1,5 +1,7 @@
 ## Version 1.1.4 (work in progress)
 
+Made the function `rf_evaluate()` more efficient, but now it cannot return the training and testing folds it used during evaluation. In return, it can handle large data now when reducing `n.cores`.
+
 Changed the names of the example data, added new predictors, and a couple of new objects. All these objects are documented in the file `ecoregions_df.R`.
 
   - `plant_richness_df` is now `ecoregions_df`. I added new predictors to this data frame, and removed two ecoregions.
