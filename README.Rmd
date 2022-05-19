@@ -1087,6 +1087,9 @@ mem.rank <- spatialRF::rank_spatial_predictors(
   ranking.method = "moran",
   cluster = cluster
 )
+
+#at this point we can stop the cluster
+parallel::stopCluster(cl = cluster)
 ```
 
 The output of `rank_spatial_predictors()` is a list with three slots: "method", a character string with the name of the ranking method; "criteria", an ordered data frame with the criteria used to rank the spatial predictors; and "ranking", a character vector with the names of the spatial predictors in the order of their ranking (it is just the first column of the "criteria" data frame). We can use this "ranking" object to reorder or `mems` data frame.

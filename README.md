@@ -21,6 +21,7 @@
     -   [Spatial cross-validation](#spatial-cross-validation)
     -   [Other important things stored in the
         model](#other-important-things-stored-in-the-model)
+-   [Quantile regression](#quantile-regression)
 -   [Fitting a spatial model with
     `rf_spatial()`](#fitting-a-spatial-model-with-rf_spatial)
 -   [Tuning Random Forest
@@ -406,7 +407,7 @@ preference.order <- c(
     "bias_area_km2"
   )
 
-predictor.variable.names <- spatialRF::auto_cor(
+multicollinearity.analysis <- spatialRF::auto_cor(
   x = ecoregions_df[, ecoregions_predvar_names],
   cor.threshold = 0.75,
   preference.order = preference.order
@@ -426,7 +427,7 @@ The output of `auto_cor()` or `auto_vif()` has the class
 having the argument `ecoregions_predvar_names`.
 
 ``` r
-names(predictor.variable.names)
+names(multicollinearity.analysis)
 ```
 
     ## [1] "vif"                   "selected.variables"    "selected.variables.df"
@@ -435,7 +436,7 @@ The slot `selected.variables` contains the names of the selected
 predictors.
 
 ``` r
-predictor.variable.names$selected.variables
+multicollinearity.analysis$selected.variables
 ```
 
     ##  [1] "climate_aridity_index_average"   "climate_hypervolume"            
@@ -450,6 +451,9 @@ predictor.variable.names$selected.variables
     ## [19] "fragmentation_contig_mn"         "fragmentation_cpland"           
     ## [21] "fragmentation_dcore_mn"          "fragmentation_ed"               
     ## [23] "fragmentation_shape_mn"          "fragmentation_te"
+
+The slot `selected.variables.df` contains a data frame with all the
+selected predictors.
 
 # Finding promising variable interactions
 
@@ -469,16 +473,26 @@ with the other predictors inducing an increase in the model’s R squared
 (or AUC when the response is binary) on independent data via spatial
 cross-validation (see `rf_evaluate()`).
 
+Since this function fits many alternative random forest models, it can
+be run in parallel if a cluster is provided. The function does not
+shutdown the cluster, but you can stop it with
+`parallel::stopCluster(cl = cluster)`. However, we’ll leave it up for
+other functions in this tutorial.
+
 ``` r
+#starting cluster with n-1 cores
+cluster <- spatialRF::make_cluster()
+
 interactions <- spatialRF::the_feature_engineer(
   data = ecoregions_df,
   dependent.variable.name = ecoregions_depvar_name,
-  predictor.variable.names = predictor.variable.names,
+  predictor.variable.names = multicollinearity.analysis,
   xy = xy,
   importance.threshold = 0.50, #uses 50% best predictors
   cor.threshold = 0.60, #max corr between interactions and predictors
   seed = random.seed,
   repetitions = 100,
+  cluster = cluster,
   verbose = TRUE
   )
 ```
@@ -963,9 +977,7 @@ importance.df <- randomForestExplainer::measure_importance(
   model.non.spatial,
   measures = c("mean_min_depth", "no_of_nodes", "times_a_root", "p_value")
   )
-```
 
-``` r
 kableExtra::kbl(
   importance.df %>% 
     dplyr::arrange(mean_min_depth) %>% 
@@ -1538,11 +1550,12 @@ the contribution of such predictor to model transferability.
 
 ``` r
 model.non.spatial <- spatialRF::rf_importance(
-  model = model.non.spatial
+  model = model.non.spatial,
+  cluster = cluster
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
 
 The function results are added to the “importance” slot of the model.
 
@@ -1582,7 +1595,7 @@ model.non.spatial$importance$per.variable %>%
   ggplot2::geom_smooth(method = "lm", formula = y ~ x, color = "red4")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
 
 ### Local variable importance
 
@@ -1814,9 +1827,7 @@ local.importance <- data.frame(
   local.importance
   )
 sf::st_geometry(local.importance) <- "geom"
-```
 
-``` r
 #colors
 color.low <- viridis::viridis(
     3,
@@ -1877,7 +1888,7 @@ p2 <- ggplot2::ggplot() +
 p1 + p2
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
 
 In these maps, values lower than 0 indicate that for a given record, the
 permuted version of the variable led to an accuracy score even higher
@@ -1910,7 +1921,7 @@ spatialRF::plot_response_curves(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->
 
 Setting the argument `quantiles` to 0.5 and setting `show.data` to
 `FALSE` (default optioin) accentuates the shape of the response curves.
@@ -1923,7 +1934,7 @@ spatialRF::plot_response_curves(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-28-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
 
 The package [`pdp`](https://bgreenwell.github.io/pdp/index.html)
 provides a general way to plot partial dependence plots.
@@ -1938,7 +1949,7 @@ pdp::partial(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-29-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->
 
 If you need to do your own plots in a different way, the function
 [`get_response_curves()`](https://blasbenito.github.io/spatialRF/reference/get_response_curves.html)
@@ -1946,9 +1957,7 @@ returns a data frame with the required data.
 
 ``` r
 reponse.curves.df <- spatialRF::get_response_curves(model.non.spatial)
-```
 
-``` r
 kableExtra::kbl(
   head(reponse.curves.df, n = 10),
   format = "html"
@@ -2194,7 +2203,7 @@ spatialRF::plot_response_surface(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-32-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-29-1.png)<!-- -->
 
 This can be done as well with the `pdp` package, that uses a slightly
 different algorithm to plot interaction surfaces.
@@ -2208,7 +2217,7 @@ pdp::partial(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-33-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-30-1.png)<!-- -->
 
 ## Model performance
 
@@ -2265,6 +2274,7 @@ model.non.spatial <- spatialRF::rf_evaluate(
   training.fraction = 0.75, #training data fraction on each fold
   metrics = "r.squared",
   seed = random.seed,
+  cluster = cluster,
   verbose = FALSE
 )
 ```
@@ -2277,86 +2287,8 @@ spatial cross-validation results.
 names(model.non.spatial$evaluation)
 ```
 
-    ## [1] "metrics"           "training.fraction" "spatial.folds"    
-    ## [4] "per.fold"          "per.fold.long"     "per.model"        
-    ## [7] "aggregated"
-
-The slot “spatial.folds”, produced by
-[`make_spatial_folds()`](https://blasbenito.github.io/spatialRF/reference/make_spatial_folds.html),
-contains the indices of the training and testing cases for each
-cross-validation repetition. The maps below show two sets of training
-and testing folds.
-
-``` r
-world <- rnaturalearth::ne_countries(
-  scale = "medium", 
-  returnclass = "sf"
-  )
-
-pr <- ecoregions_df[, c("x", "y")]
-pr$group.2 <- pr$group.1 <- "Training"
-pr[model.non.spatial$evaluation$spatial.folds[[1]]$testing, "group.1"] <- "Testing"
-pr[model.non.spatial$evaluation$spatial.folds[[15]]$testing, "group.2"] <- "Testing"
-
-p1 <- ggplot2::ggplot() +
-  ggplot2::geom_sf(data = world, fill = "white") +
-  ggplot2::geom_point(data = pr,
-          ggplot2::aes(
-            x = x,
-            y = y,
-            color = group.1
-            ),
-          size = 2
-          ) +
-  ggplot2::scale_color_viridis_d(
-    direction = -1, 
-    end = 0.5, 
-    alpha = 0.8, 
-    option = "F"
-    ) +
-  ggplot2::theme_bw() +
-  ggplot2::labs(color = "Group") +
-  ggplot2::scale_x_continuous(limits = c(-170, -30)) +
-  ggplot2::scale_y_continuous(limits = c(-58, 80))  +
-  ggplot2::ggtitle("Spatial fold 1") + 
-  ggplot2::theme(
-    legend.position = "none", 
-    plot.title = ggplot2::element_text(hjust = 0.5)
-  ) + 
-  ggplot2::xlab("Longitude") + 
-  ggplot2::ylab("Latitude")
-
-p2 <- ggplot2::ggplot() +
-  ggplot2::geom_sf(data = world, fill = "white") +
-  ggplot2::geom_point(data = pr,
-          ggplot2::aes(
-            x = x,
-            y = y,
-            color = group.2
-            ),
-          size = 2
-          ) +
-  ggplot2::scale_color_viridis_d(
-    direction = -1, 
-    end = 0.5, 
-    alpha = 0.8, 
-    option = "F"
-    ) +
-  ggplot2::theme_bw() +
-  ggplot2::labs(color = "Group") +
-  ggplot2::scale_x_continuous(limits = c(-170, -30)) +
-  ggplot2::scale_y_continuous(limits = c(-58, 80)) +
-  ggplot2::theme(
-    plot.title = ggplot2::element_text(hjust = 0.5)
-  ) + 
-  ggplot2::ggtitle("Spatial fold 15") + 
-  ggplot2::xlab("Longitude") + 
-  ggplot2::ylab("")
-
-p1 | p2
-```
-
-![](README_files/figure-gfm/unnamed-chunk-37-1.png)<!-- -->
+    ## [1] "metrics"           "training.fraction" "per.fold"         
+    ## [4] "per.fold.long"     "per.model"         "aggregated"
 
 The information available in this new slot can be accessed with the
 functions
@@ -2369,7 +2301,7 @@ and
 spatialRF::plot_evaluation(model.non.spatial)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-38-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-34-1.png)<!-- -->
 
 `Full` represents the R squared of the model trained on the full
 dataset. `Training` are the R-squared of the models fitted on the
@@ -2386,7 +2318,7 @@ spatialRF::print_evaluation(model.non.spatial)
     ## 
     ## Spatial evaluation 
     ##   - Training fraction:             0.75
-    ##   - Spatial folds:                 29
+    ##   - Spatial folds:                 0
     ## 
     ##     Metric Median   MAD Minimum Maximum
     ##  r.squared  0.507 0.125   0.032   0.652
@@ -2406,6 +2338,276 @@ predicted <- stats::predict(
   )$predictions
 ```
 
+# Quantile regression
+
+The package ranger implements quantile regression, and you have access
+to such feature through `spatialRF` by adding `quantreg = TRUE` to the
+argument `ranger.arguments` available in most modeling functions of
+`spatialRF` (you can fit spatial quantile regression with
+`spatialRF::rf_spatial()` too!). The code chunk below fits a quantile
+regression with random forest and predicts the response for the
+quantiles 0.05, 0.5, and 0.95.
+
+``` r
+model.quantiles <- spatialRF::rf(
+  data = ecoregions_df,
+  dependent.variable.name = ecoregions_depvar_name,
+  predictor.variable.names = predictor.variable.names,
+  ranger.arguments = list(
+    quantreg = TRUE
+  ),
+  verbose = FALSE
+)
+
+predicted.quantiles <- tpredicted <- stats::predict(
+  object = model.quantiles,
+  data = ecoregions_df,
+  type = "quantiles",
+  quantiles = c(0.05, 0.5, 0.95)
+  )$predictions
+
+kableExtra::kbl(predicted.quantiles[1:20, ]) %>% 
+  kableExtra::kable_styling()
+```
+
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:right;">
+quantile= 0.05
+</th>
+<th style="text-align:right;">
+quantile= 0.5
+</th>
+<th style="text-align:right;">
+quantile= 0.95
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+2494.70
+</td>
+<td style="text-align:right;">
+4835.0
+</td>
+<td style="text-align:right;">
+10306.60
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1466.00
+</td>
+<td style="text-align:right;">
+4360.0
+</td>
+<td style="text-align:right;">
+7669.00
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+872.65
+</td>
+<td style="text-align:right;">
+1362.0
+</td>
+<td style="text-align:right;">
+3294.65
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2692.95
+</td>
+<td style="text-align:right;">
+7818.0
+</td>
+<td style="text-align:right;">
+10738.00
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2491.20
+</td>
+<td style="text-align:right;">
+10394.0
+</td>
+<td style="text-align:right;">
+22187.00
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1352.10
+</td>
+<td style="text-align:right;">
+2690.0
+</td>
+<td style="text-align:right;">
+4866.00
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2176.00
+</td>
+<td style="text-align:right;">
+5109.0
+</td>
+<td style="text-align:right;">
+11642.70
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2397.00
+</td>
+<td style="text-align:right;">
+6773.5
+</td>
+<td style="text-align:right;">
+7669.00
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1425.00
+</td>
+<td style="text-align:right;">
+2766.0
+</td>
+<td style="text-align:right;">
+4414.00
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2397.00
+</td>
+<td style="text-align:right;">
+4254.0
+</td>
+<td style="text-align:right;">
+7372.00
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1964.05
+</td>
+<td style="text-align:right;">
+2610.0
+</td>
+<td style="text-align:right;">
+4279.65
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1863.65
+</td>
+<td style="text-align:right;">
+2502.0
+</td>
+<td style="text-align:right;">
+6084.00
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+233.00
+</td>
+<td style="text-align:right;">
+492.0
+</td>
+<td style="text-align:right;">
+5898.65
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2121.00
+</td>
+<td style="text-align:right;">
+6084.0
+</td>
+<td style="text-align:right;">
+10394.00
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2212.00
+</td>
+<td style="text-align:right;">
+9973.0
+</td>
+<td style="text-align:right;">
+10709.00
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2954.00
+</td>
+<td style="text-align:right;">
+7963.0
+</td>
+<td style="text-align:right;">
+11637.00
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1871.95
+</td>
+<td style="text-align:right;">
+3976.0
+</td>
+<td style="text-align:right;">
+6948.00
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1871.95
+</td>
+<td style="text-align:right;">
+4253.0
+</td>
+<td style="text-align:right;">
+6103.00
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1273.30
+</td>
+<td style="text-align:right;">
+4110.0
+</td>
+<td style="text-align:right;">
+15207.00
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1233.00
+</td>
+<td style="text-align:right;">
+2578.0
+</td>
+<td style="text-align:right;">
+7684.05
+</td>
+</tr>
+</tbody>
+</table>
+
 # Fitting a spatial model with `rf_spatial()`
 
 The spatial autocorrelation of the residuals of a model like
@@ -2420,7 +2622,7 @@ spatialRF::plot_moran(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-41-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-38-1.png)<!-- -->
 
 According to the plot, the spatial autocorrelation of the residuals of
 `model.non.spatial` is highly positive for a neighborhood of 0 and 1000
@@ -2436,6 +2638,7 @@ model.spatial <- spatialRF::rf_spatial(
   model = model.non.spatial,
   method = "mem.moran.sequential", #default method
   verbose = FALSE,
+  cluster = cluster,
   seed = random.seed
   )
 ```
@@ -3056,20 +3259,6 @@ double
 </tbody>
 </table>
 
-**NOTE:** You can use this data frame in functions from other packages
-as follows:
-
-``` r
-pdp::partial(
-  model.spatial, 
-  train = model.spatial$ranger.arguments$data, 
-  pred.var = c("climate_bio1_average", "neighbors_count"), 
-  plot = TRUE
-)
-```
-
-![](README_files/figure-gfm/unnamed-chunk-44-1.png)<!-- -->
-
 The plot below shows the Moran’s I of the residuals of the spatial
 model, and indicates that the residuals are not autocorrelated at any
 distance.
@@ -3081,7 +3270,7 @@ spatialRF::plot_moran(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-45-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-41-1.png)<!-- -->
 
 If we compare the variable importance plots of both models, we can see
 that the spatial model has an additional set of dots under the name
@@ -3103,7 +3292,7 @@ p2 <- spatialRF::plot_importance(
 p1 | p2 
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-46-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-42-1.png)<!-- -->
 
 If we look at the ten most important variables in `model.spatial` we
 will see that a few of them are *spatial predictors*. Spatial predictors
@@ -3263,7 +3452,7 @@ p2 <- ggplot2::ggplot() +
 p1 | p2
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-48-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-44-1.png)<!-- -->
 
 The spatial predictors are included in the model one by one, in the
 order of their Moran’s I (spatial predictors with Moran’s I lower than 0
@@ -3278,7 +3467,7 @@ the selected spatial predictors).
 p <- spatialRF::plot_optimization(model.spatial)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-49-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-45-1.png)<!-- -->
 
 # Tuning Random Forest hyperparameters
 
@@ -3307,7 +3496,8 @@ model.spatial <- spatialRF::rf_spatial(
     num.trees = 1000
   ),
   verbose = FALSE,
-  seed = random.seed
+  seed = random.seed,
+  cluster = cluster
   )
 ```
 
@@ -3334,6 +3524,7 @@ model.spatial <- spatialRF::rf_tuning(
     by = 9),
   min.node.size = c(5, 15),
   seed = random.seed,
+  cluster = cluster,
   verbose = FALSE
 )
 ```
@@ -3342,6 +3533,12 @@ The function returns a tuned model only if the tuning finds a solution
 better than the original model. Otherwise the original model is
 returned. The results of the tuning are stored in the model under the
 name “tuning”.
+
+``` r
+model.spatial$tuning$plot
+```
+
+    ## NULL
 
 # Repeating a model execution
 
@@ -3359,6 +3556,7 @@ model.spatial.repeat <- spatialRF::rf_repeat(
   model = model.spatial, 
   repetitions = 30,
   seed = random.seed,
+  cluster = cluster,
   verbose = FALSE
 )
 ```
@@ -3374,7 +3572,7 @@ spatialRF::plot_importance(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-53-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-50-1.png)<!-- -->
 
 The response curves of models fitted with `rf_repeat()` can be plotted
 with `plot_response_curves()` as well. The median prediction is shown
@@ -3388,7 +3586,7 @@ spatialRF::plot_response_curves(
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-54-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-51-1.png)<!-- -->
 
 The function `print_performance()` generates a summary of the
 performance scores across model repetitions. As every other function of
@@ -3415,37 +3613,11 @@ the pipe to combine them. The code below fits a spatial model, tunes its
 hyperparameters, evaluates it using spatial cross-validation, and
 repeats the execution several times, just by passing the model from one
 function to another. Replace `eval = FALSE` with `eval = TRUE` if you
-want to execute the code chunk.
+want to execute the code chunk. Notice that the tuning, evaluation, and
+repetition functions make use of the cluster we created at the beginning
+of this tutorial.
 
 ``` r
-model.full <- rf_spatial(
-  data = ecoregions_df,
-  dependent.variable.name = ecoregions_depvar_name,
-  predictor.variable.names = predictor.variable.names,
-  distance.matrix = ecoregions_distance_matrix,
-  distance.thresholds = distance_thresholds,
-  xy = xy
-) %>%
-  rf_tuning() %>%
-  rf_evaluate() %>%
-  rf_repeat()
-```
-
-The code structure shown above can also be used to take advantage of a
-custom cluster, either defined in the local host, or a Beowulf cluster.
-
-When working with a single machine, a cluster can be defined and used as
-follows:
-
-``` r
-#creating and registering the cluster
-local.cluster <- parallel::makeCluster(
-  parallel::detectCores() - 1,
-  type = "PSOCK"
-)
-doParallel::registerDoParallel(cl = local.cluster)
-
-#fitting, tuning, evaluating, and repeating a model
 model.full <- rf_spatial(
   data = ecoregions_df,
   dependent.variable.name = ecoregions_depvar_name,
@@ -3453,14 +3625,11 @@ model.full <- rf_spatial(
   distance.matrix = ecoregions_distance_matrix,
   distance.thresholds = distance_thresholds,
   xy = xy,
-  cluster = local.cluster #is passed via pipe to the other functions
+  verbose = FALSE
 ) %>%
-  rf_tuning() %>%
-  rf_evaluate() %>%
-  rf_repeat()
-
-#stopping the cluster
-parallel::stopCluster(cl = local.cluster)
+  rf_tuning(cluster = cluster) %>%
+  rf_evaluate(cluster = cluster) %>%
+  rf_repeat(cluster = cluster)
 ```
 
 To facilitate working with Beowulf clusters ([just several computers
@@ -3472,7 +3641,7 @@ connection port.
 
 ``` r
 #creating and registering the cluster
-beowulf.cluster <- beowulf_cluster(
+beowulf.cluster <- spatialRF::make_cluster(
   cluster.ips = c(
     "10.42.0.1",
     "10.42.0.34",
@@ -3490,14 +3659,13 @@ model.full <- rf_spatial(
   predictor.variable.names = ecoregions_predvar_names,
   distance.matrix = ecoregions_distance_matrix,
   distance.thresholds = distance_thresholds,
-  xy = xy,
-  cluster = beowulf.cluster 
+  xy = xy
 ) %>%
-  rf_tuning() %>%
-  rf_evaluate() %>%
-  rf_repeat()
+  rf_tuning(cluster = beowulf.cluster) %>%
+  rf_evaluate(cluster = beowulf.cluster) %>%
+  rf_repeat(cluster = beowulf.cluster)
 
-doParallel::registerDoParallel(cl = beowulf.cluster)
+parallel::stopCluster(cl = beowulf.cluster)
 ```
 
 # Comparing several models
@@ -3511,18 +3679,19 @@ performances across spatial folds.
 ``` r
 comparison <- spatialRF::rf_compare(
   models = list(
-    `Non-spatial` = model.non.spatial,
-    `Spatial` = model.spatial
+    non_spatial = model.non.spatial,
+    spatial = model.spatial
   ),
   xy = xy,
   repetitions = 30,
   training.fraction = 0.8,
-  metrics = "r.squared",
-  seed = random.seed
+  metrics = "rmse",
+  seed = random.seed,
+  cluster = cluster
   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-59-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-55-1.png)<!-- -->
 
 ``` r
 x <- comparison$comparison.df %>% 
@@ -3555,28 +3724,35 @@ Median
 <tbody>
 <tr>
 <td style="text-align:left;">
-Non-spatial
+non\_spatial
 </td>
 <td style="text-align:left;">
-r.squared
+rmse
 </td>
 <td style="text-align:right;">
-0.495
+2981.076
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-Spatial
+spatial
 </td>
 <td style="text-align:left;">
-r.squared
+rmse
 </td>
 <td style="text-align:right;">
-0.273
+3370.326
 </td>
 </tr>
 </tbody>
 </table>
+
+We can see that the prediction over independent data is worse in the
+spatial model, and that makes sense, because spatial models use the
+spatial structure of the training data to fit the model, and this
+spatial structure is going to be different in training and testing folds
+over evaluation repetitions. That’s why spatial models work better as
+explanatory tools rather than predictive ones.
 
 # Working with a binomial response
 
@@ -3660,9 +3836,10 @@ explains why).
 
 ``` r
 model.non.spatial <- spatialRF::rf_evaluate(
-  model.non.spatial,
+  model = model.non.spatial,
   xy = xy,
   metrics = "auc",
+  cluster = cluster,
   verbose = FALSE
 )
 
@@ -3672,7 +3849,7 @@ spatialRF::print_evaluation(model.non.spatial)
     ## 
     ## Spatial evaluation 
     ##   - Training fraction:             0.75
-    ##   - Spatial folds:                 29
+    ##   - Spatial folds:                 0
     ## 
     ##  Metric Median   MAD Minimum Maximum
     ##     auc  0.923 0.064   0.782   0.978
@@ -3890,8 +4067,12 @@ will help you do so.
 mem.rank <- spatialRF::rank_spatial_predictors(
   distance.matrix = ecoregions_distance_matrix,
   spatial.predictors.df = mems,
-  ranking.method = "moran"
+  ranking.method = "moran",
+  cluster = cluster
 )
+
+#at this point we can stop the cluster
+parallel::stopCluster(cl = cluster)
 ```
 
 The output of `rank_spatial_predictors()` is a list with three slots:
@@ -3953,7 +4134,7 @@ moran.test <- spatialRF::moran(
 moran.test$plot
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-70-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-66-1.png)<!-- -->
 
 According to the Moran’s I test, the model residuals show spatial
 autocorrelation. Let’s introduce MEMs one by one until the problem is
@@ -4016,7 +4197,7 @@ for(mem.i in colnames(mems)){
 moran.test.i$plot
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-71-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-67-1.png)<!-- -->
 
 Now we can compare the model without spatial predictors `m` and the
 model with spatial predictors `m.i`.
@@ -4111,3 +4292,5 @@ improved the model. In any case, this is just a simple demonstration of
 how spatial predictors generated with functions of the `spatialRF`
 package can still help you fit spatial models with other modeling
 methods.
+
+**That’s all folks!**
