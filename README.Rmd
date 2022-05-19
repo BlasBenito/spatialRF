@@ -251,7 +251,7 @@ preference.order <- c(
     "bias_area_km2"
   )
 
-predictor.variable.names <- spatialRF::auto_cor(
+multicollinearity.analysis <- spatialRF::auto_cor(
   x = ecoregions_df[, ecoregions_predvar_names],
   cor.threshold = 0.75,
   preference.order = preference.order
@@ -265,14 +265,17 @@ predictor.variable.names <- spatialRF::auto_cor(
 The output of `auto_cor()` or `auto_vif()` has the class "variable_selection", which can be used as input in every function having the argument `ecoregions_predvar_names`.
 
 ```{r}
-names(predictor.variable.names)
+names(multicollinearity.analysis)
 ```
 
 The slot `selected.variables` contains the names of the selected predictors.
 
 ```{r}
-predictor.variable.names$selected.variables
+multicollinearity.analysis$selected.variables
 ```
+
+The slot `selected.variables.df` contains a data frame with all the selected predictors.
+
 
 # Finding promising variable interactions
 
@@ -280,16 +283,22 @@ Random Forests already takes into account variable interactions of the form "var
 
 The function [`the_feature_engineer()`](https://blasbenito.github.io/spatialRF/reference/the_feature_engineer.html) tests all possible interactions of both types among the most important predictors, and suggesting the ones not correlated among themselves and with the other predictors inducing an increase in the model's R squared (or AUC when the response is binary) on independent data via spatial cross-validation (see `rf_evaluate()`).
 
+Since this function fits many alternative random forest models, it can be run in parallel if a cluster is provided. The function does not shutdown the cluster, but you can stop it with `parallel::stopCluster(cl = cluster)`. However, we'll leave it up for other functions in this tutorial.
+
 ```{r, fig.width=12, fig.height=9}
+#starting cluster with n-1 cores
+cluster <- spatialRF::make_cluster()
+
 interactions <- spatialRF::the_feature_engineer(
   data = ecoregions_df,
   dependent.variable.name = ecoregions_depvar_name,
-  predictor.variable.names = predictor.variable.names,
+  predictor.variable.names = multicollinearity.analysis,
   xy = xy,
   importance.threshold = 0.50, #uses 50% best predictors
   cor.threshold = 0.60, #max corr between interactions and predictors
   seed = random.seed,
   repetitions = 100,
+  cluster = cluster,
   verbose = TRUE
   )
 ```
@@ -384,9 +393,7 @@ importance.df <- randomForestExplainer::measure_importance(
   model.non.spatial,
   measures = c("mean_min_depth", "no_of_nodes", "times_a_root", "p_value")
   )
-```
 
-```{r, echo=TRUE}
 kableExtra::kbl(
   importance.df %>% 
     dplyr::arrange(mean_min_depth) %>% 
@@ -402,7 +409,8 @@ The new function `rf_importance()` offers a way to assess to what extent each pr
 
 ```{r, fig.width = 8, fig.height=8, message=FALSE, warning=FALSE}
 model.non.spatial <- spatialRF::rf_importance(
-  model = model.non.spatial
+  model = model.non.spatial,
+  cluster = cluster
   )
 ```
 
@@ -458,11 +466,7 @@ local.importance <- data.frame(
   local.importance
   )
 sf::st_geometry(local.importance) <- "geom"
-```
 
-
-
-```{r, echo=TRUE, fig.width=8, fig.height=5}
 #colors
 color.low <- viridis::viridis(
     3,
@@ -569,9 +573,7 @@ If you need to do your own plots in a different way, the function [`get_response
 
 ```{r}
 reponse.curves.df <- spatialRF::get_response_curves(model.non.spatial)
-```
 
-```{r, echo=TRUE, warning = FALSE, message=FALSE}
 kableExtra::kbl(
   head(reponse.curves.df, n = 10),
   format = "html"
@@ -624,6 +626,7 @@ model.non.spatial <- spatialRF::rf_evaluate(
   training.fraction = 0.75, #training data fraction on each fold
   metrics = "r.squared",
   seed = random.seed,
+  cluster = cluster,
   verbose = FALSE
 )
 ```
@@ -659,6 +662,32 @@ predicted <- stats::predict(
   )$predictions
 ```
 
+# Quantile regression
+
+The package ranger implements quantile regression, and you have access to such feature through `spatialRF` by adding `quantreg = TRUE` to the argument `ranger.arguments` available in most modeling functions of `spatialRF` (you can fit spatial quantile regression with `spatialRF::rf_spatial()` too!). The code chunk below fits a quantile regression with random forest and predicts the response for the quantiles 0.05, 0.5, and 0.95.
+
+```{r}
+model.quantiles <- spatialRF::rf(
+  data = ecoregions_df,
+  dependent.variable.name = ecoregions_depvar_name,
+  predictor.variable.names = predictor.variable.names,
+  ranger.arguments = list(
+    quantreg = TRUE
+  ),
+  verbose = FALSE
+)
+
+predicted.quantiles <- tpredicted <- stats::predict(
+  object = model.quantiles,
+  data = ecoregions_df,
+  type = "quantiles",
+  quantiles = c(0.05, 0.5, 0.95)
+  )$predictions
+
+kableExtra::kbl(predicted.quantiles[1:20, ]) %>% 
+  kableExtra::kable_styling()
+```
+
 
 # Fitting a spatial model with `rf_spatial()`
 
@@ -678,6 +707,7 @@ model.spatial <- spatialRF::rf_spatial(
   model = model.non.spatial,
   method = "mem.moran.sequential", #default method
   verbose = FALSE,
+  cluster = cluster,
   seed = random.seed
   )
 ```
@@ -697,16 +727,7 @@ data.frame(
   kableExtra::kable_styling()
 rm(x)
 ```
-**NOTE:** You can use this data frame in functions from other packages as follows:
 
-```{r, fig.width=6, fig.height=4}
-pdp::partial(
-  model.spatial, 
-  train = model.spatial$ranger.arguments$data, 
-  pred.var = c("climate_bio1_average", "neighbors_count"), 
-  plot = TRUE
-)
-```
 
 The plot below shows the Moran's I of the residuals of the spatial model, and indicates that the residuals are not autocorrelated at any distance.
 
@@ -812,7 +833,8 @@ model.spatial <- spatialRF::rf_spatial(
     num.trees = 1000
   ),
   verbose = FALSE,
-  seed = random.seed
+  seed = random.seed,
+  cluster = cluster
   )
 ```
 
@@ -833,11 +855,17 @@ model.spatial <- spatialRF::rf_tuning(
     by = 9),
   min.node.size = c(5, 15),
   seed = random.seed,
+  cluster = cluster,
   verbose = FALSE
 )
 ```
 
 The function returns a tuned model only if the tuning finds a solution better than the original model. Otherwise the original model is returned. The results of the tuning are stored in the model under the name "tuning". 
+
+```{r, fig.width=9, fig.height=9}
+model.spatial$tuning$plot
+```
+
 
 # Repeating a model execution
 
@@ -848,6 +876,7 @@ model.spatial.repeat <- spatialRF::rf_repeat(
   model = model.spatial, 
   repetitions = 30,
   seed = random.seed,
+  cluster = cluster,
   verbose = FALSE
 )
 ```
@@ -879,35 +908,9 @@ spatialRF::print_performance(model.spatial.repeat)
 
 # Taking advantage of the ` %>%` pipe
 
-The modeling functions of `spatialRF` are designed to facilitate using the pipe to combine them. The code below fits a spatial model, tunes its hyperparameters, evaluates it using spatial cross-validation, and repeats the execution several times, just by passing the model from one function to another. Replace `eval = FALSE` with `eval = TRUE` if you want to execute the code chunk.
+The modeling functions of `spatialRF` are designed to facilitate using the pipe to combine them. The code below fits a spatial model, tunes its hyperparameters, evaluates it using spatial cross-validation, and repeats the execution several times, just by passing the model from one function to another. Replace `eval = FALSE` with `eval = TRUE` if you want to execute the code chunk. Notice that the tuning, evaluation, and repetition functions make use of the cluster we created at the beginning of this tutorial.
 
 ```{r, eval = FALSE}
-model.full <- rf_spatial(
-  data = ecoregions_df,
-  dependent.variable.name = ecoregions_depvar_name,
-  predictor.variable.names = predictor.variable.names,
-  distance.matrix = ecoregions_distance_matrix,
-  distance.thresholds = distance_thresholds,
-  xy = xy
-) %>%
-  rf_tuning() %>%
-  rf_evaluate() %>%
-  rf_repeat()
-```
-
-The code structure shown above can also be used to take advantage of a custom cluster, either defined in the local host, or a Beowulf cluster.
-
-When working with a single machine, a cluster can be defined and used as follows:
-
-```{r, eval = FALSE}
-#creating and registering the cluster
-local.cluster <- parallel::makeCluster(
-  parallel::detectCores() - 1,
-  type = "PSOCK"
-)
-doParallel::registerDoParallel(cl = local.cluster)
-
-#fitting, tuning, evaluating, and repeating a model
 model.full <- rf_spatial(
   data = ecoregions_df,
   dependent.variable.name = ecoregions_depvar_name,
@@ -915,21 +918,19 @@ model.full <- rf_spatial(
   distance.matrix = ecoregions_distance_matrix,
   distance.thresholds = distance_thresholds,
   xy = xy,
-  cluster = local.cluster #is passed via pipe to the other functions
+  verbose = FALSE
 ) %>%
-  rf_tuning() %>%
-  rf_evaluate() %>%
-  rf_repeat()
-
-#stopping the cluster
-parallel::stopCluster(cl = local.cluster)
+  rf_tuning(cluster = cluster) %>%
+  rf_evaluate(cluster = cluster) %>%
+  rf_repeat(cluster = cluster)
 ```
+
 
 To facilitate working with Beowulf clusters ([just several computers connected via SSH](https://www.blasbenito.com/post/01_home_cluster/)), the package provides the function `beowulf_cluster()`, that generates the cluster definition from details such as the IPs of the machines, the number of cores to be used on each machine, the user name, and the connection port.
 
 ```{r, eval = FALSE}
 #creating and registering the cluster
-beowulf.cluster <- beowulf_cluster(
+beowulf.cluster <- spatialRF::make_cluster(
   cluster.ips = c(
     "10.42.0.1",
     "10.42.0.34",
@@ -947,14 +948,13 @@ model.full <- rf_spatial(
   predictor.variable.names = ecoregions_predvar_names,
   distance.matrix = ecoregions_distance_matrix,
   distance.thresholds = distance_thresholds,
-  xy = xy,
-  cluster = beowulf.cluster 
+  xy = xy
 ) %>%
-  rf_tuning() %>%
-  rf_evaluate() %>%
-  rf_repeat()
+  rf_tuning(cluster = beowulf.cluster) %>%
+  rf_evaluate(cluster = beowulf.cluster) %>%
+  rf_repeat(cluster = beowulf.cluster)
 
-doParallel::registerDoParallel(cl = beowulf.cluster)
+parallel::stopCluster(cl = beowulf.cluster)
 ```
 
 
@@ -965,14 +965,15 @@ The function [`rf_compare()`](https://blasbenito.github.io/spatialRF/reference/r
 ```{r, fig.width=6, fig.height=3}
 comparison <- spatialRF::rf_compare(
   models = list(
-    `Non-spatial` = model.non.spatial,
-    `Spatial` = model.spatial
+    non_spatial = model.non.spatial,
+    spatial = model.spatial
   ),
   xy = xy,
   repetitions = 30,
   training.fraction = 0.8,
-  metrics = "r.squared",
-  seed = random.seed
+  metrics = "rmse",
+  seed = random.seed,
+  cluster = cluster
   )
 ```
 
@@ -990,6 +991,8 @@ kableExtra::kbl(
   ) %>%
   kableExtra::kable_paper("hover", full_width = F)
 ```
+We can see that the prediction over independent data is worse in the spatial model, and that makes sense, because spatial models use the spatial structure of the training data to fit the model, and this spatial structure is going to be different in training and testing folds over evaluation repetitions. That's why spatial models work better as explanatory tools rather than predictive ones.
+
 
 # Working with a binomial response
 
@@ -1036,9 +1039,10 @@ This model could be projected right away onto a raster stack with maps of the pr
 
 ```{r}
 model.non.spatial <- spatialRF::rf_evaluate(
-  model.non.spatial,
+  model = model.non.spatial,
   xy = xy,
   metrics = "auc",
+  cluster = cluster,
   verbose = FALSE
 )
 
@@ -1080,7 +1084,8 @@ But not all MEMs are made equal, and you will need to rank them by their Moran's
 mem.rank <- spatialRF::rank_spatial_predictors(
   distance.matrix = ecoregions_distance_matrix,
   spatial.predictors.df = mems,
-  ranking.method = "moran"
+  ranking.method = "moran",
+  cluster = cluster
 )
 ```
 
@@ -1213,3 +1218,5 @@ kableExtra::kbl(
 ```
 
 According to the model comparison, it can be concluded that the addition of spatial predictors, in spite of the increase in complexity, has improved the model. In any case, this is just a simple demonstration of how spatial predictors generated with functions of the `spatialRF` package can still help you fit spatial models with other modeling methods.
+
+**That's all folks!**

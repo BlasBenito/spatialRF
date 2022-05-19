@@ -254,7 +254,7 @@ rf_evaluate <- function(
 
     #subsetting case.weights if defined
     if(!is.null(ranger.arguments.training$case.weights)){
-      ranger.arguments.training$case.weights <- ranger.arguments$case.weights[spatial.folds[[i]]$training]
+      ranger.arguments.training$case.weights <- ranger.arguments$case.weights[spatial.folds$training]
     }
 
     #training model

@@ -28,6 +28,10 @@ thinning <- function(
   minimum.distance = NULL
   ){
 
+  #declaring variables
+  x <- NULL
+  y <- NULL
+
   #coerce to data frame if tibble
   if(inherits(xy, "tbl_df") | inherits(xy, "tbl")){
     xy <- as.data.frame(xy)
