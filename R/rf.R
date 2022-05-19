@@ -11,7 +11,6 @@
 #' @param seed Integer, random seed to facilitate reproducibility. If set to a given number, the returned model is always the same. Default: `1`
 #' @param verbose Boolean. If TRUE, messages and plots generated during the execution of the function are displayed. Default: `TRUE`
 #' @param n.cores Integer, number of cores to use. Default: `parallel::detectCores() - 1`
-#' @param cluster A cluster definition generated with `parallel::makeCluster()`. This function does not use the cluster, but can pass it on to other functions when using the `%>%` pipe. It will be stored in the slot `cluster` of the output list. Default: `NULL`
 #' @return A ranger model with several extra slots:
 #' \itemize{
 #'   \item `ranger.arguments`: Stores the values of the arguments used to fit the ranger model.
@@ -102,8 +101,7 @@ rf <- function(
   scaled.importance = FALSE,
   seed = 1,
   verbose = TRUE,
-  n.cores = parallel::detectCores() - 1,
-  cluster = NULL
+  n.cores = parallel::detectCores() - 1
 ){
 
   #giving priority to data not from ranger.arguments
@@ -473,11 +471,6 @@ rf <- function(
     m,
     verbose = verbose
   )
-
-  #adding cluster
-  if(!is.null(cluster)){
-    m$cluster <- cluster
-  }
 
   #adding rf class
   class(m) <- c("rf", "ranger")

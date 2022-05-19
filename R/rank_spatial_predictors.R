@@ -18,8 +18,8 @@
 #' @param spatial.predictors.df Data frame of spatial predictors.
 #' @param ranking.method Character, method used by to rank spatial predictors. The method "effect" ranks spatial predictors according how much each predictor reduces Moran's I of the model residuals, while the method "moran" ranks them by their own Moran's I. Default: `"moran"`.
 #' @param verbose Logical, ff `TRUE`, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
-#' @param n.cores Integer, number of cores to use for parallel execution. Creates a socket cluster with `parallel::makeCluster()`, runs operations in parallel with `foreach` and `%dopar%`, and stops the cluster with `parallel::clusterStop()` when the job is done. Default: `parallel::detectCores() - 1`
-#' @param cluster A cluster definition generated with `parallel::makeCluster()`. If provided, overrides `n.cores`. When `cluster = NULL` (default value), and `model` is provided, the cluster in `model`, if any, is used instead. If this cluster is `NULL`, then the function uses `n.cores` instead. The function does not stop a provided cluster, so it should be stopped with `parallel::stopCluster()` afterwards. The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the `model` argument, or using the `%>%` pipe. Default: `NULL`
+#' @param n.cores Integer, number of cores used by \code{\link[ranger]{ranger}} for parallel execution (used as value for the argument `num.threads` in `ranger()`). Default: `NULL`
+#' @param cluster A cluster definition generated with `parallel::makeCluster()` or \code{\link{make_cluster}}. Only advisable if you need to spread a large number of repetitions over the nodes of a large cluster. If provided, overrides `n.cores`. The function does not stop a cluster, please remember to shut it down with `parallel::stopCluster(cl = cluster_name)` at the end of your pipeline. Default: `parallel::detectCores() - 1`
 #' @return A list with four slots:
 #' \itemize{
 #' \item `method`: Character, name of the method used to rank the spatial predictors.
@@ -99,29 +99,22 @@ rank_spatial_predictors <- function(
   if(is.null(reference.moran.i)){reference.moran.i <- 1}
 
 
-  #CLUSTER SETUP
-  #cluster is provided
-  if(!is.null(cluster)){
-
-    #n.cores <- NULL
-    n.cores <- NULL
-
-    #flat to not stop cluster after execution
-    stop.cluster <- FALSE
-
-  } else {
-
-    #creates and registers cluster
-    cluster <- parallel::makeCluster(
-      n.cores,
-      type = "PSOCK"
-    )
+  #handling parallelization
+  if("cluster" %in% class(cluster)){
 
     #registering cluster
     doParallel::registerDoParallel(cl = cluster)
 
-    #flag to stop cluster
-    stop.cluster <- TRUE
+    #parallel iterator
+    `%iterator%` <- foreach::`%dopar%`
+
+    #restricting the number of cores
+    n.cores <- 1
+
+  } else {
+
+    #sequential iterator
+    `%iterator%` <- foreach::`%do%`
 
   }
 
@@ -131,7 +124,7 @@ rank_spatial_predictors <- function(
     spatial.predictors.i = seq(1, ncol(spatial.predictors.df)),
     .combine = "rbind",
     .verbose = verbose
-    ) %dopar% {
+    ) %iterator% {
 
     #3.2.3.1 preparing data
 
@@ -161,6 +154,7 @@ rank_spatial_predictors <- function(
         distance.thresholds = distance.thresholds,
         scaled.importance = FALSE,
         ranger.arguments = ranger.arguments,
+        n.cores = n.cores,
         verbose = FALSE
       )
 
@@ -224,11 +218,6 @@ rank_spatial_predictors <- function(
   out.list$criteria <- spatial.predictors.order
   out.list$ranking <- spatial.predictors.order$spatial.predictors.name
   out.list$spatial.predictors.df <- spatial.predictors.df[, spatial.predictors.order$spatial.predictors.name]
-
-  #stopping cluster
-  if(stop.cluster == TRUE){
-    parallel::stopCluster(cl = cluster)
-  }
 
   #returning output list
   out.list

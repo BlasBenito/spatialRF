@@ -84,8 +84,14 @@ thinning_til_n <- function(
 
   #apply thinning iteratively
   while(nrow(xy.thin) > n){
+
     distance.i <- distance.i + min.distance
-    xy.thin <- thinning(xy, minimum.distance = distance.i)
+
+    xy.thin <- thinning(
+      xy = xy,
+      minimum.distance = distance.i
+      )
+
   }
 
   xy.thin

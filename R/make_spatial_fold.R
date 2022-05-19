@@ -51,9 +51,6 @@ make_spatial_fold <- function(
   training.fraction = 0.8
 ){
 
-  if(sum(c("id", "x", "y") %in% colnames(xy.i)) != 3){
-    stop("xy.i must contain the column names 'id', 'x', and 'y'.")
-  }
   if(sum(c("id", "x", "y") %in% colnames(xy)) != 3){
     stop("xy must contain the column names 'id', 'x', and 'y'.")
   }

@@ -26,3 +26,5 @@ data_Blas.Rdata
 understanding_lmmorantest.R
 reviewing_moran.R
 ^CRAN-RELEASE$
+parallel_testing.R
+parallel_common.R

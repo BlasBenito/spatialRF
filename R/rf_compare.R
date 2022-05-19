@@ -12,8 +12,8 @@
 #' @param line.color Character string, color of the line produced by `ggplot2::geom_smooth()`. Default: `"gray30"`
 #' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same. Default: `1`.
 #' @param verbose Logical. If `TRUE`, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
-#' @param n.cores Integer, number of cores to use for parallel execution. Default: `NULL`
-#' @param cluster A cluster definition generated with `parallel::makeCluster()`. If provided, it overrides `n.cores`. If `NULL` but `model` has a cluster object in the "cluster" slot, then the model's cluster is used. Please notice that the function does not stop a running cluster, so it should be stopped with `parallel::stopCluster()` afterwards (). The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the `model` argument. Default: `parallel::makeCluster(nnodes = parallel::detectCores() - 1, type = "PSOCK")`
+#' @param n.cores Integer, number of cores used by \code{\link[ranger]{ranger}} for parallel execution (used as value for the argument `num.threads` in `ranger()`). Default: `NULL`
+#' @param cluster A cluster definition generated with `parallel::makeCluster()` or \code{\link{make_cluster}}. Only advisable if you need to spread a large number of repetitions over the nodes of a large cluster. If provided, overrides `n.cores`. The function does not stop a cluster, please remember to shut it down with `parallel::stopCluster(cl = cluster_name)` at the end of your pipeline. Default: `parallel::detectCores() - 1`
 #' @return A list with three slots:
 #' \itemize{
 #' \item `comparison.df`: Data frame with one performance value per spatial fold, metric, and model.
@@ -86,11 +86,8 @@ rf_compare <- function(
   line.color = "gray30",
   seed = 1,
   verbose = TRUE,
-  n.cores = NULL,
-  cluster = parallel::makeCluster(
-    spec = parallel::detectCores() - 1,
-    type = "PSOCK"
-  )
+  n.cores = parallel::detectCores() - 1,
+  cluster = NULL
 ){
 
   #declaring variables
@@ -117,7 +114,37 @@ rf_compare <- function(
     stop("There are no models to compare in 'models'.")
   }
   if(is.null(xy)){
-    stop("Case coordinates 'xy' is missing.")
+
+    #get xy of all models
+    xy.models <- lapply(
+      lapply(
+        models,
+        "[[",
+        "ranger.arguments"
+      ),
+      "[[",
+      "xy"
+    )
+
+    #compute means
+    xy.means <- lapply(
+      xy.models,
+      FUN = function(x) mean(as.matrix(x))
+    ) %>%
+      unlist() %>%
+      na.omit()
+
+    #if they are equal, use xy of the first model as xy
+    if(
+      all(
+        abs(xy.means - mean(xy.means)) < .Machine$double.eps ^ 0.5
+      )
+    ){
+      xy <- models[[1]]$ranger.arguments$xy
+    } else {
+      stop("Argument 'xy' is missing.")
+    }
+
   }
 
   #list to store evaluation outputs

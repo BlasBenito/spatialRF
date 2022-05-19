@@ -15,8 +15,7 @@ rf(
   scaled.importance = FALSE,
   seed = 1,
   verbose = TRUE,
-  n.cores = parallel::detectCores() - 1,
-  cluster = NULL
+  n.cores = parallel::detectCores() - 1
 )
 }
 \arguments{
@@ -41,8 +40,6 @@ rf(
 \item{verbose}{Boolean. If TRUE, messages and plots generated during the execution of the function are displayed. Default: \code{TRUE}}
 
 \item{n.cores}{Integer, number of cores to use. Default: \code{parallel::detectCores() - 1}}
-
-\item{cluster}{A cluster definition generated with \code{parallel::makeCluster()}. This function does not use the cluster, but can pass it on to other functions when using the \verb{\%>\%} pipe. It will be stored in the slot \code{cluster} of the output list. Default: \code{NULL}}
 }
 \value{
 A ranger model with several extra slots:

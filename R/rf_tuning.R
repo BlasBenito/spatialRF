@@ -9,8 +9,8 @@
 #' @param training.fraction Proportion between 0.2 and 0.9 indicating the number of records to be used in model training. Default: `0.75`
 #' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same. Default: `1`.
 #' @param verbose Logical. If TRUE, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
-#' @param n.cores Integer, number of cores to use for parallel execution. Creates a socket cluster with `parallel::makeCluster()`, runs operations in parallel with `foreach` and `%dopar%`, and stops the cluster with `parallel::clusterStop()` when the job is done. Default: `parallel::detectCores() - 1`
-#' @param cluster A cluster definition generated with `parallel::makeCluster()`. If provided, overrides `n.cores`. When `cluster = NULL` (default value), and `model` is provided, the cluster in `model`, if any, is used instead. If this cluster is `NULL`, then the function uses `n.cores` instead. The function does not stop a provided cluster, so it should be stopped with `parallel::stopCluster()` afterwards. The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the `model` argument, or using the `%>%` pipe. Default: `NULL`
+#' @param n.cores Integer, number of cores used by \code{\link[ranger]{ranger}} for parallel execution (used as value for the argument `num.threads` in `ranger()`). Slower option than using `cluster`, but with a smaller RAM usage. Default: `NULL`
+#' @param cluster A cluster definition generated with `parallel::makeCluster()` or \code{\link{make_cluster}}. Only advisable if you need to spread a large number of repetitions over the nodes of a large cluster. If provided, overrides `n.cores`. The function does not stop a cluster, please remember to shut it down with `parallel::stopCluster(cl = cluster_name)` at the end of your pipeline. Default: `parallel::detectCores() - 1`
 #' @return A model with a new slot named `tuning`, with a data frame with the results of the tuning analysis.
 #' @seealso [rf_evaluate()]
 #' @examples
@@ -46,6 +46,7 @@
 #'
 #' }
 #' @importFrom rlang sym
+#' @importFrom foreach %do%
 #' @rdname rf_tuning
 #' @export
 rf_tuning <- function(
@@ -71,6 +72,7 @@ rf_tuning <- function(
   if(is.null(model)){
 
     stop("The argument 'model' is empty, there is no model to tune.")
+
   } else {
 
     #getting arguments from model rather than ranger.arguments
@@ -80,11 +82,6 @@ rf_tuning <- function(
     predictor.variable.names <- ranger.arguments$predictor.variable.names
     distance.matrix <- ranger.arguments$distance.matrix
     distance.thresholds <- ranger.arguments$distance.thresholds
-
-    #getting cluster from model if "cluster" is not provided
-    if(is.null(cluster) & "cluster" %in% names(model)){
-      cluster <- model$cluster
-    }
 
     #getting xy
     if(is.null(xy)){
@@ -175,32 +172,6 @@ rf_tuning <- function(
     )
   }
 
-  #CLUSTER SETUP
-  #cluster is provided
-  if(!is.null(cluster)){
-
-    #n.cores <- NULL
-    n.cores <- NULL
-
-    #flat to not stop cluster after execution
-    stop.cluster <- FALSE
-
-  } else {
-
-    #creates and registers cluster
-    cluster <- parallel::makeCluster(
-      n.cores,
-      type = "PSOCK"
-    )
-
-    #flag to stop cluster
-    stop.cluster <- TRUE
-
-  }
-
-  #registering cluster
-  doParallel::registerDoParallel(cl = cluster)
-
   #looping through combinations
   tuning <- foreach::foreach(
     num.trees.i = combinations$num.trees,
@@ -208,7 +179,7 @@ rf_tuning <- function(
     min.node.size.i = combinations$min.node.size,
     .combine = "rbind",
     .verbose = FALSE
-  ) %dopar% {
+  ) %do% {
 
     #filling ranger arguments
     if(!is.null(ranger.arguments)){
@@ -233,7 +204,7 @@ rf_tuning <- function(
       ranger.arguments = ranger.arguments.i,
       scaled.importance = FALSE,
       seed = seed,
-      n.cores = 1,
+      n.cores = n.cores,
       verbose = FALSE
     )
 
@@ -246,7 +217,8 @@ rf_tuning <- function(
       metrics = metric,
       seed = seed,
       verbose = FALSE,
-      n.cores = 1
+      n.cores = n.cores,
+      cluster = cluster
     )
 
     #getting performance measures
@@ -453,13 +425,6 @@ rf_tuning <- function(
 
     #adding r squared gain
     model$tuning$performance.gain <- performance.gain
-
-    #stopping cluster
-    if(stop.cluster == TRUE){
-      parallel::stopCluster(cl = cluster)
-    } else {
-      model$cluster <- cluster
-    }
 
     if(verbose == TRUE){
       message("Tuning results stored in model$tuning.")

@@ -20,6 +20,7 @@
 #'  ecoregions_df.thin
 #'
 #' }
+#' @importFrom dplyr distinct
 #' @rdname thinning
 #' @export
 thinning <- function(
@@ -47,6 +48,12 @@ thinning <- function(
   if(length(minimum.distance) > 1){
     minimum.distance <- minimum.distance[1]
   }
+
+  #removing duplicated pairs of coordinates
+  xy <- dplyr::distinct(
+    xy,
+    x, y
+  )
 
   #count rows
   row.i <- 1

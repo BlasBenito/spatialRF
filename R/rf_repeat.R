@@ -13,8 +13,9 @@
 #' @param keep.models Logical, if `TRUE`, the fitted models are returned in the `models` slot. Set to `FALSE` if the accumulation of models is creating issues with the RAM memory available. Default: `TRUE`.
 #' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same. Default: `1`.
 #' @param verbose Logical, ff `TRUE`, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
-#' @param n.cores Integer, number of cores to use for parallel execution. Creates a socket cluster with `parallel::makeCluster()`, runs operations in parallel with `foreach` and `%dopar%`, and stops the cluster with `parallel::clusterStop()` when the job is done. Default: `parallel::detectCores() - 1`
-#' @param cluster A cluster definition generated with `parallel::makeCluster()`. If provided, overrides `n.cores`. When `cluster = NULL` (default value), and `model` is provided, the cluster in `model`, if any, is used instead. If this cluster is `NULL`, then the function uses `n.cores` instead. The function does not stop a provided cluster, so it should be stopped with `parallel::stopCluster()` afterwards. The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the `model` argument, or using the `%>%` pipe. Default: `NULL`
+#' @param n.cores Integer, number of cores used by . Default: `NULL`
+#' @param n.cores Integer, number of cores used by \code{\link[ranger]{ranger}} for parallel execution (used as value for the argument `num.threads` in `ranger()`). Default: `NULL`
+#' @param cluster A cluster definition generated with `parallel::makeCluster()` or \code{\link{make_cluster}}. Only advisable if you need to spread a large number of repetitions over the nodes of a large cluster when working with large data. If provided, overrides `n.cores`. The function does not stop a cluster, please remember to shut it down with `parallel::stopCluster(cl = cluster_name)` at the end of your pipeline. Default: `parallel::detectCores() - 1`
 #' @return A ranger model with several new slots:
 #' \itemize{
 #'   \item `ranger.arguments`: Stores the values of the arguments used to fit the ranger model.
@@ -132,11 +133,6 @@ rf_repeat <- function(
     distance.thresholds <- ranger.arguments$distance.thresholds
     scaled.importance <- ranger.arguments$scaled.importance
 
-    #getting cluster from model if "cluster" is not provided
-    if(is.null(cluster) & "cluster" %in% names(model)){
-      cluster <- model$cluster
-    }
-
     #saving tuning and evaluation slots for later
     if("tuning" %in% names(model)){
       tuning <- model$tuning
@@ -151,32 +147,6 @@ rf_repeat <- function(
   if(inherits(data, "tbl_df") | inherits(data, "tbl")){
     data <- as.data.frame(data)
   }
-
-  #CLUSTER SETUP
-  #cluster is provided
-  if(!is.null(cluster)){
-
-    #n.cores <- NULL
-    n.cores <- NULL
-
-    #flat to not stop cluster after execution
-    stop.cluster <- FALSE
-
-  } else {
-
-    #creates and registers cluster
-    cluster <- parallel::makeCluster(
-      n.cores,
-      type = "PSOCK"
-    )
-
-    #flag to stop cluster
-    stop.cluster <- TRUE
-
-  }
-
-  #registering cluster
-  doParallel::registerDoParallel(cl = cluster)
 
   #predictor.variable.names comes from auto_vif or auto_cor
   if(!is.null(predictor.variable.names)){
@@ -196,12 +166,31 @@ rf_repeat <- function(
     ranger.arguments$write.forest <- TRUE
   }
 
-  #parallelized loop
+  #handling parallelization
+  if("cluster" %in% class(cluster)){
+
+    #registering cluster
+    doParallel::registerDoParallel(cl = cluster)
+
+    #parallel iterator
+    `%iterator%` <- foreach::`%dopar%`
+
+    #restricting the number of cores
+    n.cores <- 1
+
+  } else {
+
+    #sequential iterator
+    `%iterator%` <- foreach::`%do%`
+
+  }
+
+  #loop
   i <- NULL
   repeated.models <- foreach::foreach(
     i = 1:repetitions,
     .verbose = FALSE
-  ) %dopar% {
+  ) %iterator% {
 
     #model on raw data
     m.i <- spatialRF::rf(
@@ -214,6 +203,7 @@ rf_repeat <- function(
       ranger.arguments = ranger.arguments,
       scaled.importance = scaled.importance,
       seed = ifelse(is.null(seed), i, seed + i),
+      n.cores = n.cores,
       verbose = FALSE
     )
 
@@ -267,6 +257,7 @@ rf_repeat <- function(
         ranger.arguments = ranger.arguments,
         scaled.importance = scaled.importance,
         seed = seed,
+        n.cores = n.cores,
         verbose = FALSE
       )
 
@@ -698,13 +689,6 @@ rf_repeat <- function(
   #print model
   if(verbose == TRUE){
     print(m)
-  }
-
-  #stopping cluster
-  if(stop.cluster == TRUE){
-    parallel::stopCluster(cl = cluster)
-  } else {
-    m$cluster <- cluster
   }
 
   #return m.curves

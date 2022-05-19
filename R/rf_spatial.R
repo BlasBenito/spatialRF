@@ -27,8 +27,8 @@
 #' @param weight.penalization.n.predictors Numeric between 0 and 1, weight of the penalization for adding an increasing number of spatial predictors during selection. Default: `NULL`
 #' @param seed Integer, random seed to facilitate reproducibility. Default: `1`.
 #' @param verbose Logical. If TRUE, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
-#' @param n.cores Integer, number of cores to use for parallel execution. Creates a socket cluster with `parallel::makeCluster()`, runs operations in parallel with `foreach` and `%dopar%`, and stops the cluster with `parallel::clusterStop()` when the job is done. Default: `parallel::detectCores() - 1`
-#' @param cluster A cluster definition generated with `parallel::makeCluster()`. If provided, overrides `n.cores`. When `cluster = NULL` (default value), and `model` is provided, the cluster in `model`, if any, is used instead. If this cluster is `NULL`, then the function uses `n.cores` instead. The function does not stop a provided cluster, so it should be stopped with `parallel::stopCluster()` afterwards. The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the `model` argument, or using the `%>%` pipe. Default: `NULL`
+#' @param n.cores Integer, number of cores used by \code{\link[ranger]{ranger}} for parallel execution (used as value for the argument `num.threads` in `ranger()`). Default: `NULL`
+#' @param cluster A cluster definition generated with `parallel::makeCluster()` or \code{\link{make_cluster}}. This is a faster option than setting `n.cores` if your system's RAM memory can handle it. If provided, overrides `n.cores`. The function does not stop a cluster, please remember to shut it down with `parallel::stopCluster(cl = cluster_name)` at the end of your pipeline. Default: `parallel::detectCores() - 1`
 #' @return A ranger model with several new slots:
 #' \itemize{
 #'   \item `ranger.arguments`: Values of the arguments used to fit the ranger model.
@@ -226,6 +226,7 @@ rf_spatial <- function(
       ranger.arguments = ranger.arguments,
       scaled.importance = FALSE,
       seed = seed,
+      n.cores = n.cores,
       verbose = FALSE
     )
 
@@ -237,13 +238,16 @@ rf_spatial <- function(
       dependent.variable.name <- ranger.arguments$dependent.variable.name
       predictor.variable.names <- ranger.arguments$predictor.variable.names
       distance.matrix <- ranger.arguments$distance.matrix
+
       if(is.null(distance.matrix)){
         stop("The argument 'distance.matrix' is missing.")
       }
+
       distance.thresholds <- ranger.arguments$distance.thresholds
       if(is.null(distance.thresholds)){
         distance.thresholds <- default_distance_thresholds(distance.matrix = distance.matrix)
       }
+
       scaled.importance <- ranger.arguments$scaled.importance
       seed <- model$ranger.arguments$seed
 
@@ -254,32 +258,6 @@ rf_spatial <- function(
 
 
     }
-
-  #CLUSTER SETUP
-  #cluster is provided
-  if(!is.null(cluster)){
-
-    #n.cores <- NULL
-    n.cores <- NULL
-
-    #flat to not stop cluster after execution
-    stop.cluster <- FALSE
-
-  } else {
-
-    #creates and registers cluster
-    cluster <- parallel::makeCluster(
-      n.cores,
-      type = "PSOCK"
-    )
-
-    #flag to stop cluster
-    stop.cluster <- TRUE
-
-  }
-
-  #registering cluster
-  doParallel::registerDoParallel(cl = cluster)
 
   #reference moran's I for selection of spatial predictors
   if(!is.null(model$residuals$autocorrelation$max.moran)){
@@ -561,6 +539,7 @@ rf_spatial <- function(
     xy = xy,
     ranger.arguments = ranger.arguments,
     seed = seed,
+    n.cores = n.cores,
     verbose = FALSE
   )
 
@@ -602,13 +581,6 @@ rf_spatial <- function(
     print(model.spatial)
     plot_importance(model.spatial)
     plot_residuals_diagnostics(model.spatial)
-  }
-
-  #stopping cluster
-  if(stop.cluster == TRUE){
-    parallel::stopCluster(cl = cluster)
-  } else {
-    model.spatial$cluster <- cluster
   }
 
   #return output

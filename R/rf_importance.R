@@ -12,8 +12,8 @@
 #' @param line.color Character string, color of the line produced by `ggplot2::geom_smooth()`. Default: `"white"`
 #' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same. Default: `1`.
 #' @param verbose Logical. If `TRUE`, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
-#' @param n.cores Integer, number of cores to use for parallel execution. Creates a socket cluster with `parallel::makeCluster()`, runs operations in parallel with `foreach` and `%dopar%`, and stops the cluster with `parallel::clusterStop()` when the job is done. Default: `parallel::detectCores() - 1`
-#' @param cluster A cluster definition generated with `parallel::makeCluster()`. If provided, overrides `n.cores`. When `cluster = NULL` (default value), and `model` is provided, the cluster in `model`, if any, is used instead. If this cluster is `NULL`, then the function uses `n.cores` instead. The function does not stop a provided cluster, so it should be stopped with `parallel::stopCluster()` afterwards. The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the `model` argument, or using the `%>%` pipe. Default: `NULL`
+#' @param n.cores Integer, number of cores to use for parallel execution. Default: `NULL`
+#' @param cluster A cluster definition generated with `parallel::makeCluster()`. If provided, it overrides `n.cores`. If `NULL` but `model` has a cluster object in the "cluster" slot, then the model's cluster is used. Please notice that the function does not stop a running cluster, so it should be stopped with `parallel::stopCluster()` afterwards (). The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the `model` argument. Default: `parallel::makeCluster(nnodes = parallel::detectCores() - 1, type = "PSOCK")`
 #' @return The input model with new data in its "importance" slot. The new importance scores are included in the data frame `model$importance$per.variable`, under the column names "importance.cv" (median contribution to transferability over spatial cross-validation repetitions), "importance.cv.mad" (median absolute deviation of the performance scores over spatial cross-validation repetitions), "importance.cv.percent" ("importance.cv" expressed as a percent, taking the full model's performance as baseline), and "importance.cv.mad" (median absolute deviation of "importance.cv"). The plot is stored as "cv.per.variable.plot".
 #' @examples
 #' if(interactive()){
@@ -95,32 +95,6 @@ rf_importance <- function(
     several.ok = FALSE
   )
 
-  #CLUSTER SETUP
-  #cluster is provided
-  if(!is.null(cluster)){
-
-    #n.cores <- NULL
-    n.cores <- NULL
-
-    #flat to not stop cluster after execution
-    stop.cluster <- FALSE
-
-  } else {
-
-    #creates and registers cluster
-    cluster <- parallel::makeCluster(
-      n.cores,
-      type = "PSOCK"
-    )
-
-    #flag to stop cluster
-    stop.cluster <- TRUE
-
-  }
-
-  #registering cluster
-  doParallel::registerDoParallel(cl = cluster)
-
   #evaluating the full model
   if(verbose == TRUE){
     message("Evaluating the full model with spatial cross-validation.")
@@ -138,7 +112,7 @@ rf_importance <- function(
     metrics = metric,
     seed = seed,
     verbose = FALSE,
-    n.cores = NULL,
+    n.cores = n.cores,
     cluster = cluster
   )
 
@@ -210,8 +184,7 @@ rf_importance <- function(
       ranger.arguments = ranger.arguments,
       seed = seed,
       verbose = FALSE,
-      n.cores = n.cores,
-      cluster = cluster
+      n.cores = n.cores
     ) %>%
       rf_evaluate(
         repetitions = repetitions,
@@ -222,7 +195,9 @@ rf_importance <- function(
         distance.step.y = distance.step.y,
         metrics = metric,
         seed = seed,
-        verbose = FALSE
+        verbose = FALSE,
+        n.cores = n.cores,
+        cluster = cluster
       )
 
     #getting evaluation data frame
@@ -245,7 +220,8 @@ rf_importance <- function(
         -dplyr::contains("training.")
       ) %>%
       as.data.frame()
-  }
+
+  }#end of iterations
 
   #putting together the evaluation data frames
   importance.per.repetition <- do.call(
@@ -341,6 +317,24 @@ rf_importance <- function(
         " cross-validation repetitions"
         )
       )
+
+  #removing previous columns created by rf_importance()
+  if("importance.cv" %in% names( model$importance$per.variable)){
+
+    #declaring variables to avoid check complaints
+    importance.cv <- NULL
+    importance.cv.mad <- NULL
+    importance.cv.percent <- NULL
+    importance.cv.percent.mad <- NULL
+
+    model$importance$per.variable <- dplyr::select(
+      model$importance$per.variable,
+      -importance.cv,
+      -importance.cv.mad,
+      -importance.cv.percent,
+      -importance.cv.percent.mad
+    )
+  }
 
   #adding to the model's importance slot
   model$importance$per.variable <- dplyr::left_join(

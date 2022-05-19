@@ -21,8 +21,8 @@
 #' @param point.color Colors of the plotted points. Can be a single color name (e.g. "red4"), a character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. `viridis::viridis(100)`). Default: `viridis::viridis(100, option = "F", alpha = 0.8)`
 #' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same. Default: `NULL`
 #' @param verbose Logical. If `TRUE`, messages and plots generated during the execution of the function are displayed. Default: `TRUE`
-#' @param n.cores Integer, number of cores to use for parallel execution. Creates a socket cluster with `parallel::makeCluster()`, runs operations in parallel with `foreach` and `%dopar%`, and stops the cluster with `parallel::clusterStop()` when the job is done. Default: `parallel::detectCores() - 1`
-#' @param cluster A cluster definition generated with `parallel::makeCluster()`. If provided, overrides `n.cores`. When `cluster = NULL` (default value), and `model` is provided, the cluster in `model`, if any, is used instead. If this cluster is `NULL`, then the function uses `n.cores` instead. The function does not stop a provided cluster, so it should be stopped with `parallel::stopCluster()` afterwards. The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the `model` argument, or using the `%>%` pipe. Default: `NULL`
+#' @param n.cores Integer, number of cores used by \code{\link[ranger]{ranger}} for parallel execution (used as value for the argument `num.threads` in `ranger()`). Slower option than using `cluster`, but with a smaller RAM usage. Default: `NULL`
+#' @param cluster A cluster definition generated with `parallel::makeCluster()` or \code{\link{make_cluster}}. Only advisable if you need to spread a large number of repetitions over the nodes of a large cluster. If provided, overrides `n.cores`. The function does not stop a cluster, please remember to shut it down with `parallel::stopCluster(cl = cluster_name)` at the end of your pipeline. Default: `parallel::detectCores() - 1`
 #' @return If the function finds no interactions, a list with four slots containing input arguments:
 #' \itemize{
 #' #'   \item `data`: Data frame with the response variable, the predictors, and the selected interactions, ready to be used as `data` argument in the package functions.
@@ -81,7 +81,7 @@ the_feature_engineer <- function(
   ),
   seed = NULL,
   verbose = TRUE,
-  n.cores = parallel::detectCores() - 1,
+  n.cores = parallel::detectCores(),
   cluster = NULL
 ){
 
@@ -104,36 +104,10 @@ the_feature_engineer <- function(
 
   #output list
   out.list <- list()
-  out.list$data <- training.df
+  out.list$data <- data
   out.list$dependent.variable.name <- dependent.variable.name
   out.list$predictor.variable.names <- predictor.variable.names
   out.list$xy <- xy
-
-  #CLUSTER SETUP
-  #cluster is provided
-  if(!is.null(cluster)){
-
-    #n.cores <- NULL
-    n.cores <- NULL
-
-    #flat to not stop cluster after execution
-    stop.cluster <- FALSE
-
-  } else {
-
-    #creates and registers cluster
-    cluster <- parallel::makeCluster(
-      n.cores,
-      type = "PSOCK"
-    )
-
-    #flag to stop cluster
-    stop.cluster <- TRUE
-
-  }
-
-  #registering cluster
-  doParallel::registerDoParallel(cl = cluster)
 
   #finding out if the response is binary
   is.binary <- is_binary(
@@ -146,8 +120,7 @@ the_feature_engineer <- function(
     metric <- "r.squared"
   }
 
-
-  #declaring variables
+  #declaring variables to avoid check complaints
   variable <- NULL
   y <- NULL
 
@@ -175,6 +148,7 @@ the_feature_engineer <- function(
     dependent.variable.name = dependent.variable.name,
     predictor.variable.names = predictor.variable.names,
     ranger.arguments = ranger.arguments,
+    n.cores = n.cores,
     seed = seed,
     verbose = FALSE
   )
@@ -229,7 +203,13 @@ the_feature_engineer <- function(
   )
 
   if(verbose == TRUE){
-    message(paste0("Testing ", nrow(variables.pairs), " candidate interactions."))
+    message(
+      paste0(
+        "Testing ",
+        nrow(variables.pairs),
+        " candidate interactions."
+        )
+      )
   }
 
   #testing interactions
@@ -238,7 +218,7 @@ the_feature_engineer <- function(
     i = seq(1, nrow(variables.pairs)),
     .combine = "rbind",
     .verbose = FALSE
-  ) %dopar% {
+  ) %do% {
 
     #get pair
     pair.i <- c(variables.pairs[i, 1], variables.pairs[i, 2])
@@ -287,7 +267,8 @@ the_feature_engineer <- function(
         predictor.variable.names = predictor.variable.names.i,
         ranger.arguments = ranger.arguments.i,
         seed = seed,
-        verbose = FALSE
+        verbose = FALSE,
+        n.cores = n.cores
       )
 
       #evaluation
@@ -299,7 +280,8 @@ the_feature_engineer <- function(
         metrics = metric,
         seed = seed,
         verbose = FALSE,
-        n.cores = 1
+        n.cores = n.cores,
+        cluster = cluster
       )
 
       #importance data frame
@@ -338,13 +320,13 @@ the_feature_engineer <- function(
 
     return(out.df)
 
-  }#end of parallelized loop
+  }#end of sequential loop
 
   interaction.screening.2 <- foreach::foreach(
     i = seq(1, nrow(variables.pairs)),
     .combine = "rbind",
     .verbose = FALSE
-  ) %dopar% {
+  ) %do% {
 
     #get pair
     pair.i <- c(variables.pairs[i, 1], variables.pairs[i, 2])
@@ -399,7 +381,8 @@ the_feature_engineer <- function(
         predictor.variable.names = predictor.variable.names.i,
         ranger.arguments = ranger.arguments.i,
         seed = seed,
-        verbose = FALSE
+        verbose = FALSE,
+        n.cores = n.cores
       )
 
       #evaluation
@@ -411,7 +394,8 @@ the_feature_engineer <- function(
         metrics = metric,
         seed = seed,
         verbose = FALSE,
-        n.cores = 1
+        n.cores = n.cores,
+        cluster = cluster
       )
 
       #importance data frame
@@ -450,7 +434,7 @@ the_feature_engineer <- function(
 
     return(out.df)
 
-  }#end of parallelized loop
+  }#end of sequential loop
 
   interaction.screening <- rbind(
     interaction.screening.1,
@@ -685,6 +669,7 @@ the_feature_engineer <- function(
       colnames(interaction.df)
     ),
     ranger.arguments = ranger.arguments,
+    n.cores = n.cores,
     verbose = FALSE
   )
 
@@ -720,11 +705,6 @@ the_feature_engineer <- function(
 
   if(verbose == TRUE){
     print(patchwork::wrap_plots(out.list$plot))
-  }
-
-  #stopping cluster
-  if(stop.cluster == TRUE){
-    parallel::stopCluster(cl = cluster)
   }
 
 
