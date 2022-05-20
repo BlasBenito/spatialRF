@@ -23,9 +23,8 @@
 #'  cluster.user = "blas",
 #'  cluster.port = "11000"
 #' )
+#'
 #' stop_cluster(cluster = beowulf.cluster)
-#'
-#'
 #'}
 #'
 #' @rdname make_cluster

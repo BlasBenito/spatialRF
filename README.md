@@ -4073,6 +4073,9 @@ mem.rank <- spatialRF::rank_spatial_predictors(
 
 #at this point we can stop the cluster
 spatialRF::stop_cluster(cluster = cluster)
+
+#when using no arguments, this function searches and destroys any cluster in your global environment, but doesn't work when knitting for some strange reason:
+#spatialRF::stop_cluster()
 ```
 
 The output of `rank_spatial_predictors()` is a list with three slots:

@@ -1090,6 +1090,9 @@ mem.rank <- spatialRF::rank_spatial_predictors(
 
 #at this point we can stop the cluster
 spatialRF::stop_cluster(cluster = cluster)
+
+#when using no arguments, this function searches and destroys any cluster in your global environment, but doesn't work when knitting for some strange reason:
+#spatialRF::stop_cluster()
 ```
 
 The output of `rank_spatial_predictors()` is a list with three slots: "method", a character string with the name of the ranking method; "criteria", an ordered data frame with the criteria used to rank the spatial predictors; and "ranking", a character vector with the names of the spatial predictors in the order of their ranking (it is just the first column of the "criteria" data frame). We can use this "ranking" object to reorder or `mems` data frame.
