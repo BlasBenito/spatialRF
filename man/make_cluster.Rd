@@ -32,25 +32,22 @@ Defines a cluster. With default arguments it returns a cluster defined in the lo
 \examples{
 if(interactive()){
 
-local.cluster <- make_cluster()
+local.cluster <- make_cluster(cluster.cores = 1)
+#this cluster is registered by the packaage functions when used
+stop_cluster(cluster = local.cluster)
 
 beowulf.cluster <- make_cluster(
- cluster.ips = c(
+  cluster.ips = c(
    "10.42.0.1",
    "10.42.0.34",
    "10.42.0.104"
    ),
-cluster.cores = c(7, 4, 4),
-cluster.user = "blas",
-cluster.port = "11000"
+ cluster.cores = c(1, 1, 1),
+ cluster.user = "blas",
+ cluster.port = "11000"
 )
+stop_cluster(cluster = beowulf.cluster)
 
-
-doParallel::registerDoParallel(cl = beowulf.cluster)
-
-#PARALLELIZED foreach LOOP HERE
-
-parallel::stopCluster(cl = beowulf.cluster)
 
 }
 
