@@ -10,7 +10,7 @@ stop_cluster(cluster = NULL)
 \item{cluster}{a cluster created with \code{parallel::makeCluster()} or \code{spatialRF::make_cluster()}. Default: \code{NULL}}
 }
 \value{
-Nothing
+This function returns nothing.
 }
 \description{
 Stops and removes any object with the class "cluster" in the global environment by default, or a given named cluster when the argument \code{cluster} is provided.
@@ -25,5 +25,4 @@ spatialRF::stop_cluster(cluster = cluster)
 cl1 <- spatialRF::make_cluster(cluster.cores = 1)
 cl2 <- spatialRF::make_cluster(cluster.cores = 1)
 spatialRF::stop_cluster()
-
 }

@@ -283,7 +283,7 @@ Random Forests already takes into account variable interactions of the form "var
 
 The function [`the_feature_engineer()`](https://blasbenito.github.io/spatialRF/reference/the_feature_engineer.html) tests all possible interactions of both types among the most important predictors, and suggesting the ones not correlated among themselves and with the other predictors inducing an increase in the model's R squared (or AUC when the response is binary) on independent data via spatial cross-validation (see `rf_evaluate()`).
 
-Since this function fits many alternative random forest models, it can be run in parallel if a cluster is provided. The function does not shutdown the cluster, but you can stop it with `parallel::stopCluster(cl = cluster)`. However, we'll leave it up for other functions in this tutorial.
+Since this function fits many alternative random forest models, it can be run in parallel if a cluster is provided. The function does not shutdown the cluster, but you can stop it with `spatialRF::stop_cluster()`. However, we'll leave it up for other functions in this tutorial.
 
 ```{r, fig.width=12, fig.height=9}
 #starting cluster with n-1 cores
@@ -1089,7 +1089,7 @@ mem.rank <- spatialRF::rank_spatial_predictors(
 )
 
 #at this point we can stop the cluster
-parallel::stopCluster(cl = cluster)
+spatialRF::stop_cluster(cluster = cluster)
 ```
 
 The output of `rank_spatial_predictors()` is a list with three slots: "method", a character string with the name of the ranking method; "criteria", an ordered data frame with the criteria used to rank the spatial predictors; and "ranking", a character vector with the names of the spatial predictors in the order of their ranking (it is just the first column of the "criteria" data frame). We can use this "ranking" object to reorder or `mems` data frame.

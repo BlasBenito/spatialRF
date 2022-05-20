@@ -476,8 +476,8 @@ cross-validation (see `rf_evaluate()`).
 Since this function fits many alternative random forest models, it can
 be run in parallel if a cluster is provided. The function does not
 shutdown the cluster, but you can stop it with
-`parallel::stopCluster(cl = cluster)`. However, we’ll leave it up for
-other functions in this tutorial.
+`spatialRF::stop_cluster()`. However, we’ll leave it up for other
+functions in this tutorial.
 
 ``` r
 #starting cluster with n-1 cores
@@ -4072,7 +4072,7 @@ mem.rank <- spatialRF::rank_spatial_predictors(
 )
 
 #at this point we can stop the cluster
-parallel::stopCluster(cl = cluster)
+spatialRF::stop_cluster(cluster = cluster)
 ```
 
 The output of `rank_spatial_predictors()` is a list with three slots:

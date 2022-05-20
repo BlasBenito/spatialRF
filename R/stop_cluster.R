@@ -4,8 +4,7 @@
 #'
 #' @param cluster a cluster created with `parallel::makeCluster()` or `spatialRF::make_cluster()`. Default: `NULL`
 #'
-#' @return Nothing
-#' @export
+#' @return This function returns nothing.
 #'
 #' @examples
 #'
@@ -17,7 +16,8 @@
 #' cl1 <- spatialRF::make_cluster(cluster.cores = 1)
 #' cl2 <- spatialRF::make_cluster(cluster.cores = 1)
 #' spatialRF::stop_cluster()
-#'
+#' @rdname stop_cluster
+#' @export
 stop_cluster <- function(cluster = NULL){
 
   #if cluster is null, stop all clusters
