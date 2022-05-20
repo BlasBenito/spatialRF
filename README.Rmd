@@ -305,7 +305,7 @@ interactions <- spatialRF::the_feature_engineer(
 
 The upper panel in the plot plot above shows the relationship between the interaction and the response variable. It also indicates the gain in R squared (+R2), the importance, in percentage, when used in a model along the other predictors (Imp. (%)), and the maximum Pearson correlation of the interaction with the predictors. The violin-plot shows a comparison of the model with and without the selected interaction made via spatial cross-validation using 100 repetitions (see [`rf_evaluate()`](https://blasbenito.github.io/spatialRF/reference/rf_evaluate.html) and [`rf_compare()`](https://blasbenito.github.io/spatialRF/reference/rf_compare.html) for further details).
 
-The function also returns a data frame with all the interactions considered.  The columns are:
+The function also returns a data frame with all the interactions considered. The columns are:
 
   + `interaction.name`: Interactions computed via multiplication are named `a..x..b`, while interactions computed via PCA are named `a..pca..b`.
   + `interaction.importance`: Importance of the interaction expressed as a percentage. If `interaction.importance == 100`, that means that the interaction is the most important predictor in the model fitted with the interaction and the predictors named in `ecoregions_predvar_names`.
