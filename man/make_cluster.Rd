@@ -46,9 +46,8 @@ beowulf.cluster <- make_cluster(
  cluster.user = "blas",
  cluster.port = "11000"
 )
+
 stop_cluster(cluster = beowulf.cluster)
-
-
 }
 
 }

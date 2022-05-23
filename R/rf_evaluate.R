@@ -118,6 +118,7 @@ rf_evaluate <- function(
         xy <- model$ranger.arguments$xy
       }
     }
+
   }
 
   if(sum(c("x", "y") %in% colnames(xy)) < 2){
@@ -345,20 +346,32 @@ rf_evaluate <- function(
   #select columns with "training"
   performance.training <- dplyr::select(
     evaluation.df,
-    dplyr::contains("training")
+    dplyr::contains("training.")
   )
   performance.training[, 1] <- NULL
   performance.training$model <- "Training"
 
+  colnames(performance.training) <- gsub(
+    pattern = "training.",
+    replacement = "",
+    x = colnames(performance.training)
+  )
+
   #select columns with "testing"
   performance.testing <- dplyr::select(
     evaluation.df,
-    dplyr::contains("testing")
+    dplyr::contains("testing.")
   )
   performance.testing[, 1] <- NULL
   performance.testing$model <- "Testing"
 
-  #getting performance values
+  colnames(performance.testing) <- gsub(
+    pattern = "testing.",
+    replacement = "",
+    x = colnames(performance.testing)
+  )
+
+  #getting intrinsic performance values
   r.squared <- model$performance$r.squared
   pseudo.r.squared <- model$performance$pseudo.r.squared
   rmse <- model$performance$rmse
@@ -382,7 +395,6 @@ rf_evaluate <- function(
     auc <- NA
   }
 
-
   #full model
   performance.full <- data.frame(
     r.squared = r.squared,
@@ -392,13 +404,7 @@ rf_evaluate <- function(
     auc = auc,
     model = "Full"
   )
-  performance.full <- performance.full[, c(metrics, "model")]
-
-  #set colnames
-  colnames(performance.training) <- colnames(performance.testing) <- colnames(performance.full) <- c(
-    metrics,
-    "model"
-  )
+  performance.full <- performance.full[, names(performance.testing)]
 
   #rbind
   performance.df <- rbind(
@@ -414,6 +420,7 @@ rf_evaluate <- function(
       names_to = "metric",
       values_to = "value"
     ) %>%
+    dplyr::arrange(model, metric) %>%
     as.data.frame()
 
   #aggregating

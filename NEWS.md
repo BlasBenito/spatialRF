@@ -1,5 +1,7 @@
 ## Version 1.1.4 (work in progress)
 
+Fixed a bug in rf_evaluate where metrics could be mixed due to a badly rearranged column names inside of the function. My apologies for any inconveniences this bug might have caused.
+
 Added the functions `make_cluster()` and `stop_cluster()`.
 
 Made the function `rf_evaluate()` more efficient, but now it cannot return the training and testing folds it used during evaluation. In return, it can handle large data now when reducing `n.cores`.
