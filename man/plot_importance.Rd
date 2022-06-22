@@ -6,6 +6,7 @@
 \usage{
 plot_importance(
   model,
+  top.n = NULL,
   fill.color = viridis::viridis(
     100,
     option = "F",
@@ -19,6 +20,8 @@ plot_importance(
 }
 \arguments{
 \item{model}{A model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}, or a data frame with variable importance scores (only for internal use within the package functions).}
+
+\item{top.n}{Integer, number of predictors to plot. For example, if \code{top.n = 10}, then the top 10 predictors are plotted. Default: \code{NULL}.}
 
 \item{fill.color}{Character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. \code{viridis::viridis(100)}). Default: \code{viridis::viridis(100, option = "F", direction = -1, alpha = 0.8, end = 0.9)}}
 
@@ -56,6 +59,17 @@ data(
 
 #plotting variable importance scores
 plot_importance(model = rf.model)
+
+#plotting top 5 predictors
+plot_importance(
+  model = rf.model,
+  top.n = 5
+)
+
+#plotting directly from the importance data frame
+plot_importance(
+  model = rf.model$importance$per.variable
+)
 
 }
 }

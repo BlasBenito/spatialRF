@@ -341,11 +341,53 @@ rf_evaluate <- function(
 
   }
 
+  #copy of the evaluation results
+  evaluation.df.unique <- evaluation.df
+
+  #names of the column to use to remove redundant folds
+  training.column <- paste0(
+    "training.",
+    metrics[1]
+  )
+  testing.column <- paste0(
+    "testing.",
+    metrics[1]
+  )
+
+  #removing rows with NA in either column
+  evaluation.df.unique <- evaluation.df.unique[!with(evaluation.df.unique, is.na(training.column) & is.na(testing.column)),]
+
+  #rounding the columns and removing duplicates
+  if(sum(c(training.column, testing.column) %in% names(evaluation.df.unique)) == 2){
+
+    evaluation.df.unique[, training.column] <- round(evaluation.df.unique[, training.column], 3)
+
+    evaluation.df.unique[, testing.column] <- round(evaluation.df.unique[, testing.column], 3)
+
+    #finding unique records
+    evaluation.df.unique <- evaluation.df[!duplicated(evaluation.df[ , c(training.column, testing.column)]), ]
+
+  }
+
+
+  #message with number of removed folds
+  nrow.difference <- nrow(evaluation.df) - nrow(evaluation.df.unique)
+  if(nrow.difference > 0 & verbose == TRUE){
+    message(
+      paste0(
+        nrow.difference,
+        " redundant spatial folds were removed. The total number of spatial folds used for evaluation was ",
+        nrow(evaluation.df.unique),
+        "."
+      )
+    )
+  }
+
 
   #preparing data frames for plotting and printing
   #select columns with "training"
   performance.training <- dplyr::select(
-    evaluation.df,
+    evaluation.df.unique,
     dplyr::contains("training.")
   )
   performance.training[, 1] <- NULL
@@ -359,7 +401,7 @@ rf_evaluate <- function(
 
   #select columns with "testing"
   performance.testing <- dplyr::select(
-    evaluation.df,
+    evaluation.df.unique,
     dplyr::contains("testing.")
   )
   performance.testing[, 1] <- NULL
@@ -452,7 +494,7 @@ rf_evaluate <- function(
   model$evaluation <- list()
   model$evaluation$metrics <- metrics
   model$evaluation$training.fraction <- training.fraction
-  model$evaluation$per.fold <- evaluation.df
+  model$evaluation$per.fold <- evaluation.df.unique
   model$evaluation$per.fold.long <- performance.df.long
   model$evaluation$per.model <- performance.df
   model$evaluation$aggregated <- performande.df.aggregated

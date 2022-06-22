@@ -693,7 +693,7 @@ kableExtra::kbl(predicted.quantiles[1:20, ]) %>%
 
 The spatial autocorrelation of the residuals of a model like `model.non.spatial`, measured with [Moran's I](https://en.wikipedia.org/wiki/Moran%27s_I), can be plotted with [`plot_moran()`](https://blasbenito.github.io/spatialRF/reference/plot_moran.html).
 
-```{r, fig.width=4, fig.height=2.5, message=FALSE, warning=FALSE}
+```{r,  fig.width=4, fig.height=3, message=FALSE, warning=FALSE}
 spatialRF::plot_moran(
   model.non.spatial, 
   verbose = FALSE
@@ -714,7 +714,7 @@ model.spatial <- spatialRF::rf_spatial(
 
 **NOTE:** You can find the complete data (including the selected spatial predictors) used to train this model in `model.spatial$ranger.arguments$data`.
 
-```{r, echo = FALSE}
+```{r, fig.width=4, fig.height=3, message=FALSE, warning=FALSE, echo = FALSE}
 x <- model.spatial$ranger.arguments$data
 x <- round(x, 2)
 data.frame(
@@ -843,7 +843,7 @@ model tuning is done via spatial cross-validation, to ensure that the selected c
 
 **WARNING**: model tuning is very RAM-hungry, but you can control RAM usage by defining a lower value for the argument `n.cores`.
 
-```{r, fig.width=6, fig.height=4.5, eval = FALSE}
+```{r, fig.width=6, fig.height=4.5}
 model.spatial <- spatialRF::rf_tuning(
   model = model.spatial,
   xy = xy,
@@ -860,10 +860,10 @@ model.spatial <- spatialRF::rf_tuning(
 )
 ```
 
-The function returns a tuned model only if the tuning finds a solution better than the original model. Otherwise the original model is returned. The results of the tuning are stored in the model under the name "tuning". 
+The function returns a tuned model only if the tuning finds a solution better than the original model. Otherwise the original model is returned. The results of the tuning iterations are stored in the model under the name "tuning".
 
 ```{r, fig.width=9, fig.height=9}
-model.spatial$tuning$plot
+model.spatial$tuning$tuning.df
 ```
 
 

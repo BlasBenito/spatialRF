@@ -3,6 +3,7 @@
 #' @usage
 #' plot_importance(
 #'   model,
+#'   top.n = NULL,
 #'   fill.color = viridis::viridis(
 #'     100,
 #'     option = "F",
@@ -14,6 +15,7 @@
 #'   verbose = TRUE
 #' )
 #' @param model A model fitted with [rf()], [rf_repeat()], or [rf_spatial()], or a data frame with variable importance scores (only for internal use within the package functions).
+#' @param top.n Integer, number of predictors to plot. For example, if `top.n = 10`, then the top 10 predictors are plotted. Default: `NULL`.
 #' @param fill.color Character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. `viridis::viridis(100)`). Default: `viridis::viridis(100, option = "F", direction = -1, alpha = 0.8, end = 0.9)`
 #' @param line.color Character string, color of the line produced by `ggplot2::geom_smooth()`. Default: `"white"`
 #' @param verbose Logical, if `TRUE`, the plot is printed. Default: `TRUE`
@@ -45,6 +47,17 @@
 #' #plotting variable importance scores
 #' plot_importance(model = rf.model)
 #'
+#' #plotting top 5 predictors
+#' plot_importance(
+#'   model = rf.model,
+#'   top.n = 5
+#' )
+#'
+#' #plotting directly from the importance data frame
+#' plot_importance(
+#'   model = rf.model$importance$per.variable
+#' )
+#'
 #' }
 #' @rdname plot_importance
 #' @export
@@ -52,6 +65,7 @@
 #' @importFrom grDevices colorRampPalette
 plot_importance <- function(
   model,
+  top.n = NULL,
   fill.color = viridis::viridis(
     100,
     option = "F",
@@ -96,6 +110,21 @@ plot_importance <- function(
 
   } else {
     x <- model
+  }
+
+  #arrange by importance
+  x <- dplyr::arrange(
+    x,
+    dplyr::desc(importance)
+  )
+
+  #applying top.n if not null
+  if(!is.null(top.n)){
+    top.n <- as.integer(top.n)
+    if(top.n > nrow(x)){
+      top.n <- nrow(x)
+    }
+    x <- x[1:top.n, ]
   }
 
   #find duplicates in "variable"

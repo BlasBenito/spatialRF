@@ -1,5 +1,9 @@
 ## Version 1.1.4 (work in progress)
 
+Added the argument `top.n` to the function `plot_importance()` to allow the user to plot the most `n` important predictors.
+
+The function `rf_evaluate()` now filters out the results of redundant spatial folds.
+
 Fixed a bug in rf_evaluate where metrics could be mixed due to a badly rearranged column names inside of the function. My apologies for any inconveniences this bug might have caused.
 
 Added the functions `make_cluster()` and `stop_cluster()`.
