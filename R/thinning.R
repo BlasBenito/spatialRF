@@ -56,7 +56,8 @@ thinning <- function(
   #removing duplicated pairs of coordinates
   xy <- dplyr::distinct(
     xy,
-    x, y
+    x, y,
+    .keep_all = TRUE
   )
 
   #count rows
