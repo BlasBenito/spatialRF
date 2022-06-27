@@ -239,6 +239,8 @@ spatialRF::plot_training_df_moran(
 
 # Reducing multicollinearity in the predictors
 
+## Method 1: `auto_cor()` + `auto_vif()`
+
 The functions [`auto_cor()`](https://blasbenito.github.io/spatialRF/reference/auto_cor.html) and [`auto_vif()`](https://blasbenito.github.io/spatialRF/reference/auto_vif.html) help reduce redundancy in the predictors by using different criteria (bivariate R squared vs. [variance inflation factor](https://www.statisticshowto.com/variance-inflation-factor/)), while allowing the user to define an *order of preference*, which can be based either on domain expertise or on a quantitative assessment (e.g., order of preference based on variable importance scores or model coefficients). The preference order is defined as a character vector in the `preference.order` argument of both functions, and does not need to include the names of all predictors, but just the ones the user would like to keep in the analysis.
 
 ```{r}
@@ -276,6 +278,52 @@ multicollinearity.analysis$selected.variables
 
 The slot `selected.variables.df` contains a data frame with all the selected predictors.
 
+**NOTE**: The object `multicollinearity.analysis` can be used as input for the argument `predictor.variable.names` in most modelling functions of this package.
+
+
+## Method 2: Using the new function `rf_select()`
+
+The function `rf_select()` ranks the predictors by their univariate effect on the response variable (using the out-of-bag RMSE as performance score), and then uses such rank as preference order in the functions `auto_cor()` and `auto_vif()`.
+
+Since this function fits many alternative random forest models, it can be run in parallel if a cluster is provided. The function does not shutdown the cluster, but you can stop it with `spatialRF::stop_cluster()`. However, we'll leave it up for other functions in this tutorial.
+
+```{r}
+#starting cluster with n-1 cores
+cluster <- spatialRF::make_cluster()
+
+#selecting variables
+variable.selection <- spatialRF::rf_select(
+  data = ecoregions_df,
+  dependent.variable.name = ecoregions_depvar_name,
+  predictor.variable.names = ecoregions_predvar_names,
+  repetitions = 10,
+  cor.threshold = 0.50,
+  vif.threshold = 5,
+  seed = 1,
+  verbose = TRUE,
+  cluster = cluster
+)
+```
+
+The output of `rf_select` is a fusion of the outputs of `auto_vif()` and `auto_cor()` plus the data frame with the univariate effect of each predictor:
+
+```{r, eval = FALSE}
+variable.selection$univariate.importance
+```
+
+```{r, echo = FALSE}
+kableExtra::kbl(variable.selection$univariate.importance) %>% 
+  kableExtra::kable_styling()
+```
+
+```{r}
+variable.selection$selected.variables
+```
+
+
+The output of `rf_select()` can be used as input for the argument `predictor.variable.names` in the modelling functions of the package.
+
+Please notice that this function is not designed to improve model performance, but to define an order of preference to reduce multicollinearity when there is no clear criteria to do so.
 
 # Finding promising variable interactions
 
@@ -283,12 +331,9 @@ Random Forests already takes into account variable interactions of the form "var
 
 The function [`the_feature_engineer()`](https://blasbenito.github.io/spatialRF/reference/the_feature_engineer.html) tests all possible interactions of both types among the most important predictors, and suggesting the ones not correlated among themselves and with the other predictors inducing an increase in the model's R squared (or AUC when the response is binary) on independent data via spatial cross-validation (see `rf_evaluate()`).
 
-Since this function fits many alternative random forest models, it can be run in parallel if a cluster is provided. The function does not shutdown the cluster, but you can stop it with `spatialRF::stop_cluster()`. However, we'll leave it up for other functions in this tutorial.
+
 
 ```{r, fig.width=12, fig.height=9}
-#starting cluster with n-1 cores
-cluster <- spatialRF::make_cluster()
-
 interactions <- spatialRF::the_feature_engineer(
   data = ecoregions_df,
   dependent.variable.name = ecoregions_depvar_name,

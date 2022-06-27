@@ -36,7 +36,7 @@
 #' )
 #'
 #' #variable selection
-#' selected.variables <- rf_select(
+#' variable.selection <- rf_select(
 #'   data = ecoregions_df,
 #'   dependent.variable.name = ecoregions_depvar_name,
 #'   predictor.variable.names = ecoregions_predvar_names,
@@ -52,7 +52,7 @@
 #' rf.model <- rf(
 #'   data = ecoregions_df,
 #'   dependent.variable.name = ecoregions_depvar_name,
-#'   predictor.variable.names = selected.variables,
+#'   predictor.variable.names = variable.selection,
 #'   distance.matrix = ecoregions_distance_matrix,
 #'   distance.thresholds = 0,
 #'   n.cores = 1
