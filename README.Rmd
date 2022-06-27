@@ -333,11 +333,11 @@ The function [`the_feature_engineer()`](https://blasbenito.github.io/spatialRF/r
 
 
 
-```{r, fig.width=12, fig.height=9}
+```{r, fig.width=12, fig.height=4}
 interactions <- spatialRF::the_feature_engineer(
   data = ecoregions_df,
   dependent.variable.name = ecoregions_depvar_name,
-  predictor.variable.names = multicollinearity.analysis,
+  predictor.variable.names = variable.selection,
   xy = xy,
   importance.threshold = 0.50, #uses 50% best predictors
   cor.threshold = 0.60, #max corr between interactions and predictors
@@ -504,7 +504,7 @@ kableExtra::kbl(
 
 When case coordinates or polygons are joined with the local importance scores, it is possible to draw maps showing how variable importance changes over space.
 
-```{r}
+```{r, fig.width=12, fig.height=9}
 #adding polygons
 local.importance <- data.frame(
   ecoregions_polygons,
@@ -549,7 +549,7 @@ p1 <- ggplot2::ggplot() +
 p2 <- ggplot2::ggplot() +
   ggplot2::geom_sf(
     data = local.importance,
-    aes(fill = climate_aridity_index_average),
+    aes(fill = climate_hypervolume),
     size = 0.1
   ) +
   ggplot2::scale_x_continuous(limits = c(-170, -30)) +
@@ -560,7 +560,7 @@ p2 <- ggplot2::ggplot() +
     ) +
   ggplot2::theme_bw() +
   ggplot2::theme(legend.position = "bottom") +
-  ggplot2::ggtitle("Aridity index") +
+  ggplot2::ggtitle("Climate hypervolume") +
   ggplot2::theme(
     plot.title = ggplot2::element_text(hjust = 0.5),
     legend.key.width = ggplot2::unit(1,"cm")
