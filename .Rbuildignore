@@ -28,3 +28,4 @@ reviewing_moran.R
 ^CRAN-RELEASE$
 parallel_testing.R
 parallel_common.R
+testing_rf_select.R

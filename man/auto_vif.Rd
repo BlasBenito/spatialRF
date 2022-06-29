@@ -14,9 +14,9 @@ auto_vif(
 \arguments{
 \item{x}{A data frame with predictors or the result of \code{\link[=auto_cor]{auto_cor()}}. Default: \code{NULL}.}
 
-\item{preference.order}{a character vector with columns names of x ordered by the user preference, Default: \code{NULL}.}
+\item{preference.order}{Character vector indicating the user's order of preference to keep variables. Predictors not included in this argument are ranked at random (with rank scores below those predictors in \code{preference.order}). If not provided, variables in \code{x} are prioritised by their column order. Default: \code{NULL}.}
 
-\item{vif.threshold}{Numeric between 2.5 and 10 defining the selection threshold for the VIF analysis. Higher numbers result in a more relaxed variable selection. Default: 5.}
+\item{vif.threshold}{Numeric between 0 and 10 defining the selection threshold for the VIF analysis. Higher numbers result in a more relaxed variable selection. Default: 5.}
 
 \item{verbose}{Logical. if \code{TRUE}, describes the function operations to the user. Default:: \code{TRUE}}
 }

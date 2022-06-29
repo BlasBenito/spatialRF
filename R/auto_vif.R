@@ -9,8 +9,8 @@
 #'   verbose = TRUE
 #' )
 #' @param x A data frame with predictors or the result of [auto_cor()]. Default: `NULL`.
-#' @param preference.order a character vector with columns names of x ordered by the user preference, Default: `NULL`.
-#' @param vif.threshold Numeric between 2.5 and 10 defining the selection threshold for the VIF analysis. Higher numbers result in a more relaxed variable selection. Default: 5.
+#' @param preference.order Character vector indicating the user's order of preference to keep variables. Predictors not included in this argument are ranked at random (with rank scores below those predictors in `preference.order`). If not provided, variables in `x` are prioritised by their column order. Default: `NULL`.
+#' @param vif.threshold Numeric between 0 and 10 defining the selection threshold for the VIF analysis. Higher numbers result in a more relaxed variable selection. Default: 5.
 #' @param verbose Logical. if `TRUE`, describes the function operations to the user. Default:: `TRUE`
 #' @return List with three slots:
 #' \itemize{
@@ -66,6 +66,20 @@ auto_vif <- function(
   vif.threshold = 5,
   verbose = TRUE
 ){
+
+  if(vif.threshold < 0){
+    vif.threshold <- 0
+    if(verbose == TRUE){
+      message("vif.threshold is negative, setting it to 0.")
+    }
+  }
+
+  if(vif.threshold > 10){
+    vif.threshold <- 10
+    if(verbose == TRUE){
+      message("vif.threshold is larger than 10, setting it to 10.")
+    }
+  }
 
   if(inherits(x, "variable_selection") == TRUE){
     x <- x$selected.variables.df
@@ -176,6 +190,15 @@ auto_vif <- function(
     } else {
       message("[auto_vif()]: Variables are not collinear.")
     }
+  }
+
+  if(verbose == TRUE){
+    message(
+      paste0(
+        "The selected variables are:\n\n",
+        paste(output.list$selected.variables, collapse = "\n")
+      )
+    )
   }
 
   #adding class

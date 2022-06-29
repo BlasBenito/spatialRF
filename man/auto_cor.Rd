@@ -7,16 +7,16 @@
 auto_cor(
   x = NULL,
   preference.order = NULL,
-  cor.threshold = 0.5,
+  cor.threshold = 0.75,
   verbose = TRUE
 )
 }
 \arguments{
 \item{x}{A data frame with predictors, or the result of \code{\link[=auto_vif]{auto_vif()}} Default: \code{NULL}.}
 
-\item{preference.order}{Character vector indicating the user's order of preference to keep variables. Doesn't need to contain If not provided, variables in \code{x} are prioritised by their column order. Default: \code{NULL}.}
+\item{preference.order}{Character vector indicating the user's order of preference to keep variables. Predictors not included in this argument are ranked at random (with rank scores below those predictors in \code{preference.order}). If not provided, variables in \code{x} are prioritised by their column order. Default: \code{NULL}.}
 
-\item{cor.threshold}{Numeric between 0 and 1, with recommended values between 0.5 and 0.9. Maximum Pearson correlation between any pair of the selected variables. Default: \code{0.50}}
+\item{cor.threshold}{Numeric between 0 and 1, with recommended values between 0.5 and 0.9. Maximum Pearson correlation between any pair of the selected variables. Default: \code{0.75}}
 
 \item{verbose}{Logical. if \code{TRUE}, describes the function operations to the user. Default:: \code{TRUE}}
 }

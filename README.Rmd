@@ -239,7 +239,11 @@ spatialRF::plot_training_df_moran(
 
 # Reducing multicollinearity in the predictors
 
-## Method 1: `auto_cor()` + `auto_vif()`
+The function `rf_select()` helps to obtain a subset of predictors with a bivariate correlation among them below a certain threshold and a variance inflation factor above a certain threshold. Reducing redundancy in the predictors will help you simplify your model and increase its interpretability. 
+
+## Method 1: Setting a preference order
+
+This method is useful when you have an idea about what variables you would like to keep during multicollinearity reduction. 
 
 The functions [`auto_cor()`](https://blasbenito.github.io/spatialRF/reference/auto_cor.html) and [`auto_vif()`](https://blasbenito.github.io/spatialRF/reference/auto_vif.html) help reduce redundancy in the predictors by using different criteria (bivariate R squared vs. [variance inflation factor](https://www.statisticshowto.com/variance-inflation-factor/)), while allowing the user to define an *order of preference*, which can be based either on domain expertise or on a quantitative assessment (e.g., order of preference based on variable importance scores or model coefficients). The preference order is defined as a character vector in the `preference.order` argument of both functions, and does not need to include the names of all predictors, but just the ones the user would like to keep in the analysis.
 

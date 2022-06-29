@@ -1,5 +1,7 @@
 ## Version 1.1.4 (work in progress)
 
+Changed the default value of the argument cor.threshold in `auto_cor()` from 0.5 to 0.75.
+
 Added the argument `top.n` to the function `plot_importance()` to allow the user to plot the most `n` important predictors.
 
 The function `rf_evaluate()` now filters out the results of redundant spatial folds.
