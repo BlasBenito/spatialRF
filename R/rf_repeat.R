@@ -124,21 +124,8 @@ rf_repeat <- function(
   #getting arguments from model rather than ranger.arguments
   if(!is.null(model)){
 
-    ranger.arguments <- model$ranger.arguments
-    data <- ranger.arguments$data
-    dependent.variable.name <- ranger.arguments$dependent.variable.name
-    predictor.variable.names <- ranger.arguments$predictor.variable.names
-    distance.matrix <- ranger.arguments$distance.matrix
-    distance.thresholds <- ranger.arguments$distance.thresholds
-    scaled.importance <- ranger.arguments$scaled.importance
-
-    #saving tuning and evaluation slots for later
-    if("tuning" %in% names(model)){
-      tuning <- model$tuning
-    }
-    if("evaluation" %in% names(model)){
-      evaluation <- model$evaluation
-    }
+    #writting the default ranger.arguments to the environment
+    list2env(model$ranger.arguments, envir=environment())
 
   }
 
@@ -154,12 +141,14 @@ rf_repeat <- function(
     }
   }
 
+  #
   if(is.null(ranger.arguments)){
-    ranger.arguments <- list()
+    ranger.arguments <- list(
+      num.threads = 1,
+      seed = NULL,
+      scaled.importance = scaled.importance
+    )
   }
-  ranger.arguments$num.threads <- 1
-  ranger.arguments$seed <- NULL
-  ranger.arguments$scaled.importance <- scaled.importance
 
   if(keep.models == TRUE){
     ranger.arguments$write.forest <- TRUE
@@ -673,17 +662,19 @@ rf_repeat <- function(
 
   #adding evaluation and tuning slots if they exist
   if(!is.null(model)){
+
     #saving tuning and evaluation slots for later
     if("tuning" %in% names(model)){
-      m$tuning <- tuning
+      m$tuning <- model$tuning
     }
     if("evaluation" %in% names(model)){
-      m$evaluation <- evaluation
+      m$evaluation <- model$evaluation
     }
-    class(m) <- c(class(m), "rf_repeat")
-  } else {
-    class(m) <- c("rf", "rf_repeat", "ranger")
+    if("variable.selection" %in% names(model)){
+      m$variable.selection <- model$variable.selection
+    }
   }
+  class(m) <- unique(c(class(m), "rf_repeat", "ranger"))
 
   #print model
   if(verbose == TRUE){

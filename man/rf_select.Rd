@@ -2,7 +2,7 @@
 % Please edit documentation in R/rf_select.R
 \name{rf_select}
 \alias{rf_select}
-\title{Reduces multicollinearity of predictors for Random Forest models}
+\title{Selects predictors for Random Forest models}
 \usage{
 rf_select(
   data = NULL,
@@ -42,24 +42,25 @@ rf_select(
 \item{n.cores}{Integer, number of cores used by \code{\link[ranger]{ranger}} for parallel execution of individual random forest models (used as value for the argument \code{num.threads} in \code{ranger()}). Default: \code{parallel::detectCores() - 1}}
 }
 \value{
-List of class "variable_selection" with five slots:
+A model of the class "rf" fitted with the selected variables by the function \code{\link[=rf]{rf()}} with a slot named \code{variable.selection}. This slot contains the following elements:
 \itemize{
 \item \code{univariate.importance}: a data frame with the names of the predictors and their univariate out-of-bag RMSE. This slot will be \code{NA} if the argument \code{preference.order} is provided.
 \item \code{jackknife.result}: a data frame with the results of the jackknife when \code{jackknife = TRUE}, or \code{NA} otherwise.
 \item \code{cor}: correlation matrix of the selected variables.
 \item \code{vif}: data frame with the names of the selected variables and their respective VIF scores.
 \item \code{selected.variables}: character vector with the names of the selected variables.
-\item \code{training.df}: data frame with the selected variables and the response variable.
 }
+
+This model can be used as input for other modelling functions such as \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, \code{\link[=rf_tuning]{rf_tuning()}}, \code{\link[=rf_spatial]{rf_spatial()}}, \code{\link[=rf_evaluate]{rf_evaluate()}}, and \code{\link[=rf_importance]{rf_importance()}}.
 }
 \description{
 Combines the functions\code{\link[=auto_cor]{auto_cor()}}, and \code{\link[=auto_vif]{auto_vif()}} to select a set of uncorrelated predictors. These predictors can either be ranked by their univariate effect on the response variable (a.k.a "auto mode"), or prioritized according to the user's preferences via the \code{preference.order} argument. In the "auto mode", a univariate random forest model is fitted for each predictor in \code{predictor.variable.names}, and its out-of-bag RMSE is stored. All variables are then ranked by their RMSE (from minimum to maximum), and their rankings are used as \code{preference.order} in the functions \code{\link[=auto_cor]{auto_cor()}}, and \code{\link[=auto_vif]{auto_vif()}}. If the user provides the \code{preference.order} argument, a redundant variable is removed when there is a similar one with a higher priority.
 
-When the argument \code{jackknife} is set to \code{TRUE}, the function fits a random forest with the complete set of uncorrelated variables, and random forest models without each variable to compare their respective out-of-bag RMSE. Finally, a model fitted with all the variables that decrease performance when removed from the model is compared with a model fitted with all the uncorrelated variables, and the set of variables used to fit the model with better performance is returned.
+When the argument \code{jackknife} is set to \code{TRUE}, the function fits a random forest with all uncorrelated variables, and random forest models without each variable  to compute the out-of-bag RMSE gained or lost when each variable is removed from the model. Finally, a model fitted with all the variables that decrease performance when removed from the model is compared with a model fitted with all the uncorrelated variables. The model with better performance is then returned.
 
-The output of this function is a list of the class "variable_selection" that can be used as input for the argument \code{predictor.variable.names} in most modelling functions of this package.
+Setting \code{jackknife = TRUE} is recommended when your goal is obtaining the minimum set of variables with the better model performance.
 
-Please, take in mind that this experimental function is not intended to help you increase model performance, but to reduce multicollinearity to increase the interpretability of the variable importance scores.
+The output of this function is a model of the class "rf" fitted with the selected variables, that can be used as input in the argument \code{model} of most modelling functions of this package.
 }
 \examples{
 
@@ -74,7 +75,7 @@ data(
 )
 
 #variable selection without preference order
-variable.selection <- rf_select(
+rf.selection <- rf_select(
   data = ecoregions_df,
   dependent.variable.name = ecoregions_depvar_name,
   predictor.variable.names = ecoregions_predvar_names,
@@ -83,20 +84,22 @@ variable.selection <- rf_select(
   n.cores = 1
 )
 
-#' #fitting a random forest model with the selected variables
-rf.model <- rf(
-  data = ecoregions_df,
-  dependent.variable.name = ecoregions_depvar_name,
-  predictor.variable.names = variable.selection,
-  distance.matrix = ecoregions_distance_matrix,
-  distance.thresholds = 0,
-  n.cores = 1
-)
+rf.selection$variable.selection$selected.variables
+
+#re-fitting the model with different hyperparameters
+rf.selection.custom <- rf(
+  model = rf.selection,
+  ranger.arguments = list(
+    num.trees = 5000,
+    min.node.size = 10,
+    mtry = 3
+    )
+ )
 
 #other methods to select variables
 
 #variable selection prioritizing a set of variables
-variable.selection <- rf_select(
+rf.selection <- rf_select(
   data = ecoregions_df,
   dependent.variable.name = ecoregions_depvar_name,
   predictor.variable.names = ecoregions_predvar_names,
@@ -105,8 +108,6 @@ variable.selection <- rf_select(
     "climate_bio12_average",
     "fragmentation_cohesion"
     ),
-  cor.threshold = 0.75,
-  vif.threshold = 5,
   n.cores = 1
 )
 
@@ -120,8 +121,6 @@ variable.selection <- rf_select(
     "climate_bio12_average",
     "fragmentation_cohesion"
     ),
-  cor.threshold = 0.75,
-  vif.threshold = 5,
   jackknife = TRUE,
   n.cores = 1
 )
@@ -131,8 +130,6 @@ variable.selection <- rf_select(
   data = ecoregions_df,
   dependent.variable.name = ecoregions_depvar_name,
   predictor.variable.names = ecoregions_predvar_names,
-  cor.threshold = 0.75,
-  vif.threshold = 5,
   jackknife = TRUE,
   n.cores = 1
 )

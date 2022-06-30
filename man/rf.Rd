@@ -5,6 +5,7 @@
 \title{Random forest models with Moran's I test of the residuals}
 \usage{
 rf(
+  model = NULL,
   data = NULL,
   dependent.variable.name = NULL,
   predictor.variable.names = NULL,
@@ -19,6 +20,8 @@ rf(
 )
 }
 \arguments{
+\item{model}{A model fitted with \code{\link[=rf]{rf()}}. If provided, the data and ranger arguments are taken directly from the model definition (stored in \code{model$ranger.arguments}). Default: \code{NULL}}
+
 \item{data}{Data frame with a response variable and a set of predictors. Default: \code{NULL}}
 
 \item{dependent.variable.name}{Character string with the name of the response variable. Must be in the column names of \code{data}. If the dependent variable is binary with values 1 and 0, the argument \code{case.weights} of \code{ranger} is populated by the function \code{\link[=case_weights]{case_weights()}}. Default: \code{NULL}}

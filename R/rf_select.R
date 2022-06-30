@@ -1,12 +1,13 @@
-#' @title Reduces multicollinearity of predictors for Random Forest models
+#' @title Selects predictors for Random Forest models
 #'
 #' @description Combines the functions[auto_cor()], and [auto_vif()] to select a set of uncorrelated predictors. These predictors can either be ranked by their univariate effect on the response variable (a.k.a "auto mode"), or prioritized according to the user's preferences via the `preference.order` argument. In the "auto mode", a univariate random forest model is fitted for each predictor in `predictor.variable.names`, and its out-of-bag RMSE is stored. All variables are then ranked by their RMSE (from minimum to maximum), and their rankings are used as `preference.order` in the functions [auto_cor()], and [auto_vif()]. If the user provides the `preference.order` argument, a redundant variable is removed when there is a similar one with a higher priority.
 #'
-#' When the argument `jackknife` is set to `TRUE`, the function fits a random forest with the complete set of uncorrelated variables, and random forest models without each variable to compare their respective out-of-bag RMSE. Finally, a model fitted with all the variables that decrease performance when removed from the model is compared with a model fitted with all the uncorrelated variables, and the set of variables used to fit the model with better performance is returned.
+#' When the argument `jackknife` is set to `TRUE`, the function fits a random forest with all uncorrelated variables, and random forest models without each variable  to compute the out-of-bag RMSE gained or lost when each variable is removed from the model. Finally, a model fitted with all the variables that decrease performance when removed from the model is compared with a model fitted with all the uncorrelated variables. The model with better performance is then returned.
 #'
-#' The output of this function is a list of the class "variable_selection" that can be used as input for the argument `predictor.variable.names` in most modelling functions of this package.
+#' Setting `jackknife = TRUE` is recommended when your goal is obtaining the minimum set of variables with the better model performance.
 #'
-#' Please, take in mind that this experimental function is not intended to help you increase model performance, but to reduce multicollinearity to increase the interpretability of the variable importance scores.
+#' The output of this function is a model of the class "rf" fitted with the selected variables, that can be used as input in the argument `model` of most modelling functions of this package.
+#'
 #'
 #' @param data Data frame with a response variable and a set of predictors. Default: `NULL`
 #' @param dependent.variable.name Character string with the name of the response variable. Must be in the column names of `data`. If the dependent variable is binary with values 1 and 0, the argument `case.weights` of `ranger` is populated by the function [case_weights()]. Default: `NULL`
@@ -20,16 +21,16 @@
 #' @param verbose Logical, ff `TRUE`, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
 #' @param n.cores Integer, number of cores used by \code{\link[ranger]{ranger}} for parallel execution of individual random forest models (used as value for the argument `num.threads` in `ranger()`). Default: `parallel::detectCores() - 1`
 #'
-#' @return List of class "variable_selection" with five slots:
+#' @return A model of the class "rf" fitted with the selected variables by the function [rf()] with a slot named `variable.selection`. This slot contains the following elements:
 #' \itemize{
 #'   \item `univariate.importance`: a data frame with the names of the predictors and their univariate out-of-bag RMSE. This slot will be `NA` if the argument `preference.order` is provided.
 #'   \item `jackknife.result`: a data frame with the results of the jackknife when `jackknife = TRUE`, or `NA` otherwise.
 #'   \item `cor`: correlation matrix of the selected variables.
 #'   \item `vif`: data frame with the names of the selected variables and their respective VIF scores.
 #'   \item `selected.variables`: character vector with the names of the selected variables.
-#'   \item `training.df`: data frame with the selected variables and the response variable.
 #'  }
-
+#'
+#'  This model can be used as input for other modelling functions such as [rf()], [rf_repeat()], [rf_tuning()], [rf_spatial()], [rf_evaluate()], and [rf_importance()].
 #'
 #' @examples
 #'
@@ -44,7 +45,7 @@
 #' )
 #'
 #' #variable selection without preference order
-#' variable.selection <- rf_select(
+#' rf.selection <- rf_select(
 #'   data = ecoregions_df,
 #'   dependent.variable.name = ecoregions_depvar_name,
 #'   predictor.variable.names = ecoregions_predvar_names,
@@ -53,20 +54,22 @@
 #'   n.cores = 1
 #' )
 #'
-#' #' #fitting a random forest model with the selected variables
-#' rf.model <- rf(
-#'   data = ecoregions_df,
-#'   dependent.variable.name = ecoregions_depvar_name,
-#'   predictor.variable.names = variable.selection,
-#'   distance.matrix = ecoregions_distance_matrix,
-#'   distance.thresholds = 0,
-#'   n.cores = 1
-#' )
+#' rf.selection$variable.selection$selected.variables
+#'
+#' #re-fitting the model with different hyperparameters
+#' rf.selection.custom <- rf(
+#'   model = rf.selection,
+#'   ranger.arguments = list(
+#'     num.trees = 5000,
+#'     min.node.size = 10,
+#'     mtry = 3
+#'     )
+#'  )
 #'
 #' #other methods to select variables
 #'
 #' #variable selection prioritizing a set of variables
-#' variable.selection <- rf_select(
+#' rf.selection <- rf_select(
 #'   data = ecoregions_df,
 #'   dependent.variable.name = ecoregions_depvar_name,
 #'   predictor.variable.names = ecoregions_predvar_names,
@@ -75,8 +78,6 @@
 #'     "climate_bio12_average",
 #'     "fragmentation_cohesion"
 #'     ),
-#'   cor.threshold = 0.75,
-#'   vif.threshold = 5,
 #'   n.cores = 1
 #' )
 #'
@@ -90,8 +91,6 @@
 #'     "climate_bio12_average",
 #'     "fragmentation_cohesion"
 #'     ),
-#'   cor.threshold = 0.75,
-#'   vif.threshold = 5,
 #'   jackknife = TRUE,
 #'   n.cores = 1
 #' )
@@ -101,8 +100,6 @@
 #'   data = ecoregions_df,
 #'   dependent.variable.name = ecoregions_depvar_name,
 #'   predictor.variable.names = ecoregions_predvar_names,
-#'   cor.threshold = 0.75,
-#'   vif.threshold = 5,
 #'   jackknife = TRUE,
 #'   n.cores = 1
 #' )
@@ -135,9 +132,14 @@ rf_select <- function(
   oob.rmse.with.variable <- NULL
   oob.rmse.without.variable <- NULL
 
+  if(verbose == TRUE){
+    message(
+      "Ranking predictors by their univariate effect on the response variable."
+    )
+  }
+
   #auto preference order
   if(is.null(preference.order)){
-
 
     univariate.models <- foreach::foreach(
       i = predictor.variable.names,
@@ -181,6 +183,13 @@ rf_select <- function(
 
   #REDUCING MULTICOLLINEARITY
 
+  if(verbose == TRUE){
+    message(
+      "Reducing multicollinearity."
+    )
+  }
+
+
   #filtering by bivariate correlation
   out.cor <- auto_cor(
     x = data[, predictor.variable.names],
@@ -202,6 +211,12 @@ rf_select <- function(
 
   #removing variables with negative contribution
   if(jackknife == TRUE){
+
+    if(verbose == TRUE){
+      message(
+        "Performing jackknife to remove preditors with negative contribution to model performance."
+      )
+    }
 
     #creating a data frame to store results
     partial.contribution.df <- data.frame(
@@ -271,7 +286,20 @@ rf_select <- function(
 
     #if the model after the jackknife is better, we keep these variables
     if(rf.variables.jackknife$performance$rmse.oob < rf.all.variables$performance$rmse.oob){
+
+      #new selected variables
       selected.variables <- selected.variables.jackknife
+
+      #output model
+      output.model <- rf.variables.jackknife
+      rm(rf.variables.jackknife)
+
+    } else {
+
+      #alternative output model
+      output.model <- rf.all.variables
+      rm(rf.all.variables)
+
     }
 
   }
@@ -280,8 +308,9 @@ rf_select <- function(
   if(verbose == TRUE){
     message(
       paste0(
-        "The selected variables are:\n\n",
-        paste(selected.variables, collapse = "\n")
+        "\nThe selected variables are:\n\n",
+        paste(selected.variables, collapse = "\n"),
+        "\n"
       )
     )
   }
@@ -295,18 +324,42 @@ rf_select <- function(
     partial.contribution.df <- NA
   }
 
-  #composing output
-  out.list <- list(
+  #fitting output model if it does not exist
+  if(exists("output.model") == FALSE){
+
+    if(verbose == TRUE){
+      message(
+        "Fitting output model."
+      )
+    }
+
+    output.model <- spatialRF::rf(
+      data = data,
+      dependent.variable.name = dependent.variable.name,
+      predictor.variable.names = selected.variables,
+      ranger.arguments = ranger.arguments,
+      seed = seed,
+      n.cores = n.cores,
+      verbose = FALSE
+    )
+
+  }
+
+  if(verbose == TRUE){
+    message(
+      "Job done, you will find the results of the variable selection in the slot 'variable.selection' of the output model."
+    )
+  }
+
+  #adding new slot to the output model
+  output.model$variable.selection <- list(
     univariate.importance = preference.order.df,
     jackknife.result = partial.contribution.df,
     cor = round(cor(data[, selected.variables]), 2),
     vif = out.vif$vif,
-    selected.variables = selected.variables,
-    training.df = data[, c(dependent.variable.name, selected.variables)]
+    selected.variables = selected.variables
   )
 
-  class(out.list) <- class(out.vif)
-
-  out.list
+  output.model
 
 }

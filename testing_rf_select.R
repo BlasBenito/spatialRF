@@ -12,13 +12,19 @@ data(
   )
 
 #auto variable selection without cluster
-tic()
-selected.variables <- rf_select(
+m <- rf_select(
   data = ecoregions_df,
   dependent.variable.name = ecoregions_depvar_name,
-  predictor.variable.names = ecoregions_predvar_names
+  predictor.variable.names = ecoregions_predvar_names,
+  jackknife = TRUE
 )
-toc()
+
+m.custom <- rf(
+  model = m,
+  ranger.arguments = list(
+    num.tres = 5000
+  )
+)
 
 #auto variable selection with cluster
 tic()
@@ -63,12 +69,3 @@ selected.variables <- rf_select(
   jackknife = FALSE
 )
 
-
-#fitting a random forest model with the selected variables
-rf.model <- rf(
-  data = ecoregions_df,
-  dependent.variable.name = ecoregions_depvar_name,
-  predictor.variable.names = selected.variables,
-  distance.matrix = ecoregions_distance_matrix,
-  distance.thresholds = 0
-)
