@@ -13,7 +13,7 @@ rf_spatial(
   distance.thresholds = NULL,
   xy = NULL,
   ranger.arguments = NULL,
-  scaled.importance = TRUE,
+  scaled.importance = FALSE,
   method = c("mem.moran.sequential", "mem.effect.sequential", "mem.effect.recursive",
     "hengl", "hengl.moran.sequential", "hengl.effect.sequential",
     "hengl.effect.recursive", "pca.moran.sequential", "pca.effect.sequential",
@@ -44,7 +44,7 @@ rf_spatial(
 
 \item{ranger.arguments}{Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.}
 
-\item{scaled.importance}{Logical. If \code{TRUE}, and 'importance = "permutation', the function scales 'data' with \link[base]{scale} and fits a new model to compute scaled variable importance scores. Default: \code{TRUE}}
+\item{scaled.importance}{Logical. If \code{TRUE}, and 'importance = "permutation', the function scales 'data' with \link[base]{scale} and fits a new model to compute scaled variable importance scores. Default: \code{FALSE}}
 
 \item{method}{Character, method to build, rank, and select spatial predictors. One of:
 \itemize{
@@ -55,10 +55,11 @@ rf_spatial(
 \item "pca.moran.sequential"    (experimental)
 \item "pca.effect.sequential"   (experimental)
 \item "pca.effect.recursive"    (experimental)
-\item "mem.moran.sequential"
+\item "mem.moran.sequential"    (default)
 \item "mem.effect.sequential"
 \item "mem.effect.recursive"
-}}
+}
+Default: \code{"mem.moran.sequential"}.}
 
 \item{max.spatial.predictors}{Integer, maximum number of spatial predictors to generate. Useful when memory problems arise due to a large number of spatial predictors, Default: \code{NULL}}
 

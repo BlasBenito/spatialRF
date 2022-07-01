@@ -9,9 +9,13 @@ rf_select(
   dependent.variable.name = NULL,
   predictor.variable.names = NULL,
   preference.order = NULL,
+  distance.matrix = NULL,
+  distance.thresholds = NULL,
+  xy = NULL,
   ranger.arguments = NULL,
   vif.threshold = 5,
   cor.threshold = 0.75,
+  repetitions = 1,
   jackknife = FALSE,
   seed = 1,
   verbose = TRUE,
@@ -27,11 +31,19 @@ rf_select(
 
 \item{preference.order}{Character vector indicating the user's order of preference to keep variables. Predictors not included in this argument are ranked at random (with rank scores below those predictors in \code{preference.order}). If not provided, the predictors are ranked by their univariate RMSE on the out-of-bag data. Default: \code{NULL}.}
 
+\item{distance.matrix}{Squared matrix with the distances among the records in \code{data}. The number of rows of \code{distance.matrix} and \code{data} must be the same. If not provided, the computation of the Moran's I of the residuals is omitted. Default: \code{NULL}}
+
+\item{distance.thresholds}{Numeric vector with neighborhood distances. All distances in the distance matrix below each value in \code{dustance.thresholds} are set to 0 for the computation of Moran's I. If \code{NULL}, it defaults to seq(0, max(distance.matrix), length.out = 4). Default: \code{NULL}}
+
+\item{xy}{(optional) Data frame or matrix with two columns containing coordinates and named "x" and "y". It is not used by this function, but it is stored in the slot \code{ranger.arguments$xy} of the model, so it can be used by \code{\link[=rf_evaluate]{rf_evaluate()}} and \code{\link[=rf_tuning]{rf_tuning()}}. Default: \code{NULL}}
+
 \item{ranger.arguments}{Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.}
 
 \item{vif.threshold}{Numeric between 2.5 and 10 defining the selection threshold for the VIF analysis. Higher numbers result in a more relaxed variable selection. Lower values increase the number of predictors returned. Set this argument to 0 if you desire to disable the VIF filtering. Default: 5.}
 
 \item{cor.threshold}{Numeric between 0 and 1, with recommended values between 0.5 and 0.9. Maximum Pearson correlation between any pair of the selected variables. Higher values increase the number of predictors returned. Set this argument to 1 if you desire to disable the bivariate-correlation filtering. Default: \code{0.50}}
+
+\item{repetitions}{Integer. Number of times to repeat random forest models with different random seeds (see the \code{repetitions} argument of \code{\link[=rf_repeat]{rf_repeat()}}). Values higher than 10 will yield more robust results but at a higher computational cost. Default: \code{1}}
 
 \item{jackknife}{Logical. If \code{TRUE}, the function fits a full model with all the selected variables, and one model without each variable, and compares their respective performances. Only variables that decrease performance when removed from the model are kept in the final selection. Default: \code{FALSE}}
 
@@ -68,70 +80,104 @@ if(interactive()){
 
 #loading example data
 data(
-  ecoregions_df,
-  ecoregions_distance_matrix,
-  ecoregions_predvar_names,
-  ecoregions_depvar_name
+ ecoregions_df,
+ ecoregions_distance_matrix,
+ ecoregions_predvar_names,
+ ecoregions_depvar_name
 )
 
-#variable selection without preference order
+#automatic variable selection
 rf.selection <- rf_select(
-  data = ecoregions_df,
-  dependent.variable.name = ecoregions_depvar_name,
-  predictor.variable.names = ecoregions_predvar_names,
-  cor.threshold = 0.75,
-  vif.threshold = 5,
-  n.cores = 1
+ data = ecoregions_df,
+ dependent.variable.name = ecoregions_depvar_name,
+ predictor.variable.names = ecoregions_predvar_names,
+ xy = ecoregions_df[, c("x", "y")],
+ n.cores = 1
 )
 
-rf.selection$variable.selection$selected.variables
+#the result is a model!
+plot_importance(rf.selection)
+print_performance(rf.selection)
 
-#re-fitting the model with different hyperparameters
-rf.selection.custom <- rf(
-  model = rf.selection,
-  ranger.arguments = list(
-    num.trees = 5000,
-    min.node.size = 10,
-    mtry = 3
-    )
- )
-
-#other methods to select variables
-
-#variable selection prioritizing a set of variables
+#you can use this model as input for other functions
+rf.selection <- rf_evaluate(
+ model = rf.selection
+)
+#or you can connect it with other modelling functions using the \%>\% pìpe
 rf.selection <- rf_select(
-  data = ecoregions_df,
-  dependent.variable.name = ecoregions_depvar_name,
-  predictor.variable.names = ecoregions_predvar_names,
-  preference.order = c(
-    "climate_bio1_average",
-    "climate_bio12_average",
-    "fragmentation_cohesion"
-    ),
-  n.cores = 1
+ data = ecoregions_df,
+ dependent.variable.name = ecoregions_depvar_name,
+ predictor.variable.names = ecoregions_predvar_names,
+ xy = ecoregions_df[, c("x", "y")],
+n.cores = 1
+) \%>\%
+ rf_evaluate()
+#example of complete pipeline (this will take a while to execute)
+cl <- make_cluster()
+
+rf.selection <- rf_select(
+ data = ecoregions_df,
+ dependent.variable.name = ecoregions_depvar_name,
+ predictor.variable.names = ecoregions_predvar_names,
+ distance.matrix = ecoregions_distance_matrix,
+ xy = ecoregions_df[, c("x", "y")],
+ n.cores = 1
+) \%>\%
+ rf_tuning(cluster = cl) \%>\%
+ rf_spatial(cluster = cl) \%>\%
+ rf_evaluate(cluster = cl) \%>\%
+ rf_importance(cluster = cl)
+
+#automatic variable selection with jackknife
+rf.selection <- rf_select(
+ data = ecoregions_df,
+ dependent.variable.name = ecoregions_depvar_name,
+ predictor.variable.names = ecoregions_predvar_names,
+ jackknife = TRUE,
+ n.cores = 1
 )
 
-#variable selection with jackknife and preference order
-variable.selection <- rf_select(
-  data = ecoregions_df,
-  dependent.variable.name = ecoregions_depvar_name,
-  predictor.variable.names = ecoregions_predvar_names,
-  preference.order = c(
-    "climate_bio1_average",
-    "climate_bio12_average",
-    "fragmentation_cohesion"
-    ),
-  jackknife = TRUE,
-  n.cores = 1
+#variable selection with preference order
+rf.selection <- rf_select(
+ data = ecoregions_df,
+ dependent.variable.name = ecoregions_depvar_name,
+ predictor.variable.names = ecoregions_predvar_names,
+preference.order = c(
+  "climate_bio5_average",
+  "climate_hypervolume",
+  "human_population_density"
+),
+n.cores = 1
 )
 
-#variable selection with jackknife without preference order
-variable.selection <- rf_select(
-  data = ecoregions_df,
-  dependent.variable.name = ecoregions_depvar_name,
-  predictor.variable.names = ecoregions_predvar_names,
-  jackknife = TRUE,
-  n.cores = 1
+#variable selection with preference order and jackknife
+rf.selection <- rf_select(
+ data = ecoregions_df,
+ dependent.variable.name = ecoregions_depvar_name,
+ predictor.variable.names = ecoregions_predvar_names,
+ preference.order = c(
+   "climate_bio5_average",
+   "climate_hypervolume",
+   "human_population_density"
+ ),
+ jackknife = TRUE,
+ n.cores = 1
+)
+
+#preference order, jackknife, and repetitions
+#for more robust estimates of importance but higher computational cost
+rf.selection <- rf_select(
+ data = ecoregions_df,
+ dependent.variable.name = ecoregions_depvar_name,
+ predictor.variable.names = ecoregions_predvar_names,
+ preference.order = c(
+   "climate_bio5_average",
+   "climate_hypervolume",
+   "human_population_density"
+ ),
+jackknife = TRUE,
+ repetitions = 10,
+n.cores = 1
 )
 
 }

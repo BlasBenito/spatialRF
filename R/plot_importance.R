@@ -99,8 +99,16 @@ plot_importance <- function(
     }
 
     #importance from rf_repeat
-    if(inherits(model, "rf_repeat") & !inherits(model, "rf_spatial")){
-      x <- model$importance$per.repetition
+    if(inherits(model, "rf_repeat")& !inherits(model, "rf_spatial")){
+
+      if(!is.null(model$ranger.arguments$repetitions)){
+        if(model$ranger.arguments$repetitions >= 10){
+          x <- model$importance$per.repetition
+        }
+      } else {
+        x <- model$importance$per.variable
+      }
+
     }
 
     #importance from rf_spatial and rf

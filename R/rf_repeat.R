@@ -35,27 +35,30 @@
 #'   ecoregions_depvar_name
 #'   )
 #'
-#'  #fitting 5 random forest models
+#'  #fitting 10 random forest models
 #'  out <- rf_repeat(
 #'    data = ecoregions_df,
 #'    dependent.variable.name = ecoregions_depvar_name,
 #'    predictor.variable.names = ecoregions_predvar_names,
 #'    distance.matrix = ecoregions_distance_matrix,
 #'    distance.thresholds = 0,
-#'    repetitions = 5,
+#'    repetitions = 10,
 #'    n.cores = 1
 #'  )
 #'
-#'  #data frame with ordered variable importance
+#'  #data frame with median variable importance
 #'  out$importance$per.variable
 #'
-#'  #per repetition
+#'  #importance per repetition
 #'  out$importance$per.repetition
 #'
 #'  #variable importance plot
 #'  out$importance$per.repetition.plot
 #'
-#'  #performance
+#'  #also
+#'  plot_importance(out)
+#'
+#'  #performance per repetition
 #'  out$performance
 #'
 #'
@@ -78,6 +81,7 @@
 #'  #repeating the model 5 times
 #'  rf.repeat <- rf_repeat(
 #'    model = rf.model,
+#'    repetitions = 5,
 #'    n.cores = 1
 #'    )
 #'
@@ -116,9 +120,6 @@ rf_repeat <- function(
   #checking repetitions
   if(!is.integer(repetitions)){
     repetitions <- floor(repetitions)
-  }
-  if(repetitions < 5){
-    repetitions <- 5
   }
 
   #getting arguments from model rather than ranger.arguments
@@ -333,14 +334,23 @@ rf_repeat <- function(
   m$importance <- list()
   m$importance$per.variable <- importance.per.variable
   m$importance$per.variable.plot <- plot_importance(
-    importance.per.variable,
+    model = importance.per.variable,
     verbose = FALSE
   )
-  m$importance$per.repetition <- importance.per.repetition
-  m$importance$per.repetition.plot <- plot_importance(
-    importance.per.repetition,
-    verbose = verbose
-  )
+
+  if(repetitions > 1){
+    m$importance$per.repetition <- importance.per.repetition
+  }
+
+  #violin plot only if repetitions equal or larger than 10
+  if(repetitions >= 10){
+    m$importance$per.repetition.plot <- plot_importance(
+      model = importance.per.repetition,
+      verbose = verbose
+    )
+  }
+
+
 
   #additional importance data if model is rf_spatial
   if(!is.null(model)){

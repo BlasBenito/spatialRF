@@ -8,7 +8,7 @@
 #' @param distance.thresholds Numeric vector with distances in the same units as `distance.matrix` Distances below each distance threshold are set to 0 on separated copies of the distance matrix to compute Moran's I at different neighborhood distances. If `NULL`, it defaults to `seq(0, max(distance.matrix)/2, length.out = 4)` (defined by [default_distance_thresholds()]). Default: `NULL`
 #' @param xy (optional) Data frame or matrix with two columns containing coordinates and named "x" and "y". It is not used by this function, but it is stored in the slot `ranger.arguments$xy` of the model, so it can be used by [rf_evaluate()] and [rf_tuning()]. Default: `NULL`
 #' @param ranger.arguments Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.
-#' @param scaled.importance Logical. If `TRUE`, and 'importance = "permutation', the function scales 'data' with \link[base]{scale} and fits a new model to compute scaled variable importance scores. Default: `TRUE`
+#' @param scaled.importance Logical. If `TRUE`, and 'importance = "permutation', the function scales 'data' with \link[base]{scale} and fits a new model to compute scaled variable importance scores. Default: `FALSE`
 #' @param method Character, method to build, rank, and select spatial predictors. One of:
 #' \itemize{
 #'   \item "hengl"
@@ -18,10 +18,11 @@
 #'   \item "pca.moran.sequential"    (experimental)
 #'   \item "pca.effect.sequential"   (experimental)
 #'   \item "pca.effect.recursive"    (experimental)
-#'   \item "mem.moran.sequential"
+#'   \item "mem.moran.sequential"    (default)
 #'   \item "mem.effect.sequential"
 #'   \item "mem.effect.recursive"
 #' }
+#' Default: `"mem.moran.sequential"`.
 #' @param max.spatial.predictors Integer, maximum number of spatial predictors to generate. Useful when memory problems arise due to a large number of spatial predictors, Default: `NULL`
 #' @param weight.r.squared Numeric between 0 and 1, weight of R-squared in the selection of spatial components. See Details, Default: `NULL`
 #' @param weight.penalization.n.predictors Numeric between 0 and 1, weight of the penalization for adding an increasing number of spatial predictors during selection. Default: `NULL`
@@ -123,7 +124,7 @@ rf_spatial <- function(
   distance.thresholds = NULL,
   xy = NULL,
   ranger.arguments = NULL,
-  scaled.importance = TRUE,
+  scaled.importance = FALSE,
   method = c(
     "mem.moran.sequential", #mem ordered by their Moran's I.
     "mem.effect.sequential", #mem added in order of effect.

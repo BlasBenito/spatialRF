@@ -220,7 +220,29 @@ rf <- function(
 
   #if provided, ranger.arguments takes precedence over model$ranger.arguments
   if(!is.null(ranger.arguments)){
+
+    #provided arguments take precedence
+    if(!is.null(data)){
+      ranger.arguments$data <- data
+    }
+    if(!is.null(dependent.variable.name)){
+      ranger.arguments$dependent.variable.name <- dependent.variable.name
+    }
+    if(!is.null(predictor.variable.names)){
+      ranger.arguments$predictor.variable.names <- predictor.variable.names
+    }
+    if(!is.null(distance.matrix)){
+      ranger.arguments$distance.matrix <- distance.matrix
+    }
+    if(!is.null(distance.thresholds)){
+      ranger.arguments$distance.thresholds <- distance.thresholds
+    }
+    if(!is.null(xy)){
+      ranger.arguments$xy <- xy
+    }
+
     list2env(ranger.arguments, envir=environment())
+
   }
 
   #coerce to data frame if tibble
@@ -548,6 +570,7 @@ rf <- function(
 
   #adding evaluation and tuning slots if they exist
   if(!is.null(model)){
+
     #saving tuning and evaluation slots for later
     if("tuning" %in% names(model)){
       m$tuning <- model$tuning

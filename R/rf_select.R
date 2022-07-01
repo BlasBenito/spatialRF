@@ -12,10 +12,14 @@
 #' @param data Data frame with a response variable and a set of predictors. Default: `NULL`
 #' @param dependent.variable.name Character string with the name of the response variable. Must be in the column names of `data`. If the dependent variable is binary with values 1 and 0, the argument `case.weights` of `ranger` is populated by the function [case_weights()]. Default: `NULL`
 #' @param predictor.variable.names Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Default: `NULL`
+#' @param distance.matrix Squared matrix with the distances among the records in `data`. The number of rows of `distance.matrix` and `data` must be the same. If not provided, the computation of the Moran's I of the residuals is omitted. Default: `NULL`
+#' @param distance.thresholds Numeric vector with neighborhood distances. All distances in the distance matrix below each value in `dustance.thresholds` are set to 0 for the computation of Moran's I. If `NULL`, it defaults to seq(0, max(distance.matrix), length.out = 4). Default: `NULL`
+#' @param xy (optional) Data frame or matrix with two columns containing coordinates and named "x" and "y". It is not used by this function, but it is stored in the slot `ranger.arguments$xy` of the model, so it can be used by [rf_evaluate()] and [rf_tuning()]. Default: `NULL`
 #' @param preference.order Character vector indicating the user's order of preference to keep variables. Predictors not included in this argument are ranked at random (with rank scores below those predictors in `preference.order`). If not provided, the predictors are ranked by their univariate RMSE on the out-of-bag data. Default: `NULL`.
 #' @param ranger.arguments Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.
 #' @param vif.threshold Numeric between 2.5 and 10 defining the selection threshold for the VIF analysis. Higher numbers result in a more relaxed variable selection. Lower values increase the number of predictors returned. Set this argument to 0 if you desire to disable the VIF filtering. Default: 5.
 #' @param cor.threshold Numeric between 0 and 1, with recommended values between 0.5 and 0.9. Maximum Pearson correlation between any pair of the selected variables. Higher values increase the number of predictors returned. Set this argument to 1 if you desire to disable the bivariate-correlation filtering. Default: `0.50`
+#' @param repetitions Integer. Number of times to repeat random forest models with different random seeds (see the `repetitions` argument of [rf_repeat()]). Values higher than 10 will yield more robust results but at a higher computational cost. Default: `1`
 #' @param jackknife Logical. If `TRUE`, the function fits a full model with all the selected variables, and one model without each variable, and compares their respective performances. Only variables that decrease performance when removed from the model are kept in the final selection. Default: `FALSE`
 #' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same. Default: `1`.
 #' @param verbose Logical, ff `TRUE`, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
@@ -36,73 +40,109 @@
 #'
 #' if(interactive()){
 #'
-#' #loading example data
-#' data(
-#'   ecoregions_df,
-#'   ecoregions_distance_matrix,
-#'   ecoregions_predvar_names,
-#'   ecoregions_depvar_name
-#' )
+#'#loading example data
+#'data(
+#'  ecoregions_df,
+#'  ecoregions_distance_matrix,
+#'  ecoregions_predvar_names,
+#'  ecoregions_depvar_name
+#')
 #'
-#' #variable selection without preference order
-#' rf.selection <- rf_select(
-#'   data = ecoregions_df,
-#'   dependent.variable.name = ecoregions_depvar_name,
-#'   predictor.variable.names = ecoregions_predvar_names,
-#'   cor.threshold = 0.75,
-#'   vif.threshold = 5,
-#'   n.cores = 1
-#' )
+#'#automatic variable selection
+#'rf.selection <- rf_select(
+#'  data = ecoregions_df,
+#'  dependent.variable.name = ecoregions_depvar_name,
+#'  predictor.variable.names = ecoregions_predvar_names,
+#'  xy = ecoregions_df[, c("x", "y")],
+#'  n.cores = 1
+#')
 #'
-#' rf.selection$variable.selection$selected.variables
+#'#the result is a model!
+#'plot_importance(rf.selection)
+#'print_performance(rf.selection)
 #'
-#' #re-fitting the model with different hyperparameters
-#' rf.selection.custom <- rf(
-#'   model = rf.selection,
-#'   ranger.arguments = list(
-#'     num.trees = 5000,
-#'     min.node.size = 10,
-#'     mtry = 3
-#'     )
-#'  )
+#'#you can use this model as input for other functions
+#'rf.selection <- rf_evaluate(
+#'  model = rf.selection
+#')
+
+#'#or you can connect it with other modelling functions using the %>% pìpe
+#'rf.selection <- rf_select(
+#'  data = ecoregions_df,
+#'  dependent.variable.name = ecoregions_depvar_name,
+#'  predictor.variable.names = ecoregions_predvar_names,
+#'  xy = ecoregions_df[, c("x", "y")],
+#' n.cores = 1
+#') %>%
+#'  rf_evaluate()
+
+#'#example of complete pipeline (this will take a while to execute)
+#'cl <- make_cluster()
 #'
-#' #other methods to select variables
+#'rf.selection <- rf_select(
+#'  data = ecoregions_df,
+#'  dependent.variable.name = ecoregions_depvar_name,
+#'  predictor.variable.names = ecoregions_predvar_names,
+#'  distance.matrix = ecoregions_distance_matrix,
+#'  xy = ecoregions_df[, c("x", "y")],
+#'  n.cores = 1
+#') %>%
+#'  rf_tuning(cluster = cl) %>%
+#'  rf_spatial(cluster = cl) %>%
+#'  rf_evaluate(cluster = cl) %>%
+#'  rf_importance(cluster = cl)
 #'
-#' #variable selection prioritizing a set of variables
-#' rf.selection <- rf_select(
-#'   data = ecoregions_df,
-#'   dependent.variable.name = ecoregions_depvar_name,
-#'   predictor.variable.names = ecoregions_predvar_names,
-#'   preference.order = c(
-#'     "climate_bio1_average",
-#'     "climate_bio12_average",
-#'     "fragmentation_cohesion"
-#'     ),
-#'   n.cores = 1
-#' )
+#'#automatic variable selection with jackknife
+#'rf.selection <- rf_select(
+#'  data = ecoregions_df,
+#'  dependent.variable.name = ecoregions_depvar_name,
+#'  predictor.variable.names = ecoregions_predvar_names,
+#'  jackknife = TRUE,
+#'  n.cores = 1
+#')
 #'
-#' #variable selection with jackknife and preference order
-#' variable.selection <- rf_select(
-#'   data = ecoregions_df,
-#'   dependent.variable.name = ecoregions_depvar_name,
-#'   predictor.variable.names = ecoregions_predvar_names,
-#'   preference.order = c(
-#'     "climate_bio1_average",
-#'     "climate_bio12_average",
-#'     "fragmentation_cohesion"
-#'     ),
-#'   jackknife = TRUE,
-#'   n.cores = 1
-#' )
+#'#variable selection with preference order
+#'rf.selection <- rf_select(
+#'  data = ecoregions_df,
+#'  dependent.variable.name = ecoregions_depvar_name,
+#'  predictor.variable.names = ecoregions_predvar_names,
+#' preference.order = c(
+#'   "climate_bio5_average",
+#'   "climate_hypervolume",
+#'   "human_population_density"
+#' ),
+#' n.cores = 1
+#')
 #'
-#' #variable selection with jackknife without preference order
-#' variable.selection <- rf_select(
-#'   data = ecoregions_df,
-#'   dependent.variable.name = ecoregions_depvar_name,
-#'   predictor.variable.names = ecoregions_predvar_names,
-#'   jackknife = TRUE,
-#'   n.cores = 1
-#' )
+#'#variable selection with preference order and jackknife
+#'rf.selection <- rf_select(
+#'  data = ecoregions_df,
+#'  dependent.variable.name = ecoregions_depvar_name,
+#'  predictor.variable.names = ecoregions_predvar_names,
+#'  preference.order = c(
+#'    "climate_bio5_average",
+#'    "climate_hypervolume",
+#'    "human_population_density"
+#'  ),
+#'  jackknife = TRUE,
+#'  n.cores = 1
+#')
+#'
+#'#preference order, jackknife, and repetitions
+#'#for more robust estimates of importance but higher computational cost
+#'rf.selection <- rf_select(
+#'  data = ecoregions_df,
+#'  dependent.variable.name = ecoregions_depvar_name,
+#'  predictor.variable.names = ecoregions_predvar_names,
+#'  preference.order = c(
+#'    "climate_bio5_average",
+#'    "climate_hypervolume",
+#'    "human_population_density"
+#'  ),
+#' jackknife = TRUE,
+#'  repetitions = 10,
+#' n.cores = 1
+#')
 #'
 #'}
 #'
@@ -115,9 +155,13 @@ rf_select <- function(
     dependent.variable.name = NULL,
     predictor.variable.names = NULL,
     preference.order = NULL,
+    distance.matrix = NULL,
+    distance.thresholds = NULL,
+    xy = NULL,
     ranger.arguments = NULL,
     vif.threshold = 5,
     cor.threshold = 0.75,
+    repetitions = 1,
     jackknife = FALSE,
     seed = 1,
     verbose = TRUE,
@@ -126,11 +170,11 @@ rf_select <- function(
 
   #declaring variables
   rmse <- NULL
-  oob.rmse.change.without.variable <- NULL
+  oob.rmse.shift.without.variable <- NULL
   variable <- NULL
   i <- NULL
-  oob.rmse.with.variable <- NULL
-  oob.rmse.without.variable <- NULL
+  oob.rmse.full.model <- NULL
+  oob.rmse.model.without.variable <- NULL
 
   if(verbose == TRUE){
     message(
@@ -155,18 +199,19 @@ rf_select <- function(
       )
 
       #fitting model
-      model.i <- spatialRF::rf(
+      model.i <- spatialRF::rf_repeat(
         data = training.df,
         dependent.variable.name = "y",
         predictor.variable.names = c("x1", "x2", "x3"),
         ranger.arguments = ranger.arguments,
+        repetitions = repetitions,
         seed = seed,
         n.cores = n.cores,
         verbose = FALSE
       )
 
       #capturing median r.squared
-      return(model.i$performance$rmse.oob)
+      return(median(model.i$performance$rmse.oob))
 
     }
 
@@ -212,97 +257,128 @@ rf_select <- function(
   #removing variables with negative contribution
   if(jackknife == TRUE){
 
-    if(verbose == TRUE){
-      message(
-        "Performing jackknife to remove preditors with negative contribution to model performance."
+    if(length(selected.variables) >= 3){
+
+      if(verbose == TRUE){
+        message(
+          "Performing jackknife to remove preditors with negative contribution to model performance."
+        )
+      }
+
+      #creating a data frame to store results
+      jackknife.df <- data.frame(
+        variable = selected.variables,
+        oob.rmse.full.model = NA,
+        oob.rmse.model.without.variable = NA,
+        oob.rmse.shift.without.variable = NA
       )
-    }
 
-    #creating a data frame to store results
-    partial.contribution.df <- data.frame(
-      variable = selected.variables,
-      oob.rmse.with.variable = NA,
-      oob.rmse.without.variable = NA,
-      oob.rmse.change.without.variable = NA
-    )
-
-    #fitting the model with all predictors
-    rf.all.variables <- spatialRF::rf(
-      data = data,
-      dependent.variable.name = dependent.variable.name,
-      predictor.variable.names = selected.variables,
-      ranger.arguments = ranger.arguments,
-      seed = seed,
-      n.cores = n.cores,
-      verbose = FALSE
-    )
-
-    #fitting a model without each one of the predictors
-    univariate.models <- foreach::foreach(
-      i = selected.variables,
-      .verbose = FALSE
-    ) %do% {
-
-      #fitting model
-      model.i <- spatialRF::rf(
+      #fitting the model with all predictors
+      rf.full.model <- spatialRF::rf_repeat(
         data = data,
         dependent.variable.name = dependent.variable.name,
-        predictor.variable.names = selected.variables[!(selected.variables %in% i)],
+        predictor.variable.names = selected.variables,
         ranger.arguments = ranger.arguments,
+        repetitions = repetitions,
         seed = seed,
         n.cores = n.cores,
         verbose = FALSE
       )
 
-      #capturing median r.squared
-      return(model.i$performance$rmse.oob)
+      #fitting a model without each one of the predictors
+      jackknife.models <- foreach::foreach(
+        i = selected.variables,
+        .verbose = FALSE
+      ) %do% {
 
-    }
+        #fitting model
+        model.i <- spatialRF::rf_repeat(
+          data = data,
+          dependent.variable.name = dependent.variable.name,
+          predictor.variable.names = selected.variables[!(selected.variables %in% i)],
+          ranger.arguments = ranger.arguments,
+          repetitions = repetitions,
+          seed = seed,
+          n.cores = n.cores,
+          verbose = FALSE
+        )
 
-    #saving results
-    partial.contribution.df <- partial.contribution.df %>%
-      dplyr::mutate(
-        oob.rmse.with.variable = rf.all.variables$performance$rmse.oob,
-        oob.rmse.without.variable = unlist(univariate.models),
-        oob.rmse.change.without.variable = oob.rmse.with.variable - oob.rmse.without.variable
-      ) %>%
-      dplyr::arrange(oob.rmse.change.without.variable)
+        #capturing median r.squared
+        return(median(model.i$performance$rmse.oob))
 
-    #selecting variables with positive importance
-    selected.variables.jackknife <- partial.contribution.df %>%
-      dplyr::filter(oob.rmse.change.without.variable < 0) %>%
-      dplyr::pull(variable)
+      }
 
-    #fitting model with the selected variables
-    rf.variables.jackknife <- spatialRF::rf(
-      data = data,
-      dependent.variable.name = dependent.variable.name,
-      predictor.variable.names = selected.variables.jackknife,
-      ranger.arguments = ranger.arguments,
-      seed = seed,
-      n.cores = n.cores,
-      verbose = FALSE
-    )
+      #filling jackknife.df
+      jackknife.df <- jackknife.df %>%
+        dplyr::mutate(
+          oob.rmse.full.model = median(rf.full.model$performance$rmse.oob),
+          oob.rmse.model.without.variable = unlist(jackknife.models),
+          oob.rmse.shift.without.variable = oob.rmse.model.without.variable - oob.rmse.full.model
+        ) %>%
+        dplyr::arrange(dplyr::desc(oob.rmse.shift.without.variable))
 
-    #if the model after the jackknife is better, we keep these variables
-    if(rf.variables.jackknife$performance$rmse.oob < rf.all.variables$performance$rmse.oob){
+      #fitting models with decreasing number of variables
+      #fitting a model without each one of the predictors
+      jackknife.models <- foreach::foreach(
+        i = seq(from = nrow(jackknife.df), to = 4, by = -1),
+        .verbose = FALSE
+      ) %do% {
 
-      #new selected variables
-      selected.variables <- selected.variables.jackknife
+        #fitting model
+        model.i <- spatialRF::rf_repeat(
+          data = data,
+          dependent.variable.name = dependent.variable.name,
+          predictor.variable.names = jackknife.df$variable[1:i],
+          ranger.arguments = ranger.arguments,
+          repetitions = repetitions,
+          seed = seed,
+          n.cores = n.cores,
+          verbose = FALSE
+        )
 
-      #output model
-      output.model <- rf.variables.jackknife
-      rm(rf.variables.jackknife)
+        #capturing median r.squared
+        return(median(model.i$performance$rmse.oob))
+
+      }
+
+      #adding the data to jackknife.df
+      jackknife.df$oob.rmse.including.this.variable[4:nrow(jackknife.df)] <- unlist(jackknife.models)
+
+      #subset of best variables
+      selected.variables <- jackknife.df$variable[1:which.min(jackknife.df$oob.rmse.including.this.variable)[1]]
+
 
     } else {
 
-      #alternative output model
-      output.model <- rf.all.variables
-      rm(rf.all.variables)
+      if(verbose == TRUE){
+        message("The number of selected variables is equal or lower than 3, the jackknife procedure cannot be performed."
+        )
+
+      }
 
     }
 
-  }
+  } #end of jackknife
+
+  #fitting model with the selected variables
+  output.model <- spatialRF::rf(
+    data = data,
+    dependent.variable.name = dependent.variable.name,
+    predictor.variable.names = selected.variables,
+    ranger.arguments = ranger.arguments,
+    xy = xy,
+    distance.matrix = distance.matrix,
+    distance.thresholds = distance.thresholds,
+    seed = seed,
+    n.cores = n.cores,
+    verbose = FALSE
+  )
+
+  #adding the number of repetitions to the model
+  output.model$ranger.arguments$repetitions <- repetitions
+  output.model$ranger.arguments$xy <- xy
+  output.model$ranger.arguments$distance.matrix <- distance.matrix
+  output.model$ranger.arguments$distance.thresholds <- distance.thresholds
 
   #printing out the selected variables
   if(verbose == TRUE){
@@ -320,29 +396,8 @@ rf_select <- function(
     preference.order.df <- NA
   }
 
-  if(exists("partial.contribution.df") == FALSE){
-    partial.contribution.df <- NA
-  }
-
-  #fitting output model if it does not exist
-  if(exists("output.model") == FALSE){
-
-    if(verbose == TRUE){
-      message(
-        "Fitting output model."
-      )
-    }
-
-    output.model <- spatialRF::rf(
-      data = data,
-      dependent.variable.name = dependent.variable.name,
-      predictor.variable.names = selected.variables,
-      ranger.arguments = ranger.arguments,
-      seed = seed,
-      n.cores = n.cores,
-      verbose = FALSE
-    )
-
+  if(exists("jackknife.df") == FALSE){
+    jackknife.df <- NA
   }
 
   if(verbose == TRUE){
@@ -354,7 +409,7 @@ rf_select <- function(
   #adding new slot to the output model
   output.model$variable.selection <- list(
     univariate.importance = preference.order.df,
-    jackknife.result = partial.contribution.df,
+    jackknife.result = jackknife.df,
     cor = round(cor(data[, selected.variables]), 2),
     vif = out.vif$vif,
     selected.variables = selected.variables

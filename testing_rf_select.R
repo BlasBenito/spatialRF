@@ -1,7 +1,4 @@
-library(spatialRF)
-library(doParallel)
-library(tidyverse)
-library(tictoc)
+
 
 #loading example data
 data(
@@ -9,63 +6,99 @@ data(
   ecoregions_distance_matrix,
   ecoregions_predvar_names,
   ecoregions_depvar_name
-  )
+)
 
-#auto variable selection without cluster
-m <- rf_select(
+#automatic variable selection
+rf.selection <- rf_select(
   data = ecoregions_df,
   dependent.variable.name = ecoregions_depvar_name,
   predictor.variable.names = ecoregions_predvar_names,
-  jackknife = TRUE
+  xy = ecoregions_df[, c("x", "y")],
+  n.cores = 1
 )
 
-m.custom <- rf(
-  model = m,
-  ranger.arguments = list(
-    num.tres = 5000
-  )
+#the result is a model!
+plot_importance(rf.selection)
+print_performance(rf.selection)
+
+#you can use this model as input for other functions
+rf.selection <- rf_evaluate(
+  model = rf.selection
 )
 
-#auto variable selection with cluster
-tic()
-selected.variables <- rf_select(
+#or you can connect it with other modelling functions using the %>% pìpe
+rf.selection <- rf_select(
   data = ecoregions_df,
   dependent.variable.name = ecoregions_depvar_name,
   predictor.variable.names = ecoregions_predvar_names,
-  cluster = spatialRF::make_cluster()
-)
-toc()
+  xy = ecoregions_df[, c("x", "y")],
+  n.cores = 1
+) %>%
+  rf_evaluate()
 
-#variable selection with jackknife
+#example of complete pipeline (this will take a while to execute)
+cl <- make_cluster()
 
-
-#using preference order
-selected.variables <- rf_select(
+rf.selection <- rf_select(
   data = ecoregions_df,
   dependent.variable.name = ecoregions_depvar_name,
   predictor.variable.names = ecoregions_predvar_names,
-  preference.order = ecoregions_predvar_names[1:3]
-)
+  distance.matrix = ecoregions_distance_matrix,
+  xy = ecoregions_df[, c("x", "y")],
+  n.cores = 1
+) %>%
+  rf_tuning(cluster = cl) %>%
+  rf_spatial(cluster = cl) %>%
+  rf_evaluate(cluster = cl) %>%
+  rf_importance(cluster = cl)
 
-selected.variables <- rf_select(
+#automatic variable selection with jackknife
+rf.selection <- rf_select(
   data = ecoregions_df,
   dependent.variable.name = ecoregions_depvar_name,
   predictor.variable.names = ecoregions_predvar_names,
-  preference.order = ecoregions_predvar_names[1:3],
-  jackknife = TRUE
+  jackknife = TRUE,
+  n.cores = 1
 )
 
-selected.variables <- rf_select(
+#variable selection with preference order
+rf.selection <- rf_select(
   data = ecoregions_df,
   dependent.variable.name = ecoregions_depvar_name,
   predictor.variable.names = ecoregions_predvar_names,
-  jackknife = TRUE
+  preference.order = c(
+    "climate_bio5_average",
+    "climate_hypervolume",
+    "human_population_density"
+  ),
+  n.cores = 1
 )
 
-selected.variables <- rf_select(
+#variable selection with preference order and jackknife
+rf.selection <- rf_select(
   data = ecoregions_df,
   dependent.variable.name = ecoregions_depvar_name,
   predictor.variable.names = ecoregions_predvar_names,
-  jackknife = FALSE
+  preference.order = c(
+    "climate_bio5_average",
+    "climate_hypervolume",
+    "human_population_density"
+  ),
+  jackknife = TRUE,
+  n.cores = 1
 )
 
+#variable selection with preference order, jackknife, and repetitions (for more robust estimates of importance but higher computational cost)
+rf.selection <- rf_select(
+  data = ecoregions_df,
+  dependent.variable.name = ecoregions_depvar_name,
+  predictor.variable.names = ecoregions_predvar_names,
+  preference.order = c(
+    "climate_bio5_average",
+    "climate_hypervolume",
+    "human_population_density"
+  ),
+  jackknife = TRUE,
+  repetitions = 10,
+  n.cores = 1
+)

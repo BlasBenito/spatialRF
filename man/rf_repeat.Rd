@@ -77,27 +77,30 @@ data(
   ecoregions_depvar_name
   )
 
- #fitting 5 random forest models
+ #fitting 10 random forest models
  out <- rf_repeat(
    data = ecoregions_df,
    dependent.variable.name = ecoregions_depvar_name,
    predictor.variable.names = ecoregions_predvar_names,
    distance.matrix = ecoregions_distance_matrix,
    distance.thresholds = 0,
-   repetitions = 5,
+   repetitions = 10,
    n.cores = 1
  )
 
- #data frame with ordered variable importance
+ #data frame with median variable importance
  out$importance$per.variable
 
- #per repetition
+ #importance per repetition
  out$importance$per.repetition
 
  #variable importance plot
  out$importance$per.repetition.plot
 
- #performance
+ #also
+ plot_importance(out)
+
+ #performance per repetition
  out$performance
 
 
@@ -120,6 +123,7 @@ data(
  #repeating the model 5 times
  rf.repeat <- rf_repeat(
    model = rf.model,
+   repetitions = 5,
    n.cores = 1
    )
 
