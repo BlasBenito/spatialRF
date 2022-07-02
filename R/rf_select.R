@@ -8,7 +8,7 @@
 #'
 #' The output of this function is a model of the class "rf" fitted with the selected variables, that can be used as input in the argument `model` of most modelling functions of this package.
 #'
-#'
+#' @param model A model fitted with [rf()] or [rf_spatial()]. If provided, the data and ranger arguments are taken directly from the model definition (stored in `model$ranger.arguments`). Default: `NULL`
 #' @param data Data frame with a response variable and a set of predictors. Default: `NULL`
 #' @param dependent.variable.name Character string with the name of the response variable. Must be in the column names of `data`. If the dependent variable is binary with values 1 and 0, the argument `case.weights` of `ranger` is populated by the function [case_weights()]. Default: `NULL`
 #' @param predictor.variable.names Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Default: `NULL`
@@ -151,6 +151,7 @@
 #' @rdname rf_select
 #' @export
 rf_select <- function(
+    model = NULL,
     data = NULL,
     dependent.variable.name = NULL,
     predictor.variable.names = NULL,
@@ -175,6 +176,14 @@ rf_select <- function(
   i <- NULL
   oob.rmse.full.model <- NULL
   oob.rmse.model.without.variable <- NULL
+
+  #processing model as input
+  if(!is.null(model)){
+    ranger.arguments <- model$ranger.arguments
+    data <- model$ranger.arguments$data
+    dependent.variable.name <- model$ranger.arguments$dependent.variable.name
+    predictor.variable.names <- model$ranger.arguments$predictor.variable.names
+  }
 
   if(verbose == TRUE){
     message(

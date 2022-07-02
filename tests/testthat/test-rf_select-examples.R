@@ -2,6 +2,7 @@ testthat::test_that("`rf()` works", {
 
   library(spatialRF)
   library(magrittr)
+  library(doParallel)
 
   #loading data
    data(
@@ -12,7 +13,7 @@ testthat::test_that("`rf()` works", {
     )
 
   #fitting model
-  out <- rf(
+  out <- rf_select(
     data = ecoregions_df,
     dependent.variable.name = ecoregions_depvar_name,
     predictor.variable.names = ecoregions_predvar_names,

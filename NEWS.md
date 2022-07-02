@@ -1,5 +1,9 @@
 ## Version 1.1.4 (work in progress)
 
+Added the function `rf_select()` to select variables.
+
+The function `rf_repeat()` now can be run with `repetitions = 1`.
+
 Changed the default value of the argument cor.threshold in `auto_cor()` from 0.5 to 0.75.
 
 Added the argument `top.n` to the function `plot_importance()` to allow the user to plot the most `n` important predictors.

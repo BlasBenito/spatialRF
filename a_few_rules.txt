@@ -1,0 +1,63 @@
+#A few rules
+
+## Definitions
+
+### Input arguments
+
+These arguments that represent modelling data. These are:
+
+  - data
+  - dependent.variable.name
+  - predictor.variable.names
+  - distance.matrix
+  - distance.thresholds
+  - xy
+
+### Execution arguments
+
+These arguments modify model execution, and can either be function arguments like these:
+
+ - scaled.importance
+ - seed
+ - num.trees
+ - mtry
+ - repetitions
+ - training.fraction
+ - ...
+
+Or be provided using the argument `ranger.arguments`, which accepts the same arguments the function `ranger::ranger()` uses as input.
+
+### Parallelization arguments
+
+These are:
+
+ - n.cores
+ - cluster
+
+### The `model` argument
+
+Several functions in the package have the argument `model`, that takes another model as input. This complete model contains input, execution, and parallelization arguments.
+
+## Rules to prioritize arguments
+
+### Rule 1
+
+If `model` is provided and `ranger.arguments` is NULL, then `model` overrides all other input arguments.
+
+### Rule 2
+
+If `model` and `ranger.arguments` are provided, then:
+
+ - input arguments in `model$ranger.arguments` precede other input arguments.
+ - execution arguments in `ranger.arguments` precede execution arguments in `model$ranger.arguments`.
+ - the execution arguments of the function precede those in `ranger.arguments` and `model$ranger.arguments`
+
+### Rule 3
+
+If `ranger.arguments` and input function arguments are provided, the arguments in the function take precedence.
+
+
+## Functions satisfying these rules
+rf()
+
+

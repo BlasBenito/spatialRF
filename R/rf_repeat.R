@@ -1,6 +1,6 @@
 #' @title Fits several random forest models on the same data
 #' @description Fits several random forest models on the same data in order to capture the effect of the algorithm's stochasticity on the variable importance scores, predictions, residuals, and performance measures. The function relies on the median to aggregate performance and importance values across repetitions. It is recommended to use it after a model is fitted ([rf()] or [rf_spatial()]), tuned ([rf_tuning()]), and/or evaluated ([rf_evaluate()]). This function is designed to be used after fitting a model with [rf()] or [rf_spatial()], tuning it with [rf_tuning()] and evaluating it with [rf_evaluate()].
-#' @param model A model fitted with [rf()]. If provided, the data and ranger arguments are taken directly from the model definition (stored in `model$ranger.arguments`). Default: `NULL`
+#' @param model A model fitted with [rf()]. If provided, the data and ranger arguments are taken directly from the model definition (stored in `model$ranger.arguments`), and the argument `ranger.arguments` is ignored. Default: `NULL`
 #' @param data Data frame with a response variable and a set of predictors. Default: `NULL`
 #' @param dependent.variable.name Character string with the name of the response variable. Must be in the column names of `data`. If the dependent variable is binary with values 1 and 0, the argument `case.weights` of `ranger` is populated by the function [case_weights()]. Default: `NULL`
 #' @param predictor.variable.names Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Default: `NULL`
@@ -125,8 +125,12 @@ rf_repeat <- function(
   #getting arguments from model rather than ranger.arguments
   if(!is.null(model)){
 
-    #writting the default ranger.arguments to the environment
-    list2env(model$ranger.arguments, envir=environment())
+    #overwriting ranger arguments
+    ranger.argumetns <- model$ranger.arguments
+
+
+    #writing the default ranger.arguments to the environment
+    list2env(ranger.arguments, envir=environment())
 
   }
 
@@ -142,14 +146,16 @@ rf_repeat <- function(
     }
   }
 
-  #
+  # ranger arguments for
   if(is.null(ranger.arguments)){
     ranger.arguments <- list(
-      num.threads = 1,
+      # num.threads = 1,
       seed = NULL,
       scaled.importance = scaled.importance
     )
   }
+
+
 
   if(keep.models == TRUE){
     ranger.arguments$write.forest <- TRUE
@@ -230,6 +236,7 @@ rf_repeat <- function(
 
   #fitting model if keep.models  == FALSE
   if(keep.models == FALSE){
+
     if(!is.null(model)){
 
       m <- model
@@ -255,6 +262,7 @@ rf_repeat <- function(
   } else {
 
     if(!is.null(model)){
+
       m <- model
 
     } else {
@@ -262,6 +270,7 @@ rf_repeat <- function(
       m <- repeated.models[[1]]$model
 
     }
+
   }
 
   #PARSING OUTPUT OF PARALLELIZED LOOP

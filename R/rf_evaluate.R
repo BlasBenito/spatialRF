@@ -129,12 +129,16 @@ rf_evaluate <- function(
     stop("nrow(xy) and nrow(data) must be the same.")
   }
 
-
-
   #testing method argument
   metrics <- match.arg(
     arg = metrics,
-    choices = c("r.squared", "pseudo.r.squared", "rmse", "nrmse", "auc"),
+    choices = c(
+      "r.squared",
+      "pseudo.r.squared",
+      "rmse",
+      "nrmse",
+      "auc"
+      ),
     several.ok = TRUE
   )
 
