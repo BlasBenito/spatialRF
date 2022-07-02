@@ -200,7 +200,6 @@ rf <- function(
   #writing the default ranger.arguments to the function environment
   list2env(ranger.arguments.default, envir=environment())
 
-
   #HANDLING ARGUMENTS
   ######################################
 
