@@ -23,7 +23,7 @@ rf_repeat(
 )
 }
 \arguments{
-\item{model}{A model fitted with \code{\link[=rf]{rf()}}. If provided, the data and ranger arguments are taken directly from the model definition (stored in \code{model$ranger.arguments}). Default: \code{NULL}}
+\item{model}{A model fitted with \code{\link[=rf]{rf()}}. If provided, the data and ranger arguments are taken directly from the model definition (stored in \code{model$ranger.arguments}), and the argument \code{ranger.arguments} is ignored. Default: \code{NULL}}
 
 \item{data}{Data frame with a response variable and a set of predictors. Default: \code{NULL}}
 
@@ -51,7 +51,7 @@ rf_repeat(
 
 \item{n.cores}{Integer, number of cores used by \code{\link[ranger]{ranger}} for parallel execution (used as value for the argument \code{num.threads} in \code{ranger()}). Default: \code{NULL}}
 
-\item{cluster}{A cluster definition generated with \code{parallel::makeCluster()} or \code{\link{make_cluster}}. Only advisable if you need to spread a large number of repetitions over the nodes of a large cluster when working with large data. If provided, overrides \code{n.cores}. The function does not stop a cluster, please remember to shut it down with \code{parallel::stopCluster(cl = cluster_name)} at the end of your pipeline. Default: \code{NULL}}
+\item{cluster}{A cluster definition generated with \code{parallel::makeCluster()} or \code{\link{make_cluster}}. Only advisable if you need to spread a large number of repetitions over the nodes of a large cluster when working with large data. If provided, overrides \code{n.cores}. The function does not stop a cluster, please remember to shut it down with \code{parallel::stopCluster(cl = cluster_name)} or \code{spatialRF::stop_cluster()} at the end of your pipeline. Default: \code{NULL}}
 }
 \value{
 A ranger model with several new slots:

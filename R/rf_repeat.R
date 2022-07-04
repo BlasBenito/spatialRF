@@ -14,7 +14,7 @@
 #' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same. Default: `1`.
 #' @param verbose Logical, ff `TRUE`, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
 #' @param n.cores Integer, number of cores used by \code{\link[ranger]{ranger}} for parallel execution (used as value for the argument `num.threads` in `ranger()`). Default: `NULL`
-#' @param cluster A cluster definition generated with `parallel::makeCluster()` or \code{\link{make_cluster}}. Only advisable if you need to spread a large number of repetitions over the nodes of a large cluster when working with large data. If provided, overrides `n.cores`. The function does not stop a cluster, please remember to shut it down with `parallel::stopCluster(cl = cluster_name)` at the end of your pipeline. Default: `NULL`
+#' @param cluster A cluster definition generated with `parallel::makeCluster()` or \code{\link{make_cluster}}. Only advisable if you need to spread a large number of repetitions over the nodes of a large cluster when working with large data. If provided, overrides `n.cores`. The function does not stop a cluster, please remember to shut it down with `parallel::stopCluster(cl = cluster_name)` or `spatialRF::stop_cluster()` at the end of your pipeline. Default: `NULL`
 #' @return A ranger model with several new slots:
 #' \itemize{
 #'   \item `ranger.arguments`: Stores the values of the arguments used to fit the ranger model.
@@ -122,15 +122,90 @@ rf_repeat <- function(
     repetitions <- floor(repetitions)
   }
 
-  #getting arguments from model rather than ranger.arguments
+  #HANDLING ARGUMENTS
+  ######################################
+
+  #if model is provided
   if(!is.null(model)){
 
-    #overwriting ranger arguments
-    ranger.argumetns <- model$ranger.arguments
+    #stopping if model is not of the right class
+    if(!("rf" %in% class(model))){
+      stop("The argument 'model' is not of the class 'rf'.")
+    }
+
+    #RULE 1: if ranger.arguments is not provided
+    if(is.null(ranger.arguments)){
+
+      #overriding input arguments
+      data <- NULL
+      dependent.variable.name <- NULL
+      predictor.variable.names <- NULL
+      distance.matrix <- NULL
+      distance.thresholds <- NULL
+      xy <- NULL
+
+      #writing the model's ranger.arguments to the environment
+      ranger.arguments <- model$ranger.arguments
+
+      #writing arguments to the function environment
+      list2env(model$ranger.arguments, envir=environment())
+
+    } else {
+
+      #RULE 2:
+      #input arguments in model$ranger.arguments take precedence
+
+      ranger.arguments$data <- NULL
+      ranger.arguments$dependent.variable.name <- NULL
+      ranger.arguments$predictor.variable.names <- NULL
+      ranger.arguments$distance.matrix <- NULL
+      ranger.arguments$distance.thresholds <- NULL
+      ranger.arguments$xy <- NULL
+
+      #writing arguments to the function environment
+      list2env(model$ranger.arguments, envir=environment())
+      list2env(ranger.arguments, envir=environment())
 
 
-    #writing the default ranger.arguments to the environment
-    list2env(ranger.arguments, envir=environment())
+    }
+
+  } else {
+    #RULE 3:
+
+    if(!is.null(ranger.arguments)){
+
+      if(is.null(data)){
+        data <- model$ranger.arguments$data
+      }
+
+      if(is.null(dependent.variable.name)){
+        dependent.variable.name <- model$ranger.arguments$dependent.variable.name
+      }
+
+      if(is.null(predictor.variable.names)){
+        predictor.variable.names <- model$ranger.arguments$predictor.variable.names
+      }
+
+      if(is.null(distance.matrix)){
+        distance.matrix <- model$ranger.arguments$distance.matrix
+      }
+
+      if(is.null(distance.thresholds)){
+        distance.thresholds <- model$ranger.arguments$distance.thresholds
+      }
+
+      if(is.null(xy)){
+        xy <- model$ranger.arguments$xy
+      }
+
+      if(is.null(cluster)){
+        cluster <- model$ranger.arguments$cluster
+      }
+
+      #writing ranger.arguments to the function environment
+      list2env(ranger.arguments, envir=environment())
+
+    }
 
   }
 
@@ -139,29 +214,29 @@ rf_repeat <- function(
     data <- as.data.frame(data)
   }
 
-  #predictor.variable.names comes from auto_vif or auto_cor
-  if(!is.null(predictor.variable.names)){
-    if(inherits(predictor.variable.names, "variable_selection")){
-      predictor.variable.names <- predictor.variable.names$selected.variables
-    }
+  if(inherits(xy, "tbl_df") | inherits(xy, "tbl")){
+    xy <- as.data.frame(xy)
   }
 
-  # ranger arguments for
-  if(is.null(ranger.arguments)){
-    ranger.arguments <- list(
-      # num.threads = 1,
-      seed = NULL,
-      scaled.importance = scaled.importance
-    )
-  }
+  #END OF HANDLING ARGUMENTS
+  ##########################
 
-
+  # # ranger arguments for
+  # if(is.null(ranger.arguments)){
+  #   ranger.arguments <- list(
+  #     # num.threads = 1,
+  #     seed = NULL,
+  #     scaled.importance = scaled.importance
+  #   )
+  # }
 
   if(keep.models == TRUE){
     ranger.arguments$write.forest <- TRUE
   }
 
-  #handling parallelization
+
+  #HANDLING PARALLELIZATION
+  ##########################
   if("cluster" %in% class(cluster)){
 
     #registering cluster
@@ -172,6 +247,7 @@ rf_repeat <- function(
 
     #restricting the number of cores
     n.cores <- 1
+    ranger.arguments$num.threads <- 1
 
   } else {
 
@@ -179,6 +255,9 @@ rf_repeat <- function(
     `%iterator%` <- foreach::`%do%`
 
   }
+
+  ##########################
+  #END OF HANDLING PARALLELIZATION
 
   #loop
   i <- NULL
@@ -686,21 +765,30 @@ rf_repeat <- function(
     if("tuning" %in% names(model)){
       m$tuning <- model$tuning
     }
+
     if("evaluation" %in% names(model)){
       m$evaluation <- model$evaluation
     }
+
     if("variable.selection" %in% names(model)){
       m$variable.selection <- model$variable.selection
     }
   }
+
+  #adding class to the model
   class(m) <- unique(c(class(m), "rf_repeat", "ranger"))
+
+  #adding cluster to model
+  if(!is.null(cluster) & "cluster" %in% class(cluster)){
+    m$ranger.arguments$cluster <- cluster
+  }
 
   #print model
   if(verbose == TRUE){
     print(m)
   }
 
-  #return m.curves
+  #return m
   m
 
 }

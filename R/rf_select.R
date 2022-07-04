@@ -24,6 +24,7 @@
 #' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same. Default: `1`.
 #' @param verbose Logical, ff `TRUE`, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
 #' @param n.cores Integer, number of cores used by \code{\link[ranger]{ranger}} for parallel execution of individual random forest models (used as value for the argument `num.threads` in `ranger()`). Default: `parallel::detectCores() - 1`
+#' @param cluster A cluster definition generated with `parallel::makeCluster()` or \code{\link{make_cluster}}. If provided, overrides `n.cores`. The function does not stop a cluster, please remember to shut it down with `parallel::stopCluster(cl = cluster_name)` or `spatialRF::stop_cluster()` at the end of your pipeline. Default: `NULL`
 #'
 #' @return A model of the class "rf" fitted with the selected variables by the function [rf()] with a slot named `variable.selection`. This slot contains the following elements:
 #' \itemize{
@@ -166,7 +167,8 @@ rf_select <- function(
     jackknife = FALSE,
     seed = 1,
     verbose = TRUE,
-    n.cores = parallel::detectCores() - 1
+    n.cores = parallel::detectCores() - 1,
+    cluster = NULL
 ){
 
   #declaring variables
@@ -177,13 +179,132 @@ rf_select <- function(
   oob.rmse.full.model <- NULL
   oob.rmse.model.without.variable <- NULL
 
-  #processing model as input
+  #HANDLING ARGUMENTS
+  ######################################
+
+  #if model is provided
   if(!is.null(model)){
-    ranger.arguments <- model$ranger.arguments
-    data <- model$ranger.arguments$data
-    dependent.variable.name <- model$ranger.arguments$dependent.variable.name
-    predictor.variable.names <- model$ranger.arguments$predictor.variable.names
+
+    #stopping if model is not of the right class
+    if(!("rf" %in% class(model))){
+      stop("The argument 'model' is not of the class 'rf'.")
+    }
+
+    #RULE 1: if ranger.arguments is not provided
+    if(is.null(ranger.arguments)){
+
+      #overriding input arguments
+      data <- NULL
+      dependent.variable.name <- NULL
+      predictor.variable.names <- NULL
+      distance.matrix <- NULL
+      distance.thresholds <- NULL
+      xy <- NULL
+
+      #writing the model's ranger.arguments to the environment
+      ranger.arguments <- model$ranger.arguments
+
+      #writing arguments to the function environment
+      list2env(model$ranger.arguments, envir=environment())
+
+    } else {
+
+      #RULE 2:
+      #input arguments in model$ranger.arguments take precedence
+
+      ranger.arguments$data <- NULL
+      ranger.arguments$dependent.variable.name <- NULL
+      ranger.arguments$predictor.variable.names <- NULL
+      ranger.arguments$distance.matrix <- NULL
+      ranger.arguments$distance.thresholds <- NULL
+      ranger.arguments$xy <- NULL
+
+      #writing arguments to the function environment
+      list2env(model$ranger.arguments, envir=environment())
+      list2env(ranger.arguments, envir=environment())
+
+
+    }
+
+  } else {
+    #RULE 3:
+
+    if(!is.null(ranger.arguments)){
+
+      if(is.null(data)){
+        data <- model$ranger.arguments$data
+      }
+
+      if(is.null(dependent.variable.name)){
+        dependent.variable.name <- model$ranger.arguments$dependent.variable.name
+      }
+
+      if(is.null(predictor.variable.names)){
+        predictor.variable.names <- model$ranger.arguments$predictor.variable.names
+      }
+
+      if(is.null(distance.matrix)){
+        distance.matrix <- model$ranger.arguments$distance.matrix
+      }
+
+      if(is.null(distance.thresholds)){
+        distance.thresholds <- model$ranger.arguments$distance.thresholds
+      }
+
+      if(is.null(xy)){
+        xy <- model$ranger.arguments$xy
+      }
+
+      if(is.null(cluster)){
+        cluster <- model$ranger.arguments$cluster
+      }
+
+      #writing ranger.arguments to the function environment
+      list2env(ranger.arguments, envir=environment())
+
+    }
+
   }
+
+  #coerce to data frame if tibble
+  if(inherits(data, "tbl_df") | inherits(data, "tbl")){
+    data <- as.data.frame(data)
+  }
+
+  if(inherits(xy, "tbl_df") | inherits(xy, "tbl")){
+    xy <- as.data.frame(xy)
+  }
+
+  ##########################
+  #END OF HANDLING ARGUMENTS
+
+
+  #HANDLING PARALLELIZATION
+  ##########################
+
+  #HANDLING PARALLELIZATION
+  ##########################
+  if("cluster" %in% class(cluster)){
+
+    #registering cluster
+    doParallel::registerDoParallel(cl = cluster)
+
+    #parallel iterator
+    `%iterator%` <- foreach::`%dopar%`
+
+    #restricting the number of cores
+    n.cores <- 1
+    ranger.arguments$num.threads <- 1
+
+  } else {
+
+    #sequential iterator
+    `%iterator%` <- foreach::`%do%`
+
+  }
+
+  ##########################
+  #END OF HANDLING PARALLELIZATION
 
   if(verbose == TRUE){
     message(
@@ -197,7 +318,7 @@ rf_select <- function(
     univariate.models <- foreach::foreach(
       i = predictor.variable.names,
       .verbose = FALSE
-    ) %do% {
+    ) %iterator% {
 
       #generating training data
       training.df <- data.frame(
@@ -327,11 +448,10 @@ rf_select <- function(
         dplyr::arrange(dplyr::desc(oob.rmse.shift.without.variable))
 
       #fitting models with decreasing number of variables
-      #fitting a model without each one of the predictors
       jackknife.models <- foreach::foreach(
         i = seq(from = nrow(jackknife.df), to = 4, by = -1),
         .verbose = FALSE
-      ) %do% {
+      ) %iterator% {
 
         #fitting model
         model.i <- spatialRF::rf_repeat(
@@ -370,7 +490,11 @@ rf_select <- function(
   } #end of jackknife
 
   #fitting model with the selected variables
-  output.model <- spatialRF::rf(
+  if("cluster" %in% class(cluster)){
+    n.cores <- length(cluster)
+  }
+
+  m <- spatialRF::rf(
     data = data,
     dependent.variable.name = dependent.variable.name,
     predictor.variable.names = selected.variables,
@@ -379,15 +503,16 @@ rf_select <- function(
     distance.matrix = distance.matrix,
     distance.thresholds = distance.thresholds,
     seed = seed,
+    verbose = FALSE,
     n.cores = n.cores,
-    verbose = FALSE
+    cluster = cluster
   )
 
   #adding the number of repetitions to the model
-  output.model$ranger.arguments$repetitions <- repetitions
-  output.model$ranger.arguments$xy <- xy
-  output.model$ranger.arguments$distance.matrix <- distance.matrix
-  output.model$ranger.arguments$distance.thresholds <- distance.thresholds
+  m$ranger.arguments$repetitions <- repetitions
+  m$ranger.arguments$xy <- xy
+  m$ranger.arguments$distance.matrix <- distance.matrix
+  m$ranger.arguments$distance.thresholds <- distance.thresholds
 
   #printing out the selected variables
   if(verbose == TRUE){
@@ -416,7 +541,7 @@ rf_select <- function(
   }
 
   #adding new slot to the output model
-  output.model$variable.selection <- list(
+  m$variable.selection <- list(
     univariate.importance = preference.order.df,
     jackknife.result = jackknife.df,
     cor = round(cor(data[, selected.variables]), 2),
@@ -424,6 +549,6 @@ rf_select <- function(
     selected.variables = selected.variables
   )
 
-  output.model
+  m
 
 }

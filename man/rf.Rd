@@ -16,11 +16,12 @@ rf(
   scaled.importance = FALSE,
   seed = 1,
   verbose = TRUE,
-  n.cores = parallel::detectCores() - 1
+  n.cores = parallel::detectCores() - 1,
+  cluster = NULL
 )
 }
 \arguments{
-\item{model}{A model fitted with \code{\link[=rf]{rf()}}. If provided, the data and ranger arguments are taken directly from the model definition (stored in \code{model$ranger.arguments}). Default: \code{NULL}}
+\item{model}{A model fitted with \code{\link[=rf]{rf()}}. If provided, it overrides all other input arguments (these are: \code{data}, \code{dependent.variable.name}, \code{predictor.variable.names}, \code{distance.matrix}, \code{distance.thresholds}, \code{xy}). However, you can provide new execution arguments and hyperparameters (like: \code{num.trees}, \code{mtry}, and any other argument accepted by the function \code{ranger::ranger()}) via the argument \code{ranger.arguments}. Default: \code{NULL}.}
 
 \item{data}{Data frame with a response variable and a set of predictors. Default: \code{NULL}}
 
@@ -34,7 +35,7 @@ rf(
 
 \item{xy}{(optional) Data frame or matrix with two columns containing coordinates and named "x" and "y". It is not used by this function, but it is stored in the slot \code{ranger.arguments$xy} of the model, so it can be used by \code{\link[=rf_evaluate]{rf_evaluate()}} and \code{\link[=rf_tuning]{rf_tuning()}}. Default: \code{NULL}}
 
-\item{ranger.arguments}{Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. The ranger arguments \code{x}, \code{y}, and \code{formula} are disabled. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.}
+\item{ranger.arguments}{Named list with \link[ranger]{ranger} arguments. All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. The ranger arguments \code{x}, \code{y}, and \code{formula} are disabled. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function. Default: \code{NULL}.}
 
 \item{scaled.importance}{Logical, if \code{TRUE}, the function scales \code{data} with \link[base]{scale} and fits a new model to compute scaled variable importance scores. This makes variable importance scores of different models somewhat comparable. Default: \code{FALSE}}
 
@@ -43,6 +44,8 @@ rf(
 \item{verbose}{Boolean. If TRUE, messages and plots generated during the execution of the function are displayed. Default: \code{TRUE}}
 
 \item{n.cores}{Integer, number of cores to use. Default: \code{parallel::detectCores() - 1}}
+
+\item{cluster}{A cluster definition generated with \code{parallel::makeCluster()} or \code{\link{make_cluster}}. This function does not use the cluster, but can pass it to other functions when using the \verb{\%>\%} pipe. Default: \code{NULL}}
 }
 \value{
 A ranger model with several extra slots:
@@ -58,4 +61,81 @@ A convenient wrapper for \link[ranger]{ranger} that completes its output by prov
 }
 \details{
 Please read the help file of \link[ranger]{ranger} for further details. Notice that the \code{formula} interface of \link[ranger]{ranger} is supported through \code{ranger.arguments}, but variable interactions are not allowed (but check \code{\link[=the_feature_engineer]{the_feature_engineer()}}).
+}
+\examples{
+if(interactive()){
+
+ #loading example data
+ data(
+  ecoregions_df,
+  ecoregions_distance_matrix,
+  ecoregions_predvar_names,
+  ecoregions_depvar_name
+  )
+
+ #fitting random forest model
+ out <- rf(
+   data = ecoregions_df,
+   dependent.variable.name = ecoregions_depvar_name,
+   predictor.variable.names = ecoregions_predvar_names,
+   distance.matrix = ecoregions_distance_matrix,
+   distance.thresholds = 0,
+   n.cores = 1
+ )
+
+ class(out)
+
+ #data frame with ordered variable importance
+ out$importance$per.variable
+
+ #variable importance plot
+ out$importance$per.variable.plot
+
+ #performance
+ out$performance
+
+ #spatial correlation of the residuals
+ out$spatial.correlation.residuals$per.distance
+
+ #plot of the Moran's I of the residuals for different distance thresholds
+ out$spatial.correlation.residuals$plot
+
+ #predictions for new data as done with ranger models:
+ predicted <- stats::predict(
+   object = out,
+   data = ecoregions_df,
+   type = "response"
+ )$predictions
+
+
+ #re-fitting a model with different hyperparameters
+ ###################################################
+ out.custom <- rf(
+   model = out,
+   ranger.arguments = list(
+     num.trees = 5000,
+     mtry = 3,
+     min.node.size = 10
+   )
+ )
+
+ #alternative data input methods
+ ###############################
+
+ #ranger.arguments
+ my.ranger.arguments <- list(
+ data = ecoregions_df,
+ dependent.variable.name = ecoregions_depvar_name,
+ predictor.variable.names = ecoregions_predvar_names,
+ distance.matrix = ecoregions_distance_matrix,
+ distance.thresholds = c(0, 1000)
+ )
+
+ #fitting model with these ranger arguments
+ out <- rf(
+   ranger.arguments = my.ranger.arguments,
+   n.cores = 1
+   )
+
+}
 }

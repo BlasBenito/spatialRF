@@ -1,4 +1,4 @@
-#A few rules
+#A few rules to handle input arguments
 
 ## Definitions
 
@@ -57,7 +57,12 @@ If `model` and `ranger.arguments` are provided, then:
 If `ranger.arguments` and input function arguments are provided, the arguments in the function take precedence.
 
 
-## Functions satisfying these rules
-rf()
+## Handling the cluster argument
+
+ - If model$ranger.arguments$cluster is a cluster and argument cluster is null, then model$ranger.arguments$cluster is used.
+
+ - If model$ranger.arguments$cluster is a cluster and argument cluster is a cluster, then the cluster in argument precedes the cluster in model.
+
+ - If the output of the function is a model, any provided cluster should be attached to model$ranger.arguments$cluster
 
 

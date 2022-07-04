@@ -5,6 +5,7 @@
 \title{Selects predictors for Random Forest models}
 \usage{
 rf_select(
+  model = NULL,
   data = NULL,
   dependent.variable.name = NULL,
   predictor.variable.names = NULL,
@@ -19,10 +20,13 @@ rf_select(
   jackknife = FALSE,
   seed = 1,
   verbose = TRUE,
-  n.cores = parallel::detectCores() - 1
+  n.cores = parallel::detectCores() - 1,
+  cluster = NULL
 )
 }
 \arguments{
+\item{model}{A model fitted with \code{\link[=rf]{rf()}} or \code{\link[=rf_spatial]{rf_spatial()}}. If provided, the data and ranger arguments are taken directly from the model definition (stored in \code{model$ranger.arguments}). Default: \code{NULL}}
+
 \item{data}{Data frame with a response variable and a set of predictors. Default: \code{NULL}}
 
 \item{dependent.variable.name}{Character string with the name of the response variable. Must be in the column names of \code{data}. If the dependent variable is binary with values 1 and 0, the argument \code{case.weights} of \code{ranger} is populated by the function \code{\link[=case_weights]{case_weights()}}. Default: \code{NULL}}
@@ -52,6 +56,8 @@ rf_select(
 \item{verbose}{Logical, ff \code{TRUE}, messages and plots generated during the execution of the function are displayed, Default: \code{TRUE}}
 
 \item{n.cores}{Integer, number of cores used by \code{\link[ranger]{ranger}} for parallel execution of individual random forest models (used as value for the argument \code{num.threads} in \code{ranger()}). Default: \code{parallel::detectCores() - 1}}
+
+\item{cluster}{A cluster definition generated with \code{parallel::makeCluster()} or \code{\link{make_cluster}}. If provided, overrides \code{n.cores}. The function does not stop a cluster, please remember to shut it down with \code{parallel::stopCluster(cl = cluster_name)} or \code{spatialRF::stop_cluster()} at the end of your pipeline. Default: \code{NULL}}
 }
 \value{
 A model of the class "rf" fitted with the selected variables by the function \code{\link[=rf]{rf()}} with a slot named \code{variable.selection}. This slot contains the following elements:

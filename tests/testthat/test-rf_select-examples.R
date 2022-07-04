@@ -56,7 +56,8 @@ testthat::test_that("`rf()` works", {
     model = out,
     ranger.arguments = list(num.trees = 5000),
     verbose = FALSE
-  )
+  ) %>%
+    rf_select(jackknife = TRUE)
 
   testthat::expect_true(
     out.2$ranger.arguments$num.trees == 5000
@@ -71,7 +72,7 @@ testthat::test_that("`rf()` works", {
    distance.thresholds = c(0, 1000)
    )
 
-   out.3 <- rf(
+   out.3 <- rf_select(
      ranger.arguments = my.ranger.arguments
      )
 
@@ -101,6 +102,47 @@ testthat::test_that("`rf()` works", {
 
    testthat::expect_named(
      out.3$residuals$autocorrelation$per.distance,
+     c("distance.threshold", "moran.i", "moran.i.null", "p.value", "interpretation")
+   )
+
+   #with cluster
+
+   out.4 <- rf_select(
+     data = ecoregions_df,
+     dependent.variable.name = ecoregions_depvar_name,
+     predictor.variable.names = ecoregions_predvar_names,
+     distance.matrix = ecoregions_distance_matrix,
+     distance.thresholds = c(0,100, 1000, 10000),
+     cluster = make_cluster(),
+     verbose = FALSE
+   )
+
+   testthat::expect_true(
+     out.4$ranger.arguments$num.trees == 500
+   )
+
+   testthat::expect_s3_class(
+     out.4,
+     "rf"
+   )
+
+   testthat::expect_s3_class(
+     out.4$importance$per.variable,
+     "data.frame"
+   )
+
+   testthat::expect_named(
+     out.4$importance$per.variable,
+     c("variable", "importance")
+   )
+
+   testthat::expect_s3_class(
+     out.4$residuals$autocorrelation$per.distance,
+     "data.frame"
+   )
+
+   testthat::expect_named(
+     out.4$residuals$autocorrelation$per.distance,
      c("distance.threshold", "moran.i", "moran.i.null", "p.value", "interpretation")
    )
 

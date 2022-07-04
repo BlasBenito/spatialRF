@@ -12,7 +12,7 @@
 #' @param seed Integer, random seed to facilitate reproducibility. If set to a given number, the returned model is always the same. Default: `1`
 #' @param verbose Boolean. If TRUE, messages and plots generated during the execution of the function are displayed. Default: `TRUE`
 #' @param n.cores Integer, number of cores to use. Default: `parallel::detectCores() - 1`
-#' @param cluster A cluster definition generated with `parallel::makeCluster()` or \code{\link{make_cluster}}. This function does not use a cluster, but can pass it to other functions when using the `%>%` pipe. Default: `NULL`
+#' @param cluster A cluster definition generated with `parallel::makeCluster()` or \code{\link{make_cluster}}. This function does not use the cluster, but can pass it to other functions when using the `%>%` pipe. Default: `NULL`
 #' @return A ranger model with several extra slots:
 #' \itemize{
 #'   \item `ranger.arguments`: Stores the values of the arguments used to fit the ranger model.
@@ -69,14 +69,6 @@
 #'
 #'  #re-fitting a model with different hyperparameters
 #'  ###################################################
-#'  out <- rf(
-#'    data = ecoregions_df,
-#'    dependent.variable.name = ecoregions_depvar_name,
-#'    predictor.variable.names = ecoregions_predvar_names,
-#'    distance.matrix = ecoregions_distance_matrix,
-#'    distance.thresholds = 0
-#'  )
-#'
 #'  out.custom <- rf(
 #'    model = out,
 #'    ranger.arguments = list(
@@ -89,7 +81,7 @@
 #'  #alternative data input methods
 #'  ###############################
 #'
-#'  #ranger.arguments can contain ranger arguments and any other rf argument
+#'  #ranger.arguments
 #'  my.ranger.arguments <- list(
 #'  data = ecoregions_df,
 #'  dependent.variable.name = ecoregions_depvar_name,
@@ -222,6 +214,9 @@ rf <- function(
       distance.thresholds <- NULL
       xy <- NULL
 
+      #writing the model's ranger.arguments to the environment
+      ranger.arguments <- model$ranger.arguments
+
       #writing arguments to the function environment
       list2env(model$ranger.arguments, envir=environment())
 
@@ -229,13 +224,6 @@ rf <- function(
 
       #RULE 2:
       #input arguments in model$ranger.arguments take precedence
-
-      data <- model$ranger.arguments$data
-      dependent.variable.name <- model$ranger.arguments$dependent.variable.name
-      predictor.variable.names <- model$ranger.arguments$predictor.variable.names
-      distance.matrix <- model$ranger.arguments$distance.matrix
-      distance.thresholds <- model$ranger.arguments$distance.thresholds
-      xy <- model$ranger.arguments$xy
 
       ranger.arguments$data <- NULL
       ranger.arguments$dependent.variable.name <- NULL
@@ -280,6 +268,10 @@ rf <- function(
         xy <- model$ranger.arguments$xy
       }
 
+      if(is.null(cluster)){
+        cluster <- model$ranger.arguments$cluster
+      }
+
       #writing ranger.arguments to the function environment
       list2env(ranger.arguments, envir=environment())
 
@@ -295,6 +287,9 @@ rf <- function(
   if(inherits(xy, "tbl_df") | inherits(xy, "tbl")){
     xy <- as.data.frame(xy)
   }
+
+  #END OF HANDLING ARGUMENTS
+  ##########################
 
   #predictor.variable.names comes from auto_vif or auto_cor
   if(inherits(predictor.variable.names, "variable_selection")){
@@ -486,7 +481,8 @@ rf <- function(
     num.threads = num.threads,
     save.memory = save.memory,
     seed = seed,
-    classification = classification
+    classification = classification,
+    cluster = cluster
   )
 
   #importance slot

@@ -1,4 +1,5 @@
-
+library(spatialRF)
+library(tictoc)
 
 #loading example data
 data(
@@ -9,13 +10,28 @@ data(
 )
 
 #automatic variable selection
+tic()
 rf.selection <- rf_select(
   data = ecoregions_df,
   dependent.variable.name = ecoregions_depvar_name,
   predictor.variable.names = ecoregions_predvar_names,
   xy = ecoregions_df[, c("x", "y")],
-  n.cores = 1
+  jackknife = TRUE
 )
+toc()
+
+tic()
+rf.selection <- rf_select(
+  data = ecoregions_df,
+  dependent.variable.name = ecoregions_depvar_name,
+  predictor.variable.names = ecoregions_predvar_names,
+  xy = ecoregions_df[, c("x", "y")],
+  jackknife = TRUE,
+  cluster = make_cluster()
+)
+toc()
+
+spatialRF::stop_cluster()
 
 #the result is a model!
 plot_importance(rf.selection)
