@@ -391,7 +391,7 @@ rf_select <- function(
 
       if(verbose == TRUE){
         message(
-          "Performing jackknife to remove preditors with negative contribution to model performance."
+          "Performing jackknife to remove predictors with negative contribution to model performance."
         )
       }
 

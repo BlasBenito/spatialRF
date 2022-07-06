@@ -12,8 +12,8 @@ testthat::test_that("`rf()` works", {
     ecoregions_depvar_name
     )
 
-  #fitting model
-  out <- rf_select(
+  #selection without preference.order and without jackknife
+  out1 <- rf_select(
     data = ecoregions_df,
     dependent.variable.name = ecoregions_depvar_name,
     predictor.variable.names = ecoregions_predvar_names,
@@ -22,128 +22,82 @@ testthat::test_that("`rf()` works", {
     verbose = FALSE
   )
 
-  testthat::expect_true(
-    out$ranger.arguments$num.trees == 500
+  testthat::expect_s3_class(
+    out1$variable.selection$univariate.importance,
+    "data.frame"
   )
 
-  testthat::expect_s3_class(
-    out,
-    "rf"
-    )
-
-  testthat::expect_s3_class(
-    out$importance$per.variable,
-    "data.frame"
-    )
-
   testthat::expect_named(
-    out$importance$per.variable,
-    c("variable", "importance")
+    out1$variable.selection,
+    c("univariate.importance", "jackknife.result", "cor", "vif", "selected.variables")
     )
 
-  testthat::expect_s3_class(
-    out$residuals$autocorrelation$per.distance,
-    "data.frame"
-    )
 
-  testthat::expect_named(
-    out$residuals$autocorrelation$per.distance,
-    c("distance.threshold", "moran.i", "moran.i.null", "p.value", "interpretation")
-    )
-
-  #re-fitting model with new hyperparameters
-  out.2 <- rf(
-    model = out,
-    ranger.arguments = list(num.trees = 5000),
+  #selection with preference.order and without jackknife
+  out2 <- rf_select(
+    data = ecoregions_df,
+    dependent.variable.name = ecoregions_depvar_name,
+    predictor.variable.names = ecoregions_predvar_names,
+    preference.order = c("ecoregion_area_km2", "neighbors_count", "climate_bio1_average", "climate_bio12_average"),
+    distance.matrix = ecoregions_distance_matrix,
+    distance.thresholds = c(0,100, 1000, 10000),
     verbose = FALSE
-  ) %>%
-    rf_select(jackknife = TRUE)
-
-  testthat::expect_true(
-    out.2$ranger.arguments$num.trees == 5000
   )
 
-  #fitting model with ranger.arguments
-   my.ranger.arguments <- list(
-   data = ecoregions_df,
-   dependent.variable.name = ecoregions_depvar_name,
-   predictor.variable.names = ecoregions_predvar_names,
-   distance.matrix = ecoregions_distance_matrix,
-   distance.thresholds = c(0, 1000)
-   )
+  testthat::expect_equal(
+    out2$variable.selection$univariate.importance, expected = NA
+  )
 
-   out.3 <- rf_select(
-     ranger.arguments = my.ranger.arguments
-     )
+  testthat::expect_named(
+    out2$variable.selection,
+    c("univariate.importance", "jackknife.result", "cor", "vif", "selected.variables")
+  )
 
-   testthat::expect_true(
-     out.3$ranger.arguments$num.trees == 500
-   )
+  #selection with preference.order and with jackknife
+  out3 <- rf_select(
+    data = ecoregions_df,
+    dependent.variable.name = ecoregions_depvar_name,
+    predictor.variable.names = ecoregions_predvar_names,
+    preference.order = c("ecoregion_area_km2", "neighbors_count", "climate_bio1_average", "climate_bio12_average"),
+    jackknife = TRUE,
+    distance.matrix = ecoregions_distance_matrix,
+    distance.thresholds = c(0,100, 1000, 10000),
+    verbose = FALSE
+  )
 
-   testthat::expect_s3_class(
-     out.3,
-     "rf"
-   )
+  testthat::expect_equal(
+    out2$variable.selection$univariate.importance, expected = NA
+  )
 
-   testthat::expect_s3_class(
-     out.3$importance$per.variable,
-     "data.frame"
-   )
+  testthat::expect_named(
+    out2$variable.selection,
+    c("univariate.importance", "jackknife.result", "cor", "vif", "selected.variables")
+  )
 
-   testthat::expect_named(
-     out.3$importance$per.variable,
-     c("variable", "importance")
-   )
-
-   testthat::expect_s3_class(
-     out.3$residuals$autocorrelation$per.distance,
-     "data.frame"
-   )
-
-   testthat::expect_named(
-     out.3$residuals$autocorrelation$per.distance,
-     c("distance.threshold", "moran.i", "moran.i.null", "p.value", "interpretation")
-   )
 
    #with cluster
-
-   out.4 <- rf_select(
+   out4 <- rf_select(
      data = ecoregions_df,
      dependent.variable.name = ecoregions_depvar_name,
      predictor.variable.names = ecoregions_predvar_names,
+     preference.order = c("ecoregion_area_km2", "neighbors_count", "climate_bio1_average", "climate_bio12_average"),
+     jackknife = TRUE,
      distance.matrix = ecoregions_distance_matrix,
      distance.thresholds = c(0,100, 1000, 10000),
      cluster = make_cluster(),
      verbose = FALSE
    )
 
-   testthat::expect_true(
-     out.4$ranger.arguments$num.trees == 500
-   )
+   stop_cluster()
 
-   testthat::expect_s3_class(
-     out.4,
-     "rf"
-   )
-
-   testthat::expect_s3_class(
-     out.4$importance$per.variable,
-     "data.frame"
+   testthat::expect_equal(
+     out4$variable.selection$univariate.importance, expected = NA
    )
 
    testthat::expect_named(
-     out.4$importance$per.variable,
-     c("variable", "importance")
+     out4$variable.selection,
+     c("univariate.importance", "jackknife.result", "cor", "vif", "selected.variables")
    )
 
-   testthat::expect_s3_class(
-     out.4$residuals$autocorrelation$per.distance,
-     "data.frame"
-   )
-
-   testthat::expect_named(
-     out.4$residuals$autocorrelation$per.distance,
-     c("distance.threshold", "moran.i", "moran.i.null", "p.value", "interpretation")
-   )
 
 })

@@ -1,12 +1,23 @@
-test_that("`auto_vif()` works", {
-  data(plant_richness_df)
+testthat::test_that("`auto_vif()` works", {
+
+  library(spatialRF)
+
+  #loading data
+  data(
+    ecoregions_df,
+    ecoregions_distance_matrix,
+    ecoregions_predvar_names,
+    ecoregions_depvar_name
+  )
+
   out <- auto_vif(
-    x = plant_richness_df[, 5:21],
+    x = ecoregions_df,
     verbose = FALSE,
-    preference.order = colnames(plant_richness_df[5:21])
+    preference.order = ecoregions_predvar_names
     )
-  expect_type(out, "list")
-  expect_length(out, 3)
-  expect_s3_class(out$vif, "data.frame")
-  expect_named(out, c("vif", "selected.variables", "selected.variables.df"))
+  testthat::expect_type(out, "list")
+  testthat::expect_length(out, 3)
+  testthat::expect_s3_class(out$vif, "data.frame")
+  testthat::expect_named(out, c("vif", "selected.variables", "selected.variables.df"))
+
 })
