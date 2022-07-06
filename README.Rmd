@@ -61,7 +61,7 @@ I will do my best to solve any issues ASAP!
 
 The goal of `spatialRF` is to help fitting *explanatory spatial regression* to understand how a set of predictors and the spatial structure of the data influences the response variable. Therefore, the spatial analyses implemented in the package can be applied to any spatial dataset, regular or irregular, with a sample size between \~100 and \~5000 cases (the higher end will depend on the RAM memory available), a quantitative or binary (values 0 and 1) response variable, and a set of predictive variables.
 
-All functions but `rf_spatial()` work with non-spatial data as well if the arguments `ecoregions_distance_matrix` and `distance_thresholds` are not provided. In such case, the number of training cases is no longer limited by the size of the distance matrix, and models can be trained with hundreds of thousands of rows. In such case, the spatial autocorrelation of the model's residuals is not assessed.
+All functions but `rf_spatial()` work with non-spatial data as well if the arguments `ecoregions.distance_matrix` and `distance_thresholds` are not provided. In such case, the number of training cases is no longer limited by the size of the distance matrix, and models can be trained with hundreds of thousands of rows. In such case, the spatial autocorrelation of the model's residuals is not assessed.
 
 However, **when the focus is on fitting spatial models**, and due to the nature of the *spatial predictors* used to represent the spatial structure of the training data, **there are many things this package cannot do** if you aim to use the spatial analyses implemented in it:
 

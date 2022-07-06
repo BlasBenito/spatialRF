@@ -536,8 +536,13 @@ rf_select <- function(
 
   if(verbose == TRUE){
     message(
-      "Job done, you will find the results of the variable selection in the slot 'variable.selection' of the output model."
+      "Job done, you will find the variable selection results in the slot 'variable.selection' of the output model."
     )
+  }
+
+  #adding cluster to model
+  if(!is.null(cluster) & "cluster" %in% class(cluster)){
+    m$ranger.arguments$cluster <- cluster
   }
 
   #adding new slot to the output model
