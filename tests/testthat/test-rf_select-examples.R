@@ -100,4 +100,40 @@ testthat::test_that("`rf()` works", {
    )
 
 
+   #input from auto_vif() and auto_cor()
+   testthat::expect_warning(
+     variable.selection <- auto_cor(
+       x = ecoregions_df,
+       verbose = FALSE,
+       preference.order = ecoregions_predvar_names
+     ) %>%
+       auto_vif()
+   )
+
+   testthat::expect_warning(
+     out5 <- rf_select(
+       data = ecoregions_df,
+       dependent.variable.name = ecoregions_depvar_name,
+       predictor.variable.names = variable.selection,
+       preference.order = variable.selection$selected.variables,
+       jackknife = TRUE,
+       distance.matrix = ecoregions_distance_matrix,
+       distance.thresholds = c(0,100, 1000, 10000),
+       cluster = make_cluster(),
+       verbose = FALSE
+     )
+   )
+
+   stop_cluster()
+
+   testthat::expect_equal(
+     out5$variable.selection$univariate.importance, expected = NA
+   )
+
+   testthat::expect_named(
+     out5$variable.selection,
+     c("univariate.importance", "jackknife.result", "cor", "vif", "selected.variables")
+   )
+
+
 })

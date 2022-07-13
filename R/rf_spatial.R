@@ -116,34 +116,34 @@
 #' @rdname rf_spatial
 #' @export
 rf_spatial <- function(
-  model = NULL,
-  data = NULL,
-  dependent.variable.name = NULL,
-  predictor.variable.names = NULL,
-  distance.matrix = NULL,
-  distance.thresholds = NULL,
-  xy = NULL,
-  ranger.arguments = NULL,
-  scaled.importance = FALSE,
-  method = c(
-    "mem.moran.sequential", #mem ordered by their Moran's I.
-    "mem.effect.sequential", #mem added in order of effect.
-    "mem.effect.recursive", #mem added maximizing their joint effect.
-    "hengl", #all distance matrix columns as predictors
-    "hengl.moran.sequential", #distance matrix columns added in the order of their Moran's I
-    "hengl.effect.sequential", #distance matrix columns added in order of their effect.
-    "hengl.effect.recursive", #distance matrix columns added maximizing their joint effect.
-    "pca.moran.sequential", #pca factors added in order of their Moran's I.
-    "pca.effect.sequential", #pca factors added in order of effect
-    "pca.effect.recursive" #pca factors added maximizing their joint effect.
-  ),
-  max.spatial.predictors = NULL,
-  weight.r.squared = NULL,
-  weight.penalization.n.predictors = NULL,
-  seed = 1,
-  verbose = TRUE,
-  n.cores = parallel::detectCores() - 1,
-  cluster = NULL
+    model = NULL,
+    data = NULL,
+    dependent.variable.name = NULL,
+    predictor.variable.names = NULL,
+    distance.matrix = NULL,
+    distance.thresholds = NULL,
+    xy = NULL,
+    ranger.arguments = NULL,
+    scaled.importance = FALSE,
+    method = c(
+      "mem.moran.sequential", #mem ordered by their Moran's I.
+      "mem.effect.sequential", #mem added in order of effect.
+      "mem.effect.recursive", #mem added maximizing their joint effect.
+      "hengl", #all distance matrix columns as predictors
+      "hengl.moran.sequential", #distance matrix columns added in the order of their Moran's I
+      "hengl.effect.sequential", #distance matrix columns added in order of their effect.
+      "hengl.effect.recursive", #distance matrix columns added maximizing their joint effect.
+      "pca.moran.sequential", #pca factors added in order of their Moran's I.
+      "pca.effect.sequential", #pca factors added in order of effect
+      "pca.effect.recursive" #pca factors added maximizing their joint effect.
+    ),
+    max.spatial.predictors = NULL,
+    weight.r.squared = NULL,
+    weight.penalization.n.predictors = NULL,
+    seed = 1,
+    verbose = TRUE,
+    n.cores = parallel::detectCores() - 1,
+    cluster = NULL
 ){
 
   #declaring variables
@@ -169,52 +169,160 @@ rf_spatial <- function(
     several.ok = FALSE
   )
 
-  # FITTING NON-SPATIAL model or
-  # GETTING ARGUMENTS FROM model
-  #####################################
+  #HANDLING ARGUMENTS
+  ######################################
 
-  #if model is not provided
+  #if model is provided
+  if(!is.null(model)){
+
+    #stopping if model is not of the right class
+    if(!("rf" %in% class(model))){
+      stop("The argument 'model' is not of the class 'rf'.")
+    }
+
+    #RULE 1: if ranger.arguments is not provided
+    if(is.null(ranger.arguments)){
+
+      #overriding input arguments
+      data <- NULL
+      dependent.variable.name <- NULL
+      predictor.variable.names <- NULL
+      distance.matrix <- NULL
+      distance.thresholds <- NULL
+      xy <- NULL
+
+      #writing the model's ranger.arguments to the environment
+      ranger.arguments <- model$ranger.arguments
+
+      #writing arguments to the function environment
+      list2env(model$ranger.arguments, envir=environment())
+
+    } else {
+
+      #RULE 2:
+      #input arguments in model$ranger.arguments take precedence
+
+      ranger.arguments$data <- NULL
+      ranger.arguments$dependent.variable.name <- NULL
+      ranger.arguments$predictor.variable.names <- NULL
+      ranger.arguments$distance.matrix <- NULL
+      ranger.arguments$distance.thresholds <- NULL
+      ranger.arguments$xy <- NULL
+
+      #writing arguments to the function environment
+      list2env(model$ranger.arguments, envir=environment())
+      list2env(ranger.arguments, envir=environment())
+
+
+    }
+
+  } else {
+    #RULE 3:
+
+    if(!is.null(ranger.arguments)){
+
+      if(is.null(data)){
+        data <- model$ranger.arguments$data
+      }
+
+      if(is.null(dependent.variable.name)){
+        dependent.variable.name <- model$ranger.arguments$dependent.variable.name
+      }
+
+      if(is.null(predictor.variable.names)){
+        predictor.variable.names <- model$ranger.arguments$predictor.variable.names
+      }
+
+      if(is.null(distance.matrix)){
+        distance.matrix <- model$ranger.arguments$distance.matrix
+      }
+
+      if(is.null(distance.thresholds)){
+        distance.thresholds <- model$ranger.arguments$distance.thresholds
+      }
+
+      if(is.null(xy)){
+        xy <- model$ranger.arguments$xy
+      }
+
+      if(is.null(cluster)){
+        cluster <- model$ranger.arguments$cluster
+      }
+
+      #writing ranger.arguments to the function environment
+      list2env(ranger.arguments, envir=environment())
+
+    }
+
+  }
+
+  #coerce to data frame if tibble
+  if(inherits(data, "tbl_df") | inherits(data, "tbl")){
+    data <- as.data.frame(data)
+  }
+
+  if(inherits(xy, "tbl_df") | inherits(xy, "tbl")){
+    xy <- as.data.frame(xy)
+  }
+
+  #END OF HANDLING ARGUMENTS
+  ##########################
+
+  #stopping if no distance matrix
+  if(is.null(distance.matrix)){
+
+    stop("The argument 'distance.matrix' is missing.")
+
+  }
+
+   #stopping if no dependent.variable.name
+  if(is.null(dependent.variable.name)){
+
+    stop("The argument 'dependent.variable.name' is missing.")
+
+  }
+
+  #stopping if no predictor.variable.names
+  if(is.null(predictor.variable.names)){
+
+    stop("The argument 'predictor.variable.names' is missing.")
+
+  } else {
+
+    #predictor.variable.names comes from auto_vif or auto_cor
+    if(inherits(predictor.variable.names, "variable_selection")){
+
+      predictor.variable.names <- predictor.variable.names$selected.variables
+
+    }
+
+  }
+
+  #HANDLING PARALLELIZATION
+  ##########################
+  if("cluster" %in% class(cluster)){
+
+    #registering cluster
+    doParallel::registerDoParallel(cl = cluster)
+
+    #parallel iterator
+    `%iterator%` <- foreach::`%dopar%`
+
+    #restricting the number of cores
+    n.cores <- 1
+    ranger.arguments$num.threads <- 1
+
+  } else {
+
+    #sequential iterator
+    `%iterator%` <- foreach::`%do%`
+
+  }
+
+  ##########################
+  #END OF HANDLING PARALLELIZATION
+
   if(is.null(model)){
-
-    #stopping if no data
-    if(is.null(data)){
-
-      stop("The argument 'data' is missing.")
-
-    } else {
-
-      #coerce to data frame if tibble
-      if(inherits(data, "tbl_df") | inherits(data, "tbl")){
-        data <- as.data.frame(data)
-      }
-
-    }
-
-    #coerce to data frame if tibble
-    if(inherits(xy, "tbl_df") | inherits(xy, "tbl")){
-      xy <- as.data.frame(xy)
-    }
-
-    #stopping if no distance matrix
-    if(is.null(distance.matrix)){
-      stop("The argument 'distance.matrix' is missing.")
-    }
-    #stopping if no dependent.variable.name
-    if(is.null(dependent.variable.name)){
-      stop("The argument 'dependent.variable.name' is missing.")
-    }
-    #stopping if no predictor.variable.names
-    if(is.null(predictor.variable.names)){
-      stop("The argument 'predictor.variable.names' is missing.")
-    } else {
-      #predictor.variable.names comes from auto_vif or auto_cor
-      if(inherits(predictor.variable.names, "variable_selection")){
-        predictor.variable.names <- predictor.variable.names$selected.variables
-      }
-    }
-
-    #controlling num.threads
-    ranger.arguments$num.threads <- n.cores
 
     #fitting non-spatial model
     model <- rf(
@@ -231,34 +339,8 @@ rf_spatial <- function(
       verbose = FALSE
     )
 
-    } else {
+  }
 
-      #getting arguments from model
-      ranger.arguments <- model$ranger.arguments
-      data <- ranger.arguments$data
-      dependent.variable.name <- ranger.arguments$dependent.variable.name
-      predictor.variable.names <- ranger.arguments$predictor.variable.names
-      distance.matrix <- ranger.arguments$distance.matrix
-
-      if(is.null(distance.matrix)){
-        stop("The argument 'distance.matrix' is missing.")
-      }
-
-      distance.thresholds <- ranger.arguments$distance.thresholds
-      if(is.null(distance.thresholds)){
-        distance.thresholds <- default_distance_thresholds(distance.matrix = distance.matrix)
-      }
-
-      scaled.importance <- ranger.arguments$scaled.importance
-      seed <- model$ranger.arguments$seed
-
-      #getting cluster from model if "cluster" is not provided
-      if(is.null(cluster) & "cluster" %in% names(model)){
-          cluster <- model$cluster
-      }
-
-
-    }
 
   #reference moran's I for selection of spatial predictors
   if(!is.null(model$residuals$autocorrelation$max.moran)){
@@ -313,8 +395,8 @@ rf_spatial <- function(
       seq(
         1,
         ncol(distance.matrix)
-        )
       )
+    )
     spatial.predictors.selected <- colnames(spatial.predictors.df)
 
     if(verbose == TRUE){

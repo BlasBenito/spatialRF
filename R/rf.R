@@ -279,6 +279,13 @@ rf <- function(
 
   }
 
+  #predictor.variable.names comes from auto_vif or auto_cor
+  if(inherits(predictor.variable.names, "variable_selection")){
+
+    predictor.variable.names <- predictor.variable.names$selected.variables
+
+  }
+
   #coerce to data frame if tibble
   if(inherits(data, "tbl_df") | inherits(data, "tbl")){
     data <- as.data.frame(data)
