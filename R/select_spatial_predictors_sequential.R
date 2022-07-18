@@ -88,11 +88,19 @@ select_spatial_predictors_sequential <- function(
 ){
 
   #predictor.variable.names comes from auto_vif or auto_cor
-  if(!is.null(predictor.variable.names)){
-    if(inherits(predictor.variable.names, "variable_selection")){
-      predictor.variable.names <- predictor.variable.names$selected.variables
-    }
+  if(inherits(predictor.variable.names, "variable_selection")){
+
+    predictor.variable.names <- predictor.variable.names$selected.variables
+
   }
+
+  #coerce to data frame if tibble
+  if(inherits(data, "tbl_df") | inherits(data, "tbl")){
+    data <- as.data.frame(data)
+  }
+
+  #END OF HANDLING ARGUMENTS
+  ##########################
 
   #getting spatial.predictors.rank
   spatial.predictors.ranking <- spatial.predictors.ranking$ranking
@@ -120,7 +128,8 @@ select_spatial_predictors_sequential <- function(
   ranger.arguments$predictor.variable.names <- NULL
   ranger.arguments$num.threads <- 1
 
-  #handling parallelization
+  #HANDLING PARALLELIZATION
+  ##########################
   if("cluster" %in% class(cluster)){
 
     #registering cluster
@@ -129,15 +138,24 @@ select_spatial_predictors_sequential <- function(
     #parallel iterator
     `%iterator%` <- foreach::`%dopar%`
 
-    #restricting the number of cores
-    n.cores <- 1
+    #in-loop cores and ranger arguments
+    in.loop.n.cores <- 1
+    in.loop.ranger.arguments <- ranger.arguments
+    in.loop.ranger.arguments$num.threads <- 1
 
   } else {
 
     #sequential iterator
     `%iterator%` <- foreach::`%do%`
 
+    #in-loop cores and ranger arguments
+    in.loop.n.cores <- n.cores
+    in.loop.ranger.arguments <- ranger.arguments
+
   }
+
+  ##########################
+  #END OF HANDLING PARALLELIZATION
 
   #parallelized loop
   spatial.predictors.i <- NULL
@@ -170,8 +188,9 @@ select_spatial_predictors_sequential <- function(
       predictor.variable.names = predictor.variable.names.i,
       distance.matrix = distance.matrix,
       distance.thresholds = distance.thresholds,
-      ranger.arguments = ranger.arguments,
+      ranger.arguments = in.loop.ranger.arguments,
       seed = spatial.predictors.i,
+      n.cores = in.loop.n.cores,
       verbose = FALSE
     )
 

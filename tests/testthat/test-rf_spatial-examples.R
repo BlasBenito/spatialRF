@@ -1,57 +1,241 @@
-test_that("`rf_spatial()` works", {
-  data(distance_matrix)
-  data(plant_richness_df)
-  out <- rf_spatial(
-    data = plant_richness_df,
-    dependent.variable.name = "richness_species_vascular",
-    predictor.variable.names = colnames(plant_richness_df)[5:21],
-    distance.matrix = distance_matrix,
-    distance.thresholds = c(0, 500, 1000),
+testthat::test_that("`rf_spatial()` works", {
+
+  library(spatialRF)
+  library(magrittr)
+
+  #loading data
+  data(
+    ecoregions_df,
+    ecoregions_distance_matrix,
+    ecoregions_predvar_names,
+    ecoregions_depvar_name
+  )
+
+  cluster <- make_cluster()
+
+  #fitting model
+  testthat::expect_warning(
+  out.1 <- rf_spatial(
+    data = ecoregions_df,
+    dependent.variable.name = ecoregions_depvar_name,
+    predictor.variable.names = ecoregions_predvar_names,
+    distance.matrix = ecoregions_distance_matrix,
+    distance.thresholds = c(0,100, 1000, 10000),
     method = "hengl",
-    n.cores = 7,
+    cluster = cluster,
     verbose = FALSE
   )
-  expect_equal(inherits(out, "rf_spatial"), TRUE)
-  expect_equal(inherits(out$importance$per.variable.plot, "ggplot"), TRUE)
-  expect_equal(inherits(out$residuals$autocorrelation$plot, "ggplot"), TRUE)
-  expect_equal(length(out$performance$rmse), 1)
-  expect_equal(length(out$performance$nrmse), 1)
-  expect_equal(length(out$performance$r.squared), 1)
-  expect_equal(length(out$performance$pseudo.r.squared), 1)
+  )
 
-  out <- rf_spatial(
-    data = plant_richness_df,
-    dependent.variable.name = "richness_species_vascular",
-    predictor.variable.names = colnames(plant_richness_df)[5:21],
-    distance.matrix = distance_matrix,
-    distance.thresholds = c(0, 500, 1000),
+  testthat::expect_equal(
+    inherits(
+      out.1,
+      "rf_spatial"
+      ),
+    TRUE
+    )
+
+  #fitting model
+  testthat::expect_warning(
+  out.2 <- rf_spatial(
+    data = ecoregions_df,
+    dependent.variable.name = ecoregions_depvar_name,
+    predictor.variable.names = ecoregions_predvar_names,
+    distance.matrix = ecoregions_distance_matrix,
+    distance.thresholds = c(0,100, 1000, 10000),
+    method = "hengl.moran.sequential",
+    verbose = FALSE,
+    cluster = cluster,
+  )
+  )
+
+  testthat::expect_equal(
+    inherits(
+      out.2,
+      "rf_spatial"
+    ),
+    TRUE
+  )
+
+  #fitting model
+  testthat::expect_warning(
+  out.3 <- rf_spatial(
+    data = ecoregions_df,
+    dependent.variable.name = ecoregions_depvar_name,
+    predictor.variable.names = ecoregions_predvar_names,
+    distance.matrix = ecoregions_distance_matrix,
+    distance.thresholds = c(0,100, 1000, 10000),
+    method = "hengl.effect.sequential",
+    verbose = FALSE,
+    cluster = cluster,
+  )
+  )
+
+  testthat::expect_equal(
+    inherits(
+      out.3,
+      "rf_spatial"
+    ),
+    TRUE
+  )
+
+  #fitting model
+  testthat::expect_warning(
+  out.4 <- rf_spatial(
+    data = ecoregions_df,
+    dependent.variable.name = ecoregions_depvar_name,
+    predictor.variable.names = ecoregions_predvar_names,
+    distance.matrix = ecoregions_distance_matrix,
+    distance.thresholds = c(0,100, 1000, 10000),
+    method = "hengl.effect.recursive",
+    verbose = FALSE,
+    cluster = cluster,
+  )
+  )
+
+  testthat::expect_equal(
+    inherits(
+      out.4,
+      "rf_spatial"
+    ),
+    TRUE
+  )
+
+
+  #fitting model
+  testthat::expect_warning(
+  out.5 <- rf_spatial(
+    data = ecoregions_df,
+    dependent.variable.name = ecoregions_depvar_name,
+    predictor.variable.names = ecoregions_predvar_names,
+    distance.matrix = ecoregions_distance_matrix,
+    distance.thresholds = c(0,100, 1000, 10000),
+    method = "pca.moran.sequential",
+    verbose = FALSE,
+    cluster = cluster,
+  )
+  )
+
+  testthat::expect_equal(
+    inherits(
+      out.5,
+      "rf_spatial"
+    ),
+    TRUE
+  )
+
+  #fitting model
+  testthat::expect_warning(
+  out.6 <- rf_spatial(
+    data = ecoregions_df,
+    dependent.variable.name = ecoregions_depvar_name,
+    predictor.variable.names = ecoregions_predvar_names,
+    distance.matrix = ecoregions_distance_matrix,
+    distance.thresholds = c(0,100, 1000, 10000),
+    method = "pca.effect.sequential",
+    verbose = FALSE,
+    cluster = cluster,
+  )
+  )
+
+  testthat::expect_equal(
+    inherits(
+      out.6,
+      "rf_spatial"
+    ),
+    TRUE
+  )
+
+
+  #fitting model
+  testthat::expect_warning(
+  out.7 <- rf_spatial(
+    data = ecoregions_df,
+    dependent.variable.name = ecoregions_depvar_name,
+    predictor.variable.names = ecoregions_predvar_names,
+    distance.matrix = ecoregions_distance_matrix,
+    distance.thresholds = c(0,100, 1000, 10000),
+    method = "pca.effect.recursive",
+    verbose = FALSE,
+    cluster = cluster,
+  )
+  )
+
+  testthat::expect_equal(
+    inherits(
+      out.7,
+      "rf_spatial"
+    ),
+    TRUE
+  )
+
+  #fitting model
+  testthat::expect_warning(
+  out.8 <- rf_spatial(
+    data = ecoregions_df,
+    dependent.variable.name = ecoregions_depvar_name,
+    predictor.variable.names = ecoregions_predvar_names,
+    distance.matrix = ecoregions_distance_matrix,
+    distance.thresholds = c(0,100, 1000, 10000),
     method = "mem.moran.sequential",
-    n.cores = 7,
-    verbose = FALSE
+    verbose = FALSE,
+    cluster = cluster,
   )
-  expect_equal(inherits(out, "rf_spatial"), TRUE)
-  expect_equal(inherits(out$importance$per.variable.plot, "ggplot"), TRUE)
-  expect_equal(inherits(out$residuals$autocorrelation$plot, "ggplot"), TRUE)
-  expect_equal(length(out$performance$rmse), 1)
-  expect_equal(length(out$performance$nrmse), 1)
-  expect_equal(length(out$performance$r.squared), 1)
-  expect_equal(length(out$performance$pseudo.r.squared), 1)
+  )
 
-  out <- rf_spatial(
-    data = plant_richness_df,
-    dependent.variable.name = "richness_species_vascular",
-    predictor.variable.names = colnames(plant_richness_df)[5:21],
-    distance.matrix = distance_matrix,
-    distance.thresholds = c(0, 500, 1000),
-    method = "mem.effect.recursive",
-    n.cores = 7,
-    verbose = FALSE
+  testthat::expect_equal(
+    inherits(
+      out.8,
+      "rf_spatial"
+    ),
+    TRUE
   )
-  expect_equal(inherits(out, "rf_spatial"), TRUE)
-  expect_equal(inherits(out$importance$per.variable.plot, "ggplot"), TRUE)
-  expect_equal(inherits(out$residuals$autocorrelation$plot, "ggplot"), TRUE)
-  expect_equal(length(out$performance$rmse), 1)
-  expect_equal(length(out$performance$nrmse), 1)
-  expect_equal(length(out$performance$r.squared), 1)
-  expect_equal(length(out$performance$pseudo.r.squared), 1)
+
+  #fitting model
+  testthat::expect_warning(
+  out.9 <- rf_spatial(
+    data = ecoregions_df,
+    dependent.variable.name = ecoregions_depvar_name,
+    predictor.variable.names = ecoregions_predvar_names,
+    distance.matrix = ecoregions_distance_matrix,
+    distance.thresholds = c(0,100, 1000, 10000),
+    method = "mem.effect.sequential",
+    verbose = FALSE,
+    cluster = cluster,
+  )
+  )
+
+  testthat::expect_equal(
+    inherits(
+      out.9,
+      "rf_spatial"
+    ),
+    TRUE
+  )
+
+  #fitting model
+  testthat::expect_warning(
+  out.10 <- rf_spatial(
+    data = ecoregions_df,
+    dependent.variable.name = ecoregions_depvar_name,
+    predictor.variable.names = ecoregions_predvar_names,
+    distance.matrix = ecoregions_distance_matrix,
+    distance.thresholds = c(0,100, 1000, 10000),
+    method = "mem.effect.recursive",
+    verbose = FALSE,
+    cluster = cluster,
+  )
+  )
+
+  testthat::expect_equal(
+    inherits(
+      out.10,
+      "rf_spatial"
+    ),
+    TRUE
+  )
+
+  stop_cluster(cluster = cluster)
+
+
 })

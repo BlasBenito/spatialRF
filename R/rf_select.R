@@ -295,14 +295,19 @@ rf_select <- function(
     #parallel iterator
     `%iterator%` <- foreach::`%dopar%`
 
-    #restricting the number of cores
-    n.cores <- 1
-    ranger.arguments$num.threads <- 1
+    #in-loop cores and ranger arguments
+    in.loop.n.cores <- 1
+    in.loop.ranger.arguments <- ranger.arguments
+    in.loop.ranger.arguments$num.threads <- 1
 
   } else {
 
     #sequential iterator
     `%iterator%` <- foreach::`%do%`
+
+    #in-loop cores and ranger arguments
+    in.loop.n.cores <- n.cores
+    in.loop.ranger.arguments <- ranger.arguments
 
   }
 
@@ -336,10 +341,10 @@ rf_select <- function(
         data = training.df,
         dependent.variable.name = "y",
         predictor.variable.names = c("x1", "x2", "x3"),
-        ranger.arguments = ranger.arguments,
+        ranger.arguments = in.loop.ranger.arguments,
         repetitions = repetitions,
         seed = seed,
-        n.cores = n.cores,
+        n.cores = in.loop.n.cores,
         verbose = FALSE
       )
 
@@ -461,10 +466,10 @@ rf_select <- function(
           data = data,
           dependent.variable.name = dependent.variable.name,
           predictor.variable.names = jackknife.df$variable[1:i],
-          ranger.arguments = ranger.arguments,
+          ranger.arguments = in.loop.ranger.arguments,
           repetitions = repetitions,
           seed = seed,
-          n.cores = n.cores,
+          n.cores = in.loop.n.cores,
           verbose = FALSE
         )
 

@@ -628,6 +628,11 @@ rf <- function(
     }
   }
 
+  #adding cluster to model
+  if(!is.null(cluster) & "cluster" %in% class(cluster)){
+    m$ranger.arguments$cluster <- cluster
+  }
+
   #adding rf class
   class(m) <- c("rf", "ranger")
 

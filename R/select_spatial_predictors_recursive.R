@@ -94,11 +94,19 @@ select_spatial_predictors_recursive <- function(
 ){
 
   #predictor.variable.names comes from auto_vif or auto_cor
-  if(!is.null(predictor.variable.names)){
-    if(inherits(predictor.variable.names, "variable_selection")){
-      predictor.variable.names <- predictor.variable.names$selected.variables
-    }
+  if(inherits(predictor.variable.names, "variable_selection")){
+
+    predictor.variable.names <- predictor.variable.names$selected.variables
+
   }
+
+  #coerce to data frame if tibble
+  if(inherits(data, "tbl_df") | inherits(data, "tbl")){
+    data <- as.data.frame(data)
+  }
+
+  #END OF HANDLING ARGUMENTS
+  ##########################
 
   #preparing fast ranger arguments
   if(is.null(ranger.arguments)){

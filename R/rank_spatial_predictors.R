@@ -72,18 +72,19 @@ rank_spatial_predictors <- function(
 ){
 
   #predictor.variable.names comes from auto_vif or auto_cor
-  if(!is.null(predictor.variable.names)){
-    if(inherits(predictor.variable.names, "variable_selection")){
-      predictor.variable.names <- predictor.variable.names$selected.variables
-    }
+  if(inherits(predictor.variable.names, "variable_selection")){
+
+    predictor.variable.names <- predictor.variable.names$selected.variables
+
   }
 
-  #testing method argument
-  ranking.method <- match.arg(
-    arg = ranking.method,
-    choices = c("moran", "effect"),
-    several.ok = FALSE
-    )
+  #coerce to data frame if tibble
+  if(inherits(data, "tbl_df") | inherits(data, "tbl")){
+    data <- as.data.frame(data)
+  }
+
+  #END OF HANDLING ARGUMENTS
+  ##########################
 
   #add write.forest = FALSE to ranger.arguments
   if(is.null(ranger.arguments)){
@@ -95,11 +96,19 @@ rank_spatial_predictors <- function(
   ranger.arguments$keep.inbag <- FALSE
   ranger.arguments$num.trees <- 500
 
+  #testing method argument
+  ranking.method <- match.arg(
+    arg = ranking.method,
+    choices = c("moran", "effect"),
+    several.ok = FALSE
+    )
+
   #reference.moran.i
   if(is.null(reference.moran.i)){reference.moran.i <- 1}
 
 
-  #handling parallelization
+  #HANDLING PARALLELIZATION
+  ##########################
   if("cluster" %in% class(cluster)){
 
     #registering cluster
@@ -108,15 +117,24 @@ rank_spatial_predictors <- function(
     #parallel iterator
     `%iterator%` <- foreach::`%dopar%`
 
-    #restricting the number of cores
-    n.cores <- 1
+    #in-loop cores and ranger arguments
+    in.loop.n.cores <- 1
+    in.loop.ranger.arguments <- ranger.arguments
+    in.loop.ranger.arguments$num.threads <- 1
 
   } else {
 
     #sequential iterator
     `%iterator%` <- foreach::`%do%`
 
+    #in-loop cores and ranger arguments
+    in.loop.n.cores <- n.cores
+    in.loop.ranger.arguments <- ranger.arguments
+
   }
+
+  ##########################
+  #END OF HANDLING PARALLELIZATION
 
   #parallelized loop
   spatial.predictors.i <- NULL
@@ -153,8 +171,8 @@ rank_spatial_predictors <- function(
         distance.matrix = distance.matrix,
         distance.thresholds = distance.thresholds,
         scaled.importance = FALSE,
-        ranger.arguments = ranger.arguments,
-        n.cores = n.cores,
+        ranger.arguments = in.loop.ranger.arguments,
+        n.cores = in.loop.n.cores,
         verbose = FALSE
       )
 

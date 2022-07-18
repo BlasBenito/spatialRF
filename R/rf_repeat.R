@@ -252,14 +252,19 @@ rf_repeat <- function(
     #parallel iterator
     `%iterator%` <- foreach::`%dopar%`
 
-    #restricting the number of cores
-    n.cores <- 1
-    ranger.arguments$num.threads <- 1
+    #in-loop cores and ranger arguments
+    in.loop.n.cores <- 1
+    in.loop.ranger.arguments <- ranger.arguments
+    in.loop.ranger.arguments$num.threads <- 1
 
   } else {
 
     #sequential iterator
     `%iterator%` <- foreach::`%do%`
+
+    #in-loop cores and ranger arguments
+    in.loop.n.cores <- n.cores
+    in.loop.ranger.arguments <- ranger.arguments
 
   }
 
@@ -281,10 +286,10 @@ rf_repeat <- function(
       distance.matrix = distance.matrix,
       distance.thresholds = distance.thresholds,
       xy = xy,
-      ranger.arguments = ranger.arguments,
+      ranger.arguments = in.loop.ranger.arguments,
       scaled.importance = scaled.importance,
       seed = ifelse(is.null(seed), i, seed + i),
-      n.cores = n.cores,
+      n.cores = in.loop.n.cores,
       verbose = FALSE
     )
 
@@ -336,10 +341,10 @@ rf_repeat <- function(
         distance.matrix = distance.matrix,
         distance.thresholds = distance.thresholds,
         xy = xy,
-        ranger.arguments = ranger.arguments,
+        ranger.arguments = in.loop.ranger.arguments,
         scaled.importance = scaled.importance,
         seed = seed,
-        n.cores = n.cores,
+        n.cores = in.loop.n.cores,
         verbose = FALSE
       )
 

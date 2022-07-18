@@ -88,7 +88,7 @@ auto_cor <- function(
         collapse = ", "
         )
       )
-    x <- x[, !(colnames(x) %in% non.numeric.columns)]
+    x <- x[, !(colnames(x) %in% non.numeric.columns), drop = FALSE]
   }
 
   #finding zero variance columns
@@ -185,7 +185,7 @@ auto_cor <- function(
 
   #selected variables
   selected.variables <- setdiff(colnames(x), removed.vars)
-  selected.variables.df <- x[, selected.variables]
+  selected.variables.df <- x[, selected.variables, drop = FALSE]
 
   if(verbose == TRUE){
     message(

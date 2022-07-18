@@ -256,13 +256,16 @@ rf_spatial <- function(
 
   }
 
+  #predictor.variable.names comes from auto_vif or auto_cor
+  if(inherits(predictor.variable.names, "variable_selection")){
+
+    predictor.variable.names <- predictor.variable.names$selected.variables
+
+  }
+
   #coerce to data frame if tibble
   if(inherits(data, "tbl_df") | inherits(data, "tbl")){
     data <- as.data.frame(data)
-  }
-
-  if(inherits(xy, "tbl_df") | inherits(xy, "tbl")){
-    xy <- as.data.frame(xy)
   }
 
   #END OF HANDLING ARGUMENTS
@@ -275,56 +278,9 @@ rf_spatial <- function(
 
   }
 
-   #stopping if no dependent.variable.name
-  if(is.null(dependent.variable.name)){
-
-    stop("The argument 'dependent.variable.name' is missing.")
-
-  }
-
-  #stopping if no predictor.variable.names
-  if(is.null(predictor.variable.names)){
-
-    stop("The argument 'predictor.variable.names' is missing.")
-
-  } else {
-
-    #predictor.variable.names comes from auto_vif or auto_cor
-    if(inherits(predictor.variable.names, "variable_selection")){
-
-      predictor.variable.names <- predictor.variable.names$selected.variables
-
-    }
-
-  }
-
-  #HANDLING PARALLELIZATION
-  ##########################
-  if("cluster" %in% class(cluster)){
-
-    #registering cluster
-    doParallel::registerDoParallel(cl = cluster)
-
-    #parallel iterator
-    `%iterator%` <- foreach::`%dopar%`
-
-    #restricting the number of cores
-    n.cores <- 1
-    ranger.arguments$num.threads <- 1
-
-  } else {
-
-    #sequential iterator
-    `%iterator%` <- foreach::`%do%`
-
-  }
-
-  ##########################
-  #END OF HANDLING PARALLELIZATION
-
+  #FITTING NON SPATIAL MODEL
   if(is.null(model)){
 
-    #fitting non-spatial model
     model <- rf(
       data = data,
       dependent.variable.name = dependent.variable.name,
@@ -340,7 +296,6 @@ rf_spatial <- function(
     )
 
   }
-
 
   #reference moran's I for selection of spatial predictors
   if(!is.null(model$residuals$autocorrelation$max.moran)){
@@ -389,7 +344,7 @@ rf_spatial <- function(
   ){
 
     #change name of distance matrix
-    spatial.predictors.df <- distance.matrix
+    spatial.predictors.df <- as.data.frame(distance.matrix)
     colnames(spatial.predictors.df) <- rownames(spatial.predictors.df) <- paste0(
       "spatial_predictor_",
       seq(
@@ -654,6 +609,11 @@ rf_spatial <- function(
       verbose = FALSE
     )
 
+  }
+
+  #adding cluster to model
+  if(!is.null(cluster) & "cluster" %in% class(cluster)){
+    model.spatial$ranger.arguments$cluster <- cluster
   }
 
   if(verbose == TRUE){

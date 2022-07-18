@@ -106,7 +106,7 @@ auto_vif <- function(
         collapse = ", "
       )
     )
-    x <- x[, !(colnames(x) %in% non.numeric.columns)]
+    x <- x[, !(colnames(x) %in% non.numeric.columns), drop = FALSE]
   }
 
   #finding zero variance columns
@@ -244,7 +244,7 @@ auto_vif <- function(
   repeat {
 
     #computes vif
-    vif.df <- .vif_to_df(x = x[, selected.variables])
+    vif.df <- .vif_to_df(x = x[, selected.variables, drop = FALSE])
 
     if(max(vif.df$vif) > vif.threshold){
 
@@ -267,13 +267,13 @@ auto_vif <- function(
   } #end of repeat
 
   #final vif.df
-  vif.df <- .vif_to_df(x = x[, selected.variables])
+  vif.df <- .vif_to_df(x = x[, selected.variables, drop = FALSE])
 
   #output list
   output.list <- list()
   output.list$vif <- vif.df
   output.list$selected.variables <- selected.variables
-  output.list$selected.variables.df <- x[, selected.variables]
+  output.list$selected.variables.df <- x[, selected.variables, drop = FALSE]
 
   output.list
 
@@ -317,13 +317,13 @@ auto_vif <- function(
   }
 
   #final vif.df
-  vif.df <- .vif_to_df(x = x[, selected.variables])
+  vif.df <- .vif_to_df(x = x[, selected.variables, drop = FALSE])
 
   #output list
   output.list <- list()
   output.list$vif <- vif.df[, c("variable", "vif")]
   output.list$selected.variables <- selected.variables
-  output.list$selected.variables.df <- x[, selected.variables]
+  output.list$selected.variables.df <- x[, selected.variables, drop = FALSE]
 
   output.list
 
