@@ -1,21 +1,45 @@
-test_that("`rf_tuning()` works", {
-  data(plant_richness_df)
+testthat::test_that("`rf_tuning()` works", {
 
-  out <- rf(
-    data = plant_richness_df,
-    dependent.variable.name = "richness_species_vascular",
-    predictor.variable.names = colnames(plant_richness_df)[5:21],
-    verbose = FALSE
+  library(spatialRF)
+  library(magrittr)
+
+  #loading data
+  data(
+    ecoregions_df,
+    ecoregions_distance_matrix,
+    ecoregions_predvar_names,
+    ecoregions_depvar_name
   )
 
-  out <- rf_tuning(
-    model = out,
-    xy = plant_richness_df[, c("x", "y")],
+  cluster <- spatialRF::make_cluster()
+
+  out <- rf(
+    data = ecoregions_df,
+    dependent.variable.name = ecoregions_depvar_name,
+    predictor.variable.names = ecoregions_predvar_names,
+    distance.matrix = ecoregions_distance_matrix,
+    xy = ecoregions_df[, c("x", "y")],
+    distance.thresholds = c(0,100, 1000, 10000),
+    verbose = FALSE
+  ) %>%
+    spatialRF::rf_tuning(
     num.trees = c(500, 1000),
-    mtry = seq(2, 14, by = 2),
-    min.node.size = c(5, 10, 20),
-    n.cores = 7,
-    verbose = FALSE)
-  expect_s3_class(out$tuning$tuning.df, "data.frame")
-  expect_type(out$tuning, "list")
+    mtry = c(2, 4),
+    min.node.size = c(5, 10),
+    cluster = cluster,
+    verbose = FALSE
+    )
+
+  spatialRF::stop_cluster()
+
+  testthat::expect_type(
+    out$tuning,
+    "list"
+  )
+
+  testthat::expect_s3_class(
+    out$tuning$tuning.df,
+    "data.frame"
+    )
+
 })

@@ -300,9 +300,12 @@ rf <- function(
 
   #predictor.variable.names comes from auto_vif or auto_cor
   if(inherits(predictor.variable.names, "variable_selection")){
+
     predictor.variable.names <- predictor.variable.names$selected.variables
   } else {
+
     if(sum(predictor.variable.names %in% colnames(data)) < length(predictor.variable.names)){
+
       stop(
         paste0(
           "The predictor.variable.names ",
@@ -314,6 +317,7 @@ rf <- function(
         )
       )
     }
+
   }
 
   #checking if dependent.variable.name and predictor.variable.names are in colnames(data)
@@ -353,6 +357,7 @@ rf <- function(
     data = data,
     dependent.variable.name = dependent.variable.name
   )
+
   if(is.binary == TRUE & is.null(case.weights)){
     case.weights <- case_weights(
       data = data,

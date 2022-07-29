@@ -37,9 +37,9 @@ rf_tuning(
 
 \item{verbose}{Logical. If TRUE, messages and plots generated during the execution of the function are displayed, Default: \code{TRUE}}
 
-\item{n.cores}{Integer, number of cores used by \code{\link[ranger]{ranger}} for parallel execution (used as value for the argument \code{num.threads} in \code{ranger()}). Slower option than using \code{cluster}, but with a smaller RAM usage. Default: \code{NULL}}
+\item{n.cores}{Integer, number of cores used by #' @param n.cores Integer, number of cores used by \code{\link[ranger]{ranger}} for parallel execution (used as value for the argument \code{num.threads} in \code{ranger()}). Default: \code{NULL}}
 
-\item{cluster}{A cluster definition generated with \code{parallel::makeCluster()} or \code{\link{make_cluster}}. Only advisable if you need to spread a large number of repetitions over the nodes of a large cluster. If provided, overrides \code{n.cores}. The function does not stop a cluster, please remember to shut it down with \code{parallel::stopCluster(cl = cluster_name)} at the end of your pipeline. Default: \code{parallel::detectCores() - 1}}
+\item{cluster}{A cluster definition generated with \code{parallel::makeCluster()} or \code{\link{make_cluster}}. Only advisable if you need to spread a large number of repetitions over the nodes of a large cluster when working with large data. If provided, overrides \code{n.cores}. The function does not stop a cluster, please remember to shut it down with \code{parallel::stopCluster(cl = cluster_name)} or \code{spatialRF::stop_cluster()} at the end of your pipeline. Default: \code{NULL}}
 }
 \value{
 A model with a new slot named \code{tuning}, with a data frame with the results of the tuning analysis.
@@ -65,10 +65,14 @@ out <- rf(
   predictor.variable.names = ecoregions_predvar_names,
   distance.matrix = ecoregions_distance_matrix,
   distance.thresholds = 0,
-  n.cores = 1
+  n.cores = 1,
+  verbose = FALSE
 )
 
 #model tuning
+#please replace "n.cores = 1" with
+#n.cores = parallel::detectCores() - 1"
+#to improve performance
 tuning <- rf_tuning(
   model = out,
   num.trees = c(100, 500),
@@ -77,6 +81,30 @@ tuning <- rf_tuning(
   xy = ecoregions_df[, c("x", "y")],
   n.cores = 1
 )
+
+#using the pipe and a cluster
+#please replace "cluster.cores = 1" with
+#"cluster.cores = parallel::detectCores() - 1"
+
+library(magrittr)
+cluster <- spatialRF::make_cluster(cluster.cores = 1)
+
+out <- rf(
+  data = ecoregions_df,
+  dependent.variable.name = ecoregions_depvar_name,
+  predictor.variable.names = ecoregions_predvar_names,
+  distance.matrix = ecoregions_distance_matrix,
+  xy = ecoregions_df[, c("x", "y")],
+  distance.thresholds = 0,
+  n.cores = 1
+) \%>\%
+tuning <- rf_tuning(
+  num.trees = c(100, 500),
+  mtry = c(2, 8),
+  min.node.size = c(5, 10)
+)
+
+spatialRF::stop_cluster()
 
 }
 }

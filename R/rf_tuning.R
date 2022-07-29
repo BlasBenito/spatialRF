@@ -9,8 +9,8 @@
 #' @param training.fraction Proportion between 0.2 and 0.9 indicating the number of records to be used in model training. Default: `0.75`
 #' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same. Default: `1`.
 #' @param verbose Logical. If TRUE, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
-#' @param n.cores Integer, number of cores used by \code{\link[ranger]{ranger}} for parallel execution (used as value for the argument `num.threads` in `ranger()`). Slower option than using `cluster`, but with a smaller RAM usage. Default: `NULL`
-#' @param cluster A cluster definition generated with `parallel::makeCluster()` or \code{\link{make_cluster}}. Only advisable if you need to spread a large number of repetitions over the nodes of a large cluster. If provided, overrides `n.cores`. The function does not stop a cluster, please remember to shut it down with `parallel::stopCluster(cl = cluster_name)` at the end of your pipeline. Default: `parallel::detectCores() - 1`
+#' @param n.cores Integer, number of cores used by #' @param n.cores Integer, number of cores used by \code{\link[ranger]{ranger}} for parallel execution (used as value for the argument `num.threads` in `ranger()`). Default: `NULL`
+#' @param cluster A cluster definition generated with `parallel::makeCluster()` or \code{\link{make_cluster}}. Only advisable if you need to spread a large number of repetitions over the nodes of a large cluster when working with large data. If provided, overrides `n.cores`. The function does not stop a cluster, please remember to shut it down with `parallel::stopCluster(cl = cluster_name)` or `spatialRF::stop_cluster()` at the end of your pipeline. Default: `NULL`
 #' @return A model with a new slot named `tuning`, with a data frame with the results of the tuning analysis.
 #' @seealso [rf_evaluate()]
 #' @examples
@@ -31,10 +31,14 @@
 #'   predictor.variable.names = ecoregions_predvar_names,
 #'   distance.matrix = ecoregions_distance_matrix,
 #'   distance.thresholds = 0,
-#'   n.cores = 1
+#'   n.cores = 1,
+#'   verbose = FALSE
 #' )
 #'
 #' #model tuning
+#' #please replace "n.cores = 1" with
+#' #n.cores = parallel::detectCores() - 1"
+#' #to improve performance
 #' tuning <- rf_tuning(
 #'   model = out,
 #'   num.trees = c(100, 500),
@@ -43,6 +47,30 @@
 #'   xy = ecoregions_df[, c("x", "y")],
 #'   n.cores = 1
 #' )
+#'
+#' #using the pipe and a cluster
+#' #please replace "cluster.cores = 1" with
+#' #"cluster.cores = parallel::detectCores() - 1"
+#'
+#' library(magrittr)
+#' cluster <- spatialRF::make_cluster(cluster.cores = 1)
+#'
+#' out <- rf(
+#'   data = ecoregions_df,
+#'   dependent.variable.name = ecoregions_depvar_name,
+#'   predictor.variable.names = ecoregions_predvar_names,
+#'   distance.matrix = ecoregions_distance_matrix,
+#'   xy = ecoregions_df[, c("x", "y")],
+#'   distance.thresholds = 0,
+#'   n.cores = 1
+#' ) %>%
+#' tuning <- rf_tuning(
+#'   num.trees = c(100, 500),
+#'   mtry = c(2, 8),
+#'   min.node.size = c(5, 10)
+#' )
+#'
+#' spatialRF::stop_cluster()
 #'
 #' }
 #' @importFrom rlang sym
@@ -68,39 +96,103 @@ rf_tuning <- function(
   num.trees.i <- NULL
   mtry.i <- NULL
   min.node.size.i <- NULL
+  dependent.variable.name <- NULL
+  distance.matrix <- NULL
+  distance.thresholds <- NULL
 
-  if(is.null(model)){
+  #HANDLING ARGUMENTS
+  ######################################
 
-    stop("The argument 'model' is empty, there is no model to tune.")
+  #if model is provided
+  if(!is.null(model)){
 
-  } else {
+    #stopping if model is not of the right class
+    if(!("rf" %in% class(model))){
+      stop("The argument 'model' is not of the class 'rf'.")
+    }
 
-    #getting arguments from model rather than ranger.arguments
-    ranger.arguments <- model$ranger.arguments
-    data <- ranger.arguments$data
-    dependent.variable.name <- ranger.arguments$dependent.variable.name
-    predictor.variable.names <- ranger.arguments$predictor.variable.names
-    distance.matrix <- ranger.arguments$distance.matrix
-    distance.thresholds <- ranger.arguments$distance.thresholds
+    #saving model class for later
+    model.class <- class(model)
+
+    #saving slots if it's an rf_spatial model
+    if(inherits(model, "rf_spatial")){
+      spatial <- model$spatial
+    }
 
     #getting xy
     if(is.null(xy)){
+
       if(is.null(model$ranger.arguments$xy)){
         stop("The argument 'xy' is required for spatial cross-validation.")
-      } else {
-        xy <- model$ranger.arguments$xy
       }
+
+    } else {
+
+      model$ranger.arguments$xy <- xy
+
+      if(sum(c("x", "y") %in% colnames(xy)) < 2){
+        stop("The column names of 'xy' must be 'x' and 'y'.")
+      }
+
+      if(nrow(xy) != nrow(data)){
+        stop("nrow(xy) and nrow(data) (stored in model$ranger.arguments$data) must be the same.")
+      }
+
     }
-  }
-  if(sum(c("x", "y") %in% colnames(xy)) < 2){
-    stop("The column names of 'xy' must be 'x' and 'y'.")
-  }
-  if(nrow(xy) != nrow(data)){
-    stop("nrow(xy) and nrow(data) (stored in model$ranger.arguments$data) must be the same.")
+
+    #loading ranger.arguments onto the function's environment
+    ranger.arguments <- model$ranger.arguments
+    list2env(ranger.arguments, envir=environment())
+
+    if(inherits(xy, "tbl_df") | inherits(xy, "tbl")){
+      xy <- as.data.frame(xy)
+    }
+
+    #predictor.variable.names comes from auto_vif or auto_cor
+    if(inherits(predictor.variable.names, "variable_selection")){
+      predictor.variable.names <- predictor.variable.names$selected.variables
+    }
+
+    #coerce to data frame if tibble
+    if(inherits(data, "tbl_df") | inherits(data, "tbl")){
+      data <- as.data.frame(data)
+    }
+
+  } else {
+
+    stop("The argument 'model' is empty, there is no model to tune!")
+
   }
 
-  #saving model class for later
-  model.class <- class(model)
+
+  #END OF HANDLING ARGUMENTS
+  ##########################
+
+  #HANDLING PARALLELIZATION
+  ##########################
+  #here we don't use dopar in the loop, but in rf_evaluate
+  `%iterator%` <- foreach::`%do%`
+
+  if("cluster" %in% class(cluster)){
+
+    #registering cluster
+    doParallel::registerDoParallel(cl = cluster)
+
+    #in-loop cores and ranger arguments
+    in.loop.n.cores <- 1
+
+  } else {
+
+    #in-loop cores and ranger arguments
+    in.loop.n.cores <- n.cores
+
+    #NULL cluster
+    cluster <- NULL
+
+  }
+
+  ##########################
+  #END OF HANDLING PARALLELIZATION
 
   #testing if the data is binary
   is.binary <- is_binary(
@@ -113,10 +205,6 @@ rf_tuning <- function(
     metric <- "r.squared"
   }
 
-  #saving slots if it's an rf_spatial model
-  if(inherits(model, "rf_spatial")){
-    spatial <- model$spatial
-  }
 
   #mtry
   if(is.null(mtry)){
@@ -179,47 +267,33 @@ rf_tuning <- function(
     min.node.size.i = combinations$min.node.size,
     .combine = "rbind",
     .verbose = FALSE
-  ) %do% {
+  ) %iterator% {
 
-    #filling ranger arguments
-    if(!is.null(ranger.arguments)){
-      ranger.arguments.i <- ranger.arguments
-    } else {
-      ranger.arguments.i <- list()
-    }
-    ranger.arguments.i$num.trees <- num.trees.i
-    ranger.arguments.i$mtry <- mtry.i
-    ranger.arguments.i$min.node.size <- min.node.size.i
-    ranger.arguments.i$importance <- "none"
-    ranger.arguments.i$num.threads <- 1
-    ranger.arguments.i$save.memory <- TRUE
-
-    #fit model with new hyperparameters
+    #fit and evaluate model with new hyperparameters
     m.i <- spatialRF::rf(
-      data = data,
-      dependent.variable.name = dependent.variable.name,
-      predictor.variable.names = predictor.variable.names,
-      distance.matrix = distance.matrix,
-      distance.thresholds = distance.thresholds,
-      ranger.arguments = ranger.arguments.i,
+      model = model,
+      ranger.arguments = list(
+        num.trees = num.trees.i,
+        mtry = mtry.i,
+        min.node.size = min.node.size.i,
+        importance = "none",
+        num.threads = in.loop.n.cores,
+        save.memory = TRUE
+      ),
       scaled.importance = FALSE,
       seed = seed,
-      n.cores = n.cores,
+      n.cores = in.loop.n.cores,
       verbose = FALSE
-    )
-
-    #evaluate with spatial cross-validation
-    m.i <- spatialRF::rf_evaluate(
-      model = m.i,
-      xy = xy,
-      repetitions = repetitions,
-      training.fraction = training.fraction,
-      metrics = metric,
-      seed = seed,
-      verbose = FALSE,
-      n.cores = n.cores,
-      cluster = cluster
-    )
+    ) %>%
+      spatialRF::rf_evaluate(
+        repetitions = repetitions,
+        training.fraction = training.fraction,
+        metrics = metric,
+        seed = seed,
+        verbose = FALSE,
+        n.cores = in.loop.n.cores,
+        cluster = cluster
+      )
 
     #getting performance measures
     m.i.performance <- spatialRF::get_evaluation(m.i)
@@ -302,6 +376,7 @@ rf_tuning <- function(
     distance.thresholds = distance.thresholds,
     xy = xy,
     n.cores = n.cores,
+    cluster = cluster,
     verbose = FALSE
   )
 
@@ -320,7 +395,7 @@ rf_tuning <- function(
 
   #comparing metric of the old model and the tuned one
 
-  #evaluate model
+  #evaluate input model
   model <- spatialRF::rf_evaluate(
     model = model,
     xy = xy,
@@ -332,7 +407,7 @@ rf_tuning <- function(
     cluster = cluster
   )
 
-  #evaluate model tuned
+  #evaluate tuned model
   model.tuned <- spatialRF::rf_evaluate(
     model = model.tuned,
     xy = xy,
@@ -345,6 +420,7 @@ rf_tuning <- function(
   )
 
   #extract r.squared values
+  #tuned model
   new.performance <- round(
     model.tuned$evaluation$aggregated[model.tuned$evaluation$aggregated$model == "Testing" &
         model.tuned$evaluation$aggregated$metric == metric.name,
@@ -352,6 +428,8 @@ rf_tuning <- function(
     ],
     3
   )
+
+  #old model
   old.performance <- round(
     model$evaluation$aggregated[
       model$evaluation$aggregated$model == "Testing" &
