@@ -89,6 +89,11 @@ rf_evaluate <- function(
   i <- NULL
   metric <- NULL
   value <- NULL
+  testing.auc <- NULL
+  testing.nrmse  <- NULL
+  testing.pseudo.r.squared  <- NULL
+  testing.r.squared <- NULL
+  testing.rmse <- NULL
 
   if(is.null(model)){
 
@@ -236,7 +241,7 @@ rf_evaluate <- function(
     }
 
     #generating spatial folds
-    spatial.folds <- make_spatial_fold(
+    spatial.folds <- spatialRF::make_spatial_fold(
       data = data,
       dependent.variable.name = dependent.variable.name,
       xy.i = xy.reference.records[i, ],
@@ -297,6 +302,7 @@ rf_evaluate <- function(
       out.df$training.r.squared = m.training$performance$r.squared
       out.df$testing.r.squared = round(cor(observed, predicted) ^ 2, 3)
     }
+
     if("pseudo.r.squared" %in% metrics){
       out.df$training.pseudo.r.squared = m.training$performance$pseudo.r.squared
       out.df$testing.pseudo.r.squared = round(cor(
@@ -304,6 +310,7 @@ rf_evaluate <- function(
         predicted
       ), 3)
     }
+
     if("rmse" %in% metrics){
       out.df$training.rmse = m.training$performance$rmse
       out.df$testing.rmse = round(spatialRF::root_mean_squared_error(
@@ -315,6 +322,7 @@ rf_evaluate <- function(
         out.df$testing.rmse <- NA
       }
     }
+
     if("nrmse" %in% metrics){
       out.df$training.nrmse = m.training$performance$nrmse
       out.df$testing.nrmse = round(spatialRF::root_mean_squared_error(
@@ -326,6 +334,7 @@ rf_evaluate <- function(
         out.df$testing.nrmse <- NA
       }
     }
+
     if("auc" %in% metrics){
       out.df$training.auc = m.training$performance$auc
       out.df$testing.auc = round(
@@ -345,34 +354,22 @@ rf_evaluate <- function(
 
   }
 
-  #copy of the evaluation results
+  #copy of results
   evaluation.df.unique <- evaluation.df
 
-  #names of the column to use to remove redundant folds
-  training.column <- paste0(
-    "training.",
-    metrics[1]
-  )
-  testing.column <- paste0(
-    "testing.",
-    metrics[1]
-  )
+  #copy of the evaluation results
+  evaluation.df.unique <- evaluation.df.unique %>%
+    dplyr::distinct(
+      testing.r.squared,
+      testing.pseudo.r.squared,
+      testing.rmse,
+      testing.nrmse,
+      testing.auc,
+      .keep_all = TRUE
+    )
 
-  #removing rows with NA in either column
-  evaluation.df.unique <- evaluation.df.unique[!with(evaluation.df.unique, is.na(training.column) & is.na(testing.column)),]
-
-  #rounding the columns and removing duplicates
-  if(sum(c(training.column, testing.column) %in% names(evaluation.df.unique)) == 2){
-
-    evaluation.df.unique[, training.column] <- round(evaluation.df.unique[, training.column], 3)
-
-    evaluation.df.unique[, testing.column] <- round(evaluation.df.unique[, testing.column], 3)
-
-    #finding unique records
-    evaluation.df.unique <- evaluation.df[!duplicated(evaluation.df[ , c(training.column, testing.column)]), ]
-
-  }
-
+  #remove columns without NA
+  evaluation.df.unique <- evaluation.df.unique[, names(na.omit(colSums(evaluation.df.unique)))]
 
   #message with number of removed folds
   nrow.difference <- nrow(evaluation.df) - nrow(evaluation.df.unique)

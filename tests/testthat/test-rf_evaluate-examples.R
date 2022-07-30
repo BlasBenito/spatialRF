@@ -1,5 +1,90 @@
-test_that("`rf_evaluate()` works", {
+testthat::test_that("`rf_evaluate()` works", {
+
   library(spatialRF)
+  library(magrittr)
+
+  #loading data
+  data(
+    ecoregions_df,
+    ecoregions_distance_matrix,
+    ecoregions_predvar_names,
+    ecoregions_depvar_name
+  )
+
+  cluster <- spatialRF::make_cluster()
+
+  metrics <- c(
+    "auc",
+    "r.squared",
+    "rmse",
+    "nrmse",
+    "pseudo.r.squared"
+  )
+
+  #continuous response
+  rf.model <- rf(
+    data = ecoregions_df,
+    dependent.variable.name = ecoregions_depvar_name,
+    predictor.variable.names = ecoregions_predvar_names,
+    distance.matrix = ecoregions_distance_matrix,
+    distance.thresholds = c(
+      0,
+      1000,
+      2000
+    ),
+    xy = ecoregions_df[,c("x", "y")],
+    cluster = cluster,
+    verbose = FALSE
+  ) %>%
+    rf_evaluate(
+      metrics = metrics,
+      repetitions = 30,
+      verbose = FALSE
+    )
+
+  testthat::expect_s3_class(
+    rf.model,
+    "rf_evaluate"
+    )
+
+  testthat::expect_type(
+    rf.model$evaluation,
+    "list"
+    )
+
+  testthat::expect_s3_class(
+    rf.model$evaluation$per.fold,
+    "data.frame"
+    )
+
+  testthat::expect_s3_class(
+    rf.model$evaluation$per.model,
+    "data.frame"
+    )
+
+  testthat::expect_s3_class(
+    rf.model$evaluation$aggregated,
+    "data.frame"
+    )
+
+
+  #binary response
+  ecoregions_df <- ecoregions_df %>%
+    dplyr::mutate(
+      plant_richness = ifelse(
+        plant_richness > 5000,
+        1,
+        0
+      )
+    )
+
+  metrics <- c(
+    "r.squared",
+    "rmse",
+    "auc",
+    "nrmse",
+    "pseudo.r.squared"
+  )
 
   rf.model <- rf(
     data = ecoregions_df,
@@ -8,26 +93,43 @@ test_that("`rf_evaluate()` works", {
     distance.matrix = ecoregions_distance_matrix,
     distance.thresholds = c(
       0,
-      1000, 2000
-    ), verbose = FALSE
+      1000,
+      2000
+    ),
+    xy = ecoregions_df[,c("x", "y")],
+    cluster = cluster,
+    verbose = FALSE
+  ) %>%
+    rf_evaluate(
+      metrics = metrics,
+      verbose = FALSE
+    )
+
+  spatialRF::stop_cluster()
+
+  testthat::expect_s3_class(
+    rf.model,
+    "rf_evaluate"
   )
 
-  rf.model <- rf_evaluate(
-    model = rf.model,
-    xy = ecoregions_df[,c("x", "y")],
-    verbose = FALSE,
-    n.cores = 7,
-    cluster = parallel::makeCluster(
-      parallel::detectCores() - 1,
-      type = "PSOCK"
-    )
-    )
+  testthat::expect_type(
+    rf.model$evaluation,
+    "list"
+  )
 
-  parallel::stopCluster(cl = cluster)
+  testthat::expect_s3_class(
+    rf.model$evaluation$per.fold,
+    "data.frame"
+  )
 
-  expect_s3_class(rf.model, "rf_evaluate")
-  expect_type(rf.model$evaluation, "list")
-  expect_s3_class(rf.model$evaluation$per.fold, "data.frame")
-  expect_s3_class(rf.model$evaluation$per.model, "data.frame")
-  expect_s3_class(rf.model$evaluation$aggregated, "data.frame")
+  testthat::expect_s3_class(
+    rf.model$evaluation$per.model,
+    "data.frame"
+  )
+
+  testthat::expect_s3_class(
+    rf.model$evaluation$aggregated,
+    "data.frame"
+  )
+
 })

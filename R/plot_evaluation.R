@@ -79,7 +79,7 @@ plot_evaluation <- function(
   }
 
   #getting plotting df
-  n.spatial.folds <- length(model$evaluation$spatial.folds)
+  n.spatial.folds <- nrow(model$evaluation$per.fold)
   x <- model$evaluation$per.fold.long
 
   #removing NA
