@@ -6,9 +6,10 @@
 \usage{
 rf_tuning(
   model = NULL,
-  num.trees = NULL,
-  mtry = NULL,
-  min.node.size = NULL,
+  num.trees = c(100, 1000),
+  mtry = c(3, 6),
+  min.node.size = c(5, 20),
+  max.depth = c(3, 6),
   xy = NULL,
   repetitions = 30,
   training.fraction = 0.75,
@@ -21,11 +22,13 @@ rf_tuning(
 \arguments{
 \item{model}{A model fitted with \code{\link[=rf]{rf()}}. If provided, the training data is taken directly from the model definition (stored in \code{model$ranger.arguments}). Default: \code{NULL}}
 
-\item{num.trees}{Numeric integer vector with the number of trees to fit on each model repetition. Default: \code{c(500, 1000, 2000)}.}
+\item{num.trees}{Numeric integer vector with the number of trees to fit on each model repetition. Default: \code{c(100, 1000)}.}
 
-\item{mtry}{Numeric integer vector, number of predictors to randomly select from the complete pool of predictors on each tree split. Default: \code{floor(seq(1, length(predictor.variable.names), length.out = 4))}}
+\item{mtry}{Numeric integer vector, number of predictors to randomly select from the complete pool of predictors on each tree split. Default: \code{c(3, 6)}}
 
-\item{min.node.size}{Numeric integer, minimal number of cases in a terminal node. Default: \code{c(5, 10, 20, 40)}}
+\item{min.node.size}{Numeric integer, minimal number of cases in a terminal node. Default: \code{c(5, 20)}}
+
+\item{max.depth}{Numeric integer, maximal tree depth. \code{max.depth} and \code{min.node.size} cannot be used together in a model, so whenever the user provides values for both, separate models for the different values of \code{min.node.size} and \code{max.depth} will be compared. Default: \code{c(3, 6)}}
 
 \item{xy}{Data frame or matrix with two columns containing coordinates and named "x" and "y". If \code{NULL}, the function will throw an error. Default: \code{NULL}}
 

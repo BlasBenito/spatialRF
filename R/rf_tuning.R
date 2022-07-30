@@ -1,9 +1,10 @@
 #' @title Tuning of random forest hyperparameters via spatial cross-validation
 #' @description Finds the optimal set of random forest hyperparameters `num.trees`, `mtry`, and `min.node.size` via grid search by maximizing the model's R squared, or AUC, if the response variable is binomial, via spatial cross-validation performed with [rf_evaluate()].
 #' @param model A model fitted with [rf()]. If provided, the training data is taken directly from the model definition (stored in `model$ranger.arguments`). Default: `NULL`
-#' @param num.trees Numeric integer vector with the number of trees to fit on each model repetition. Default: `c(500, 1000, 2000)`.
-#' @param mtry Numeric integer vector, number of predictors to randomly select from the complete pool of predictors on each tree split. Default: `floor(seq(1, length(predictor.variable.names), length.out = 4))`
-#' @param min.node.size Numeric integer, minimal number of cases in a terminal node. Default: `c(5, 10, 20, 40)`
+#' @param num.trees Numeric integer vector with the number of trees to fit on each model repetition. Default: `c(100, 1000)`.
+#' @param mtry Numeric integer vector, number of predictors to randomly select from the complete pool of predictors on each tree split. Default: `c(3, 6)`
+#' @param min.node.size Numeric integer, minimal number of cases in a terminal node. Default: `c(5, 20)`
+#' @param max.depth Numeric integer, maximal tree depth. `max.depth` and `min.node.size` cannot be used together in a model, so whenever the user provides values for both, separate models for the different values of `min.node.size` and `max.depth` will be compared. Default: `c(3, 6)`
 #' @param xy Data frame or matrix with two columns containing coordinates and named "x" and "y". If `NULL`, the function will throw an error. Default: `NULL`
 #' @param repetitions Integer, number of independent spatial folds to use during the cross-validation. Default: `30`.
 #' @param training.fraction Proportion between 0.2 and 0.9 indicating the number of records to be used in model training. Default: `0.75`
@@ -79,9 +80,10 @@
 #' @export
 rf_tuning <- function(
   model = NULL,
-  num.trees = NULL,
-  mtry = NULL,
-  min.node.size = NULL,
+  num.trees = c(100, 1000),
+  mtry = c(3, 6),
+  min.node.size = c(5, 20),
+  max.depth = c(3, 6),
   xy = NULL,
   repetitions = 30,
   training.fraction = 0.75,
@@ -96,12 +98,19 @@ rf_tuning <- function(
   num.trees.i <- NULL
   mtry.i <- NULL
   min.node.size.i <- NULL
+  max.depth.i <- NULL
   dependent.variable.name <- NULL
   distance.matrix <- NULL
   distance.thresholds <- NULL
 
   #HANDLING ARGUMENTS
   ######################################
+
+  #saving tuning arguments from destruction
+  num.trees.vector <- num.trees
+  mtry.vector <- mtry
+  min.node.size.vector <- min.node.size
+  max.depth.vector <- max.depth
 
   #if model is provided
   if(!is.null(model)){
@@ -207,22 +216,18 @@ rf_tuning <- function(
 
 
   #mtry
-  if(is.null(mtry)){
-    mtry <- as.integer(seq(1, length(predictor.variable.names) - 1, length.out = 4))
-  } else {
+  mtry <- as.integer(mtry.vector)
     if(max(mtry) > length(predictor.variable.names)){
       if(verbose == TRUE){
         message("Maximum 'mtry' set to length(predictor.variable.names)")
       }
       mtry <- mtry[mtry < length(predictor.variable.names)]
     }
-  }
-  mtry <- as.integer(mtry)
+
+
 
   #min.node.size
-  if(is.null(min.node.size)){
-    min.node.size <- c(5, 10, 20, 40)
-  } else {
+  min.node.size <- as.integer(min.node.size.vector)
     if(max(min.node.size) >= floor(nrow(data)/4)){
       min.node.size <- min.node.size[min.node.size <= floor(nrow(data)/4)]
       if(verbose == TRUE){
@@ -234,20 +239,31 @@ rf_tuning <- function(
         )
       }
     }
-  }
-  min.node.size <- as.integer(min.node.size)
 
   #num.trees
-  if(is.null(num.trees)){
-    num.trees <- c(500, 1000, 2000)
-  }
-  num.trees <- as.integer(num.trees)
+  num.trees <- as.integer(num.trees.vector)
+
+  #max.depth
+  max.depth <- as.integer(max.depth.vector)
 
   #combining values
-  combinations <- expand.grid(
+  combinations.min.node.size <- expand.grid(
     num.trees = num.trees,
     mtry = mtry,
-    min.node.size = min.node.size
+    min.node.size = min.node.size,
+    max.depth = NA
+  )
+
+  combinations.max.depth <- expand.grid(
+    num.trees = num.trees,
+    mtry = mtry,
+    min.node.size = NA,
+    max.depth = max.depth
+  )
+
+  combinations <- rbind(
+    combinations.min.node.size,
+    combinations.max.depth
   )
 
   if(verbose == TRUE){
@@ -265,21 +281,38 @@ rf_tuning <- function(
     num.trees.i = combinations$num.trees,
     mtry.i = combinations$mtry,
     min.node.size.i = combinations$min.node.size,
+    max.depth.i = combinations$max.depth,
     .combine = "rbind",
     .verbose = FALSE
   ) %iterator% {
 
-    #fit and evaluate model with new hyperparameters
-    m.i <- spatialRF::rf(
-      model = model,
-      ranger.arguments = list(
+    #preparing ranger arguments
+    if(!is.na(min.node.size.i)){
+      ranger.arguments.i <- list(
         num.trees = num.trees.i,
         mtry = mtry.i,
         min.node.size = min.node.size.i,
+        max.depth = NULL,
         importance = "none",
         num.threads = in.loop.n.cores,
         save.memory = TRUE
-      ),
+      )
+    } else {
+      ranger.arguments.i <- list(
+        num.trees = num.trees.i,
+        mtry = mtry.i,
+        min.node.size = NULL,
+        max.depth = max.depth.i,
+        importance = "none",
+        num.threads = in.loop.n.cores,
+        save.memory = TRUE
+      )
+    }
+
+    #fit and evaluate model with new hyperparameters
+    m.i <- spatialRF::rf(
+      model = model,
+      ranger.arguments = ranger.arguments.i,
       scaled.importance = FALSE,
       seed = seed,
       n.cores = in.loop.n.cores,
@@ -333,7 +366,7 @@ rf_tuning <- function(
     dplyr::arrange(dplyr::desc(!!rlang::sym(metric)))
 
   #getting metric name
-  metric.name <- colnames(tuning)[!(colnames(tuning) %in% c("num.trees", "mtry", "min.node.size", "moran.i.interpretation"))]
+  metric.name <- colnames(tuning)[!(colnames(tuning) %in% c("num.trees", "mtry", "min.node.size", "max.depth", "moran.i.interpretation"))]
 
   #preparing tuning list
   tuning.list <- list()
@@ -396,7 +429,7 @@ rf_tuning <- function(
   #comparing metric of the old model and the tuned one
 
   #evaluate input model
-  model <- spatialRF::rf_evaluate(
+  model <- rf_evaluate(
     model = model,
     xy = xy,
     repetitions = repetitions,
@@ -408,7 +441,7 @@ rf_tuning <- function(
   )
 
   #evaluate tuned model
-  model.tuned <- spatialRF::rf_evaluate(
+  model.tuned <- rf_evaluate(
     model = model.tuned,
     xy = xy,
     repetitions = repetitions,

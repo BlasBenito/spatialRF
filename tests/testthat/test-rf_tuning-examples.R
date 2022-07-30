@@ -23,9 +23,6 @@ testthat::test_that("`rf_tuning()` works", {
     verbose = FALSE
   ) %>%
     spatialRF::rf_tuning(
-    num.trees = c(500, 1000),
-    mtry = c(2, 4),
-    min.node.size = c(5, 10),
     cluster = cluster,
     verbose = FALSE
     )

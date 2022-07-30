@@ -357,14 +357,13 @@ rf_evaluate <- function(
   #copy of results
   evaluation.df.unique <- evaluation.df
 
+  #columns to look for
+  testing.columns <- paste0("testing.", metrics)
+
   #copy of the evaluation results
   evaluation.df.unique <- evaluation.df.unique %>%
     dplyr::distinct(
-      testing.r.squared,
-      testing.pseudo.r.squared,
-      testing.rmse,
-      testing.nrmse,
-      testing.auc,
+      dplyr::across(dplyr::all_of(testing.columns)),
       .keep_all = TRUE
     )
 
@@ -459,7 +458,7 @@ rf_evaluate <- function(
   #to long format
   performance.df.long <- performance.df %>%
     tidyr::pivot_longer(
-      cols = seq(1, length(metrics)),
+      cols = which(colnames(performance.df) %in% metrics),
       names_to = "metric",
       values_to = "value"
     ) %>%
