@@ -1,6 +1,8 @@
 ## Version 1.1.4 (work in progress)
 
-Added the function `rf_select()` to select variables.
+Refactored auto_vif and auto_cor to improve how they generate preference.order automatically when the user does not provide it. Now both functions can accept a preference.order of length 1.
+
+Added the function `rf_select()` to select variables using the performance of univariate models as criteria.
 
 The function `rf_repeat()` now can be run with `repetitions = 1`.
 
