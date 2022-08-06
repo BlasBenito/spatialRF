@@ -14,7 +14,7 @@ auto_vif(
 \arguments{
 \item{x}{A data frame with predictors or the result of \code{\link[=auto_cor]{auto_cor()}}. Default: \code{NULL}.}
 
-\item{preference.order}{Character vector indicating the user's order of preference to keep variables. Predictors not included in this argument are ranked at random (with rank scores below those predictors in \code{preference.order}). If not provided, variables in \code{x} are prioritised by their column order. Default: \code{NULL}.}
+\item{preference.order}{Character vector indicating the user's order of preference to keep variables. Predictors not included in this argument are ranked by their VIF. Default: \code{NULL}.}
 
 \item{vif.threshold}{Numeric between 0 and 10 defining the selection threshold for the VIF analysis. Higher numbers result in a more relaxed variable selection. Default: 5.}
 
@@ -29,7 +29,7 @@ List with three slots:
 }
 }
 \description{
-Selects predictors that are not linear combinations of other predictors by using computing their variance inflation factors (VIF). Allows the user to define an order of preference for the selection of predictors. \strong{Warning}: variables in \code{preference.order} not in \code{colnames(x)}, and non-numeric columns are removed silently from \code{x} and \code{preference.order}. The same happens with rows having NA values (\code{\link[=na.omit]{na.omit()}} is applied). The function issues a warning if zero-variance columns are found.
+Selects predictors that are not linear combinations of other predictors by using computing their variance inflation factors (VIF). Allows the user to define an order of preference for the selection of predictors. \strong{Warning}: variables in \code{preference.order} not in \code{colnames(x)}, and non-numeric columns are removed from \code{x} and \code{preference.order}. The same happens with rows having NA values (\code{\link[=na.omit]{na.omit()}} is applied). The function issues a message if zero-variance columns are found.
 }
 \details{
 This function has two modes of operation:

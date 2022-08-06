@@ -1,5 +1,5 @@
 #' @title Multicollinearity reduction via Pearson correlation
-#' @description Computes the correlation matrix among a set of predictors, orders the correlation matrix according to a user-defined preference order, and removes variables one by one, taking into account the preference order, until the remaining ones are below a given Pearson correlation threshold. \strong{Warning}: variables in `preference.order` not in `colnames(x)`, and non-numeric columns are removed silently from `x` and `preference.order`. The same happens with rows having NA values ([na.omit()] is applied). The function issues a warning if zero-variance columns are found.
+#' @description Computes the correlation matrix among a set of predictors, orders the correlation matrix according to a user-defined preference order, and removes variables one by one, taking into account the preference order, until the remaining ones are below a given Pearson correlation threshold. \strong{Warning}: variables in `preference.order` not in `colnames(x)`, and non-numeric columns are removed silently from `x` and `preference.order`. The same happens with rows having NA values ([na.omit()] is applied). The function issues a message if zero-variance columns are found.
 #' @param x A data frame with predictors, or the result of [auto_vif()] Default: `NULL`.
 #' @param preference.order Character vector indicating the user's order of preference to keep variables. Predictors not included in this argument are ranked by the sum of their correlation with other variables (variables with higher sums receive lower ranks and have therefore lower preference order). Default: `NULL`.
 #' @param cor.threshold Numeric between 0 and 1, with recommended values between 0.5 and 0.9. Maximum Pearson correlation between any pair of the selected variables. Default: `0.75`
@@ -46,10 +46,10 @@
 #' @rdname auto_cor
 #' @export
 auto_cor <- function(
-  x = NULL,
-  preference.order = NULL,
-  cor.threshold = 0.75,
-  verbose = TRUE
+    x = NULL,
+    preference.order = NULL,
+    cor.threshold = 0.75,
+    verbose = TRUE
 ){
 
   if(cor.threshold < 0){
@@ -68,6 +68,7 @@ auto_cor <- function(
 
   if(inherits(x, "variable_selection")){
     x <- x$selected.variables.df
+    preference.order <- colnames(x)
   }
 
   #coerce to data frame if tibble
@@ -81,26 +82,30 @@ auto_cor <- function(
   #finding and removing non-numeric columns
   non.numeric.columns <- colnames(x)[!sapply(x, is.numeric)]
   if(length(non.numeric.columns) > 0){
-    warning(
-      "These columns are non-numeric and will be removed: ",
-      paste(
-        non.numeric.columns,
-        collapse = ", "
+    if(verbose == TRUE){
+      message(
+        "These columns are non-numeric and will be removed: ",
+        paste(
+          non.numeric.columns,
+          collapse = ", "
         )
       )
+    }
     x <- x[, !(colnames(x) %in% non.numeric.columns), drop = FALSE]
   }
 
   #finding zero variance columns
   zero.variance.columns <- colnames(x)[round(apply(x, 2, var), 6) == 0]
   if(length(zero.variance.columns) > 0){
-    warning(
-      "These columns have almost zero variance and might cause issues: ",
-      paste(
-        zero.variance.columns,
-        collapse = ", "
+    if(verbose == TRUE){
+      message(
+        "These columns have almost zero variance and might cause issues: ",
+        paste(
+          zero.variance.columns,
+          collapse = ", "
+        )
       )
-    )
+    }
   }
 
 
