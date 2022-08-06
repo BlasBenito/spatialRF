@@ -1,7 +1,7 @@
 #' @title Multicollinearity reduction via Pearson correlation
 #' @description Computes the correlation matrix among a set of predictors, orders the correlation matrix according to a user-defined preference order, and removes variables one by one, taking into account the preference order, until the remaining ones are below a given Pearson correlation threshold. \strong{Warning}: variables in `preference.order` not in `colnames(x)`, and non-numeric columns are removed silently from `x` and `preference.order`. The same happens with rows having NA values ([na.omit()] is applied). The function issues a warning if zero-variance columns are found.
 #' @param x A data frame with predictors, or the result of [auto_vif()] Default: `NULL`.
-#' @param preference.order Character vector indicating the user's order of preference to keep variables. Predictors not included in this argument are ranked at random (with rank scores below those predictors in `preference.order`). If not provided, variables in `x` are prioritised by their column order. Default: `NULL`.
+#' @param preference.order Character vector indicating the user's order of preference to keep variables. Predictors not included in this argument are ranked by the sum of their correlation with other variables (variables with higher sums receive lower ranks and have therefore lower preference order). Default: `NULL`.
 #' @param cor.threshold Numeric between 0 and 1, with recommended values between 0.5 and 0.9. Maximum Pearson correlation between any pair of the selected variables. Default: `0.75`
 #' @param verbose Logical. if `TRUE`, describes the function operations to the user. Default:: `TRUE`
 #' @return List with three slots:
@@ -92,10 +92,10 @@ auto_cor <- function(
   }
 
   #finding zero variance columns
-  zero.variance.columns <- colnames(x)[round(apply(x, 2, var), 4) == 0]
+  zero.variance.columns <- colnames(x)[round(apply(x, 2, var), 6) == 0]
   if(length(zero.variance.columns) > 0){
     warning(
-      "These columns have zero variance and might cause issues: ",
+      "These columns have almost zero variance and might cause issues: ",
       paste(
         zero.variance.columns,
         collapse = ", "
@@ -110,37 +110,41 @@ auto_cor <- function(
   #diagonals to zero
   diag(x.cor) <- 0
 
-  #completing preference order
+  #auto preference order
+  preference.order.auto <- colSums(x.cor) %>%
+    sort() %>%
+    names()
 
-  if(!is.null(preference.order)){
+  #if there is no preference order
+  if(is.null(preference.order)){
+
+    preference.order <- preference.order.auto
+
+  } else {
 
     #subset preference.order to colnames(x)
     preference.order <- preference.order[preference.order %in% colnames(x)]
 
-    #if there are variables not in preference.order, add them in any order
+    #if there are variables not in preference.order, add them in the order of preference.order.auto
     if(length(preference.order) < ncol(x)){
 
       not.in.preference.order <- colnames(x)[!(colnames(x) %in% preference.order)]
-      preference.order <- c(preference.order, not.in.preference.order)
+      preference.order <- c(preference.order, preference.order.auto[preference.order.auto %in% not.in.preference.order])
 
     }
 
-    #organize the matrix according to preference.order
-    x.cor <- x.cor[preference.order, preference.order]
-
-  } else {
-
-    preference.order <- colnames(x)
-
   }
+
+  #organize the matrix according to preference.order
+  x.cor <- x.cor[preference.order, preference.order]
 
   #vector to store variables to remove
   removed.vars <- vector()
 
   #iterating through columns
-  for(i in seq(ncol(x.cor), 1)){
+  for(i in seq(from = ncol(x.cor), to = 1)){
 
-    #compute max
+    #find max correlation in x.cor
     x.cor.max <- apply(x.cor, 2, FUN = max)
 
     #remove i column if max > cor.threshold
@@ -171,10 +175,10 @@ auto_cor <- function(
     if(length(removed.vars) != 0){
       message(
         paste0(
-          "[auto_cor()]: Removed variables: ",
+          "[auto_cor()]: Removed variables: \n",
           paste0(
             removed.vars,
-            collapse = ", "
+            collapse = ", \n"
           )
         )
       )
@@ -190,7 +194,7 @@ auto_cor <- function(
   if(verbose == TRUE){
     message(
       paste0(
-        "The selected variables are:\n\n",
+        "The selected variables are:\n",
         paste(selected.variables, collapse = "\n")
       )
     )

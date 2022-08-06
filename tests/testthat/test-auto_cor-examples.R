@@ -14,7 +14,7 @@ testthat::test_that("`auto_cor()` works", {
     out <- auto_cor(
       x = ecoregions_df,
       verbose = FALSE,
-      preference.order = ecoregions_predvar_names
+      preference.order = ecoregions_predvar_names[1:10]
     )
   )
   testthat::expect_type(out, "list")
