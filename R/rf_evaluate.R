@@ -148,11 +148,9 @@ rf_evaluate <- function(
   )
 
   #if data is binary, "auc" is used
-  is.binary <- is_binary(
-    data = data,
-    dependent.variable.name = dependent.variable.name
-  )
-  if(is.binary == TRUE & !("auc" %in% metrics)){
+  if(.is_binary(
+    x = data[, dependent.variable.name]
+  ) & !("auc" %in% metrics)){
     metrics <- "auc"
   }
 

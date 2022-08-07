@@ -18,7 +18,10 @@ Computes the variance inflation factor (VIF) of the colums in a data frame. \str
 \examples{
 if(interactive()){
 
- data(ecoregions_df, ecoregions_predvar_names)
+ data(
+ ecoregions_df,
+ ecoregions_predvar_names
+ )
 
  vif(ecoregions_df[, ecoregions_predvar_names])
 

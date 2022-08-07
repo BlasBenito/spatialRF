@@ -1,43 +1,77 @@
-#' @title Generates case weights for binary data
+#' @title Generates case weights for binary responses
 #' @description When the data is binary, setting the `ranager` argument `case.weights` helps to minimize the issues produced by class imbalance. This function takes a binary response variable and returns a vector of weights populated with the values `1/#zeros` and `1/#ones`. It is used internally by the function [rf()].
-#' @param data Data frame with a response variable and a set of predictors. Default: `NULL`
-#' @param dependent.variable.name Character string with the name of the response variable. Must be in the column names of `data`. Default: `NULL`
-#' @return A vector with a length equal to `nrow(data)` with the respective weights of the cases.
+#' @param x Numeric vector with values 1 and 0 representing the response column to train a binary-response model. Default: `NULL`
+#' @param case.weights Numeric vector with case weights. Only for internal use within the package. Default: `NULL`
+#' @return A vector with a length equal to `x` with case weights.
 #' @examples
 #' if(interactive()){
 #'
-#'  data <- data.frame(
-#'    response = c(0, 0, 0, 1, 1)
-#'  )
-#'
 #'  case_weights(
-#'    data = data,
-#'    dependent.variable.name = "response"
+#'    x = c(0, 0, 0, 1, 1)
 #'  )
 #'
 #'  }
 #' @rdname case_weights
 #' @export
 case_weights <- function(
-  data = NULL,
-  dependent.variable.name = NULL
+    x = NULL,
+    case.weights = NULL
 ){
 
-  #counting number of ones and zeros
-  n <- nrow(data)
-  n.1 <- sum(data[, dependent.variable.name])
-  n.0 <- n - n.1
+  binary <- .is_binary(x)
 
-  #computing weights
-  weight.1 <- 1/n.1
-  weight.0 <- 1/n.0
+  if(is.null(x) | !binary){
+    return(case.weights)
+  }
 
-  #vector of weights
-  case.weights <- rep(NA, n)
-  case.weights[data[, dependent.variable.name] == 1] <- weight.1
-  case.weights[data[, dependent.variable.name] == 0] <- weight.0
+  #if the user did not provide case weights
+  if(is.null(case.weights)){
 
-  #return case weights
-  case.weights
+    #computing case weights
+    #counting number of ones and zeros
+    n <- length(x)
+    n.1 <- sum(x)
+    n.0 <- n - n.1
+
+    #computing weights
+    weight.1 <- 1/n.1
+    weight.0 <- 1/n.0
+
+    #vector of weights
+    case.weights <- rep(NA, n)
+    case.weights[x == 1] <- weight.1
+    case.weights[x == 0] <- weight.0
+
+    return(case.weights)
+
+  } else {
+
+    if(length(case.weights) == length(x)){
+
+      return(case.weights)
+
+    } else {
+      stop("The length of the argument 'case.weights' must match the number of rows of 'data'.")
+    }
+
+  }
+
+}
+
+#' @rdname .is_binary
+#' @export
+.is_binary <- function(
+    x = NULL
+){
+
+  #unique values
+  unique.values <- sort(unique(x))
+
+  #checking equality
+  if(all(unique.values == c(0, 1)) == TRUE){
+    return(TRUE)
+  } else {
+    return(FALSE)
+  }
 
 }

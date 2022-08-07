@@ -110,11 +110,10 @@ the_feature_engineer <- function(
   out.list$xy <- xy
 
   #finding out if the response is binary
-  is.binary <- is_binary(
-    data = data,
-    dependent.variable.name = dependent.variable.name
+  if(.is_binary(
+    x = data[, dependent.variable.name]
   )
-  if(is.binary == TRUE){
+  ){
     metric <- "auc"
   } else {
     metric <- "r.squared"

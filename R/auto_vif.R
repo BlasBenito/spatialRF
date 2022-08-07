@@ -241,14 +241,15 @@ auto_vif <- function(
   vif <- NULL
 
   #turns vif output into tidy df
-  df <-
-    data.frame(
+  df <- data.frame(
       diag(solve(cor(x))),
       stringsAsFactors = FALSE
     ) %>%
     dplyr::rename(vif = 1) %>%
     tibble::rownames_to_column(var = "variable") %>%
-    dplyr::arrange(vif)
+    dplyr::mutate(vif = round(vif, 3)) %>%
+    dplyr::arrange(vif) %>%
+    as.data.frame()
 
   df
 }

@@ -204,11 +204,10 @@ rf_tuning <- function(
   #END OF HANDLING PARALLELIZATION
 
   #testing if the data is binary
-  is.binary <- is_binary(
-    data = data,
-    dependent.variable.name = dependent.variable.name
+  if(.is_binary(
+    x = data[, dependent.variable.name]
   )
-  if(is.binary == TRUE){
+  ){
     metric <- "auc"
   } else {
     metric <- "r.squared"

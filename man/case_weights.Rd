@@ -2,17 +2,17 @@
 % Please edit documentation in R/case_weights.R
 \name{case_weights}
 \alias{case_weights}
-\title{Generates case weights for binary data}
+\title{Generates case weights for binary responses}
 \usage{
-case_weights(data = NULL, dependent.variable.name = NULL)
+case_weights(x = NULL, case.weights = NULL)
 }
 \arguments{
-\item{data}{Data frame with a response variable and a set of predictors. Default: \code{NULL}}
+\item{x}{Numeric vector with values 1 and 0 representing the response column to train a binary-response model. Default: \code{NULL}}
 
-\item{dependent.variable.name}{Character string with the name of the response variable. Must be in the column names of \code{data}. Default: \code{NULL}}
+\item{case.weights}{Numeric vector with case weights. Only for internal use within the package. Default: \code{NULL}}
 }
 \value{
-A vector with a length equal to \code{nrow(data)} with the respective weights of the cases.
+A vector with a length equal to \code{x} with case weights.
 }
 \description{
 When the data is binary, setting the \code{ranager} argument \code{case.weights} helps to minimize the issues produced by class imbalance. This function takes a binary response variable and returns a vector of weights populated with the values \verb{1/#zeros} and \verb{1/#ones}. It is used internally by the function \code{\link[=rf]{rf()}}.
@@ -20,13 +20,8 @@ When the data is binary, setting the \code{ranager} argument \code{case.weights}
 \examples{
 if(interactive()){
 
- data <- data.frame(
-   response = c(0, 0, 0, 1, 1)
- )
-
  case_weights(
-   data = data,
-   dependent.variable.name = "response"
+   x = c(0, 0, 0, 1, 1)
  )
 
  }

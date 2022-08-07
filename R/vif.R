@@ -6,7 +6,10 @@
 #' @examples
 #' if(interactive()){
 #'
-#'  data(ecoregions_df, ecoregions_predvar_names)
+#'  data(
+#'  ecoregions_df,
+#'  ecoregions_predvar_names
+#'  )
 #'
 #'  vif(ecoregions_df[, ecoregions_predvar_names])
 #'
@@ -48,20 +51,16 @@ vif <- function(x){
     )
   }
 
-  out <- x %>%
-    na.omit() %>%
-    as.matrix() %>%
-    cor() %>%
-    solve() %>%
-    diag() %>%
-    sort(decreasing = TRUE) %>%
-    as.data.frame() %>%
-    tibble::rownames_to_column(var = "variable")
+  out <- data.frame(
+    diag(solve(cor(x))),
+    stringsAsFactors = FALSE
+  ) %>%
+    dplyr::rename(vif = 1) %>%
+    tibble::rownames_to_column(var = "variable") %>%
+    dplyr::mutate(vif = round(vif, 3)) %>%
+    dplyr::arrange(vif) %>%
+    as.data.frame()
 
-  colnames(out)[2] <- "vif"
-
-  out$vif <- round(out$vif, 3)
-
-  return(out)
+ out
 
 }

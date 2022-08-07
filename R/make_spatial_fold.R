@@ -101,9 +101,8 @@ make_spatial_fold <- function(
   #finding out if data is binary
   is.binary <- FALSE
   if(!is.null(data) & !is.null(dependent.variable.name)){
-    is.binary <- is_binary(
-      data = data,
-      dependent.variable.name = dependent.variable.name
+    is.binary <- .is_binary(
+      x = data[, dependent.variable.name]
     )
   }
 

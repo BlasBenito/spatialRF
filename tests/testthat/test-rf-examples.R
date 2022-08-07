@@ -105,15 +105,12 @@ testthat::test_that("`rf()` works", {
    )
 
    #using output of auto_vif and auto_cor as predictor.variable.names
-
-   testthat::expect_warning(
-     variable.selection <- auto_cor(
-       x = ecoregions_df,
-       verbose = FALSE,
-       preference.order = ecoregions_predvar_names
-     ) %>%
-       auto_vif()
-   )
+   variable.selection <- auto_cor(
+     x = ecoregions_df,
+     verbose = FALSE,
+     preference.order = ecoregions_predvar_names
+   ) %>%
+     auto_vif()
 
    #fitting model
    out.4 <- rf(
@@ -153,5 +150,32 @@ testthat::test_that("`rf()` works", {
      out.4$residuals$autocorrelation$per.distance,
      c("distance.threshold", "moran.i", "moran.i.null", "p.value", "interpretation")
    )
+
+
+
+   #fitting model with binary response
+   ecoregions_df$binary_response <- ifelse(
+     ecoregions_df$plant_richness > 5000,
+     1,
+     0
+   )
+
+   out.5 <- rf(
+     data = ecoregions_df,
+     dependent.variable.name = "binary_response",
+     predictor.variable.names = ecoregions_predvar_names,
+     distance.matrix = ecoregions_distance_matrix,
+     distance.thresholds = c(0,100, 1000, 10000),
+     verbose = FALSE
+   )
+
+   testthat::expect_true(
+     round(unique(out.5$ranger.arguments$case.weights), 4)[1] == 0.0061
+   )
+
+   testthat::expect_true(
+     round(unique(out.5$ranger.arguments$case.weights), 4)[2] == 0.0161
+   )
+
 
 })

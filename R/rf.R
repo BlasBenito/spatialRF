@@ -353,17 +353,10 @@ rf <- function(
   }
 
   #computing case weights if dependent.variable.name is binary
-  is.binary <- is_binary(
-    data = data,
-    dependent.variable.name = dependent.variable.name
+  case.weights <- case_weights(
+    x = data[, dependent.variable.name],
+    case.weights = case.weights
   )
-
-  if(is.binary == TRUE & is.null(case.weights)){
-    case.weights <- case_weights(
-      data = data,
-      dependent.variable.name = dependent.variable.name
-    )
-  }
 
   #ranger model for r-squared and predictions
   m <- ranger::ranger(
