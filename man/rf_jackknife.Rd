@@ -9,7 +9,6 @@ rf_jackknife(
   xy = NULL,
   repetitions = 30,
   training.fraction = 0.75,
-  metric = c("r.squared", "pseudo.r.squared", "rmse", "nrmse", "auc"),
   distance.step = NULL,
   distance.step.x = NULL,
   distance.step.y = NULL,
@@ -28,8 +27,6 @@ rf_jackknife(
 \item{repetitions}{Integer, number of spatial folds to use during cross-validation. Must be lower than the total number of rows available in the model's data. Default: \code{30}}
 
 \item{training.fraction}{Proportion between 0.5 and 0.9 indicating the proportion of records to be used as training set during spatial cross-validation. Default: \code{0.75}}
-
-\item{metric}{Character, nams of the performance metric to use. The possible values are: "r.squared" (\code{cor(obs, pred) ^ 2}), "pseudo.r.squared" (\code{cor(obs, pred)}), "rmse" (\code{sqrt(sum((obs - pred)^2)/length(obs))}), "nrmse" (\code{rmse/(quantile(obs, 0.75) - quantile(obs, 0.25))}), and "auc" (only for binary responses with values 1 and 0). Default: \code{"r.squared"}}
 
 \item{distance.step}{Numeric, argument \code{distance.step} of \code{\link[=thinning_til_n]{thinning_til_n()}}. distance step used during the selection of the centers of the training folds. These fold centers are selected by thinning the data until a number of folds equal or lower than \code{repetitions} is reached. Its default value is 1/1000th the maximum distance within records in \code{xy}. Reduce it if the number of training folds is lower than expected.}
 
@@ -52,6 +49,9 @@ The input model with new data in its "importance" slot. The jackknife data frame
 }
 \description{
 Performs a jackknife test fitting and evaluating (via spatial cross-validation with \code{\link[=rf_evaluate]{rf_evaluate()}}) models with and without each predictor. This function was devised to provide importance scores that would be less sensitive to spatial autocorrelation than those computed internally by random forest on the out-of-bag data. This function is experimental.
+}
+\details{
+Model evaluation is based on spatial cross-validation. If the response is numeric, the R-squared is used, but if the response is binary (with values 1 and 0), then AUC is used instead.
 }
 \examples{
 if(interactive()){

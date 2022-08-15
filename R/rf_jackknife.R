@@ -4,7 +4,6 @@
 #' @param xy Data frame or matrix with two columns containing coordinates and named "x" and "y". If `NULL`, the function will throw an error. Default: `NULL`
 #' @param repetitions Integer, number of spatial folds to use during cross-validation. Must be lower than the total number of rows available in the model's data. Default: `30`
 #' @param training.fraction Proportion between 0.5 and 0.9 indicating the proportion of records to be used as training set during spatial cross-validation. Default: `0.75`
-#' @param metric Character, nams of the performance metric to use. The possible values are: "r.squared" (`cor(obs, pred) ^ 2`), "pseudo.r.squared" (`cor(obs, pred)`), "rmse" (`sqrt(sum((obs - pred)^2)/length(obs))`), "nrmse" (`rmse/(quantile(obs, 0.75) - quantile(obs, 0.25))`), and "auc" (only for binary responses with values 1 and 0). Default: `"r.squared"`
 #' @param distance.step Numeric, argument `distance.step` of [thinning_til_n()]. distance step used during the selection of the centers of the training folds. These fold centers are selected by thinning the data until a number of folds equal or lower than `repetitions` is reached. Its default value is 1/1000th the maximum distance within records in `xy`. Reduce it if the number of training folds is lower than expected.
 #' @param distance.step.x Numeric, argument `distance.step.x` of [make_spatial_folds()]. Distance step used during the growth in the x axis of the buffers defining the training folds. Default: `NULL` (1/1000th the range of the x coordinates).
 #' @param distance.step.y Numeric, argument `distance.step.x` of [make_spatial_folds()]. Distance step used during the growth in the y axis of the buffers defining the training folds. Default: `NULL` (1/1000th the range of the y coordinates).
@@ -13,6 +12,7 @@
 #' @param verbose Logical. If `TRUE`, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
 #' @param n.cores Integer, number of cores to use for parallel execution. Default: `NULL`
 #' @param cluster A cluster definition generated with `parallel::makeCluster()`. If provided, it overrides `n.cores`. If `NULL` but `model` has a cluster object in the "cluster" slot, then the model's cluster is used. Please notice that the function does not stop a running cluster, so it should be stopped with `parallel::stopCluster()` afterwards (). The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the `model` argument. Default: `parallel::makeCluster(nnodes = parallel::detectCores() - 1, type = "PSOCK")`
+#' @details Model evaluation is based on spatial cross-validation. If the response is numeric, the R-squared is used, but if the response is binary (with values 1 and 0), then AUC is used instead.
 #' @return The input model with new data in its "importance" slot. The jackknife data frame can be found in `model$importance$jackknife.df`, and the plot in `model$importance$jackknife.plot`.
 #' @examples
 #' if(interactive()){
@@ -61,13 +61,6 @@ rf_jackknife <- function(
   xy = NULL,
   repetitions = 30,
   training.fraction = 0.75,
-  metric = c(
-    "r.squared",
-    "pseudo.r.squared",
-    "rmse",
-    "nrmse",
-    "auc"
-  ),
   distance.step = NULL,
   distance.step.x = NULL,
   distance.step.y = NULL,
@@ -96,19 +89,6 @@ rf_jackknife <- function(
   variable <- NULL
   testing.records <- NULL
   fold.id <- NULL
-
-  #testing method argument
-  metric <- match.arg(
-    arg = metric,
-    choices = c(
-      "r.squared",
-      "pseudo.r.squared",
-      "rmse",
-      "nrmse",
-      "auc"
-    ),
-    several.ok = FALSE
-  )
 
   #evaluating the full model
   if(verbose == TRUE){
@@ -158,8 +138,10 @@ rf_jackknife <- function(
   #if data is binary, "auc" is used
   if(.is_binary(
     x = data[, dependent.variable.name]
-  ) & !("auc" %in% metric)){
+  )){
     metric <- "auc"
+  } else {
+    metric <- "r.squared"
   }
 
 
