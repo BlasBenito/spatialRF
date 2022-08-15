@@ -454,10 +454,10 @@ kableExtra::kbl(
 
 ### Contribution of predictors to model transferability
 
-The new function `rf_importance()` offers a way to assess to what extent each predictor contributes to model transferability (predictive ability on independent spatial folds measured with `rf_evaluate()`, see below). It does so by comparing the performance of the full model with models fitted without each one of the predictors. The difference in performance between the full model and a model without a given predictor represents the contribution of such predictor to model transferability.
+The new function `rf_jackknife()` offers a way to assess to what extent each predictor contributes to model transferability (predictive ability on independent spatial folds measured with `rf_evaluate()`, see below). It does so by comparing the performance of the full model with models fitted without each one of the predictors. The difference in performance between the full model and a model without a given predictor represents the contribution of such predictor to model transferability.
 
 ```{r, fig.width = 8, fig.height=8, message=FALSE, warning=FALSE}
-model.non.spatial <- spatialRF::rf_importance(
+model.non.spatial <- spatialRF::rf_jackknife(
   model = model.non.spatial,
   cluster = cluster
   )
@@ -471,7 +471,7 @@ names(model.non.spatial$importance)
 
 The data frame "per.variable" contains the columns "importance.cv" (median importance), "importance.cv.mad" (median absolute deviation), "importance.cv.percent" (median importance in percentage), and "importance.cv.percent.mad" (median absolute deviation of the importance in percent). The ggplot object "cv.per.variable.plot" contains the importance plot with the median and the median absolute deviation shown above.
 
-The importance computed by random forest on the out-of-bag data by permutating each predictor (as computed by `rf()`) and the contribution of each predictor to model transferability (as computed by `rf_importance()`) show a moderate correlation, indicating that both importance measures capture different aspects of the effect of the variables on the model results.
+The importance computed by random forest on the out-of-bag data by permutating each predictor (as computed by `rf()`) and the contribution of each predictor to model transferability (as computed by `rf_jackknife()`) show a moderate correlation, indicating that both importance measures capture different aspects of the effect of the variables on the model results.
 
 ```{r, fig.width = 6, fig.height=4.5, message=FALSE, warning=FALSE}
 model.non.spatial$importance$per.variable %>% 

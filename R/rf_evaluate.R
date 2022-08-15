@@ -150,8 +150,8 @@ rf_evaluate <- function(
   #if data is binary, "auc" is used
   if(.is_binary(
     x = data[, dependent.variable.name]
-  ) & !("auc" %in% metrics)){
-    metrics <- "auc"
+  )){
+    metrics <- unique(c(metrics, "auc"))
   }
 
   #checking repetitions

@@ -35,7 +35,7 @@
 #'   \item `selected.variables`: character vector with the names of the selected variables.
 #'  }
 #'
-#'  This model can be used as input for other modelling functions such as [rf()], [rf_repeat()], [rf_tuning()], [rf_spatial()], [rf_evaluate()], and [rf_importance()].
+#'  This model can be used as input for other modelling functions such as [rf()], [rf_repeat()], [rf_tuning()], [rf_spatial()], [rf_evaluate()], and [rf_jackknife()].
 #'
 #' @examples
 #'
@@ -91,7 +91,7 @@
 #'  rf_tuning(cluster = cl) %>%
 #'  rf_spatial(cluster = cl) %>%
 #'  rf_evaluate(cluster = cl) %>%
-#'  rf_importance(cluster = cl)
+#'  rf_jackknife(cluster = cl)
 #'
 #'#automatic variable selection with jackknife
 #'rf.selection <- rf_select(

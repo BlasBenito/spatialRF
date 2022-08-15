@@ -1,5 +1,5 @@
 #' @title Plots the variable importance of a model
-#' @description Plots variable importance scores of [rf()], [rf_repeat()], and [rf_spatial()] models. Distributions of importance scores produced with [rf_repeat()] are plotted using `ggplot2::geom_violin`, which shows the median of the density estimate rather than the actual median of the data. However, the violin plots are ordered from top to bottom by the real median of the data to make small differences in median importance easier to spot. Ths function does not plot the result of [rf_importance()] yet, but you can find it under `model$importance$cv.per.variable.plot`.
+#' @description Plots variable importance scores of [rf()], [rf_repeat()], and [rf_spatial()] models. Distributions of importance scores produced with [rf_repeat()] are plotted using `ggplot2::geom_violin`, which shows the median of the density estimate rather than the actual median of the data. However, the violin plots are ordered from top to bottom by the real median of the data to make small differences in median importance easier to spot. This function does not plot the result of [rf_jackknife()].
 #' @usage
 #' plot_importance(
 #'   model,

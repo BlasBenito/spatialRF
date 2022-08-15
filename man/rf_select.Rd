@@ -69,7 +69,7 @@ A model of the class "rf" fitted with the selected variables by the function \co
 \item \code{selected.variables}: character vector with the names of the selected variables.
 }
 
-This model can be used as input for other modelling functions such as \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, \code{\link[=rf_tuning]{rf_tuning()}}, \code{\link[=rf_spatial]{rf_spatial()}}, \code{\link[=rf_evaluate]{rf_evaluate()}}, and \code{\link[=rf_importance]{rf_importance()}}.
+This model can be used as input for other modelling functions such as \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, \code{\link[=rf_tuning]{rf_tuning()}}, \code{\link[=rf_spatial]{rf_spatial()}}, \code{\link[=rf_evaluate]{rf_evaluate()}}, and \code{\link[=rf_jackknife]{rf_jackknife()}}.
 }
 \description{
 Combines the functions\code{\link[=auto_cor]{auto_cor()}}, and \code{\link[=auto_vif]{auto_vif()}} to select a set of uncorrelated predictors. These predictors can either be ranked by their univariate effect on the response variable (a.k.a "auto mode"), or prioritized according to the user's preferences via the \code{preference.order} argument. In the "auto mode", a univariate random forest model is fitted for each predictor in \code{predictor.variable.names}, and its out-of-bag RMSE is stored. All variables are then ranked by their RMSE (from minimum to maximum), and their rankings are used as \code{preference.order} in the functions \code{\link[=auto_cor]{auto_cor()}}, and \code{\link[=auto_vif]{auto_vif()}}. If the user provides the \code{preference.order} argument, a redundant variable is removed when there is a similar one with a higher priority.
@@ -132,7 +132,7 @@ rf.selection <- rf_select(
  rf_tuning(cluster = cl) \%>\%
  rf_spatial(cluster = cl) \%>\%
  rf_evaluate(cluster = cl) \%>\%
- rf_importance(cluster = cl)
+ rf_jackknife(cluster = cl)
 
 #automatic variable selection with jackknife
 rf.selection <- rf_select(
