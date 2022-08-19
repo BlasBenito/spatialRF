@@ -13,8 +13,7 @@ rf_importance(
   distance.step = NULL,
   distance.step.x = NULL,
   distance.step.y = NULL,
-  fill.color = viridis::viridis(100, option = "F", direction = -1, alpha = 1, end =
-    0.9),
+  fill.color = viridis::viridis(100, option = "F", direction = -1, alpha = 1, end = 0.9),
   line.color = "white",
   seed = 1,
   verbose = TRUE,

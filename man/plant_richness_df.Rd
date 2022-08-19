@@ -13,19 +13,19 @@ A data frame with 227 rows and 22 columns:
 \item \code{richness_species_vascular}: Number of vascular species found in the ecoregion. Response variable.
 \item \code{bias_area_km2}: Area of the ecoregion in squared kilometers.
 \item \code{bias_species_per_record}: Number of species divided by the number of spatial GBIF records available in the ecoregion as a measure of sampling bias.
-\item \code{climate_aridity_index_average}: Average \href{https://figshare.com/articles/dataset/Global_Aridity_Index_and_Potential_Evapotranspiration_ET0_Climate_Database_v2/7504448}{aridity index} of the ecoregion.
+\item \code{climate_aridity_index_average}: Average of the ecoregion.
 \item \code{climate_hypervolume}: Volume of the climatic envelope of the ecoregion, computed with the \href{https://cran.r-project.org/package=hypervolume}{hypervolume} package.
-\item \code{climate_velocity_lgm_average}: Average \href{https://www.science.org/doi/10.1126/science.1210173}{climate velocity} of the ecoregion since the Last Glacial Maximum.
+\item \code{climate_velocity_lgm_average}: Average climate velocity of the ecoregion since the Last Glacial Maximum.
 \item \code{neighbors_count}: Number of immediate neighbors of the ecoregion as a measure of connectivity/isolation.
 \item \code{neighbors_percent_shared_edge}: Percentage of shared edge with the neighbors as a measure of connectivity/isolation.
 \item \code{human_population_density}: Population density of the ecoregion.
 \item \code{topography_elevation_average}: Average elevation of the ecoregion.
-\item \code{landcover_herbs_percent_average}: Average cover percentage of herbs extracted from \href{https://modis-land.gsfc.nasa.gov/vcc.html}{MODIS Vegetation Continuous Fields}.
+\item \code{landcover_herbs_percent_average}: Average cover percentage of herbs extracted from MODIS Vegetation Continuous Fields.
 \item \code{fragmentation_cohesion}: Geographic fragmentation index of the ecoregion as computed with the R package \href{https://CRAN.R-project.org/package=landscapemetrics}{landscapemetrics}.
 \item \code{fragmentation_division}: Another fragmentation index.
 \item \code{neighbors_area}: Total area of the ecoregions's immediate neighbors.
 \item \code{human_population}: Human population in the ecoregion.
-\item \code{human_footprint_average}: Average human footprint \doi{10.1641/0006-3568(2002)052[0891:THFATL]2.0.CO;2} in the ecoregion.
+\item \code{human_footprint_average}: Average human footprint in the ecoregion.
 \item \code{climate_bio1_average}: Average mean annual temperature.
 \item \code{climate_bio15_minimum}: Average precipitation seasonality.
 
