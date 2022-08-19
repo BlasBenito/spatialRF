@@ -1,6 +1,11 @@
 ## Re-resubmission
 
-This is a re-submission. In this version I have fixed two notes yielded by invalid URLs in the documentation of the file R/plant_richness_df.R
+This is a re-submission. In this version I have fixed two notes yielded by invalid URLs in the documentation of the files R/plant_richness_df.R and R/rf_spatial.R. There was nothing wrong with these URLs, but I have removed them and added the titles, authors and years of the papers instead.
+
+── R CMD check results ───────────────────────────── spatialRF 1.1.4 ────
+Duration: 48.3s
+
+0 errors ✔ | 0 warnings ✔ | 0 notes ✔
 
 ## Re-resubmission
 
