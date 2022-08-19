@@ -1,5 +1,9 @@
 ## Re-resubmission
 
+This is a re-submission. In this version I have fixed two notes yielded by invalid URLs in the documentation of the file R/plant_richness_df.R
+
+## Re-resubmission
+
 This is a re-submission. In this version I have:
 
 In plant_richness_df.Rd I replaced "[human footprint](https://doi.org/10.1641/0006-3568(2002)052[0891:THFATL]2.0.CO;2)" with "human footprint \doi{10.1641/0006-3568(2002)052[0891:THFATL]2.0.CO;2}" 
