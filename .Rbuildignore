@@ -26,3 +26,4 @@ data_Blas.Rdata
 understanding_lmmorantest.R
 reviewing_moran.R
 ^CRAN-RELEASE$
+^CRAN-SUBMISSION$
