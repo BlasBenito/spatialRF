@@ -68,10 +68,15 @@ case_weights <- function(
   unique.values <- sort(unique(x))
 
   #checking equality
-  if(all(unique.values == c(0, 1)) == TRUE){
-    return(TRUE)
+  if(length(unique.values) == 2){
+    if(all(unique.values == c(0, 1)) == TRUE){
+      return(TRUE)
+    } else {
+      return(FALSE)
+    }
   } else {
     return(FALSE)
   }
+
 
 }
