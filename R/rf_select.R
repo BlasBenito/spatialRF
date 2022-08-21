@@ -375,7 +375,8 @@ rf_select <- function(
 
   #filtering by bivariate correlation
   out.cor <- auto_cor(
-    x = data[, predictor.variable.names],
+    data = data,
+    predictor.variable.names = predictor.variable.names,
     preference.order = preference.order,
     cor.threshold = cor.threshold,
     verbose = FALSE
@@ -383,7 +384,7 @@ rf_select <- function(
 
   #filtering by VIF
   out.vif <- auto_vif(
-    x = out.cor,
+    data = out.cor,
     preference.order = preference.order,
     vif.threshold = vif.threshold,
     verbose = FALSE

@@ -294,7 +294,8 @@ rf_tuning <- function(
         max.depth = NULL,
         importance = "none",
         num.threads = in.loop.n.cores,
-        save.memory = TRUE
+        save.memory = TRUE,
+        scaled.importance = FALSE
       )
     } else {
       ranger.arguments.i <- list(
@@ -304,7 +305,8 @@ rf_tuning <- function(
         max.depth = max.depth.i,
         importance = "none",
         num.threads = in.loop.n.cores,
-        save.memory = TRUE
+        save.memory = TRUE,
+        scaled.importance = FALSE
       )
     }
 
@@ -312,7 +314,6 @@ rf_tuning <- function(
     m.i <- spatialRF::rf(
       model = model,
       ranger.arguments = ranger.arguments.i,
-      scaled.importance = FALSE,
       seed = seed,
       n.cores = in.loop.n.cores,
       verbose = FALSE

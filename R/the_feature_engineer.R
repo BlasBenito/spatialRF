@@ -528,7 +528,7 @@ the_feature_engineer <- function(
   if(nrow(interaction.screening.selected) > 1){
 
     interaction.selection <- auto_cor(
-      x = interaction.df,
+      data = interaction.df,
       preference.order = interaction.screening.selected$interaction.name,
       cor.threshold = cor.threshold,
       verbose = FALSE

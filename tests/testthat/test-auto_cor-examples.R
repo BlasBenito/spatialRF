@@ -5,14 +5,13 @@ testthat::test_that("`auto_cor()` works", {
 
   data(
     ecoregions_df,
-    ecoregions_distance_matrix,
-    ecoregions_predvar_names,
-    ecoregions_depvar_name
+    ecoregions_predvar_names
   )
 
   testthat::expect_warning(
     out <- auto_cor(
-      x = ecoregions_df,
+      data = ecoregions_df,
+      predictor.variable.names = ecoregions_predvar_names,
       verbose = FALSE,
       preference.order = ecoregions_predvar_names[1:10]
     )
@@ -24,7 +23,8 @@ testthat::test_that("`auto_cor()` works", {
   #adding auto_vif()
   testthat::expect_warning(
     out <- auto_cor(
-      x = ecoregions_df,
+      data = ecoregions_df,
+      predictor.variable.names = ecoregions_predvar_names,
       verbose = FALSE,
       preference.order = ecoregions_predvar_names
     ) %>%

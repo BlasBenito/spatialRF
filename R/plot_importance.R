@@ -85,9 +85,14 @@ plot_importance <- function(
   #if x is not a data frame
   if(!is.data.frame(model)){
 
+    if(!("importance" %in% names(model))){
+      stop("This model has no slot named 'importance'")
+    }
+
     #importance from rf
     if(inherits(model, "rf") & !inherits(model, "rf_spatial") & !inherits(model, "rf_repeat")){
-      x <- model$importance$per.variable
+
+        x <- model$importance$per.variable
 
       if("importance.oob" %in% colnames(x)){
         x <- dplyr::rename(

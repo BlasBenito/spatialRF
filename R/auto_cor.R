@@ -1,6 +1,7 @@
 #' @title Multicollinearity reduction via Pearson correlation
 #' @description Computes the correlation matrix among a set of predictors, orders the correlation matrix according to a user-defined preference order, and removes variables one by one, taking into account the preference order, until the remaining ones are below a given Pearson correlation threshold. \strong{Warning}: variables in `preference.order` not in `colnames(x)`, and non-numeric columns are removed silently from `x` and `preference.order`. The same happens with rows having NA values ([na.omit()] is applied). The function issues a message if zero-variance columns are found.
-#' @param x A data frame with predictors, or the result of [auto_vif()] Default: `NULL`.
+#' @param data A data frame with predictors. Default: `NULL`.
+#' @param predictor.variable.names Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. If `NULL`, all the columns in data are used, and non-numeric ones discarded. Default: `NULL`
 #' @param preference.order Character vector indicating the user's order of preference to keep variables. Predictors not included in this argument are ranked by the sum of their correlation with other variables (variables with higher sums receive lower ranks and have therefore lower preference order). Default: `NULL`.
 #' @param cor.threshold Numeric between 0 and 1, with recommended values between 0.5 and 0.9. Maximum Pearson correlation between any pair of the selected variables. Default: `0.75`
 #' @param verbose Logical. if `TRUE`, describes the function operations to the user. Default:: `TRUE`
@@ -21,7 +22,10 @@
 #'   )
 #'
 #'  #on a data frame
-#'  out <- auto_cor(x = ecoregions_df[, ecoregions_predvar_names])
+#'  out <- auto_cor(
+#'    data = ecoregions_df,
+#'    predictor.variable.names = ecoregions_predvar_names
+#'  )
 #'
 #'  #getting the correlation matrix
 #'  out$cor
@@ -32,25 +36,42 @@
 #'  #getting the data frame of selected variables
 #'  out$selected.variables.df
 #'
-#'  #on the result of auto_vif
-#'  out <- auto_vif(x = ecoregions_df[, ecoregions_predvar_names])
-#'  out <- auto_cor(x = out)
+#'  #with preference order (fiver first in ecoregions_predvar_names)
+#'  out <- auto_cor(
+#'    data = ecoregions_df,
+#'    predictor.variable.names = ecoregions_predvar_names,
+#'    preference.order = ecoregions_predvar_names[1:5],
+#'  )
 #'
 #'  #with pipes
-#'  out <- ecoregions_df[, ecoregions_predvar_names] %>%
-#'  auto_vif() %>%
-#'  auto_cor()
+#'  out <- auto_cor(
+#'    data = ecoregions_df,
+#'    predictor.variable.names = ecoregions_predvar_names
+#'  ) %>%
+#'  auto_vif()
 #'
 #' }
 #' @seealso [auto_vif()]
 #' @rdname auto_cor
 #' @export
 auto_cor <- function(
-    x = NULL,
+    data = NULL,
+    predictor.variable.names = NULL,
     preference.order = NULL,
     cor.threshold = 0.75,
     verbose = TRUE
 ){
+
+  x <- NULL
+
+  #subsetting data
+  if(!is.null(predictor.variable.names)){
+    predictor.variable.names <- intersect(
+      x = predictor.variable.names,
+      y = colnames(data)
+    )
+    data <- data[, predictor.variable.names]
+  }
 
   if(cor.threshold < 0){
     cor.threshold <- 0
@@ -66,21 +87,16 @@ auto_cor <- function(
     }
   }
 
-  if(inherits(x, "variable_selection")){
-    x <- x$selected.variables.df
-    preference.order <- colnames(x)
-  }
-
   #coerce to data frame if tibble
-  if(inherits(x, "tbl_df") | inherits(x, "tbl")){
-    x <- as.data.frame(x)
+  if(inherits(data, "tbl_df") | inherits(data, "tbl")){
+    data <- as.data.frame(data)
   }
 
   #removing NA
-  x <- na.omit(x)
+  data <- na.omit(data)
 
   #finding and removing non-numeric columns
-  non.numeric.columns <- colnames(x)[!sapply(x, is.numeric)]
+  non.numeric.columns <- colnames(data)[!sapply(data, is.numeric)]
   if(length(non.numeric.columns) > 0){
     if(verbose == TRUE){
       message(
@@ -91,11 +107,11 @@ auto_cor <- function(
         )
       )
     }
-    x <- x[, !(colnames(x) %in% non.numeric.columns), drop = FALSE]
+    data <- data[, !(colnames(data) %in% non.numeric.columns), drop = FALSE]
   }
 
   #finding zero variance columns
-  zero.variance.columns <- colnames(x)[round(apply(x, 2, var), 6) == 0]
+  zero.variance.columns <- colnames(data)[round(apply(x, 2, var), 6) == 0]
   if(length(zero.variance.columns) > 0){
     if(verbose == TRUE){
       message(
@@ -110,13 +126,13 @@ auto_cor <- function(
 
 
   #compute correlation matrix of x
-  x.cor <- abs(cor(x))
+  data.cor <- abs(cor(data))
 
   #diagonals to zero
-  diag(x.cor) <- 0
+  diag(data.cor) <- 0
 
   #auto preference order
-  preference.order.auto <- colSums(x.cor) %>%
+  preference.order.auto <- colSums(data.cor) %>%
     sort() %>%
     names()
 
@@ -128,12 +144,12 @@ auto_cor <- function(
   } else {
 
     #subset preference.order to colnames(x)
-    preference.order <- preference.order[preference.order %in% colnames(x)]
+    preference.order <- preference.order[preference.order %in% colnames(data)]
 
     #if there are variables not in preference.order, add them in the order of preference.order.auto
-    if(length(preference.order) < ncol(x)){
+    if(length(preference.order) < ncol(data)){
 
-      not.in.preference.order <- colnames(x)[!(colnames(x) %in% preference.order)]
+      not.in.preference.order <- colnames(data)[!(colnames(data) %in% preference.order)]
       preference.order <- c(preference.order, preference.order.auto[preference.order.auto %in% not.in.preference.order])
 
     }
@@ -141,35 +157,35 @@ auto_cor <- function(
   }
 
   #organize the matrix according to preference.order
-  x.cor <- x.cor[preference.order, preference.order]
+  data.cor <- data.cor[preference.order, preference.order]
 
   #vector to store variables to remove
   removed.vars <- vector()
 
   #iterating through columns
-  for(i in seq(from = ncol(x.cor), to = 1)){
+  for(i in seq(from = ncol(data.cor), to = 1)){
 
-    #find max correlation in x.cor
-    x.cor.max <- apply(x.cor, 2, FUN = max)
+    #find max correlation in data.cor
+    data.cor.max <- apply(data.cor, 2, FUN = max)
 
     #remove i column if max > cor.threshold
-    if(x.cor.max[i] > cor.threshold){
+    if(data.cor.max[i] > cor.threshold){
 
       #identify column name
-      variable.to.remove <- names(x.cor.max[i])
+      variable.to.remove <- names(data.cor.max[i])
 
       #adding it to removed.vars
       removed.vars <- c(removed.vars, variable.to.remove)
 
-      #remove it from x.cor
-      x.cor <- x.cor[
-        rownames(x.cor) != variable.to.remove,
-        rownames(x.cor) != variable.to.remove
+      #remove it from data.cor
+      data.cor <- data.cor[
+        rownames(data.cor) != variable.to.remove,
+        rownames(data.cor) != variable.to.remove
       ]
 
     }
 
-    if(is.null(dim(x.cor))){
+    if(is.null(dim(data.cor))){
       break
     }
 
@@ -193,8 +209,8 @@ auto_cor <- function(
   }
 
   #selected variables
-  selected.variables <- setdiff(colnames(x), removed.vars)
-  selected.variables.df <- x[, selected.variables, drop = FALSE]
+  selected.variables <- setdiff(colnames(data), removed.vars)
+  selected.variables.df <- data[, selected.variables, drop = FALSE]
 
   if(verbose == TRUE){
     message(

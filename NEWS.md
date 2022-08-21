@@ -1,5 +1,7 @@
 ## Version 1.1.4 (work in progress)
 
+`auto_cor()` and `auto_vif()` now have explicit `data` and `predictor.variable.names` arguments.
+
 `rf_importance()` is now `rf_jackknife()`, and works in a slightly different way.
 
 Refactored auto_vif and auto_cor to improve how they generate preference.order automatically when the user does not provide it. Now both functions can accept a preference.order of length 1.

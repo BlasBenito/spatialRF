@@ -1,14 +1,8 @@
 #' @title Multicollinearity reduction via Variance Inflation Factor
 #'
-#' @description Selects predictors that are not linear combinations of other predictors by using computing their variance inflation factors (VIF). Allows the user to define an order of preference for the selection of predictors. \strong{Warning}: variables in `preference.order` not in `colnames(x)`, and non-numeric columns are removed from `x` and `preference.order`. The same happens with rows having NA values ([na.omit()] is applied). The function issues a message if zero-variance columns are found.
-#' @usage
-#' auto_vif(
-#'   x = NULL,
-#'   preference.order = NULL,
-#'   vif.threshold = 5,
-#'   verbose = TRUE
-#' )
-#' @param x A data frame with predictors or the result of [auto_cor()]. Default: `NULL`.
+#' @description Selects predictors that are not linear combinations of other predictors by using computing their variance inflation factors (VIF). Allows the user to define an order of preference for the selection of predictors. \strong{Warning}: variables in `preference.order` not in `colnames(x)`, and non-numeric columns are removed from `x` and `preference.order`. The same happens with rows having NA values ([na.omit()] is applied). The function issues a message if zero-variance columns are found. Notice that identical columns with different names may crash this function, but you can prevent this by running [auto_cor()] before [auto_vif()].
+#' @param data A data frame with predictors, or alternatively, the result of [auto_cor()]. Default: `NULL`.
+#' @param predictor.variable.names Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. If `NULL`, all the columns in data are used, and non-numeric ones discarded. Default: `NULL`
 #' @param preference.order Character vector indicating the user's order of preference to keep variables. Predictors not included in this argument are ranked by their VIF. Default: `NULL`.
 #' @param vif.threshold Numeric between 0 and 10 defining the selection threshold for the VIF analysis. Higher numbers result in a more relaxed variable selection. Default: 5.
 #' @param verbose Logical. if `TRUE`, describes the function operations to the user. Default:: `TRUE`
@@ -24,7 +18,7 @@
 #' \item 1. When the argument `preference.order` is `NULL`, the function removes on each iteration the variable with the highest VIF until all VIF values are lower than `vif.threshold`.
 #' \item 2. When `preference.order` is provided, the variables are selected by giving them priority according to their order in `preference.order`. If there are variables not in `preference.order`, these are selected as in option 1. Once both groups of variables have been processed, all variables are put together and selected by giving priority to the ones in `preference.order`. This method preserves the variables desired by the user as much as possible.
 #' }
-#'  Can be chained together with [auto_cor()] through pipes, see the examples below.
+#'  Can be chained together with [auto_cor()] through pipes, but it is always recommended to run [auto_cor()] first, since pairs of variables with a Pearson correlation index of 1 may crash [auto_vif()].
 #' @seealso [auto_cor()]
 #' @examples
 #' if(interactive()){
@@ -35,7 +29,10 @@
 #'   )
 #'
 #'#on a data frame
-#'out <- auto_vif(x = ecoregions_df[, ecoregions_predvar_names])
+#'out <- auto_vif(
+#'  data = ecoregions_df,
+#'  predictor.variable.names = ecoregions_predvar_names
+#'  )
 #'
 #'#getting out the vif data frame
 #'out$vif
@@ -46,14 +43,20 @@
 #'#getting the data frame of selected variables
 #'out$selected.variables.df
 #'
-#'#on the result of auto_cor
-#'out <- auto_cor(x = ecoregions_df[, ecoregions_predvar_names])
-#'out <- auto_vif(x = out)
+#'#with preference order
+#'  out <- auto_vif(
+#'    data = ecoregions_df,
+#'    predictor.variable.names = ecoregions_predvar_names,
+#'    preference.order = ecoregions_predvar_names[1:5],
+#'  )
 #'
 #'#with pipes
-#'out <- ecoregions_df[, ecoregions_predvar_names] %>%
-#'  auto_cor() %>%
+#'  out <- auto_cor(
+#'    data = ecoregions_df,
+#'    predictor.variable.names = ecoregions_predvar_names
+#'  ) %>%
 #'  auto_vif()
+#'
 #'
 #' }
 #' @rdname auto_vif
@@ -61,13 +64,23 @@
 #' @importFrom stats cor
 #' @export
 auto_vif <- function(
-    x = NULL,
+    data = NULL,
+    predictor.variable.names = NULL,
     preference.order = NULL,
     vif.threshold = 5,
     verbose = TRUE
 ){
 
   variable <- NULL
+
+  #subsetting data
+  if(!is.null(predictor.variable.names)){
+    predictor.variable.names <- intersect(
+      x = predictor.variable.names,
+      y = colnames(data)
+    )
+    data <- data[, predictor.variable.names]
+  }
 
   if(vif.threshold < 0){
     vif.threshold <- 0
@@ -83,23 +96,23 @@ auto_vif <- function(
     }
   }
 
-  if(inherits(x, "variable_selection") == TRUE){
-    x <- x$selected.variables.df
-    preference.order <- colnames(x)
+  if(inherits(data, "variable_selection") == TRUE){
+    data <- data$selected.variables.df
+    preference.order <- colnames(data)
   }
 
   #coercing to data frame
   #coerce to data frame if tibble
-  if(inherits(x, "tbl_df") | inherits(x, "tbl")){
-    x <- as.data.frame(x)
+  if(inherits(data, "tbl_df") | inherits(data, "tbl")){
+    data <- as.data.frame(data)
   }
 
   #removing non-numeric and zero variance columns
   #removing NA
-  x <- na.omit(x)
+  data <- na.omit(data)
 
   #finding and removing non-numeric columns
-  non.numeric.columns <- colnames(x)[!sapply(x, is.numeric)]
+  non.numeric.columns <- colnames(data)[!sapply(data, is.numeric)]
   if(length(non.numeric.columns) > 0){
     if(verbose == TRUE){
       message(
@@ -110,11 +123,11 @@ auto_vif <- function(
         )
       )
     }
-    x <- x[, !(colnames(x) %in% non.numeric.columns), drop = FALSE]
+    data <- data[, !(colnames(data) %in% non.numeric.columns), drop = FALSE]
   }
 
   #finding zero variance columns
-  zero.variance.columns <- colnames(x)[round(apply(x, 2, var), 6) == 0]
+  zero.variance.columns <- colnames(data)[round(apply(data, 2, var), 6) == 0]
   if(length(zero.variance.columns) > 0){
     if(verbose == TRUE){
       message(
@@ -128,7 +141,7 @@ auto_vif <- function(
   }
 
   #auto preference order by vif
-  preference.order.auto <- .vif_to_df(x) %>%
+  preference.order.auto <- .vif_to_df(data) %>%
     dplyr::pull(variable)
 
   #AND preference.order IS NOT PROVIDED
@@ -139,12 +152,12 @@ auto_vif <- function(
   } else {
 
     #subset preference.order to colnames(x)
-    preference.order <- preference.order[preference.order %in% colnames(x)]
+    preference.order <- preference.order[preference.order %in% colnames(data)]
 
     #if there are variables not in preference.order, add them in the order of preference.order.auto
-    if(length(preference.order) < ncol(x)){
+    if(length(preference.order) < ncol(data)){
 
-      not.in.preference.order <- colnames(x)[!(colnames(x) %in% preference.order)]
+      not.in.preference.order <- colnames(data)[!(colnames(data) %in% preference.order)]
       preference.order <- c(preference.order, preference.order.auto[preference.order.auto %in% not.in.preference.order])
 
     }
@@ -152,23 +165,23 @@ auto_vif <- function(
   }
 
   #order x according to preference order
-  x <- x[, preference.order]
+  data <- data[, preference.order]
 
   #rank of interest
-  x.rank <- data.frame(
-    variable = colnames(x),
-    rank = 1:ncol(x)
+  data.rank <- data.frame(
+    variable = colnames(data),
+    rank = 1:ncol(data)
   )
 
   #vector to store variables to remove
   removed.vars <- vector()
 
   #iterating through reversed preference order
-  for(i in seq(from = nrow(x.rank), to = 2)){
+  for(i in seq(from = nrow(data.rank), to = 2)){
 
-    vif.i <- .vif_to_df(x = x[, x.rank$variable]) %>%
+    vif.i <- .vif_to_df(data = data[, data.rank$variable]) %>%
       dplyr::filter(
-        variable == x.rank[i, "variable"]
+        variable == data.rank[i, "variable"]
       ) %>%
       dplyr::pull(vif)
 
@@ -176,12 +189,12 @@ auto_vif <- function(
     if(vif.i > vif.threshold){
 
       #adding it to removed.vars
-      removed.vars <- c(removed.vars, x.rank[i, "variable"])
+      removed.vars <- c(removed.vars, data.rank[i, "variable"])
 
       #removing it from x.rank
-      x.rank <- dplyr::filter(
-        x.rank,
-        variable != x.rank[i, "variable"]
+      data.rank <- dplyr::filter(
+        data.rank,
+        variable != data.rank[i, "variable"]
       )
 
     }
@@ -206,8 +219,8 @@ auto_vif <- function(
   }
 
   #selected variables
-  selected.variables <- setdiff(colnames(x), removed.vars)
-  selected.variables.df <- x[, selected.variables, drop = FALSE]
+  selected.variables <- setdiff(colnames(data), removed.vars)
+  selected.variables.df <- data[, selected.variables, drop = FALSE]
 
   if(verbose == TRUE){
     message(
@@ -219,13 +232,13 @@ auto_vif <- function(
   }
 
   #final vif.df
-  vif.df <- .vif_to_df(x = selected.variables.df)
+  vif.df <- .vif_to_df(data = selected.variables.df)
 
   #output list
   output.list <- list()
   output.list$vif <- vif.df[, c("variable", "vif")]
   output.list$selected.variables <- selected.variables
-  output.list$selected.variables.df <- x[, selected.variables, drop = FALSE]
+  output.list$selected.variables.df <- data[, selected.variables, drop = FALSE]
 
   class(output.list) <- "variable_selection"
 
@@ -235,14 +248,14 @@ auto_vif <- function(
 
 
 #' @export
-.vif_to_df <- function(x){
+.vif_to_df <- function(data){
 
   #defining global variable
   vif <- NULL
 
   #turns vif output into tidy df
   df <- data.frame(
-      diag(solve(cor(x))),
+      diag(solve(cor(data))),
       stringsAsFactors = FALSE
     ) %>%
     dplyr::rename(vif = 1) %>%

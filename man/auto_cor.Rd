@@ -5,14 +5,17 @@
 \title{Multicollinearity reduction via Pearson correlation}
 \usage{
 auto_cor(
-  x = NULL,
+  data = NULL,
+  predictor.variable.names = NULL,
   preference.order = NULL,
   cor.threshold = 0.75,
   verbose = TRUE
 )
 }
 \arguments{
-\item{x}{A data frame with predictors, or the result of \code{\link[=auto_vif]{auto_vif()}} Default: \code{NULL}.}
+\item{data}{A data frame with predictors. Default: \code{NULL}.}
+
+\item{predictor.variable.names}{Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. If \code{NULL}, all the columns in data are used, and non-numeric ones discarded. Default: \code{NULL}}
 
 \item{preference.order}{Character vector indicating the user's order of preference to keep variables. Predictors not included in this argument are ranked by the sum of their correlation with other variables (variables with higher sums receive lower ranks and have therefore lower preference order). Default: \code{NULL}.}
 
@@ -44,7 +47,10 @@ if(interactive()){
   )
 
  #on a data frame
- out <- auto_cor(x = ecoregions_df[, ecoregions_predvar_names])
+ out <- auto_cor(
+   data = ecoregions_df,
+   predictor.variable.names = ecoregions_predvar_names
+ )
 
  #getting the correlation matrix
  out$cor
@@ -55,14 +61,19 @@ if(interactive()){
  #getting the data frame of selected variables
  out$selected.variables.df
 
- #on the result of auto_vif
- out <- auto_vif(x = ecoregions_df[, ecoregions_predvar_names])
- out <- auto_cor(x = out)
+ #with preference order (fiver first in ecoregions_predvar_names)
+ out <- auto_cor(
+   data = ecoregions_df,
+   predictor.variable.names = ecoregions_predvar_names,
+   preference.order = ecoregions_predvar_names[1:5],
+ )
 
  #with pipes
- out <- ecoregions_df[, ecoregions_predvar_names] \%>\%
- auto_vif() \%>\%
- auto_cor()
+ out <- auto_cor(
+   data = ecoregions_df,
+   predictor.variable.names = ecoregions_predvar_names
+ ) \%>\%
+ auto_vif()
 
 }
 }

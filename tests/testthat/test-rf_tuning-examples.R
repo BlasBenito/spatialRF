@@ -20,6 +20,7 @@ testthat::test_that("`rf_tuning()` works", {
     distance.matrix = ecoregions_distance_matrix,
     xy = ecoregions_df[, c("x", "y")],
     distance.thresholds = c(0,100, 1000, 10000),
+    scaled.importance = FALSE,
     verbose = FALSE
   ) %>%
     spatialRF::rf_tuning(

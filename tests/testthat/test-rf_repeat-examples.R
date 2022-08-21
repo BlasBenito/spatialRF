@@ -18,6 +18,7 @@ testthat::test_that("`rf_repeat()` works", {
     predictor.variable.names = ecoregions_predvar_names,
     distance.matrix = ecoregions_distance_matrix,
     distance.thresholds = c(0,100, 1000, 10000),
+    scaled.importance = FALSE,
     repetitions = 10,
     verbose = FALSE
   )

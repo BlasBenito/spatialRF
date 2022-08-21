@@ -51,8 +51,7 @@ filter_spatial_predictors <- function(
 
   #filtering spatial predictors by pair-wise correlation
   spatial.predictors.selection <- auto_cor(
-    x = spatial.predictors.df,
-    preference.order = colnames(spatial.predictors.df),
+    data = spatial.predictors.df,
     cor.threshold = cor.threshold,
     verbose = FALSE
   )
