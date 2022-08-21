@@ -62,8 +62,6 @@ auto_cor <- function(
     verbose = TRUE
 ){
 
-  x <- NULL
-
   #subsetting data
   if(!is.null(predictor.variable.names)){
     predictor.variable.names <- intersect(
@@ -111,7 +109,7 @@ auto_cor <- function(
   }
 
   #finding zero variance columns
-  zero.variance.columns <- colnames(data)[round(apply(x, 2, var), 6) == 0]
+  zero.variance.columns <- colnames(data)[round(apply(data, 2, var), 6) == 0]
   if(length(zero.variance.columns) > 0){
     if(verbose == TRUE){
       message(

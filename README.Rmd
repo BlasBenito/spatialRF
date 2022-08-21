@@ -258,7 +258,8 @@ preference.order <- c(
   )
 
 multicollinearity.analysis <- spatialRF::auto_cor(
-  x = ecoregions_df[, ecoregions_predvar_names],
+  data = ecoregions_df,
+  predictor.variable.names = ecoregions_predvar_names,
   cor.threshold = 0.75,
   preference.order = preference.order
 ) %>% 
@@ -268,7 +269,7 @@ multicollinearity.analysis <- spatialRF::auto_cor(
   )
 ```
 
-The output of `auto_cor()` or `auto_vif()` has the class "variable_selection", which can be used as input in every function having the argument `ecoregions_predvar_names`.
+The output of `auto_cor()` and `auto_vif()` has the class "variable_selection", which can be used as input in every function having the argument `predictor.variable.names`.
 
 ```{r}
 names(multicollinearity.analysis)
