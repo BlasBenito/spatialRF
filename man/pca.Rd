@@ -35,6 +35,3 @@ if(interactive()){
 
 }
 }
-\seealso{
-\code{\link[=pca_multithreshold]{pca_multithreshold()}}
-}

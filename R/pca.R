@@ -9,7 +9,6 @@
 #' @param colnames.prefix character, name prefix for the output columns, Default: 'pca_factor'
 #' @return A data frame with the PCA factors of `x`.
 #' @details Columns in `x` with zero variance are removed before computing the PCA.
-#' @seealso [pca_multithreshold()]
 #' @examples
 #' if(interactive()){
 #'

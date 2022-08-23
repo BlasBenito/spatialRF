@@ -1,5 +1,7 @@
 ## Version 1.1.4 (work in progress)
 
+Simplified the methods in `rf_spatial()`, and now all experimental methods have been removed.
+
 `auto_cor()` and `auto_vif()` now have explicit `data` and `predictor.variable.names` arguments.
 
 `rf_importance()` is now `rf_jackknife()`, and works in a slightly different way.

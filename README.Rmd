@@ -15,7 +15,7 @@ always_allow_html: yes
 
 <!-- badges: start -->
 
-[![Devel-version](https://img.shields.io/badge/devel%20version-1.1.4-blue.svg)](https://github.com/blasbenito/spatialRF) [![lifecycle](https://img.shields.io/badge/lifecycle-stable-green.svg)](https://lifecycle.r-lib.org/articles/stages.html)
+[![Devel-version](https://img.shields.io/badge/devel%20version-1.1.5-blue.svg)](https://github.com/blasbenito/spatialRF) [![lifecycle](https://img.shields.io/badge/lifecycle-stable-green.svg)](https://lifecycle.r-lib.org/articles/stages.html)
 [![License](https://img.shields.io/badge/license-GPL--3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html) [![DOI](https://zenodo.org/badge/330962704.svg)](https://zenodo.org/badge/latestdoi/330962704)[![CRAN status](https://www.r-pkg.org/badges/version/spatialRF)](https://cran.r-project.org/package=spatialRF)[![CRAN\_Download\_Badge](http://cranlogs.r-pkg.org/badges/grand-total/spatialRF)](https://CRAN.R-project.org/package=spatialRF)
 
 
@@ -313,11 +313,12 @@ variable.selection <- spatialRF::rf_select(
 The output of `rf_select` is a fusion of the outputs of `auto_vif()` and `auto_cor()` plus the data frame with the univariate effect of each predictor:
 
 ```{r, eval = FALSE}
-variable.selection$univariate.importance
+variable.selection$variable.selection$univariate.importance
 ```
 
 ```{r, echo = FALSE}
-kableExtra::kbl(variable.selection$univariate.importance) %>% 
+kableExtra::kbl(variable.selection$variable.selection$univariate.importance
+) %>% 
   kableExtra::kable_styling()
 ```
 

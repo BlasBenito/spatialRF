@@ -12,12 +12,6 @@
 #' @param method Character, method to build, rank, and select spatial predictors. One of:
 #' \itemize{
 #'   \item "hengl"
-#'   \item "hengl.moran.sequential"  (experimental)
-#'   \item "hengl.effect.sequential" (experimental)
-#'   \item "hengl.effect.recursive"  (experimental)
-#'   \item "pca.moran.sequential"    (experimental)
-#'   \item "pca.effect.sequential"   (experimental)
-#'   \item "pca.effect.recursive"    (experimental)
 #'   \item "mem.moran.sequential"    (default)
 #'   \item "mem.effect.sequential"
 #'   \item "mem.effect.recursive"
@@ -47,21 +41,21 @@
 #' @details The function uses three different methods to generate spatial predictors ("hengl", "pca", and "mem"), two methods to rank them in order to define in what order they are introduced in the model ("effect" and "moran), and two methods to select the spatial predictors that minimize the spatial correlation of the model residuals ("sequential" and "recursive"). All method names but "hengl" (that uses the complete distance matrix as predictors in the spatial model) are named by combining a method to generate the spatial predictors, a method to rank them, and a method to select them, separated by a point. Examples are "mem.moran.sequential" or "mem.effect.recursive". All combinations are not possible, since the ranking method "moran" cannot be used with the selection method "recursive" (because the logics behind them are very different, see below).
 #' Methods to generate spatial predictors:
 #' \itemize{
-#'   \item `"hengl"`: named after Tomislav Hengl and the paper [Hengl et al. (2018)](https://peerj.com/articles/5518/), where the authors propose to use the distance matrix among records as predictors in spatial random forest models (RFsp method). In this function, all methods starting with "hengl" use either the complete distance matrix, or select columns of the distance matrix as spatial predictors.
+#'   \item `"hengl"`: named after Tomislav Hengl and the paper [Hengl et al. (2018)](https://peerj.com/articles/5518/), where the authors propose to use the distance matrix among records as predictors in spatial random forest models (RFsp method). In this function, the "hengl" method uses the complete distance matrix as spatial component in the model. It is the fastest method, but in exchange it generates a large number of features that might complicate model interpretation.
 #'   \item `"mem"`: Generates Moran's Eigenvector Maps, that is, the eigenvectors of the double-centered weights of the distance matrix. The method is described in [Dray, Legendre and Peres-Neto (2006)](https://www.sciencedirect.com/science/article/abs/pii/S0304380006000925) and [Legendre and Gauthier (2014)](https://royalsocietypublishing.org/doi/10.1098/rspb.2013.2728).
-#'   \item `"pca"`: Computes spatial predictors from the principal component analysis of a weighted distance matrix (see [weights_from_distance_matrix()]). This is an experimental method, use with caution.
 #' }
-#' Methods to rank spatial predictors (see [rank_spatial_predictors()]):
+#'
+#' Methods to rank Moran's Eigenvector Maps (see [rank_spatial_predictors()]):
 #' \itemize{
 #'   \item `"moran"`: Computes the Moran's I of each spatial predictor, selects the ones with positive values, and ranks them from higher to lower Moran's I.
-#'   \item `"effect"`: If a given non-spatial random forest model is defined as `y = p1 + ... + pn`, being `p1 + ... + pn` the set of predictors, for every spatial predictor generated (`spX`) a spatial model `y = p1 + ... + pn + spX` is fitted, and the Moran's I of its residuals is computed. The spatial predictors are then ranked by how much they help to reduce spatial autocorrelation between the non-spatial and the spatial model.
+#'   \item `"effect"`: If a given non-spatial random forest model is defined as `y = p1 + ... + pn`, being `p1 + ... + pn` the set of predictors, for every spatial predictor generated (`spX`) a spatial model `y = p1 + ... + pn + spX` is fitted, and the Moran's I of its residuals is computed. The spatial predictors are then ranked by how much they help to reduce the spatial autocorrelation of the spatial model when compared to the non-spatial one.
 #' }
-#' Methods to select spatial predictors:
+#' Methods to select Moran's Eigenvector Maps:
 #' \itemize{
-#'   \item `"sequential"` (see [select_spatial_predictors_sequential()]): The spatial predictors are added one by one in the order they were ranked, and once all spatial predictors are introduced, the best first n predictors are selected. This method is similar to the one employed in the MEM methodology (Moran's Eigenvector Maps) described in [Dray, Legendre and Peres-Neto (2006)](https://www.sciencedirect.com/science/article/abs/pii/S0304380006000925) and [Legendre and Gauthier (2014)](https://royalsocietypublishing.org/doi/10.1098/rspb.2013.2728). This method generally introduces tens of predictors into the model, but usually offers good results.
-#'   \item `"recursive"` (see [select_spatial_predictors_recursive()]): This method tries to find the smallest combination of spatial predictors that reduce the spatial correlation of the model's residuals the most. The algorithm goes as follows: 1. The first ranked spatial predictor is introduced into the model; 2. the remaining predictors are ranked again using the "effect" method, using the model in 1. as reference. The first spatial predictor in the resulting ranking is then introduced into the model, and the steps 1. and 2. are repeated until spatial predictors stop having an effect in reducing the Moran's I of the model residuals. This method takes longer to compute, but generates smaller sets of spatial predictors. This is an experimental method, use with caution.
+#'   \item `"sequential"` (see [select_spatial_predictors_sequential()]): The Moran's Eigenvector Maps are added one by one in the order they were ranked, and once all MEMs are introduced, the best first n predictors are selected. This method is similar to the one employed in the MEM methodology (Moran's Eigenvector Maps) described in [Dray, Legendre and Peres-Neto (2006)](https://www.sciencedirect.com/science/article/abs/pii/S0304380006000925) and [Legendre and Gauthier (2014)](https://royalsocietypublishing.org/doi/10.1098/rspb.2013.2728). This method generally introduces tens of predictors into the model, but usually offers good results.
+#'   \item `"recursive"` (see [select_spatial_predictors_recursive()]): This method tries to find the smallest combination of Moran's Eigenvector Maps that reduces residual correlation the most. The algorithm goes as follows: 1. The first ranked MEM is introduced into the model; 2. the remaining predictors are ranked again using the "effect" method, using the model in 1. as reference. The first spatial predictor in the resulting ranking is then introduced into the model, and the steps 1. and 2. are repeated until spatial predictors stop having an effect in reducing the autocorrelation of the residuals. This method takes longer to compute, but generates smaller sets of spatial predictors. This is an experimental method, use with caution.
 #' }
-#' Once ranking procedure is completed, an algorithm is used to select the minimal subset of spatial predictors that reduce the most the Moran's I of the residuals: for each new spatial predictor introduced in the model, the Moran's I of the residuals, it's p-value, a binary version of the p-value (0 if < 0.05 and 1 if >= 0.05), the R-squared of the model, and a penalization linear with the number of spatial predictors introduced (computed as `(1 / total spatial predictors) * introduced spatial predictors`) are rescaled between 0 and 1. Then, the optimization criteria is computed as `max(1 - Moran's I, p-value binary) + (weight.r.squared * R-squared) - (weight.penalization.n.predictors * penalization)`. The predictors from the first one to the one with the highest optimization criteria are then selected as the best ones in reducing the spatial correlation of the model residuals, and used along with `data` to fit the final spatial model.
+#' Once ranking procedure is completed, an algorithm is used to select the minimal subset of Moran's Eigenvector Maps that reduce the most the Moran's I of the residuals: for each new spatial predictor introduced in the model, the Moran's I of the residuals, it's p-value, a binary version of the p-value (0 if < 0.05 and 1 if >= 0.05), the R-squared of the model, and a penalization linear with the number of spatial predictors introduced (computed as `(1 / total spatial predictors) * introduced spatial predictors`) are rescaled between 0 and 1. Then, the optimization criteria is computed as `max(1 - Moran's I, p-value binary) + (weight.r.squared * R-squared) - (weight.penalization.n.predictors * penalization)`. The predictors from the first one to the one with the highest optimization criteria are then selected as the best ones in reducing the spatial correlation of the model residuals, and used along with `data` to fit the final spatial model.
 #' @examples
 #' if(interactive()){
 #'
@@ -129,13 +123,7 @@ rf_spatial <- function(
       "mem.moran.sequential", #mem ordered by their Moran's I.
       "mem.effect.sequential", #mem added in order of effect.
       "mem.effect.recursive", #mem added maximizing their joint effect.
-      "hengl", #all distance matrix columns as predictors
-      "hengl.moran.sequential", #distance matrix columns added in the order of their Moran's I
-      "hengl.effect.sequential", #distance matrix columns added in order of their effect.
-      "hengl.effect.recursive", #distance matrix columns added maximizing their joint effect.
-      "pca.moran.sequential", #pca factors added in order of their Moran's I.
-      "pca.effect.sequential", #pca factors added in order of effect
-      "pca.effect.recursive" #pca factors added maximizing their joint effect.
+      "hengl" #all distance matrix columns as predictors
     ),
     max.spatial.predictors = NULL,
     weight.r.squared = NULL,
@@ -158,13 +146,7 @@ rf_spatial <- function(
       "mem.moran.sequential",
       "mem.effect.sequential",
       "mem.effect.recursive",
-      "hengl",
-      "hengl.moran.sequential",
-      "hengl.effect.sequential",
-      "hengl.effect.recursive",
-      "pca.moran.sequential",
-      "pca.effect.sequential",
-      "pca.effect.recursive"
+      "hengl"
     ),
     several.ok = FALSE
   )
@@ -335,13 +317,7 @@ rf_spatial <- function(
   #########################################################
 
   #HENGL
-  if(method %in% c(
-    "hengl",
-    "hengl.moran.sequential",
-    "hengl.effect.sequential",
-    "hengl.effect.recursive"
-  )
-  ){
+  if(method == "hengl"){
 
     #change name of distance matrix
     spatial.predictors.df <- as.data.frame(distance.matrix)
@@ -358,27 +334,6 @@ rf_spatial <- function(
       message("Using the distance matrix columns as spatial predictors.")
     }
 
-
-  }
-
-  #PCA
-  if(method %in% c(
-    "pca.moran.sequential",
-    "pca.effect.sequential",
-    "pca.effect.recursive"
-  )
-  ){
-
-    #computing pca factors for pca methods
-    spatial.predictors.df <- pca_multithreshold(
-      distance.matrix = distance.matrix,
-      distance.thresholds =  distance.thresholds.with.ac,
-      max.spatial.predictors = max.spatial.predictors
-    )
-
-    if(verbose == TRUE){
-      message("Using PCA factors of the distance matrix as spatial predictors.")
-    }
 
   }
 
@@ -407,16 +362,11 @@ rf_spatial <- function(
   ###########################################################
 
   #SELECTING RANKING METHOD
-  if(method %in% "hengl"){
+  if(method == "hengl"){
     ranking.method <- NULL
   }
 
-  if(method %in% c(
-    "hengl.moran.sequential",
-    "pca.moran.sequential",
-    "mem.moran.sequential"
-  )
-  ){
+  if(method == "mem.moran.sequential"){
     ranking.method <- "moran"
     if(verbose == TRUE){
       message("Ranking spatial predictors by their Moran's I.")
@@ -424,10 +374,6 @@ rf_spatial <- function(
   }
 
   if(method %in% c(
-    "hengl.effect.sequential",
-    "hengl.effect.recursive",
-    "pca.effect.sequential",
-    "pca.effect.recursive",
     "mem.effect.sequential",
     "mem.effect.recursive"
   )
@@ -472,12 +418,8 @@ rf_spatial <- function(
 
   #SEQUENTIAL SELECTION OF SPATIAL PREDICTORS
   if(method %in% c(
-    "hengl.moran.sequential",
     "mem.moran.sequential",
-    "pca.moran.sequential",
-    "hengl.effect.sequential",
-    "mem.effect.sequential",
-    "pca.effect.sequential"
+    "mem.effect.sequential"
   )
   ){
 
@@ -509,12 +451,7 @@ rf_spatial <- function(
 
 
   #recursive SELECTION OF SPATIAL PREDICTORS
-  if(method %in% c(
-    "hengl.effect.recursive",
-    "pca.effect.recursive",
-    "mem.effect.recursive"
-  )
-  ){
+  if(method == "mem.effect.recursive"){
 
     if(verbose == TRUE){
       message("Recursive selection of spatial predictors.")
