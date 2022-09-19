@@ -224,7 +224,6 @@ rf_tuning <- function(
     }
 
 
-
   #min.node.size
   min.node.size <- as.integer(min.node.size.vector)
     if(max(min.node.size) >= floor(nrow(data)/4)){

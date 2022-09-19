@@ -3713,9 +3713,7 @@ model.non.spatial <- spatialRF::rf(
 )
 ```
 
-The function detects that the response variable is binary (using the
-function
-[`is_binary()`](https://blasbenito.github.io/spatialRF/reference/is_binary.html)),
+The function detects that the response variable is binary,
 and computes *case weights* for the ones and the zeros. These case
 weights are stored in the `ranger.arguments` slot of the model, and are
 used to give preference to the cases with larger weights during the

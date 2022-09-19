@@ -10,8 +10,6 @@
 #'   \item `x` and `y`: Numeric, coordinates of the ecoregion centroids, in EPSG 4326.
 #'   \item `plant_richness`: Number of vascular species found in the ecoregion. Response variable.
 #'   \item `plant_richness_binary`: Binary version of `plant_richness`, with value `1` when `plant_richness` is higher than 5000, and `0` otherwise.
-#'   \item `plant_richness_two_classes`: Character version of `plant_richness_binary`, with value `1` where `plant_richness_binary == 1` and `0` otherwise.
-#'   \item `plant_richness_three_classes`: Character version of `plant_richness` with three classes: "high" when `plant_richness > 10000`, "medium" between 5000 and 10000, and "low" otherwise.
 #'   \item `ecoregion_area_km2`: Area of the ecoregion in squared kilometers.
 #'   \item `sampling_bias`: Indicator of sampling bias, measured as number of vascular plant species found in the ecoregion divided by the number of GBIF records of the ecoregion, divided by the area of the ecoregion.
 #'   \item `neighbors_count`, `neighbors_area`, `neighbors_percent_shared_edge`, and `neighbors_average_aridity`: Number, area sum, proportion of shared edge, and average aridity of the direct neighbors of each ecoregion.

@@ -34,5 +34,3 @@
 ## auto_vif() and auto_cor(): accept preference order of length 1.
 
 ## rf_tuning() should be able to use any metric and max.depth
-
-## remove pseudo.r.squared

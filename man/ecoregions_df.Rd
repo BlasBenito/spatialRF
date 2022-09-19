@@ -12,8 +12,6 @@ A data frame with 225 rows and 49 columns:
 \item \code{x} and \code{y}: Numeric, coordinates of the ecoregion centroids, in EPSG 4326.
 \item \code{plant_richness}: Number of vascular species found in the ecoregion. Response variable.
 \item \code{plant_richness_binary}: Binary version of \code{plant_richness}, with value \code{1} when \code{plant_richness} is higher than 5000, and \code{0} otherwise.
-\item \code{plant_richness_two_classes}: Character version of \code{plant_richness_binary}, with value \code{1} where \code{plant_richness_binary == 1} and \code{0} otherwise.
-\item \code{plant_richness_three_classes}: Character version of \code{plant_richness} with three classes: "high" when \code{plant_richness > 10000}, "medium" between 5000 and 10000, and "low" otherwise.
 \item \code{ecoregion_area_km2}: Area of the ecoregion in squared kilometers.
 \item \code{sampling_bias}: Indicator of sampling bias, measured as number of vascular plant species found in the ecoregion divided by the number of GBIF records of the ecoregion, divided by the area of the ecoregion.
 \item \code{neighbors_count}, \code{neighbors_area}, \code{neighbors_percent_shared_edge}, and \code{neighbors_average_aridity}: Number, area sum, proportion of shared edge, and average aridity of the direct neighbors of each ecoregion.

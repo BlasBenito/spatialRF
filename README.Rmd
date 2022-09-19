@@ -1080,7 +1080,7 @@ model.non.spatial <- spatialRF::rf(
 ```
 
 
-The function detects that the response variable is binary (using the function [`is_binary()`](https://blasbenito.github.io/spatialRF/reference/is_binary.html)), and computes *case weights* for the ones and the zeros. These case weights are stored in the `ranger.arguments` slot of the model, and are used to give preference to the cases with larger weights during the selection of the out-of-bag data (check the `case.weights` argument in `ranger::ranger()`). As a result, each individual tree in the forest is trained with a similar proportion of zeros and ones, which helps mitigate the class imbalance issue. This method is named *weighted Random Forest*, and is very well explained in this [white paper](https://statistics.berkeley.edu/sites/default/files/tech-reports/666.pdf) that includes the father of Random Forest, Leo Breiman, as coauthor.
+The function detects that the response variable is binary, and computes *case weights* for the ones and the zeros. These case weights are stored in the `ranger.arguments` slot of the model, and are used to give preference to the cases with larger weights during the selection of the out-of-bag data (check the `case.weights` argument in `ranger::ranger()`). As a result, each individual tree in the forest is trained with a similar proportion of zeros and ones, which helps mitigate the class imbalance issue. This method is named *weighted Random Forest*, and is very well explained in this [white paper](https://statistics.berkeley.edu/sites/default/files/tech-reports/666.pdf) that includes the father of Random Forest, Leo Breiman, as coauthor.
 
 ```{r}
 unique(model.non.spatial$ranger.arguments$case.weights)
