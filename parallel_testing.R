@@ -32,8 +32,8 @@ cluster <- parallel::makeCluster(
 #regular model no cluster required
 rf.model <- spatialRF::rf(
   data = ecoregions_df,
-  dependent.variable.name = ecoregions_depvar_name,
-  predictor.variable.names = ecoregions_predvar_names,
+  dependent.variable.name = ecoregions_dependent_variable_name,
+  predictor.variable.names = ecoregions_predictor_variable_names,
   distance.matrix = ecoregions_distance_matrix,
   xy = ecoregions_df[, c("x", "y")],
   verbose = FALSE,
@@ -104,7 +104,7 @@ xy.selected <- thinning_til_n(xy = xy, n = 50)
 tic()
 x <- spatialRF::make_spatial_folds(
   data = ecoregions_df,
-  dependent.variable.name = ecoregions_depvar_name,
+  dependent.variable.name = ecoregions_dependent_variable_name,
   xy.selected = xy.selected,
   xy = xy,
   n.cores = parallel::detectCores() - 1,
@@ -117,7 +117,7 @@ toc()
 tic()
 x <- spatialRF::make_spatial_folds(
   data = ecoregions_df,
-  dependent.variable.name = ecoregions_depvar_name,
+  dependent.variable.name = ecoregions_dependent_variable_name,
   xy.selected = xy.selected,
   xy = xy,
   n.cores = parallel::detectCores() - 1,
@@ -213,8 +213,8 @@ toc()
 tic()
 x <- spatialRF::the_feature_engineer(
   data = ecoregions_df,
-  dependent.variable.name = ecoregions_depvar_name,
-  predictor.variable.names = ecoregions_predvar_names,
+  dependent.variable.name = ecoregions_dependent_variable_name,
+  predictor.variable.names = ecoregions_predictor_variable_names,
   xy = ecoregions_df[, c("x", "y")],
   n.cores = parallel::detectCores() - 1,
   cluster = NULL
@@ -226,8 +226,8 @@ toc()
 tic()
 x <- spatialRF::the_feature_engineer(
   data = ecoregions_df,
-  dependent.variable.name = ecoregions_depvar_name,
-  predictor.variable.names = ecoregions_predvar_names,
+  dependent.variable.name = ecoregions_dependent_variable_name,
+  predictor.variable.names = ecoregions_predictor_variable_names,
   xy = ecoregions_df[, c("x", "y")],
   n.cores = parallel::detectCores() - 1,
   cluster = cluster

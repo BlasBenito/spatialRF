@@ -7,7 +7,7 @@ testthat::test_that("`rf_repeat()` works", {
   data(
     ecoregions_df,
     ecoregions_distance_matrix,
-    ecoregions_predvar_names,
+    ecoregions_predictor_variable_names,
     ecoregions_dependent_variable_name
   )
 
@@ -15,7 +15,7 @@ testthat::test_that("`rf_repeat()` works", {
   out <- rf_repeat(
     data = ecoregions_df,
     dependent.variable.name = ecoregions_dependent_variable_name,
-    predictor.variable.names = ecoregions_predvar_names,
+    predictor.variable.names = ecoregions_predictor_variable_names,
     distance.matrix = ecoregions_distance_matrix,
     distance.thresholds = c(0,100, 1000, 10000),
     scaled.importance = FALSE,
@@ -51,7 +51,7 @@ testthat::test_that("`rf_repeat()` works", {
   out.1 <- rf_repeat(
     data = ecoregions_df,
     dependent.variable.name = ecoregions_dependent_variable_name,
-    predictor.variable.names = ecoregions_predvar_names,
+    predictor.variable.names = ecoregions_predictor_variable_names,
     distance.matrix = ecoregions_distance_matrix,
     distance.thresholds = c(0,100, 1000, 10000),
     repetitions = 10,
@@ -91,7 +91,7 @@ testthat::test_that("`rf_repeat()` works", {
     variable.selection <- auto_cor(
       x = ecoregions_df,
       verbose = FALSE,
-      preference.order = ecoregions_predvar_names
+      preference.order = ecoregions_predictor_variable_names
     ) %>%
       auto_vif()
   )

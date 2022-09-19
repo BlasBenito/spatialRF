@@ -8,7 +8,7 @@ testthat::test_that("`rf()` works", {
    data(
     ecoregions_df,
     ecoregions_distance_matrix,
-    ecoregions_predvar_names,
+    ecoregions_predictor_variable_names,
     ecoregions_dependent_variable_name
     )
 
@@ -16,7 +16,7 @@ testthat::test_that("`rf()` works", {
   out1 <- rf_select(
     data = ecoregions_df,
     dependent.variable.name = ecoregions_dependent_variable_name,
-    predictor.variable.names = ecoregions_predvar_names,
+    predictor.variable.names = ecoregions_predictor_variable_names,
     distance.matrix = ecoregions_distance_matrix,
     distance.thresholds = c(0,100, 1000, 10000),
     verbose = FALSE
@@ -37,7 +37,7 @@ testthat::test_that("`rf()` works", {
   out2 <- rf_select(
     data = ecoregions_df,
     dependent.variable.name = ecoregions_dependent_variable_name,
-    predictor.variable.names = ecoregions_predvar_names,
+    predictor.variable.names = ecoregions_predictor_variable_names,
     preference.order = c("ecoregion_area_km2", "neighbors_count", "climate_bio1_average", "climate_bio12_average"),
     distance.matrix = ecoregions_distance_matrix,
     distance.thresholds = c(0,100, 1000, 10000),
@@ -57,7 +57,7 @@ testthat::test_that("`rf()` works", {
   out3 <- rf_select(
     data = ecoregions_df,
     dependent.variable.name = ecoregions_dependent_variable_name,
-    predictor.variable.names = ecoregions_predvar_names,
+    predictor.variable.names = ecoregions_predictor_variable_names,
     preference.order = c("ecoregion_area_km2", "neighbors_count", "climate_bio1_average", "climate_bio12_average"),
     jackknife = TRUE,
     distance.matrix = ecoregions_distance_matrix,
@@ -79,7 +79,7 @@ testthat::test_that("`rf()` works", {
    out4 <- rf_select(
      data = ecoregions_df,
      dependent.variable.name = ecoregions_dependent_variable_name,
-     predictor.variable.names = ecoregions_predvar_names,
+     predictor.variable.names = ecoregions_predictor_variable_names,
      preference.order = c("ecoregion_area_km2", "neighbors_count", "climate_bio1_average", "climate_bio12_average"),
      jackknife = TRUE,
      distance.matrix = ecoregions_distance_matrix,
@@ -105,7 +105,7 @@ testthat::test_that("`rf()` works", {
      variable.selection <- auto_cor(
        x = ecoregions_df,
        verbose = FALSE,
-       preference.order = ecoregions_predvar_names
+       preference.order = ecoregions_predictor_variable_names
      ) %>%
        auto_vif()
    )

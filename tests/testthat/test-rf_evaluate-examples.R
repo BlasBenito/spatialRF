@@ -7,7 +7,7 @@ testthat::test_that("`rf_evaluate()` works", {
   data(
     ecoregions_df,
     ecoregions_distance_matrix,
-    ecoregions_predvar_names,
+    ecoregions_predictor_variable_names,
     ecoregions_dependent_variable_name
   )
 
@@ -24,7 +24,7 @@ testthat::test_that("`rf_evaluate()` works", {
   rf.model <- rf(
     data = ecoregions_df,
     dependent.variable.name = ecoregions_dependent_variable_name,
-    predictor.variable.names = ecoregions_predvar_names,
+    predictor.variable.names = ecoregions_predictor_variable_names,
     distance.matrix = ecoregions_distance_matrix,
     distance.thresholds = c(
       0,
@@ -87,7 +87,7 @@ testthat::test_that("`rf_evaluate()` works", {
   rf.model <- rf(
     data = ecoregions_df,
     dependent.variable.name = ecoregions_dependent_variable_name,
-    predictor.variable.names = ecoregions_predvar_names,
+    predictor.variable.names = ecoregions_predictor_variable_names,
     distance.matrix = ecoregions_distance_matrix,
     distance.thresholds = c(
       0,
