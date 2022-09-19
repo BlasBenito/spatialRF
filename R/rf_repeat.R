@@ -19,8 +19,7 @@
 #' \itemize{
 #'   \item `ranger.arguments`: Stores the values of the arguments used to fit the ranger model.
 #'   \item `importance`: A list containing a data frame with the predictors ordered by their importance, a ggplot showing the importance values, and local importance scores.
-#'   \item `performance`: out-of-bag performance scores: R squared, pseudo R squared, RMSE, and normalized RMSE (NRMSE).
-#'   \item `pseudo.r.squared`: computed as the correlation between the observations and the predictions.
+#'   \item `performance`: out-of-bag performance scores: R squared, RMSE, and normalized RMSE (NRMSE).
 #'   \item `residuals`: residuals, normality test of the residuals computed with [residuals_test()], and spatial autocorrelation of the residuals computed with [moran_multithreshold()].
 #' }
 #'
@@ -302,7 +301,6 @@ rf_repeat <- function(
     out$prediction.error <- m.i$prediction.error
     out$r.squared <- m.i$performance$r.squared
     out$r.squared.oob <- m.i$performance$r.squared.oob
-    out$pseudo.r.squared <- m.i$performance$pseudo.r.squared
     out$rmse.oob <- m.i$prediction.error
     out$rmse <- m.i$performance$rmse
     out$nrmse <- m.i$performance$nrmse
@@ -580,15 +578,6 @@ rf_repeat <- function(
       repeated.models,
       "[[",
       "r.squared"
-    )
-  )
-
-  #gathering pseudo R squared
-  m$performance$pseudo.r.squared <- unlist(
-    lapply(
-      repeated.models,
-      "[[",
-      "pseudo.r.squared"
     )
   )
 

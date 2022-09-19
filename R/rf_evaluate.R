@@ -4,7 +4,7 @@
 #' @param xy Data frame or matrix with two columns containing coordinates and named "x" and "y". If `NULL`, the function will throw an error. Default: `NULL`
 #' @param repetitions Integer, number of spatial folds to use during cross-validation. Must be lower than the total number of rows available in the model's data. Default: `30`
 #' @param training.fraction Proportion between 0.5 and 0.9 indicating the proportion of records to be used as training set during spatial cross-validation. Default: `0.75`
-#' @param metrics Character vector, names of the performance metrics selected. The possible values are: "r.squared" (`cor(obs, pred) ^ 2`), "pseudo.r.squared" (`cor(obs, pred)`), "rmse" (`sqrt(sum((obs - pred)^2)/length(obs))`), "nrmse" (`rmse/(quantile(obs, 0.75) - quantile(obs, 0.25))`), and "auc" (only for binary responses with values 1 and 0). Default: `c("r.squared", "pseudo.r.squared", "rmse", "nrmse")`
+#' @param metrics Character vector, names of the performance metrics selected. The possible values are: "r.squared" (`cor(obs, pred) ^ 2`), "rmse" (`sqrt(sum((obs - pred)^2)/length(obs))`), "nrmse" (`rmse/(quantile(obs, 0.75) - quantile(obs, 0.25))`), and "auc" (only for binary responses with values 1 and 0). Default: `c("r.squared", "rmse", "nrmse")`
 #' @param distance.step Numeric, argument `distance.step` of [thinning_til_n()]. distance step used during the selection of the centers of the training folds. These fold centers are selected by thinning the data until a number of folds equal or lower than `repetitions` is reached. Its default value is 1/1000th the maximum distance within records in `xy`. Reduce it if the number of training folds is lower than expected.
 #' @param distance.step.x Numeric, argument `distance.step.x` of [make_spatial_folds()]. Distance step used during the growth in the x axis of the buffers defining the training folds. Default: `NULL` (1/1000th the range of the x coordinates).
 #' @param distance.step.y Numeric, argument `distance.step.x` of [make_spatial_folds()]. Distance step used during the growth in the y axis of the buffers defining the training folds. Default: `NULL` (1/1000th the range of the y coordinates).
@@ -16,11 +16,11 @@
 #' @return A model of the class "rf_evaluate" with a new slot named "evaluation", that is a list with the following slots:
 #' \itemize{
 #'   \item `training.fraction`: Value of the argument `training.fraction`.
-#'   \item `per.fold`: Data frame with the evaluation results per spatial fold (or repetition). It contains the ID of each fold, it's central coordinates, the number of training and testing cases, and the training and testing performance measures: R squared, pseudo R squared (cor(observed, predicted)), rmse, and normalized rmse.
+#'   \item `per.fold`: Data frame with the evaluation results per spatial fold (or repetition). It contains the ID of each fold, it's central coordinates, the number of training and testing cases, and the training and testing performance measures: R squared, rmse, and normalized rmse.
 #'   \item `per.model`: Same data as above, but organized per fold and model ("Training", "Testing", and "Full").
 #'   \item `aggregated`: Same data, but aggregated by model and performance measure.
 #' }
-#' @details The evaluation algorithm works as follows: the number of `repetitions` and the input dataset (stored in `model$ranger.arguments$data`) are used as inputs for the function [thinning_til_n()], that applies [thinning()] to the input data until as many cases as `repetitions` are left, and as separated as possible. Each of these remaining records will be used as a "fold center". From that point, the fold grows, until a number of points equal (or close) to `training.fraction` is reached. The indices of the records within the grown spatial fold are stored as "training" in the output list, and the remaining ones as "testing". Then, for each spatial fold, a "training model" is fitted using the cases corresponding with the training indices, and predicted over the cases corresponding with the testing indices. The model predictions on the "unseen" data are compared with the observations, and the performance measures (R squared, pseudo R squared, RMSE and NRMSE) computed.
+#' @details The evaluation algorithm works as follows: the number of `repetitions` and the input dataset (stored in `model$ranger.arguments$data`) are used as inputs for the function [thinning_til_n()], that applies [thinning()] to the input data until as many cases as `repetitions` are left, and as separated as possible. Each of these remaining records will be used as a "fold center". From that point, the fold grows, until a number of points equal (or close) to `training.fraction` is reached. The indices of the records within the grown spatial fold are stored as "training" in the output list, and the remaining ones as "testing". Then, for each spatial fold, a "training model" is fitted using the cases corresponding with the training indices, and predicted over the cases corresponding with the testing indices. The model predictions on the "unseen" data are compared with the observations, and the performance measures (R squared, RMSE and NRMSE) computed.
 #' @examples
 #' if(interactive()){
 #'
@@ -70,7 +70,6 @@ rf_evaluate <- function(
   training.fraction = 0.75,
   metrics = c(
     "r.squared",
-    "pseudo.r.squared",
     "rmse",
     "nrmse",
     "auc"
@@ -91,7 +90,6 @@ rf_evaluate <- function(
   value <- NULL
   testing.auc <- NULL
   testing.nrmse  <- NULL
-  testing.pseudo.r.squared  <- NULL
   testing.r.squared <- NULL
   testing.rmse <- NULL
 
@@ -139,7 +137,6 @@ rf_evaluate <- function(
     arg = metrics,
     choices = c(
       "r.squared",
-      "pseudo.r.squared",
       "rmse",
       "nrmse",
       "auc"
@@ -301,14 +298,6 @@ rf_evaluate <- function(
       out.df$testing.r.squared = round(cor(observed, predicted) ^ 2, 3)
     }
 
-    if("pseudo.r.squared" %in% metrics){
-      out.df$training.pseudo.r.squared = m.training$performance$pseudo.r.squared
-      out.df$testing.pseudo.r.squared = round(cor(
-        observed,
-        predicted
-      ), 3)
-    }
-
     if("rmse" %in% metrics){
       out.df$training.rmse = m.training$performance$rmse
       out.df$testing.rmse = round(spatialRF::root_mean_squared_error(
@@ -413,7 +402,6 @@ rf_evaluate <- function(
 
   #getting intrinsic performance values
   r.squared <- model$performance$r.squared
-  pseudo.r.squared <- model$performance$pseudo.r.squared
   rmse <- model$performance$rmse
   nrmse <- model$performance$nrmse
   auc <- model$performance$auc
@@ -421,9 +409,6 @@ rf_evaluate <- function(
   #check lengths
   if(length(r.squared) == 0){
     r.squared <- NA
-  }
-  if(length(pseudo.r.squared) == 0){
-    pseudo.r.squared <- NA
   }
   if(length(rmse) == 0){
     rmse <- NA
@@ -438,7 +423,6 @@ rf_evaluate <- function(
   #full model
   performance.full <- data.frame(
     r.squared = r.squared,
-    pseudo.r.squared = pseudo.r.squared,
     rmse = rmse,
     nrmse = nrmse,
     auc = auc,

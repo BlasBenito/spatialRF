@@ -4,7 +4,7 @@
 #' @return A data frame with evaluation scores. The following columns are shown:
 #' \itemize{
 #'   \item `model`: Identifies the given model. The values are "Full", (original model introduced into [rf_evaluate()]), "Training" (model trained on an independent training spatial fold), and "Testing" (predictive performance of the training model on an independent testing spatial fold). The performance values of the "Testing" model represent the model performance on unseen data, and hence its ability to generalize.
-#'   \item `metric`: Four values representing different evaluation metrics, "rmse", "nrmse", "r.squared", and "pseudo.r.squared".
+#'   \item `metric`: Evaluation metrics, "rmse", "nrmse", "r.squared", and "auc" (only when the response is binary).
 #'   \item `mean`, `sd`, `min`, and `max`: Average, standard deviation, minimum, and maximum of each metric across the evaluation (cross-validation) iterations.
 #'
 #' }

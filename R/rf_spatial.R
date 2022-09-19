@@ -28,7 +28,7 @@
 #' \itemize{
 #'   \item `ranger.arguments`: Values of the arguments used to fit the ranger model.
 #'   \item `importance`: A list containing the vector of variable importance as originally returned by ranger (scaled or not depending on the value of 'scaled.importance'), a data frame with the predictors ordered by their importance, and a ggplot showing the importance values.
-#'   \item `performance`: With the out-of-bag R squared, pseudo R squared, RMSE and NRMSE of the model.
+#'   \item `performance`: With the out-of-bag R squared, RMSE and NRMSE of the model.
 #'   \item `residuals`: residuals, normality test of the residuals computed with [residuals_test()], and spatial autocorrelation of the residuals computed with [moran_multithreshold()].
 #'   \item `spatial`: A list with four slots:
 #'   \itemize{

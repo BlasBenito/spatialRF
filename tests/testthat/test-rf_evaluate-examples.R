@@ -17,8 +17,7 @@ testthat::test_that("`rf_evaluate()` works", {
     "auc",
     "r.squared",
     "rmse",
-    "nrmse",
-    "pseudo.r.squared"
+    "nrmse"
   )
 
   #continuous response
@@ -82,8 +81,7 @@ testthat::test_that("`rf_evaluate()` works", {
     "r.squared",
     "rmse",
     "auc",
-    "nrmse",
-    "pseudo.r.squared"
+    "nrmse"
   )
 
   rf.model <- rf(

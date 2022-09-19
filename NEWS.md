@@ -1,5 +1,7 @@
 ## Version 1.1.4 (work in progress)
 
+The performance metric `pseudo.r.squared` has been removed from all functions.
+
 Simplified the methods in `rf_spatial()`, and now all experimental methods have been removed.
 
 `auto_cor()` and `auto_vif()` now have explicit `data` and `predictor.variable.names` arguments.

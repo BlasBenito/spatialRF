@@ -352,9 +352,6 @@ rf_jackknife <- function(
   if(metric == "r.squared"){
     metric.pretty <- "R-squared"
   }
-  if(metric == "pseudo.r.squared"){
-    metric.pretty <- "pseudo R-squared"
-  }
   if(metric == "rmse"){
     metric.pretty <- "RMSE"
   }
