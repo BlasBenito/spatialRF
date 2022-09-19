@@ -8,10 +8,10 @@
 #'
 #'  data(
 #'  ecoregions_df,
-#'  ecoregions_predvar_names
+#'  ecoregions_predictor_variable_names
 #'  )
 #'
-#'  vif(ecoregions_df[, ecoregions_predvar_names])
+#'  vif(ecoregions_df[, ecoregions_predictor_variable_names])
 #'
 #' }
 #' @rdname vif

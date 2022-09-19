@@ -26,12 +26,12 @@
 #' data(
 #'   ecoregions_df,
 #'   ecoregions_distance_matrix,
-#'   ecoregions_depvar_name
+#'   ecoregions_dependent_variable_name
 #'   )
 #'
 #'  #Moran's I of the response variable
 #'  out <- moran(
-#'    x = ecoregions_df[, ecoregions_depvar_name],
+#'    x = ecoregions_df[, ecoregions_dependent_variable_name],
 #'    distance.matrix = ecoregions_distance_matrix
 #'    )
 #'  out

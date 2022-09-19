@@ -52,7 +52,7 @@ A ranger model with several extra slots:
 \itemize{
 \item \code{ranger.arguments}: Stores the values of the arguments used to fit the ranger model.
 \item \code{importance}: A list containing a data frame with the predictors ordered by their importance, a ggplot showing the importance values, and local importance scores (difference in accuracy between permuted and non permuted variables for every case, computed on the out-of-bag data).
-\item \code{performance}: performance scores: R squared on out-of-bag data, R squared (cor(observed, predicted) ^ 2), pseudo R squared (cor(observed, predicted)), RMSE, and normalized RMSE (NRMSE).
+\item \code{performance}: performance scores: R squared on out-of-bag data, R squared (cor(observed, predicted) ^ 2), RMSE, and normalized RMSE (NRMSE).
 \item \code{residuals}: residuals, normality test of the residuals computed with \code{\link[=residuals_test]{residuals_test()}}, and spatial autocorrelation of the residuals computed with \code{\link[=moran_multithreshold]{moran_multithreshold()}}.
 }
 }
@@ -69,15 +69,15 @@ if(interactive()){
  data(
   ecoregions_df,
   ecoregions_distance_matrix,
-  ecoregions_predvar_names,
-  ecoregions_depvar_name
+  ecoregions_predictor_variable_names,
+  ecoregions_dependent_variable_name
   )
 
  #fitting random forest model
  out <- rf(
    data = ecoregions_df,
-   dependent.variable.name = ecoregions_depvar_name,
-   predictor.variable.names = ecoregions_predvar_names,
+   dependent.variable.name = ecoregions_dependent_variable_name,
+   predictor.variable.names = ecoregions_predictor_variable_names,
    distance.matrix = ecoregions_distance_matrix,
    distance.thresholds = 0,
    n.cores = 1
@@ -125,8 +125,8 @@ if(interactive()){
  #ranger.arguments
  my.ranger.arguments <- list(
  data = ecoregions_df,
- dependent.variable.name = ecoregions_depvar_name,
- predictor.variable.names = ecoregions_predvar_names,
+ dependent.variable.name = ecoregions_dependent_variable_name,
+ predictor.variable.names = ecoregions_predictor_variable_names,
  distance.matrix = ecoregions_distance_matrix,
  distance.thresholds = c(0, 1000)
  )

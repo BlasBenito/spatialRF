@@ -72,7 +72,7 @@ A ranger model with several new slots:
 \itemize{
 \item \code{ranger.arguments}: Values of the arguments used to fit the ranger model.
 \item \code{importance}: A list containing the vector of variable importance as originally returned by ranger (scaled or not depending on the value of 'scaled.importance'), a data frame with the predictors ordered by their importance, and a ggplot showing the importance values.
-\item \code{performance}: With the out-of-bag R squared, pseudo R squared, RMSE and NRMSE of the model.
+\item \code{performance}: With the out-of-bag R squared, RMSE and NRMSE of the model.
 \item \code{residuals}: residuals, normality test of the residuals computed with \code{\link[=residuals_test]{residuals_test()}}, and spatial autocorrelation of the residuals computed with \code{\link[=moran_multithreshold]{moran_multithreshold()}}.
 \item \code{spatial}: A list with four slots:
 \itemize{
@@ -113,15 +113,15 @@ if(interactive()){
 data(
   ecoregions_df,
   ecoregions_distance_matrix,
-  ecoregions_predvar_names,
-  ecoregions_depvar_name
+  ecoregions_predictor_variable_names,
+  ecoregions_dependent_variable_name
   )
 
  #hengl
  model <- rf_spatial(
    data = ecoregions_df,
-   dependent.variable.name = ecoregions_depvar_name,
-   predictor.variable.names = ecoregions_predvar_names,
+   dependent.variable.name = ecoregions_dependent_variable_name,
+   predictor.variable.names = ecoregions_predictor_variable_names,
    distance.matrix = ecoregions_distance_matrix,
    distance.thresholds = 0,
    method = "hengl",
@@ -131,8 +131,8 @@ data(
  #mem.moran.sequential
  model <- rf_spatial(
    data = ecoregions_df,
-   dependent.variable.name = ecoregions_depvar_name,
-   predictor.variable.names = ecoregions_predvar_names,
+   dependent.variable.name = ecoregions_dependent_variable_name,
+   predictor.variable.names = ecoregions_predictor_variable_names,
    distance.matrix = ecoregions_distance_matrix,
    distance.thresholds = 0,
    method = "mem.moran.sequential",
@@ -142,8 +142,8 @@ data(
  #fitting an rf_spatial model from an rf model
  rf.model <- rf(
    data = ecoregions_df,
-   dependent.variable.name = ecoregions_depvar_name,
-   predictor.variable.names = ecoregions_predvar_names,
+   dependent.variable.name = ecoregions_dependent_variable_name,
+   predictor.variable.names = ecoregions_predictor_variable_names,
    distance.matrix = ecoregions_distance_matrix,
    distance.thresholds = 0,
    n.cores = 1,

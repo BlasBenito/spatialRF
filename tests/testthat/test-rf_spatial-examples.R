@@ -8,7 +8,7 @@ testthat::test_that("`rf_spatial()` works", {
     ecoregions_df,
     ecoregions_distance_matrix,
     ecoregions_predvar_names,
-    ecoregions_depvar_name
+    ecoregions_dependent_variable_name
   )
 
   cluster <- make_cluster()
@@ -16,7 +16,7 @@ testthat::test_that("`rf_spatial()` works", {
   #fitting model
   out.1 <- rf_spatial(
     data = ecoregions_df,
-    dependent.variable.name = ecoregions_depvar_name,
+    dependent.variable.name = ecoregions_dependent_variable_name,
     predictor.variable.names = ecoregions_predvar_names,
     distance.matrix = ecoregions_distance_matrix,
     distance.thresholds = c(0,100, 1000, 10000),
@@ -37,7 +37,7 @@ testthat::test_that("`rf_spatial()` works", {
   #fitting model
   out.2 <- rf_spatial(
     data = ecoregions_df,
-    dependent.variable.name = ecoregions_depvar_name,
+    dependent.variable.name = ecoregions_dependent_variable_name,
     predictor.variable.names = ecoregions_predvar_names,
     distance.matrix = ecoregions_distance_matrix,
     distance.thresholds = c(0,100, 1000, 10000),
@@ -57,7 +57,7 @@ testthat::test_that("`rf_spatial()` works", {
   #fitting model
   out.3 <- rf_spatial(
     data = ecoregions_df,
-    dependent.variable.name = ecoregions_depvar_name,
+    dependent.variable.name = ecoregions_dependent_variable_name,
     predictor.variable.names = ecoregions_predvar_names,
     distance.matrix = ecoregions_distance_matrix,
     distance.thresholds = c(0,100, 1000, 10000),
@@ -77,7 +77,7 @@ testthat::test_that("`rf_spatial()` works", {
   #fitting model
   out.4 <- rf_spatial(
     data = ecoregions_df,
-    dependent.variable.name = ecoregions_depvar_name,
+    dependent.variable.name = ecoregions_dependent_variable_name,
     predictor.variable.names = ecoregions_predvar_names,
     distance.matrix = ecoregions_distance_matrix,
     distance.thresholds = c(0,100, 1000, 10000),

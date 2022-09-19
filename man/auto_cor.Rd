@@ -43,13 +43,13 @@ if(interactive()){
  #loading example data
  data(
   ecoregions_df,
-  ecoregions_predvar_names
+  ecoregions_predictor_variable_names
   )
 
  #on a data frame
  out <- auto_cor(
    data = ecoregions_df,
-   predictor.variable.names = ecoregions_predvar_names
+   predictor.variable.names = ecoregions_predictor_variable_names
  )
 
  #getting the correlation matrix
@@ -61,17 +61,17 @@ if(interactive()){
  #getting the data frame of selected variables
  out$selected.variables.df
 
- #with preference order (fiver first in ecoregions_predvar_names)
+ #with preference order (fiver first in ecoregions_predictor_variable_names)
  out <- auto_cor(
    data = ecoregions_df,
-   predictor.variable.names = ecoregions_predvar_names,
-   preference.order = ecoregions_predvar_names[1:5],
+   predictor.variable.names = ecoregions_predictor_variable_names,
+   preference.order = ecoregions_predictor_variable_names[1:5],
  )
 
  #with pipes
  out <- auto_cor(
    data = ecoregions_df,
-   predictor.variable.names = ecoregions_predvar_names
+   predictor.variable.names = ecoregions_predictor_variable_names
  ) \%>\%
  auto_vif()
 

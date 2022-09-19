@@ -30,15 +30,15 @@
 #' data(
 #'   ecoregions_df,
 #'   ecoregions_distance_matrix,
-#'   ecoregions_predvar_names,
-#'   ecoregions_depvar_name
+#'   ecoregions_predictor_variable_names,
+#'   ecoregions_dependent_variable_name
 #'   )
 #'
 #'  #fitting 10 random forest models
 #'  out <- rf_repeat(
 #'    data = ecoregions_df,
-#'    dependent.variable.name = ecoregions_depvar_name,
-#'    predictor.variable.names = ecoregions_predvar_names,
+#'    dependent.variable.name = ecoregions_dependent_variable_name,
+#'    predictor.variable.names = ecoregions_predictor_variable_names,
 #'    distance.matrix = ecoregions_distance_matrix,
 #'    distance.thresholds = 0,
 #'    repetitions = 10,
@@ -70,8 +70,8 @@
 #'  #using a model as an input for rf_repeat()
 #'  rf.model <- rf(
 #'    data = ecoregions_df,
-#'    dependent.variable.name = ecoregions_depvar_name,
-#'    predictor.variable.names = ecoregions_predvar_names,
+#'    dependent.variable.name = ecoregions_dependent_variable_name,
+#'    predictor.variable.names = ecoregions_predictor_variable_names,
 #'    distance.matrix = ecoregions_distance_matrix,
 #'    distance.thresholds = 0,
 #'    n.cores = 1

@@ -13,7 +13,7 @@ get_evaluation(model)
 A data frame with evaluation scores. The following columns are shown:
 \itemize{
 \item \code{model}: Identifies the given model. The values are "Full", (original model introduced into \code{\link[=rf_evaluate]{rf_evaluate()}}), "Training" (model trained on an independent training spatial fold), and "Testing" (predictive performance of the training model on an independent testing spatial fold). The performance values of the "Testing" model represent the model performance on unseen data, and hence its ability to generalize.
-\item \code{metric}: Four values representing different evaluation metrics, "rmse", "nrmse", "r.squared", and "pseudo.r.squared".
+\item \code{metric}: Evaluation metrics, "rmse", "nrmse", "r.squared", and "auc" (only when the response is binary).
 \item \code{mean}, \code{sd}, \code{min}, and \code{max}: Average, standard deviation, minimum, and maximum of each metric across the evaluation (cross-validation) iterations.
 
 }
@@ -28,15 +28,15 @@ if(interactive()){
 data(
   ecoregions_df,
   ecoregions_distance_matrix,
-  ecoregions_predvar_names,
-  ecoregions_depvar_name
+  ecoregions_predictor_variable_names,
+  ecoregions_dependent_variable_name
   )
 
  #fitting random forest model
  rf.model <- rf(
    data = ecoregions_df,
-   dependent.variable.name = ecoregions_depvar_name,
-   predictor.variable.names = ecoregions_predvar_names,
+   dependent.variable.name = ecoregions_dependent_variable_name,
+   predictor.variable.names = ecoregions_predictor_variable_names,
    distance.matrix = ecoregions_distance_matrix,
    distance.thresholds = 0,
    n.cores = 1,

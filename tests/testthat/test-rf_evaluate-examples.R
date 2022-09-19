@@ -8,7 +8,7 @@ testthat::test_that("`rf_evaluate()` works", {
     ecoregions_df,
     ecoregions_distance_matrix,
     ecoregions_predvar_names,
-    ecoregions_depvar_name
+    ecoregions_dependent_variable_name
   )
 
   cluster <- spatialRF::make_cluster()
@@ -23,7 +23,7 @@ testthat::test_that("`rf_evaluate()` works", {
   #continuous response
   rf.model <- rf(
     data = ecoregions_df,
-    dependent.variable.name = ecoregions_depvar_name,
+    dependent.variable.name = ecoregions_dependent_variable_name,
     predictor.variable.names = ecoregions_predvar_names,
     distance.matrix = ecoregions_distance_matrix,
     distance.thresholds = c(
@@ -86,7 +86,7 @@ testthat::test_that("`rf_evaluate()` works", {
 
   rf.model <- rf(
     data = ecoregions_df,
-    dependent.variable.name = ecoregions_depvar_name,
+    dependent.variable.name = ecoregions_dependent_variable_name,
     predictor.variable.names = ecoregions_predvar_names,
     distance.matrix = ecoregions_distance_matrix,
     distance.thresholds = c(

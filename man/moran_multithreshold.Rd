@@ -42,12 +42,12 @@ if(interactive()){
 data(
   ecoregions_df,
   ecoregions_distance_matrix,
-  ecoregions_depvar_name
+  ecoregions_dependent_variable_name
   )
 
  #computing Moran's I for the response variable at several reference distances
  out <- moran_multithreshold(
-   x = ecoregions_df[, ecoregions_depvar_name],
+   x = ecoregions_df[, ecoregions_dependent_variable_name],
    distance.matrix = ecoregions_distance_matrix,
    distance.thresholds = c(0, 100, 1000, 10000),
    plot = TRUE

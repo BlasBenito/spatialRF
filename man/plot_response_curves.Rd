@@ -48,15 +48,15 @@ if(interactive()){
 #loading example data
 data(
   ecoregions_df,
-  ecoregions_predvar_names,
-  ecoregions_depvar_name
+  ecoregions_predictor_variable_names,
+  ecoregions_dependent_variable_name
   )
 
  #fitting random forest model
  rf.model <- rf(
    data = ecoregions_df,
-   dependent.variable.name = ecoregions_depvar_name,
-   predictor.variable.names = ecoregions_predvar_names,
+   dependent.variable.name = ecoregions_dependent_variable_name,
+   predictor.variable.names = ecoregions_predictor_variable_names,
    distance.thresholds = 0,
    n.cores = 1,
    verbose = FALSE

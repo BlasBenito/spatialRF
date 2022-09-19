@@ -58,8 +58,7 @@ A ranger model with several new slots:
 \itemize{
 \item \code{ranger.arguments}: Stores the values of the arguments used to fit the ranger model.
 \item \code{importance}: A list containing a data frame with the predictors ordered by their importance, a ggplot showing the importance values, and local importance scores.
-\item \code{performance}: out-of-bag performance scores: R squared, pseudo R squared, RMSE, and normalized RMSE (NRMSE).
-\item \code{pseudo.r.squared}: computed as the correlation between the observations and the predictions.
+\item \code{performance}: out-of-bag performance scores: R squared, RMSE, and normalized RMSE (NRMSE).
 \item \code{residuals}: residuals, normality test of the residuals computed with \code{\link[=residuals_test]{residuals_test()}}, and spatial autocorrelation of the residuals computed with \code{\link[=moran_multithreshold]{moran_multithreshold()}}.
 }
 }
@@ -73,15 +72,15 @@ if(interactive()){
 data(
   ecoregions_df,
   ecoregions_distance_matrix,
-  ecoregions_predvar_names,
-  ecoregions_depvar_name
+  ecoregions_predictor_variable_names,
+  ecoregions_dependent_variable_name
   )
 
  #fitting 10 random forest models
  out <- rf_repeat(
    data = ecoregions_df,
-   dependent.variable.name = ecoregions_depvar_name,
-   predictor.variable.names = ecoregions_predvar_names,
+   dependent.variable.name = ecoregions_dependent_variable_name,
+   predictor.variable.names = ecoregions_predictor_variable_names,
    distance.matrix = ecoregions_distance_matrix,
    distance.thresholds = 0,
    repetitions = 10,
@@ -113,8 +112,8 @@ data(
  #using a model as an input for rf_repeat()
  rf.model <- rf(
    data = ecoregions_df,
-   dependent.variable.name = ecoregions_depvar_name,
-   predictor.variable.names = ecoregions_predvar_names,
+   dependent.variable.name = ecoregions_dependent_variable_name,
+   predictor.variable.names = ecoregions_predictor_variable_names,
    distance.matrix = ecoregions_distance_matrix,
    distance.thresholds = 0,
    n.cores = 1

@@ -2,13 +2,16 @@
 #'
 #' @description Richness of vascular plants of the American ecoregions as defined in [Ecoregions 2017](https://ecoregions2017.appspot.com/), and computed from GBIF data, and environmental predictors.
 #' @usage data(ecoregions_df)
-#' @seealso [ecoregions_polygons], [ecoregions_distance_matrix], [ecoregions_depvar_name], [ecoregions_predvar_names]
+#' @seealso [ecoregions_polygons], [ecoregions_distance_matrix], [ecoregions_dependent_variable_name], [ecoregions_predictor_variable_names]
 #' @format A data frame with 225 rows and 49 columns:
 #' \itemize{
 #'   \item `ecoregion_id`: Numeric id of the ecoregion.
 #'   \item `ecoregion_name`: Name of the ecoregion according to [Ecoregions 2017](https://ecoregions2017.appspot.com/).
 #'   \item `x` and `y`: Numeric, coordinates of the ecoregion centroids, in EPSG 4326.
 #'   \item `plant_richness`: Number of vascular species found in the ecoregion. Response variable.
+#'   \item `plant_richness_binary`: Binary version of `plant_richness`, with value `1` when `plant_richness` is higher than 5000, and `0` otherwise.
+#'   \item `plant_richness_two_classes`: Character version of `plant_richness_binary`, with value `1` where `plant_richness_binary == 1` and `0` otherwise.
+#'   \item `plant_richness_three_classes`: Character version of `plant_richness` with three classes: "high" when `plant_richness > 10000`, "medium" between 5000 and 10000, and "low" otherwise.
 #'   \item `ecoregion_area_km2`: Area of the ecoregion in squared kilometers.
 #'   \item `sampling_bias`: Indicator of sampling bias, measured as number of vascular plant species found in the ecoregion divided by the number of GBIF records of the ecoregion, divided by the area of the ecoregion.
 #'   \item `neighbors_count`, `neighbors_area`, `neighbors_percent_shared_edge`, and `neighbors_average_aridity`: Number, area sum, proportion of shared edge, and average aridity of the direct neighbors of each ecoregion.
@@ -47,18 +50,18 @@
 #'
 #' Character string with the name of the dependent variable.
 #'
-#' @usage data(ecoregions_depvar_name)
+#' @usage data(ecoregions_dependent_variable_name)
 #' @seealso [ecoregions_df]
 #'
 #' @format Character string.
-"ecoregions_depvar_name"
+"ecoregions_dependent_variable_name"
 
 #' Names of the predictor variables
 #'
 #' Character vector with the names of the predictors.
 #'
-#' @usage data(ecoregions_predvar_names)
+#' @usage data(ecoregions_predictor_variable_names)
 #' @seealso [ecoregions_df]
 #'
 #' @format Character vector with 43 predictor names.
-"ecoregions_predvar_names"
+"ecoregions_predictor_variable_names"

@@ -88,15 +88,15 @@ if(interactive()){
 data(
  ecoregions_df,
  ecoregions_distance_matrix,
- ecoregions_predvar_names,
- ecoregions_depvar_name
+ ecoregions_predictor_variable_names,
+ ecoregions_dependent_variable_name
 )
 
 #automatic variable selection
 rf.selection <- rf_select(
  data = ecoregions_df,
- dependent.variable.name = ecoregions_depvar_name,
- predictor.variable.names = ecoregions_predvar_names,
+ dependent.variable.name = ecoregions_dependent_variable_name,
+ predictor.variable.names = ecoregions_predictor_variable_names,
  xy = ecoregions_df[, c("x", "y")],
  n.cores = 1
 )
@@ -112,8 +112,8 @@ rf.selection <- rf_evaluate(
 #or you can connect it with other modelling functions using the \%>\% pìpe
 rf.selection <- rf_select(
  data = ecoregions_df,
- dependent.variable.name = ecoregions_depvar_name,
- predictor.variable.names = ecoregions_predvar_names,
+ dependent.variable.name = ecoregions_dependent_variable_name,
+ predictor.variable.names = ecoregions_predictor_variable_names,
  xy = ecoregions_df[, c("x", "y")],
 n.cores = 1
 ) \%>\%
@@ -123,8 +123,8 @@ cl <- make_cluster()
 
 rf.selection <- rf_select(
  data = ecoregions_df,
- dependent.variable.name = ecoregions_depvar_name,
- predictor.variable.names = ecoregions_predvar_names,
+ dependent.variable.name = ecoregions_dependent_variable_name,
+ predictor.variable.names = ecoregions_predictor_variable_names,
  distance.matrix = ecoregions_distance_matrix,
  xy = ecoregions_df[, c("x", "y")],
  n.cores = 1
@@ -137,8 +137,8 @@ rf.selection <- rf_select(
 #automatic variable selection with jackknife
 rf.selection <- rf_select(
  data = ecoregions_df,
- dependent.variable.name = ecoregions_depvar_name,
- predictor.variable.names = ecoregions_predvar_names,
+ dependent.variable.name = ecoregions_dependent_variable_name,
+ predictor.variable.names = ecoregions_predictor_variable_names,
  jackknife = TRUE,
  n.cores = 1
 )
@@ -146,8 +146,8 @@ rf.selection <- rf_select(
 #variable selection with preference order
 rf.selection <- rf_select(
  data = ecoregions_df,
- dependent.variable.name = ecoregions_depvar_name,
- predictor.variable.names = ecoregions_predvar_names,
+ dependent.variable.name = ecoregions_dependent_variable_name,
+ predictor.variable.names = ecoregions_predictor_variable_names,
 preference.order = c(
   "climate_bio5_average",
   "climate_hypervolume",
@@ -159,8 +159,8 @@ n.cores = 1
 #variable selection with preference order and jackknife
 rf.selection <- rf_select(
  data = ecoregions_df,
- dependent.variable.name = ecoregions_depvar_name,
- predictor.variable.names = ecoregions_predvar_names,
+ dependent.variable.name = ecoregions_dependent_variable_name,
+ predictor.variable.names = ecoregions_predictor_variable_names,
  preference.order = c(
    "climate_bio5_average",
    "climate_hypervolume",
@@ -174,8 +174,8 @@ rf.selection <- rf_select(
 #for more robust estimates of importance but higher computational cost
 rf.selection <- rf_select(
  data = ecoregions_df,
- dependent.variable.name = ecoregions_depvar_name,
- predictor.variable.names = ecoregions_predvar_names,
+ dependent.variable.name = ecoregions_dependent_variable_name,
+ predictor.variable.names = ecoregions_predictor_variable_names,
  preference.order = c(
    "climate_bio5_average",
    "climate_hypervolume",

@@ -182,8 +182,8 @@ ecoregions_distance_matrix <- ecoregions_distance_matrix[
 ]
 
 #getting response name
-ecoregions_depvar_name <- "richness_species_vascular"
-ecoregions_predvar_names <- c(
+ecoregions_dependent_variable_name <- "richness_species_vascular"
+ecoregions_predictor_variable_names <- c(
   "ecoregion_area_km2",
   "bias_species_per_record_per_km2",
   "neighbors_count",
@@ -239,8 +239,8 @@ ecoregions_df <- ecoregions_df %>%
     ecoregion_name,
     x,
     y,
-    all_of(ecoregions_depvar_name),
-    all_of(ecoregions_predvar_names)
+    all_of(ecoregions_dependent_variable_name),
+    all_of(ecoregions_predictor_variable_names)
   ) %>%
   dplyr::rename(
     sampling_bias = "bias_species_per_record_per_km2",
@@ -251,10 +251,10 @@ ecoregions_df <- ecoregions_df %>%
 colnames(ecoregions_distance_matrix) <- rownames(ecoregions_distance_matrix) <- ecoregions_df$ecoregion_id
 
 #replacing depvar name
-ecoregions_depvar_name <- "plant_richness"
+ecoregions_dependent_variable_name <- "plant_richness"
 
 #replacing sampling bias in predvar
-ecoregions_predvar_names <- c(
+ecoregions_predictor_variable_names <- c(
   "ecoregion_area_km2",
   "sampling_bias",
   "neighbors_count",
@@ -302,13 +302,13 @@ ecoregions_predvar_names <- c(
 
 #testing the data with autovif and autocor
 x <- auto_cor(
-  x = ecoregions_df[, ecoregions_predvar_names],
-  preference.order = ecoregions_predvar_names
+  x = ecoregions_df[, ecoregions_predictor_variable_names],
+  preference.order = ecoregions_predictor_variable_names
 ) %>%
   auto_vif()
 
 #saving data
-usethis::use_data(ecoregions_df, ecoregions_polygons, ecoregions_distance_matrix, ecoregions_predvar_names, ecoregions_depvar_name, overwrite = TRUE)
+usethis::use_data(ecoregions_df, ecoregions_polygons, ecoregions_distance_matrix, ecoregions_predictor_variable_names, ecoregions_dependent_variable_name, overwrite = TRUE)
 
 #documenting the data
 usethis::use_r("ecoregions_df")

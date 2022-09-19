@@ -8,7 +8,7 @@ testthat::test_that("`rf_repeat()` works", {
     ecoregions_df,
     ecoregions_distance_matrix,
     ecoregions_predvar_names,
-    ecoregions_depvar_name
+    ecoregions_dependent_variable_name
     )
 
   cluster <- make_cluster()
@@ -16,7 +16,7 @@ testthat::test_that("`rf_repeat()` works", {
   #fitting random forest model
   rf.model <- rf(
     data = ecoregions_df,
-    dependent.variable.name = ecoregions_depvar_name,
+    dependent.variable.name = ecoregions_dependent_variable_name,
     predictor.variable.names = ecoregions_predvar_names,
     distance.matrix = ecoregions_distance_matrix,
     distance.thresholds = 0,

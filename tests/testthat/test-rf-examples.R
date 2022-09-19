@@ -8,13 +8,13 @@ testthat::test_that("`rf()` works", {
     ecoregions_df,
     ecoregions_distance_matrix,
     ecoregions_predvar_names,
-    ecoregions_depvar_name
+    ecoregions_dependent_variable_name
     )
 
   #fitting model
   out <- rf(
     data = ecoregions_df,
-    dependent.variable.name = ecoregions_depvar_name,
+    dependent.variable.name = ecoregions_dependent_variable_name,
     predictor.variable.names = ecoregions_predvar_names,
     distance.matrix = ecoregions_distance_matrix,
     distance.thresholds = c(0,100, 1000, 10000),
@@ -64,7 +64,7 @@ testthat::test_that("`rf()` works", {
   #fitting model with ranger.arguments
    my.ranger.arguments <- list(
    data = ecoregions_df,
-   dependent.variable.name = ecoregions_depvar_name,
+   dependent.variable.name = ecoregions_dependent_variable_name,
    predictor.variable.names = ecoregions_predvar_names,
    distance.matrix = ecoregions_distance_matrix,
    distance.thresholds = c(0, 1000)
@@ -115,7 +115,7 @@ testthat::test_that("`rf()` works", {
    #fitting model
    out.4 <- rf(
      data = ecoregions_df,
-     dependent.variable.name = ecoregions_depvar_name,
+     dependent.variable.name = ecoregions_dependent_variable_name,
      predictor.variable.names = variable.selection,
      distance.matrix = ecoregions_distance_matrix,
      distance.thresholds = c(0,100, 1000, 10000),

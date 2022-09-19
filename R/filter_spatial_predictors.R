@@ -11,8 +11,8 @@
 #' data(
 #'   ecoregions_df,
 #'   ecoregions_distance_matrix,
-#'   ecoregions_predvar_names,
-#'   ecoregions_depvar_name
+#'   ecoregions_predictor_variable_names,
+#'   ecoregions_dependent_variable_name
 #'   )
 #'
 #' #computing Moran's Eigenvector Maps
@@ -24,7 +24,7 @@
 #' #filtering spatial predictors
 #' spatial.predictors.df <- filter_spatial_predictors(
 #'   data = ecoregions_df,
-#'   predictor.variable.names = ecoregions_predvar_names,
+#'   predictor.variable.names = ecoregions_predictor_variable_names,
 #'   spatial.predictors.df = spatial.predictors.df,
 #'   cor.threshold = 0.50
 #'  )

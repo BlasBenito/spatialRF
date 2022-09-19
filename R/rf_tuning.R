@@ -21,15 +21,15 @@
 #' data(
 #'   ecoregions_df,
 #'   ecoregions_distance_matrix,
-#'   ecoregions_predvar_names,
-#'   ecoregions_depvar_name
+#'   ecoregions_predictor_variable_names,
+#'   ecoregions_dependent_variable_name
 #'   )
 #'
 #' #fitting model to tune
 #' out <- rf(
 #'   data = ecoregions_df,
-#'   dependent.variable.name = ecoregions_depvar_name,
-#'   predictor.variable.names = ecoregions_predvar_names,
+#'   dependent.variable.name = ecoregions_dependent_variable_name,
+#'   predictor.variable.names = ecoregions_predictor_variable_names,
 #'   distance.matrix = ecoregions_distance_matrix,
 #'   distance.thresholds = 0,
 #'   n.cores = 1,
@@ -58,8 +58,8 @@
 #'
 #' out <- rf(
 #'   data = ecoregions_df,
-#'   dependent.variable.name = ecoregions_depvar_name,
-#'   predictor.variable.names = ecoregions_predvar_names,
+#'   dependent.variable.name = ecoregions_dependent_variable_name,
+#'   predictor.variable.names = ecoregions_predictor_variable_names,
 #'   distance.matrix = ecoregions_distance_matrix,
 #'   xy = ecoregions_df[, c("x", "y")],
 #'   distance.thresholds = 0,

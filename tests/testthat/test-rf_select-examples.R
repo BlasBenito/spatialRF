@@ -9,13 +9,13 @@ testthat::test_that("`rf()` works", {
     ecoregions_df,
     ecoregions_distance_matrix,
     ecoregions_predvar_names,
-    ecoregions_depvar_name
+    ecoregions_dependent_variable_name
     )
 
   #selection without preference.order and without jackknife
   out1 <- rf_select(
     data = ecoregions_df,
-    dependent.variable.name = ecoregions_depvar_name,
+    dependent.variable.name = ecoregions_dependent_variable_name,
     predictor.variable.names = ecoregions_predvar_names,
     distance.matrix = ecoregions_distance_matrix,
     distance.thresholds = c(0,100, 1000, 10000),
@@ -36,7 +36,7 @@ testthat::test_that("`rf()` works", {
   #selection with preference.order and without jackknife
   out2 <- rf_select(
     data = ecoregions_df,
-    dependent.variable.name = ecoregions_depvar_name,
+    dependent.variable.name = ecoregions_dependent_variable_name,
     predictor.variable.names = ecoregions_predvar_names,
     preference.order = c("ecoregion_area_km2", "neighbors_count", "climate_bio1_average", "climate_bio12_average"),
     distance.matrix = ecoregions_distance_matrix,
@@ -56,7 +56,7 @@ testthat::test_that("`rf()` works", {
   #selection with preference.order and with jackknife
   out3 <- rf_select(
     data = ecoregions_df,
-    dependent.variable.name = ecoregions_depvar_name,
+    dependent.variable.name = ecoregions_dependent_variable_name,
     predictor.variable.names = ecoregions_predvar_names,
     preference.order = c("ecoregion_area_km2", "neighbors_count", "climate_bio1_average", "climate_bio12_average"),
     jackknife = TRUE,
@@ -78,7 +78,7 @@ testthat::test_that("`rf()` works", {
    #with cluster
    out4 <- rf_select(
      data = ecoregions_df,
-     dependent.variable.name = ecoregions_depvar_name,
+     dependent.variable.name = ecoregions_dependent_variable_name,
      predictor.variable.names = ecoregions_predvar_names,
      preference.order = c("ecoregion_area_km2", "neighbors_count", "climate_bio1_average", "climate_bio12_average"),
      jackknife = TRUE,
@@ -113,7 +113,7 @@ testthat::test_that("`rf()` works", {
    testthat::expect_warning(
      out5 <- rf_select(
        data = ecoregions_df,
-       dependent.variable.name = ecoregions_depvar_name,
+       dependent.variable.name = ecoregions_dependent_variable_name,
        predictor.variable.names = variable.selection,
        preference.order = variable.selection$selected.variables,
        jackknife = TRUE,
