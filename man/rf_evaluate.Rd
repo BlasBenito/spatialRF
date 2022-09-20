@@ -50,8 +50,11 @@ rf_evaluate(
 \value{
 A model of the class "rf_evaluate" with a new slot named "evaluation", that is a list with the following slots:
 \itemize{
+\item \code{metrics}: names of the metrics used for the evaluation.
+\item \code{spatial.folds}: list with the training and testing spatial folds used during the evaluation.
 \item \code{training.fraction}: Value of the argument \code{training.fraction}.
 \item \code{per.fold}: Data frame with the evaluation results per spatial fold (or repetition). It contains the ID of each fold, it's central coordinates, the number of training and testing cases, and the training and testing performance measures: R squared, rmse, and normalized rmse.
+\item \code{per.fold.long}: Long version of \code{per.fold} for easier plotting.
 \item \code{per.model}: Same data as above, but organized per fold and model ("Training", "Testing", and "Full").
 \item \code{aggregated}: Same data, but aggregated by model and performance measure.
 }

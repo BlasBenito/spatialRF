@@ -15,8 +15,11 @@
 #' @param cluster A cluster definition generated with `parallel::makeCluster()` or \code{\link{make_cluster}}. Faster than using `n.cores` for smaller models. If provided, overrides `n.cores`. The function does not stop a cluster, please remember to shut it down with `parallel::stopCluster(cl = cluster_name)` at the end of your pipeline. Default: `parallel::detectCores() - 1`
 #' @return A model of the class "rf_evaluate" with a new slot named "evaluation", that is a list with the following slots:
 #' \itemize{
+#'   \item `metrics`: names of the metrics used for the evaluation.
+#'   \item `spatial.folds`: list with the training and testing spatial folds used during the evaluation.
 #'   \item `training.fraction`: Value of the argument `training.fraction`.
 #'   \item `per.fold`: Data frame with the evaluation results per spatial fold (or repetition). It contains the ID of each fold, it's central coordinates, the number of training and testing cases, and the training and testing performance measures: R squared, rmse, and normalized rmse.
+#'   \item `per.fold.long`: Long version of `per.fold` for easier plotting.
 #'   \item `per.model`: Same data as above, but organized per fold and model ("Training", "Testing", and "Full").
 #'   \item `aggregated`: Same data, but aggregated by model and performance measure.
 #' }
@@ -223,9 +226,8 @@ rf_evaluate <- function(
   }
 
   #iterations
-  evaluation.df <- foreach::foreach(
+  evaluation.list <- foreach::foreach(
     i = seq(1, nrow(xy.reference.records), by = 1),
-    .combine = "rbind",
     .verbose = FALSE
   ) %iterator% {
 
@@ -285,7 +287,7 @@ rf_evaluate <- function(
     observed <- data.testing[, dependent.variable.name]
 
     #computing evaluation scores
-    out.df <- data.frame(
+    performance.df <- data.frame(
       fold.id = i,
       fold.center.x = xy.reference.records[i, "x"],
       fold.center.y = xy.reference.records[i, "y"],
@@ -294,64 +296,96 @@ rf_evaluate <- function(
     )
 
     if("r.squared" %in% metrics){
-      out.df$training.r.squared = m.training$performance$r.squared
-      out.df$testing.r.squared = round(cor(observed, predicted) ^ 2, 3)
+      performance.df$training.r.squared = m.training$performance$r.squared
+      performance.df$testing.r.squared = round(cor(observed, predicted) ^ 2, 3)
     }
 
     if("rmse" %in% metrics){
-      out.df$training.rmse = m.training$performance$rmse
-      out.df$testing.rmse = round(spatialRF::root_mean_squared_error(
+      performance.df$training.rmse = m.training$performance$rmse
+      performance.df$testing.rmse = round(spatialRF::root_mean_squared_error(
         o = observed,
         p = predicted,
         normalization = NULL
       ), 3)
-      if(is.na(out.df$training.rmse)){
-        out.df$testing.rmse <- NA
+      if(is.na(performance.df$training.rmse)){
+        performance.df$testing.rmse <- NA
       }
     }
 
     if("nrmse" %in% metrics){
-      out.df$training.nrmse = m.training$performance$nrmse
-      out.df$testing.nrmse = round(spatialRF::root_mean_squared_error(
+      performance.df$training.nrmse = m.training$performance$nrmse
+      performance.df$testing.nrmse = round(spatialRF::root_mean_squared_error(
         o = observed,
         p = predicted,
         normalization = "iq"
       ), 3)
-      if(is.na(out.df$training.nrmse)){
-        out.df$testing.nrmse <- NA
+      if(is.na(performance.df$training.nrmse)){
+        performance.df$testing.nrmse <- NA
       }
     }
 
     if("auc" %in% metrics){
-      out.df$training.auc = m.training$performance$auc
-      out.df$testing.auc = round(
+      performance.df$training.auc = m.training$performance$auc
+      performance.df$testing.auc = round(
         spatialRF::auc(
           o = observed,
           p = predicted
         ),
         3
       )
-      if(is.na(out.df$training.auc)){
-        out.df$testing.auc <- NA
+      if(is.na(performance.df$training.auc)){
+        performance.df$testing.auc <- NA
       }
     }
-    rownames(out.df) <- NULL
+    rownames(performance.df) <- NULL
 
-    return(out.df)
+    out.list <- list()
+    out.list$spatial.folds <- spatial.folds
+    out.list$performance.df <- performance.df
 
-  }
+    return(out.list)
+
+  } #end of parallel loop
+
+  #getting evaluation data frames
+  evaluation.df <- as.data.frame(
+    do.call(
+      "rbind",
+      lapply(
+        evaluation.list,
+        "[[",
+        "performance.df"
+      )
+    )
+  )
+
+  #getting spatial folds list
+  spatial.folds <- lapply(
+    evaluation.list,
+    "[[",
+    "spatial.folds"
+  )
 
   #copy of results
   evaluation.df.unique <- evaluation.df
 
-  #columns to look for
-  testing.columns <- paste0("testing.", metrics)
-
-  #copy of the evaluation results
+  #keep distinct values only to avoid very similar spatial folds
   evaluation.df.unique <- evaluation.df.unique %>%
     dplyr::distinct(
-      dplyr::across(dplyr::all_of(testing.columns)),
+      dplyr::across(dplyr::all_of(paste0("testing.", metrics))),
       .keep_all = TRUE
+    )
+
+  #subsetting the spatial folds
+  spatial.folds <- spatial.folds[evaluation.df.unique$fold.id]
+
+  #resetting fold ID
+  evaluation.df.unique$fold.id <-
+    names(spatial.folds) <-
+    seq(
+      from = 1,
+      to = nrow(evaluation.df.unique),
+      by = 1
     )
 
   #remove columns without NA
@@ -369,7 +403,6 @@ rf_evaluate <- function(
       )
     )
   }
-
 
   #preparing data frames for plotting and printing
   #select columns with "training"
@@ -475,6 +508,7 @@ rf_evaluate <- function(
   }
   model$evaluation <- list()
   model$evaluation$metrics <- metrics
+  model$evaluation$spatial.folds <- spatial.folds
   model$evaluation$training.fraction <- training.fraction
   model$evaluation$per.fold <- evaluation.df.unique
   model$evaluation$per.fold.long <- performance.df.long
