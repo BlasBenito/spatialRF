@@ -4,15 +4,15 @@
 #' @param xy Data frame or matrix with two columns containing coordinates and named "x" and "y". If `NULL`, the function will throw an error. Default: `NULL`
 #' @param repetitions Integer, number of spatial folds to use during cross-validation. Must be lower than the total number of rows available in the model's data. Default: `30`
 #' @param training.fraction Proportion between 0.5 and 0.9 indicating the proportion of records to be used as training set during spatial cross-validation. Default: `0.75`
-#' @param metrics Character vector, names of the performance metrics selected. The possible values are: "r.squared" (`cor(obs, pred) ^ 2`), "rmse" (`sqrt(sum((obs - pred)^2)/length(obs))`), "nrmse" (`rmse/(quantile(obs, 0.75) - quantile(obs, 0.25))`), and "auc" (only for binary responses with values 1 and 0). Default: `c("r.squared", "rmse", "nrmse")`
+#' @param metrics Character vector, names of the performance metrics selected. The possible values are: "r.squared" (`cor(obs, pred) ^ 2`), "rmse" (`sqrt(sum((obs - pred)^2)/length(obs))`), "nrmse" (`rmse/(quantile(obs, 0.75) - quantile(obs, 0.25))`), and "auc" (added automatically for binary responses with values 1 and 0). Default: `c("r.squared", "rmse", "nrmse")`
 #' @param distance.step Numeric, argument `distance.step` of [thinning_til_n()]. distance step used during the selection of the centers of the training folds. These fold centers are selected by thinning the data until a number of folds equal or lower than `repetitions` is reached. Its default value is 1/1000th the maximum distance within records in `xy`. Reduce it if the number of training folds is lower than expected.
 #' @param distance.step.x Numeric, argument `distance.step.x` of [make_spatial_folds()]. Distance step used during the growth in the x axis of the buffers defining the training folds. Default: `NULL` (1/1000th the range of the x coordinates).
 #' @param distance.step.y Numeric, argument `distance.step.x` of [make_spatial_folds()]. Distance step used during the growth in the y axis of the buffers defining the training folds. Default: `NULL` (1/1000th the range of the y coordinates).
 #' @param grow.testing.folds Logic. By default, this function grows contiguous training folds to keep the spatial structure of the data as intact as possible. However, when setting `grow.testing.folds = TRUE`, the argument `training.fraction` is set to `1 - training.fraction`, and the training and testing folds are switched. This option might be useful when the training data has a spatial structure that does not match well with the default behavior of the function. Default: `FALSE`
 #' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same. Default: `1`.
 #' @param verbose Logical. If `TRUE`, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
-#' @param n.cores Integer, number of cores used by \code{\link[ranger]{ranger}} for parallel execution (used as value for the argument `num.threads` in `ranger()`). Default: `NULL`
-#' @param cluster A cluster definition generated with `parallel::makeCluster()` or \code{\link{make_cluster}}. Faster than using `n.cores` for smaller models. If provided, overrides `n.cores`. The function does not stop a cluster, please remember to shut it down with `parallel::stopCluster(cl = cluster_name)` at the end of your pipeline. Default: `parallel::detectCores() - 1`
+#' @param n.cores Integer, number of cores used by \code{\link[ranger]{ranger}} for parallel execution (used as value for the argument `num.threads` in `ranger()`). Default: `parallel::detectCores() - 1`
+#' @param cluster A cluster definition generated with `parallel::makeCluster()` or \code{\link{make_cluster}}. Faster than using `n.cores` for smaller models. If provided, overrides `n.cores`. The function does not stop a cluster, please remember to shut it down with `parallel::stopCluster(cl = cluster_name)` or \code{\link{stop_cluster}} at the end of your pipeline. Default: `NULL`
 #' @return A model of the class "rf_evaluate" with a new slot named "evaluation", that is a list with the following slots:
 #' \itemize{
 #'   \item `metrics`: names of the metrics used for the evaluation.
@@ -151,8 +151,12 @@ rf_evaluate <- function(
   if(.is_binary(
     x = data[, dependent.variable.name]
   )){
-    metrics <- unique(c(metrics, "auc"))
+    metrics <- c(metrics, "auc")
+  } else {
+    metrics <- metrics[metrics != "auc"]
   }
+  metrics <- unique(metrics)
+
 
   #checking repetitions
   repetitions <- floor(repetitions)

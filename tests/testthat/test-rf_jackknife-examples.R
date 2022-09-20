@@ -35,12 +35,12 @@ testthat::test_that("`rf_repeat()` works", {
   stop_cluster()
 
   testthat::expect_s3_class(
-    rf.model$importance$jackknife.df,
+    rf.model$jackknife$r.squared$df,
     "data.frame"
   )
 
   testthat::expect_s3_class(
-    rf.model$importance$jackknife.plot,
+    rf.model$jackknife$r.squared$plot,
     "ggplot"
   )
 

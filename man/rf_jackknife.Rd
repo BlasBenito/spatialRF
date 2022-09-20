@@ -2,13 +2,14 @@
 % Please edit documentation in R/rf_jackknife.R
 \name{rf_jackknife}
 \alias{rf_jackknife}
-\title{Jackknife test of variable importance}
+\title{Jackknife test of variable importance via spatial cross-validation}
 \usage{
 rf_jackknife(
   model = NULL,
   xy = NULL,
   repetitions = 30,
   training.fraction = 0.75,
+  metrics = c("r.squared", "rmse", "nrmse", "auc"),
   distance.step = NULL,
   distance.step.x = NULL,
   distance.step.y = NULL,
@@ -28,6 +29,8 @@ rf_jackknife(
 
 \item{training.fraction}{Proportion between 0.5 and 0.9 indicating the proportion of records to be used as training set during spatial cross-validation. Default: \code{0.75}}
 
+\item{metrics}{Character vector, names of the performance metrics selected. The possible values are: "r.squared" (\code{cor(obs, pred) ^ 2}), "rmse" (\code{sqrt(sum((obs - pred)^2)/length(obs))}), "nrmse" (\code{rmse/(quantile(obs, 0.75) - quantile(obs, 0.25))}), and "auc" (added automatically for binary responses with values 1 and 0). Default: \code{c("r.squared", "rmse", "nrmse")}}
+
 \item{distance.step}{Numeric, argument \code{distance.step} of \code{\link[=thinning_til_n]{thinning_til_n()}}. distance step used during the selection of the centers of the training folds. These fold centers are selected by thinning the data until a number of folds equal or lower than \code{repetitions} is reached. Its default value is 1/1000th the maximum distance within records in \code{xy}. Reduce it if the number of training folds is lower than expected.}
 
 \item{distance.step.x}{Numeric, argument \code{distance.step.x} of \code{\link[=make_spatial_folds]{make_spatial_folds()}}. Distance step used during the growth in the x axis of the buffers defining the training folds. Default: \code{NULL} (1/1000th the range of the x coordinates).}
@@ -40,15 +43,15 @@ rf_jackknife(
 
 \item{verbose}{Logical. If \code{TRUE}, messages and plots generated during the execution of the function are displayed, Default: \code{TRUE}}
 
-\item{n.cores}{Integer, number of cores to use for parallel execution. Default: \code{NULL}}
+\item{n.cores}{Integer, number of cores used by \code{\link[ranger]{ranger}} for parallel execution (used as value for the argument \code{num.threads} in \code{ranger()}). Default: \code{parallel::detectCores() - 1}}
 
-\item{cluster}{A cluster definition generated with \code{parallel::makeCluster()}. If provided, it overrides \code{n.cores}. If \code{NULL} but \code{model} has a cluster object in the "cluster" slot, then the model's cluster is used. Please notice that the function does not stop a running cluster, so it should be stopped with \code{parallel::stopCluster()} afterwards (). The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the \code{model} argument. Default: \code{parallel::makeCluster(nnodes = parallel::detectCores() - 1, type = "PSOCK")}}
+\item{cluster}{A cluster definition generated with \code{parallel::makeCluster()} or \code{\link{make_cluster}}. Faster than using \code{n.cores} for smaller models. If provided, overrides \code{n.cores}. The function does not stop a cluster, please remember to shut it down with \code{parallel::stopCluster(cl = cluster_name)} or \code{\link{stop_cluster}} at the end of your pipeline. Default: \code{NULL}}
 }
 \value{
-The input model with new data in its "importance" slot. The jackknife data frame can be found in \code{model$importance$jackknife.df}, and the plot in \code{model$importance$jackknife.plot}.
+The input model with new slot named "jackknife". This is a list with slots named after the metrics introduced in the argument \code{metrics}. For example, if one of the metrics used is "r.squared", then the plot of this metric will be in \code{model$jackknife$r.squared$plot}, and the dataframe used to build the plot will be in \code{model$jackknife$r.squared$df}.
 }
 \description{
-Performs a jackknife test fitting and evaluating (via spatial cross-validation with \code{\link[=rf_evaluate]{rf_evaluate()}}) models with and without each predictor. This function was devised to provide importance scores that would be less sensitive to spatial autocorrelation than those computed internally by random forest on the out-of-bag data. This function is experimental.
+Performs a jackknife test fitting and evaluating (via spatial cross-validation with \code{\link[=rf_evaluate]{rf_evaluate()}}) models with and without each predictor.
 }
 \details{
 Model evaluation is based on spatial cross-validation. If the response is numeric, the R-squared is used, but if the response is binary (with values 1 and 0), then AUC is used instead.
@@ -88,8 +91,8 @@ rf.model <- rf_jackknife(
 stop_cluster(cluster)
 
 #accessing results
-rf.model$importance$jackknife.df
-rf.model$importance$jackknife.plot
+rf.model$jackknife$r.squared$df
+rf.model$jackknife$r.squared$plot
 
 }
 

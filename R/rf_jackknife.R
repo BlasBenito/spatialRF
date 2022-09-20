@@ -1,19 +1,20 @@
-#' @title Jackknife test of variable importance
-#' @description Performs a jackknife test fitting and evaluating (via spatial cross-validation with [rf_evaluate()]) models with and without each predictor. This function was devised to provide importance scores that would be less sensitive to spatial autocorrelation than those computed internally by random forest on the out-of-bag data. This function is experimental.
+#' @title Jackknife test of variable importance via spatial cross-validation
+#' @description Performs a jackknife test fitting and evaluating (via spatial cross-validation with [rf_evaluate()]) models with and without each predictor.
 #' @param model Model fitted with [rf()] and/or [rf_spatial()]. The function doesn't work with models fitted with [rf_repeat()]. Default: `NULL`
 #' @param xy Data frame or matrix with two columns containing coordinates and named "x" and "y". If `NULL`, the function will throw an error. Default: `NULL`
 #' @param repetitions Integer, number of spatial folds to use during cross-validation. Must be lower than the total number of rows available in the model's data. Default: `30`
 #' @param training.fraction Proportion between 0.5 and 0.9 indicating the proportion of records to be used as training set during spatial cross-validation. Default: `0.75`
+#' @param metrics Character vector, names of the performance metrics selected. The possible values are: "r.squared" (`cor(obs, pred) ^ 2`), "rmse" (`sqrt(sum((obs - pred)^2)/length(obs))`), "nrmse" (`rmse/(quantile(obs, 0.75) - quantile(obs, 0.25))`), and "auc" (added automatically for binary responses with values 1 and 0). Default: `c("r.squared", "rmse", "nrmse")`
 #' @param distance.step Numeric, argument `distance.step` of [thinning_til_n()]. distance step used during the selection of the centers of the training folds. These fold centers are selected by thinning the data until a number of folds equal or lower than `repetitions` is reached. Its default value is 1/1000th the maximum distance within records in `xy`. Reduce it if the number of training folds is lower than expected.
 #' @param distance.step.x Numeric, argument `distance.step.x` of [make_spatial_folds()]. Distance step used during the growth in the x axis of the buffers defining the training folds. Default: `NULL` (1/1000th the range of the x coordinates).
 #' @param distance.step.y Numeric, argument `distance.step.x` of [make_spatial_folds()]. Distance step used during the growth in the y axis of the buffers defining the training folds. Default: `NULL` (1/1000th the range of the y coordinates).
 #' @param fill.color Character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. `viridis::viridis(100)`). Default: `viridis::viridis(100, option = "F", direction = -1, alpha = 0.8, end = 0.9)`
 #' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same. Default: `1`.
 #' @param verbose Logical. If `TRUE`, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
-#' @param n.cores Integer, number of cores to use for parallel execution. Default: `NULL`
-#' @param cluster A cluster definition generated with `parallel::makeCluster()`. If provided, it overrides `n.cores`. If `NULL` but `model` has a cluster object in the "cluster" slot, then the model's cluster is used. Please notice that the function does not stop a running cluster, so it should be stopped with `parallel::stopCluster()` afterwards (). The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the `model` argument. Default: `parallel::makeCluster(nnodes = parallel::detectCores() - 1, type = "PSOCK")`
+#' @param n.cores Integer, number of cores used by \code{\link[ranger]{ranger}} for parallel execution (used as value for the argument `num.threads` in `ranger()`). Default: `parallel::detectCores() - 1`
+#' @param cluster A cluster definition generated with `parallel::makeCluster()` or \code{\link{make_cluster}}. Faster than using `n.cores` for smaller models. If provided, overrides `n.cores`. The function does not stop a cluster, please remember to shut it down with `parallel::stopCluster(cl = cluster_name)` or \code{\link{stop_cluster}} at the end of your pipeline. Default: `NULL`
 #' @details Model evaluation is based on spatial cross-validation. If the response is numeric, the R-squared is used, but if the response is binary (with values 1 and 0), then AUC is used instead.
-#' @return The input model with new data in its "importance" slot. The jackknife data frame can be found in `model$importance$jackknife.df`, and the plot in `model$importance$jackknife.plot`.
+#' @return The input model with new slot named "jackknife". This is a list with slots named after the metrics introduced in the argument `metrics`. For example, if one of the metrics used is "r.squared", then the plot of this metric will be in `model$jackknife$r.squared$plot`, and the dataframe used to build the plot will be in `model$jackknife$r.squared$df`.
 #' @examples
 #' if(interactive()){
 #'
@@ -49,8 +50,8 @@
 #' stop_cluster(cluster)
 #'
 #' #accessing results
-#' rf.model$importance$jackknife.df
-#' rf.model$importance$jackknife.plot
+#' rf.model$jackknife$r.squared$df
+#' rf.model$jackknife$r.squared$plot
 #'
 #' }
 #'
@@ -61,6 +62,12 @@ rf_jackknife <- function(
   xy = NULL,
   repetitions = 30,
   training.fraction = 0.75,
+  metrics = c(
+    "r.squared",
+    "rmse",
+    "nrmse",
+    "auc"
+  ),
   distance.step = NULL,
   distance.step.x = NULL,
   distance.step.y = NULL,
@@ -135,14 +142,15 @@ rf_jackknife <- function(
     stop("nrow(xy) and nrow(data) must be the same.")
   }
 
-  #if data is binary, "auc" is used
+  #if data is binary, "auc" is added
   if(.is_binary(
     x = data[, dependent.variable.name]
   )){
-    metric <- "auc"
+    metrics <- c(metrics, "auc")
   } else {
-    metric <- "r.squared"
+    metrics <- metrics[metrics != "auc"]
   }
+  metrics <- unique(metrics)
 
 
   #list to store evaluation dataframes
@@ -161,7 +169,7 @@ rf_jackknife <- function(
       distance.step = distance.step,
       distance.step.x = distance.step.x,
       distance.step.y = distance.step.y,
-      metrics = metric,
+      metrics = metrics,
       seed = seed,
       verbose = FALSE,
       n.cores = n.cores,
@@ -199,7 +207,7 @@ rf_jackknife <- function(
       distance.step = distance.step,
       distance.step.x = distance.step.x,
       distance.step.y = distance.step.y,
-      metrics = metric,
+      metrics = metrics,
       seed = seed,
       verbose = FALSE,
       n.cores = n.cores,
@@ -215,7 +223,6 @@ rf_jackknife <- function(
       dplyr::select(
         -testing.records
       )
-    colnames(evaluation.df.only.with)[2] <- "only.with"
 
     #model without the variable
 
@@ -240,7 +247,7 @@ rf_jackknife <- function(
         distance.step = distance.step,
         distance.step.x = distance.step.x,
         distance.step.y = distance.step.y,
-        metrics = metric,
+        metrics = metrics,
         seed = seed,
         verbose = FALSE,
         n.cores = n.cores,
@@ -256,10 +263,9 @@ rf_jackknife <- function(
       dplyr::select(
         -testing.records
       )
-    colnames(evaluation.df.without)[2] <- "without"
 
     #getting evaluation data frame
-    evaluation.list[[predictor.i]] <- evaluation.df.without %>%
+    evaluation.df <- evaluation.df.without %>%
       dplyr::left_join(
         y = evaluation.df.only.with,
         by = "fold.id"
@@ -271,6 +277,26 @@ rf_jackknife <- function(
       na.omit() %>%
       as.data.frame()
 
+    names(evaluation.df) <- gsub(
+      pattern = ".x",
+      replacement = ".without",
+      x = names(evaluation.df)
+    )
+
+    names(evaluation.df) <- gsub(
+      pattern = ".y",
+      replacement = ".only.with",
+      x = names(evaluation.df)
+    )
+
+    names(evaluation.df) <- gsub(
+      pattern = "testing.",
+      replacement = "",
+      x = names(evaluation.df)
+    )
+
+    evaluation.list[[predictor.i]] <- evaluation.df
+
   }#end of iterations
 
   #putting together the evaluation data frames
@@ -280,161 +306,251 @@ rf_jackknife <- function(
     )
   rownames(importance.per.repetition) <- NULL
 
-  #summary of differences
-  importance.per.variable <- importance.per.repetition %>%
-    dplyr::group_by(variable) %>%
-    dplyr::summarise(
-      without.median = stats::median(without),
-      only.with.median = stats::median(only.with),
-      without.minus.only.with = without.median -  only.with.median
-    ) %>%
-    dplyr::arrange(dplyr::desc(without.minus.only.with)) %>%
-    dplyr::ungroup() %>%
-    dplyr::mutate(
-        full.median = median(model$evaluation$per.fold[, paste0("testing.", metric)]),
-      variable_name = ifelse(
-        without.median > full.median,
-        paste(variable, "***"),
-        variable
-      )
-    )
 
-  #variable order
-  variable.order <- importance.per.variable$variable_name
+  #iterating over metrics
+  ########################
+  jackknife.list <- list()
 
-  #to long format
-  importance.per.variable.long <- importance.per.variable %>%
-    tidyr::pivot_longer(
-      cols = c("without.median", "only.with.median"),
-      names_to = "group",
-      values_to = "median"
-    ) %>%
-    dplyr::mutate(
-      group = gsub(
-        pattern = ".median",
-        replacement = "",
-        x = group
-      ),
-      group = gsub(
-        pattern = "\\.",
-        replacement = " ",
-        x = group
-      )
-    ) %>%
-    dplyr::select(
-      variable,
-      variable_name,
-      group,
-      median
-    )
+  for(metric in metrics){
 
-  #creating the line for the full model
-  full.model.line <- data.frame(
-    variable = "full_model",
-    variable_name = "full_model",
-    group = "full",
-    median = importance.per.variable$full.median[1]
-  )
+    #summary of differences
+    importance.per.variable <- importance.per.repetition %>%
+      dplyr::select(
+        variable,
+        fold.id,
+        dplyr::contains(metric)
+      ) %>%
+      dplyr::group_by(variable) %>%
+      dplyr::summarise(
+        without.median = stats::median(
+          !!rlang::sym(
+            paste0(
+              metric,
+              ".without"
+              )
+            )
+          ),
+        only.with.median = stats::median(
+          !!rlang::sym(
+            paste0(
+              metric,
+              ".only.with"
+              )
+            )
+          ),
+        without.minus.only.with = without.median -  only.with.median
+      ) %>%
+      dplyr::ungroup()
 
-  #adding the full model
-  importance.per.variable.long <- rbind(
-    importance.per.variable.long,
-    full.model.line
-  ) %>%
-    dplyr::mutate(
-      variable_name = factor(
-        x = variable_name,
-        levels = c(variable.order, "full_model")
-      )
-    )
+    #arranging
+    if(metric %in% c("r.squared", "auc")){
 
-  #pretty metric name
-  if(metric == "r.squared"){
-    metric.pretty <- "R-squared"
-  }
-  if(metric == "rmse"){
-    metric.pretty <- "RMSE"
-  }
-  if(metric == "nrmse"){
-    metric.pretty <- "normalized RMSE"
-  }
-  if(metric == "auc"){
-    metric.pretty <- "AUC"
-  }
+      importance.per.variable <- dplyr::arrange(
+        importance.per.variable,
+        dplyr::desc(without.minus.only.with)
+      ) %>%
+        dplyr::mutate(
+          full.median = median(model$evaluation$per.fold[, paste0("testing.", metric)]),
+          variable_name = ifelse(
+            without.median > full.median,
+            paste(variable, "***"),
+            variable
+          )
+        )
 
-  jackknife.plot <- ggplot2::ggplot(data = importance.per.variable.long) +
-    ggplot2::aes(
-      y = variable_name,
-      x = median,
-      fill = group
-    ) +
-    ggplot2::geom_bar(
-      position = "dodge",
-      stat = "identity"
-      ) +
-    ggplot2::scale_fill_manual(values = fill.color[1:3]) +
-    ggplot2::labs(
-      x = paste0(
-        "Median ",
-        metric.pretty,
-        " on ",
-        repetitions,
-        " spatial folds"
+      #minimum value in x axis
+      plot.x.min <- 0
+      plot.x.max <- max(importance.per.variable[, c("without.median", "only.with.median", "full.median")])
+
+    } else {
+
+      importance.per.variable <- dplyr::arrange(
+        importance.per.variable,
+        without.minus.only.with
+      ) %>%
+        dplyr::mutate(
+          full.median = median(model$evaluation$per.fold[, paste0("testing.", metric)]),
+          variable_name = ifelse(
+            without.median < full.median,
+            paste(variable, "***"),
+            variable
+          )
+        )
+
+      #minimum value in x axis
+      plot.x.min <- min(importance.per.variable$without.median) - (min(importance.per.variable$without.median)/10)
+      plot.x.max <- max(importance.per.variable[, c("without.median", "only.with.median", "full.median")])
+
+    }
+
+    #to long format for plotting
+    importance.per.variable.long <- importance.per.variable %>%
+      tidyr::pivot_longer(
+        cols = c("without.median", "only.with.median"),
+        names_to = "group",
+        values_to = "median"
+      ) %>%
+      dplyr::mutate(
+        group = gsub(
+          pattern = ".median",
+          replacement = "",
+          x = group
         ),
-      y = "",
-      fill = "Model",
-      title = "Model performance with and without each predictor",
-      subtitle = "Note: removing predictors marked with *** may increase model transferability."
-    ) +
-    ggplot2::theme_bw() +
-    ggplot2::scale_x_continuous(expand = c(0, 0)) +
-    ggplot2::geom_vline(
-      xintercept = full.model.line$median,
-      color = fill.color[1]
+        group = gsub(
+          pattern = "\\.",
+          replacement = " ",
+          x = group
+        )
+      ) %>%
+      dplyr::select(
+        variable,
+        variable_name,
+        group,
+        median
+      )
+
+    #creating the line for the full model
+    full.model.line <- data.frame(
+      variable = "full_model",
+      variable_name = "full_model",
+      group = "full",
+      median = importance.per.variable$full.median[1]
     )
 
-  #storing results
-  jackknife.df <- importance.per.variable %>%
-    dplyr::select(
-      variable,
-      without.median,
-      only.with.median,
-      full.median
+    #adding the full model
+    importance.per.variable.long <- rbind(
+      importance.per.variable.long,
+      full.model.line
     ) %>%
-    as.data.frame()
+      dplyr::mutate(
+        variable_name = factor(
+          x = variable_name,
+          levels = c(importance.per.variable$variable_name, "full_model")
+        )
+      )
 
-   #renaming
-   names(jackknife.df)[2:4] <- c(
-     paste0(
-       metric,
-       ".without"
-     ),
-     paste0(
-       metric,
-       ".only.with"
-     ),
-     paste0(
-       metric,
-       ".all"
-     )
-   )
+    #pretty metric name
+    if(metric == "r.squared"){
+      metric.pretty <- "R-squared"
+    }
+    if(metric == "rmse"){
+      metric.pretty <- "RMSE"
+    }
+    if(metric == "nrmse"){
+      metric.pretty <- "normalized RMSE"
+    }
+    if(metric == "auc"){
+      metric.pretty <- "AUC"
+    }
 
-   names(jackknife.df) <- gsub(
-     pattern = "\\.",
-     replacement = "_",
-     x = names(jackknife.df)
-   )
+    jackknife.plot <- ggplot2::ggplot(data = importance.per.variable.long) +
+      ggplot2::aes(
+        y = variable_name,
+        x = median,
+        fill = group
+      ) +
+      ggplot2::geom_bar(
+        position = "dodge",
+        stat = "identity"
+      ) +
+      ggplot2::scale_fill_manual(values = fill.color[1:3]) +
+      ggplot2::labs(
+        x = paste0(
+          "Median ",
+          metric.pretty,
+          " on ",
+          repetitions,
+          " spatial folds"
+        ),
+        y = "",
+        fill = "Model",
+        title = "Model performance with and without each predictor",
+        subtitle = "Note: predictors marked with *** decrease model performance."
+      ) +
+      ggplot2::theme_bw() +
+      ggplot2::coord_cartesian(
+        xlim = c(plot.x.min, plot.x.max),
+        expand = FALSE
+        ) +
+      ggplot2::geom_vline(
+        xintercept = full.model.line$median,
+        color = fill.color[1]
+      )
 
-   #adding results to the model
-   model$importance$jackknife.df <- jackknife.df
-   model$importance$jackknife.plot <- jackknife.plot
+    #storing results
+    jackknife.df <- importance.per.variable %>%
+      dplyr::select(
+        variable,
+        without.median,
+        only.with.median,
+        full.median
+      ) %>%
+      as.data.frame()
+
+    #renaming
+    names(jackknife.df)[2:4] <- c(
+      paste0(
+        metric,
+        ".without"
+      ),
+      paste0(
+        metric,
+        ".only.with"
+      ),
+      paste0(
+        metric,
+        ".all"
+      )
+    )
+
+    names(jackknife.df) <- gsub(
+      pattern = "\\.",
+      replacement = "_",
+      x = names(jackknife.df)
+    )
+
+    #saving in jackknife.list
+    jackknife.list[[metric]]$df <- jackknife.df
+    jackknife.list[[metric]]$plot <- jackknife.plot
+
+  }
+
+  model$jackknife <- jackknife.list
 
   if(verbose == TRUE){
-    message("Jackknife results stored in model$importance$jackknife.df")
-    message("Importance plot stored in model$importance$jackknife.plot.")
+    message(
+      paste0(
+        "Jackknife plots stored in: \n",
+          paste0(
+            "  - model$jackknife$" ,
+            metrics,
+            "$plot",
+            collapse = "\n"
+            )
+          )
+      )
+    message(
+      paste0(
+        "\nJackknife dataframes stored in: \n",
+        paste0(
+          "  - model$jackknife$" ,
+          metrics,
+          "$df",
+          collapse = "\n"
+        )
+      )
+    )
 
-    print(jackknife.plot)
-    print(jackknife.df)
+    message(
+      paste0(
+        "Plotting result for metric '",
+        metrics[1],
+        "':"
+      )
+    )
+
+    print(jackknife.list[[metrics[1]]]$plot)
+
   }
 
   model
