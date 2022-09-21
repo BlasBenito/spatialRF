@@ -1,10 +1,10 @@
 #' @title Jackknife test of variable importance via spatial cross-validation
-#' @description Performs a jackknife test fitting and evaluating (via spatial cross-validation with [rf_evaluate()]) models with and without each predictor.
+#' @description Fits and evaluates (via spatial cross-validation with [rf_evaluate()]) models with and without each predictor to compute a jackknife-based importance score. The predictors are ranked according to the difference in performance between models fitted only with (univariate models) and without the predictor (all predictors but the given one).
 #' @param model Model fitted with [rf()] and/or [rf_spatial()]. The function doesn't work with models fitted with [rf_repeat()]. Default: `NULL`
 #' @param xy Data frame or matrix with two columns containing coordinates and named "x" and "y". If `NULL`, the function will throw an error. Default: `NULL`
 #' @param repetitions Integer, number of spatial folds to use during cross-validation. Must be lower than the total number of rows available in the model's data. Default: `30`
 #' @param training.fraction Proportion between 0.5 and 0.9 indicating the proportion of records to be used as training set during spatial cross-validation. Default: `0.75`
-#' @param metrics Character vector, names of the performance metrics selected. The possible values are: "r.squared" (`cor(obs, pred) ^ 2`), "rmse" (`sqrt(sum((obs - pred)^2)/length(obs))`), "nrmse" (`rmse/(quantile(obs, 0.75) - quantile(obs, 0.25))`), and "auc" (added automatically for binary responses with values 1 and 0). Default: `c("r.squared", "rmse", "nrmse")`
+#' @param metrics Character vector, names of the performance metrics selected. The possible values are: "r.squared" (`cor(obs, pred) ^ 2`), "rmse" (`sqrt(sum((obs - pred)^2)/length(obs))`), "nrmse" (`rmse/(quantile(obs, 0.75) - quantile(obs, 0.25))`), and "auc" (added automatically for binary responses with values 1 and 0). Default: `c("r.squared", "rmse", "nrmse", "auc")`
 #' @param distance.step Numeric, argument `distance.step` of [thinning_til_n()]. distance step used during the selection of the centers of the training folds. These fold centers are selected by thinning the data until a number of folds equal or lower than `repetitions` is reached. Its default value is 1/1000th the maximum distance within records in `xy`. Reduce it if the number of training folds is lower than expected.
 #' @param distance.step.x Numeric, argument `distance.step.x` of [make_spatial_folds()]. Distance step used during the growth in the x axis of the buffers defining the training folds. Default: `NULL` (1/1000th the range of the x coordinates).
 #' @param distance.step.y Numeric, argument `distance.step.x` of [make_spatial_folds()]. Distance step used during the growth in the y axis of the buffers defining the training folds. Default: `NULL` (1/1000th the range of the y coordinates).
@@ -97,41 +97,38 @@ rf_jackknife <- function(
   testing.records <- NULL
   fold.id <- NULL
 
-  #evaluating the full model
-  if(verbose == TRUE){
-    message("Evaluating the full model with spatial cross-validation.")
+  #terminating if there is no model
+  if(is.null(model)){
+    stop("The argument 'model' is empty, there is no model to work with.")
+  }
+
+  #stopping if model is not of the right class
+  if(!("rf" %in% class(model))){
+    stop("The argument 'model' is not of the class 'rf'.")
   }
 
 
-  if(is.null(model)){
+  #getting data and ranger arguments from the model
+  data <- model$ranger.arguments$data
+  dependent.variable.name <- model$ranger.arguments$dependent.variable.name
+  predictor.variable.names <- model$ranger.arguments$predictor.variable.names
+  ranger.arguments <- model$ranger.arguments
+  ranger.arguments$data <- NULL
+  ranger.arguments$dependent.variable.name <- NULL
+  ranger.arguments$predictor.variable.names <- NULL
+  ranger.arguments$importance <- "none"
+  ranger.arguments$local.importance <- FALSE
+  ranger.arguments$data <- NULL
+  ranger.arguments$scaled.importance <- FALSE
+  ranger.arguments$distance.matrix <- NULL
 
-    stop("The argument 'model' is empty, there is no model to evaluate.")
-
-  } else {
-
-    #getting data and ranger arguments from the model
-    data <- model$ranger.arguments$data
-    dependent.variable.name <- model$ranger.arguments$dependent.variable.name
-    predictor.variable.names <- model$ranger.arguments$predictor.variable.names
-    ranger.arguments <- model$ranger.arguments
-    ranger.arguments$data <- NULL
-    ranger.arguments$dependent.variable.name <- NULL
-    ranger.arguments$predictor.variable.names <- NULL
-    ranger.arguments$importance <- "none"
-    ranger.arguments$local.importance <- FALSE
-    ranger.arguments$data <- NULL
-    ranger.arguments$scaled.importance <- FALSE
-    ranger.arguments$distance.matrix <- NULL
-
-    #getting xy
-    if(is.null(xy)){
-      if(is.null(model$ranger.arguments$xy)){
-        stop("The argument 'xy' is required for spatial cross-validation.")
-      } else {
-        xy <- model$ranger.arguments$xy
-      }
+  #getting xy
+  if(is.null(xy)){
+    if(is.null(model$ranger.arguments$xy)){
+      stop("The argument 'xy' is required for spatial cross-validation.")
+    } else {
+      xy <- model$ranger.arguments$xy
     }
-
   }
 
   if(sum(c("x", "y") %in% colnames(xy)) < 2){
@@ -158,7 +155,14 @@ rf_jackknife <- function(
 
   #evaluating the full model
   if(verbose == TRUE){
-    message("Evaluating models fitted without each predictor.")
+    message("Evaluating full model.")
+  }
+
+  #evaluating the full model
+  if(verbose == TRUE){
+
+    message("Evaluating the full model with spatial cross-validation.")
+
   }
 
   #evaluating full model
@@ -175,6 +179,11 @@ rf_jackknife <- function(
       n.cores = n.cores,
       cluster = cluster
     )
+
+  #evaluating the full model
+  if(verbose == TRUE){
+    message("Fitting and evaluating univariate models with each predictor and multivariate models without each predictor.")
+  }
 
   #iterating over predictors
   for(predictor.i in predictor.variable.names){

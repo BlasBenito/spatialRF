@@ -1,35 +1,29 @@
-#' @title Selects predictors for Random Forest models
+#' @title Selects set of predictors with maximum predictive performance for Random Forest models
 #'
-#' @description Combines the functions[auto_cor()], and [auto_vif()] to select a set of uncorrelated predictors. These predictors can either be ranked by their univariate effect on the response variable (a.k.a "auto mode"), or prioritized according to the user's preferences via the `preference.order` argument. In the "auto mode", a univariate random forest model is fitted for each predictor in `predictor.variable.names`, and its out-of-bag RMSE is stored. All variables are then ranked by their RMSE (from minimum to maximum), and their rankings are used as `preference.order` in the functions [auto_cor()], and [auto_vif()]. If the user provides the `preference.order` argument, a redundant variable is removed when there is a similar one with a higher priority.
+#' @description If the argument model does not have a `"jackknife"` slot, then the function runs [rf_jackknife()]. The function removes collinear predictors, and ranks the remaining ones using the jackknife results. Then, these predictors are added one by one to the model, until a maximum performance is achieved.
 #'
-#' When the argument `jackknife` is set to `TRUE`, the function fits a random forest with all uncorrelated variables, and random forest models without each variable  to compute the out-of-bag RMSE gained or lost when each variable is removed from the model. Finally, a model fitted with all the variables that decrease performance when removed from the model is compared with a model fitted with all the uncorrelated variables. The model with better performance is then returned.
+#' The output of this function is a model of the class "rf" fitted with the selected variables, that can be used as input in the argument `model` of most modelling functions of this package. This model has a slot named `"selection"` with the selection results.
 #'
-#' Setting `jackknife = TRUE` is recommended when your goal is obtaining the minimum set of variables with the better model performance.
-#'
-#' The output of this function is a model of the class "rf" fitted with the selected variables, that can be used as input in the argument `model` of most modelling functions of this package.
-#'
-#' @param model A model fitted with [rf()] or [rf_spatial()]. If provided, the data and ranger arguments are taken directly from the model definition (stored in `model$ranger.arguments`). Default: `NULL`
-#' @param data Data frame with a response variable and a set of predictors. Default: `NULL`
-#' @param dependent.variable.name Character string with the name of the response variable. Must be in the column names of `data`. If the dependent variable is binary with values 1 and 0, the argument `case.weights` of `ranger` is populated by the function [case_weights()]. Default: `NULL`
-#' @param predictor.variable.names Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Default: `NULL`
-#' @param distance.matrix Squared matrix with the distances among the records in `data`. The number of rows of `distance.matrix` and `data` must be the same. If not provided, the computation of the Moran's I of the residuals is omitted. Default: `NULL`
-#' @param distance.thresholds Numeric vector with neighborhood distances. All distances in the distance matrix below each value in `dustance.thresholds` are set to 0 for the computation of Moran's I. If `NULL`, it defaults to seq(0, max(distance.matrix), length.out = 4). Default: `NULL`
-#' @param xy (optional) Data frame or matrix with two columns containing coordinates and named "x" and "y". It is not used by this function, but it is stored in the slot `ranger.arguments$xy` of the model, so it can be used by [rf_evaluate()] and [rf_tuning()]. Default: `NULL`
-#' @param preference.order Character vector indicating the user's order of preference to keep variables. Predictors not included in this argument are ranked at random (with rank scores below those predictors in `preference.order`). If not provided, the predictors are ranked by their univariate RMSE on the out-of-bag data. Default: `NULL`.
-#' @param ranger.arguments Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.
-#' @param vif.threshold Numeric between 2.5 and 10 defining the selection threshold for the VIF analysis. Higher numbers result in a more relaxed variable selection. Lower values increase the number of predictors returned. Set this argument to 0 if you desire to disable the VIF filtering. Default: 5.
-#' @param cor.threshold Numeric between 0 and 1, with recommended values between 0.5 and 0.9. Maximum Pearson correlation between any pair of the selected variables. Higher values increase the number of predictors returned. Set this argument to 1 if you desire to disable the bivariate-correlation filtering. Default: `0.50`
-#' @param repetitions Integer. Number of times to repeat random forest models with different random seeds (see the `repetitions` argument of [rf_repeat()]). Values higher than 10 will yield more robust results but at a higher computational cost. Default: `1`
-#' @param jackknife Logical. If `TRUE`, the function fits a full model with all the selected variables, and one model without each variable, and compares their respective performances. Only variables that decrease performance when removed from the model are kept in the final selection. Default: `FALSE`
+#' @param model Model fitted with [rf()] and/or [rf_spatial()]. The function doesn't work with models fitted with [rf_repeat()]. Default: `NULL`
+#' @param xy Data frame or matrix with two columns containing coordinates and named "x" and "y". If `NULL`, the function will throw an error. Default: `NULL`
+#' @param repetitions Integer, number of spatial folds to use during cross-validation. Must be lower than the total number of rows available in the model's data. Default: `30`
+#' @param training.fraction Proportion between 0.5 and 0.9 indicating the proportion of records to be used as training set during spatial cross-validation. Default: `0.75`
+#' @param metrics Character vector, names of the performance metrics selected. The possible values are: "r.squared" (`cor(obs, pred) ^ 2`), "rmse" (`sqrt(sum((obs - pred)^2)/length(obs))`), "nrmse" (`rmse/(quantile(obs, 0.75) - quantile(obs, 0.25))`), and "auc" (added automatically for binary responses with values 1 and 0). Default: `c("r.squared", "rmse", "nrmse", "auc")`
+#' @param vif.threshold Numeric between 2.5 and 10 defining the selection threshold for the VIF analysis. Higher numbers result in a more relaxed variable selection. Lower values increase the number of predictors returned. If `NULL`, VIF analysis to reduce multicollinearity is disabled. Default: `5`.
+#' @param cor.threshold Numeric between 0 and 1, with recommended values between 0.5 and 0.9. Maximum Pearson correlation between any pair of the selected variables. Higher values increase the number of predictors returned. If `NULL`, bivariate filtering is disabled. Default: `0.75`
+#' @param distance.step Numeric, argument `distance.step` of [thinning_til_n()]. distance step used during the selection of the centers of the training folds. These fold centers are selected by thinning the data until a number of folds equal or lower than `repetitions` is reached. Its default value is 1/1000th the maximum distance within records in `xy`. Reduce it if the number of training folds is lower than expected.
+#' @param distance.step.x Numeric, argument `distance.step.x` of [make_spatial_folds()]. Distance step used during the growth in the x axis of the buffers defining the training folds. Default: `NULL` (1/1000th the range of the x coordinates).
+#' @param distance.step.y Numeric, argument `distance.step.x` of [make_spatial_folds()]. Distance step used during the growth in the y axis of the buffers defining the training folds. Default: `NULL` (1/1000th the range of the y coordinates).
+#' @param fill.color Character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. `viridis::viridis(100)`). Default: `viridis::viridis(100, option = "F", direction = -1, alpha = 0.8, end = 0.9)`
 #' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same. Default: `1`.
-#' @param verbose Logical, ff `TRUE`, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
-#' @param n.cores Integer, number of cores used by \code{\link[ranger]{ranger}} for parallel execution of individual random forest models (used as value for the argument `num.threads` in `ranger()`). Default: `parallel::detectCores() - 1`
-#' @param cluster A cluster definition generated with `parallel::makeCluster()` or \code{\link{make_cluster}}. If provided, overrides `n.cores`. The function does not stop a cluster, please remember to shut it down with `parallel::stopCluster(cl = cluster_name)` or `spatialRF::stop_cluster()` at the end of your pipeline. Default: `NULL`
+#' @param verbose Logical. If `TRUE`, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
+#' @param n.cores Integer, number of cores used by \code{\link[ranger]{ranger}} for parallel execution (used as value for the argument `num.threads` in `ranger()`). Default: `parallel::detectCores() - 1`
+#' @param cluster A cluster definition generated with `parallel::makeCluster()` or \code{\link{make_cluster}}. Faster than using `n.cores` for smaller models. If provided, overrides `n.cores`. The function does not stop a cluster, please remember to shut it down with `parallel::stopCluster(cl = cluster_name)` or \code{\link{stop_cluster}} at the end of your pipeline. Default: `NULL`
 #'
-#' @return A model of the class "rf" fitted with the selected variables by the function [rf()] with a slot named `variable.selection`. This slot contains the following elements:
+#' @return A model of the class "rf" fitted with the selected variables by the function [rf()] with a slot named `selection`. This slot contains the following elements:
 #' \itemize{
-#'   \item `univariate.importance`: a data frame with the names of the predictors and their univariate out-of-bag RMSE. This slot will be `NA` if the argument `preference.order` is provided.
-#'   \item `jackknife.result`: a data frame with the results of the jackknife when `jackknife = TRUE`, or `NA` otherwise.
+#'   \item `selection.plot`: a ggplot with the selection criteria.
+#'   \item `selection.df`: a data frame with the data used for the selection plot.
 #'   \item `cor`: correlation matrix of the selected variables.
 #'   \item `vif`: data frame with the names of the selected variables and their respective VIF scores.
 #'   \item `selected.variables`: character vector with the names of the selected variables.
@@ -49,102 +43,6 @@
 #'  ecoregions_dependent_variable_name
 #')
 #'
-#'#automatic variable selection
-#'rf.selection <- rf_select(
-#'  data = ecoregions_df,
-#'  dependent.variable.name = ecoregions_dependent_variable_name,
-#'  predictor.variable.names = ecoregions_predictor_variable_names,
-#'  xy = ecoregions_df[, c("x", "y")],
-#'  n.cores = 1
-#')
-#'
-#'#the result is a model!
-#'plot_importance(rf.selection)
-#'print_performance(rf.selection)
-#'
-#'#you can use this model as input for other functions
-#'rf.selection <- rf_evaluate(
-#'  model = rf.selection
-#')
-
-#'#or you can connect it with other modelling functions using the %>% pìpe
-#'rf.selection <- rf_select(
-#'  data = ecoregions_df,
-#'  dependent.variable.name = ecoregions_dependent_variable_name,
-#'  predictor.variable.names = ecoregions_predictor_variable_names,
-#'  xy = ecoregions_df[, c("x", "y")],
-#' n.cores = 1
-#') %>%
-#'  rf_evaluate()
-
-#'#example of complete pipeline (this will take a while to execute)
-#'cl <- make_cluster()
-#'
-#'rf.selection <- rf_select(
-#'  data = ecoregions_df,
-#'  dependent.variable.name = ecoregions_dependent_variable_name,
-#'  predictor.variable.names = ecoregions_predictor_variable_names,
-#'  distance.matrix = ecoregions_distance_matrix,
-#'  xy = ecoregions_df[, c("x", "y")],
-#'  n.cores = 1
-#') %>%
-#'  rf_tuning(cluster = cl) %>%
-#'  rf_spatial(cluster = cl) %>%
-#'  rf_evaluate(cluster = cl) %>%
-#'  rf_jackknife(cluster = cl)
-#'
-#'#automatic variable selection with jackknife
-#'rf.selection <- rf_select(
-#'  data = ecoregions_df,
-#'  dependent.variable.name = ecoregions_dependent_variable_name,
-#'  predictor.variable.names = ecoregions_predictor_variable_names,
-#'  jackknife = TRUE,
-#'  n.cores = 1
-#')
-#'
-#'#variable selection with preference order
-#'rf.selection <- rf_select(
-#'  data = ecoregions_df,
-#'  dependent.variable.name = ecoregions_dependent_variable_name,
-#'  predictor.variable.names = ecoregions_predictor_variable_names,
-#' preference.order = c(
-#'   "climate_bio5_average",
-#'   "climate_hypervolume",
-#'   "human_population_density"
-#' ),
-#' n.cores = 1
-#')
-#'
-#'#variable selection with preference order and jackknife
-#'rf.selection <- rf_select(
-#'  data = ecoregions_df,
-#'  dependent.variable.name = ecoregions_dependent_variable_name,
-#'  predictor.variable.names = ecoregions_predictor_variable_names,
-#'  preference.order = c(
-#'    "climate_bio5_average",
-#'    "climate_hypervolume",
-#'    "human_population_density"
-#'  ),
-#'  jackknife = TRUE,
-#'  n.cores = 1
-#')
-#'
-#'#preference order, jackknife, and repetitions
-#'#for more robust estimates of importance but higher computational cost
-#'rf.selection <- rf_select(
-#'  data = ecoregions_df,
-#'  dependent.variable.name = ecoregions_dependent_variable_name,
-#'  predictor.variable.names = ecoregions_predictor_variable_names,
-#'  preference.order = c(
-#'    "climate_bio5_average",
-#'    "climate_hypervolume",
-#'    "human_population_density"
-#'  ),
-#' jackknife = TRUE,
-#'  repetitions = 10,
-#' n.cores = 1
-#')
-#'
 #'}
 #'
 #' @importFrom dplyr pull
@@ -153,216 +51,183 @@
 #' @export
 rf_select <- function(
     model = NULL,
-    data = NULL,
-    dependent.variable.name = NULL,
-    predictor.variable.names = NULL,
-    preference.order = NULL,
-    distance.matrix = NULL,
-    distance.thresholds = NULL,
     xy = NULL,
-    ranger.arguments = NULL,
+    repetitions = 30,
+    training.fraction = 0.75,
+    metrics = c(
+      "r.squared",
+      "rmse",
+      "nrmse",
+      "auc"
+    ),
     vif.threshold = 5,
     cor.threshold = 0.75,
-    repetitions = 1,
-    jackknife = FALSE,
+    distance.step = NULL,
+    distance.step.x = NULL,
+    distance.step.y = NULL,
+    fill.color = viridis::viridis(
+      5,
+      option = "F",
+      direction = 1,
+      alpha = 1,
+      end = 0.9
+    ),
     seed = 1,
     verbose = TRUE,
     n.cores = parallel::detectCores() - 1,
     cluster = NULL
 ){
 
-  #declaring variables
-  rmse <- NULL
-  oob.rmse.shift.without.variable <- NULL
-  variable <- NULL
-  i <- NULL
-  oob.rmse.full.model <- NULL
-  oob.rmse.model.without.variable <- NULL
+  #terminating if there is no model
+  if(is.null(model)){
+    stop("The argument 'model' is empty, there is no model to work with.")
+  }
 
-  #HANDLING ARGUMENTS
-  ######################################
+  #stopping if model is not of the right class
+  if(!("rf" %in% class(model))){
+    stop("The argument 'model' is not of the class 'rf'.")
+  }
 
-  #if model is provided
-  if(!is.null(model)){
+  #testing method argument
+  metrics <- match.arg(
+    arg = metrics,
+    choices = c(
+      "r.squared",
+      "rmse",
+      "nrmse",
+      "auc"
+    ),
+    several.ok = TRUE
+  )
 
-    #stopping if model is not of the right class
-    if(!("rf" %in% class(model))){
-      stop("The argument 'model' is not of the class 'rf'.")
+  #getting data and ranger arguments from the model
+  data <- model$ranger.arguments$data
+  dependent.variable.name <- model$ranger.arguments$dependent.variable.name
+  predictor.variable.names <- model$ranger.arguments$predictor.variable.names
+  ranger.arguments <- model$ranger.arguments
+  ranger.arguments$data <- NULL
+  ranger.arguments$dependent.variable.name <- NULL
+  ranger.arguments$predictor.variable.names <- NULL
+  ranger.arguments$importance <- "none"
+  ranger.arguments$local.importance <- FALSE
+  ranger.arguments$data <- NULL
+  ranger.arguments$scaled.importance <- FALSE
+  ranger.arguments$distance.matrix <- NULL
+
+  #if data is binary, "auc" is added
+  if(.is_binary(
+    x = data[, dependent.variable.name]
+  )){
+    metrics <- c(metrics, "auc")
+  } else {
+    metrics <- metrics[metrics != "auc"]
+  }
+  metrics <- unique(metrics)
+
+  #run jackknife if the model doesn't have the slot
+  if(!("jackknife" %in% names(model))){
+
+    #evaluating the full model
+    if(verbose == TRUE){
+      message("Running rf_jackknife() to rank predictors.")
     }
 
-    #RULE 1: if ranger.arguments is not provided
-    if(is.null(ranger.arguments)){
+    model <- rf_jackknife(
+      model = model,
+      xy = xy,
+      repetitions = repetitions,
+      training.fraction = training.fraction,
+      metrics = metrics,
+      distance.step = distance.step,
+      distance.step.x = distance.step.x,
+      distance.step.y = distance.step.y,
+      seed = seed,
+      verbose = FALSE,
+      n.cores = n.cores,
+      cluster = cluster
+    )
 
-      #overriding input arguments
-      data <- NULL
-      dependent.variable.name <- NULL
-      predictor.variable.names <- NULL
-      distance.matrix <- NULL
-      distance.thresholds <- NULL
-      xy <- NULL
+  }
 
-      #writing the model's ranger.arguments to the environment
-      ranger.arguments <- model$ranger.arguments
+  #rewriting metrics to the ones available in the jackknife
+  metrics <- names(model$jackknife)
 
-      #writing arguments to the function environment
-      list2env(model$ranger.arguments, envir=environment())
+  #getting the ranking data frame from the jackknife
+  jackknife_df <- do.call(
+    "cbind",
+    lapply(
+      model$jackknife,
+      "[[",
+      "df"
+    )
+  ) %>%
+    dplyr::rename(
+      variable = 1
+    ) %>%
+    dplyr::select(
+      -dplyr::contains(".variable"),
+      -dplyr::contains("_only_with")
+    )
+
+  #removing lowercase from colnames
+  names(jackknife_df) <- gsub(
+    pattern = "_",
+    replacement = ".",
+    x = names(jackknife_df)
+  )
+
+  #computing differences without - all
+  for(metric in metrics){
+
+    without.column <- paste0(
+      metric,
+      ".",
+      metric,
+      ".without"
+      )
+
+    all.column <- paste0(
+      metric,
+      ".",
+      metric,
+      ".all"
+      )
+
+    if(metric %in% c("r.squared", "auc")){
+
+      jackknife_df[, paste0(metric, ".loss")] <-  as.vector(
+        scale(
+          jackknife_df[, without.column] - jackknife_df[, all.column]
+          )
+        )
 
     } else {
 
-      #RULE 2:
-      #input arguments in model$ranger.arguments take precedence
-
-      ranger.arguments$data <- NULL
-      ranger.arguments$dependent.variable.name <- NULL
-      ranger.arguments$predictor.variable.names <- NULL
-      ranger.arguments$distance.matrix <- NULL
-      ranger.arguments$distance.thresholds <- NULL
-      ranger.arguments$xy <- NULL
-
-      #writing arguments to the function environment
-      list2env(model$ranger.arguments, envir=environment())
-      list2env(ranger.arguments, envir=environment())
-
+      jackknife_df[, paste0(metric, ".loss")] <-  as.vector(
+        scale(
+          jackknife_df[, all.column] - jackknife_df[, without.column]
+          )
+        )
 
     }
 
-  } else {
-    #RULE 3:
-
-    if(!is.null(ranger.arguments)){
-
-      if(is.null(data)){
-        data <- model$ranger.arguments$data
-      }
-
-      if(is.null(dependent.variable.name)){
-        dependent.variable.name <- model$ranger.arguments$dependent.variable.name
-      }
-
-      if(is.null(predictor.variable.names)){
-        predictor.variable.names <- model$ranger.arguments$predictor.variable.names
-      }
-
-      if(is.null(distance.matrix)){
-        distance.matrix <- model$ranger.arguments$distance.matrix
-      }
-
-      if(is.null(distance.thresholds)){
-        distance.thresholds <- model$ranger.arguments$distance.thresholds
-      }
-
-      if(is.null(xy)){
-        xy <- model$ranger.arguments$xy
-      }
-
-      if(is.null(cluster)){
-        cluster <- model$ranger.arguments$cluster
-      }
-
-      #writing ranger.arguments to the function environment
-      list2env(ranger.arguments, envir=environment())
-
-    }
+    jackknife_df[, without.column] <- NULL
+    jackknife_df[, all.column] <- NULL
 
   }
 
-  #predictor.variable.names comes from auto_vif or auto_cor
-  if(inherits(predictor.variable.names, "variable_selection")){
+  #summing scaled columns to obtain rank
+  jackknife_df <- jackknife_df %>%
+    dplyr::mutate(
+      rank = rowSums(
+        dplyr::select_if(., is.numeric),
+        na.rm = TRUE
+        )
+      ) %>%
+    dplyr::arrange(rank)
 
-    predictor.variable.names <- predictor.variable.names$selected.variables
-
-  }
-
-  #coerce to data frame if tibble
-  if(inherits(data, "tbl_df") | inherits(data, "tbl")){
-    data <- as.data.frame(data)
-  }
-
-  if(inherits(xy, "tbl_df") | inherits(xy, "tbl")){
-    xy <- as.data.frame(xy)
-  }
-
-  ##########################
-  #END OF HANDLING ARGUMENTS
-
-  #HANDLING PARALLELIZATION
-  ##########################
-  if("cluster" %in% class(cluster)){
-
-    #registering cluster
-    doParallel::registerDoParallel(cl = cluster)
-
-    #parallel iterator
-    `%iterator%` <- foreach::`%dopar%`
-
-    #in-loop cores and ranger arguments
-    in.loop.n.cores <- 1
-    in.loop.ranger.arguments <- ranger.arguments
-    in.loop.ranger.arguments$num.threads <- 1
-
-  } else {
-
-    #sequential iterator
-    `%iterator%` <- foreach::`%do%`
-
-    #in-loop cores and ranger arguments
-    in.loop.n.cores <- n.cores
-    in.loop.ranger.arguments <- ranger.arguments
-
-  }
-
-  ##########################
-  #END OF HANDLING PARALLELIZATION
-
-  if(verbose == TRUE){
-    message(
-      "Ranking predictors by their univariate effect on the response variable."
-    )
-  }
-
-  #auto preference order
-  if(is.null(preference.order)){
-
-    univariate.models <- foreach::foreach(
-      i = predictor.variable.names,
-      .verbose = FALSE
-    ) %iterator% {
-
-      #generating training data
-      training.df <- data.frame(
-        y = data[, dependent.variable.name],
-        x1 = data[, i],
-        x2 = data[, i],
-        x3 = data[, i]
-      )
-
-      #fitting model
-      model.i <- spatialRF::rf_repeat(
-        data = training.df,
-        dependent.variable.name = "y",
-        predictor.variable.names = c("x1", "x2", "x3"),
-        ranger.arguments = in.loop.ranger.arguments,
-        repetitions = repetitions,
-        seed = seed,
-        n.cores = in.loop.n.cores,
-        verbose = FALSE
-      )
-
-      #capturing median r.squared
-      return(median(model.i$performance$rmse.oob))
-
-    }
-
-    #preference order data frame
-    preference.order.df <- data.frame(
-      variable = predictor.variable.names,
-      rmse = unlist(univariate.models)
-    ) %>%
-      dplyr::arrange(rmse)
-
-    preference.order <- preference.order.df$variable
-
-  }
+  #getting preference order
+  preference.order <- jackknife_df$variable
 
   #REDUCING MULTICOLLINEARITY
 
@@ -393,110 +258,227 @@ rf_select <- function(
   #selected variables
   selected.variables <- out.vif$selected.variables
 
-  #removing variables with negative contribution
-  if(jackknife == TRUE){
+  #HANDLING PARALLELIZATION
+  ##########################
+  if("cluster" %in% class(cluster)){
 
-    if(length(selected.variables) >= 3){
+    #registering cluster
+    doParallel::registerDoParallel(cl = cluster)
 
-      if(verbose == TRUE){
-        message(
-          "Performing jackknife to remove predictors with negative contribution to model performance."
-        )
-      }
+    #parallel iterator
+    `%iterator%` <- foreach::`%dopar%`
 
-      #creating a data frame to store results
-      jackknife.df <- data.frame(
-        variable = selected.variables,
-        oob.rmse.full.model = NA,
-        oob.rmse.model.without.variable = NA,
-        oob.rmse.shift.without.variable = NA
-      )
+    #in-loop cores and ranger arguments
+    in.loop.n.cores <- 1
+    in.loop.ranger.arguments <- ranger.arguments
+    in.loop.ranger.arguments$num.threads <- 1
 
-      #fitting the model with all predictors
-      rf.full.model <- spatialRF::rf_repeat(
-        data = data,
-        dependent.variable.name = dependent.variable.name,
-        predictor.variable.names = selected.variables,
-        ranger.arguments = ranger.arguments,
+  } else {
+
+    #sequential iterator
+    `%iterator%` <- foreach::`%do%`
+
+    #in-loop cores and ranger arguments
+    in.loop.n.cores <- n.cores
+    in.loop.ranger.arguments <- ranger.arguments
+
+  }
+
+  if(verbose == TRUE){
+    message(
+      "Fitting models with different subsets of predictors."
+    )
+  }
+
+
+  ##########################
+  #END OF HANDLING PARALLELIZATION
+
+  #fitting models with decreasing number of variables
+  sequential.models.df <- foreach::foreach(
+    i = seq(from = length(selected.variables), to = 2, by = -1),
+    .verbose = FALSE,
+    .combine = rbind,
+    .packages = c("spatialRF", "magrittr", "dplyr")
+  ) %iterator% {
+
+    #fitting model
+    model.i <- spatialRF::rf(
+      data = data,
+      dependent.variable.name = dependent.variable.name,
+      predictor.variable.names = selected.variables[1:i],
+      ranger.arguments = in.loop.ranger.arguments,
+      seed = seed,
+      n.cores = in.loop.n.cores,
+      verbose = FALSE
+    ) %>%
+      rf_evaluate(
         repetitions = repetitions,
+        xy = xy,
+        training.fraction = training.fraction,
+        distance.step = distance.step,
+        distance.step.x = distance.step.x,
+        distance.step.y = distance.step.y,
+        metrics = metrics,
         seed = seed,
-        n.cores = n.cores,
-        verbose = FALSE
+        verbose = FALSE,
+        n.cores = in.loop.n.cores,
+        cluster = NULL
       )
 
-      #fitting a model without each one of the predictors
-      jackknife.models <- foreach::foreach(
-        i = selected.variables,
-        .verbose = FALSE
-      ) %do% {
+    #getting the evaluation.df
+    evaluation.df.i <- model.i$evaluation$aggregated %>%
+      dplyr::filter(
+        model == "Testing"
+      ) %>%
+      dplyr::select(
+        metric,
+        median
+      ) %>%
+      t() %>%
+      as.data.frame()
 
-        #fitting model
-        model.i <- spatialRF::rf_repeat(
-          data = data,
-          dependent.variable.name = dependent.variable.name,
-          predictor.variable.names = selected.variables[!(selected.variables %in% i)],
-          ranger.arguments = ranger.arguments,
-          repetitions = repetitions,
-          seed = seed,
-          n.cores = n.cores,
-          verbose = FALSE
+    colnames(evaluation.df.i) <- evaluation.df.i[1, ]
+    rownames(evaluation.df.i) <- NULL
+    evaluation.df.i <- evaluation.df.i[2 , , drop = FALSE]
+    evaluation.df.i <- lapply(
+      X = evaluation.df.i,
+      FUN = as.numeric
+    ) %>%
+      as.data.frame()
+
+    return(evaluation.df.i)
+
+  } #end of parallelized loop
+
+  #adding variable to sequential.models.df
+  sequential.models.df$variable <- selected.variables[seq(from = length(selected.variables), to = 2, by = -1)]
+  sequential.models.df <- sequential.models.df[, c("variable", metrics)]
+
+
+
+  #computing combined column
+  sequential.models.df.combined <- sequential.models.df
+
+  #computing differences without - all
+  for(metric in metrics){
+
+    if(metric %in% c("r.squared", "auc")){
+
+      sequential.models.df.combined[, metric] <- as.vector(
+        scale(
+          1 - sequential.models.df.combined[, metric]
         )
-
-        #capturing median r.squared
-        return(median(model.i$performance$rmse.oob))
-
-      }
-
-      #filling jackknife.df
-      jackknife.df <- jackknife.df %>%
-        dplyr::mutate(
-          oob.rmse.full.model = median(rf.full.model$performance$rmse.oob),
-          oob.rmse.model.without.variable = unlist(jackknife.models),
-          oob.rmse.shift.without.variable = oob.rmse.model.without.variable - oob.rmse.full.model
-        ) %>%
-        dplyr::arrange(dplyr::desc(oob.rmse.shift.without.variable))
-
-      #fitting models with decreasing number of variables
-      jackknife.models <- foreach::foreach(
-        i = seq(from = nrow(jackknife.df), to = 4, by = -1),
-        .verbose = FALSE
-      ) %iterator% {
-
-        #fitting model
-        model.i <- spatialRF::rf_repeat(
-          data = data,
-          dependent.variable.name = dependent.variable.name,
-          predictor.variable.names = jackknife.df$variable[1:i],
-          ranger.arguments = in.loop.ranger.arguments,
-          repetitions = repetitions,
-          seed = seed,
-          n.cores = in.loop.n.cores,
-          verbose = FALSE
-        )
-
-        #capturing median r.squared
-        return(median(model.i$performance$rmse.oob))
-
-      }
-
-      #adding the data to jackknife.df
-      jackknife.df$oob.rmse.including.this.variable[4:nrow(jackknife.df)] <- unlist(jackknife.models)
-
-      #subset of best variables
-      selected.variables <- jackknife.df$variable[1:which.min(jackknife.df$oob.rmse.including.this.variable)[1]]
-
+      )
 
     } else {
 
-      if(verbose == TRUE){
-        message("The number of selected variables is equal or lower than 3, the jackknife procedure cannot be performed."
+      sequential.models.df.combined[, metric] <- as.vector(
+        scale(
+          sequential.models.df.combined[, metric]
         )
-
-      }
+      )
 
     }
 
-  } #end of jackknife
+  }
+
+  #summing scaled columns to obtain rank
+  sequential.models.df.combined <- sequential.models.df.combined %>%
+    dplyr::mutate(
+      combined = rowSums(
+        dplyr::select_if(., is.numeric),
+        na.rm = TRUE
+      )
+    )
+
+  sequential.models.df$combined <- sequential.models.df.combined$combined
+
+  rm(sequential.models.df.combined)
+
+  #adding combined to metrics
+  metrics <- c(metrics, "combined")
+
+  #all metrics and colors
+  all.metrics <- c(
+    "r.squared",
+    "auc",
+    "rmse",
+    "nrmse"
+  )
+
+  #naming colors
+  names(fill.color) <- c(all.metrics[all.metrics %in% metrics], "combined")
+  fill.color <- fill.color[!is.na(names(fill.color))]
+
+  #sequential models plot
+  sequential.models.df.long <- sequential.models.df %>%
+    tidyr::pivot_longer(
+      cols = dplyr::all_of(metrics),
+      names_to = "metric",
+      values_to = "value"
+    ) %>%
+    dplyr::mutate(
+      variable = factor(
+        variable,
+        levels = sequential.models.df$variable
+        ),
+      metric = factor(
+        metric,
+        levels = names(fill.color)
+      )
+    )
+
+  sequential.models.plot <-
+    ggplot2::ggplot(data = sequential.models.df.long) +
+    ggplot2::facet_wrap(~metric, ncol = length(metrics), scales = "free_x") +
+    ggplot2::aes(
+      x = value,
+      y = variable,
+      group = metric,
+      color = metric
+    ) +
+    ggplot2::geom_point() +
+    ggplot2::geom_path() +
+    ggplot2::scale_color_manual(values = fill.color) +
+    ggplot2::theme_bw() +
+    ggplot2::guides(color = "none")
+
+  #removing factors
+  sequential.models.df.long <- dplyr::mutate_if(
+    sequential.models.df.long,
+    is.factor,
+    as.character
+  )
+
+  #adding horizontal line for selected variable
+  variable.name <- sequential.models.df.long %>%
+    dplyr::filter(metric == "combined") %>%
+    dplyr::slice(which.min(value)) %>%
+    dplyr::pull(variable)
+
+  sequential.models.plot <- sequential.models.plot +
+    ggplot2::geom_hline(
+      yintercept = variable.name,
+      color = fill.color[names(fill.color) == "combined"],
+      size = 2,
+      alpha = 0.5
+    ) +
+    ggplot2::labs(
+      y = "",
+      x = "Metric value",
+      title = "Stepwise model performance",
+      subtitle = paste0(
+        "Optimal set:\nfrom ",
+        selected.variables[1],
+        " (not included in the plot) \nto ",
+        variable.name
+      )
+    )
+
+  #subsetting selected variables
+  selected.variables <- selected.variables[1:which(selected.variables == variable.name)]
+
 
   #fitting model with the selected variables
   if("cluster" %in% class(cluster)){
@@ -518,35 +500,26 @@ rf_select <- function(
   )
 
   #adding the number of repetitions to the model
-  m$ranger.arguments$repetitions <- repetitions
   m$ranger.arguments$xy <- xy
   m$ranger.arguments$distance.matrix <- distance.matrix
   m$ranger.arguments$distance.thresholds <- distance.thresholds
 
-  #printing out the selected variables
   if(verbose == TRUE){
+
     message(
+      "Selected variables:\n",
+      "-------------------\n",
       paste0(
-        "\nThe selected variables are:\n\n",
-        paste(selected.variables, collapse = "\n"),
-        "\n"
+        selected.variables,
+        collapse = ",\n"
       )
     )
-  }
 
-  #creating dummy preference.order.df
-  if(exists("preference.order.df") == FALSE){
-    preference.order.df <- NA
-  }
-
-  if(exists("jackknife.df") == FALSE){
-    jackknife.df <- NA
-  }
-
-  if(verbose == TRUE){
     message(
-      "Job done, you will find the variable selection results in the slot 'variable.selection' of the output model."
+      "\nJob done, you will find the variable selection results in the slot 'selection' of the output model."
     )
+
+    print(sequential.models.plot)
   }
 
   #adding cluster to model
@@ -555,14 +528,15 @@ rf_select <- function(
   }
 
   #adding new slot to the output model
-  m$variable.selection <- list(
-    univariate.importance = preference.order.df,
-    jackknife.result = jackknife.df,
+  m$selection <- list(
+    selection.plot = sequential.models.plot,
+    selection.df = sequential.models.df,
     cor = round(cor(data[, selected.variables]), 2),
     vif = out.vif$vif,
     selected.variables = selected.variables
   )
 
   m
+
 
 }

@@ -1,139 +1,45 @@
-testthat::test_that("`rf()` works", {
+testthat::test_that("`rf_select()` works", {
 
   library(spatialRF)
   library(magrittr)
   library(doParallel)
 
   #loading data
-   data(
+  data(
     ecoregions_df,
     ecoregions_distance_matrix,
     ecoregions_predictor_variable_names,
     ecoregions_dependent_variable_name
-    )
-
-  #selection without preference.order and without jackknife
-  out1 <- rf_select(
-    data = ecoregions_df,
-    dependent.variable.name = ecoregions_dependent_variable_name,
-    predictor.variable.names = ecoregions_predictor_variable_names,
-    distance.matrix = ecoregions_distance_matrix,
-    distance.thresholds = c(0,100, 1000, 10000),
-    verbose = FALSE
   )
 
-  testthat::expect_s3_class(
-    out1$variable.selection$univariate.importance,
-    "data.frame"
-  )
-
-  testthat::expect_named(
-    out1$variable.selection,
-    c("univariate.importance", "jackknife.result", "cor", "vif", "selected.variables")
-    )
-
-
-  #selection with preference.order and without jackknife
-  out2 <- rf_select(
-    data = ecoregions_df,
-    dependent.variable.name = ecoregions_dependent_variable_name,
-    predictor.variable.names = ecoregions_predictor_variable_names,
-    preference.order = c("ecoregion_area_km2", "neighbors_count", "climate_bio1_average", "climate_bio12_average"),
-    distance.matrix = ecoregions_distance_matrix,
-    distance.thresholds = c(0,100, 1000, 10000),
-    verbose = FALSE
-  )
-
-  testthat::expect_equal(
-    out2$variable.selection$univariate.importance, expected = NA
-  )
-
-  testthat::expect_named(
-    out2$variable.selection,
-    c("univariate.importance", "jackknife.result", "cor", "vif", "selected.variables")
-  )
-
-  #selection with preference.order and with jackknife
-  out3 <- rf_select(
-    data = ecoregions_df,
-    dependent.variable.name = ecoregions_dependent_variable_name,
-    predictor.variable.names = ecoregions_predictor_variable_names,
-    preference.order = c("ecoregion_area_km2", "neighbors_count", "climate_bio1_average", "climate_bio12_average"),
-    jackknife = TRUE,
-    distance.matrix = ecoregions_distance_matrix,
-    distance.thresholds = c(0,100, 1000, 10000),
-    verbose = FALSE
-  )
-
-  testthat::expect_equal(
-    out2$variable.selection$univariate.importance, expected = NA
-  )
-
-  testthat::expect_named(
-    out2$variable.selection,
-    c("univariate.importance", "jackknife.result", "cor", "vif", "selected.variables")
-  )
-
-
-   #with cluster
-   out4 <- rf_select(
+   #fitting model
+   out <- rf(
      data = ecoregions_df,
      dependent.variable.name = ecoregions_dependent_variable_name,
      predictor.variable.names = ecoregions_predictor_variable_names,
-     preference.order = c("ecoregion_area_km2", "neighbors_count", "climate_bio1_average", "climate_bio12_average"),
-     jackknife = TRUE,
      distance.matrix = ecoregions_distance_matrix,
      distance.thresholds = c(0,100, 1000, 10000),
-     cluster = make_cluster(),
+     xy = ecoregions_df[, c("x", "y")],
      verbose = FALSE
    )
 
-   stop_cluster()
+   cluster <- make_cluster()
 
-   testthat::expect_equal(
-     out4$variable.selection$univariate.importance, expected = NA
-   )
-
-   testthat::expect_named(
-     out4$variable.selection,
-     c("univariate.importance", "jackknife.result", "cor", "vif", "selected.variables")
-   )
-
-
-   #input from auto_vif() and auto_cor()
-   testthat::expect_warning(
-     variable.selection <- auto_cor(
-       x = ecoregions_df,
-       verbose = FALSE,
-       preference.order = ecoregions_predictor_variable_names
-     ) %>%
-       auto_vif()
-   )
-
-   testthat::expect_warning(
-     out5 <- rf_select(
-       data = ecoregions_df,
-       dependent.variable.name = ecoregions_dependent_variable_name,
-       predictor.variable.names = variable.selection,
-       preference.order = variable.selection$selected.variables,
-       jackknife = TRUE,
-       distance.matrix = ecoregions_distance_matrix,
-       distance.thresholds = c(0,100, 1000, 10000),
-       cluster = make_cluster(),
-       verbose = FALSE
-     )
+   #running selection
+   out <- rf_select(
+     model = out,
+     cluster = cluster
    )
 
    stop_cluster()
 
-   testthat::expect_equal(
-     out5$variable.selection$univariate.importance, expected = NA
+
+   testthat::expect_true(
+     "selection" %in% names(out)
    )
 
-   testthat::expect_named(
-     out5$variable.selection,
-     c("univariate.importance", "jackknife.result", "cor", "vif", "selected.variables")
+   testthat::expect_true(
+     "selection.plot" %in% names(out$selection)
    )
-
 
 })

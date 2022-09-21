@@ -71,6 +71,10 @@ auto_cor <- function(
     data <- data[, predictor.variable.names]
   }
 
+  if(is.null(cor.threshold)){
+    cor.threshold <- 1
+  }
+
   if(cor.threshold < 0){
     cor.threshold <- 0
     if(verbose == TRUE){
@@ -81,7 +85,7 @@ auto_cor <- function(
   if(cor.threshold > 1){
     cor.threshold <- 1
     if(verbose == TRUE){
-      message("cor.threshold is larger than 1, setting it to 1 (this will not work well anyway!).")
+      message("cor.threshold is larger than 1, setting it to 1 (this will select all variables!).")
     }
   }
 
@@ -207,7 +211,7 @@ auto_cor <- function(
   }
 
   #selected variables
-  selected.variables <- setdiff(colnames(data), removed.vars)
+  selected.variables <- preference.order[preference.order %in% setdiff(colnames(data), removed.vars)]
   selected.variables.df <- data[, selected.variables, drop = FALSE]
 
   if(verbose == TRUE){

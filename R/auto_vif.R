@@ -82,17 +82,14 @@ auto_vif <- function(
     data <- data[, predictor.variable.names]
   }
 
+  if(is.null(vif.threshold)){
+    vif.threshold <- Inf
+  }
+
   if(vif.threshold < 0){
     vif.threshold <- 0
     if(verbose == TRUE){
       message("vif.threshold is negative, setting it to 0.")
-    }
-  }
-
-  if(vif.threshold > 10){
-    vif.threshold <- 10
-    if(verbose == TRUE){
-      message("vif.threshold is larger than 10, setting it to 10.")
     }
   }
 
@@ -219,7 +216,7 @@ auto_vif <- function(
   }
 
   #selected variables
-  selected.variables <- setdiff(colnames(data), removed.vars)
+  selected.variables <- preference.order[preference.order %in% setdiff(colnames(data), removed.vars)]
   selected.variables.df <- data[, selected.variables, drop = FALSE]
 
   if(verbose == TRUE){
