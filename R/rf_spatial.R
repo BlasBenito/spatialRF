@@ -192,8 +192,8 @@ rf_spatial <- function(
       ranger.arguments$xy <- NULL
 
       #writing arguments to the function environment
-      list2env(model$ranger.arguments, envir=environment())
-      list2env(ranger.arguments, envir=environment())
+      list2env(model$ranger.arguments, envir = environment())
+      list2env(ranger.arguments, envir = environment())
 
 
     }
@@ -307,6 +307,10 @@ rf_spatial <- function(
       message("The model residuals are spatially correlated, fitting a spatial model.")
     }
 
+    #removing data from ranger arguments
+    ranger.arguments$data <- NULL
+    ranger.arguments$predictor.variable.names <- NULL
+
   }
 
   #getting distance thresholds with positive AC
@@ -333,7 +337,6 @@ rf_spatial <- function(
     if(verbose == TRUE){
       message("Using the distance matrix columns as spatial predictors.")
     }
-
 
   }
 
@@ -505,7 +508,7 @@ rf_spatial <- function(
   )
 
   #fitting model
-  model.spatial <- rf(
+  model.spatial <- spatialRF::rf(
     data = data.spatial,
     dependent.variable.name = dependent.variable.name,
     predictor.variable.names = predictor.variable.names.spatial,
@@ -530,7 +533,7 @@ rf_spatial <- function(
   model.spatial$importance <- prepare_importance_spatial(model = model.spatial)
 
   #preparing local variable importance
-  model.spatial$importance$local <- model.spatial$variable.importance.local
+  model.spatial$importance$local <- as.data.frame(model.spatial$variable.importance.local)
 
   #adding spatial method and predictors to the model
   model.spatial$spatial <- list()

@@ -29,7 +29,7 @@ rf_jackknife(
 
 \item{training.fraction}{Proportion between 0.5 and 0.9 indicating the proportion of records to be used as training set during spatial cross-validation. Default: \code{0.75}}
 
-\item{metrics}{Character vector, names of the performance metrics selected. The possible values are: "r.squared" (\code{cor(obs, pred) ^ 2}), "rmse" (\code{sqrt(sum((obs - pred)^2)/length(obs))}), "nrmse" (\code{rmse/(quantile(obs, 0.75) - quantile(obs, 0.25))}), and "auc" (added automatically for binary responses with values 1 and 0). Default: \code{c("r.squared", "rmse", "nrmse")}}
+\item{metrics}{Character vector, names of the performance metrics selected. The possible values are: "r.squared" (\code{cor(obs, pred) ^ 2}), "rmse" (\code{sqrt(sum((obs - pred)^2)/length(obs))}), "nrmse" (\code{rmse/(quantile(obs, 0.75) - quantile(obs, 0.25))}), and "auc" (added automatically for binary responses with values 1 and 0). Default: \code{c("r.squared", "rmse", "nrmse", "auc")}}
 
 \item{distance.step}{Numeric, argument \code{distance.step} of \code{\link[=thinning_til_n]{thinning_til_n()}}. distance step used during the selection of the centers of the training folds. These fold centers are selected by thinning the data until a number of folds equal or lower than \code{repetitions} is reached. Its default value is 1/1000th the maximum distance within records in \code{xy}. Reduce it if the number of training folds is lower than expected.}
 
@@ -51,7 +51,7 @@ rf_jackknife(
 The input model with new slot named "jackknife". This is a list with slots named after the metrics introduced in the argument \code{metrics}. For example, if one of the metrics used is "r.squared", then the plot of this metric will be in \code{model$jackknife$r.squared$plot}, and the dataframe used to build the plot will be in \code{model$jackknife$r.squared$df}.
 }
 \description{
-Performs a jackknife test fitting and evaluating (via spatial cross-validation with \code{\link[=rf_evaluate]{rf_evaluate()}}) models with and without each predictor.
+Fits and evaluates (via spatial cross-validation with \code{\link[=rf_evaluate]{rf_evaluate()}}) models with and without each predictor to compute a jackknife-based importance score. The predictors are ranked according to the difference in performance between models fitted only with (univariate models) and without the predictor (all predictors but the given one).
 }
 \details{
 Model evaluation is based on spatial cross-validation. If the response is numeric, the R-squared is used, but if the response is binary (with values 1 and 0), then AUC is used instead.

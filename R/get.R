@@ -1,18 +1,35 @@
 #' @title Functions to retrieve data from a fitted model.
 #' @description All `get_xxx()` functions retrieve useful information from a fitted model.
 #' @param model A model fitted with [rf_evaluate()].
-#' @return The objects returned by each function are listed below:
+#' @return
+#' Functions to get permutation importance scores from any model type (fitted with `spatialRF`):
 #' \itemize{
-#'   \item `get_evaluation()`
-#'   \item `get_importance()`
-#'   \item `get_importance_local()`
-#'   \item `get_moran()`
-#'   \item `get_performance()`
-#'   \item `get_predictions()`
-#'   \item `get_residuals()`
-#'   \item `get_response_curves()`
-#'   \item `get_spatial_predictors`
+#'   \item `get_importance()`: data frame with permutation importance scores for each model predictor. If the model too many spatial predictors, then the function returns the statistics of importance of the model predictors (the one stored in `model$importance$spatial.predictors.stats`).
+#'   \item `get_importance_local()` data frame with the permutation error on the out-of-bag data of each predictor on each location.
+#' }
 #'
+#' Functions to get residuals and results of residuals autocorrelation tests.
+#' \itemize{
+#'   \item `get_moran()`: data frame with the results of the Moran's I test on the model residuals for the distances introduced in the argument `distance.thresholds`.
+#'   \item `get_residuals()`: numeric vector with the model residuals in the same order as training data frame introduced via the argument `data`.
+#' }
+#'
+#' Functions to get evaluation objects from models fitted with [rf_evaluate()]:
+#' \itemize{
+#'   \item `get_evaluation_aggregated()`: data frame with statistics (median, median absolute deviation, first quartile, third quartile, mean, standard error, standard deviation, minimum, and maximum) of training and testing performance scores from a model fitted with [rf_evaluate()].
+#'   \item `get_evaluation_per_fold()`: data frame with one row of performance scores for every pair of training and testing folds.
+#'   \item `get_evaluation_folds()`: list with training and testing folds used by [rf_evaluate()].
+#' }
+#'
+#' Functions to get objects related with the model performance and predictions
+#' \itemize{
+#'   \item `get_performance()`: data frame with performance metrics that can be either computed from the out-of-bag data (r.squared.oob and rmse.oob) or by comparing the response variable with the predictions for all cases (r.squared, rmse, nrmse). For models fitted with [rf_repeat()], the median and median absolute deviation of the performances are shown.
+#'   \item `get_predictions()`: numeric vector of model predictions or median of model predictions if the model was fitted with [rf_repeat()].
+#' }
+#'
+#' Function to get the spatial predictors used by [rf_spatial()] to fit a model.
+#' \itemize{
+#'   \item `get_spatial_predictors()`: data frame with the spatial predictors used to fit the model.
 #' }
 #' @examples
 #' if(interactive()){
@@ -25,8 +42,8 @@
 #'   ecoregions_dependent_variable_name
 #'   )
 #'
-#'  #fitting random forest model
-#'  rf.model <- rf(
+#'  #fitting a random forest model
+#'  model <- rf(
 #'    data = ecoregions_df,
 #'    dependent.variable.name = ecoregions_dependent_variable_name,
 #'    predictor.variable.names = ecoregions_predictor_variable_names,
@@ -36,28 +53,209 @@
 #'    verbose = FALSE
 #'  )
 #'
+#'  #getting permutation importance data frame
+#'  get_importance(model = model)
+#'
+#'  #local permutation importance
+#'  get_importance_local(model = model)
+#'
+#'  #model residuals
+#'  get_residuals(model = model)
+#'
+#'  #Moran's I test of the model residuals
+#'  get_moran(model = model)
+#'
+#'  #get model performance
+#'  get_performance(model = model)
+#'
+#'  #get model predictions
+#'  get_predictions(model = model)
+#'
 #' #evaluating the model with spatial cross-validation
-#' rf.model <- rf_evaluate(
-#'   model = rf.model,
+#' model <- rf_evaluate(
+#'   model = model,
 #'   xy = ecoregions_df[, c("x", "y")],
 #'   n.cores = 1,
 #'   verbose = FALSE
 #' )
 #'
-#' #getting evaluation results from the model
-#' x <- get_evaluation(rf.model)
-#' x
+#' #getting evaluation results aggregated over spatial folds
+#' get_evaluation_aggregated(model = model)
+#'
+#' #get evaluation scores per spatial fold
+#' get_evaluation_per_fold(model = model)
+#'
+#' #get list with indices of training and testing cases
+#' #on each evaluation iteration
+#' get_evaluation_folds(model = model)
+#'
+#'
+#' #fitting a spatial model
+#' model <- rf_spatial(model = model)
+#'
+#' #data frame of spatial predictors used to fit the model
+#' get_spatial_predictors(model = model)
 #'
 #' }
+
+
 #' @rdname get
 #' @export
-get_evaluation <- function(model){
+get_evaluation_aggregated <- function(model){
 
   #stop if no evaluation slot
   if(!inherits(model, "rf_evaluate")){
     stop("Object 'x' does not have an 'evaluation' slot.")
   }
 
-  model$evaluation$aggregated
+  na.omit(model$evaluation$aggregated)
+
+}
+
+
+#' @rdname get
+#' @export
+get_evaluation_per_fold <- function(model){
+
+  #stop if no evaluation slot
+  if(!inherits(model, "rf_evaluate")){
+    stop("Object 'x' does not have an 'evaluation' slot.")
+  }
+
+  model$evaluation$per.fold
+
+}
+
+
+#' @rdname get
+#' @export
+get_evaluation_folds <- function(model){
+
+  #stop if no evaluation slot
+  if(!inherits(model, "rf_evaluate")){
+    stop("Object 'x' does not have an 'evaluation' slot.")
+  }
+
+  model$evaluation$spatial.folds
+
+}
+
+
+#' @rdname get
+#' @export
+get_importance <- function(model){
+
+  #declaring variables
+  importance <- NULL
+
+  #importance from rf
+  if((inherits(model, "rf") & !inherits(model, "rf_spatial")) | (inherits(model, "rf_repeat") & !inherits(model, "rf_spatial"))){
+    x <- model$importance$per.variable
+  }
+
+  #importance from rf_repeat
+  if(inherits(model, "rf_spatial")){
+
+    if(!is.null(model$ranger.arguments$repetitions)){
+      repetitions <- model$ranger.arguments$repetitions
+    } else {
+      repetitions <- 1
+    }
+
+    #count non-spatial predictors
+    length.non.spatial.predictors <- sum(model$importance$spatial.predictors$variable != "spatial_predictors") / repetitions
+
+    length.spatial.predictors <- sum(model$importance$spatial.predictors$variable == "spatial_predictors") / repetitions
+
+    #get spatial.predictor.stats if too many spatial predictors
+    if(length.spatial.predictors >= length.non.spatial.predictors){
+      x <- model$importance$spatial.predictors.stats
+    } else {
+      x <- model$importance$per.variable
+    }
+  }
+
+  if(is.null(x)){
+    stop("This model doesn't have a 'variable.importance' slot")
+  }
+
+  #arranging
+  x <- dplyr::arrange(x, dplyr::desc(importance))
+
+  #return importance
+  x
+
+}
+
+
+#' @rdname get
+#' @export
+get_importance_local <- function(model){
+
+  model$importance$local
+
+}
+
+
+#' @rdname get
+#' @export
+get_moran <- function(model){
+
+  model$residuals$autocorrelation$per.distance
+
+}
+
+
+#' @rdname get
+#' @export
+get_residuals <- function(model){
+
+  model$residuals$values
+
+}
+
+
+#' @rdname get
+#' @export
+get_performance <- function(model){
+
+  if(inherits(model, "rf_repeat")){
+
+    x.median <- sapply(model$performance, FUN = median)
+    x.mad <- sapply(model$performance, FUN = mad)
+
+  } else {
+
+    x.median <- unlist(model$performance)
+    x.mad <- NA
+
+  }
+
+  out.df <- data.frame(
+    metric = names(x.median),
+    median = x.median,
+    median_absolute_deviation = x.mad
+  )
+
+  if(inherits(model , "rf_repeat") == FALSE){
+    colnames(out.df)[2] <- "value"
+  }
+
+  rownames(out.df) <- NULL
+
+  out.df <- out.df[,colSums(is.na(out.df)) < nrow(out.df)]
+
+  out.df <- na.omit(out.df)
+
+  out.df
+
+}
+
+
+#' @rdname get
+#' @export
+get_predictions <- function(model){
+
+  model$predictions$values
 
 }

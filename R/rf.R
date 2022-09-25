@@ -531,7 +531,7 @@ rf <- function(
     variable.importance.local <- sqrt(abs(variable.importance.local)) * variable.importance.local.sign
 
     #saving to the slot
-    m$importance$local <- variable.importance.local
+    m$importance$local <- as.data.frame(variable.importance.local)
 
   }
 
