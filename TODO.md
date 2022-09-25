@@ -1,5 +1,15 @@
 #TODO
 
+## Accept tibbles
+
+## Accept factor predictors
+
+## document get_xxx() together.
+
+## document plot_xx() together.
+
+## document print_xx() together
+
 ## Implement robust argument handling rules in all functions
 
   + rf() DONE

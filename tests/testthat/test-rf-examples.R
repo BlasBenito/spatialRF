@@ -106,7 +106,7 @@ testthat::test_that("`rf()` works", {
 
    #using output of auto_vif and auto_cor as predictor.variable.names
    variable.selection <- auto_cor(
-     x = ecoregions_df,
+     data = ecoregions_df,
      verbose = FALSE,
      preference.order = ecoregions_predictor_variable_names
    ) %>%
