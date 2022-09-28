@@ -11,7 +11,7 @@ testthat::test_that("`rf_tuning()` works", {
     ecoregions_dependent_variable_name
   )
 
-  cluster <- spatialRF::make_cluster()
+  cluster <- start_cluster()
 
   out <- rf(
     data = ecoregions_df,
@@ -23,7 +23,7 @@ testthat::test_that("`rf_tuning()` works", {
     scaled.importance = FALSE,
     verbose = FALSE
   ) %>%
-    spatialRF::rf_tuning(
+    rf_tuning(
     cluster = cluster,
     verbose = FALSE
     )

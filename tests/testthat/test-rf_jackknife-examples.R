@@ -11,8 +11,6 @@ testthat::test_that("`rf_repeat()` works", {
     ecoregions_dependent_variable_name
     )
 
-  cluster <- make_cluster()
-
   #fitting random forest model
   rf.model <- rf(
     data = ecoregions_df,
@@ -24,6 +22,8 @@ testthat::test_that("`rf_repeat()` works", {
     n.cores = 1,
     verbose = FALSE
   )
+
+  cluster <- start_cluster()
 
   #computing predictor contribution to model transferability
   rf.model <- rf_jackknife(

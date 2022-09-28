@@ -23,7 +23,7 @@ testthat::test_that("`rf_select()` works", {
      verbose = FALSE
    )
 
-   cluster <- make_cluster()
+   cluster <- start_cluster()
 
    #running selection
    out <- rf_select(

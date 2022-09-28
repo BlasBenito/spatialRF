@@ -19,7 +19,7 @@
 #' @param verbose Logical, if `TRUE` the plot is printed. Default: `TRUE`
 #' @param notch Logical, if `TRUE`, boxplot notches are plotted. Default: `TRUE`
 #' @return A ggplot.
-#' @seealso [rf_evaluate()], [get_evaluation()], [print_evaluation()].
+#' @seealso [rf_evaluate()], [print_evaluation()].
 #' @examples
 #' if(interactive()){
 #'

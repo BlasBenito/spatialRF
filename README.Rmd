@@ -294,7 +294,7 @@ Since this function fits many alternative random forest models, it can be run in
 
 ```{r}
 #starting cluster with n-1 cores
-cluster <- spatialRF::make_cluster()
+cluster <- spatialRF::start_cluster()
 
 #selecting variables
 variable.selection <- spatialRF::rf_select(
@@ -981,7 +981,7 @@ To facilitate working with Beowulf clusters ([just several computers connected v
 
 ```{r, eval = FALSE}
 #creating and registering the cluster
-beowulf.cluster <- spatialRF::make_cluster(
+beowulf.cluster <- spatialRF::start_cluster(
   cluster.ips = c(
     "10.42.0.1",
     "10.42.0.34",

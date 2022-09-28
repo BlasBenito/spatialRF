@@ -18,7 +18,7 @@
 #' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same. Default: `1`.
 #' @param verbose Logical. If `TRUE`, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
 #' @param n.cores Integer, number of cores used by \code{\link[ranger]{ranger}} for parallel execution (used as value for the argument `num.threads` in `ranger()`). Default: `parallel::detectCores() - 1`
-#' @param cluster A cluster definition generated with `parallel::makeCluster()` or \code{\link{make_cluster}}. Faster than using `n.cores` for smaller models. If provided, overrides `n.cores`. The function does not stop a cluster, please remember to shut it down with `parallel::stopCluster(cl = cluster_name)` or \code{\link{stop_cluster}} at the end of your pipeline. Default: `NULL`
+#' @param cluster A cluster definition generated with `parallel::makeCluster()` or \code{\link{start_cluster}}. Faster than using `n.cores` for smaller models. If provided, overrides `n.cores`. The function does not stop a cluster, please remember to shut it down with `parallel::stopCluster(cl = cluster_name)` or \code{\link{stop_cluster}} at the end of your pipeline. Default: `NULL`
 #'
 #' @return A model of the class "rf" fitted with the selected variables by the function [rf()] with a slot named `selection`. This slot contains the following elements:
 #' \itemize{
@@ -78,6 +78,13 @@ rf_select <- function(
     cluster = NULL
 ){
 
+  . <- NULL
+  i <- NULL
+  value <- NULL
+  variable <- NULL
+  inclusion_order <- NULL
+  selected <- NULL
+
   #terminating if there is no model
   if(is.null(model)){
     stop("The argument 'model' is empty, there is no model to work with.")
@@ -104,15 +111,12 @@ rf_select <- function(
   data <- model$ranger.arguments$data
   dependent.variable.name <- model$ranger.arguments$dependent.variable.name
   predictor.variable.names <- model$ranger.arguments$predictor.variable.names
+  distance.matrix <- model$ranger.arguments$distance.matrix
+  distance.thresholds <- model$ranger.arguments$distance.thresholds
   ranger.arguments <- model$ranger.arguments
   ranger.arguments$data <- NULL
   ranger.arguments$dependent.variable.name <- NULL
   ranger.arguments$predictor.variable.names <- NULL
-  ranger.arguments$importance <- "none"
-  ranger.arguments$local.importance <- FALSE
-  ranger.arguments$data <- NULL
-  ranger.arguments$scaled.importance <- FALSE
-  ranger.arguments$distance.matrix <- NULL
 
   #if data is binary, "auc" is added
   if(.is_binary(
@@ -231,7 +235,7 @@ rf_select <- function(
 
   #REDUCING MULTICOLLINEARITY
 
-  if(verbose == TRUE){
+  if(verbose == TRUE & (!is.null(cor.threshold) | !is.null(vif.threshold))){
     message(
       "Reducing multicollinearity."
     )
@@ -272,6 +276,10 @@ rf_select <- function(
     in.loop.n.cores <- 1
     in.loop.ranger.arguments <- ranger.arguments
     in.loop.ranger.arguments$num.threads <- 1
+    in.loop.ranger.arguments$importance <- "none"
+    in.loop.ranger.arguments$local.importance <- FALSE
+    in.loop.ranger.arguments$scaled.importance <- FALSE
+    in.loop.ranger.arguments$distance.matrix <- NULL
 
   } else {
 
@@ -296,23 +304,49 @@ rf_select <- function(
 
   #fitting models with decreasing number of variables
   sequential.models.df <- foreach::foreach(
-    i = seq(from = length(selected.variables), to = 2, by = -1),
+    i = seq(from = length(selected.variables), to = 1, by = -1),
     .verbose = FALSE,
     .combine = rbind,
     .packages = c("spatialRF", "magrittr", "dplyr")
   ) %iterator% {
 
-    #fitting model
-    model.i <- spatialRF::rf(
-      data = data,
-      dependent.variable.name = dependent.variable.name,
-      predictor.variable.names = selected.variables[1:i],
-      ranger.arguments = in.loop.ranger.arguments,
-      seed = seed,
-      n.cores = in.loop.n.cores,
-      verbose = FALSE
-    ) %>%
-      rf_evaluate(
+
+    if(i == 1){
+
+      #univariate model if i == 1
+      model.i <- spatialRF::rf(
+        data = data.frame(
+          y = data[, dependent.variable.name],
+          x1 = data[, selected.variables[1]],
+          x2 = data[, selected.variables[1]],
+          x3 = data[, selected.variables[1]]
+        ),
+        dependent.variable.name = "y",
+        predictor.variable.names = c("x1", "x2", "x3"),
+        ranger.arguments = in.loop.ranger.arguments,
+        seed = seed,
+        n.cores = in.loop.n.cores,
+        verbose = FALSE
+      )
+
+    } else {
+
+      #multivariate model otherwise
+      model.i <- spatialRF::rf(
+        data = data,
+        dependent.variable.name = dependent.variable.name,
+        predictor.variable.names = selected.variables[1:i],
+        ranger.arguments = in.loop.ranger.arguments,
+        seed = seed,
+        n.cores = in.loop.n.cores,
+        verbose = FALSE
+      )
+
+    }
+
+    #evaluating model
+    model.i <- rf_evaluate(
+        model = model.i,
         repetitions = repetitions,
         xy = xy,
         training.fraction = training.fraction,
@@ -352,10 +386,8 @@ rf_select <- function(
   } #end of parallelized loop
 
   #adding variable to sequential.models.df
-  sequential.models.df$variable <- selected.variables[seq(from = length(selected.variables), to = 2, by = -1)]
+  sequential.models.df$variable <- selected.variables[seq(from = length(selected.variables), to = 1, by = -1)]
   sequential.models.df <- sequential.models.df[, c("variable", metrics)]
-
-
 
   #computing combined column
   sequential.models.df.combined <- sequential.models.df
@@ -417,18 +449,48 @@ rf_select <- function(
       cols = dplyr::all_of(metrics),
       names_to = "metric",
       values_to = "value"
+    )
+
+  #finding last predictor
+  last.predictor <- sequential.models.df.long %>%
+    dplyr::filter(metric == "combined") %>%
+    dplyr::slice(which.min(value)) %>%
+    dplyr::pull(variable)
+
+  #subsetting selected variables to the last predictor
+  selected.variables <- selected.variables[1:which(selected.variables == last.predictor)]
+
+  #renaming factors and ordering
+  sequential.models.df.renamed <- sequential.models.df %>%
+    dplyr::mutate(
+      variable = ifelse(
+        !(variable %in% selected.variables),
+        paste(variable, "*"),
+        variable
+      )
+    )
+
+  #long format for plotting
+  sequential.models.df.long <- sequential.models.df.long %>%
+    dplyr::mutate(
+      variable = ifelse(
+        !(variable %in% selected.variables),
+        paste(variable, "*"),
+        variable
+      )
     ) %>%
     dplyr::mutate(
       variable = factor(
         variable,
-        levels = sequential.models.df$variable
-        ),
+        levels = sequential.models.df.renamed$variable
+      ),
       metric = factor(
         metric,
         levels = names(fill.color)
       )
     )
 
+  #starting the plot
   sequential.models.plot <-
     ggplot2::ggplot(data = sequential.models.df.long) +
     ggplot2::facet_wrap(~metric, ncol = length(metrics), scales = "free_x") +
@@ -451,34 +513,19 @@ rf_select <- function(
     as.character
   )
 
-  #adding horizontal line for selected variable
-  variable.name <- sequential.models.df.long %>%
-    dplyr::filter(metric == "combined") %>%
-    dplyr::slice(which.min(value)) %>%
-    dplyr::pull(variable)
-
   sequential.models.plot <- sequential.models.plot +
     ggplot2::geom_hline(
-      yintercept = variable.name,
+      yintercept = last.predictor,
       color = fill.color[names(fill.color) == "combined"],
       size = 2,
       alpha = 0.5
     ) +
     ggplot2::labs(
       y = "",
-      x = "Metric value",
-      title = "Stepwise model performance",
-      subtitle = paste0(
-        "Optimal set:\nfrom ",
-        selected.variables[1],
-        " (not included in the plot) \nto ",
-        variable.name
-      )
+      x = "Model performance",
+      title = "Selection criteria",
+      subtitle = "Note: adding predictors marked with * decreases model performance."
     )
-
-  #subsetting selected variables
-  selected.variables <- selected.variables[1:which(selected.variables == variable.name)]
-
 
   #fitting model with the selected variables
   if("cluster" %in% class(cluster)){
@@ -496,7 +543,7 @@ rf_select <- function(
     seed = seed,
     verbose = FALSE,
     n.cores = n.cores,
-    cluster = cluster
+    cluster = NULL
   )
 
   #adding the number of repetitions to the model
@@ -516,10 +563,19 @@ rf_select <- function(
     )
 
     message(
-      "\nJob done, you will find the variable selection results in the slot 'selection' of the output model."
+      "\nJob done, you will find the variable selection plot in 'model$selection$plot', and the selection data frame in 'model$selection$df'\n\n."
     )
 
     print(sequential.models.plot)
+
+    message(
+      "Interpretation:\n",
+      "---------------\n\n",
+      " - All performance scores are computed via spatial cross-validation.\n\n",
+      " - The performance score of each variable is computed from a model including such variable and all the ones above it.\n\n",
+      " - The 'combined' performance score is the average of all the other performance metrics.\n\n",
+      " - The horizontal thick line identifies the last variable of the set of predictors that maximizes model performance."
+    )
   }
 
   #adding cluster to model
@@ -527,13 +583,35 @@ rf_select <- function(
     m$ranger.arguments$cluster <- cluster
   }
 
+  #adding insertion order to sequential.models.df
+  sequential.models.df <- sequential.models.df %>%
+    dplyr::mutate(
+      inclusion_order = nrow(sequential.models.df):1,
+      selected = ifelse(
+        variable %in% selected.variables,
+        TRUE,
+        FALSE
+      )
+    ) %>%
+    dplyr::relocate(
+      inclusion_order,
+      .after = variable
+    ) %>%
+    dplyr::relocate(
+      selected,
+      .after = inclusion_order
+    ) %>%
+    dplyr::arrange(
+      inclusion_order
+    )
+
   #adding new slot to the output model
   m$selection <- list(
-    selection.plot = sequential.models.plot,
-    selection.df = sequential.models.df,
+    variables = selected.variables,
+    plot = sequential.models.plot,
+    df = sequential.models.df,
     cor = round(cor(data[, selected.variables]), 2),
-    vif = out.vif$vif,
-    selected.variables = selected.variables
+    vif = out.vif$vif
   )
 
   m

@@ -2,7 +2,7 @@
 #' @description Prints the results of an spatial cross-validation performed with [rf_evaluate()].
 #' @param model A model resulting from [rf_evaluate()].
 #' @return A table printed to the standard output.
-#' @seealso [plot_evaluation()], [get_evaluation()]
+#' @seealso [plot_evaluation()]
 #' @examples
 #' if(interactive()){
 #'

@@ -48,7 +48,7 @@ the_feature_engineer(
 
 \item{n.cores}{Integer, number of cores used by \code{\link[ranger]{ranger}} for parallel execution (used as value for the argument \code{num.threads} in \code{ranger()}). Slower option than using \code{cluster}, but with a smaller RAM usage. Default: \code{NULL}}
 
-\item{cluster}{A cluster definition generated with \code{parallel::makeCluster()} or \code{\link{make_cluster}}. Only advisable if you need to spread a large number of repetitions over the nodes of a large cluster. If provided, overrides \code{n.cores}. The function does not stop a cluster, please remember to shut it down with \code{parallel::stopCluster(cl = cluster_name)} at the end of your pipeline. Default: \code{parallel::detectCores() - 1}}
+\item{cluster}{A cluster definition generated with \code{parallel::makeCluster()} or \code{\link{start_cluster}}. Only advisable if you need to spread a large number of repetitions over the nodes of a large cluster. If provided, overrides \code{n.cores}. The function does not stop a cluster, please remember to shut it down with \code{parallel::stopCluster(cl = cluster_name)} at the end of your pipeline. Default: \code{parallel::detectCores() - 1}}
 }
 \value{
 If the function finds no interactions, a list with four slots containing input arguments:

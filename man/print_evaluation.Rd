@@ -50,5 +50,5 @@ print_evaluation(rf.model)
 }
 }
 \seealso{
-\code{\link[=plot_evaluation]{plot_evaluation()}}, \code{\link[=get_evaluation]{get_evaluation()}}
+\code{\link[=plot_evaluation]{plot_evaluation()}}
 }

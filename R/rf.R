@@ -12,7 +12,7 @@
 #' @param seed Integer, random seed to facilitate reproducibility. If set to a given number, the returned model is always the same. Default: `1`
 #' @param verbose Boolean. If TRUE, messages and plots generated during the execution of the function are displayed. Default: `TRUE`
 #' @param n.cores Integer, number of cores to use. Default: `parallel::detectCores() - 1`
-#' @param cluster A cluster definition generated with `parallel::makeCluster()` or \code{\link{make_cluster}}. This function does not use the cluster, but can pass it to other functions when using the `%>%` pipe. Default: `NULL`
+#' @param cluster A cluster definition generated with `parallel::makeCluster()` or \code{\link{start_cluster}}. This function does not use the cluster, but can pass it to other functions when using the `%>%` pipe. Default: `NULL`
 #' @return A ranger model with several extra slots:
 #' \itemize{
 #'   \item `ranger.arguments`: Stores the values of the arguments used to fit the ranger model.
@@ -210,9 +210,39 @@ rf <- function(
       data <- NULL
       dependent.variable.name <- NULL
       predictor.variable.names <- NULL
-      distance.matrix <- NULL
-      distance.thresholds <- NULL
-      xy <- NULL
+
+      #letting the user add elements if they are missing
+      if(is.null(model$ranger.arguments$distance.matrix) & !is.null(distance.matrix)){
+        model$ranger.arguments$distance.matrix <- distance.matrix
+      }
+
+      if(is.null(model$ranger.arguments$distance.thresholds) & !is.null(distance.thresholds)){
+        model$ranger.arguments$distance.thresholds <- distance.thresholds
+      }
+
+      if(!is.null(xy) & !is.null(ranger.arguments$xy)){
+      if(is.null(model$ranger.arguments$xy) & !is.null(xy)){
+        model$ranger.arguments$xy <- xy
+      }
+      }
+
+      if(!is.null(scaled.importance) & !is.null(ranger.arguments$scaled.importance)){
+      if(model$ranger.arguments$scaled.importance != scaled.importance){
+        model$ranger.arguments$scaled.importance <- scaled.importance
+      }
+      }
+
+      if(!is.null(seed) & !is.null(ranger.arguments$seed)){
+      if(model$ranger.arguments$seed != seed){
+        model$ranger.arguments$seed <- seed
+      }
+      }
+
+      if(!is.null(n.cores) & !is.null(ranger.arguments$n.cores)){
+      if(model$ranger.arguments$n.cores != n.cores){
+        model$ranger.arguments$n.cores <- n.cores
+      }
+      }
 
       #writing the model's ranger.arguments to the environment
       ranger.arguments <- model$ranger.arguments
@@ -225,12 +255,43 @@ rf <- function(
       #RULE 2:
       #input arguments in model$ranger.arguments take precedence
 
-      ranger.arguments$data <- NULL
-      ranger.arguments$dependent.variable.name <- NULL
-      ranger.arguments$predictor.variable.names <- NULL
-      ranger.arguments$distance.matrix <- NULL
-      ranger.arguments$distance.thresholds <- NULL
-      ranger.arguments$xy <- NULL
+      #letting the user add elements if they are missing
+      if(!is.null(distance.matrix) & !is.null(ranger.arguments$distance.matrix)){
+      if(is.null(ranger.arguments$distance.matrix) & !is.null(distance.matrix)){
+        ranger.arguments$distance.matrix <- distance.matrix
+      }
+      }
+
+      if(!is.null(distance.thresholds) & !is.null(ranger.arguments$distance.thresholds)){
+      if(is.null(ranger.arguments$distance.thresholds) & !is.null(distance.thresholds)){
+        ranger.arguments$distance.thresholds <- distance.thresholds
+      }
+      }
+
+      if(!is.null(xy) & !is.null(ranger.arguments$xy)){
+      if(is.null(ranger.arguments$xy) & !is.null(xy)){
+        ranger.arguments$xy <- xy
+      }
+      }
+
+      if(!is.null(scaled.importance) & !is.null(ranger.arguments$scaled.importance)){
+      if(ranger.arguments$scaled.importance != scaled.importance){
+        ranger.arguments$scaled.importance <- scaled.importance
+      }
+      }
+
+      if(!is.null(seed) & !is.null(ranger.arguments$seed)){
+      if(ranger.arguments$seed != seed){
+        ranger.arguments$seed <- seed
+      }
+      }
+
+      if(!is.null(n.cores) & !is.null(ranger.arguments$n.cores)){
+        if(ranger.arguments$n.cores != n.cores){
+          ranger.arguments$n.cores <- n.cores
+        }
+      }
+
 
       #writing arguments to the function environment
       list2env(model$ranger.arguments, envir=environment())
@@ -270,6 +331,14 @@ rf <- function(
 
       if(is.null(cluster)){
         cluster <- model$ranger.arguments$cluster
+      }
+
+      if(is.null(seed)){
+        seed <- model$ranger.arguments$seed
+      }
+
+      if(is.null(n.cores)){
+        n.cores <- model$ranger.arguments$n.cores
       }
 
       #writing ranger.arguments to the function environment
@@ -531,7 +600,7 @@ rf <- function(
     variable.importance.local <- sqrt(abs(variable.importance.local)) * variable.importance.local.sign
 
     #saving to the slot
-    m$importance$local <- as.data.frame(variable.importance.local)
+    m$importance$local <- variable.importance.local
 
   }
 

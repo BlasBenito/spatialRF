@@ -57,6 +57,9 @@
 #'  ) %>%
 #'  auto_vif()
 #'
+#'  #vif function
+#'  vif(data = ecoregions_df[, ecoregions_predictor_variable_names])
+#'
 #'
 #' }
 #' @rdname auto_vif
@@ -263,6 +266,57 @@ auto_vif <- function(
 
   df
 }
+
+#' @rdname auto_vif
+#' @export
+vif <- function(data){
+
+  if(!is.data.frame(data)){
+    stop("x must be a data frame with numeric columns")
+  }
+
+  #removing NA
+  data <- na.omit(data)
+
+  #finding and removing non-numeric columns
+  non.numeric.columns <- colnames(data)[!sapply(data, is.numeric)]
+  if(length(non.numeric.columns) > 0){
+    warning(
+      "These columns are non-numeric and will be removed: ",
+      paste(
+        non.numeric.columns,
+        collapse = ", "
+      )
+    )
+    data <- data[, !(colnames(data) %in% non.numeric.columns)]
+  }
+
+  #finding zero variance columns
+  zero.variance.columns <- colnames(data)[round(apply(data, 2, var), 4) == 0]
+  if(length(zero.variance.columns) > 0){
+    warning(
+      "These columns have zero variance and might cause issues: ",
+      paste(
+        zero.variance.columns,
+        collapse = ", "
+      )
+    )
+  }
+
+  out <- data.frame(
+    diag(solve(cor(data))),
+    stringsAsFactors = FALSE
+  ) %>%
+    dplyr::rename(vif = 1) %>%
+    tibble::rownames_to_column(var = "variable") %>%
+    dplyr::mutate(vif = round(vif, 3)) %>%
+    dplyr::arrange(vif) %>%
+    as.data.frame()
+
+  out
+
+}
+
 
 
 

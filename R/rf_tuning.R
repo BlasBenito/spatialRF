@@ -11,7 +11,7 @@
 #' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same. Default: `1`.
 #' @param verbose Logical. If TRUE, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
 #' @param n.cores Integer, number of cores used by #' @param n.cores Integer, number of cores used by \code{\link[ranger]{ranger}} for parallel execution (used as value for the argument `num.threads` in `ranger()`). Default: `NULL`
-#' @param cluster A cluster definition generated with `parallel::makeCluster()` or \code{\link{make_cluster}}. Only advisable if you need to spread a large number of repetitions over the nodes of a large cluster when working with large data. If provided, overrides `n.cores`. The function does not stop a cluster, please remember to shut it down with `parallel::stopCluster(cl = cluster_name)` or `spatialRF::stop_cluster()` at the end of your pipeline. Default: `NULL`
+#' @param cluster A cluster definition generated with `parallel::makeCluster()` or \code{\link{start_cluster}}. Only advisable if you need to spread a large number of repetitions over the nodes of a large cluster when working with large data. If provided, overrides `n.cores`. The function does not stop a cluster, please remember to shut it down with `parallel::stopCluster(cl = cluster_name)` or `spatialRF::stop_cluster()` at the end of your pipeline. Default: `NULL`
 #' @return A model with a new slot named `tuning`, with a data frame with the results of the tuning analysis.
 #' @seealso [rf_evaluate()]
 #' @examples
@@ -54,7 +54,7 @@
 #' #"cluster.cores = parallel::detectCores() - 1"
 #'
 #' library(magrittr)
-#' cluster <- spatialRF::make_cluster(cluster.cores = 1)
+#' cluster <- start_cluster(cluster.cores = 1)
 #'
 #' out <- rf(
 #'   data = ecoregions_df,
@@ -328,7 +328,7 @@ rf_tuning <- function(
       )
 
     #getting performance measures
-    m.i.performance <- spatialRF::get_evaluation(m.i)
+    m.i.performance <- spatialRF::get_evaluation_aggregated(m.i)
     m.i.performance <- m.i.performance[m.i.performance$model == "Testing", c("metric", "median")]
 
     #if the model is spatial

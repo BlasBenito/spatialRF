@@ -42,7 +42,7 @@ rf_tuning(
 
 \item{n.cores}{Integer, number of cores used by #' @param n.cores Integer, number of cores used by \code{\link[ranger]{ranger}} for parallel execution (used as value for the argument \code{num.threads} in \code{ranger()}). Default: \code{NULL}}
 
-\item{cluster}{A cluster definition generated with \code{parallel::makeCluster()} or \code{\link{make_cluster}}. Only advisable if you need to spread a large number of repetitions over the nodes of a large cluster when working with large data. If provided, overrides \code{n.cores}. The function does not stop a cluster, please remember to shut it down with \code{parallel::stopCluster(cl = cluster_name)} or \code{spatialRF::stop_cluster()} at the end of your pipeline. Default: \code{NULL}}
+\item{cluster}{A cluster definition generated with \code{parallel::makeCluster()} or \code{\link{start_cluster}}. Only advisable if you need to spread a large number of repetitions over the nodes of a large cluster when working with large data. If provided, overrides \code{n.cores}. The function does not stop a cluster, please remember to shut it down with \code{parallel::stopCluster(cl = cluster_name)} or \code{spatialRF::stop_cluster()} at the end of your pipeline. Default: \code{NULL}}
 }
 \value{
 A model with a new slot named \code{tuning}, with a data frame with the results of the tuning analysis.
@@ -90,7 +90,7 @@ tuning <- rf_tuning(
 #"cluster.cores = parallel::detectCores() - 1"
 
 library(magrittr)
-cluster <- spatialRF::make_cluster(cluster.cores = 1)
+cluster <- start_cluster(cluster.cores = 1)
 
 out <- rf(
   data = ecoregions_df,

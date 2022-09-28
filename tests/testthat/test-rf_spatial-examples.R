@@ -11,7 +11,7 @@ testthat::test_that("`rf_spatial()` works", {
     ecoregions_dependent_variable_name
   )
 
-  cluster <- make_cluster()
+  cluster <- start_cluster()
 
   #fitting model
   out.1 <- rf_spatial(

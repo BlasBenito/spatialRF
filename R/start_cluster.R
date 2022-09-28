@@ -1,5 +1,6 @@
-#' @title Defines a cluster
+#' @title Functions to start and stop a cluster
 #' @description Defines a cluster. With default arguments it returns a cluster defined in the local machine. If the arguments `cluster.ips` and `cluster.cores` are provided, then a Beowulf cluster spanning as many machines as IPs is returned. All functions taking clusters as inputs in this package will register the cluster themselves using `doParallel::registerDoParallel()` internally, but if you are going to use this function for other purposes, please register your cluster before using it. Notice that Beowulf clusters require a particular configuration for your local network (see section `Network settings` at \href{https://www.blasbenito.com/post/01_home_cluster/}{https://www.blasbenito.com/post/01_home_cluster/}).
+#' @param cluster a cluster definition created with [start_cluster()]. Only argument of [stop_cluster()]. If `NULL`, any cluster within the R environment is stopped and deleted. Default: `NULL`
 #' @param cluster.ips Character vector with the IPs of the machines in the cluster. The first machine will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed. Default: `NULL`.
 #' @param cluster.cores Numeric integer vector, number of cores on each machine. Default: `parallel::detectCores() - 1`.
 #' @param cluster.user Character string, name of the user (should be the same throughout machines), Defaults to the current system user.
@@ -9,11 +10,11 @@
 #' @examples
 #' if(interactive()){
 #'
-#' local.cluster <- make_cluster(cluster.cores = 1)
-#' #this cluster is registered by the packaage functions when used
+#' #this cluster is registered by the package functions when used
+#' local.cluster <- start_cluster(cluster.cores = 1)
 #' stop_cluster(cluster = local.cluster)
 #'
-#' beowulf.cluster <- make_cluster(
+#' beowulf.cluster <- start_cluster(
 #'   cluster.ips = c(
 #'    "10.42.0.1",
 #'    "10.42.0.34",
@@ -27,9 +28,9 @@
 #' stop_cluster(cluster = beowulf.cluster)
 #'}
 #'
-#' @rdname make_cluster
+#' @rdname start_cluster
 #' @export
-make_cluster <- function(
+start_cluster <- function(
   cluster.ips = NULL,
   cluster.cores = parallel::detectCores() - 1,
   cluster.user = Sys.info()[["user"]],
@@ -95,3 +96,42 @@ make_cluster <- function(
   cluster
 
 }
+
+#' @rdname start_cluster
+#' @export
+stop_cluster <- function(cluster = NULL){
+
+  #if cluster is null, stop all clusters
+  if(is.null(cluster)){
+
+    #identifying cluster objects
+    clusters <- Filter(
+      function(x) "cluster" %in% class(get(x)),
+      ls(envir = .GlobalEnv)
+    )
+
+    #unregistering registered clusters
+    if(exists(".foreachGlobals")){
+      rm(list = ls(name = .foreachGlobals), pos = .foreachGlobals)
+    } else {
+      .foreachGlobals <- NULL
+    }
+
+    #closing all connections
+    closeAllConnections()
+
+    #removing all clusters
+    rm(list = clusters, envir = .GlobalEnv)
+
+  } else {
+
+    parallel::stopCluster(cl = cluster)
+    rm(
+      list = deparse(substitute(cluster)),
+      pos = .GlobalEnv
+    )
+
+  }
+
+}
+

@@ -11,7 +11,7 @@ testthat::test_that("`rf_evaluate()` works", {
     ecoregions_dependent_variable_name
   )
 
-  cluster <- spatialRF::make_cluster()
+  cluster <- spatialRF::start_cluster()
 
   metrics <- c(
     "auc",

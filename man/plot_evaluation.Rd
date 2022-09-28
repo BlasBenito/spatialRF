@@ -70,5 +70,5 @@ plot_evaluation(rf.model)
 
 }
 \seealso{
-\code{\link[=rf_evaluate]{rf_evaluate()}}, \code{\link[=get_evaluation]{get_evaluation()}}, \code{\link[=print_evaluation]{print_evaluation()}}.
+\code{\link[=rf_evaluate]{rf_evaluate()}}, \code{\link[=print_evaluation]{print_evaluation()}}.
 }

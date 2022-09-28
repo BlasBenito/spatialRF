@@ -2,6 +2,7 @@
 % Please edit documentation in R/auto_vif.R
 \name{auto_vif}
 \alias{auto_vif}
+\alias{vif}
 \title{Multicollinearity reduction via Variance Inflation Factor}
 \usage{
 auto_vif(
@@ -11,6 +12,8 @@ auto_vif(
   vif.threshold = 5,
   verbose = TRUE
 )
+
+vif(data)
 }
 \arguments{
 \item{data}{A data frame with predictors, or alternatively, the result of \code{\link[=auto_cor]{auto_cor()}}. Default: \code{NULL}.}
@@ -78,6 +81,9 @@ out$selected.variables.df
    predictor.variable.names = ecoregions_predictor_variable_names
  ) \%>\%
  auto_vif()
+
+ #vif function
+ vif(data = ecoregions_df[, ecoregions_predictor_variable_names])
 
 
 }

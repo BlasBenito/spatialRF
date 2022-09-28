@@ -33,7 +33,7 @@ make_spatial_folds(
 
 \item{n.cores}{Integer, number of cores used for parallel execution. Default: \code{NULL}}
 
-\item{cluster}{A cluster definition generated with \code{parallel::makeCluster()} or \code{\link{make_cluster}}. If provided, overrides \code{n.cores}. The function does not stop a cluster, please remember to shut it down with \code{parallel::stopCluster(cl = cluster_name)} at the end of your pipeline. Default: \code{parallel::detectCores() - 1}}
+\item{cluster}{A cluster definition generated with \code{parallel::makeCluster()} or \code{\link{start_cluster}}. If provided, overrides \code{n.cores}. The function does not stop a cluster, please remember to shut it down with \code{parallel::stopCluster(cl = cluster_name)} at the end of your pipeline. Default: \code{parallel::detectCores() - 1}}
 }
 \value{
 A list with as many slots as rows are in \code{xy.selected}. Each slot has two slots named \code{training} and \code{testing}, with the former having the indices of the training records selected from xy, and the latter having the indices of the testing records.

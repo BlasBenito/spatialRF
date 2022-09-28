@@ -45,7 +45,7 @@ rf(
 
 \item{n.cores}{Integer, number of cores to use. Default: \code{parallel::detectCores() - 1}}
 
-\item{cluster}{A cluster definition generated with \code{parallel::makeCluster()} or \code{\link{make_cluster}}. This function does not use the cluster, but can pass it to other functions when using the \verb{\%>\%} pipe. Default: \code{NULL}}
+\item{cluster}{A cluster definition generated with \code{parallel::makeCluster()} or \code{\link{start_cluster}}. This function does not use the cluster, but can pass it to other functions when using the \verb{\%>\%} pipe. Default: \code{NULL}}
 }
 \value{
 A ranger model with several extra slots:

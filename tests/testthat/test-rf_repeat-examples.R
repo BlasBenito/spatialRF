@@ -55,7 +55,7 @@ testthat::test_that("`rf_repeat()` works", {
     distance.matrix = ecoregions_distance_matrix,
     distance.thresholds = c(0,100, 1000, 10000),
     repetitions = 10,
-    cluster = spatialRF::make_cluster(),
+    cluster = spatialRF::start_cluster(),
     verbose = FALSE
   )
 
@@ -105,7 +105,7 @@ testthat::test_that("`rf_repeat()` works", {
     distance.thresholds = c(0,100, 1000, 10000),
     repetitions = 10,
     verbose = FALSE,
-    cluster = spatialRF::make_cluster()
+    cluster = spatialRF::start_cluster()
   )
 
   spatialRF::stop_cluster()

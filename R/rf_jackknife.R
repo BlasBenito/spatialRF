@@ -12,7 +12,7 @@
 #' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same. Default: `1`.
 #' @param verbose Logical. If `TRUE`, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
 #' @param n.cores Integer, number of cores used by \code{\link[ranger]{ranger}} for parallel execution (used as value for the argument `num.threads` in `ranger()`). Default: `parallel::detectCores() - 1`
-#' @param cluster A cluster definition generated with `parallel::makeCluster()` or \code{\link{make_cluster}}. Faster than using `n.cores` for smaller models. If provided, overrides `n.cores`. The function does not stop a cluster, please remember to shut it down with `parallel::stopCluster(cl = cluster_name)` or \code{\link{stop_cluster}} at the end of your pipeline. Default: `NULL`
+#' @param cluster A cluster definition generated with `parallel::makeCluster()` or \code{\link{start_cluster}}. Faster than using `n.cores` for smaller models. If provided, overrides `n.cores`. The function does not stop a cluster, please remember to shut it down with `parallel::stopCluster(cl = cluster_name)` or \code{\link{stop_cluster}} at the end of your pipeline. Default: `NULL`
 #' @details Model evaluation is based on spatial cross-validation. If the response is numeric, the R-squared is used, but if the response is binary (with values 1 and 0), then AUC is used instead.
 #' @return The input model with new slot named "jackknife". This is a list with slots named after the metrics introduced in the argument `metrics`. For example, if one of the metrics used is "r.squared", then the plot of this metric will be in `model$jackknife$r.squared$plot`, and the dataframe used to build the plot will be in `model$jackknife$r.squared$df`.
 #' @examples
@@ -26,7 +26,7 @@
 #'   ecoregions_dependent_variable_name
 #'   )
 #'
-#'   cluster <- make_cluster()
+#'   cluster <- start_cluster()
 #'
 #' #fitting random forest model
 #' rf.model <- rf(
@@ -155,13 +155,8 @@ rf_jackknife <- function(
 
   #evaluating the full model
   if(verbose == TRUE){
-    message("Evaluating full model.")
-  }
 
-  #evaluating the full model
-  if(verbose == TRUE){
-
-    message("Evaluating the full model with spatial cross-validation.")
+    message("Evaluating the full model with spatial cross-validation.\n")
 
   }
 
@@ -182,7 +177,7 @@ rf_jackknife <- function(
 
   #evaluating the full model
   if(verbose == TRUE){
-    message("Fitting and evaluating univariate models with each predictor and multivariate models without each predictor.")
+    message("Fitting and evaluating univariate models with each predictor and multivariate models without each predictor.\n")
   }
 
   #iterating over predictors
@@ -362,7 +357,7 @@ rf_jackknife <- function(
           full.median = median(model$evaluation$per.fold[, paste0("testing.", metric)]),
           variable_name = ifelse(
             without.median > full.median,
-            paste(variable, "***"),
+            paste(variable, "*"),
             variable
           )
         )
@@ -381,7 +376,7 @@ rf_jackknife <- function(
           full.median = median(model$evaluation$per.fold[, paste0("testing.", metric)]),
           variable_name = ifelse(
             without.median < full.median,
-            paste(variable, "***"),
+            paste(variable, "*"),
             variable
           )
         )
@@ -474,7 +469,7 @@ rf_jackknife <- function(
         y = "",
         fill = "Model",
         title = "Model performance with and without each predictor",
-        subtitle = "Note: predictors marked with *** decrease model performance."
+        subtitle = "Note: predictors marked with * decrease model performance."
       ) +
       ggplot2::theme_bw() +
       ggplot2::coord_cartesian(
@@ -559,6 +554,16 @@ rf_jackknife <- function(
     )
 
     print(jackknife.list[[metrics[1]]]$plot)
+
+    message(
+      "Interpretation:\n",
+      "---------------\n\n",
+      " - 'full' represents the median performance of a model fitted with all predictors.\n\n",
+      " - 'only with' represents the median performance of a model fitted with the given predictor alone (univariate model).\n\n",
+      " - 'without' represents the median performance of a model fitted with all predictors but the one in the y axis.\n\n",
+      " - Predictors are ranked by the maximum difference between their 'only with' and 'without'.\n\n",
+      " - Predictors marked with * decrease model performance (on spatial cross-validation) when included in the model."
+      )
 
   }
 

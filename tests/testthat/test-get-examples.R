@@ -20,6 +20,7 @@ testthat::test_that("`get_xxx()` works", {
      predictor.variable.names = ecoregions_predictor_variable_names,
      distance.matrix = ecoregions_distance_matrix,
      distance.thresholds = distance.thresholds,
+     xy = ecoregions_df[, c("x", "y")],
      n.cores = 1,
      verbose = FALSE
    )
@@ -113,8 +114,8 @@ testthat::test_that("`get_xxx()` works", {
   x <- get_importance_local(model = model)
 
   testthat::expect_equal(
-    object = class(x),
-    expected = "data.frame"
+    object = inherits(x = x, what = "matrix"),
+    expected = TRUE
   )
 
   testthat::expect_equal(
@@ -178,11 +179,33 @@ testthat::test_that("`get_xxx()` works", {
     expected = nrow(ecoregions_df)
   )
 
+  #of rf repeat model
+  model.repeat <- rf_repeat(
+    model = model,
+    repetitions = 5,
+    verbose = FALSE
+  )
+
+  x <- get_predictions(model = model.repeat)
+
+  testthat::expect_equal(
+    object = ncol(x),
+    expected = 5
+  )
+
+  testthat::expect_equal(
+    object = nrow(x),
+    expected = nrow(ecoregions_df)
+  )
+
   #testing get_spatial_predictors
   ##################################
-  model <- rf_spatial(model = model)
+  model.spatial <- rf_spatial(
+    model = model,
+    verbose = FALSE
+    )
 
-  x <- get_spatial_predictors(model = model)
+  x <- get_spatial_predictors(model = model.spatial)
 
   testthat::expect_equal(
     object = class(x),
@@ -192,6 +215,42 @@ testthat::test_that("`get_xxx()` works", {
   testthat::expect_equal(
     object = nrow(x),
     expected = nrow(ecoregions_df)
+  )
+
+  #testing get_jackknife
+  ###############################
+  model <- rf(
+    model = model,
+    verbose = FALSE
+  )
+
+  model <- rf_jackknife(
+    model = model,
+    verbose = FALSE
+    )
+
+  x <- get_jackknife(model = model)
+
+  testthat::expect_equal(
+    object = class(x),
+    expected = "data.frame"
+  )
+
+  #testing get_select
+  ###############################
+  model <- rf_select(
+    model = model,
+    verbose = FALSE,
+    cluster = start_cluster()
+  )
+
+  stop_cluster()
+
+  x <- get_select(model = model)
+
+  testthat::expect_equal(
+    object = class(x),
+    expected = "data.frame"
   )
 
 })

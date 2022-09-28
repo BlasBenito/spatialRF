@@ -10,6 +10,8 @@
 \alias{get_residuals}
 \alias{get_performance}
 \alias{get_predictions}
+\alias{get_jackknife}
+\alias{get_select}
 \title{Functions to retrieve data from a fitted model.}
 \usage{
 get_evaluation_aggregated(model)
@@ -29,6 +31,10 @@ get_residuals(model)
 get_performance(model)
 
 get_predictions(model)
+
+get_jackknife(model)
+
+get_select(model)
 }
 \arguments{
 \item{model}{A model fitted with \code{\link[=rf_evaluate]{rf_evaluate()}}.}
@@ -57,6 +63,11 @@ Functions to get objects related with the model performance and predictions
 \itemize{
 \item \code{get_performance()}: data frame with performance metrics that can be either computed from the out-of-bag data (r.squared.oob and rmse.oob) or by comparing the response variable with the predictions for all cases (r.squared, rmse, nrmse). For models fitted with \code{\link[=rf_repeat]{rf_repeat()}}, the median and median absolute deviation of the performances are shown.
 \item \code{get_predictions()}: numeric vector of model predictions or median of model predictions if the model was fitted with \code{\link[=rf_repeat]{rf_repeat()}}.
+}
+
+Function to get the data frame resulting from \code{\link[=rf_jackknife]{rf_jackknife()}}.
+\itemize{
+\item \code{get_jackknife()}: data frame with jackknife results (model performance computed via spatial cross-validation for different metrics comparing models fitted with all predictors, all predictors except one, and that one predictor alone).
 }
 
 Function to get the spatial predictors used by \code{\link[=rf_spatial]{rf_spatial()}} to fit a model.

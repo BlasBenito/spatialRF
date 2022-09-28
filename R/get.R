@@ -27,6 +27,11 @@
 #'   \item `get_predictions()`: numeric vector of model predictions or median of model predictions if the model was fitted with [rf_repeat()].
 #' }
 #'
+#' Function to get the data frame resulting from [rf_jackknife()].
+#' \itemize{
+#'   \item `get_jackknife()`: data frame with jackknife results (model performance computed via spatial cross-validation for different metrics comparing models fitted with all predictors, all predictors except one, and that one predictor alone).
+#' }
+#'
 #' Function to get the spatial predictors used by [rf_spatial()] to fit a model.
 #' \itemize{
 #'   \item `get_spatial_predictors()`: data frame with the spatial predictors used to fit the model.
@@ -97,14 +102,16 @@
 #' get_spatial_predictors(model = model)
 #'
 #' }
-
-
 #' @rdname get
 #' @export
 get_evaluation_aggregated <- function(model){
 
+  if(inherits(model, "rf") == FALSE){
+    stop("This is not an 'rf' object.")
+  }
+
   #stop if no evaluation slot
-  if(!inherits(model, "rf_evaluate")){
+  if(inherits(model, "rf_evaluate") == FALSE){
     stop("Object 'x' does not have an 'evaluation' slot.")
   }
 
@@ -117,8 +124,12 @@ get_evaluation_aggregated <- function(model){
 #' @export
 get_evaluation_per_fold <- function(model){
 
+  if(inherits(model, "rf") == FALSE){
+    stop("This is not an 'rf' object.")
+  }
+
   #stop if no evaluation slot
-  if(!inherits(model, "rf_evaluate")){
+  if(inherits(model, "rf_evaluate") == FALSE){
     stop("Object 'x' does not have an 'evaluation' slot.")
   }
 
@@ -130,6 +141,10 @@ get_evaluation_per_fold <- function(model){
 #' @rdname get
 #' @export
 get_evaluation_folds <- function(model){
+
+  if(inherits(model, "rf") == FALSE){
+    stop("This is not an 'rf' object.")
+  }
 
   #stop if no evaluation slot
   if(!inherits(model, "rf_evaluate")){
@@ -144,6 +159,10 @@ get_evaluation_folds <- function(model){
 #' @rdname get
 #' @export
 get_importance <- function(model){
+
+  if(inherits(model, "rf") == FALSE){
+    stop("This is not an 'rf' object.")
+  }
 
   #declaring variables
   importance <- NULL
@@ -192,6 +211,10 @@ get_importance <- function(model){
 #' @export
 get_importance_local <- function(model){
 
+  if(inherits(model, "rf") == FALSE){
+    stop("This is not an 'rf' object.")
+  }
+
   model$importance$local
 
 }
@@ -200,6 +223,10 @@ get_importance_local <- function(model){
 #' @rdname get
 #' @export
 get_moran <- function(model){
+
+  if(inherits(model, "rf") == FALSE){
+    stop("This is not an 'rf' object.")
+  }
 
   model$residuals$autocorrelation$per.distance
 
@@ -210,6 +237,10 @@ get_moran <- function(model){
 #' @export
 get_residuals <- function(model){
 
+  if(inherits(model, "rf") == FALSE){
+    stop("This is not an 'rf' object.")
+  }
+
   model$residuals$values
 
 }
@@ -218,6 +249,10 @@ get_residuals <- function(model){
 #' @rdname get
 #' @export
 get_performance <- function(model){
+
+  if(inherits(model, "rf") == FALSE){
+    stop("This is not an 'rf' object.")
+  }
 
   if(inherits(model, "rf_repeat")){
 
@@ -256,6 +291,54 @@ get_performance <- function(model){
 #' @export
 get_predictions <- function(model){
 
-  model$predictions$values
+  if(inherits(model, "rf") == FALSE){
+    stop("This is not an 'rf' object.")
+  }
+
+  if(inherits(model , "rf_repeat") == TRUE){
+    return(model$predictions$values.per.repetition)
+  } else {
+    return(model$predictions$values)
+  }
+
+}
+
+#' @rdname get
+#' @export
+get_jackknife <- function(model){
+
+  if(inherits(model, "rf") == FALSE){
+    stop("This is not an 'rf' object.")
+  }
+
+  if(!("jackknife" %in% names(model))){
+    stop("There is no 'jackknife' object in this model.")
+  }
+
+  df.list <- lapply(
+    model$jackknife,
+    "[[",
+    "df"
+  )
+
+  out.df <- Reduce(function(x, y) merge(x, y, all=TRUE), df.list)
+
+  out.df
+
+}
+
+#' @rdname get
+#' @export
+get_select <- function(model){
+
+  if(inherits(model, "rf") == FALSE){
+    stop("This is not an 'rf' object.")
+  }
+
+  if(!("selection" %in% names(model))){
+    stop("There is no 'selection' object in this model.")
+  }
+
+  model$selection$df
 
 }

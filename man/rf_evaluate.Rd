@@ -45,7 +45,7 @@ rf_evaluate(
 
 \item{n.cores}{Integer, number of cores used by \code{\link[ranger]{ranger}} for parallel execution (used as value for the argument \code{num.threads} in \code{ranger()}). Default: \code{parallel::detectCores() - 1}}
 
-\item{cluster}{A cluster definition generated with \code{parallel::makeCluster()} or \code{\link{make_cluster}}. Faster than using \code{n.cores} for smaller models. If provided, overrides \code{n.cores}. The function does not stop a cluster, please remember to shut it down with \code{parallel::stopCluster(cl = cluster_name)} or \code{\link{stop_cluster}} at the end of your pipeline. Default: \code{NULL}}
+\item{cluster}{A cluster definition generated with \code{parallel::makeCluster()} or \code{\link{start_cluster}}. Faster than using \code{n.cores} for smaller models. If provided, overrides \code{n.cores}. The function does not stop a cluster, please remember to shut it down with \code{parallel::stopCluster(cl = cluster_name)} or \code{\link{stop_cluster}} at the end of your pipeline. Default: \code{NULL}}
 }
 \value{
 A model of the class "rf_evaluate" with a new slot named "evaluation", that is a list with the following slots:
@@ -97,7 +97,7 @@ rf.model <- rf_evaluate(
 #checking evaluation results
 plot_evaluation(rf.model)
 print_evaluation(rf.model)
-x <- get_evaluation(rf.model)
+x <- get_evaluation_aggregated(rf.model)
 
 }
 }
