@@ -2,12 +2,15 @@
 % Please edit documentation in R/moran.R
 \name{moran}
 \alias{moran}
-\title{Moran's I test}
+\alias{moran_multithreshold}
+\title{Moran's I test for one or several neighborhood distances}
 \usage{
-moran(
+moran(x = NULL, distance.matrix = NULL, distance.threshold = 0, verbose = TRUE)
+
+moran_multithreshold(
   x = NULL,
   distance.matrix = NULL,
-  distance.threshold = NULL,
+  distance.thresholds = NULL,
   verbose = TRUE
 )
 }
@@ -16,9 +19,11 @@ moran(
 
 \item{distance.matrix}{Distance matrix among cases in \code{x}. The number of rows of this matrix must be equal to the length of \code{x}. Default: \code{NULL}}
 
-\item{distance.threshold}{numeric value in the range of values available in \code{distance.matrix}. Distances below such threshold are set to 0. Default: \code{NULL} (which defaults to 0).}
+\item{distance.threshold}{Argument of \code{\link[=moran]{moran()}}. Numeric value in the range of values available in \code{distance.matrix}. Distances below such threshold are set to 0. Default: \code{0}}
 
 \item{verbose}{Logical, if \code{TRUE}, prints a Moran's I plot. Default: \code{TRUE}}
+
+\item{distance.thresholds}{Argument of \code{\link[=moran_multithreshold]{moran_multithreshold()}}. Numeric vector, distances below each value are set to 0 on separated copies of the distance matrix for the computation of Moran's I at different neighborhood distances. If \code{NULL}, it defaults to \code{seq(0, max(distance.matrix)/4, length.out = 2)}. Default: \code{NULL}}
 }
 \value{
 A list with three named slots:
@@ -29,7 +34,7 @@ A list with three named slots:
 }
 }
 \description{
-Computes the spatial correlation coefficient (Moran's I) of a vector given a distance matrix, and a distance threshold used to define "neighborhood".
+Computes the spatial correlation coefficient (Moran's I) of a vector given a distance matrix, and a distance threshold (for the function \code{\link[=moran]{moran()}}) or a set of different distance thresholds (for the function \code{\link[=moran_multithreshold]{moran_multithreshold()}} used to define a "neighborhood".
 }
 \details{
 Inspired in the \code{Moran.I()} function of the \href{https://cran.r-project.org/package=ape}{ape} package.
@@ -47,7 +52,16 @@ data(
  #Moran's I of the response variable
  out <- moran(
    x = ecoregions_df[, ecoregions_dependent_variable_name],
-   distance.matrix = ecoregions_distance_matrix
+   distance.matrix = ecoregions_distance_matrix,
+   distance.threshold = 100
+   )
+ out
+
+ #computing Moran's I for the response variable at several neighborhood distances
+ out <- moran_multithreshold(
+   x = ecoregions_df[, ecoregions_dependent_variable_name],
+   distance.matrix = ecoregions_distance_matrix,
+   distance.thresholds = c(100, 1000, 10000)
    )
  out
 

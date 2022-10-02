@@ -1,3 +1,22 @@
+#' @title Standard error of the mean of a numeric vector
+#' @description Computes the standard error of the mean of a numeric vector as `round(sqrt(var(x)/length(x)), 3)`
+#' @param x A numeric vector.
+#' @return A numeric value.
+#' @details The function removes `NA` values before computing the standard error, and rounds the result to 3 decimal places.
+#' @examples
+#' if(interactive()){
+#'
+#'  standard_error(runif(10))
+#'
+#' }
+#' @rdname standard_error
+#' @export
+standard_error <- function(x){
+  x <- na.omit(x)
+  x <- round(sqrt(var(x)/length(x)), 3)
+  x
+}
+
 #' @title RMSE and normalized RMSE
 #' @description Computes the rmse or normalized rmse (nrmse) between two numeric vectors of the same length representing observations and model predictions.
 #' @param o Numeric vector with observations, must have the same length as `p`.
@@ -63,6 +82,63 @@ root_mean_squared_error <- function(o, p, normalization = c("rmse", "all", "mean
   }
 
   rmse
+}
+
+
+#' @title Area under the ROC curve
+#' @description Computes the area under the ROC curve in models with binary responses.
+#' @param o Numeric vector with observations, must have the same length as `p`.
+#' @param p Numeric vector with predictions, must have the same length as `o`.
+#' @return Numeric, AUC value.
+#' @examples
+#' if(interactive()){
+#'
+#'  out <- auc(
+#'    o = c(0, 0, 1, 1),
+#'    p = c(0.1, 0.6, 0.4, 0.8)
+#'    )
+#'
+#' }
+#' @rdname auc
+#' @export
+auc <- function(o, p){
+
+  #predicted values of the ones and the zeroes
+  ones <- stats::na.omit(p[o == 1])
+  zeros <- stats::na.omit(p[o == 0])
+
+  #lengths of each vector
+  n.ones <- length(ones)
+  n.zeros <- length(zeros)
+
+  #curve computation
+  curve <- sum(rank(c(ones, zeros))[1:n.ones]) - (n.ones*(n.ones+1)/2)
+
+  #area under the curve
+  auc <- curve / (n.zeros * n.ones)
+
+  auc
+
+}
+
+#' @title Statistical mode of a vector
+#' @description Computes the mode of a numeric or character vector
+#' @param x Numeric or character vector.
+#' @return Statistical mode of `x`.
+#' @examples
+#' if(interactive()){
+#'
+#'  statistical_mode(c(10, 9, 10, 8))
+#'
+#' }
+#' @rdname statistical_mode
+#' @export
+statistical_mode <- function(x){
+
+  x.unique <- unique(x)
+
+  x.unique[which.max(tabulate(match(x, x.unique)))]
+
 }
 
 

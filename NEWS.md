@@ -1,5 +1,9 @@
 ## Version 1.1.4 (work in progress)
 
+The functions `mem()` and `mem_multithreshold()` now share the same documentation.
+
+The functions `moran()` and `moran_multithreshold()` now share the same documentation.
+
 The performance metric `pseudo.r.squared` has been removed from all functions.
 
 Simplified the methods in `rf_spatial()`, and now all experimental methods have been removed.

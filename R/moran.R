@@ -1,15 +1,9 @@
-#' @title Moran's I test
-#' @description Computes the spatial correlation coefficient (Moran's I) of a vector given a distance matrix, and a distance threshold used to define "neighborhood".
-#' @usage
-#' moran(
-#'   x = NULL,
-#'   distance.matrix = NULL,
-#'   distance.threshold = NULL,
-#'   verbose = TRUE
-#' )
+#' @title Moran's I test for one or several neighborhood distances
+#' @description Computes the spatial correlation coefficient (Moran's I) of a vector given a distance matrix, and a distance threshold (for the function [moran()]) or a set of different distance thresholds (for the function [moran_multithreshold()] used to define a "neighborhood".
 #' @param x Numeric vector, generally model residuals, Default: `NULL`
 #' @param distance.matrix Distance matrix among cases in `x`. The number of rows of this matrix must be equal to the length of `x`. Default: `NULL`
-#' @param distance.threshold numeric value in the range of values available in `distance.matrix`. Distances below such threshold are set to 0. Default: `NULL` (which defaults to 0).
+#' @param distance.threshold Argument of [moran()]. Numeric value in the range of values available in `distance.matrix`. Distances below such threshold are set to 0. Default: `0`
+#' @param distance.thresholds Argument of [moran_multithreshold()]. Numeric vector, distances below each value are set to 0 on separated copies of the distance matrix for the computation of Moran's I at different neighborhood distances. If `NULL`, it defaults to `seq(0, max(distance.matrix)/4, length.out = 2)`. Default: `NULL`
 #' @param verbose Logical, if `TRUE`, prints a Moran's I plot. Default: `TRUE`
 #' @return A list with three named slots:
 #'  \itemize{
@@ -32,7 +26,16 @@
 #'  #Moran's I of the response variable
 #'  out <- moran(
 #'    x = ecoregions_df[, ecoregions_dependent_variable_name],
-#'    distance.matrix = ecoregions_distance_matrix
+#'    distance.matrix = ecoregions_distance_matrix,
+#'    distance.threshold = 100
+#'    )
+#'  out
+#'
+#'  #computing Moran's I for the response variable at several neighborhood distances
+#'  out <- moran_multithreshold(
+#'    x = ecoregions_df[, ecoregions_dependent_variable_name],
+#'    distance.matrix = ecoregions_distance_matrix,
+#'    distance.thresholds = c(100, 1000, 10000)
 #'    )
 #'  out
 #'
@@ -43,7 +46,7 @@
 moran <- function(
   x = NULL,
   distance.matrix = NULL,
-  distance.threshold = NULL,
+  distance.threshold = 0,
   verbose = TRUE
 ){
 
@@ -57,9 +60,8 @@ moran <- function(
     stop("The argument 'distance.matrix' is missing.")
   }
 
-  #default for distance threshold
-  if(is.null(distance.threshold)){
-    distance.threshold <- 0
+  if(distance.threshold < 0){
+    stop("Argument 'distance.threshold' must be positive.")
   }
 
   #extracting weights from distance matrix
@@ -218,3 +220,74 @@ moran <- function(
   out.list
 
 }
+
+#' @rdname moran
+#' @export
+moran_multithreshold <- function(
+    x = NULL,
+    distance.matrix = NULL,
+    distance.thresholds = NULL,
+    verbose = TRUE
+){
+
+  #check x and distance matrix
+  if(is.null(x) | !is.vector(x)){
+    stop("Argument 'x' must be a numeric vector.")
+  }
+
+  if(is.null(distance.matrix)){
+    stop("Argument 'distance.matrix' is missing.`")
+  }
+
+  #creating distance thresholds
+  if(is.null(distance.thresholds)){
+    distance.thresholds <- default_distance_thresholds(distance.matrix = distance.matrix)
+  } else {
+    #removing distance thresholds larger than max(distance.matrix)
+    distance.thresholds <- distance.thresholds[distance.thresholds < max(distance.matrix, na.rm = TRUE)]
+  }
+
+  #create output dataframe
+  out.df <- data.frame(
+    distance.threshold = distance.thresholds,
+    moran.i = NA,
+    moran.i.null = NA,
+    p.value = NA,
+    interpretation = NA
+  )
+
+  #iterating over out.df
+  for(i in seq(1, nrow(out.df))){
+
+    #compute Moran's I
+    moran.out <- moran(
+      x = x,
+      distance.matrix = distance.matrix,
+      distance.threshold = out.df[i, "distance.threshold"],
+      verbose = FALSE
+    )
+
+    out.df[i, "moran.i"] <- moran.out$test$moran.i
+    out.df[i, "moran.i.null"] <- moran.out$test$moran.i.null
+    out.df[i, "p.value"] <- moran.out$test$p.value
+    out.df[i, "interpretation"] <- moran.out$test$interpretation
+
+  }
+
+  #getting scale of max moran
+  distance.threshold.max.moran <- out.df[which.max(out.df$moran.i), "distance.threshold"]
+
+  #preparing output list
+  out.list <- list()
+  out.list$per.distance <- out.df
+  out.list$max.moran <- max(out.df$moran.i)
+  out.list$max.moran.distance.threshold <- distance.threshold.max.moran
+  out.list$plot <- plot_moran(
+    model = out.df,
+    verbose = verbose
+  )
+
+  out.list
+
+}
+

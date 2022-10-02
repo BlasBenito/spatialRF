@@ -2,26 +2,38 @@
 % Please edit documentation in R/mem.R
 \name{mem}
 \alias{mem}
-\title{Moran's Eigenvector Maps of a distance matrix}
+\alias{mem_multithreshold}
+\title{Moran's Eigenvector Maps of a distance matrix for one or several neighborhood distances}
 \usage{
 mem(
   distance.matrix = NULL,
   distance.threshold = 0,
-  colnames.prefix = "mem"
+  colnames.prefix = "spatial_predictor_"
+)
+
+mem_multithreshold(
+  distance.matrix = NULL,
+  distance.thresholds = NULL,
+  colnames.prefix = "spatial_predictor_",
+  max.spatial.predictors = NULL
 )
 }
 \arguments{
 \item{distance.matrix}{Distance matrix. Default: \code{NULL}.}
 
-\item{distance.threshold}{Numeric vector with distance thresholds defining different neighborhood extents within the distance matrix, Default: 0}
+\item{distance.threshold}{(argument of \code{\link[=mem]{mem()}}) Numeric vector with distance thresholds defining different neighborhood extents within the distance matrix, Default: \code{0}}
 
-\item{colnames.prefix}{Character, name prefix for the output columns. Default: \code{"mem"}}
+\item{colnames.prefix}{Character, name prefix for the output columns. Default: \code{"spatial_predictor_"}}
+
+\item{distance.thresholds}{(argument of \code{\link[=mem_multithreshold]{mem_multithreshold()}}) Numeric vector with distance thresholds defining neighborhood in the distance matrix, Default: \code{NULL}.}
+
+\item{max.spatial.predictors}{(argument of \code{\link[=mem_multithreshold]{mem_multithreshold()}}) Positive integer, maximum number of Moran's Eigenvector Maps to return. Default: \code{NULL}.}
 }
 \value{
 A data frame with positive Moran's Eigenvector Maps.
 }
 \description{
-Computes the positive Moran's Eigenvector Maps of a distance matrix.
+Computes the positive Moran's Eigenvector Maps of a distance matrix. These MEMs can be used as predictors in regression models to control for the spatial autocorrelation in the training data.
 }
 \details{
 Takes the distance matrix \code{x}, double-centers it with \code{\link[=double_center_distance_matrix]{double_center_distance_matrix()}}, applies \link[base]{eigen}, and returns eigenvectors with positive normalized eigenvalues (a.k.a Moran's Eigenvector Maps, or MEMs). These MEMs are later used as spatial predictors by \code{\link[=rf_spatial]{rf_spatial()}}.
@@ -34,6 +46,12 @@ if(interactive()){
 
  #Moran's Eigenvector Maps of the distance matrix
  mem <- mem(x = ecoregions_distance_matrix)
+
+ #computing Moran's eigenvector maps for 0, 1000, and 2000 km
+ mem.multithreshold <- mem_multithreshold(
+   distance.matrix = ecoregions_distance_matrix,
+   distance.thresholds = c(0, 1000, 2000)
+   )
 
 }
 }
