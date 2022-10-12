@@ -89,11 +89,6 @@ auto_cor <- function(
     }
   }
 
-  #coerce to data frame if tibble
-  if(inherits(data, "tbl_df") | inherits(data, "tbl")){
-    data <- as.data.frame(data)
-  }
-
   #removing NA
   data <- na.omit(data)
 

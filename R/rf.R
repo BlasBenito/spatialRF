@@ -356,13 +356,13 @@ rf <- function(
   }
 
   #coerce to data frame if tibble
-  if(inherits(data, "tbl_df") | inherits(data, "tbl")){
-    data <- as.data.frame(data)
-  }
-
-  if(inherits(xy, "tbl_df") | inherits(xy, "tbl")){
-    xy <- as.data.frame(xy)
-  }
+  # if(inherits(data, "tbl_df") | inherits(data, "tbl")){
+  #   data <- as.data.frame(data)
+  # }
+  #
+  # if(inherits(xy, "tbl_df") | inherits(xy, "tbl")){
+  #   xy <- as.data.frame(xy)
+  # }
 
   #END OF HANDLING ARGUMENTS
   ##########################
@@ -371,6 +371,7 @@ rf <- function(
   if(inherits(predictor.variable.names, "variable_selection")){
 
     predictor.variable.names <- predictor.variable.names$selected.variables
+
   } else {
 
     if(sum(predictor.variable.names %in% colnames(data)) < length(predictor.variable.names)){
@@ -386,7 +387,6 @@ rf <- function(
         )
       )
     }
-
   }
 
   #checking if dependent.variable.name and predictor.variable.names are in colnames(data)
@@ -423,7 +423,10 @@ rf <- function(
 
   #computing case weights if dependent.variable.name is binary
   case.weights <- case_weights(
-    x = data[, dependent.variable.name],
+    x = dplyr::pull(
+      data,
+      dependent.variable.name
+      ),
     case.weights = case.weights
   )
 
@@ -616,7 +619,7 @@ rf <- function(
   m$predictions$values <- predicted
 
   #getting observed data
-  observed <- data[, dependent.variable.name]
+  observed <- dplyr::pull(data, dependent.variable.name)
 
   #performance slot
   m$performance <- list()

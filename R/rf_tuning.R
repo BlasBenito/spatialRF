@@ -153,18 +153,9 @@ rf_tuning <- function(
     ranger.arguments <- model$ranger.arguments
     list2env(ranger.arguments, envir=environment())
 
-    if(inherits(xy, "tbl_df") | inherits(xy, "tbl")){
-      xy <- as.data.frame(xy)
-    }
-
     #predictor.variable.names comes from auto_vif or auto_cor
     if(inherits(predictor.variable.names, "variable_selection")){
       predictor.variable.names <- predictor.variable.names$selected.variables
-    }
-
-    #coerce to data frame if tibble
-    if(inherits(data, "tbl_df") | inherits(data, "tbl")){
-      data <- as.data.frame(data)
     }
 
   } else {
@@ -205,7 +196,7 @@ rf_tuning <- function(
 
   #testing if the data is binary
   if(.is_binary(
-    x = data[, dependent.variable.name]
+    x = dplyr::pull(data, dependent.variable.name)
   )
   ){
     metric <- "auc"
@@ -413,7 +404,11 @@ rf_tuning <- function(
   )
 
   #keeping class
-  class(model.tuned) <- unique(c(class(model.tuned), model.class))
+  class(model.tuned) <- unique(
+    c(
+      class(model.tuned),
+      model.class)
+    )
 
   #adding tuning slot
   model.tuned$tuning <- tuning.list

@@ -115,7 +115,7 @@ the_feature_engineer <- function(
 
   #finding out if the response is binary
   if(.is_binary(
-    x = data[, dependent.variable.name]
+    x = dplyr::pull(data, dependent.variable.name)
   )
   ){
     metric <- "auc"

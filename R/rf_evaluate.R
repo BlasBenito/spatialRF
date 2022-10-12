@@ -149,7 +149,7 @@ rf_evaluate <- function(
 
   #if data is binary, "auc" is used
   if(.is_binary(
-    x = data[, dependent.variable.name]
+    x = dplyr::pull(data, dependent.variable.name)
   )){
     metrics <- c(metrics, "auc")
   } else {
@@ -242,7 +242,7 @@ rf_evaluate <- function(
     }
 
     #generating spatial folds
-    spatial.folds <- spatialRF::make_spatial_fold(
+    spatial.folds <- make_spatial_fold(
       data = data,
       dependent.variable.name = dependent.variable.name,
       xy.i = xy.reference.records[i, ],
@@ -288,7 +288,7 @@ rf_evaluate <- function(
     )$predictions
 
     #getting observed data
-    observed <- data.testing[, dependent.variable.name]
+    observed <- dplyr::pull(data.testing, dependent.variable.name)
 
     #computing evaluation scores
     performance.df <- data.frame(

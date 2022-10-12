@@ -120,7 +120,7 @@ rf_select <- function(
 
   #if data is binary, "auc" is added
   if(.is_binary(
-    x = data[, dependent.variable.name]
+    x = dplyr::pull(data, dependent.variable.name)
   )){
     metrics <- c(metrics, "auc")
   } else {

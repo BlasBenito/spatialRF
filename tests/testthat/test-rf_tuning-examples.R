@@ -11,6 +11,8 @@ testthat::test_that("`rf_tuning()` works", {
     ecoregions_dependent_variable_name
   )
 
+  ecoregions_df <- tibble::as_tibble(ecoregions_df)
+
   cluster <- start_cluster()
 
   out <- rf(

@@ -102,7 +102,7 @@ make_spatial_fold <- function(
   is.binary <- FALSE
   if(!is.null(data) & !is.null(dependent.variable.name)){
     is.binary <- .is_binary(
-      x = data[, dependent.variable.name]
+      x = dplyr::pull(data, dependent.variable.name)
     )
   }
 
@@ -144,7 +144,10 @@ make_spatial_fold <- function(
 
     #subset ones if it's binary
     if(is.binary == TRUE){
-      records.selected <- records.selected[data[data$id %in% records.selected$id, dependent.variable.name] == 1, ]
+      records.selected <- records.selected[
+        data[data$id %in% records.selected$id,
+        dependent.variable.name] == 1,
+        ]
     }
 
     #resetting old.buffer

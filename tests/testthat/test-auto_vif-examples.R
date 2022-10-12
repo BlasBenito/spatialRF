@@ -8,6 +8,8 @@ testthat::test_that("`auto_vif()` works", {
     ecoregions_predictor_variable_names
   )
 
+  ecoregions_df <- tibble::as_tibble(ecoregions_df)
+
   out <- auto_vif(
     data = ecoregions_df,
     predictor.variable.names = ecoregions_predictor_variable_names,

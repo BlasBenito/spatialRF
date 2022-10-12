@@ -11,14 +11,9 @@ testthat::test_that("`rf_evaluate()` works", {
     ecoregions_dependent_variable_name
   )
 
-  cluster <- spatialRF::start_cluster()
+  ecoregions_df <- tibble::as_tibble(ecoregions_df)
 
-  metrics <- c(
-    "auc",
-    "r.squared",
-    "rmse",
-    "nrmse"
-  )
+  cluster <- spatialRF::start_cluster()
 
   #continuous response
   rf.model <- rf(
@@ -36,7 +31,12 @@ testthat::test_that("`rf_evaluate()` works", {
     verbose = FALSE
   ) %>%
     rf_evaluate(
-      metrics = metrics,
+      metrics = c(
+        "auc",
+        "r.squared",
+        "rmse",
+        "nrmse"
+      ),
       repetitions = 30,
       verbose = FALSE
     )

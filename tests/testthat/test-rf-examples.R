@@ -11,6 +11,8 @@ testthat::test_that("`rf()` works", {
     ecoregions_dependent_variable_name
     )
 
+   ecoregions_df <- tibble::as_tibble(ecoregions_df)
+
   #fitting model
   out <- rf(
     data = ecoregions_df,

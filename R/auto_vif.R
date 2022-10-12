@@ -101,12 +101,6 @@ auto_vif <- function(
     preference.order <- colnames(data)
   }
 
-  #coercing to data frame
-  #coerce to data frame if tibble
-  if(inherits(data, "tbl_df") | inherits(data, "tbl")){
-    data <- as.data.frame(data)
-  }
-
   #removing non-numeric and zero variance columns
   #removing NA
   data <- na.omit(data)
