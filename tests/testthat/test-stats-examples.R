@@ -44,4 +44,21 @@ testthat::test_that("`auc()` works", {
     out <- root_mean_squared_error(o = runif(10), p = runif(10), normalization = "all")
     testthat::expect_named(out, c("rmse", "iq", "maxmin", "mean", "sd"))
     testthat::expect_true(sum(!is.na(out)) == 5)
+
+
+    data(ecoregions_distance_matrix)
+
+    out <- pca(x = ecoregions_distance_matrix)
+
+    testthat::expect_s3_class(out, "data.frame")
+
+    testthat::expect_equal(
+      ncol(out),
+      ncol(ecoregions_distance_matrix)
+    )
+
+    testthat::expect_equal(
+      nrow(out),
+      nrow(ecoregions_distance_matrix)
+    )
 })

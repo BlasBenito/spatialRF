@@ -1,9 +1,15 @@
-test_that("`thinning_til_n()` works", {
-  data(plant_richness_df)
+testthat::test_that("`thinning_til_n()` works", {
+
+  data(ecoregions_df)
+
+  ecoregions_df <- tibble::as_tibble(ecoregions_df)
+
   plant_richness.thin <- thinning_til_n(
-    x = plant_richness_df,
+    x = ecoregions_df,
     n = 100
   )
-  expect_s3_class(plant_richness.thin, "data.frame")
-  expect_equal(colnames(plant_richness.thin), colnames(plant_richness.thin))
+
+  testthat::expect_s3_class(plant_richness.thin, "data.frame")
+
+  testthat::expect_equal(colnames(plant_richness.thin), colnames(plant_richness.thin))
 })
