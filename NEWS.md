@@ -1,5 +1,7 @@
 ## Version 1.1.4 (work in progress)
 
+All functions support tibbles as input.
+
 The functions `mem()` and `mem_multithreshold()` now share the same documentation.
 
 The functions `moran()` and `moran_multithreshold()` now share the same documentation.
