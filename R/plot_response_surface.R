@@ -78,24 +78,36 @@ plot_response_surface <- function(
 
   #response variable and predictors
   response.variable <- model$ranger.arguments$dependent.variable.name
+
   predictors <- model$ranger.arguments$predictor.variable.names
+
   if(inherits(model, "rf_spatial")){
     predictors <- predictors[!(predictors %in% model$spatial$names)]
   }
 
   #default values for a and b
   if(is.null(a)){
+
     a <- model$importance$per.variable[model$importance$per.variable$variable %in% predictors, "variable"][1]
+
   }
+
   if(is.null(b)){
+
     b <- model$importance$per.variable[model$importance$per.variable$variable %in% predictors, "variable"][2]
+
   }
 
   if(!(a %in% colnames(data))){
+
     stop("Argument 'a' must be a column name of model$ranger.arguments$data.")
+
   }
+
   if(!(b %in% colnames(data))){
+
     stop("Argument 'b' must be a column name of model$ranger.arguments$data.")
+
   }
 
   #names of the other variables
@@ -126,16 +138,23 @@ plot_response_surface <- function(
 
     #iterating through variables
     for(variable in other.variables){
-      ab.grid.i[, variable] <- quantile(data[, variable], quantile.i)
+      ab.grid.i[, variable] <- quantile(
+        dplyr::pull(data, variable),
+        quantile.i
+        )
     }
 
     #predicting the response
     ab.grid.i[, response.variable] <- predict(
       model,
-      ab.grid.i)$predictions
+      ab.grid.i
+      )$predictions
 
     #saving plot
-    ab.grid.quantiles[[as.character(quantile.i)]] <- ggplot2::ggplot(data = ab.grid.i) +
+    ab.grid.quantiles[[as.character(quantile.i)]] <-
+      ggplot2::ggplot(
+        data = ab.grid.i
+        ) +
       ggplot2::geom_tile(
         ggplot2::aes_string(
           x = a,
@@ -162,9 +181,18 @@ plot_response_surface <- function(
         fill = "Predicted",
         size = "Observed"
       ) +
-      ggplot2::ggtitle(paste0("Other variables set to quantile ", quantile.i)) +
-      ggplot2::guides(size = ggplot2::guide_legend(reverse = TRUE)) +
-      ggplot2::theme(plot.title = element_text(hjust = 0.5))
+      ggplot2::ggtitle(
+        paste0(
+          "Other variables set to quantile ",
+          quantile.i
+          )
+        ) +
+      ggplot2::guides(
+        size = ggplot2::guide_legend(reverse = TRUE)
+        ) +
+      ggplot2::theme(
+        plot.title = ggplot2::element_text(hjust = 0.5)
+        )
 
   }
 

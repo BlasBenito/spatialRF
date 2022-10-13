@@ -187,10 +187,10 @@ rf_jackknife <- function(
 
     #generating training data
     training.df.without.i <- data.frame(
-      y = data[, dependent.variable.name],
-      x1 = data[, predictor.i],
-      x2 = data[, predictor.i],
-      x3 = data[, predictor.i]
+      y = dplyr::pull(data, dependent.variable.name),
+      x1 = dplyr::pull(data, predictor.i),
+      x2 = dplyr::pull(data, predictor.i),
+      x3 = dplyr::pull(data, predictor.i)
     )
 
     #evaluating the model with only the variable

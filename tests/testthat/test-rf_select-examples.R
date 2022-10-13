@@ -12,6 +12,8 @@ testthat::test_that("`rf_select()` works", {
     ecoregions_dependent_variable_name
   )
 
+  ecoregions_df <- tibble::as_tibble(ecoregions_df)
+
    #fitting model
    out <- rf(
      data = ecoregions_df,
@@ -39,7 +41,11 @@ testthat::test_that("`rf_select()` works", {
    )
 
    testthat::expect_true(
-     "selection.plot" %in% names(out$selection)
+     "plot" %in% names(out$selection)
+   )
+
+   testthat::expect_true(
+     "df" %in% names(out$selection)
    )
 
 })

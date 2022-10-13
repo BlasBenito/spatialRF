@@ -58,7 +58,6 @@ case_weights <- function(
 
 }
 
-#' @rdname .is_binary
 #' @export
 .is_binary <- function(
     x = NULL
@@ -68,15 +67,14 @@ case_weights <- function(
   unique.values <- sort(unique(x))
 
   #checking equality
-  if(length(unique.values) == 2){
-    if(all(unique.values == c(0, 1)) == TRUE){
+  if(
+    length(unique.values) == 2 &&
+    all(unique.values == c(0, 1)) == TRUE
+    ){
       return(TRUE)
     } else {
       return(FALSE)
     }
-  } else {
-    return(FALSE)
-  }
 
 
 }

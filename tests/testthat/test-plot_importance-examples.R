@@ -1,16 +1,26 @@
-test_that("`plot_importance()` works", {
-  data(plant_richness_df)
-  data(distance_matrix)
+testthat::test_that("`plot_importance()` works", {
+
+  #loading data
+  data(
+    ecoregions_df,
+    ecoregions_distance_matrix,
+    ecoregions_predictor_variable_names,
+    ecoregions_dependent_variable_name
+  )
 
   rf.model <- rf(
-    data = plant_richness_df,
-    dependent.variable.name = "richness_species_vascular",
-    predictor.variable.names = colnames(plant_richness_df)[5:21],
-    distance.matrix = distance_matrix,
+    data = ecoregions_df,
+    dependent.variable.name = ecoregions_dependent_variable_name,
+    predictor.variable.names = ecoregions_predictor_variable_names,
+    distance.matrix = ecoregions_distance_matrix,
     distance.thresholds = c(0, 1000, 2000),
     verbose = FALSE
   )
 
   p <- plot_importance(rf.model, verbose = FALSE)
-  expect_equal(inherits(p, "ggplot"), TRUE)
+
+  testthat::expect_equal(
+    inherits(p, "ggplot"),
+    TRUE
+    )
 })

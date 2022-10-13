@@ -11,6 +11,8 @@ testthat::test_that("`rf_repeat()` works", {
     ecoregions_dependent_variable_name
   )
 
+  ecoregions_df <- tibble::as_tibble(ecoregions_df)
+
   #with n.cores
   out <- rf_repeat(
     data = ecoregions_df,
@@ -87,14 +89,12 @@ testthat::test_that("`rf_repeat()` works", {
 
   #using output of auto_vif and auto_cor as predictor.variable.names
 
-  testthat::expect_warning(
     variable.selection <- auto_cor(
-      x = ecoregions_df,
+      data = ecoregions_df,
       verbose = FALSE,
       preference.order = ecoregions_predictor_variable_names
     ) %>%
       auto_vif()
-  )
 
   #fitting model
   out.2 <- rf_repeat(

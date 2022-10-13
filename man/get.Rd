@@ -12,6 +12,7 @@
 \alias{get_predictions}
 \alias{get_jackknife}
 \alias{get_select}
+\alias{get_spatial_predictors}
 \title{Functions to retrieve data from a fitted model.}
 \usage{
 get_evaluation_aggregated(model)
@@ -35,6 +36,8 @@ get_predictions(model)
 get_jackknife(model)
 
 get_select(model)
+
+get_spatial_predictors(model)
 }
 \arguments{
 \item{model}{A model fitted with \code{\link[=rf_evaluate]{rf_evaluate()}}.}

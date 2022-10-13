@@ -1,16 +1,29 @@
-test_that("`plot_moran()` works", {
-   data(plant_richness_df)
-   data(distance_matrix)
+testthat::test_that("`plot_moran()` works", {
 
-   rf.model <- rf(
-     data = plant_richness_df,
-     dependent.variable.name = "richness_species_vascular",
-     predictor.variable.names = colnames(plant_richness_df)[5:21],
-     distance.matrix = distance_matrix,
-     distance.thresholds = c(0, 1000, 2000),
-     verbose = FALSE
-   )
+  library(spatialRF)
+  library(magrittr)
 
-   p <- plot_moran(rf.model, verbose = FALSE)
-   expect_equal(inherits(p, "ggplot"), TRUE)
+  #loading data
+  data(
+    ecoregions_df,
+    ecoregions_distance_matrix,
+    ecoregions_predictor_variable_names,
+    ecoregions_dependent_variable_name
+  )
+
+  ecoregions_df <- tibble::as_tibble(ecoregions_df)
+
+  #fitting model
+  out <- rf(
+    data = ecoregions_df,
+    dependent.variable.name = ecoregions_dependent_variable_name,
+    predictor.variable.names = ecoregions_predictor_variable_names,
+    distance.matrix = ecoregions_distance_matrix,
+    distance.thresholds = c(0,100, 1000, 10000),
+    verbose = FALSE
+  )
+
+   p <- plot_moran(out, verbose = FALSE)
+
+   testthat::expect_equal(inherits(p, "ggplot"), TRUE)
 })

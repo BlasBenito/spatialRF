@@ -313,13 +313,16 @@ rf_select <- function(
 
     if(i == 1){
 
+
+
       #univariate model if i == 1
+      variable.i <- selected.variables[1]
       model.i <- spatialRF::rf(
         data = data.frame(
-          y = data[, dependent.variable.name],
-          x1 = data[, selected.variables[1]],
-          x2 = data[, selected.variables[1]],
-          x3 = data[, selected.variables[1]]
+          y = dplyr::pull(data, dependent.variable.name),
+          x1 = dplyr::pull(data, variable.i),
+          x2 = dplyr::pull(data, variable.i),
+          x3 = dplyr::pull(data, variable.i)
         ),
         dependent.variable.name = "y",
         predictor.variable.names = c("x1", "x2", "x3"),
@@ -563,7 +566,7 @@ rf_select <- function(
     )
 
     message(
-      "\nJob done, you will find the variable selection plot in 'model$selection$plot', and the selection data frame in 'model$selection$df'\n\n."
+      "\nJob done! The variable selection plot is in 'model$selection$plot', and the selection data frame in 'model$selection$df'.\n\n"
     )
 
     print(sequential.models.plot)
@@ -574,7 +577,7 @@ rf_select <- function(
       " - All performance scores are computed via spatial cross-validation.\n\n",
       " - The performance score of each variable is computed from a model including such variable and all the ones above it.\n\n",
       " - The 'combined' performance score is the average of all the other performance metrics.\n\n",
-      " - The horizontal thick line identifies the last variable of the set of predictors that maximizes model performance."
+      " - The horizontal thick line identifies the last variable of the set of predictors that maximizes model performance.\n"
     )
   }
 

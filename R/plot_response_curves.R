@@ -60,10 +60,12 @@ plot_response_curves <- function(
   if(length(quantiles) < length(line.color)){
     line.color <- line.color[1:length(quantiles)]
   }
+
   if(length(line.color) < length(quantiles)){
     if(verbose == TRUE){
       message("Insufficient colors provided in 'line.color', used the default palette insted.")
     }
+
     line.color = viridis::viridis(
       length(quantiles),
       option = "F",
@@ -121,8 +123,8 @@ plot_response_curves <- function(
     #generating grid
     variable.i.grid <- data.frame(
       variable = seq(
-        min(data[, variable.i]),
-        max(data[, variable.i]),
+        min(dplyr::pull(data, variable.i)),
+        max(dplyr::pull(data, variable.i)),
         length.out = grid.resolution
       )
     )
@@ -141,7 +143,10 @@ plot_response_curves <- function(
       #iterating through variables
       for(variable.j in other.variables){
 
-        variable.i.grid.copy[, variable.j] <- quantile(data[, variable.j], quantile.i)
+        variable.i.grid.copy[, variable.j] <- quantile(
+          dplyr::pull(data, variable.j),
+          quantile.i
+          )
 
       }
 

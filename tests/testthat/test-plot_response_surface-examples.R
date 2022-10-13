@@ -1,10 +1,31 @@
-test_that("`plot_response_surface()` works", {
-  data(plant_richness_df)
-  m <- rf(
-    data = plant_richness_df, dependent.variable.name = "richness_species_vascular",
-    predictor.variable.names = colnames(plant_richness_df)[5:21],
+testthat::test_that("`plot_response_surface()` works", {
+
+  library(spatialRF)
+  library(magrittr)
+
+  #loading data
+  data(
+    ecoregions_df,
+    ecoregions_distance_matrix,
+    ecoregions_predictor_variable_names,
+    ecoregions_dependent_variable_name
+  )
+
+  ecoregions_df <- tibble::as_tibble(ecoregions_df)
+
+  #fitting model
+  out <- rf(
+    data = ecoregions_df,
+    dependent.variable.name = ecoregions_dependent_variable_name,
+    predictor.variable.names = ecoregions_predictor_variable_names,
+    distance.matrix = ecoregions_distance_matrix,
+    distance.thresholds = c(0,100, 1000, 10000),
     verbose = FALSE
   )
-  p <- plot_response_surface(m)
-  expect_s3_class(p, "ggplot")
+
+  p <- plot_response_surface(out)
+
+  testthat::expect_type(p, "list")
+  testthat::expect_s3_class(p, "ggplot")
+
 })

@@ -11,11 +11,14 @@ testthat::test_that("`moran()` works", {
     ecoregions_dependent_variable_name
   )
 
+  ecoregions_df <- tibble::as_tibble(ecoregions_df)
+
    x <- moran(
      ecoregions_df$plant_richness,
      distance.matrix = ecoregions_distance_matrix,
      verbose = FALSE
      )
+
    testthat::expect_type(x, "list")
    testthat::expect_s3_class(x$test, "data.frame")
    testthat::expect_s3_class(x$plot.df, "data.frame")

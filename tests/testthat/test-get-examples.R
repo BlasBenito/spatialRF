@@ -11,6 +11,8 @@ testthat::test_that("`get_xxx()` works", {
     ecoregions_dependent_variable_name
     )
 
+  ecoregions_df <- tibble::as_tibble(ecoregions_df)
+
   distance.thresholds <- c(0, 100, 1000)
 
    #fitting random forest model
