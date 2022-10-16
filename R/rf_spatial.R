@@ -245,11 +245,6 @@ rf_spatial <- function(
 
   }
 
-  #coerce to data frame if tibble
-  if(inherits(data, "tbl_df") | inherits(data, "tbl")){
-    data <- as.data.frame(data)
-  }
-
   #END OF HANDLING ARGUMENTS
   ##########################
 

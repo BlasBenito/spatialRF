@@ -92,18 +92,10 @@ the_feature_engineer <- function(
   #coerce to data frame if tibble
   if(is.null(data)){
     stop("Argument 'data' is missing.")
-  } else {
-    if(inherits(data, "tbl_df") | inherits(data, "tbl")){
-      data <- as.data.frame(data)
-    }
   }
 
   if(is.null(xy)){
     stop("Argument 'xy' is missing")
-  } else {
-    if(inherits(xy, "tbl_df") | inherits(xy, "tbl")){
-      xy <- as.data.frame(xy)
-    }
   }
 
   #output list

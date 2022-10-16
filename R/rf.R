@@ -355,15 +355,6 @@ rf <- function(
 
   }
 
-  #coerce to data frame if tibble
-  # if(inherits(data, "tbl_df") | inherits(data, "tbl")){
-  #   data <- as.data.frame(data)
-  # }
-  #
-  # if(inherits(xy, "tbl_df") | inherits(xy, "tbl")){
-  #   xy <- as.data.frame(xy)
-  # }
-
   #END OF HANDLING ARGUMENTS
   ##########################
 
