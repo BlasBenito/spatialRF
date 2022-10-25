@@ -71,7 +71,7 @@ plot_residuals_diagnostics <- function(
   #getting residuals
   residuals <- model$residuals$values
   residuals.df <- as.data.frame(residuals)
-  predictions <- model$predictions$values
+  predictions <- model$predictions$ib
 
   #getting normality test
   normality <- model$residuals$normality
@@ -167,7 +167,7 @@ plot_residuals_diagnostics <- function(
   #final plot
   normality.plot <- (p1 + p2) / p3 + patchwork::plot_annotation(
     title = plot.title,
-    theme = ggplot2::theme(plot.title = element_text(hjust = 0.5))
+    theme = ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
   )
 
 

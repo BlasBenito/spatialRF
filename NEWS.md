@@ -1,4 +1,6 @@
-## Version 1.1.4 (work in progress)
+## Version 2.0.0 (work in progress)
+
+Expanded the performance metrics provided by rf() and company. They now report: r.squared.oob, rmse.oob, nrmse.oob, and if the response is binary, auc.oob. The in-bag metrics are: r.squared.ib, rmse.ib, nrmse.ib, and auc.ib. These changes have been implemented in rf_repeat() as well. Both types of predictions are now provided as well in `model$predictions$ib` and `model$predictions$oob`. Task to propagate these changes to other functions is still pending.
 
 All functions support tibbles as input.
 

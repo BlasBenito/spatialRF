@@ -16,8 +16,23 @@
 #' @return A ranger model with several extra slots:
 #' \itemize{
 #'   \item `ranger.arguments`: Stores the values of the arguments used to fit the ranger model.
+#'   \item `predictions`: Predicted values.
+#'   \itemize{
+#'    \item `ib`: Numeric vector, predictions computed on the in-bag data.
+#'    \item `oob`: Numeric vector, predictions computed on the out-of-bag data.
+#'   }
 #'   \item `importance`: A list containing a data frame with the predictors ordered by their importance, a ggplot showing the importance values, and local importance scores (difference in accuracy between permuted and non permuted variables for every case, computed on the out-of-bag data).
-#'   \item `performance`: performance scores: R squared on out-of-bag data, R squared (cor(observed, predicted) ^ 2), RMSE, and normalized RMSE (NRMSE).
+#'   \item `performance`: Performance scores computed on the in-bag and out-of-bag data. These performance scores can be highly inflated (especially the "in-bag" ones!)  if the spatial structure of the training data is strong, so I beg you to never report these as the actual performance metrics of your models, and advise you to use [rf_evaluate()] instead. In any case, if you wish to proceed, these are the metrics provided in this slot:
+#'   \itemize{
+#'     \item `r.squared.oob`: R-squared computed on the out-of-bag predictions using the expression `cor(observed, predicted.oob) ^ 2`.
+#'     \item `rmse.oob`: Root mean squared error computed on the out-of-bag predictions using the expression `spatialRF::root_mean_squared_error(o = observed, p = predicted.oob)`.
+#'     \item `nrmse.oob`: Normalized rood mean squared error computed on the out-of-bag data using the expression `spatialRF::root_mean_squared_error(o = observed, p = predicted.oob, normalization = "iq")`.
+#'     \item `auc.oob`: Only for binary responses with values 0 and 1. Area under the ROC curve computed on the out-of-bag predictions using the expression `spatialRF::auc(o = observed, p = predicted.oob)`.
+#'     \item `r.squared.ib`: R-squared computed on the in-bag predictions using the expression `cor(observed, predicted.ib) ^ 2`.
+#'     \item `rmse.ib`: Root mean squared error computed on the in-bag predictions using the expression `spatialRF::root_mean_squared_error(o = observed, p = predicted.ib)`.
+#'     \item `nrmse.ib`: Normalized rood mean squared error computed on the in-bag data using the expression `spatialRF::root_mean_squared_error(o = observed, p = predicted.ib, normalization = "iq")`.
+#'     \item `auc.ib`: Only for binary responses with values 0 and 1. Area under the ROC curve computed on the in-bag predictions using the expression `spatialRF::auc(o = observed, p = predicted.ib)`.
+#'   }
 #'   \item `residuals`: residuals, normality test of the residuals computed with [residuals_test()], and spatial autocorrelation of the residuals computed with [moran_multithreshold()].
 #' }
 #' @details Please read the help file of \link[ranger]{ranger} for further details. Notice that the `formula` interface of \link[ranger]{ranger} is supported through `ranger.arguments`, but variable interactions are not allowed (but check [the_feature_engineer()]).
@@ -598,8 +613,11 @@ rf <- function(
 
   }
 
+  #getting oob predictions
+  predicted.oob <- m$predictions
+
   #computing predictions
-  predicted <- stats::predict(
+  predicted.ib <- stats::predict(
     object = m,
     data = data,
     type = "response"
@@ -607,7 +625,8 @@ rf <- function(
 
   #saving predictions
   m$predictions <- list()
-  m$predictions$values <- predicted
+  m$predictions$ib <- predicted.ib
+  m$predictions$oob <- predicted.oob
 
   #getting observed data
   observed <- dplyr::pull(data, dependent.variable.name)
@@ -615,34 +634,54 @@ rf <- function(
   #performance slot
   m$performance <- list()
 
-  m$performance$r.squared.oob <- m$r.squared
+  #OOB metrics
+  ####################
+  m$performance$r.squared.oob <- cor(observed, predicted.oob) ^ 2
 
-  m$performance$r.squared <- cor(observed, predicted) ^ 2
-
-  m$performance$rmse.oob <- sqrt(m$prediction.error)
-
-  m$performance$rmse <- root_mean_squared_error(
+  m$performance$rmse.oob <- root_mean_squared_error(
     o = observed,
-    p = predicted,
+    p = predicted.oob,
     normalization = "rmse"
   )
-  names(m$performance$rmse) <- NULL
-  m$performance$nrmse <- root_mean_squared_error(
+  names(m$performance$rmse.oob) <- NULL
+
+  m$performance$nrmse.oob <- root_mean_squared_error(
     o = observed,
-    p = predicted,
+    p = predicted.oob,
     normalization = "iq"
   )
-  names(m$performance$nrmse) <- NULL
-  m$performance$auc <- NA
+  names(m$performance$nrmse.oob) <- NULL
 
-  #compute AUC
-  m$performance$auc <- auc(
+  m$performance$auc.oob <- auc(
     o = observed,
-    p = predicted
+    p = predicted.oob
+  )
+
+  #IB metrics
+  ######################
+  m$performance$r.squared.ib <- cor(observed, predicted.ib) ^ 2
+
+  m$performance$rmse.ib <- root_mean_squared_error(
+    o = observed,
+    p = predicted.ib,
+    normalization = "rmse"
+  )
+  names(m$performance$rmse.ib) <- NULL
+
+  m$performance$nrmse.ib <- root_mean_squared_error(
+    o = observed,
+    p = predicted.ib,
+    normalization = "iq"
+  )
+  names(m$performance$nrmse.ib) <- NULL
+
+  m$performance$auc.ib <- auc(
+    o = observed,
+    p = predicted.ib
   )
 
   #residuals
-  m$residuals$values <- observed - predicted
+  m$residuals$values <- observed - predicted.ib
   m$residuals$stats <- summary(m$residuals$values)
 
   #compute moran I of residuals if distance.matrix is provided
@@ -660,12 +699,12 @@ rf <- function(
   #normality of the residuals
   m$residuals$normality <- residuals_diagnostics(
     residuals = m$residuals$values,
-    predictions = predicted
+    predictions = predicted.ib
     )
 
   #plot of the residuals diagnostics
   m$residuals$diagnostics <- plot_residuals_diagnostics(
-    m,
+    model = m,
     verbose = verbose
   )
 

@@ -102,6 +102,7 @@ rf_tuning <- function(
   dependent.variable.name <- NULL
   distance.matrix <- NULL
   distance.thresholds <- NULL
+  data <- NULL
 
   #HANDLING ARGUMENTS
   ######################################

@@ -19,7 +19,24 @@
 #' \itemize{
 #'   \item `ranger.arguments`: Stores the values of the arguments used to fit the ranger model.
 #'   \item `importance`: A list containing a data frame with the predictors ordered by their importance, a ggplot showing the importance values, and local importance scores.
-#'   \item `performance`: out-of-bag performance scores: R squared, RMSE, and normalized RMSE (NRMSE).
+#'   \item `predictions`: Predicted values.
+#'   \itemize{
+#'    \item `ib`: Numeric vector, median across repetitions of the predictions computed on the in-bag data.
+#'    \item `oob`: Numeric vector, median across repetitions of the predictions computed on the out-of-bag data.
+#'    \item `ib.repetitions`: Data frame with one column per repetition containing predictions computed on the in-bag data.
+#'    \item `oob.repetitions`: Data frame with one column per repetition containing predictions computed on the out-of-bag data.
+#'   }
+#'   \item `performance`: Performance scores computed on the in-bag and out-of-bag data. These performance scores can be highly inflated (especially the "in-bag" ones!)  if the spatial structure of the training data is strong, so I beg you to never report these as the actual performance metrics of your models, and advise you to use [rf_evaluate()] instead. In any case, if you wish to proceed, these are the metrics provided in this slot:
+#'   \itemize{
+#'     \item `r.squared.oob`: R-squared computed on the out-of-bag predictions using the expression `cor(observed, predicted.oob) ^ 2`.
+#'     \item `rmse.oob`: Root mean squared error computed on the out-of-bag predictions using the expression `spatialRF::root_mean_squared_error(o = observed, p = predicted.oob)`.
+#'     \item `nrmse.oob`: Normalized rood mean squared error computed on the out-of-bag data using the expression `spatialRF::root_mean_squared_error(o = observed, p = predicted.oob, normalization = "iq")`.
+#'     \item `auc.oob`: Only for binary responses with values 0 and 1. Area under the ROC curve computed on the out-of-bag predictions using the expression `spatialRF::auc(o = observed, p = predicted.oob)`.
+#'     \item `r.squared.ib`: R-squared computed on the in-bag predictions using the expression `cor(observed, predicted.ib) ^ 2`.
+#'     \item `rmse.ib`: Root mean squared error computed on the in-bag predictions using the expression `spatialRF::root_mean_squared_error(o = observed, p = predicted.ib)`.
+#'     \item `nrmse.ib`: Normalized rood mean squared error computed on the in-bag data using the expression `spatialRF::root_mean_squared_error(o = observed, p = predicted.ib, normalization = "iq")`.
+#'     \item `auc.ib`: Only for binary responses with values 0 and 1. Area under the ROC curve computed on the in-bag predictions using the expression `spatialRF::auc(o = observed, p = predicted.ib)`.
+#'   }
 #'   \item `residuals`: residuals, normality test of the residuals computed with [residuals_test()], and spatial autocorrelation of the residuals computed with [moran_multithreshold()].
 #' }
 #'
@@ -290,12 +307,14 @@ rf_repeat <- function(
     out$importance <- m.i$importance$per.variable
     out$importance.local <- m.i$importance$local
     out$prediction.error <- m.i$prediction.error
-    out$r.squared <- m.i$performance$r.squared
+    out$r.squared.ib <- m.i$performance$r.squared.ib
     out$r.squared.oob <- m.i$performance$r.squared.oob
-    out$rmse.oob <- m.i$prediction.error
-    out$rmse <- m.i$performance$rmse
-    out$nrmse <- m.i$performance$nrmse
-    out$auc <- m.i$performance$auc
+    out$rmse.ib <- m.i$performance$rmse.ib
+    out$rmse.oob <- m.i$performance$rmse.oob
+    out$nrmse.ib <- m.i$performance$nrmse.ib
+    out$nrmse.oob <- m.i$performance$nrmse.oob
+    out$auc.ib <- m.i$performance$auc.ib
+    out$auc.oob <- m.i$performance$auc.oob
     out$residuals <- m.i$residuals
 
     #saving model
@@ -366,7 +385,7 @@ rf_repeat <- function(
 
   #PREPARING predictions
   #------------------------------
-  predictions.per.repetition <- as.data.frame(
+  predictions.per.repetition.ib <- as.data.frame(
     do.call(
       "cbind",
       lapply(
@@ -376,23 +395,68 @@ rf_repeat <- function(
         "predictions"
       ),
       "[[",
-      1
+      "ib"
     )
     )
   )
-  colnames(predictions.per.repetition) <- repetition.columns
+  colnames(predictions.per.repetition.ib) <- repetition.columns
+
+  predictions.per.repetition.oob <- as.data.frame(
+    do.call(
+      "cbind",
+      lapply(
+        lapply(
+          repeated.models,
+          "[[",
+          "predictions"
+        ),
+        "[[",
+        "oob"
+      )
+    )
+  )
+  colnames(predictions.per.repetition.oob) <- repetition.columns
 
   #computing medians
-  predictions.median <- data.frame(
-    median = apply(predictions.per.repetition, 1, FUN = median),
-    median_absolute_deviation = apply(predictions.per.repetition, 1, stats::mad),
-    row.names = NULL
-  )
+  # predictions.ib.median <- data.frame(
+  #   median = apply(
+  #     predictions.per.repetition.ib,
+  #     1,
+  #     FUN = median
+  #     ),
+  #   median_absolute_deviation = apply(
+  #     predictions.per.repetition.ib,
+  #     1, stats::mad
+  #     ),
+  #   row.names = NULL
+  # )
+  #
+  # predictions.oob.median <- data.frame(
+  #   median = apply(
+  #     predictions.per.repetition.oob,
+  #     1,
+  #     FUN = median
+  #   ),
+  #   median_absolute_deviation = apply(
+  #     predictions.per.repetition.oob,
+  #     1, stats::mad
+  #   ),
+  #   row.names = NULL
+  # )
 
   m$predictions <- NULL
-  m$predictions$values <- predictions.median$median
-  m$predictions$values.per.repetition <- predictions.per.repetition
-  m$predictions$values.median <- predictions.median
+  m$predictions$ib <- apply(
+    predictions.per.repetition.ib,
+    1,
+    FUN = median
+  )
+  m$predictions$oob <- apply(
+    predictions.per.repetition.oob,
+    1,
+    FUN = median
+  )
+  m$predictions$ib.repetitions <- predictions.per.repetition.ib
+  m$predictions$oob.repetitions <- predictions.per.repetition.oob
 
 
 
@@ -564,53 +628,68 @@ rf_repeat <- function(
     )
   )
 
-  m$performance$r.squared <- unlist(
-    lapply(
-      repeated.models,
-      "[[",
-      "r.squared"
-    )
-  )
-
-  #gathering rmse.oob
   m$performance$rmse.oob <- unlist(
     lapply(
       repeated.models,
       "[[",
-      "prediction.error"
+      "rmse.oob"
     )
-  ) %>%
-    sqrt()
+  )
+  names(m$performance$rmse.oob) <- NULL
 
-  #gathering rmse
-  m$performance$rmse <- unlist(
+  m$performance$nrmse.oob <- unlist(
     lapply(
       repeated.models,
       "[[",
-      "rmse"
+      "nrmse.oob"
     )
   )
-  names(m$performance$rmse) <- NULL
+  names(m$performance$nrmse.oob) <- NULL
 
-  #gathering nrmse
-  m$performance$nrmse <- unlist(
+  m$performance$auc.oob <- unlist(
     lapply(
       repeated.models,
       "[[",
-      "nrmse"
+      "auc.oob"
     )
   )
-  names(m$performance$nrmse) <- NULL
+  names(m$performance$auc.oob) <- NULL
 
-  #gathering auc
-  m$performance$auc <- unlist(
+  m$performance$r.squared.ib <- unlist(
     lapply(
       repeated.models,
       "[[",
-      "auc"
+      "r.squared.ib"
     )
   )
-  names(m$performance$auc) <- NULL
+
+  m$performance$rmse.ib <- unlist(
+    lapply(
+      repeated.models,
+      "[[",
+      "rmse.ib"
+    )
+  )
+  names(m$performance$rmse.ib) <- NULL
+
+  m$performance$nrmse.ib <- unlist(
+    lapply(
+      repeated.models,
+      "[[",
+      "nrmse.ib"
+    )
+  )
+  names(m$performance$nrmse.ib) <- NULL
+
+  m$performance$auc.ib <- unlist(
+    lapply(
+      repeated.models,
+      "[[",
+      "auc.ib"
+    )
+  )
+  names(m$performance$auc.ib) <- NULL
+
 
 
   #PREPARING THE RESIDUALS SLOT
@@ -726,7 +805,7 @@ rf_repeat <- function(
   #normality of the median residuals
   m$residuals$normality <- residuals_diagnostics(
     residuals = m$residuals$values,
-    predictions = m$predictions$values
+    predictions = m$predictions$ib
   )
 
   #plot of the residuals diagnostics
