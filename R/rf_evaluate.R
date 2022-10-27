@@ -300,47 +300,58 @@ rf_evaluate <- function(
     )
 
     if("r.squared" %in% metrics){
-      performance.df$training.r.squared = m.training$performance$r.squared
-      performance.df$testing.r.squared = round(cor(observed, predicted) ^ 2, 3)
+
+      performance.df$training.r.squared <- m.training$performance$r.squared.ib
+
+      performance.df$testing.r.squared <- cor(observed, predicted) ^ 2
+
     }
 
     if("rmse" %in% metrics){
-      performance.df$training.rmse = m.training$performance$rmse
-      performance.df$testing.rmse = round(spatialRF::root_mean_squared_error(
+
+      performance.df$training.rmse <- m.training$performance$rmse.ib
+
+      performance.df$testing.rmse <- spatialRF::root_mean_squared_error(
         o = observed,
         p = predicted,
         normalization = NULL
-      ), 3)
+      )
+
       if(is.na(performance.df$training.rmse)){
         performance.df$testing.rmse <- NA
       }
+
     }
 
     if("nrmse" %in% metrics){
-      performance.df$training.nrmse = m.training$performance$nrmse
-      performance.df$testing.nrmse = round(spatialRF::root_mean_squared_error(
+
+      performance.df$training.nrmse <- m.training$performance$nrmse.ib
+
+      performance.df$testing.nrmse = spatialRF::root_mean_squared_error(
         o = observed,
         p = predicted,
         normalization = "iq"
-      ), 3)
+      )
+
       if(is.na(performance.df$training.nrmse)){
         performance.df$testing.nrmse <- NA
       }
+
     }
 
     if("auc" %in% metrics){
-      performance.df$training.auc = m.training$performance$auc
-      performance.df$testing.auc = round(
-        spatialRF::auc(
+      performance.df$training.auc <- m.training$performance$auc.ib
+
+      performance.df$testing.auc <- spatialRF::auc(
           o = observed,
           p = predicted
-        ),
-        3
-      )
+        )
+
       if(is.na(performance.df$training.auc)){
         performance.df$testing.auc <- NA
       }
     }
+
     rownames(performance.df) <- NULL
 
     out.list <- list()
@@ -401,7 +412,7 @@ rf_evaluate <- function(
     message(
       paste0(
         nrow.difference,
-        " redundant spatial folds were removed. The total number of spatial folds used for evaluation was ",
+        " redundant spatial folds removed. The total number of spatial folds is ",
         nrow(evaluation.df.unique),
         "."
       )

@@ -48,7 +48,7 @@ make_spatial_fold <- function(
   xy = NULL,
   distance.step.x = NULL,
   distance.step.y = NULL,
-  training.fraction = 0.8
+  training.fraction = 0.75
 ){
 
   if(sum(c("id", "x", "y") %in% colnames(xy)) != 3){
@@ -95,8 +95,8 @@ make_spatial_fold <- function(
   }
 
   #getting details of xy.i
-  xy.i.x <- xy.i[1, "x"]
-  xy.i.y <- xy.i[1, "y"]
+  xy.i.x <- dplyr::pull(xy.i, x)
+  xy.i.y <- dplyr::pull(xy.i, y)
 
   #finding out if data is binary
   is.binary <- FALSE

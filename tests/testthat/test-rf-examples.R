@@ -20,8 +20,10 @@ testthat::test_that("`rf()` works", {
     predictor.variable.names = ecoregions_predictor_variable_names,
     distance.matrix = ecoregions_distance_matrix,
     distance.thresholds = c(0,100, 1000, 10000),
+    xy = ecoregions_df[, c("x", "y")],
     verbose = FALSE
-  )
+  ) %>%
+    rf_evaluate()
 
   testthat::expect_true(
     out$ranger.arguments$num.trees == 500

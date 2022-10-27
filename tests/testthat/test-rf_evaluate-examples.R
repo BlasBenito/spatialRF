@@ -29,16 +29,27 @@ testthat::test_that("`rf_evaluate()` works", {
     xy = ecoregions_df[,c("x", "y")],
     cluster = cluster,
     verbose = FALSE
-  ) %>%
-    rf_evaluate(
-      metrics = c(
+  )
+
+  rf.model <- rf_evaluate(
+    model = rf.model,
+    xy = NULL,
+    repetitions = 30,
+    training.fraction = 0.75,
+    metrics = c(
         "auc",
         "r.squared",
         "rmse",
         "nrmse"
       ),
-      repetitions = 30,
-      verbose = FALSE
+    distance.step = NULL,
+    distance.step.x = NULL,
+    distance.step.y = NULL,
+    grow.testing.folds = FALSE,
+    seed = 1,
+    verbose = TRUE,
+    n.cores = parallel::detectCores() - 1,
+    cluster = NULL
     )
 
   testthat::expect_s3_class(

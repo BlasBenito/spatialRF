@@ -38,43 +38,172 @@ print_performance <- function(model){
   options(digits = 4)
   on.exit(options(user.options))
 
+  #getting intrinsic performance
   x <- model$performance
 
-  if(length(x$r.squared.oob) == 1){
+  if("rf_repeat" %in% class(model)){
+
     cat("\n")
-    cat(" Out-of-bag performance \n")
-    cat("  - R-squared:             ", x$r.squared.oob, "\n", sep="")
-    cat("  - RMSE:                  ", x$rmse.oob, "\n", sep="")
-    cat("  - Normalized RMSE:       ", x$nrmse.oob, "\n", sep="")
-    if(!is.na(x$auc.oob)){
-    cat("  - AUC:                   ", x$auc.oob, "\n", sep="")
+
+    cat(" Out-of-bag (median +/- median absolute deviation) \n")
+
+    cat(
+      "  - R-squared:             ",
+      median(x$r.squared.oob),
+      " +/- ",
+      mad(x$r.squared.oob),
+      "\n",
+      sep = ""
+    )
+
+    cat(
+      "  - RMSE:                  ",
+      median(x$rmse.oob),
+      " +/- ",
+      mad(x$rmse.oob),
+      "\n",
+      sep = ""
+    )
+
+    cat(
+      "  - Normalized RMSE:       ",
+      median(x$nrmse.oob),
+      " +/- ",
+      mad(x$nrmse.oob),
+      "\n",
+      sep = ""
+    )
+
+    if(!is.na(x$auc.oob[1])){
+
+      cat(
+        "  - AUC:                   ",
+        median(x$auc.oob),
+        " +/- ",
+        mad(x$auc.oob),
+        "\n",
+        sep = ""
+      )
+
     }
+
     cat("\n")
-    cat("In-bag performance \n")
-    cat("  - R-squared:             ", x$r.squared.ib, "\n", sep="")
-    cat("  - RMSE:                  ", x$rmse.ib, "\n", sep="")
-    cat("  - Normalized RMSE:       ", x$nrmse.ib, "\n", sep="")
-    if(!is.na(x$auc.oob)){
-    cat("  - AUC:                   ", x$auc.ib, "\n", sep="")
+
+    cat("In-bag (median +/- median absolute deviation)  \n")
+
+    cat(
+      "  - R-squared:             ",
+      median(x$r.squared.ib),
+      " +/- ",
+      mad(x$r.squared.ib),
+      "\n",
+      sep = ""
+    )
+
+    cat(
+      "  - RMSE:                  ",
+      median(x$rmse.ib),
+      " +/- ",
+      mad(x$rmse.ib),
+      "\n",
+      sep = ""
+    )
+
+    cat(
+      "  - Normalized RMSE:       ",
+      median(x$nrmse.ib),
+      " +/- ",
+      mad(x$nrmse.ib),
+      "\n",
+      sep = ""
+    )
+
+    if(!is.na(x$auc.oob[1])){
+
+      cat(
+        "  - AUC:                 ",
+        median(x$auc.ib),
+        " +/- ",
+        mad(x$auc.ib),
+        "\n",
+        sep = ""
+      )
     }
 
   } else {
+
     cat("\n")
-    cat(" Out-of-bag performance (median +/- median absolute deviation) \n")
-    cat("  - R-squared:             ", median(x$r.squared.oob), " +/- ", mad(x$r.squared.oob), "\n", sep="")
-    cat("  - RMSE:                  ", median(x$rmse.oob), " +/- ", mad(x$rmse.oob), "\n", sep="")
-    cat("  - Normalized RMSE:       ", median(x$nrmse.oob), " +/- ", mad(x$nrmse.oob), "\n", sep="")
-    if(!is.na(x$auc.oob[1])){
-    cat("  - AUC:                   ", median(x$auc.oob), " +/- ", mad(x$auc.oob), "\n", sep="")
+
+    cat("Out-of-bag \n")
+
+    cat(
+      "  - R-squared:             ",
+      x$r.squared.oob,
+      "\n",
+      sep = ""
+    )
+
+    cat(
+      "  - RMSE:                  ",
+      x$rmse.oob,
+      "\n",
+      sep = ""
+    )
+
+    cat(
+      "  - Normalized RMSE:       ",
+      x$nrmse.oob,
+      "\n",
+      sep = ""
+    )
+
+    if(!is.na(x$auc.oob)){
+
+      cat(
+        "  - AUC:                 ",
+        x$auc.oob,
+        "\n",
+        sep = ""
+      )
+
     }
+
     cat("\n")
-    cat("In-bag performance (median +/- median absolute deviation)  \n")
-    cat("  - R-squared:             ", median(x$r.squared.ib), " +/- ", mad(x$r.squared.ib), "\n", sep="")
-    cat("  - RMSE:                  ", median(x$rmse.ib), " +/- ", mad(x$rmse.ib), "\n", sep="")
-    cat("  - Normalized RMSE:       ", median(x$nrmse.ib), " +/- ", mad(x$nrmse.ib), "\n", sep="")
-    if(!is.na(x$auc.oob[1])){
-    cat("  - AUC:                   ", median(x$auc.ib), " +/- ", mad(x$auc.ib), "\n", sep="")
+
+    cat("In-bag \n")
+
+    cat(
+      "  - R-squared:             ",
+      x$r.squared.ib,
+      "\n",
+      sep = ""
+    )
+
+    cat(
+      "  - RMSE:                  ",
+      x$rmse.ib,
+      "\n",
+      sep = ""
+    )
+
+    cat(
+      "  - Normalized RMSE:       ",
+      x$nrmse.ib,
+      "\n",
+      sep = ""
+    )
+
+    if(!is.na(x$auc.oob)){
+
+      cat(
+        "  - AUC:                 ",
+        x$auc.ib,
+        "\n",
+        sep = ""
+      )
+
     }
+
   }
 
 
