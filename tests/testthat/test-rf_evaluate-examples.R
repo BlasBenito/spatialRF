@@ -31,6 +31,12 @@ testthat::test_that("`rf_evaluate()` works", {
     verbose = FALSE
   )
 
+  print_performance(rf.model)
+
+  rf.model <- rf_repeat(rf.model)
+
+  print_performance(rf.model)
+
   rf.model <- rf_evaluate(
     model = rf.model,
     xy = NULL,
@@ -51,6 +57,8 @@ testthat::test_that("`rf_evaluate()` works", {
     n.cores = parallel::detectCores() - 1,
     cluster = NULL
     )
+
+  print_performance(rf.model)
 
   testthat::expect_s3_class(
     rf.model,

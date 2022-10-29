@@ -33,178 +33,128 @@
 #' @export
 print_performance <- function(model){
 
-  #set decimal options
-  user.options <- options()
-  options(digits = 4)
-  on.exit(options(user.options))
+  #performance methods and their pretty names
+  methods_dictionary <- data.frame(
+    method = c(
+      "ib",
+      "oob",
+      "scv"
+    ),
+    name = c(
+      "In_bag",
+      "Out_of_bag",
+      "Spatial_CV"
+    )
+  )
 
-  #getting intrinsic performance
+  #performance metrics and their pretty names
+  metrics_dictionary <- data.frame(
+    metric = c(
+      "r.squared",
+      "rmse",
+      "nrmse",
+      "auc"
+    ),
+    name = c(
+      "R-squared",
+      "RMSE",
+      "nRMSE",
+      "AUC"
+    )
+  )
+
+  #getting performance
   x <- model$performance
 
-  if("rf_repeat" %in% class(model)){
+  #remove slots with NA
+  # x <- x[!is.na(x)]
 
-    cat("\n")
+  x <- Filter(Negate(anyNA), x)
 
-    cat(" Out-of-bag (median +/- median absolute deviation) \n")
+  #compute median and mad
+  x.median <- lapply(X = x, FUN = median)
 
-    cat(
-      "  - R-squared:             ",
-      median(x$r.squared.oob),
-      " +/- ",
-      mad(x$r.squared.oob),
-      "\n",
-      sep = ""
+  #checking what metrics are available
+  metrics <- unique(
+    gsub(
+      pattern = ".ib|.oob|.scv",
+      replacement = "",
+      x = names(x.median)
     )
+  )
 
-    cat(
-      "  - RMSE:                  ",
-      median(x$rmse.oob),
-      " +/- ",
-      mad(x$rmse.oob),
-      "\n",
-      sep = ""
+  #checking what methods are available
+  methods <- unique(
+    gsub(
+      pattern = "r.squared.|rmse.|auc.|nrmse.",
+      replacement = "",
+      x = names(x.median)
     )
+  )
 
-    cat(
-      "  - Normalized RMSE:       ",
-      median(x$nrmse.oob),
-      " +/- ",
-      mad(x$nrmse.oob),
-      "\n",
-      sep = ""
+
+  #empty performance data frame
+  performance_df <- matrix(
+    data = NA,
+    nrow = length(metrics),
+    ncol = length(methods),
+    dimnames = list(
+      metrics,
+      methods
     )
+  ) %>%
+    as.data.frame()
 
-    if(!is.na(x$auc.oob[1])){
-
-      cat(
-        "  - AUC:                   ",
-        median(x$auc.oob),
-        " +/- ",
-        mad(x$auc.oob),
-        "\n",
-        sep = ""
-      )
-
+  #filling performance data frame with medians
+  for(metric.i in metrics){
+    for(method.i in methods){
+      performance_df[metric.i, method.i] <-
+        x.median[[paste(
+          metric.i,
+          method.i,
+          sep = "."
+          )]]
     }
-
-    cat("\n")
-
-    cat("In-bag (median +/- median absolute deviation)  \n")
-
-    cat(
-      "  - R-squared:             ",
-      median(x$r.squared.ib),
-      " +/- ",
-      mad(x$r.squared.ib),
-      "\n",
-      sep = ""
-    )
-
-    cat(
-      "  - RMSE:                  ",
-      median(x$rmse.ib),
-      " +/- ",
-      mad(x$rmse.ib),
-      "\n",
-      sep = ""
-    )
-
-    cat(
-      "  - Normalized RMSE:       ",
-      median(x$nrmse.ib),
-      " +/- ",
-      mad(x$nrmse.ib),
-      "\n",
-      sep = ""
-    )
-
-    if(!is.na(x$auc.oob[1])){
-
-      cat(
-        "  - AUC:                 ",
-        median(x$auc.ib),
-        " +/- ",
-        mad(x$auc.ib),
-        "\n",
-        sep = ""
-      )
-    }
-
-  } else {
-
-    cat("\n")
-
-    cat("Out-of-bag \n")
-
-    cat(
-      "  - R-squared:             ",
-      x$r.squared.oob,
-      "\n",
-      sep = ""
-    )
-
-    cat(
-      "  - RMSE:                  ",
-      x$rmse.oob,
-      "\n",
-      sep = ""
-    )
-
-    cat(
-      "  - Normalized RMSE:       ",
-      x$nrmse.oob,
-      "\n",
-      sep = ""
-    )
-
-    if(!is.na(x$auc.oob)){
-
-      cat(
-        "  - AUC:                 ",
-        x$auc.oob,
-        "\n",
-        sep = ""
-      )
-
-    }
-
-    cat("\n")
-
-    cat("In-bag \n")
-
-    cat(
-      "  - R-squared:             ",
-      x$r.squared.ib,
-      "\n",
-      sep = ""
-    )
-
-    cat(
-      "  - RMSE:                  ",
-      x$rmse.ib,
-      "\n",
-      sep = ""
-    )
-
-    cat(
-      "  - Normalized RMSE:       ",
-      x$nrmse.ib,
-      "\n",
-      sep = ""
-    )
-
-    if(!is.na(x$auc.oob)){
-
-      cat(
-        "  - AUC:                 ",
-        x$auc.ib,
-        "\n",
-        sep = ""
-      )
-
-    }
-
   }
+
+  #ordering columns as in methods_dictionary
+  performance_df <- performance_df[
+    metrics_dictionary$metric[metrics_dictionary$metric %in% metrics],
+    methods_dictionary$method[methods_dictionary$method %in% methods]
+    ]
+
+  #renaming with pretty names
+  colnames(performance_df) <- methods_dictionary$name[methods_dictionary$method %in% methods]
+
+  #renaming rows
+  rownames(performance_df) <- metrics_dictionary$name[metrics_dictionary$metric %in% metrics]
+
+  #rownames as Metric
+  performance_df <- data.frame(
+    Metric = rownames(performance_df),
+    performance_df
+  )
+
+  #remove rownames
+  rownames(performance_df) <- NULL
+
+  performance_df_hux <-
+    huxtable::hux(performance_df) %>%
+    huxtable::set_bold(
+      row = 1,
+      col = huxtable::everywhere,
+      value = TRUE
+      ) %>%
+    huxtable::set_all_borders(TRUE)
+
+  huxtable::number_format(performance_df_hux) <- 3
+
+  huxtable::print_screen(performance_df_hux)
+
+  cat("\nInterpretation:\n")
+  cat(" - In_bag: prediction of the full training dataset.\n")
+  cat(" - Out_of_bag: predictions of data left out during the training of each regression tree.\n")
+  cat(" - Spatial_CV: predictions over data spatially independent from the training data.\n")
 
 
 }

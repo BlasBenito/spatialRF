@@ -197,7 +197,7 @@ rf_evaluate <- function(
   #thinning coordinates to get a systematic sample of reference points
 
   if(verbose == TRUE){
-    message("Selecting pairs of coordinates as trainnig fold origins.")
+    message("Selecting centers of training folds.")
   }
 
   xy.reference.records <- thinning_til_n(
@@ -403,7 +403,7 @@ rf_evaluate <- function(
       by = 1
     )
 
-  #remove columns without NA
+  #remove columns with NA
   evaluation.df.unique <- evaluation.df.unique[, names(na.omit(colSums(evaluation.df.unique)))]
 
   #message with number of removed folds
@@ -448,11 +448,16 @@ rf_evaluate <- function(
     x = colnames(performance.testing)
   )
 
+  #adding testing values to performance list
+  for(metric.i in metrics){
+    model$performance[[paste0(metric.i, ".scv")]] <- dplyr::pull(performance.testing, metric.i)
+  }
+
   #getting intrinsic performance values
-  r.squared <- model$performance$r.squared
-  rmse <- model$performance$rmse
-  nrmse <- model$performance$nrmse
-  auc <- model$performance$auc
+  r.squared <- model$performance$r.squared.ib
+  rmse <- model$performance$rmse.ib
+  nrmse <- model$performance$nrmse.ib
+  auc <- model$performance$auc.ib
 
   #check lengths
   if(length(r.squared) == 0){
