@@ -59,6 +59,7 @@ testthat::test_that("`rf_evaluate()` works", {
     )
 
   print_performance(rf.model)
+  get_performance(rf.model)
 
   testthat::expect_s3_class(
     rf.model,

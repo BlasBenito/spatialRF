@@ -149,12 +149,15 @@ print_performance <- function(model){
 
   huxtable::number_format(performance_df_hux) <- 3
 
-  huxtable::print_screen(performance_df_hux)
+  huxtable::print_screen(
+    ht = performance_df_hux,
+    colnames = FALSE
+    )
 
   cat("\nInterpretation:\n")
-  cat(" - In_bag: prediction of the full training dataset.\n")
-  cat(" - Out_of_bag: predictions of data left out during the training of each regression tree.\n")
-  cat(" - Spatial_CV: predictions over data spatially independent from the training data.\n")
+  cat(" - In_bag: from the prediction of the entire training set. Please, never report this number. It is highly inflated.\n")
+  cat("- Out_of_bag: from the prediction of data left out during the training of each regression tree. It might be inflated when the training data shows a strong spatial structure.\n")
+  cat("- Spatial_CV: median performance from predictions over spatially independent data. Trustworthy, but negatively affected when the importance of spatial predictors is high.\n")
 
 
 }
