@@ -21,6 +21,7 @@ auto_vif()
 auto_cor()
 rf()
 rf_repeat()
+rf_evaluate()
 
 ## Accept factor predictors
 

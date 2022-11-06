@@ -11,13 +11,11 @@ testthat::test_that("`rf_evaluate()` works", {
     ecoregions_dependent_variable_name
   )
 
-  ecoregions_df <- tibble::as_tibble(ecoregions_df)
-
   cluster <- spatialRF::start_cluster()
 
-  #continuous response
+  #with tibble
   rf.model <- rf(
-    data = ecoregions_df,
+    data = tibble::as_tibble(ecoregions_df),
     dependent.variable.name = ecoregions_dependent_variable_name,
     predictor.variable.names = ecoregions_predictor_variable_names,
     distance.matrix = ecoregions_distance_matrix,
@@ -30,12 +28,6 @@ testthat::test_that("`rf_evaluate()` works", {
     cluster = cluster,
     verbose = FALSE
   )
-
-  print_performance(rf.model)
-
-  rf.model <- rf_repeat(rf.model)
-
-  print_performance(rf.model)
 
   rf.model <- rf_evaluate(
     model = rf.model,
@@ -53,13 +45,26 @@ testthat::test_that("`rf_evaluate()` works", {
     distance.step.y = NULL,
     grow.testing.folds = FALSE,
     seed = 1,
-    verbose = TRUE,
+    verbose = FALSE,
     n.cores = parallel::detectCores() - 1,
     cluster = NULL
     )
 
-  print_performance(rf.model)
-  get_performance(rf.model)
+  testthat::expect_equal(
+    object = "tbl" %in% class(rf.model$evaluation$per.fold),
+    expected = TRUE
+  )
+
+  testthat::expect_equal(
+    object = "tbl" %in% class(rf.model$evaluation$per.fold.long),
+    expected = TRUE
+  )
+
+  testthat::expect_equal(
+    object = "tbl" %in% class(rf.model$evaluation$per.model),
+    expected = TRUE
+  )
+
 
   testthat::expect_s3_class(
     rf.model,
@@ -69,21 +74,6 @@ testthat::test_that("`rf_evaluate()` works", {
   testthat::expect_type(
     rf.model$evaluation,
     "list"
-    )
-
-  testthat::expect_s3_class(
-    rf.model$evaluation$per.fold,
-    "data.frame"
-    )
-
-  testthat::expect_s3_class(
-    rf.model$evaluation$per.model,
-    "data.frame"
-    )
-
-  testthat::expect_s3_class(
-    rf.model$evaluation$aggregated,
-    "data.frame"
     )
 
 

@@ -43,7 +43,18 @@ standard_error <- function(x){
 #' @rdname root_mean_squared_error
 #' @importFrom stats na.omit quantile
 #' @export
-root_mean_squared_error <- function(o, p, normalization = c("rmse", "all", "mean", "sd", "maxmin", "iq")) {
+root_mean_squared_error <- function(
+    o,
+    p,
+    normalization = c(
+      "rmse",
+      "all",
+      "mean",
+      "sd",
+      "maxmin",
+      "iq"
+      )
+    ) {
 
   normalization <- match.arg(normalization)
 

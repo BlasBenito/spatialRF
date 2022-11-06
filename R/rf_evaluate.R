@@ -116,6 +116,13 @@ rf_evaluate <- function(
     ranger.arguments$scaled.importance <- FALSE
     ranger.arguments$distance.matrix <- NULL
 
+    #check if input is tibble
+    if(tibble::is_tibble(data) == TRUE){
+      return.tibble <- TRUE
+    } else {
+      return.tibble <- FALSE
+    }
+
     #getting xy
     if(is.null(xy)){
       if(is.null(model$ranger.arguments$xy)){
@@ -152,6 +159,7 @@ rf_evaluate <- function(
     x = dplyr::pull(data, dependent.variable.name)
   )){
     metrics <- c(metrics, "auc")
+    metrics <- metrics[metrics != "nrmse"]
   } else {
     metrics <- metrics[metrics != "auc"]
   }
@@ -288,7 +296,10 @@ rf_evaluate <- function(
     )$predictions
 
     #getting observed data
-    observed <- dplyr::pull(data.testing, dependent.variable.name)
+    observed <- dplyr::pull(
+      data.testing,
+      dependent.variable.name
+      )
 
     #computing evaluation scores
     performance.df <- data.frame(
@@ -450,7 +461,10 @@ rf_evaluate <- function(
 
   #adding testing values to performance list
   for(metric.i in metrics){
-    model$performance[[paste0(metric.i, ".scv")]] <- dplyr::pull(performance.testing, metric.i)
+    model$performance[[paste0(metric.i, ".scv")]] <- dplyr::pull(
+      performance.testing,
+      metric.i
+      )
   }
 
   #getting intrinsic performance values
@@ -540,6 +554,13 @@ rf_evaluate <- function(
   }
 
   class(model) <- c(class(model), "rf_evaluate")
+
+  #coercing output to tibble
+  if(return.tibble == TRUE){
+    model$evaluation$per.fold <- tibble::as_tibble(model$evaluation$per.fold)
+    model$evaluation$per.fold.long <- tibble::as_tibble(model$evaluation$per.fold.long)
+    model$evaluation$per.model <- tibble::as_tibble(model$evaluation$per.model)
+  }
 
   if(verbose == TRUE){
     print_evaluation(model = model)

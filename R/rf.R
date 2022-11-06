@@ -609,11 +609,17 @@ rf <- function(
 
     #matrix with sign of the value
     variable.importance.local.sign <- variable.importance.local
-    variable.importance.local.sign[variable.importance.local.sign >= 0] <- 1
-    variable.importance.local.sign[variable.importance.local.sign < 0 ] <- -1
 
-    #saving to the slot
-    m$importance$local <- sqrt(abs(variable.importance.local)) * variable.importance.local.sign
+    if(!is.null(variable.importance.local)){
+      variable.importance.local.sign[variable.importance.local.sign >= 0] <- 1
+      variable.importance.local.sign[variable.importance.local.sign < 0 ] <- -1
+
+      #saving to the slot
+      m$importance$local <- sqrt(abs(variable.importance.local)) * variable.importance.local.sign
+    } else {
+      m$importance$local <- NULL
+    }
+
 
   }
 
@@ -737,10 +743,20 @@ rf <- function(
 
   #coercing output to tibble
   if(return.tibble == TRUE){
-    m$variable.importance.local <- tibble::as_tibble(m$variable.importance.local)
-    m$importance$per.variable <- tibble::as_tibble(m$importance$per.variable)
-    m$importance$local <- tibble::as_tibble(m$importance$local)
-    m$residuals$autocorrelation$per.distance <- tibble::as_tibble(m$residuals$autocorrelation$per.distance)
+
+    if(is.null(m$variable.importance.local) == FALSE){
+      m$variable.importance.local <- tibble::as_tibble(m$variable.importance.local)
+    }
+
+    if(importance == "permutation"){
+      m$importance$per.variable <- tibble::as_tibble(m$importance$per.variable)
+      m$importance$local <- tibble::as_tibble(m$importance$local)
+    }
+
+    if(is.null(m$residuals$autocorrelation$per.distance) == FALSE){
+      m$residuals$autocorrelation$per.distance <- tibble::as_tibble(m$residuals$autocorrelation$per.distance)
+    }
+
   }
 
   if(verbose == TRUE){
