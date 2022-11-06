@@ -11,7 +11,34 @@ testthat::test_that("`rf_repeat()` works", {
     ecoregions_dependent_variable_name
   )
 
-  ecoregions_df <- tibble::as_tibble(ecoregions_df)
+  #from model with tibble
+  out <- rf(
+    data = tibble::as_tibble(ecoregions_df),
+    dependent.variable.name = ecoregions_dependent_variable_name,
+    predictor.variable.names = ecoregions_predictor_variable_names,
+    distance.matrix = ecoregions_distance_matrix,
+    distance.thresholds = c(0,100, 1000, 10000),
+    xy = ecoregions_df[, c("x", "y")],
+    verbose = FALSE
+  ) %>%
+    rf_repeat(verbose = FALSE)
+
+  testthat::expect_equal(
+    object = "tbl" %in% class(out$variable.importance.local),
+    expected = TRUE
+  )
+
+  testthat::expect_equal(
+    object = "tbl" %in% class(out$predictions$oob.repetitions),
+    expected = TRUE
+  )
+
+  testthat::expect_equal(
+    object = "tbl" %in% class(out$residuals$autocorrelation$per.repetition),
+    expected = TRUE
+  )
+
+
 
   #with n.cores
   out <- rf_repeat(
@@ -89,12 +116,14 @@ testthat::test_that("`rf_repeat()` works", {
 
   #using output of auto_vif and auto_cor as predictor.variable.names
 
+  testthat::expect_warning(
     variable.selection <- auto_cor(
       data = ecoregions_df,
       verbose = FALSE,
       preference.order = ecoregions_predictor_variable_names
     ) %>%
       auto_vif()
+  )
 
   #fitting model
   out.2 <- rf_repeat(

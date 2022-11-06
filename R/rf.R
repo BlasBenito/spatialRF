@@ -8,11 +8,11 @@
 #' @param distance.thresholds  (optional; numeric vector with distances in the same units as `distance.matrix`) Numeric vector with neighborhood distances. All distances in the distance matrix below each value in `dustance.thresholds` are set to 0 for the computation of Moran's I. If `NULL`, it defaults to seq(0, max(distance.matrix), length.out = 4). Default: `NULL`
 #' @param xy (optional; data frame, tibble, or matrix) Data frame or matrix with two columns containing coordinates and named "x" and "y". It is not used by this function, but it is stored in the slot `ranger.arguments$xy` of the model, so it can be used by [rf_evaluate()] and [rf_tuning()]. Default: `NULL`
 #' @param ranger.arguments (optional; list with ranger::ranger() arguments) Named list with \link[ranger]{ranger} arguments. All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. The ranger arguments `x`, `y`, and `formula` are disabled. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function. Default: `NULL`.
-#' @param scaled.importance (optional; logical) Logical, if `TRUE`, the function scales `data` with \link[base]{scale} and fits a new model to compute scaled variable importance scores. This makes variable importance scores of different models somewhat comparable. Default: `FALSE`
-#' @param seed (optional; logical) Integer, random seed to facilitate reproducibility. If set to a given number, the returned model is always the same. Default: `1`
-#' @param verbose (optional; logical) Boolean. If TRUE, messages and plots generated during the execution of the function are displayed. Default: `TRUE`
-#' @param n.cores (optional; integer) Integer, number of cores to use. Default: `parallel::detectCores() - 1`
-#' @param cluster (optional; cluster object) A cluster definition generated with `parallel::makeCluster()` or \code{\link{start_cluster}}. This function does not use the cluster, but can pass it to other functions when using the `%>%` pipe. Default: `NULL`
+#' @param scaled.importance (optional; logical) If `TRUE`, the function scales `data` with \link[base]{scale} and fits a new model to compute scaled variable importance scores. This makes variable importance scores of different models somewhat comparable. Default: `FALSE`
+#' @param seed (optional; integer) Random seed to facilitate reproducibility. If set to a given number, the returned model is always the same. Default: `1`
+#' @param verbose (optional; logical) If TRUE, messages and plots generated during the execution of the function are displayed. Default: `TRUE`
+#' @param n.cores (optional; integer) Number of cores to use. Default: `parallel::detectCores() - 1`
+#' @param cluster (optional; cluster object) A cluster definition generated with `parallel::makeCluster()` or \code{\link{start_cluster}}. Only advisable if you need to spread a large number of repetitions over the nodes of a large cluster when working with large data. If provided, overrides `n.cores`. The function does not stop a cluster, please remember to shut it down with `parallel::stopCluster(cl = cluster_name)` or `spatialRF::stop_cluster()` at the end of your pipeline. Default: `NULL`
 #' @return A ranger model with several extra slots:
 #' \itemize{
 #'   \item `ranger.arguments`: Stores the values of the arguments used to fit the ranger model.
@@ -483,11 +483,6 @@ rf <- function(
 
   #get variable importance
   variable.importance.global <- m$variable.importance
-
-  if(return.tibble == TRUE){
-    m$variable.importance.local <- tibble::as_tibble(m$variable.importance.local)
-  }
-
   variable.importance.local <- m$variable.importance.local
 
   #if scaled.importance is TRUE
@@ -595,21 +590,15 @@ rf <- function(
     #applying sqrt
     variable.importance.global <- sqrt(abs(variable.importance.global)) * variable.importance.global.sign
 
-    per.variable <- data.frame(
+    m$importance$per.variable <- data.frame(
       variable = names(variable.importance.global),
       importance = variable.importance.global
     ) %>%
       tibble::remove_rownames() %>%
       dplyr::arrange(dplyr::desc(importance)) %>%
-      dplyr::mutate(importance = round(importance, 3))
+      dplyr::mutate(importance = round(importance, 3)) %>%
+      as.data.frame()
 
-    if(return.tibble == TRUE){
-      per.variable <- tibble::as_tibble(per.variable)
-    } else {
-      per.variable <- as.data.frame(per.variable)
-    }
-
-    m$importance$per.variable <- per.variable
 
     m$importance$per.variable.plot <- plot_importance(
       m$importance$per.variable,
@@ -623,16 +612,8 @@ rf <- function(
     variable.importance.local.sign[variable.importance.local.sign >= 0] <- 1
     variable.importance.local.sign[variable.importance.local.sign < 0 ] <- -1
 
-    #applying sqrt
-    variable.importance.local <- sqrt(abs(variable.importance.local)) * variable.importance.local.sign
-
-    #to tibble
-    if(return.tibble == TRUE){
-      variable.importance.local <- tibble::as_tibble(variable.importance.local)
-    }
-
     #saving to the slot
-    m$importance$local <- variable.importance.local
+    m$importance$local <- sqrt(abs(variable.importance.local)) * variable.importance.local.sign
 
   }
 
@@ -717,10 +698,6 @@ rf <- function(
       verbose = verbose
     )
 
-    if(return.tibble == TRUE){
-      m$residuals$autocorrelation$per.distance <- tibble::as_tibble(m$residuals$autocorrelation$per.distance)
-    }
-
   }
 
   #normality of the residuals
@@ -757,6 +734,14 @@ rf <- function(
 
   #adding rf class
   class(m) <- c("rf", "ranger")
+
+  #coercing output to tibble
+  if(return.tibble == TRUE){
+    m$variable.importance.local <- tibble::as_tibble(m$variable.importance.local)
+    m$importance$per.variable <- tibble::as_tibble(m$importance$per.variable)
+    m$importance$local <- tibble::as_tibble(m$importance$local)
+    m$residuals$autocorrelation$per.distance <- tibble::as_tibble(m$residuals$autocorrelation$per.distance)
+  }
 
   if(verbose == TRUE){
     print(m)

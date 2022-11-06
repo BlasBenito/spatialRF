@@ -1,20 +1,20 @@
 #' @title Fits several random forest models on the same data
 #' @description Fits several random forest models on the same data in order to capture the effect of the algorithm's stochasticity on the variable importance scores, predictions, residuals, and performance measures. The function relies on the median to aggregate performance and importance values across repetitions. It is recommended to use it after a model is fitted ([rf()] or [rf_spatial()]), tuned ([rf_tuning()]), and/or evaluated ([rf_evaluate()]). This function is designed to be used after fitting a model with [rf()] or [rf_spatial()], tuning it with [rf_tuning()] and evaluating it with [rf_evaluate()].
-#' @param model A model fitted with [rf()]. If provided, the data and ranger arguments are taken directly from the model definition (stored in `model$ranger.arguments`), and the argument `ranger.arguments` is ignored. Default: `NULL`
-#' @param data Data frame with a response variable and a set of predictors. Default: `NULL`
-#' @param dependent.variable.name Character string with the name of the response variable. Must be in the column names of `data`. If the dependent variable is binary with values 1 and 0, the argument `case.weights` of `ranger` is populated by the function [case_weights()]. Default: `NULL`
-#' @param predictor.variable.names Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Default: `NULL`
-#' @param distance.matrix Squared matrix with the distances among the records in `data`. The number of rows of `distance.matrix` and `data` must be the same. If not provided, the computation of the Moran's I of the residuals is omitted. Default: `NULL`
-#' @param distance.thresholds Numeric vector with neighborhood distances. All distances in the distance matrix below each value in `dustance.thresholds` are set to 0 for the computation of Moran's I. If `NULL`, it defaults to seq(0, max(distance.matrix), length.out = 4). Default: `NULL`
-#' @param xy (optional) Data frame or matrix with two columns containing coordinates and named "x" and "y". It is not used by this function, but it is stored in the slot `ranger.arguments$xy` of the model, so it can be used by [rf_evaluate()] and [rf_tuning()]. Default: `NULL`
-#' @param ranger.arguments Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.
-#' @param scaled.importance Logical. If `TRUE`, and 'importance = "permutation', the function scales 'data' with \link[base]{scale} and fits a new model to compute scaled variable importance scores. Default: `FALSE`
+#' @param model (required if `data` is `NULL`; model produced with `spatialRF`) A model fitted with [rf()]. If provided, the data and ranger arguments are taken directly from the model definition (stored in `model$ranger.arguments`), and the argument `ranger.arguments` is ignored. Default: `NULL`
+#' @param data (required if `model` is `NULL`; data frame or tibble) Data frame with a response variable and a set of predictors. If `data` is a tibble, all data frames in the output model are coerced to tibble. Default: `NULL`
+#' @param dependent.variable.name (required if `model` is `NULL`; character string) Character string with the name of the response variable. Must be in the column names of `data`. If the dependent variable is binary with values 1 and 0, the argument `case.weights` of `ranger` is populated by the function [case_weights()]. Default: `NULL`
+#' @param predictor.variable.names (required if `model` is `NULL`; character vector with column names of `data`) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Default: `NULL`
+#' @param distance.matrix (optional; distance matrix) Squared matrix with the distances among the records in `data`. The number of rows of `distance.matrix` and `data` must be the same. If not provided, the computation of the Moran's I of the residuals is omitted. Default: `NULL`
+#' @param distance.thresholds (optional; numeric vector with distances in the same units as `distance.matrix`) Numeric vector with neighborhood distances. All distances in the distance matrix below each value in `dustance.thresholds` are set to 0 for the computation of Moran's I. If `NULL`, it defaults to seq(0, max(distance.matrix), length.out = 4). Default: `NULL`
+#' @param xy (optional; data frame, tibble, or matrix) Data frame or matrix with two columns containing coordinates and named "x" and "y". It is not used by this function, but it is stored in the slot `ranger.arguments$xy` of the model, so it can be used by [rf_evaluate()] and [rf_tuning()]. Default: `NULL`
+#' @param ranger.arguments (optional; list with ranger::ranger() arguments) Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.
+#' @param scaled.importance (optional; logical) If `TRUE`, and 'importance = "permutation', the function scales 'data' with \link[base]{scale} and fits a new model to compute scaled variable importance scores. Default: `FALSE`
 #' @param repetitions Integer, number of random forest models to fit. Default: `10`
 #' @param keep.models Logical, if `TRUE`, the fitted models are returned in the `models` slot. Set to `FALSE` if the accumulation of models is creating issues with the RAM memory available. Default: `TRUE`.
 #' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same. Default: `1`.
-#' @param verbose Logical, ff `TRUE`, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
-#' @param n.cores Integer, number of cores used by \code{\link[ranger]{ranger}} for parallel execution (used as value for the argument `num.threads` in `ranger()`). Default: `NULL`
-#' @param cluster A cluster definition generated with `parallel::makeCluster()` or \code{\link{start_cluster}}. Only advisable if you need to spread a large number of repetitions over the nodes of a large cluster when working with large data. If provided, overrides `n.cores`. The function does not stop a cluster, please remember to shut it down with `parallel::stopCluster(cl = cluster_name)` or `spatialRF::stop_cluster()` at the end of your pipeline. Default: `NULL`
+#' @param verbose (optional; logical) If TRUE, messages and plots generated during the execution of the function are displayed. Default: `TRUE`
+#' @param n.cores  (optional; integer) Number of cores to use. Default: `parallel::detectCores() - 1`
+#' @param cluster (optional; cluster object) A cluster definition generated with `parallel::makeCluster()` or \code{\link{start_cluster}}. Only advisable if you need to spread a large number of repetitions over the nodes of a large cluster when working with large data. If provided, overrides `n.cores`. The function does not stop a cluster, please remember to shut it down with `parallel::stopCluster(cl = cluster_name)` or `spatialRF::stop_cluster()` at the end of your pipeline. Default: `NULL`
 #' @return A ranger model with several new slots:
 #' \itemize{
 #'   \item `ranger.arguments`: Stores the values of the arguments used to fit the ranger model.
@@ -218,6 +218,10 @@ rf_repeat <- function(
         cluster <- model$ranger.arguments$cluster
       }
 
+      if(is.null(seed)){
+        seed <- model$ranger.arguments$seed
+      }
+
       #writing ranger.arguments to the function environment
       list2env(ranger.arguments, envir=environment())
 
@@ -230,6 +234,13 @@ rf_repeat <- function(
 
     predictor.variable.names <- predictor.variable.names$selected.variables
 
+  }
+
+  #check if input is tibble
+  if(tibble::is_tibble(data) == TRUE){
+    return.tibble <- TRUE
+  } else {
+    return.tibble <- FALSE
   }
 
   #END OF HANDLING ARGUMENTS
@@ -264,6 +275,7 @@ rf_repeat <- function(
     in.loop.ranger.arguments <- ranger.arguments
     in.loop.ranger.arguments$num.threads <- 1
 
+
   } else {
 
     #sequential iterator
@@ -274,6 +286,9 @@ rf_repeat <- function(
     in.loop.ranger.arguments <- ranger.arguments
 
   }
+
+  #removing ranger arguments from in.loop.ranger.arguments
+  in.loop.ranger.arguments$seed <- NULL
 
   ##########################
   #END OF HANDLING PARALLELIZATION
@@ -295,7 +310,7 @@ rf_repeat <- function(
       xy = xy,
       ranger.arguments = in.loop.ranger.arguments,
       scaled.importance = scaled.importance,
-      seed = ifelse(is.null(seed), i, seed + i),
+      seed = seed + i,
       n.cores = in.loop.n.cores,
       verbose = FALSE
     )
@@ -305,7 +320,7 @@ rf_repeat <- function(
     out$predictions <- m.i$predictions
     out$importance$local <- m.i$variable.importance.local
     out$importance <- m.i$importance$per.variable
-    out$importance.local <- m.i$importance$local
+    out$importance.local <- as.matrix(m.i$importance$local)
     out$prediction.error <- m.i$prediction.error
     out$r.squared.ib <- m.i$performance$r.squared.ib
     out$r.squared.oob <- m.i$performance$r.squared.oob
@@ -852,6 +867,20 @@ rf_repeat <- function(
   #adding cluster to model
   if(!is.null(cluster) & "cluster" %in% class(cluster)){
     m$ranger.arguments$cluster <- cluster
+  }
+
+  #coercing output to tibble
+  if(return.tibble == TRUE){
+    m$variable.importance.local <- tibble::as_tibble(m$variable.importance.local)
+    m$residuals$values.median <- tibble::as_tibble(m$residuals$values.median)
+    m$residuals$values.repetitions <- tibble::as_tibble(m$residuals$values.repetitions)
+    m$residuals$autocorrelation$per.distance <- tibble::as_tibble(m$residuals$autocorrelation$per.distance)
+    m$residuals$autocorrelation$per.repetition <- tibble::as_tibble(m$residuals$autocorrelation$per.repetition)
+    m$predictions$ib.repetitions <- tibble::as_tibble(m$predictions$ib.repetitions)
+    m$predictions$oob.repetitions <- tibble::as_tibble(m$predictions$oob.repetitions)
+    m$importance$per.variable <- tibble::as_tibble(m$importance$per.variable)
+    m$importance$per.repetition <- tibble::as_tibble(m$importance$per.repetition)
+    m$importance$local <- tibble::as_tibble(m$importance$local)
   }
 
   #print model

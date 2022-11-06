@@ -6,6 +6,8 @@
 
 auto_vif()
 auto_cor()
+rf()
+rf_repeat()
 
 ## Sparse distance matrix
 
@@ -18,6 +20,7 @@ auto_cor()
 auto_vif()
 auto_cor()
 rf()
+rf_repeat()
 
 ## Accept factor predictors
 

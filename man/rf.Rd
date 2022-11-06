@@ -37,15 +37,15 @@ rf(
 
 \item{ranger.arguments}{(optional; list with ranger::ranger() arguments) Named list with \link[ranger]{ranger} arguments. All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. The ranger arguments \code{x}, \code{y}, and \code{formula} are disabled. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function. Default: \code{NULL}.}
 
-\item{scaled.importance}{(optional; logical) Logical, if \code{TRUE}, the function scales \code{data} with \link[base]{scale} and fits a new model to compute scaled variable importance scores. This makes variable importance scores of different models somewhat comparable. Default: \code{FALSE}}
+\item{scaled.importance}{(optional; logical) If \code{TRUE}, the function scales \code{data} with \link[base]{scale} and fits a new model to compute scaled variable importance scores. This makes variable importance scores of different models somewhat comparable. Default: \code{FALSE}}
 
-\item{seed}{(optional; logical) Integer, random seed to facilitate reproducibility. If set to a given number, the returned model is always the same. Default: \code{1}}
+\item{seed}{(optional; integer) Random seed to facilitate reproducibility. If set to a given number, the returned model is always the same. Default: \code{1}}
 
-\item{verbose}{(optional; logical) Boolean. If TRUE, messages and plots generated during the execution of the function are displayed. Default: \code{TRUE}}
+\item{verbose}{(optional; logical) If TRUE, messages and plots generated during the execution of the function are displayed. Default: \code{TRUE}}
 
-\item{n.cores}{(optional; integer) Integer, number of cores to use. Default: \code{parallel::detectCores() - 1}}
+\item{n.cores}{(optional; integer) Number of cores to use. Default: \code{parallel::detectCores() - 1}}
 
-\item{cluster}{(optional; cluster object) A cluster definition generated with \code{parallel::makeCluster()} or \code{\link{start_cluster}}. This function does not use the cluster, but can pass it to other functions when using the \verb{\%>\%} pipe. Default: \code{NULL}}
+\item{cluster}{(optional; cluster object) A cluster definition generated with \code{parallel::makeCluster()} or \code{\link{start_cluster}}. Only advisable if you need to spread a large number of repetitions over the nodes of a large cluster when working with large data. If provided, overrides \code{n.cores}. The function does not stop a cluster, please remember to shut it down with \code{parallel::stopCluster(cl = cluster_name)} or \code{spatialRF::stop_cluster()} at the end of your pipeline. Default: \code{NULL}}
 }
 \value{
 A ranger model with several extra slots:
