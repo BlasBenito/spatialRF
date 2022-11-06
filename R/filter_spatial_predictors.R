@@ -3,7 +3,7 @@
 #' @param data Data frame with a response variable and a set of predictors. Default: `NULL`
 #' @param predictor.variable.names Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Default: `NULL`
 #' @param spatial.predictors.df Data frame of spatial predictors.
-#' @param cor.threshold Numeric between 0 and 1, maximum Pearson correlation between any pair of the selected variables. Default: `0.50`
+#' @param max.cor Numeric between 0 and 1, maximum Pearson correlation between any pair of the selected variables. Default: `0.50`
 #' @return A data frame with non-redundant spatial predictors.
 #' @examples
 #' if(interactive()){
@@ -26,7 +26,7 @@
 #'   data = ecoregions_df,
 #'   predictor.variable.names = ecoregions_predictor_variable_names,
 #'   spatial.predictors.df = spatial.predictors.df,
-#'   cor.threshold = 0.50
+#'   max.cor = 0.50
 #'  )
 #'
 #'  spatial.predictors.df
@@ -39,7 +39,7 @@ filter_spatial_predictors <- function(
   data = NULL,
   predictor.variable.names = NULL,
   spatial.predictors.df = NULL,
-  cor.threshold = 0.50
+  max.cor = 0.50
 ){
 
   #predictor.variable.names comes from auto_vif or auto_cor
@@ -52,7 +52,7 @@ filter_spatial_predictors <- function(
   #filtering spatial predictors by pair-wise correlation
   spatial.predictors.selection <- auto_cor(
     data = spatial.predictors.df,
-    cor.threshold = cor.threshold,
+    max.cor = max.cor,
     verbose = FALSE
   )
 
@@ -72,7 +72,7 @@ filter_spatial_predictors <- function(
   max.cor.spatial.predictors <- apply(cor.predictors, 2, FUN = max)
 
   #selected spatial predictors
-  selected.spatial.predictors <- names(max.cor.spatial.predictors[max.cor.spatial.predictors < cor.threshold])
+  selected.spatial.predictors <- names(max.cor.spatial.predictors[max.cor.spatial.predictors < max.cor])
 
   #subsetting spatial.predictors.df
   spatial.predictors.df <- spatial.predictors.df[, selected.spatial.predictors, drop = FALSE]

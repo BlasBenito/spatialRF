@@ -8,20 +8,20 @@ auto_cor(
   data = NULL,
   predictor.variable.names = NULL,
   preference.order = NULL,
-  cor.threshold = 0.75,
+  max.cor = 0.75,
   verbose = TRUE
 )
 }
 \arguments{
-\item{data}{A data frame with predictors. Default: \code{NULL}.}
+\item{data}{(required; data frame or tibble) A data frame with predictors. Default: \code{NULL}.}
 
-\item{predictor.variable.names}{Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. If \code{NULL}, all the columns in data are used, and non-numeric ones discarded. Default: \code{NULL}}
+\item{predictor.variable.names}{(optional; character vector) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. If \code{NULL}, all the columns in data are used, and non-numeric ones discarded. Default: \code{NULL}}
 
-\item{preference.order}{Character vector indicating the user's order of preference to keep variables. Predictors not included in this argument are ranked by the sum of their correlation with other variables (variables with higher sums receive lower ranks and have therefore lower preference order). Default: \code{NULL}.}
+\item{preference.order}{(optional; character vector) Character vector indicating the user's order of preference to keep variables. Predictors not included in this argument are ranked by the sum of their correlation with other variables (variables with higher sums receive lower ranks and have therefore lower preference order). Default: \code{NULL}.}
 
-\item{cor.threshold}{Numeric between 0 and 1, with recommended values between 0.5 and 0.9. Maximum Pearson correlation between any pair of the selected variables. Default: \code{0.75}}
+\item{max.cor}{(optional; numeric) Numeric between 0 and 1, with recommended values between 0.5 and 0.9. Maximum Pearson correlation between any pair of the selected variables. Default: \code{0.75}}
 
-\item{verbose}{Logical. if \code{TRUE}, describes the function operations to the user. Default:: \code{TRUE}}
+\item{verbose}{(optional, logical) Logical. if \code{TRUE}, describes the function operations to the user. Default:: \code{TRUE}}
 }
 \value{
 List with three slots:
@@ -32,7 +32,15 @@ List with three slots:
 }
 }
 \description{
-Computes the correlation matrix among a set of predictors, orders the correlation matrix according to a user-defined preference order, and removes variables one by one, taking into account the preference order, until the remaining ones are below a given Pearson correlation threshold. \strong{Warning}: variables in \code{preference.order} not in \code{colnames(x)}, and non-numeric columns are removed silently from \code{x} and \code{preference.order}. The same happens with rows having NA values (\code{\link[=na.omit]{na.omit()}} is applied). The function issues a message if zero-variance columns are found.
+Iterative reduction of multicollinearity in a data frame via Pearson bivariate correlation.
+
+The function \code{auto_cor()} applies a recursive algorithm to remove variables with a Pearson correlation with another variable higher than a given threshold (defined by the argument \code{max.cor}).  When two variables are correlated above this threshold, the one with the highest sum of R-squared with all the other variables is removed.
+
+The function \code{auto_vif()} allows the user to define preference selection order via the argument \code{preference.order}. If \code{preference.order} is \verb{"c("a", "b")}, they are correlated above \code{max.cor}, there there are other variables in \code{data}, and the sum of R-squared with all other variables of \code{"a"} is higher than the sum of \code{"b"}, then \code{"b"} is removed anyway.
+
+The argument \code{preference.order} allows the user to "protect" variables that might be interesting or even required for the given analysis.
+
+If \code{preference.order} is not provided, then the predictors are ranked from lower to higher sum of R-squared with the other preodictors, and removed one by one until the maximum R-squared of the correlation matrix is lower than \code{max.cor}.
 }
 \details{
 Can be chained together with \code{\link[=auto_vif]{auto_vif()}} through pipes, see the examples below.

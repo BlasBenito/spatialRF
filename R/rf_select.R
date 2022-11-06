@@ -9,8 +9,8 @@
 #' @param repetitions Integer, number of spatial folds to use during cross-validation. Must be lower than the total number of rows available in the model's data. Default: `30`
 #' @param training.fraction Proportion between 0.5 and 0.9 indicating the proportion of records to be used as training set during spatial cross-validation. Default: `0.75`
 #' @param metrics Character vector, names of the performance metrics selected. The possible values are: "r.squared" (`cor(obs, pred) ^ 2`), "rmse" (`sqrt(sum((obs - pred)^2)/length(obs))`), "nrmse" (`rmse/(quantile(obs, 0.75) - quantile(obs, 0.25))`), and "auc" (added automatically for binary responses with values 1 and 0). Default: `c("r.squared", "rmse", "nrmse", "auc")`
-#' @param vif.threshold Numeric between 2.5 and 10 defining the selection threshold for the VIF analysis. Higher numbers result in a more relaxed variable selection. Lower values increase the number of predictors returned. If `NULL`, VIF analysis to reduce multicollinearity is disabled. Default: `5`.
-#' @param cor.threshold Numeric between 0 and 1, with recommended values between 0.5 and 0.9. Maximum Pearson correlation between any pair of the selected variables. Higher values increase the number of predictors returned. If `NULL`, bivariate filtering is disabled. Default: `0.75`
+#' @param max.vif Numeric between 2.5 and 10 defining the selection threshold for the VIF analysis. Higher numbers result in a more relaxed variable selection. Lower values increase the number of predictors returned. If `NULL`, VIF analysis to reduce multicollinearity is disabled. Default: `5`.
+#' @param max.cor Numeric between 0 and 1, with recommended values between 0.5 and 0.9. Maximum Pearson correlation between any pair of the selected variables. Higher values increase the number of predictors returned. If `NULL`, bivariate filtering is disabled. Default: `0.75`
 #' @param distance.step Numeric, argument `distance.step` of [thinning_til_n()]. distance step used during the selection of the centers of the training folds. These fold centers are selected by thinning the data until a number of folds equal or lower than `repetitions` is reached. Its default value is 1/1000th the maximum distance within records in `xy`. Reduce it if the number of training folds is lower than expected.
 #' @param distance.step.x Numeric, argument `distance.step.x` of [make_spatial_folds()]. Distance step used during the growth in the x axis of the buffers defining the training folds. Default: `NULL` (1/1000th the range of the x coordinates).
 #' @param distance.step.y Numeric, argument `distance.step.x` of [make_spatial_folds()]. Distance step used during the growth in the y axis of the buffers defining the training folds. Default: `NULL` (1/1000th the range of the y coordinates).
@@ -60,8 +60,8 @@ rf_select <- function(
       "nrmse",
       "auc"
     ),
-    vif.threshold = 5,
-    cor.threshold = 0.75,
+    max.vif = 5,
+    max.cor = 0.75,
     distance.step = NULL,
     distance.step.x = NULL,
     distance.step.y = NULL,
@@ -235,7 +235,7 @@ rf_select <- function(
 
   #REDUCING MULTICOLLINEARITY
 
-  if(verbose == TRUE & (!is.null(cor.threshold) | !is.null(vif.threshold))){
+  if(verbose == TRUE & (!is.null(max.cor) | !is.null(max.vif))){
     message(
       "Reducing multicollinearity."
     )
@@ -247,7 +247,7 @@ rf_select <- function(
     data = data,
     predictor.variable.names = predictor.variable.names,
     preference.order = preference.order,
-    cor.threshold = cor.threshold,
+    max.cor = max.cor,
     verbose = FALSE
   )
 
@@ -255,7 +255,7 @@ rf_select <- function(
   out.vif <- auto_vif(
     data = out.cor,
     preference.order = preference.order,
-    vif.threshold = vif.threshold,
+    max.vif = max.vif,
     verbose = FALSE
   )
 

@@ -1,10 +1,18 @@
 #' @title Multicollinearity reduction via Pearson correlation
-#' @description Computes the correlation matrix among a set of predictors, orders the correlation matrix according to a user-defined preference order, and removes variables one by one, taking into account the preference order, until the remaining ones are below a given Pearson correlation threshold. \strong{Warning}: variables in `preference.order` not in `colnames(x)`, and non-numeric columns are removed silently from `x` and `preference.order`. The same happens with rows having NA values ([na.omit()] is applied). The function issues a message if zero-variance columns are found.
-#' @param data A data frame with predictors. Default: `NULL`.
-#' @param predictor.variable.names Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. If `NULL`, all the columns in data are used, and non-numeric ones discarded. Default: `NULL`
-#' @param preference.order Character vector indicating the user's order of preference to keep variables. Predictors not included in this argument are ranked by the sum of their correlation with other variables (variables with higher sums receive lower ranks and have therefore lower preference order). Default: `NULL`.
-#' @param cor.threshold Numeric between 0 and 1, with recommended values between 0.5 and 0.9. Maximum Pearson correlation between any pair of the selected variables. Default: `0.75`
-#' @param verbose Logical. if `TRUE`, describes the function operations to the user. Default:: `TRUE`
+#' @description Iterative reduction of multicollinearity in a data frame via Pearson bivariate correlation.
+#'
+#' The function `auto_cor()` applies a recursive algorithm to remove variables with a Pearson correlation with another variable higher than a given threshold (defined by the argument `max.cor`).  When two variables are correlated above this threshold, the one with the highest sum of R-squared with all the other variables is removed.
+#'
+#' The function `auto_vif()` allows the user to define preference selection order via the argument `preference.order`. If `preference.order` is `"c("a", "b")`, they are correlated above `max.cor`, there there are other variables in `data`, and the sum of R-squared with all other variables of `"a"` is higher than the sum of `"b"`, then `"b"` is removed anyway.
+#'
+#' The argument `preference.order` allows the user to "protect" variables that might be interesting or even required for the given analysis.
+#'
+#' If `preference.order` is not provided, then the predictors are ranked from lower to higher sum of R-squared with the other preodictors, and removed one by one until the maximum R-squared of the correlation matrix is lower than `max.cor`.
+#' @param data (required; data frame or tibble) A data frame with predictors. Default: `NULL`.
+#' @param predictor.variable.names (optional; character vector) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. If `NULL`, all the columns in data are used, and non-numeric ones discarded. Default: `NULL`
+#' @param preference.order  (optional; character vector) Character vector indicating the user's order of preference to keep variables. Predictors not included in this argument are ranked by the sum of their correlation with other variables (variables with higher sums receive lower ranks and have therefore lower preference order). Default: `NULL`.
+#' @param max.cor (optional; numeric) Numeric between 0 and 1, with recommended values between 0.5 and 0.9. Maximum Pearson correlation between any pair of the selected variables. Default: `0.75`
+#' @param verbose (optional, logical) Logical. if `TRUE`, describes the function operations to the user. Default:: `TRUE`
 #' @return List with three slots:
 #' \itemize{
 #'   \item `cor`: correlation matrix of the selected variables.
@@ -58,7 +66,7 @@ auto_cor <- function(
     data = NULL,
     predictor.variable.names = NULL,
     preference.order = NULL,
-    cor.threshold = 0.75,
+    max.cor = 0.75,
     verbose = TRUE
 ){
 
@@ -71,26 +79,23 @@ auto_cor <- function(
     data <- data[, predictor.variable.names]
   }
 
-  if(is.null(cor.threshold)){
-    cor.threshold <- 1
+  if(is.null(max.cor)){
+    max.cor <- 1
   }
 
-  if(cor.threshold < 0){
-    cor.threshold <- 0
+  if(max.cor < 0){
+    max.cor <- 0
     if(verbose == TRUE){
-      message("cor.threshold is negative, setting it to 0.")
+      message("max.cor is negative, setting it to 0.")
     }
   }
 
-  if(cor.threshold > 1){
-    cor.threshold <- 1
+  if(max.cor > 1){
+    max.cor <- 1
     if(verbose == TRUE){
-      message("cor.threshold is larger than 1, setting it to 1 (this will select all variables!).")
+      message("max.cor is larger than 1, setting it to 1 (this will select all variables!).")
     }
   }
-
-  #removing NA
-  data <- na.omit(data)
 
   #finding and removing non-numeric columns
   non.numeric.columns <- colnames(data)[!sapply(data, is.numeric)]
@@ -123,7 +128,11 @@ auto_cor <- function(
 
 
   #compute correlation matrix of x
-  data.cor <- abs(cor(data))
+  data.cor <-     cor(
+    x = data,
+    use = "complete.obs"
+  ) %>%
+    abs()
 
   #diagonals to zero
   diag(data.cor) <- 0
@@ -165,8 +174,8 @@ auto_cor <- function(
     #find max correlation in data.cor
     data.cor.max <- apply(data.cor, 2, FUN = max)
 
-    #remove i column if max > cor.threshold
-    if(data.cor.max[i] > cor.threshold){
+    #remove i column if max > max.cor
+    if(data.cor.max[i] > max.cor){
 
       #identify column name
       variable.to.remove <- names(data.cor.max[i])
@@ -201,7 +210,7 @@ auto_cor <- function(
         )
       )
     } else {
-      message("[auto_cor()]: Variables are not collinear.")
+      message("[auto_cor()]: Variables are not collinear, noting to do here.")
     }
   }
 

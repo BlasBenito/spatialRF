@@ -1,6 +1,23 @@
 #TODO
 
-## Accept tibbles
+## support sf as input
+
+## Make clear what arguments are optional or required
+
+auto_vif()
+auto_cor()
+
+## Sparse distance matrix
+
+## Predict to raster
+
+## Accept sf
+
+## Return tibble if input is tibble
+
+auto_vif()
+auto_cor()
+rf()
 
 ## Accept factor predictors
 

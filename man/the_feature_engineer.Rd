@@ -13,7 +13,7 @@ the_feature_engineer(
   repetitions = 30,
   training.fraction = 0.75,
   importance.threshold = 0.75,
-  cor.threshold = 0.75,
+  max.cor = 0.75,
   point.color = viridis::viridis(100, option = "F", alpha = 0.8),
   seed = NULL,
   verbose = TRUE,
@@ -38,7 +38,7 @@ the_feature_engineer(
 
 \item{importance.threshold}{Numeric between 0 and 1, quantile of variable importance scores over which to select individual predictors to explore interactions among them. Larger values reduce the number of potential interactions explored. Default: \code{0.75}}
 
-\item{cor.threshold}{Numeric, maximum Pearson correlation between any pair of the selected interactions, and between any interaction and the predictors in \code{predictor.variable.names}. Default: \code{0.75}}
+\item{max.cor}{Numeric, maximum Pearson correlation between any pair of the selected interactions, and between any interaction and the predictors in \code{predictor.variable.names}. Default: \code{0.75}}
 
 \item{point.color}{Colors of the plotted points. Can be a single color name (e.g. "red4"), a character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. \code{viridis::viridis(100)}). Default: \code{viridis::viridis(100, option = "F", alpha = 0.8)}}
 
@@ -75,7 +75,7 @@ Candidate variables \code{a} and \code{b} are selected from those predictors in 
 
 For each interaction and composite feature, a model including all the predictors plus the interaction or composite feature is fitted, and it's R squared (or AUC if the response is binary) computed via spatial cross-validation (see \code{\link[=rf_evaluate]{rf_evaluate()}}) is compared with the R squared of the model without interactions or composite features.
 
-From all the potential interactions screened, only those with a positive increase in R squared (or AUC when the response is binomial) of the model, a variable importance above the median, and a maximum correlation among themselves and with the predictors in \code{predictor.variable.names} not higher than \code{cor.threshold} (set to 0.5 by default) are selected. Such a restrictive set of rules ensures that the selected interactions can be used right away for modeling purposes without increasing model complexity unnecessarily. However, the suggested variable interactions might not make sense from a domain expertise standpoint, so please, examine them with care.
+From all the potential interactions screened, only those with a positive increase in R squared (or AUC when the response is binomial) of the model, a variable importance above the median, and a maximum correlation among themselves and with the predictors in \code{predictor.variable.names} not higher than \code{max.cor} are selected. Such a restrictive set of rules ensures that the selected interactions can be used right away for modeling purposes without increasing model complexity unnecessarily. However, the suggested variable interactions might not make sense from a domain expertise standpoint, so please, examine them with care.
 
 The function returns the criteria used to select the interactions, and the data required to use these interactions a model.
 }

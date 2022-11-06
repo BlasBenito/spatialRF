@@ -22,4 +22,30 @@ testthat::test_that("`auto_vif()` works", {
   testthat::expect_s3_class(out$vif, "data.frame")
   testthat::expect_named(out, c("vif", "selected.variables", "selected.variables.df"))
 
+  testthat::expect_warning(
+    out <- auto_vif(
+      data = ecoregions_df,
+      predictor.variable.names = ecoregions_predictor_variable_names,
+      verbose = TRUE,
+      max.vif = 20,
+      preference.order = ecoregions_predictor_variable_names[1:10]
+    )
+  )
+
+  out <- auto_vif(
+    data = ecoregions_df,
+    predictor.variable.names = ecoregions_predictor_variable_names,
+    verbose = TRUE,
+    max.vif = -11,
+    preference.order = ecoregions_predictor_variable_names[1:10]
+  )
+
+  out <- auto_vif(
+    data = ecoregions_df,
+    predictor.variable.names = ecoregions_predictor_variable_names,
+    verbose = TRUE,
+    max.vif = NULL,
+    preference.order = ecoregions_predictor_variable_names[1:10]
+  )
+
 })

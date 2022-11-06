@@ -2,7 +2,6 @@
 
 S3method(print,rf)
 export(.is_binary)
-export(.vif_to_df)
 export(auc)
 export(auto_cor)
 export(auto_vif)

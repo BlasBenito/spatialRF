@@ -1,24 +1,32 @@
 #' @title Multicollinearity reduction via Variance Inflation Factor
 #'
-#' @description Selects predictors that are not linear combinations of other predictors by using computing their variance inflation factors (VIF). Allows the user to define an order of preference for the selection of predictors. \strong{Warning}: variables in `preference.order` not in `colnames(x)`, and non-numeric columns are removed from `x` and `preference.order`. The same happens with rows having NA values ([na.omit()] is applied). The function issues a message if zero-variance columns are found. Notice that identical columns with different names may crash this function, but you can prevent this by running [auto_cor()] before [auto_vif()].
-#' @param data A data frame with predictors, or alternatively, the result of [auto_cor()]. Default: `NULL`.
-#' @param predictor.variable.names Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. If `NULL`, all the columns in data are used, and non-numeric ones discarded. Default: `NULL`
-#' @param preference.order Character vector indicating the user's order of preference to keep variables. Predictors not included in this argument are ranked by their VIF. Default: `NULL`.
-#' @param vif.threshold Numeric between 0 and 10 defining the selection threshold for the VIF analysis. Higher numbers result in a more relaxed variable selection. Default: 5.
-#' @param verbose Logical. if `TRUE`, describes the function operations to the user. Default:: `TRUE`
+#' @description
+#'
+#' NOTE: It is highly recommended to run [auto_cor()] before [auto_vif()].
+#'
+#' The Variance Inflation Factor for a given variable `y` is computed as `1/(1-R2)`, where `R2` is the multiple R-squared of a multiple regression model fitted using `y` as response and all the remaining variables of the input data set as predictors. The equation can be interpreted as "the rate of perfect model's R-squared to the unexplained variance of this model".
+#'
+#' The possible range of VIF values is (1, Inf]. A VIF lower than 10 suggest that removing `y` from the data set would reduce overall multicollinearity. The recommended thresholds for maximum VIF may vary depending on the source consulted, being the most common values, 2.5, 5, and 10.
+#'
+#' The function `auto_vif()` applies a recursive algorithm to remove variables with a VIF higher than a given threshold (defined by the argument `max.vif`). However, `auto_vif()` allows the user to define preference selection order via the argument `preference.order`.
+#'
+#' If `preference.order` is, for example, `c("a", "b", "c")`, `max.vif` equals 5, and the VIFs of these variables are 15, 10, and 5, then variable `"b"` is removed instead of `"a"`.
+#'
+#' The argument `preference.order` allows the user to "protect" variables that might be interesting or even required for the given analysis.
+#'
+#' If `preference.order` is not provided, then the predictors are ranked from lower to higher VIF, and removed one by one until their VIF is lower than `max.vif`.
+#'
+#' @param data (required; data.frame or tibble) A data frame or tibble, or the result of [auto_cor()]. Default: `NULL`.
+#' @param predictor.variable.names (optional; character vector) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. If `NULL`, all the columns in data are used. Default: `NULL`
+#' @param preference.order (optional, character vector) Character vector indicating the preference order to protect variables from elimination.  Predictors not included in this argument are ranked by their VIFs. Default: `NULL`.
+#' @param max.vif (optional, numeric) Numeric between 2.5 and 10 defining the maximum VIF allowed in the output dataset. Higher VIF thresholds should result in a higher number of selected variables. Default: 5.
+#' @param verbose (optional, logical) Logical. if `TRUE`, `auto_vif()` prints messages describing its operations on the input data. Default:: `TRUE`
 #' @return List with three slots:
 #' \itemize{
 #'   \item `vif`: data frame with the names of the selected variables and their respective VIF scores.
 #'   \item `selected.variables`: character vector with the names of the selected variables.
 #'   \item `selected.variables.df`: data frame with the selected variables.
 #'  }
-#' @details
-#'This function has two modes of operation:
-#' \itemize{
-#' \item 1. When the argument `preference.order` is `NULL`, the function removes on each iteration the variable with the highest VIF until all VIF values are lower than `vif.threshold`.
-#' \item 2. When `preference.order` is provided, the variables are selected by giving them priority according to their order in `preference.order`. If there are variables not in `preference.order`, these are selected as in option 1. Once both groups of variables have been processed, all variables are put together and selected by giving priority to the ones in `preference.order`. This method preserves the variables desired by the user as much as possible.
-#' }
-#'  Can be chained together with [auto_cor()] through pipes, but it is always recommended to run [auto_cor()] first, since pairs of variables with a Pearson correlation index of 1 may crash [auto_vif()].
 #' @seealso [auto_cor()]
 #' @examples
 #' if(interactive()){
@@ -70,11 +78,15 @@ auto_vif <- function(
     data = NULL,
     predictor.variable.names = NULL,
     preference.order = NULL,
-    vif.threshold = 5,
+    max.vif = 5,
     verbose = TRUE
 ){
 
   variable <- NULL
+
+  if(is.null(data)){
+    stop("Argument 'data' is required.")
+  }
 
   #subsetting data
   if(!is.null(predictor.variable.names)){
@@ -85,14 +97,23 @@ auto_vif <- function(
     data <- data[, predictor.variable.names]
   }
 
-  if(is.null(vif.threshold)){
-    vif.threshold <- Inf
+  if(max.vif > 10){
+    if(verbose == TRUE){
+      warning("Argument max.vif is higher than 10.. Recommended values for this argument are in the range [2.5, 10]")
+    }
   }
 
-  if(vif.threshold < 0){
-    vif.threshold <- 0
+  if(max.vif < 0){
+    max.vif <- 2.5
     if(verbose == TRUE){
-      message("vif.threshold is negative, setting it to 0.")
+      message("max.vif is negative, setting it to 0.")
+    }
+  }
+
+  if(is.null(max.vif)){
+    max.vif <- Inf
+    if(verbose == TRUE){
+      message("max.vif is NULL, setting it to Inf. All variables will be selected.")
     }
   }
 
@@ -102,8 +123,6 @@ auto_vif <- function(
   }
 
   #removing non-numeric and zero variance columns
-  #removing NA
-  data <- na.omit(data)
 
   #finding and removing non-numeric columns
   non.numeric.columns <- colnames(data)[!sapply(data, is.numeric)]
@@ -135,10 +154,10 @@ auto_vif <- function(
   }
 
   #auto preference order by vif
-  preference.order.auto <- .vif_to_df(data) %>%
+  preference.order.auto <- vif(data) %>%
     dplyr::pull(variable)
 
-  #AND preference.order IS NOT PROVIDED
+  #if preference.order is not provided, use auto
   if(is.null(preference.order)){
 
     preference.order <- preference.order.auto
@@ -173,14 +192,14 @@ auto_vif <- function(
   #iterating through reversed preference order
   for(i in seq(from = nrow(data.rank), to = 2)){
 
-    vif.i <- .vif_to_df(data = data[, data.rank$variable]) %>%
+    vif.i <- vif(data = data[, data.rank$variable]) %>%
       dplyr::filter(
         variable == data.rank[i, "variable"]
       ) %>%
       dplyr::pull(vif)
 
     #removing var if vif is above threshold
-    if(vif.i > vif.threshold){
+    if(vif.i > max.vif){
 
       #adding it to removed.vars
       removed.vars <- c(removed.vars, data.rank[i, "variable"])
@@ -208,7 +227,7 @@ auto_vif <- function(
         )
       )
     } else {
-      message("[auto_vif()]: Variables are not collinear.")
+      message("[auto_vif()]: Variables are not collinear, nothing to do here.")
     }
   }
 
@@ -226,7 +245,7 @@ auto_vif <- function(
   }
 
   #final vif.df
-  vif.df <- .vif_to_df(data = selected.variables.df)
+  vif.df <- vif(data = selected.variables.df)
 
   #output list
   output.list <- list()
@@ -241,36 +260,9 @@ auto_vif <- function(
 }
 
 
-#' @export
-.vif_to_df <- function(data){
-
-  #defining global variable
-  vif <- NULL
-
-  #turns vif output into tidy df
-  df <- data.frame(
-      diag(solve(cor(data))),
-      stringsAsFactors = FALSE
-    ) %>%
-    dplyr::rename(vif = 1) %>%
-    tibble::rownames_to_column(var = "variable") %>%
-    dplyr::mutate(vif = round(vif, 3)) %>%
-    dplyr::arrange(vif) %>%
-    as.data.frame()
-
-  df
-}
-
 #' @rdname auto_vif
 #' @export
 vif <- function(data){
-
-  if(!is.data.frame(data)){
-    stop("x must be a data frame with numeric columns")
-  }
-
-  #removing NA
-  data <- na.omit(data)
 
   #finding and removing non-numeric columns
   non.numeric.columns <- colnames(data)[!sapply(data, is.numeric)]
@@ -298,7 +290,15 @@ vif <- function(data){
   }
 
   out <- data.frame(
-    diag(solve(cor(data))),
+    diag(
+      solve(
+        cor(
+          x = data,
+          use = "complete.obs"
+          ),
+        tol = 0
+        )
+      ),
     stringsAsFactors = FALSE
   ) %>%
     dplyr::rename(vif = 1) %>%

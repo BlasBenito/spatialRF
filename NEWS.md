@@ -1,38 +1,44 @@
 ## Version 2.0.0 (work in progress)
 
-Expanded the performance metrics provided by rf() and company. They now report: r.squared.oob, rmse.oob, nrmse.oob, and if the response is binary, auc.oob. The in-bag metrics are: r.squared.ib, rmse.ib, nrmse.ib, and auc.ib. These changes have been implemented in rf_repeat() as well. Both types of predictions are now provided as well in `model$predictions$ib` and `model$predictions$oob`. Task to propagate these changes to other functions is still pending.
+### Quality of life
 
 All functions support tibbles as input.
+
+The function rf() now returns tibbles if the training data frame is a tibble.
+
+Added the function `rf_select()` to select variables using the performance of univariate models as criteria.
+
+Added the argument `top.n` to the function `plot_importance()` to allow the user to plot the most `n` important predictors.
+
+Added the functions `make_cluster()` and `stop_cluster()`.
+
+
+### Breaking changes
+
+The functions auto_vif() and auto_cor() have new argument names. "x" is now "data", and "vif.threshold" and "cor.threshold" are now "max.vif" and "max.cor".
+
+Simplified the methods in `rf_spatial()`, and now all experimental methods have been removed.
+
+`auto_cor()` and `auto_vif()` now have explicit `data` (previously named `x`) and `predictor.variable.names` arguments.
+
+The performance metric `pseudo.r.squared` has been removed from all functions.
+
+Clusters for parallel execution must now be declared before running the function/s using it.
+
+
+### Miscellanea
+
+Expanded the performance metrics provided by rf() and company. They now report: r.squared.oob, rmse.oob, nrmse.oob, and if the response is binary, auc.oob. The in-bag metrics are: r.squared.ib, rmse.ib, nrmse.ib, and auc.ib. These changes have been implemented in rf_repeat() as well. Both types of predictions are now provided as well in `model$predictions$ib` and `model$predictions$oob`.
 
 The functions `mem()` and `mem_multithreshold()` now share the same documentation.
 
 The functions `moran()` and `moran_multithreshold()` now share the same documentation.
 
-The performance metric `pseudo.r.squared` has been removed from all functions.
-
-Simplified the methods in `rf_spatial()`, and now all experimental methods have been removed.
-
-`auto_cor()` and `auto_vif()` now have explicit `data` and `predictor.variable.names` arguments.
-
 `rf_importance()` is now `rf_jackknife()`, and works in a slightly different way (please, check the help file).
 
 Refactored auto_vif and auto_cor to improve how they generate preference.order automatically when the user does not provide it. Now both functions can accept a preference.order of length 1.
 
-Added the function `rf_select()` to select variables using the performance of univariate models as criteria.
-
-The function `rf_repeat()` now can be run with `repetitions = 1`.
-
-Changed the default value of the argument cor.threshold in `auto_cor()` from 0.5 to 0.75.
-
-Added the argument `top.n` to the function `plot_importance()` to allow the user to plot the most `n` important predictors.
-
 The function `rf_evaluate()` now filters out the results of redundant spatial folds.
-
-Fixed a bug in rf_evaluate where metrics could be mixed due to a badly rearranged column names inside of the function. My apologies for any inconveniences this bug might have caused.
-
-Added the functions `make_cluster()` and `stop_cluster()`.
-
-Made the function `rf_evaluate()` more efficient, but now it cannot return the training and testing folds it used during evaluation. In return, it can handle large data now when reducing `n.cores`.
 
 Changed the names of the example data, added new predictors, and a couple of new objects. All these objects are documented in the file `ecoregions_df.R`.
 
@@ -41,8 +47,15 @@ Changed the names of the example data, added new predictors, and a couple of new
   - `ecoregion_polygons` is an "sf" data frame with the simplified ecoregion polygons.
   - `ecoregions_predictor_variable_names` is a character vector with the names of the predictors in `ecoregions_df`. 
   - `ecoregions_dependent_variable_name` is a character string with the name of the dependent variable in `ecoregions_df`.
-  
-Changed the names of these objects in the package documentation, the README, and the tests folder.
+
+
+### Fixed bugs and inconsistencies
+
+The function `rf_repeat()` now can be run with `repetitions = 1`.
+
+Changed the default value of the argument cor.threshold in `auto_cor()` from 0.5 to 0.75.
+
+Fixed a bug in rf_evaluate where metrics could be mixed due to a badly rearranged column names inside of the function. My apologies for any inconveniences this bug might have caused.
 
 Fixed an issue with `mem_multithreshold()`, `pca_multithreshold()`, and `moran_multithreshold()` where giving values of `distance.thresholds` larger than the maximum of the distance matrix would yield an error.
 

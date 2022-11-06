@@ -10,8 +10,8 @@ rf_select(
   repetitions = 30,
   training.fraction = 0.75,
   metrics = c("r.squared", "rmse", "nrmse", "auc"),
-  vif.threshold = 5,
-  cor.threshold = 0.75,
+  max.vif = 5,
+  max.cor = 0.75,
   distance.step = NULL,
   distance.step.x = NULL,
   distance.step.y = NULL,
@@ -33,9 +33,9 @@ rf_select(
 
 \item{metrics}{Character vector, names of the performance metrics selected. The possible values are: "r.squared" (\code{cor(obs, pred) ^ 2}), "rmse" (\code{sqrt(sum((obs - pred)^2)/length(obs))}), "nrmse" (\code{rmse/(quantile(obs, 0.75) - quantile(obs, 0.25))}), and "auc" (added automatically for binary responses with values 1 and 0). Default: \code{c("r.squared", "rmse", "nrmse", "auc")}}
 
-\item{vif.threshold}{Numeric between 2.5 and 10 defining the selection threshold for the VIF analysis. Higher numbers result in a more relaxed variable selection. Lower values increase the number of predictors returned. If \code{NULL}, VIF analysis to reduce multicollinearity is disabled. Default: \code{5}.}
+\item{max.vif}{Numeric between 2.5 and 10 defining the selection threshold for the VIF analysis. Higher numbers result in a more relaxed variable selection. Lower values increase the number of predictors returned. If \code{NULL}, VIF analysis to reduce multicollinearity is disabled. Default: \code{5}.}
 
-\item{cor.threshold}{Numeric between 0 and 1, with recommended values between 0.5 and 0.9. Maximum Pearson correlation between any pair of the selected variables. Higher values increase the number of predictors returned. If \code{NULL}, bivariate filtering is disabled. Default: \code{0.75}}
+\item{max.cor}{Numeric between 0 and 1, with recommended values between 0.5 and 0.9. Maximum Pearson correlation between any pair of the selected variables. Higher values increase the number of predictors returned. If \code{NULL}, bivariate filtering is disabled. Default: \code{0.75}}
 
 \item{distance.step}{Numeric, argument \code{distance.step} of \code{\link[=thinning_til_n]{thinning_til_n()}}. distance step used during the selection of the centers of the training folds. These fold centers are selected by thinning the data until a number of folds equal or lower than \code{repetitions} is reached. Its default value is 1/1000th the maximum distance within records in \code{xy}. Reduce it if the number of training folds is lower than expected.}
 

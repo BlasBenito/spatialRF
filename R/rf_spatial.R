@@ -390,7 +390,7 @@ rf_spatial <- function(
       data = data,
       predictor.variable.names = predictor.variable.names,
       spatial.predictors.df = spatial.predictors.df,
-      cor.threshold = 0.50
+      max.cor = 0.50
     )
 
     #ranking spatial predictors

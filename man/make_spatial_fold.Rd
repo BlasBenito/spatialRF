@@ -11,7 +11,7 @@ make_spatial_fold(
   xy = NULL,
   distance.step.x = NULL,
   distance.step.y = NULL,
-  training.fraction = 0.8
+  training.fraction = 0.75
 )
 }
 \arguments{

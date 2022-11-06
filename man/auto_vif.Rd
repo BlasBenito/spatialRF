@@ -9,22 +9,22 @@ auto_vif(
   data = NULL,
   predictor.variable.names = NULL,
   preference.order = NULL,
-  vif.threshold = 5,
+  max.vif = 5,
   verbose = TRUE
 )
 
 vif(data)
 }
 \arguments{
-\item{data}{A data frame with predictors, or alternatively, the result of \code{\link[=auto_cor]{auto_cor()}}. Default: \code{NULL}.}
+\item{data}{(required; data.frame or tibble) A data frame or tibble, or the result of \code{\link[=auto_cor]{auto_cor()}}. Default: \code{NULL}.}
 
-\item{predictor.variable.names}{Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. If \code{NULL}, all the columns in data are used, and non-numeric ones discarded. Default: \code{NULL}}
+\item{predictor.variable.names}{(optional; character vector) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. If \code{NULL}, all the columns in data are used. Default: \code{NULL}}
 
-\item{preference.order}{Character vector indicating the user's order of preference to keep variables. Predictors not included in this argument are ranked by their VIF. Default: \code{NULL}.}
+\item{preference.order}{(optional, character vector) Character vector indicating the preference order to protect variables from elimination.  Predictors not included in this argument are ranked by their VIFs. Default: \code{NULL}.}
 
-\item{vif.threshold}{Numeric between 0 and 10 defining the selection threshold for the VIF analysis. Higher numbers result in a more relaxed variable selection. Default: 5.}
+\item{max.vif}{(optional, numeric) Numeric between 2.5 and 10 defining the maximum VIF allowed in the output dataset. Higher VIF thresholds should result in a higher number of selected variables. Default: 5.}
 
-\item{verbose}{Logical. if \code{TRUE}, describes the function operations to the user. Default:: \code{TRUE}}
+\item{verbose}{(optional, logical) Logical. if \code{TRUE}, \code{auto_vif()} prints messages describing its operations on the input data. Default:: \code{TRUE}}
 }
 \value{
 List with three slots:
@@ -35,15 +35,19 @@ List with three slots:
 }
 }
 \description{
-Selects predictors that are not linear combinations of other predictors by using computing their variance inflation factors (VIF). Allows the user to define an order of preference for the selection of predictors. \strong{Warning}: variables in \code{preference.order} not in \code{colnames(x)}, and non-numeric columns are removed from \code{x} and \code{preference.order}. The same happens with rows having NA values (\code{\link[=na.omit]{na.omit()}} is applied). The function issues a message if zero-variance columns are found. Notice that identical columns with different names may crash this function, but you can prevent this by running \code{\link[=auto_cor]{auto_cor()}} before \code{\link[=auto_vif]{auto_vif()}}.
-}
-\details{
-This function has two modes of operation:
-\itemize{
-\item 1. When the argument \code{preference.order} is \code{NULL}, the function removes on each iteration the variable with the highest VIF until all VIF values are lower than \code{vif.threshold}.
-\item 2. When \code{preference.order} is provided, the variables are selected by giving them priority according to their order in \code{preference.order}. If there are variables not in \code{preference.order}, these are selected as in option 1. Once both groups of variables have been processed, all variables are put together and selected by giving priority to the ones in \code{preference.order}. This method preserves the variables desired by the user as much as possible.
-}
-Can be chained together with \code{\link[=auto_cor]{auto_cor()}} through pipes, but it is always recommended to run \code{\link[=auto_cor]{auto_cor()}} first, since pairs of variables with a Pearson correlation index of 1 may crash \code{\link[=auto_vif]{auto_vif()}}.
+NOTE: It is highly recommended to run \code{\link[=auto_cor]{auto_cor()}} before \code{\link[=auto_vif]{auto_vif()}}.
+
+The Variance Inflation Factor for a given variable \code{y} is computed as \code{1/(1-R2)}, where \code{R2} is the multiple R-squared of a multiple regression model fitted using \code{y} as response and all the remaining variables of the input data set as predictors. The equation can be interpreted as "the rate of perfect model's R-squared to the unexplained variance of this model".
+
+The possible range of VIF values is (1, Inf]. A VIF lower than 10 suggest that removing \code{y} from the data set would reduce overall multicollinearity. The recommended thresholds for maximum VIF may vary depending on the source consulted, being the most common values, 2.5, 5, and 10.
+
+The function \code{auto_vif()} applies a recursive algorithm to remove variables with a VIF higher than a given threshold (defined by the argument \code{max.vif}). However, \code{auto_vif()} allows the user to define preference selection order via the argument \code{preference.order}.
+
+If \code{preference.order} is, for example, \code{c("a", "b", "c")}, \code{max.vif} equals 5, and the VIFs of these variables are 15, 10, and 5, then variable \code{"b"} is removed instead of \code{"a"}.
+
+The argument \code{preference.order} allows the user to "protect" variables that might be interesting or even required for the given analysis.
+
+If \code{preference.order} is not provided, then the predictors are ranked from lower to higher VIF, and removed one by one until their VIF is lower than \code{max.vif}.
 }
 \examples{
 if(interactive()){

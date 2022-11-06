@@ -8,7 +8,7 @@ filter_spatial_predictors(
   data = NULL,
   predictor.variable.names = NULL,
   spatial.predictors.df = NULL,
-  cor.threshold = 0.5
+  max.cor = 0.5
 )
 }
 \arguments{
@@ -18,7 +18,7 @@ filter_spatial_predictors(
 
 \item{spatial.predictors.df}{Data frame of spatial predictors.}
 
-\item{cor.threshold}{Numeric between 0 and 1, maximum Pearson correlation between any pair of the selected variables. Default: \code{0.50}}
+\item{max.cor}{Numeric between 0 and 1, maximum Pearson correlation between any pair of the selected variables. Default: \code{0.50}}
 }
 \value{
 A data frame with non-redundant spatial predictors.
@@ -47,7 +47,7 @@ spatial.predictors.df <- filter_spatial_predictors(
   data = ecoregions_df,
   predictor.variable.names = ecoregions_predictor_variable_names,
   spatial.predictors.df = spatial.predictors.df,
-  cor.threshold = 0.50
+  max.cor = 0.50
  )
 
  spatial.predictors.df
