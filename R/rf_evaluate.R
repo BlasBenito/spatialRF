@@ -1,29 +1,38 @@
 #' @title Evaluates random forest models with spatial cross-validation
 #' @description Evaluates the performance of random forest on unseen data over independent spatial folds.
-#' @param model Model fitted with [rf()], [rf_repeat()], or [rf_spatial()].
-#' @param xy Data frame or matrix with two columns containing coordinates and named "x" and "y". If `NULL`, the function will throw an error. Default: `NULL`
-#' @param repetitions Integer, number of spatial folds to use during cross-validation. Must be lower than the total number of rows available in the model's data. Default: `30`
-#' @param training.fraction Proportion between 0.5 and 0.9 indicating the proportion of records to be used as training set during spatial cross-validation. Default: `0.75`
-#' @param metrics Character vector, names of the performance metrics selected. The possible values are: "r.squared", "rmse", "nrmse", and "auc". When the response variable is binary, "auc" is added automatically, and "nrmse" is removed (as it has a high risk of producing NA). Default: `c("r.squared", "rmse", "nrmse")`
-#' @param distance.step Numeric, argument `distance.step` of [thinning_til_n()]. distance step used during the selection of the centers of the training folds. These fold centers are selected by thinning the data until a number of folds equal or lower than `repetitions` is reached. Its default value is 1/1000th the maximum distance within records in `xy`. Reduce it if the number of training folds is lower than expected.
-#' @param distance.step.x Numeric, argument `distance.step.x` of [make_spatial_folds()]. Distance step used during the growth in the x axis of the buffers defining the training folds. Default: `NULL` (1/1000th the range of the x coordinates).
-#' @param distance.step.y Numeric, argument `distance.step.x` of [make_spatial_folds()]. Distance step used during the growth in the y axis of the buffers defining the training folds. Default: `NULL` (1/1000th the range of the y coordinates).
-#' @param grow.testing.folds Logic. By default, this function grows contiguous training folds to keep the spatial structure of the data as intact as possible. However, when setting `grow.testing.folds = TRUE`, the argument `training.fraction` is set to `1 - training.fraction`, and the training and testing folds are switched. This option might be useful when the training data has a spatial structure that does not match well with the default behavior of the function. Default: `FALSE`
-#' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same. Default: `1`.
-#' @param verbose Logical. If `TRUE`, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
-#' @param n.cores Integer, number of cores used by \code{\link[ranger]{ranger}} for parallel execution (used as value for the argument `num.threads` in `ranger()`). Default: `parallel::detectCores() - 1`
-#' @param cluster A cluster definition generated with `parallel::makeCluster()` or \code{\link{start_cluster}}. Faster than using `n.cores` for smaller models. If provided, overrides `n.cores`. The function does not stop a cluster, please remember to shut it down with `parallel::stopCluster(cl = cluster_name)` or \code{\link{stop_cluster}} at the end of your pipeline. Default: `NULL`
-#' @return A model of the class "rf_evaluate" with a new slot named "evaluation", that is a list with the following slots:
+#' @param model (required; model) Fitted with [rf()], [rf_repeat()], or [rf_spatial()].
+#' @param xy (required; data frame or matrix) Must have two columns named "x" and "y" containing the geographic coordinates of the sampling locations. Default: `NULL`
+#' @param repetitions (optional; integer) Number of spatial folds to use during cross-validation. Must be lower than the total number of rows available in the training data. Default: `30`
+#' @param training.fraction (optional; numeric) Proportion of records to be used as training set during spatial cross-validation. Default: `0.75`
+#' @param metrics (optional; character) Character vector, names of the performance metrics selected. The possible values are: "r.squared", "rmse", "nrmse", and "auc". When the response variable is binary, "auc" is added automatically, and "nrmse" is removed (as it has a high risk of producing NA). Default: `c("r.squared", "rmse", "nrmse")`
+#' @param distance.step (optional; numeric). Argument `distance.step` of [thinning_til_n()]. It's used to tune the selection of the pairs of coordinates that originate each training fold. Its default value is 1/1000th the maximum distance within records in `xy`. Try lower values if the number of training folds is lower than expected. Default: `NULL`
+#' @param distance.step.x  (optional; numeric) Like `distance.step`, but for the longitude axis alone. It is set automatically to the range of longitudes  Default: `NULL`
+#' @param distance.step.y (optional; numeric) Like `distance.step.x` but for the latitude. Useful when the height of the study area is at least two times its width Default: `NULL`
+#' @param grow.testing.folds (optional; logical) If `TRUE`, grows testing (instead of training) folds from fold centers. This option might be useful when the training data has a spatial structure that does not match well with the default behavior of the function. Default: `FALSE`
+#' @param seed (optional; integer) Random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same. Default: `1`.
+#' @param verbose (optional; logical) If `TRUE`, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
+#' @param n.cores (optional; integer) Number of cores used by \code{\link[ranger]{ranger}} for parallel execution (used as value for the argument `num.threads` in `ranger()`). Default: `parallel::detectCores() - 1`
+#' @param cluster (optional; cluster object) Cluster definition generated with `parallel::makeCluster()` or [start_cluster()]. Overrides `n.cores`. Faster than using `n.cores` for smaller models. This function does not stop a cluster, please remember to shut it down with `parallel::stopCluster(cl = cluster_name)` or [stop_cluster()] at the end of your pipeline. Default: `NULL`
+#' @return A model of the class "rf_evaluate" with a new slot named "evaluation". This is a list with the following slots:
 #' \itemize{
 #'   \item `metrics`: names of the metrics used for the evaluation.
 #'   \item `spatial.folds`: list with the training and testing spatial folds used during the evaluation.
 #'   \item `training.fraction`: Value of the argument `training.fraction`.
-#'   \item `per.fold`: Data frame with the evaluation results per spatial fold (or repetition). It contains the ID of each fold, it's central coordinates, the number of training and testing cases, and the training and testing performance measures: R squared, rmse, and normalized rmse.
-#'   \item `per.fold.long`: Long version of `per.fold` for easier plotting.
-#'   \item `per.model`: Same data as above, but organized per fold and model ("Training", "Testing", and "Full").
-#'   \item `aggregated`: Same data, but aggregated by model and performance measure.
+#'   \item `per.fold`: Data frame with the evaluation results per spatial fold and evaluation set ("training" and "testing"). It contains the ID of each fold, it's central coordinates, the number of training and testing cases, and the training and testing performance measures: R squared, rmse, and normalized rmse.
+#'   \item `aggregated`: Aggregated version of `per.fold` with median, median absolute deviation, quartile 1, quartile 3, mean, standard error, standard deviation, minimum, and maximum performance scores across spatial folds.
 #' }
-#' @details The evaluation algorithm works as follows: the number of `repetitions` and the input dataset (stored in `model$ranger.arguments$data`) are used as inputs for the function [thinning_til_n()], that applies [thinning()] to the input data until as many cases as `repetitions` are left, and as separated as possible. Each of these remaining records will be used as a "fold center". From that point, the fold grows, until a number of points equal (or close) to `training.fraction` is reached. The indices of the records within the grown spatial fold are stored as "training" in the output list, and the remaining ones as "testing". Then, for each spatial fold, a "training model" is fitted using the cases corresponding with the training indices, and predicted over the cases corresponding with the testing indices. The model predictions on the "unseen" data are compared with the observations, and the performance measures (R squared, RMSE and NRMSE) computed.
+#' @details The evaluation algorithm works as follows:
+#'
+#' Generation of contiguous training folds:
+#'
+#' \itemize{
+#'   \item The function [thinning_til_n()] finds a set of coordinates of size `repetitions` in `xy`. These pairs of coordinates are as separated as possible, and will be used as "training-fold centers".
+#'   \item From each training-fold center, a quadrangular buffer is grown one step at a time, until it encloses a proportion of records as close as possible to `training.fraction`. The amount of buffer growth on each step is controlled by `distance.step`, `distance.step.x`, and `distance.step.y`.
+#'   \item For each "training-fold" a model is fitted with the records within the buffer (training records), and predicted over the records outside of the buffer (testing records).
+#'   \item The values of the response in the testing records are compared with the predictions over these same records to compute model performance metrics.
+#'   \item If there are training folds yielding identical performance metrics, only one of them is kept to avoid pseudorreplication.
+#' }
+#'
 #' @examples
 #' if(interactive()){
 #'
@@ -250,7 +259,7 @@ rf_evaluate <- function(
     }
 
     #generating spatial folds
-    spatial.folds <- make_spatial_fold(
+    training.testing.folds <- make_spatial_fold(
       data = data,
       dependent.variable.name = dependent.variable.name,
       xy.i = xy.reference.records[i, ],
@@ -262,18 +271,18 @@ rf_evaluate <- function(
 
     #flipping spatial folds if grow.testing.folds = TRUE
     if(grow.testing.folds == TRUE){
-      for(j in 1:length(spatial.folds)){
-        names(spatial.folds[[j]]) <- c("testing", "training")
+      for(j in 1:length(training.testing.folds)){
+        names(training.testing.folds[[j]]) <- c("testing", "training")
       }
     }
 
     #separating training and testing data
-    data.training <- data[data$id %in% spatial.folds$training, ]
-    data.testing <- data[data$id %in% spatial.folds$testing, ]
+    data.training <- data[data$id %in% training.testing.folds$training, ]
+    data.testing <- data[data$id %in% training.testing.folds$testing, ]
 
     #subsetting case.weights if defined
     if(!is.null(ranger.arguments.training$case.weights)){
-      ranger.arguments.training$case.weights <- ranger.arguments$case.weights[spatial.folds$training]
+      ranger.arguments.training$case.weights <- ranger.arguments$case.weights[training.testing.folds$training]
     }
 
     #training model
@@ -312,61 +321,65 @@ rf_evaluate <- function(
 
     if("r.squared" %in% metrics){
 
-      performance.df$training.r.squared <- m.training$performance$r.squared.ib
+      performance.df$training_r.squared <- m.training$performance$r.squared.ib
 
-      performance.df$testing.r.squared <- cor(observed, predicted) ^ 2
+      performance.df$testing_r.squared <- cor(observed, predicted) ^ 2
+
+      if(is.na(performance.df$training_r.squared)){
+        performance.df$testing_r.squared <- NA
+      }
 
     }
 
     if("rmse" %in% metrics){
 
-      performance.df$training.rmse <- m.training$performance$rmse.ib
+      performance.df$training_rmse <- m.training$performance$rmse.ib
 
-      performance.df$testing.rmse <- spatialRF::root_mean_squared_error(
+      performance.df$testing_rmse <- spatialRF::root_mean_squared_error(
         o = observed,
         p = predicted,
         normalization = NULL
       )
 
-      if(is.na(performance.df$training.rmse)){
-        performance.df$testing.rmse <- NA
+      if(is.na(performance.df$training_rmse)){
+        performance.df$testing_rmse <- NA
       }
 
     }
 
     if("nrmse" %in% metrics){
 
-      performance.df$training.nrmse <- m.training$performance$nrmse.ib
+      performance.df$training_nrmse <- m.training$performance$nrmse.ib
 
-      performance.df$testing.nrmse = spatialRF::root_mean_squared_error(
+      performance.df$testing_nrmse = spatialRF::root_mean_squared_error(
         o = observed,
         p = predicted,
         normalization = "iq"
       )
 
-      if(is.na(performance.df$training.nrmse)){
-        performance.df$testing.nrmse <- NA
+      if(is.na(performance.df$training_nrmse)){
+        performance.df$testing_nrmse <- NA
       }
 
     }
 
     if("auc" %in% metrics){
-      performance.df$training.auc <- m.training$performance$auc.ib
+      performance.df$training_auc <- m.training$performance$auc.ib
 
-      performance.df$testing.auc <- spatialRF::auc(
+      performance.df$testing_auc <- spatialRF::auc(
           o = observed,
           p = predicted
         )
 
-      if(is.na(performance.df$training.auc)){
-        performance.df$testing.auc <- NA
+      if(is.na(performance.df$training_auc)){
+        performance.df$testing_auc <- NA
       }
     }
 
     rownames(performance.df) <- NULL
 
     out.list <- list()
-    out.list$spatial.folds <- spatial.folds
+    out.list$spatial.folds <- training.testing.folds
     out.list$performance.df <- performance.df
 
     return(out.list)
@@ -374,7 +387,7 @@ rf_evaluate <- function(
   } #end of parallel loop
 
   #getting evaluation data frames
-  evaluation.df <- as.data.frame(
+  performance.df <- as.data.frame(
     do.call(
       "rbind",
       lapply(
@@ -393,130 +406,73 @@ rf_evaluate <- function(
   )
 
   #copy of results
-  evaluation.df.unique <- evaluation.df
+  performance.df.unique <- performance.df
 
   #keep distinct values only to avoid very similar spatial folds
-  evaluation.df.unique <- evaluation.df.unique %>%
+  performance.df.unique <- performance.df.unique %>%
     dplyr::distinct(
-      dplyr::across(dplyr::all_of(paste0("testing.", metrics))),
+      dplyr::across(dplyr::all_of(paste0("testing_", metrics))),
       .keep_all = TRUE
     )
 
   #subsetting the spatial folds
-  spatial.folds <- spatial.folds[evaluation.df.unique$fold.id]
+  spatial.folds <- spatial.folds[performance.df.unique$fold.id]
 
   #resetting fold ID
-  evaluation.df.unique$fold.id <-
+  performance.df.unique$fold.id <-
     names(spatial.folds) <-
     seq(
       from = 1,
-      to = nrow(evaluation.df.unique),
+      to = nrow(performance.df.unique),
       by = 1
     )
 
   #remove columns with NA
-  evaluation.df.unique <- evaluation.df.unique[, names(na.omit(colSums(evaluation.df.unique)))]
+  performance.df.unique <- performance.df.unique[, names(na.omit(colSums(performance.df.unique)))]
 
   #message with number of removed folds
-  nrow.difference <- nrow(evaluation.df) - nrow(evaluation.df.unique)
+  nrow.difference <- nrow(performance.df) - nrow(performance.df.unique)
   if(nrow.difference > 0 & verbose == TRUE){
     message(
       paste0(
         nrow.difference,
         " redundant spatial folds removed. The total number of spatial folds is ",
-        nrow(evaluation.df.unique),
+        nrow(performance.df.unique),
         "."
       )
     )
   }
 
-  #preparing data frames for plotting and printing
-  #select columns with "training"
-  performance.training <- dplyr::select(
-    evaluation.df.unique,
-    dplyr::contains("training.")
-  )
-  performance.training[, 1] <- NULL
-  performance.training$model <- "Training"
+  #overwriting performance.df with performance.df.unique
+  performance.df <- performance.df.unique
+  rm(performance.df.unique)
 
-  colnames(performance.training) <- gsub(
-    pattern = "training.",
-    replacement = "",
-    x = colnames(performance.training)
-  )
-
-  #select columns with "testing"
-  performance.testing <- dplyr::select(
-    evaluation.df.unique,
-    dplyr::contains("testing.")
-  )
-  performance.testing[, 1] <- NULL
-  performance.testing$model <- "Testing"
-
-  colnames(performance.testing) <- gsub(
-    pattern = "testing.",
-    replacement = "",
-    x = colnames(performance.testing)
-  )
+  #performance.df.long
+  performance.df.long <- performance.df %>%
+    tidyr::pivot_longer(
+      cols = dplyr::contains(match = metrics)
+    ) %>%
+    tidyr::separate(
+      col = name,
+      sep = "_",
+      into = c("evaluation.set", "metric")
+    )
 
   #adding testing values to performance list
   for(metric.i in metrics){
-    model$performance[[paste0(metric.i, ".scv")]] <- dplyr::pull(
-      performance.testing,
-      metric.i
+    model$performance[[paste0(metric.i, ".scv")]] <- performance.df.long %>%
+      dplyr::filter(
+        evaluation.set == "testing",
+        metric == metric.i
+        ) %>%
+      dplyr::pull(
+      value
       )
   }
 
-  #getting intrinsic performance values
-  r.squared <- model$performance$r.squared.ib
-  rmse <- model$performance$rmse.ib
-  nrmse <- model$performance$nrmse.ib
-  auc <- model$performance$auc.ib
-
-  #check lengths
-  if(length(r.squared) == 0){
-    r.squared <- NA
-  }
-  if(length(rmse) == 0){
-    rmse <- NA
-  }
-  if(length(nrmse) == 0){
-    nrmse <- NA
-  }
-  if(length(auc) == 0){
-    auc <- NA
-  }
-
-  #full model
-  performance.full <- data.frame(
-    r.squared = r.squared,
-    rmse = rmse,
-    nrmse = nrmse,
-    auc = auc,
-    model = "Full"
-  )
-  performance.full <- performance.full[, names(performance.testing)]
-
-  #rbind
-  performance.df <- rbind(
-    performance.training,
-    performance.testing,
-    performance.full
-  )
-
-  #to long format
-  performance.df.long <- performance.df %>%
-    tidyr::pivot_longer(
-      cols = which(colnames(performance.df) %in% metrics),
-      names_to = "metric",
-      values_to = "value"
-    ) %>%
-    dplyr::arrange(model, metric) %>%
-    as.data.frame()
-
   #aggregating
   performande.df.aggregated <- performance.df.long %>%
-    dplyr::group_by(model, metric) %>%
+    dplyr::group_by(evaluation.set, metric) %>%
     dplyr::summarise(
       median = median(value),
       median_absolute_deviation = stats::mad(value),
@@ -531,12 +487,7 @@ rf_evaluate <- function(
     dplyr::ungroup() %>%
     as.data.frame()
 
-  #stats to NA if "Full" only once in performance.df
-  if(sum("Full" %in% performance.df$model) == 1){
-    performande.df.aggregated[performande.df.aggregated$model == "Full", c("median", "median_absolute_deviation", "q1", "q3", "se", "sd", "min", "max")] <- NA
-  }
-
-  #add spatial folds to the model
+  #add results to the model
   if("evaluation" %in% names(model)){
     model$evaluation <- NULL
   }
@@ -544,9 +495,7 @@ rf_evaluate <- function(
   model$evaluation$metrics <- metrics
   model$evaluation$spatial.folds <- spatial.folds
   model$evaluation$training.fraction <- training.fraction
-  model$evaluation$per.fold <- evaluation.df.unique
-  model$evaluation$per.fold.long <- performance.df.long
-  model$evaluation$per.model <- performance.df
+  model$evaluation$per.fold <- performance.df.long
   model$evaluation$aggregated <- performande.df.aggregated
 
   if(verbose == TRUE){
@@ -558,8 +507,7 @@ rf_evaluate <- function(
   #coercing output to tibble
   if(return.tibble == TRUE){
     model$evaluation$per.fold <- tibble::as_tibble(model$evaluation$per.fold)
-    model$evaluation$per.fold.long <- tibble::as_tibble(model$evaluation$per.fold.long)
-    model$evaluation$per.model <- tibble::as_tibble(model$evaluation$per.model)
+    model$evaluation$aggregated <- tibble::as_tibble(model$evaluation$aggregated)
   }
 
   if(verbose == TRUE){

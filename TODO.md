@@ -1,5 +1,7 @@
 #TODO
 
+## simplify distance.step.x and distance.step.y to distance.step with a vector with two values as input.
+
 ## support sf as input
 
 ## Make clear what arguments are optional or required

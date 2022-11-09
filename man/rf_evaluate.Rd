@@ -21,49 +21,57 @@ rf_evaluate(
 )
 }
 \arguments{
-\item{model}{Model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}.}
+\item{model}{(required; model) Fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}.}
 
-\item{xy}{Data frame or matrix with two columns containing coordinates and named "x" and "y". If \code{NULL}, the function will throw an error. Default: \code{NULL}}
+\item{xy}{(required; data frame or matrix) Must have two columns named "x" and "y" containing the geographic coordinates of the sampling locations. Default: \code{NULL}}
 
-\item{repetitions}{Integer, number of spatial folds to use during cross-validation. Must be lower than the total number of rows available in the model's data. Default: \code{30}}
+\item{repetitions}{(optional; integer) Number of spatial folds to use during cross-validation. Must be lower than the total number of rows available in the training data. Default: \code{30}}
 
-\item{training.fraction}{Proportion between 0.5 and 0.9 indicating the proportion of records to be used as training set during spatial cross-validation. Default: \code{0.75}}
+\item{training.fraction}{(optional; numeric) Proportion of records to be used as training set during spatial cross-validation. Default: \code{0.75}}
 
-\item{metrics}{Character vector, names of the performance metrics selected. The possible values are: "r.squared", "rmse", "nrmse", and "auc". When the response variable is binary, "auc" is added automatically, and "nrmse" is removed (as it has a high risk of producing NA). Default: \code{c("r.squared", "rmse", "nrmse")}}
+\item{metrics}{(optional; character) Character vector, names of the performance metrics selected. The possible values are: "r.squared", "rmse", "nrmse", and "auc". When the response variable is binary, "auc" is added automatically, and "nrmse" is removed (as it has a high risk of producing NA). Default: \code{c("r.squared", "rmse", "nrmse")}}
 
-\item{distance.step}{Numeric, argument \code{distance.step} of \code{\link[=thinning_til_n]{thinning_til_n()}}. distance step used during the selection of the centers of the training folds. These fold centers are selected by thinning the data until a number of folds equal or lower than \code{repetitions} is reached. Its default value is 1/1000th the maximum distance within records in \code{xy}. Reduce it if the number of training folds is lower than expected.}
+\item{distance.step}{(optional; numeric). Argument \code{distance.step} of \code{\link[=thinning_til_n]{thinning_til_n()}}. It's used to tune the selection of the pairs of coordinates that originate each training fold. Its default value is 1/1000th the maximum distance within records in \code{xy}. Try lower values if the number of training folds is lower than expected. Default: \code{NULL}}
 
-\item{distance.step.x}{Numeric, argument \code{distance.step.x} of \code{\link[=make_spatial_folds]{make_spatial_folds()}}. Distance step used during the growth in the x axis of the buffers defining the training folds. Default: \code{NULL} (1/1000th the range of the x coordinates).}
+\item{distance.step.x}{(optional; numeric) Like \code{distance.step}, but for the longitude axis alone. It is set automatically to the range of longitudes  Default: \code{NULL}}
 
-\item{distance.step.y}{Numeric, argument \code{distance.step.x} of \code{\link[=make_spatial_folds]{make_spatial_folds()}}. Distance step used during the growth in the y axis of the buffers defining the training folds. Default: \code{NULL} (1/1000th the range of the y coordinates).}
+\item{distance.step.y}{(optional; numeric) Like \code{distance.step.x} but for the latitude. Useful when the height of the study area is at least two times its width Default: \code{NULL}}
 
-\item{grow.testing.folds}{Logic. By default, this function grows contiguous training folds to keep the spatial structure of the data as intact as possible. However, when setting \code{grow.testing.folds = TRUE}, the argument \code{training.fraction} is set to \code{1 - training.fraction}, and the training and testing folds are switched. This option might be useful when the training data has a spatial structure that does not match well with the default behavior of the function. Default: \code{FALSE}}
+\item{grow.testing.folds}{(optional; logical) If \code{TRUE}, grows testing (instead of training) folds from fold centers. This option might be useful when the training data has a spatial structure that does not match well with the default behavior of the function. Default: \code{FALSE}}
 
-\item{seed}{Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same. Default: \code{1}.}
+\item{seed}{(optional; integer) Random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same. Default: \code{1}.}
 
-\item{verbose}{Logical. If \code{TRUE}, messages and plots generated during the execution of the function are displayed, Default: \code{TRUE}}
+\item{verbose}{(optional; logical) If \code{TRUE}, messages and plots generated during the execution of the function are displayed, Default: \code{TRUE}}
 
-\item{n.cores}{Integer, number of cores used by \code{\link[ranger]{ranger}} for parallel execution (used as value for the argument \code{num.threads} in \code{ranger()}). Default: \code{parallel::detectCores() - 1}}
+\item{n.cores}{(optional; integer) Number of cores used by \code{\link[ranger]{ranger}} for parallel execution (used as value for the argument \code{num.threads} in \code{ranger()}). Default: \code{parallel::detectCores() - 1}}
 
-\item{cluster}{A cluster definition generated with \code{parallel::makeCluster()} or \code{\link{start_cluster}}. Faster than using \code{n.cores} for smaller models. If provided, overrides \code{n.cores}. The function does not stop a cluster, please remember to shut it down with \code{parallel::stopCluster(cl = cluster_name)} or \code{\link{stop_cluster}} at the end of your pipeline. Default: \code{NULL}}
+\item{cluster}{(optional; cluster object) Cluster definition generated with \code{parallel::makeCluster()} or \code{\link[=start_cluster]{start_cluster()}}. Overrides \code{n.cores}. Faster than using \code{n.cores} for smaller models. This function does not stop a cluster, please remember to shut it down with \code{parallel::stopCluster(cl = cluster_name)} or \code{\link[=stop_cluster]{stop_cluster()}} at the end of your pipeline. Default: \code{NULL}}
 }
 \value{
-A model of the class "rf_evaluate" with a new slot named "evaluation", that is a list with the following slots:
+A model of the class "rf_evaluate" with a new slot named "evaluation". This is a list with the following slots:
 \itemize{
 \item \code{metrics}: names of the metrics used for the evaluation.
 \item \code{spatial.folds}: list with the training and testing spatial folds used during the evaluation.
 \item \code{training.fraction}: Value of the argument \code{training.fraction}.
-\item \code{per.fold}: Data frame with the evaluation results per spatial fold (or repetition). It contains the ID of each fold, it's central coordinates, the number of training and testing cases, and the training and testing performance measures: R squared, rmse, and normalized rmse.
-\item \code{per.fold.long}: Long version of \code{per.fold} for easier plotting.
-\item \code{per.model}: Same data as above, but organized per fold and model ("Training", "Testing", and "Full").
-\item \code{aggregated}: Same data, but aggregated by model and performance measure.
+\item \code{per.fold}: Data frame with the evaluation results per spatial fold and evaluation set ("training" and "testing"). It contains the ID of each fold, it's central coordinates, the number of training and testing cases, and the training and testing performance measures: R squared, rmse, and normalized rmse.
+\item \code{aggregated}: Aggregated version of \code{per.fold} with median, median absolute deviation, quartile 1, quartile 3, mean, standard error, standard deviation, minimum, and maximum performance scores across spatial folds.
 }
 }
 \description{
 Evaluates the performance of random forest on unseen data over independent spatial folds.
 }
 \details{
-The evaluation algorithm works as follows: the number of \code{repetitions} and the input dataset (stored in \code{model$ranger.arguments$data}) are used as inputs for the function \code{\link[=thinning_til_n]{thinning_til_n()}}, that applies \code{\link[=thinning]{thinning()}} to the input data until as many cases as \code{repetitions} are left, and as separated as possible. Each of these remaining records will be used as a "fold center". From that point, the fold grows, until a number of points equal (or close) to \code{training.fraction} is reached. The indices of the records within the grown spatial fold are stored as "training" in the output list, and the remaining ones as "testing". Then, for each spatial fold, a "training model" is fitted using the cases corresponding with the training indices, and predicted over the cases corresponding with the testing indices. The model predictions on the "unseen" data are compared with the observations, and the performance measures (R squared, RMSE and NRMSE) computed.
+The evaluation algorithm works as follows:
+
+Generation of contiguous training folds:
+
+\itemize{
+\item The function \code{\link[=thinning_til_n]{thinning_til_n()}} finds a set of coordinates of size \code{repetitions} in \code{xy}. These pairs of coordinates are as separated as possible, and will be used as "training-fold centers".
+\item From each training-fold center, a quadrangular buffer is grown one step at a time, until it encloses a proportion of records as close as possible to \code{training.fraction}. The amount of buffer growth on each step is controlled by \code{distance.step}, \code{distance.step.x}, and \code{distance.step.y}.
+\item For each "training-fold" a model is fitted with the records within the buffer (training records), and predicted over the records outside of the buffer (testing records).
+\item The values of the response in the testing records are compared with the predictions over these same records to compute model performance metrics.
+\item If there are training folds yielding identical performance metrics, only one of them is kept to avoid pseudorreplication.
+}
 }
 \examples{
 if(interactive()){
