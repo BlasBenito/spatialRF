@@ -1,18 +1,5 @@
 #' @title Plots the results of a spatial cross-validation
 #' @description Plots the results of an spatial cross-validation performed with [rf_evaluate()].
-#' @usage
-#' plot_evaluation(
-#'   model,
-#'   fill.color = viridis::viridis(
-#'     3,
-#'     option = "F",
-#'     alpha = 0.8,
-#'     direction = -1
-#'     ),
-#'   line.color = "gray30",
-#'   verbose = TRUE,
-#'   notch = TRUE
-#' )
 #' @param model A model resulting from [rf_evaluate()].
 #' @param fill.color Character vector with three hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. `viridis::viridis(3)`). Default: `viridis::viridis(3, option = "F", alpha = 0.8, direction = -1)`
 #' @param line.color Character string, color of the line produced by `ggplot2::geom_smooth()`. Default: `"gray30"`
@@ -60,7 +47,7 @@
 plot_evaluation <- function(
   model,
   fill.color = viridis::viridis(
-    3,
+    2,
     option = "F",
     alpha = 0.8,
     direction = -1
@@ -72,37 +59,35 @@ plot_evaluation <- function(
 
   #declaring variable because of check BS
   value <- NULL
+  evaluation.set <- NULL
 
   #stop if no evaluation slot
-  if(!inherits(model, "rf_evaluate")){
+  if(!inherits(model, "rf_evaluate") | !("evaluation" %in% names(model))){
     stop("Object 'model' does not have an 'evaluation' slot.")
   }
 
   #getting plotting df
-  n.spatial.folds <- nrow(model$evaluation$per.fold)
-  x <- model$evaluation$per.fold.long
+  n.spatial.folds <- nrow(model$evaluation$per.fold)/2
+  x <- model$evaluation$per.fold
 
   #removing NA
   x <- na.omit(x)
 
-  #prettier labels
-  x[x$metric == "r.squared", "metric"] <- "R squared"
-  x[x$metric == "rmse", "metric"] <- "RMSE"
-  x[x$metric == "nrmse", "metric"] <- "NRMSE"
-  x[x$metric == "auc", "metric"] <- "AUC"
-
   #ordering models
-  x$model <- factor(x$model,levels = c("Testing", "Training", "Full"))
+  x$evaluation.set <- factor(
+    x$evaluation.set,
+    levels = c("testing", "training")
+    )
 
   #the plot
   p <- ggplot2::ggplot() +
     ggplot2::geom_boxplot(
       data = x,
       ggplot2::aes(
-        group = model,
-        y = model,
+        group = evaluation.set,
+        y = evaluation.set,
         x = value,
-        fill = model
+        fill = evaluation.set
       ),
       notch = notch,
       color = line.color

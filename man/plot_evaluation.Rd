@@ -6,12 +6,7 @@
 \usage{
 plot_evaluation(
   model,
-  fill.color = viridis::viridis(
-    3,
-    option = "F",
-    alpha = 0.8,
-    direction = -1
-    ),
+  fill.color = viridis::viridis(2, option = "F", alpha = 0.8, direction = -1),
   line.color = "gray30",
   verbose = TRUE,
   notch = TRUE

@@ -304,8 +304,7 @@ vif <- function(data){
     dplyr::rename(vif = 1) %>%
     tibble::rownames_to_column(var = "variable") %>%
     dplyr::mutate(vif = round(vif, 3)) %>%
-    dplyr::arrange(vif) %>%
-    as.data.frame()
+    dplyr::arrange(vif)
 
   out
 

@@ -194,8 +194,7 @@ rf_compare <- function(
     dplyr::rename(
       model = model.name
     ) %>%
-    na.omit() %>%
-    as.data.frame()
+    na.omit()
 
   #df to plot
   x <- evaluation.df

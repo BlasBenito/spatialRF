@@ -82,8 +82,7 @@ plot_tuning <- function(
     cols = 1:3,
     names_to = "parameter",
     values_to = "value"
-  ) %>%
-    as.data.frame()
+  )
 
   #tuning plot
   p <- ggplot2::ggplot(

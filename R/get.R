@@ -17,7 +17,7 @@
 #' Functions to get evaluation objects from models fitted with [rf_evaluate()]:
 #' \itemize{
 #'   \item `get_evaluation_aggregated()`: data frame with statistics (median, median absolute deviation, first quartile, third quartile, mean, standard error, standard deviation, minimum, and maximum) of training and testing performance scores from a model fitted with [rf_evaluate()].
-#'   \item `get_evaluation_per_fold()`: data frame with one row of performance scores for every pair of training and testing folds.
+#'   \item `get_evaluation()`: data frame with one row of performance scores for every pair of training and testing folds.
 #'   \item `get_evaluation_folds()`: list with training and testing folds used by [rf_evaluate()].
 #' }
 #'
@@ -88,7 +88,7 @@
 #' get_evaluation_aggregated(model = model)
 #'
 #' #get evaluation scores per spatial fold
-#' get_evaluation_per_fold(model = model)
+#' get_evaluation(model = model)
 #'
 #' #get list with indices of training and testing cases
 #' #on each evaluation iteration
@@ -111,25 +111,23 @@ get_evaluation_aggregated <- function(model){
   }
 
   #stop if no evaluation slot
-  if(inherits(model, "rf_evaluate") == FALSE){
+  if(inherits(model, "rf_evaluate") == FALSE | !("evaluation" %in% names(model))){
     stop("Object 'x' does not have an 'evaluation' slot.")
   }
-
-  na.omit(model$evaluation$aggregated)
 
 }
 
 
 #' @rdname get
 #' @export
-get_evaluation_per_fold <- function(model){
+get_evaluation <- function(model){
 
   if(inherits(model, "rf") == FALSE){
     stop("This is not an 'rf' object.")
   }
 
   #stop if no evaluation slot
-  if(inherits(model, "rf_evaluate") == FALSE){
+  if(inherits(model, "rf_evaluate") == FALSE | !("evaluation" %in% names(model))){
     stop("Object 'x' does not have an 'evaluation' slot.")
   }
 
@@ -147,7 +145,7 @@ get_evaluation_folds <- function(model){
   }
 
   #stop if no evaluation slot
-  if(!inherits(model, "rf_evaluate")){
+  if(inherits(model, "rf_evaluate") == FALSE | !("evaluation" %in% names(model))){
     stop("Object 'x' does not have an 'evaluation' slot.")
   }
 

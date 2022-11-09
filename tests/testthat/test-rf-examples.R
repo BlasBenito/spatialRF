@@ -15,7 +15,7 @@ testthat::test_that("`rf()` works", {
    ##########################################################
 
   #fitting model
-  out <- rf(
+  model <- rf(
     data = tibble::as_tibble(ecoregions_df),
     dependent.variable.name = ecoregions_dependent_variable_name,
     predictor.variable.names = ecoregions_predictor_variable_names,
@@ -26,48 +26,48 @@ testthat::test_that("`rf()` works", {
   )
 
   testthat::expect_s3_class(
-    out,
+    model,
     "rf"
   )
 
   testthat::expect_equal(
-    object = "tbl" %in% class(out$variable.importance.local),
+    object = "tbl" %in% class(model$variable.importance.local),
     expected = TRUE
   )
 
   testthat::expect_equal(
-    object = "tbl" %in% class(out$importance$per.variable),
+    object = "tbl" %in% class(model$importance$per.variable),
     expected = TRUE
   )
 
   testthat::expect_equal(
-    object = "tbl" %in% class(out$residuals$autocorrelation$per.distance),
+    object = "tbl" %in% class(model$residuals$autocorrelation$per.distance),
     expected = TRUE
   )
 
   testthat::expect_true(
-    out$ranger.arguments$num.trees == 500
+    model$ranger.arguments$num.trees == 500
   )
 
   testthat::expect_named(
-    out$residuals$autocorrelation$per.distance,
+    model$residuals$autocorrelation$per.distance,
     c("distance.threshold", "moran.i", "moran.i.null", "p.value", "interpretation")
     )
 
   #re-fitting model with new hyperparameters
   ###########################################
-  out.2 <- rf(
+  model <- rf(
     model = out,
     ranger.arguments = list(num.trees = 5000),
     verbose = FALSE
   )
 
   testthat::expect_true(
-    out.2$ranger.arguments$num.trees == 5000
+    model$ranger.arguments$num.trees == 5000
   )
 
   #checking what seed takes precedence
-  out.3 <- rf(
+  model <- rf(
     model = out,
     ranger.arguments = list(seed = 2),
     seed = 3,
@@ -75,7 +75,7 @@ testthat::test_that("`rf()` works", {
   )
 
   testthat::expect_equal(
-    object = out.3$ranger.arguments$seed,
+    object = model$ranger.arguments$seed,
     expected = 3
   )
 
@@ -90,37 +90,37 @@ testthat::test_that("`rf()` works", {
    distance.thresholds = c(0, 1000)
    )
 
-   out.3 <- rf(
+   model <- rf(
      ranger.arguments = my.ranger.arguments,
      verbose = FALSE
      )
 
    testthat::expect_true(
-     out.3$ranger.arguments$num.trees == 500
+     model$ranger.arguments$num.trees == 500
    )
 
    testthat::expect_s3_class(
-     out.3,
+     model,
      "rf"
    )
 
    testthat::expect_s3_class(
-     out.3$importance$per.variable,
+     model$importance$per.variable,
      "data.frame"
    )
 
    testthat::expect_named(
-     out.3$importance$per.variable,
+     model$importance$per.variable,
      c("variable", "importance")
    )
 
    testthat::expect_s3_class(
-     out.3$residuals$autocorrelation$per.distance,
+     model$residuals$autocorrelation$per.distance,
      "data.frame"
    )
 
    testthat::expect_named(
-     out.3$residuals$autocorrelation$per.distance,
+     model$residuals$autocorrelation$per.distance,
      c("distance.threshold", "moran.i", "moran.i.null", "p.value", "interpretation")
    )
 
@@ -135,7 +135,7 @@ testthat::test_that("`rf()` works", {
    )
 
    #fitting model
-   out.4 <- rf(
+   model <- rf(
      data = ecoregions_df,
      dependent.variable.name = ecoregions_dependent_variable_name,
      predictor.variable.names = variable.selection,
@@ -145,31 +145,31 @@ testthat::test_that("`rf()` works", {
    )
 
    testthat::expect_true(
-     out.4$ranger.arguments$num.trees == 500
+     model$ranger.arguments$num.trees == 500
    )
 
    testthat::expect_s3_class(
-     out.4,
+     model,
      "rf"
    )
 
    testthat::expect_s3_class(
-     out.4$importance$per.variable,
+     model$importance$per.variable,
      "data.frame"
    )
 
    testthat::expect_named(
-     out.4$importance$per.variable,
+     model$importance$per.variable,
      c("variable", "importance")
    )
 
    testthat::expect_s3_class(
-     out.4$residuals$autocorrelation$per.distance,
+     model$residuals$autocorrelation$per.distance,
      "data.frame"
    )
 
    testthat::expect_named(
-     out.4$residuals$autocorrelation$per.distance,
+     model$residuals$autocorrelation$per.distance,
      c("distance.threshold", "moran.i", "moran.i.null", "p.value", "interpretation")
    )
 
@@ -181,7 +181,7 @@ testthat::test_that("`rf()` works", {
      0
    )
 
-   out.5 <- rf(
+   model <- rf(
      data = ecoregions_df,
      dependent.variable.name = "binary_response",
      predictor.variable.names = ecoregions_predictor_variable_names,
@@ -191,11 +191,11 @@ testthat::test_that("`rf()` works", {
    )
 
    testthat::expect_true(
-     round(unique(out.5$ranger.arguments$case.weights), 4)[1] == 0.0061
+     round(unique(model$ranger.arguments$case.weights), 4)[1] == 0.0061
    )
 
    testthat::expect_true(
-     round(unique(out.5$ranger.arguments$case.weights), 4)[2] == 0.0161
+     round(unique(model$ranger.arguments$case.weights), 4)[2] == 0.0161
    )
 
 

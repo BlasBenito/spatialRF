@@ -2,7 +2,7 @@
 % Please edit documentation in R/get.R
 \name{get_evaluation_aggregated}
 \alias{get_evaluation_aggregated}
-\alias{get_evaluation_per_fold}
+\alias{get_evaluation}
 \alias{get_evaluation_folds}
 \alias{get_importance}
 \alias{get_importance_local}
@@ -17,7 +17,7 @@
 \usage{
 get_evaluation_aggregated(model)
 
-get_evaluation_per_fold(model)
+get_evaluation(model)
 
 get_evaluation_folds(model)
 
@@ -58,7 +58,7 @@ Functions to get residuals and results of residuals autocorrelation tests.
 Functions to get evaluation objects from models fitted with \code{\link[=rf_evaluate]{rf_evaluate()}}:
 \itemize{
 \item \code{get_evaluation_aggregated()}: data frame with statistics (median, median absolute deviation, first quartile, third quartile, mean, standard error, standard deviation, minimum, and maximum) of training and testing performance scores from a model fitted with \code{\link[=rf_evaluate]{rf_evaluate()}}.
-\item \code{get_evaluation_per_fold()}: data frame with one row of performance scores for every pair of training and testing folds.
+\item \code{get_evaluation()}: data frame with one row of performance scores for every pair of training and testing folds.
 \item \code{get_evaluation_folds()}: list with training and testing folds used by \code{\link[=rf_evaluate]{rf_evaluate()}}.
 }
 
@@ -133,7 +133,7 @@ model <- rf_evaluate(
 get_evaluation_aggregated(model = model)
 
 #get evaluation scores per spatial fold
-get_evaluation_per_fold(model = model)
+get_evaluation(model = model)
 
 #get list with indices of training and testing cases
 #on each evaluation iteration

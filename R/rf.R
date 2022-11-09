@@ -596,8 +596,7 @@ rf <- function(
     ) %>%
       tibble::remove_rownames() %>%
       dplyr::arrange(dplyr::desc(importance)) %>%
-      dplyr::mutate(importance = round(importance, 3)) %>%
-      as.data.frame()
+      dplyr::mutate(importance = round(importance, 3))
 
 
     m$importance$per.variable.plot <- plot_importance(
@@ -689,6 +688,9 @@ rf <- function(
     o = observed,
     p = predicted.ib
   )
+
+  #remove NA
+  m$performance[!is.na(m$performance)]
 
   #residuals
   m$residuals$values <- observed - predicted.ib

@@ -96,6 +96,14 @@ rf_jackknife <- function(
   variable <- NULL
   testing.records <- NULL
   fold.id <- NULL
+  evaluation.set <- NULL
+  metric <- NULL
+  value <- NULL
+  metric.x <- NULL
+  metric.y <- NULL
+  value.x <- NULL
+  value.without <- NULL
+  value.only.with <- NULL
 
   #terminating if there is no model
   if(is.null(model)){
@@ -219,14 +227,7 @@ rf_jackknife <- function(
     )
 
     #getting the evaluation.df
-    evaluation.df.only.with <- model.only.with$evaluation$per.fold %>%
-      dplyr::select(
-        fold.id,
-        dplyr::contains("testing.")
-      ) %>%
-      dplyr::select(
-        -testing.records
-      )
+    evaluation.df.only.with <- model.only.with$evaluation$per.fold
 
     #model without the variable
 
@@ -259,27 +260,45 @@ rf_jackknife <- function(
       )
 
     #getting the evaluation.df
-    evaluation.df.without <- model.without$evaluation$per.fold %>%
-      dplyr::select(
-        fold.id,
-        dplyr::contains("testing.")
-      ) %>%
-      dplyr::select(
-        -testing.records
-      )
+    evaluation.df.without <- model.without$evaluation$per.fold
 
     #getting evaluation data frame
     evaluation.df <- evaluation.df.without %>%
+      dplyr::filter(
+        evaluation.set == "testing"
+      ) %>%
+      dplyr::select(
+        fold.id,
+        metric,
+        value
+      ) %>%
       dplyr::left_join(
-        y = evaluation.df.only.with,
+        y = evaluation.df.only.with %>%
+          dplyr::filter(
+            evaluation.set == "testing"
+          ) %>%
+          dplyr::select(
+            fold.id,
+            metric,
+            value
+          ),
         by = "fold.id"
+      ) %>%
+      dplyr::filter(
+        metric.x == metric.y
       ) %>%
       dplyr::mutate(
         variable = predictor.i,
         .before = fold.id
       ) %>%
-      na.omit() %>%
-      as.data.frame()
+      dplyr::mutate(
+        metric = metric.x,
+        .before = value.x
+      ) %>%
+      dplyr::select(
+        -metric.x,
+        -metric.y
+      )
 
     names(evaluation.df) <- gsub(
       pattern = ".x",
@@ -290,12 +309,6 @@ rf_jackknife <- function(
     names(evaluation.df) <- gsub(
       pattern = ".y",
       replacement = ".only.with",
-      x = names(evaluation.df)
-    )
-
-    names(evaluation.df) <- gsub(
-      pattern = "testing.",
-      replacement = "",
       x = names(evaluation.df)
     )
 
@@ -315,46 +328,36 @@ rf_jackknife <- function(
   ########################
   jackknife.list <- list()
 
-  for(metric in metrics){
+  for(metric.i in metrics){
 
     #summary of differences
     importance.per.variable <- importance.per.repetition %>%
-      dplyr::select(
-        variable,
-        fold.id,
-        dplyr::contains(metric)
+      dplyr::filter(
+        metric == metric.i
       ) %>%
       dplyr::group_by(variable) %>%
       dplyr::summarise(
-        without.median = stats::median(
-          !!rlang::sym(
-            paste0(
-              metric,
-              ".without"
-              )
-            )
-          ),
-        only.with.median = stats::median(
-          !!rlang::sym(
-            paste0(
-              metric,
-              ".only.with"
-              )
-            )
-          ),
+        without.median = stats::median(value.without),
+        only.with.median = stats::median(value.only.with),
         without.minus.only.with = without.median -  only.with.median
       ) %>%
       dplyr::ungroup()
 
     #arranging
-    if(metric %in% c("r.squared", "auc")){
+    if(metric.i %in% c("r.squared", "auc")){
 
       importance.per.variable <- dplyr::arrange(
         importance.per.variable,
         dplyr::desc(without.minus.only.with)
       ) %>%
         dplyr::mutate(
-          full.median = median(model$evaluation$per.fold[, paste0("testing.", metric)]),
+          full.median = model$evaluation$per.fold %>%
+            dplyr::filter(
+              metric == metric.i,
+              evaluation.set == "testing"
+            ) %>%
+            dplyr::pull(value) %>%
+            median(),
           variable_name = ifelse(
             without.median > full.median,
             paste(variable, "*"),
@@ -373,9 +376,15 @@ rf_jackknife <- function(
         without.minus.only.with
       ) %>%
         dplyr::mutate(
-          full.median = median(model$evaluation$per.fold[, paste0("testing.", metric)]),
+          full.median = model$evaluation$per.fold %>%
+            dplyr::filter(
+              metric == metric.i,
+              evaluation.set == "testing"
+              ) %>%
+            dplyr::pull(value) %>%
+            median(),
           variable_name = ifelse(
-            without.median < full.median,
+            without.median > full.median,
             paste(variable, "*"),
             variable
           )
@@ -433,20 +442,7 @@ rf_jackknife <- function(
         )
       )
 
-    #pretty metric name
-    if(metric == "r.squared"){
-      metric.pretty <- "R-squared"
-    }
-    if(metric == "rmse"){
-      metric.pretty <- "RMSE"
-    }
-    if(metric == "nrmse"){
-      metric.pretty <- "normalized RMSE"
-    }
-    if(metric == "auc"){
-      metric.pretty <- "AUC"
-    }
-
+    #plot for the given metric
     jackknife.plot <- ggplot2::ggplot(data = importance.per.variable.long) +
       ggplot2::aes(
         y = variable_name,
@@ -461,7 +457,7 @@ rf_jackknife <- function(
       ggplot2::labs(
         x = paste0(
           "Median ",
-          metric.pretty,
+          metric.i,
           " on ",
           repetitions,
           " spatial folds"
@@ -489,29 +485,10 @@ rf_jackknife <- function(
         only.with.median,
         full.median
       ) %>%
-      as.data.frame()
-
-    #renaming
-    names(jackknife.df)[2:4] <- c(
-      paste0(
-        metric,
-        ".without"
-      ),
-      paste0(
-        metric,
-        ".only.with"
-      ),
-      paste0(
-        metric,
-        ".all"
+      dplyr::mutate(
+        metric = metric.i,
+        .before = without.median
       )
-    )
-
-    names(jackknife.df) <- gsub(
-      pattern = "\\.",
-      replacement = "_",
-      x = names(jackknife.df)
-    )
 
     #saving in jackknife.list
     jackknife.list[[metric]]$df <- jackknife.df

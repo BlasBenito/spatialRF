@@ -100,10 +100,8 @@ rf_evaluate <- function(
   i <- NULL
   metric <- NULL
   value <- NULL
-  testing.auc <- NULL
-  testing.nrmse  <- NULL
-  testing.r.squared <- NULL
-  testing.rmse <- NULL
+  evaluation.set <- NULL
+  name <- NULL
 
   if(is.null(model)){
 
@@ -484,8 +482,7 @@ rf_evaluate <- function(
       min = min(value),
       max = max(value)
     ) %>%
-    dplyr::ungroup() %>%
-    as.data.frame()
+    dplyr::ungroup()
 
   #add results to the model
   if("evaluation" %in% names(model)){

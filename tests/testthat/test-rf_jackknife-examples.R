@@ -12,7 +12,7 @@ testthat::test_that("`rf_repeat()` works", {
     )
 
   #fitting random forest model
-  rf.model <- rf(
+  model <- rf(
     data = ecoregions_df,
     dependent.variable.name = ecoregions_dependent_variable_name,
     predictor.variable.names = ecoregions_predictor_variable_names,
@@ -26,8 +26,8 @@ testthat::test_that("`rf_repeat()` works", {
   cluster <- start_cluster()
 
   #computing predictor contribution to model transferability
-  rf.model <- rf_jackknife(
-    model = rf.model,
+  model <- rf_jackknife(
+    model = model,
     cluster = cluster,
     verbose = TRUE
     )
@@ -35,12 +35,12 @@ testthat::test_that("`rf_repeat()` works", {
   stop_cluster()
 
   testthat::expect_s3_class(
-    rf.model$jackknife$r.squared$df,
+    model$jackknife$r.squared$df,
     "data.frame"
   )
 
   testthat::expect_s3_class(
-    rf.model$jackknife$r.squared$plot,
+    model$jackknife$r.squared$plot,
     "ggplot"
   )
 

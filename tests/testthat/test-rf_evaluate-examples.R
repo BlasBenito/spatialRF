@@ -14,7 +14,7 @@ testthat::test_that("`rf_evaluate()` works", {
   cluster <- spatialRF::start_cluster()
 
   #with tibble
-  rf.model <- rf(
+  model <- rf(
     data = tibble::as_tibble(ecoregions_df),
     dependent.variable.name = ecoregions_dependent_variable_name,
     predictor.variable.names = ecoregions_predictor_variable_names,
@@ -29,8 +29,8 @@ testthat::test_that("`rf_evaluate()` works", {
     verbose = FALSE
   )
 
-  rf.model <- rf_evaluate(
-    model = rf.model,
+  model <- rf_evaluate(
+    model = model,
     xy = NULL,
     repetitions = 30,
     training.fraction = 0.75,
@@ -50,31 +50,27 @@ testthat::test_that("`rf_evaluate()` works", {
     cluster = NULL
     )
 
-  testthat::expect_equal(
-    object = "tbl" %in% class(rf.model$evaluation$per.fold),
-    expected = TRUE
-  )
-
-  testthat::expect_equal(
-    object = "tbl" %in% class(rf.model$evaluation$per.fold.long),
-    expected = TRUE
-  )
-
-  testthat::expect_equal(
-    object = "tbl" %in% class(rf.model$evaluation$per.model),
-    expected = TRUE
-  )
-
-
   testthat::expect_s3_class(
-    rf.model,
+    model,
     "rf_evaluate"
-    )
+  )
 
   testthat::expect_type(
-    rf.model$evaluation,
+    model$evaluation,
     "list"
-    )
+  )
+
+  testthat::expect_equal(
+    object = "tbl" %in% class(model$evaluation$per.fold),
+    expected = TRUE
+  )
+
+  testthat::expect_equal(
+    object = "tbl" %in% class(model$evaluation$aggregated),
+    expected = TRUE
+  )
+
+  #plotting
 
 
   #binary response
@@ -94,7 +90,7 @@ testthat::test_that("`rf_evaluate()` works", {
     "nrmse"
   )
 
-  rf.model <- rf(
+  model <- rf(
     data = ecoregions_df,
     dependent.variable.name = ecoregions_dependent_variable_name,
     predictor.variable.names = ecoregions_predictor_variable_names,
@@ -116,27 +112,27 @@ testthat::test_that("`rf_evaluate()` works", {
   spatialRF::stop_cluster()
 
   testthat::expect_s3_class(
-    rf.model,
+    model,
     "rf_evaluate"
   )
 
   testthat::expect_type(
-    rf.model$evaluation,
+    model$evaluation,
     "list"
   )
 
   testthat::expect_s3_class(
-    rf.model$evaluation$per.fold,
+    model$evaluation$per.fold,
     "data.frame"
   )
 
   testthat::expect_s3_class(
-    rf.model$evaluation$per.model,
+    model$evaluation$per.model,
     "data.frame"
   )
 
   testthat::expect_s3_class(
-    rf.model$evaluation$aggregated,
+    model$evaluation$aggregated,
     "data.frame"
   )
 
