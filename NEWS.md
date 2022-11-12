@@ -28,6 +28,8 @@ Clusters for parallel execution must now be declared before running the function
 
 ### Miscellanea
 
+rf() now reports especificty and sensitivity across prediction thresholds for binary responses.
+
 Expanded the performance metrics provided by rf() and company. They now report: r.squared.oob, rmse.oob, nrmse.oob, and if the response is binary, auc.oob. The in-bag metrics are: r.squared.ib, rmse.ib, nrmse.ib, and auc.ib. These changes have been implemented in rf_repeat() as well. Both types of predictions are now provided as well in `model$predictions$ib` and `model$predictions$oob`.
 
 The functions `mem()` and `mem_multithreshold()` now share the same documentation.

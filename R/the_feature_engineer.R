@@ -106,7 +106,7 @@ the_feature_engineer <- function(
   out.list$xy <- xy
 
   #finding out if the response is binary
-  if(.is_binary(
+  if(is_binary_response(
     x = dplyr::pull(data, dependent.variable.name)
   )
   ){

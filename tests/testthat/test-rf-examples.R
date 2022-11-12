@@ -57,7 +57,7 @@ testthat::test_that("`rf()` works", {
   #re-fitting model with new hyperparameters
   ###########################################
   model <- rf(
-    model = out,
+    model = model,
     ranger.arguments = list(num.trees = 5000),
     verbose = FALSE
   )
@@ -68,7 +68,7 @@ testthat::test_that("`rf()` works", {
 
   #checking what seed takes precedence
   model <- rf(
-    model = out,
+    model = model,
     ranger.arguments = list(seed = 2),
     seed = 3,
     verbose = FALSE
@@ -188,6 +188,14 @@ testthat::test_that("`rf()` works", {
      distance.matrix = ecoregions_distance_matrix,
      distance.thresholds = c(0,100, 1000, 10000),
      verbose = FALSE
+   )
+
+   testthat::expect_true(
+     is.data.frame(model$performance$roc.curve.oob) == TRUE
+   )
+
+   testthat::expect_true(
+     nrow(model$performance$roc.curve.oob) == 11
    )
 
    testthat::expect_true(

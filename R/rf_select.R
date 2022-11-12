@@ -112,7 +112,7 @@ rf_select <- function(
   ranger.arguments$predictor.variable.names <- NULL
 
   #if data is binary, "auc" is added
-  if(.is_binary(
+  if(is_binary_response(
     x = dplyr::pull(data, dependent.variable.name)
   )){
     metrics <- c(metrics, "auc")

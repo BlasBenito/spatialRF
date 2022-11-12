@@ -18,7 +18,7 @@ case_weights <- function(
     case.weights = NULL
 ){
 
-  binary <- .is_binary(x)
+  binary <- is_binary_response(x)
 
   if(is.null(x) | !binary){
     return(case.weights)
@@ -58,23 +58,3 @@ case_weights <- function(
 
 }
 
-#' @export
-.is_binary <- function(
-    x = NULL
-){
-
-  #unique values
-  unique.values <- sort(unique(x))
-
-  #checking equality
-  if(
-    length(unique.values) == 2 &&
-    all(unique.values == c(0, 1)) == TRUE
-    ){
-      return(TRUE)
-    } else {
-      return(FALSE)
-    }
-
-
-}

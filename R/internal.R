@@ -1,3 +1,26 @@
+#' @noRd
+#' @keywords internal
+is_binary_response <- function(
+    x
+){
+
+  #unique values
+  unique.values <- sort(unique(x))
+
+  #checking equality
+  if(
+    length(unique.values) == 2 &&
+    all(unique.values == c(0, 1)) == TRUE
+  ){
+    return(TRUE)
+  } else {
+    return(FALSE)
+  }
+
+
+}
+
+
 #' @title Prepares variable importance objects for spatial models
 #' @description Prepares variable importance data frames and plots for models fitted with [rf_spatial()].
 #' @param model An importance data frame with spatial predictors, or a model fitted with [rf_spatial()].
@@ -28,9 +51,8 @@
 #'  names(importance)
 #'
 #' }
-#' @rdname prepare_importance_spatial
-#' @importFrom stats median
-#' @export
+#' @noRd
+#' @keywords internal
 prepare_importance_spatial <- function(model){
 
   importance <- NULL
@@ -95,7 +117,7 @@ prepare_importance_spatial <- function(model){
   out.list$per.variable.plot <- plot_importance(
     model$importance$per.variable,
     verbose = FALSE
-    )
+  )
   out.list$spatial.predictors <- importance.plot.df
   out.list$spatial.predictors.plot <- plot_importance(
     importance.plot.df,

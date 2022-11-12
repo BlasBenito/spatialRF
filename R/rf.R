@@ -8,7 +8,7 @@
 #' @param distance.thresholds  (optional; numeric vector with distances in the same units as `distance.matrix`) Numeric vector with neighborhood distances. All distances in the distance matrix below each value in `dustance.thresholds` are set to 0 for the computation of Moran's I. If `NULL`, it defaults to seq(0, max(distance.matrix), length.out = 4). Default: `NULL`
 #' @param xy (optional; data frame, tibble, or matrix) Data frame or matrix with two columns containing coordinates and named "x" and "y". It is not used by this function, but it is stored in the slot `ranger.arguments$xy` of the model, so it can be used by [rf_evaluate()] and [rf_tuning()]. Default: `NULL`
 #' @param ranger.arguments (optional; list with ranger::ranger() arguments) Named list with \link[ranger]{ranger} arguments. All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. The ranger arguments `x`, `y`, and `formula` are disabled. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function. Default: `NULL`.
-#' @param scaled.importance (optional; logical) If `TRUE`, the function scales `data` with \link[base]{scale} and fits a new model to compute scaled variable importance scores. This makes variable importance scores of different models somewhat comparable. Default: `FALSE`
+#' @param scaled.importance (optional; logical) If `TRUE`, the function scales `data` with \link[base]{scale} and fits a new model to compute scaled variable importance scores. Relevant to compare importance scores across models with different response variables. Default: `FALSE`
 #' @param seed (optional; integer) Random seed to facilitate reproducibility. If set to a given number, the returned model is always the same. Default: `1`
 #' @param verbose (optional; logical) If TRUE, messages and plots generated during the execution of the function are displayed. Default: `TRUE`
 #' @param n.cores (optional; integer) Number of cores to use. Default: `parallel::detectCores() - 1`
@@ -117,7 +117,7 @@
 #' @importFrom parallel detectCores
 #' @importFrom tibble remove_rownames
 #' @importFrom dplyr arrange
-#' @importFrom stats formula reorder
+#' @importFrom stats formula reorder median cor.test
 #' @importFrom rlang .data
 rf <- function(
   model = NULL,
@@ -640,32 +640,54 @@ rf <- function(
   #getting observed data
   observed <- dplyr::pull(data, dependent.variable.name)
 
-  #if data is binary, "auc" is used
-  if(.is_binary(
-    x = dplyr::pull(data, dependent.variable.name)
-  )){
-    metrics <- "auc"
-  } else {
-    metrics <- c(
-      "r.squared",
-      "rmse",
-      "nrmse"
-    )
-  }
+  #MODEL PERFORMANCE
+  ##################################
 
   #performance slot
   m$performance <- list()
 
-  #OOB metrics
-  ####################
-  if("r.squared" %in% metrics){
+  #defining_metrics
+  if(is_binary_response(
+    x = dplyr::pull(data, dependent.variable.name)
+  ) == TRUE){
 
+    #binary response metrics
+    m$performance$auc.oob <- auc(
+      o = observed,
+      p = predicted.oob
+    )
+
+    m$performance$auc.ib <- auc(
+      o = observed,
+      p = predicted.ib
+    )
+
+    m$performance$roc.curve.oob <- roc_curve(
+      o = observed,
+      p = predicted.oob
+    )
+
+    m$performance$roc.curve.ib <- roc_curve(
+      o = observed,
+      p = predicted.ib
+    )
+
+    #point biserial correlation
+    m$performannce$biserial.cor.oob <- cor.test(
+      x = observed,
+      y = predicted.oob
+    )$estimate
+
+    m$performannce$biserial.cor.ib <- cor.test(
+      x = observed,
+      y = predicted.ib
+    )$estimate
+
+  } else {
+
+    #continuous response metrics
     m$performance$r.squared.oob <- cor(observed, predicted.oob) ^ 2
     m$performance$r.squared.ib <- cor(observed, predicted.ib) ^ 2
-
-     }
-
-  if("rmse" %in% metrics){
 
     m$performance$rmse.oob <- root_mean_squared_error(
       o = observed,
@@ -681,10 +703,6 @@ rf <- function(
     )
     names(m$performance$rmse.ib) <- NULL
 
-  }
-
-  if("nrmse" %in% metrics){
-
     m$performance$nrmse.oob <- root_mean_squared_error(
       o = observed,
       p = predicted.oob,
@@ -699,19 +717,6 @@ rf <- function(
     )
     names(m$performance$nrmse.ib) <- NULL
 
-  }
-
-  if("auc" %in% metrics){
-
-    m$performance$auc.oob <- auc(
-      o = observed,
-      p = predicted.oob
-    )
-
-    m$performance$auc.ib <- auc(
-      o = observed,
-      p = predicted.ib
-    )
 
   }
 

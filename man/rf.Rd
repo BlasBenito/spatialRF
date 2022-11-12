@@ -37,7 +37,7 @@ rf(
 
 \item{ranger.arguments}{(optional; list with ranger::ranger() arguments) Named list with \link[ranger]{ranger} arguments. All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. The ranger arguments \code{x}, \code{y}, and \code{formula} are disabled. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function. Default: \code{NULL}.}
 
-\item{scaled.importance}{(optional; logical) If \code{TRUE}, the function scales \code{data} with \link[base]{scale} and fits a new model to compute scaled variable importance scores. This makes variable importance scores of different models somewhat comparable. Default: \code{FALSE}}
+\item{scaled.importance}{(optional; logical) If \code{TRUE}, the function scales \code{data} with \link[base]{scale} and fits a new model to compute scaled variable importance scores. Relevant to compare importance scores across models with different response variables. Default: \code{FALSE}}
 
 \item{seed}{(optional; integer) Random seed to facilitate reproducibility. If set to a given number, the returned model is always the same. Default: \code{1}}
 

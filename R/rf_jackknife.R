@@ -141,7 +141,7 @@ rf_jackknife <- function(
   }
 
   #if data is binary, "auc" is added
-  if(.is_binary(
+  if(is_binary_response(
     x = dplyr::pull(data, dependent.variable.name)
   )){
     metrics <- c(metrics, "auc")

@@ -1,5 +1,7 @@
 #TODO
 
+## add function to plot roc curve
+
 ## Remove r.squared, rmse, and nrmse for binary responses
 
 ## Add sensitivity and specificty for binary models

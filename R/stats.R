@@ -96,41 +96,7 @@ root_mean_squared_error <- function(
 }
 
 
-#' @title Area under the ROC curve
-#' @description Computes the area under the ROC curve in models with binary responses.
-#' @param o Numeric vector with observations, must have the same length as `p`.
-#' @param p Numeric vector with predictions, must have the same length as `o`.
-#' @return Numeric, AUC value.
-#' @examples
-#' if(interactive()){
-#'
-#'  out <- auc(
-#'    o = c(0, 0, 1, 1),
-#'    p = c(0.1, 0.6, 0.4, 0.8)
-#'    )
-#'
-#' }
-#' @rdname auc
-#' @export
-auc <- function(o, p){
 
-  #predicted values of the ones and the zeroes
-  ones <- stats::na.omit(p[o == 1])
-  zeros <- stats::na.omit(p[o == 0])
-
-  #lengths of each vector
-  n.ones <- length(ones)
-  n.zeros <- length(zeros)
-
-  #curve computation
-  curve <- sum(rank(c(ones, zeros))[1:n.ones]) - (n.ones*(n.ones+1)/2)
-
-  #area under the curve
-  auc <- curve / (n.zeros * n.ones)
-
-  auc
-
-}
 
 #' @title Statistical mode of a vector
 #' @description Computes the mode of a numeric or character vector
@@ -203,3 +169,120 @@ pca <- function(
 
 }
 
+
+#' @title Area under the ROC curve
+#' @description Computes the area under the ROC curve in models with binary responses.
+#' @param o Numeric vector with observations, must have the same length as `p`.
+#' @param p Numeric vector with predictions, must have the same length as `o`.
+#' @return Numeric, AUC value.
+#' @examples
+#' if(interactive()){
+#'
+#'  out <- auc(
+#'    o = c(0, 0, 1, 1),
+#'    p = c(0.1, 0.6, 0.4, 0.8)
+#'    )
+#'
+#' }
+#' @rdname auc
+#' @export
+auc <- function(o, p){
+
+  #predicted values of the ones and the zeroes
+  ones <- stats::na.omit(p[o == 1])
+  zeros <- stats::na.omit(p[o == 0])
+
+  #lengths of each vector
+  n.ones <- length(ones)
+  n.zeros <- length(zeros)
+
+  #curve computation
+  curve <- sum(rank(c(ones, zeros))[1:n.ones]) - (n.ones*(n.ones+1)/2)
+
+  #area under the curve
+  auc <- curve / (n.zeros * n.ones)
+
+  auc
+
+}
+
+#' @title ROC curve
+#' @description Computes tROC curve in models with binary responses.
+#' @param o Numeric vector with observations, must have the same length as `p`.
+#' @param p Numeric vector with predictions, must have the same length as `o`.
+#' @return A data frame with the following columns:
+#' \itemize{
+#'   \item prediction_threshold: prediction thresholds from 0 to 1.
+#'   \item true_positives: correctly predicted ones per threshold.
+#'   \item false_positives: incorrectly predicted ones per threshold.
+#'   \item false_negatives: correctly predicted zeroes per threshold.
+#'   \item true_negatives: incorrectly predicted zeroes per threshold.
+#'   \item sensitivity: probability of predicting a one per threshold.
+#'   \item specificity: probability of predicting a zero per threshold.
+#' }
+#' @examples
+#' if(interactive()){
+#'
+#'  out <- roc_curve(
+#'    o = c(0, 0, 1, 1),
+#'    p = c(0.1, 0.6, 0.4, 0.8)
+#'    )
+#'
+#' }
+#' @rdname roc_curve
+#' @export
+roc_curve <- function(o, p){
+
+  #predicted values of the ones and the zeroes
+  ones <- stats::na.omit(p[o == 1])
+  zeros <- stats::na.omit(p[o == 0])
+
+  #ROC data frame
+  roc_df <- data.frame(
+    prediction_threshold = seq(
+      from = 0,
+      to = 1,
+      by = 0.1
+    ),
+    true_positives = rep(NA, 11),
+    false_positives = rep(NA, 11),
+    false_negatives = rep(NA, 11),
+    true_negatives = rep(NA, 11)
+  )
+
+  #iterating to fill data frame
+  for(i in 1:nrow(roc_df)){
+
+    #component a of confusion matrix (true positives)
+    roc_df[i, "true_positives"] <- length(
+      ones[ones >= roc_df[i, "prediction_threshold"]]
+      )
+
+    #component b of confusion matrix (false positives)
+    roc_df[i, "false_positives"] <- length(
+      zeros[zeros >= roc_df[i, "prediction_threshold"]]
+    )
+
+    #component c of confusion matrix (false negatives)
+    roc_df[i, "false_negatives"] <- length(
+      ones[ones < roc_df[i, "prediction_threshold"]]
+    )
+
+    #component d of confusion matrix (true negatives)
+    roc_df[i, "true_negatives"] <- length(
+      zeros[zeros < roc_df[i, "prediction_threshold"]]
+    )
+
+  }
+
+  #sensitivity (a/(a+c))
+  roc_df$sensitivity <- roc_df$true_positives /
+    (roc_df$true_positives + roc_df$false_negatives)
+
+  #especificity
+  roc_df$specificity <- roc_df$true_negatives /
+    (roc_df$true_negatives + roc_df$false_positives)
+
+
+  roc_df
+}

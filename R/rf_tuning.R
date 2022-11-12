@@ -196,7 +196,7 @@ rf_tuning <- function(
   #END OF HANDLING PARALLELIZATION
 
   #testing if the data is binary
-  if(.is_binary(
+  if(is_binary_response(
     x = dplyr::pull(data, dependent.variable.name)
   )
   ){
