@@ -4,7 +4,6 @@
 #' @param xy (required; data frame or matrix) Must have two columns named "x" and "y" containing the geographic coordinates of the sampling locations. Default: `NULL`
 #' @param repetitions (optional; integer) Number of spatial folds to use during cross-validation. Must be lower than the total number of rows available in the training data. Default: `30`
 #' @param training.fraction (optional; numeric) Proportion of records to be used as training set during spatial cross-validation. Default: `0.75`
-#' @param metrics (optional; character) Character vector, names of the performance metrics selected. The possible values are: "r.squared", "rmse", "nrmse", and "auc". When the response variable is binary, "auc" is added automatically, and "nrmse" is removed (as it has a high risk of producing NA). Default: `c("r.squared", "rmse", "nrmse")`
 #' @param distance.step (optional; numeric). Argument `distance.step` of [thinning_til_n()]. It's used to tune the selection of the pairs of coordinates that originate each training fold. Its default value is 1/1000th the maximum distance within records in `xy`. Try lower values if the number of training folds is lower than expected. Default: `NULL`
 #' @param distance.step.x  (optional; numeric) Like `distance.step`, but for the longitude axis alone. It is set automatically to the range of longitudes  Default: `NULL`
 #' @param distance.step.y (optional; numeric) Like `distance.step.x` but for the latitude. Useful when the height of the study area is at least two times its width Default: `NULL`
@@ -80,12 +79,6 @@ rf_evaluate <- function(
   xy = NULL,
   repetitions = 30,
   training.fraction = 0.75,
-  metrics = c(
-    "r.squared",
-    "rmse",
-    "nrmse",
-    "auc"
-  ),
   distance.step = NULL,
   distance.step.x = NULL,
   distance.step.y = NULL,
@@ -149,28 +142,18 @@ rf_evaluate <- function(
     stop("nrow(xy) and nrow(data) must be the same.")
   }
 
-  #testing method argument
-  metrics <- match.arg(
-    arg = metrics,
-    choices = c(
-      "r.squared",
-      "rmse",
-      "nrmse",
-      "auc"
-      ),
-    several.ok = TRUE
-  )
-
   #if data is binary, "auc" is used
   if(.is_binary(
     x = dplyr::pull(data, dependent.variable.name)
   )){
-    metrics <- c(metrics, "auc")
-    metrics <- metrics[metrics != "nrmse"]
+    metrics <- "auc"
   } else {
-    metrics <- metrics[metrics != "auc"]
+    metrics <- metrics <- c(
+      "r.squared",
+      "rmse",
+      "nrmse"
+    )
   }
-  metrics <- unique(metrics)
 
 
   #checking repetitions

@@ -640,54 +640,80 @@ rf <- function(
   #getting observed data
   observed <- dplyr::pull(data, dependent.variable.name)
 
+  #if data is binary, "auc" is used
+  if(.is_binary(
+    x = dplyr::pull(data, dependent.variable.name)
+  )){
+    metrics <- "auc"
+  } else {
+    metrics <- c(
+      "r.squared",
+      "rmse",
+      "nrmse"
+    )
+  }
+
   #performance slot
   m$performance <- list()
 
   #OOB metrics
   ####################
-  m$performance$r.squared.oob <- cor(observed, predicted.oob) ^ 2
+  if("r.squared" %in% metrics){
 
-  m$performance$rmse.oob <- root_mean_squared_error(
-    o = observed,
-    p = predicted.oob,
-    normalization = "rmse"
-  )
-  names(m$performance$rmse.oob) <- NULL
+    m$performance$r.squared.oob <- cor(observed, predicted.oob) ^ 2
+    m$performance$r.squared.ib <- cor(observed, predicted.ib) ^ 2
 
-  m$performance$nrmse.oob <- root_mean_squared_error(
-    o = observed,
-    p = predicted.oob,
-    normalization = "iq"
-  )
-  names(m$performance$nrmse.oob) <- NULL
+     }
 
-  m$performance$auc.oob <- auc(
-    o = observed,
-    p = predicted.oob
-  )
+  if("rmse" %in% metrics){
 
-  #IB metrics
-  ######################
-  m$performance$r.squared.ib <- cor(observed, predicted.ib) ^ 2
+    m$performance$rmse.oob <- root_mean_squared_error(
+      o = observed,
+      p = predicted.oob,
+      normalization = "rmse"
+    )
+    names(m$performance$rmse.oob) <- NULL
 
-  m$performance$rmse.ib <- root_mean_squared_error(
-    o = observed,
-    p = predicted.ib,
-    normalization = "rmse"
-  )
-  names(m$performance$rmse.ib) <- NULL
+    m$performance$rmse.ib <- root_mean_squared_error(
+      o = observed,
+      p = predicted.ib,
+      normalization = "rmse"
+    )
+    names(m$performance$rmse.ib) <- NULL
 
-  m$performance$nrmse.ib <- root_mean_squared_error(
-    o = observed,
-    p = predicted.ib,
-    normalization = "iq"
-  )
-  names(m$performance$nrmse.ib) <- NULL
+  }
 
-  m$performance$auc.ib <- auc(
-    o = observed,
-    p = predicted.ib
-  )
+  if("nrmse" %in% metrics){
+
+    m$performance$nrmse.oob <- root_mean_squared_error(
+      o = observed,
+      p = predicted.oob,
+      normalization = "iq"
+    )
+    names(m$performance$nrmse.oob) <- NULL
+
+    m$performance$nrmse.ib <- root_mean_squared_error(
+      o = observed,
+      p = predicted.ib,
+      normalization = "iq"
+    )
+    names(m$performance$nrmse.ib) <- NULL
+
+  }
+
+  if("auc" %in% metrics){
+
+    m$performance$auc.oob <- auc(
+      o = observed,
+      p = predicted.oob
+    )
+
+    m$performance$auc.ib <- auc(
+      o = observed,
+      p = predicted.ib
+    )
+
+  }
 
   #remove NA
   m$performance[!is.na(m$performance)]

@@ -312,7 +312,6 @@ rf_tuning <- function(
       spatialRF::rf_evaluate(
         repetitions = repetitions,
         training.fraction = training.fraction,
-        metrics = metric,
         seed = seed,
         verbose = FALSE,
         n.cores = in.loop.n.cores,

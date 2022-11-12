@@ -9,7 +9,6 @@ rf_evaluate(
   xy = NULL,
   repetitions = 30,
   training.fraction = 0.75,
-  metrics = c("r.squared", "rmse", "nrmse", "auc"),
   distance.step = NULL,
   distance.step.x = NULL,
   distance.step.y = NULL,
@@ -28,8 +27,6 @@ rf_evaluate(
 \item{repetitions}{(optional; integer) Number of spatial folds to use during cross-validation. Must be lower than the total number of rows available in the training data. Default: \code{30}}
 
 \item{training.fraction}{(optional; numeric) Proportion of records to be used as training set during spatial cross-validation. Default: \code{0.75}}
-
-\item{metrics}{(optional; character) Character vector, names of the performance metrics selected. The possible values are: "r.squared", "rmse", "nrmse", and "auc". When the response variable is binary, "auc" is added automatically, and "nrmse" is removed (as it has a high risk of producing NA). Default: \code{c("r.squared", "rmse", "nrmse")}}
 
 \item{distance.step}{(optional; numeric). Argument \code{distance.step} of \code{\link[=thinning_til_n]{thinning_til_n()}}. It's used to tune the selection of the pairs of coordinates that originate each training fold. Its default value is 1/1000th the maximum distance within records in \code{xy}. Try lower values if the number of training folds is lower than expected. Default: \code{NULL}}
 

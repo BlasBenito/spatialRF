@@ -9,7 +9,6 @@ rf_select(
   xy = NULL,
   repetitions = 30,
   training.fraction = 0.75,
-  metrics = c("r.squared", "rmse", "nrmse", "auc"),
   max.vif = 5,
   max.cor = 0.75,
   distance.step = NULL,
@@ -30,8 +29,6 @@ rf_select(
 \item{repetitions}{Integer, number of spatial folds to use during cross-validation. Must be lower than the total number of rows available in the model's data. Default: \code{30}}
 
 \item{training.fraction}{Proportion between 0.5 and 0.9 indicating the proportion of records to be used as training set during spatial cross-validation. Default: \code{0.75}}
-
-\item{metrics}{Character vector, names of the performance metrics selected. The possible values are: "r.squared" (\code{cor(obs, pred) ^ 2}), "rmse" (\code{sqrt(sum((obs - pred)^2)/length(obs))}), "nrmse" (\code{rmse/(quantile(obs, 0.75) - quantile(obs, 0.25))}), and "auc" (added automatically for binary responses with values 1 and 0). Default: \code{c("r.squared", "rmse", "nrmse", "auc")}}
 
 \item{max.vif}{Numeric between 2.5 and 10 defining the selection threshold for the VIF analysis. Higher numbers result in a more relaxed variable selection. Lower values increase the number of predictors returned. If \code{NULL}, VIF analysis to reduce multicollinearity is disabled. Default: \code{5}.}
 

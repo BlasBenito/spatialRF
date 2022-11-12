@@ -11,7 +11,7 @@ testthat::test_that("`rf_evaluate()` works", {
     ecoregions_dependent_variable_name
   )
 
-  cluster <- spatialRF::start_cluster()
+  cluster <- start_cluster()
 
   #with tibble
   model <- rf(
@@ -34,12 +34,6 @@ testthat::test_that("`rf_evaluate()` works", {
     xy = NULL,
     repetitions = 30,
     training.fraction = 0.75,
-    metrics = c(
-        "auc",
-        "r.squared",
-        "rmse",
-        "nrmse"
-      ),
     distance.step = NULL,
     distance.step.x = NULL,
     distance.step.y = NULL,
@@ -83,13 +77,6 @@ testthat::test_that("`rf_evaluate()` works", {
       )
     )
 
-  metrics <- c(
-    "r.squared",
-    "rmse",
-    "auc",
-    "nrmse"
-  )
-
   model <- rf(
     data = ecoregions_df,
     dependent.variable.name = ecoregions_dependent_variable_name,
@@ -105,7 +92,6 @@ testthat::test_that("`rf_evaluate()` works", {
     verbose = FALSE
   ) %>%
     rf_evaluate(
-      metrics = metrics,
       verbose = FALSE
     )
 
@@ -123,11 +109,6 @@ testthat::test_that("`rf_evaluate()` works", {
 
   testthat::expect_s3_class(
     model$evaluation$per.fold,
-    "data.frame"
-  )
-
-  testthat::expect_s3_class(
-    model$evaluation$per.model,
     "data.frame"
   )
 

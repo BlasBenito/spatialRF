@@ -1,5 +1,11 @@
 #TODO
 
+## Remove r.squared, rmse, and nrmse for binary responses
+
+## Add sensitivity and specificty for binary models
+
+## Add point biserial correlation for binary outcomes: https://www.r-bloggers.com/2021/07/point-biserial-correlation-in-r-quick-guide/
+
 ## simplify distance.step.x and distance.step.y to distance.step with a vector with two values as input.
 
 ## support sf as input
