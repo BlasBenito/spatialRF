@@ -673,12 +673,12 @@ rf <- function(
     )
 
     #point biserial correlation
-    m$performannce$biserial.cor.oob <- cor.test(
+    m$performance$biserial.cor.oob <- stats::cor.test(
       x = observed,
       y = predicted.oob
     )$estimate
 
-    m$performannce$biserial.cor.ib <- cor.test(
+    m$performance$biserial.cor.ib <- stats::cor.test(
       x = observed,
       y = predicted.ib
     )$estimate

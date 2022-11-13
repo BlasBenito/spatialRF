@@ -1,5 +1,6 @@
-#' @noRd
+#' @rdname internal
 #' @keywords internal
+#' @export
 is_binary_response <- function(
     x
 ){
@@ -51,8 +52,9 @@ is_binary_response <- function(
 #'  names(importance)
 #'
 #' }
-#' @noRd
+#' @rdname internal
 #' @keywords internal
+#' @export
 prepare_importance_spatial <- function(model){
 
   importance <- NULL
