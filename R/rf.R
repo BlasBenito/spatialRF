@@ -651,6 +651,17 @@ rf <- function(
     x = dplyr::pull(data, dependent.variable.name)
   ) == TRUE){
 
+    #point biserial correlation
+    m$performance$biserial.cor.oob <- stats::cor.test(
+      x = observed,
+      y = predicted.oob
+    )$estimate
+
+    m$performance$biserial.cor.ib <- stats::cor.test(
+      x = observed,
+      y = predicted.ib
+    )$estimate
+
     #binary response metrics
     m$performance$auc.oob <- auc(
       o = observed,
@@ -671,17 +682,6 @@ rf <- function(
       o = observed,
       p = predicted.ib
     )
-
-    #point biserial correlation
-    m$performance$biserial.cor.oob <- stats::cor.test(
-      x = observed,
-      y = predicted.oob
-    )$estimate
-
-    m$performance$biserial.cor.ib <- stats::cor.test(
-      x = observed,
-      y = predicted.ib
-    )$estimate
 
   } else {
 
@@ -722,6 +722,9 @@ rf <- function(
 
   #remove NA
   m$performance[!is.na(m$performance)]
+
+  #ordering performance list by name
+  m$performance = m$performance[order(names(m$performance))]
 
   #residuals
   m$residuals$values <- observed - predicted.ib
@@ -788,6 +791,12 @@ rf <- function(
 
     if(is.null(m$residuals$autocorrelation$per.distance) == FALSE){
       m$residuals$autocorrelation$per.distance <- tibble::as_tibble(m$residuals$autocorrelation$per.distance)
+
+      if(!is.null(m$performance$roc.curve.ib)){
+          m$performance$roc.curve.ib <- tibble::as_tibble(m$performance$roc.curve.ib)
+          m$performance$roc.curve.oob <- tibble::as_tibble(m$performance$roc.curve.oob)
+      }
+
     }
 
   }

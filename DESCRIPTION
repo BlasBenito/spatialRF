@@ -28,7 +28,8 @@ Imports:
     tidyselect,
     huxtable,
     patchwork,
-    viridis
+    viridis,
+    purrr
 Suggests: 
     testthat,
     spelling

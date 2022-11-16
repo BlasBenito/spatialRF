@@ -68,6 +68,7 @@ testthat::test_that("`rf_evaluate()` works", {
 
 
   #binary response
+  ########################################
   ecoregions_df <- ecoregions_df %>%
     dplyr::mutate(
       plant_richness = ifelse(

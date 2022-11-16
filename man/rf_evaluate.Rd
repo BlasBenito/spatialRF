@@ -45,13 +45,20 @@ rf_evaluate(
 \item{cluster}{(optional; cluster object) Cluster definition generated with \code{parallel::makeCluster()} or \code{\link[=start_cluster]{start_cluster()}}. Overrides \code{n.cores}. Faster than using \code{n.cores} for smaller models. This function does not stop a cluster, please remember to shut it down with \code{parallel::stopCluster(cl = cluster_name)} or \code{\link[=stop_cluster]{stop_cluster()}} at the end of your pipeline. Default: \code{NULL}}
 }
 \value{
-A model of the class "rf_evaluate" with a new slot named "evaluation". This is a list with the following slots:
+A model of the class "rf_evaluate" with a new slot named "evaluation". Additionally, spatial cross-validation performance scores are added to the "performance" slot of the model.
+
+Objects written to \code{model$evaluation}:
 \itemize{
-\item \code{metrics}: names of the metrics used for the evaluation.
-\item \code{spatial.folds}: list with the training and testing spatial folds used during the evaluation.
+\item \code{spatial.folds}: list of lists with the training and testing spatial folds used during the evaluation. Each element of the list corresponds to a row in the \code{per.fold} data frame.
 \item \code{training.fraction}: Value of the argument \code{training.fraction}.
-\item \code{per.fold}: Data frame with the evaluation results per spatial fold and evaluation set ("training" and "testing"). It contains the ID of each fold, it's central coordinates, the number of training and testing cases, and the training and testing performance measures: R squared, rmse, and normalized rmse.
+\item \code{per.fold}: Data frame with the cross-validation results per spatial fold. It contains the numeric id of each fold, it's central coordinates, the number of training and testing cases, and the training and testing performance metrics.
 \item \code{aggregated}: Aggregated version of \code{per.fold} with median, median absolute deviation, quartile 1, quartile 3, mean, standard error, standard deviation, minimum, and maximum performance scores across spatial folds.
+\item \code{roc.curve.ib}, \code{roc.curve.oob}, and \code{roc.curve.scv}: Produced only when the response is binary (values one and zero). Lists of data frames with the in-bag (.ib suffix), out-of-bag (.oob), and spatial cross-validation (.scv) confusion matrices, sensitivity and specificity across all spatial folds.
+}
+
+Objects written to \code{model$performance}:
+\itemize{
+\item
 }
 }
 \description{
@@ -64,11 +71,19 @@ Generation of contiguous training folds:
 
 \itemize{
 \item The function \code{\link[=thinning_til_n]{thinning_til_n()}} finds a set of coordinates of size \code{repetitions} in \code{xy}. These pairs of coordinates are as separated as possible, and will be used as "training-fold centers".
-\item From each training-fold center, a quadrangular buffer is grown one step at a time, until it encloses a proportion of records as close as possible to \code{training.fraction}. The amount of buffer growth on each step is controlled by \code{distance.step}, \code{distance.step.x}, and \code{distance.step.y}.
+\item From each training fold-center, a quadrangular buffer is grown one step at a time, until it encloses a proportion of records as close as possible to \code{training.fraction}. The amount of buffer growth on each step is controlled either by \code{distance.step}, or \code{distance.step.x} and \code{distance.step.y}.
 \item For each "training-fold" a model is fitted with the records within the buffer (training records), and predicted over the records outside of the buffer (testing records).
 \item The values of the response in the testing records are compared with the predictions over these same records to compute model performance metrics.
 \item If there are training folds yielding identical performance metrics, only one of them is kept to avoid pseudorreplication.
 }
+
+If the response variable is continuous, the metrics used are "r.squared", "rmse", and "nrmse" (normalized rmse).
+
+If the response is binary (zeros and ones), the metrics used are "auc" (area under the ROC curve), "biserial.cor" (point-biserial correlation), and "roc.curve" (components of the confusion matrix for different prediction thresholds).
+
+In any case, these metrics are identified by the suffix ".scv" (from "spatial cross-validation").
+
+The medians of the cross-validation performance metrics are stored in the "performance" slot of the model, while the complete results are stored in the "evaluation" slot.
 }
 \examples{
 if(interactive()){

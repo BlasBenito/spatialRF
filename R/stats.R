@@ -213,10 +213,10 @@ auc <- function(o, p){
 #' @return A data frame with the following columns:
 #' \itemize{
 #'   \item prediction_threshold: prediction thresholds from 0 to 1.
-#'   \item true_positives: correctly predicted ones per threshold.
-#'   \item false_positives: incorrectly predicted ones per threshold.
-#'   \item false_negatives: correctly predicted zeroes per threshold.
-#'   \item true_negatives: incorrectly predicted zeroes per threshold.
+#'   \item true_positives: proportion of correctly predicted ones per threshold.
+#'   \item false_positives: proportion of incorrectly predicted ones per threshold.
+#'   \item false_negatives: proportion of correctly predicted zeroes per threshold.
+#'   \item true_negatives: proportion of incorrectly predicted zeroes per threshold.
 #'   \item sensitivity: probability of predicting a one per threshold.
 #'   \item specificity: probability of predicting a zero per threshold.
 #' }
@@ -256,22 +256,22 @@ roc_curve <- function(o, p){
     #component a of confusion matrix (true positives)
     roc_df[i, "true_positives"] <- length(
       ones[ones >= roc_df[i, "prediction_threshold"]]
-      )
+      ) / length(p)
 
     #component b of confusion matrix (false positives)
     roc_df[i, "false_positives"] <- length(
       zeros[zeros >= roc_df[i, "prediction_threshold"]]
-    )
+    ) / length(p)
 
     #component c of confusion matrix (false negatives)
     roc_df[i, "false_negatives"] <- length(
       ones[ones < roc_df[i, "prediction_threshold"]]
-    )
+    ) / length(p)
 
     #component d of confusion matrix (true negatives)
     roc_df[i, "true_negatives"] <- length(
       zeros[zeros < roc_df[i, "prediction_threshold"]]
-    )
+    ) / length(p)
 
   }
 

@@ -12,13 +12,20 @@
 #' @param verbose (optional; logical) If `TRUE`, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
 #' @param n.cores (optional; integer) Number of cores used by \code{\link[ranger]{ranger}} for parallel execution (used as value for the argument `num.threads` in `ranger()`). Default: `parallel::detectCores() - 1`
 #' @param cluster (optional; cluster object) Cluster definition generated with `parallel::makeCluster()` or [start_cluster()]. Overrides `n.cores`. Faster than using `n.cores` for smaller models. This function does not stop a cluster, please remember to shut it down with `parallel::stopCluster(cl = cluster_name)` or [stop_cluster()] at the end of your pipeline. Default: `NULL`
-#' @return A model of the class "rf_evaluate" with a new slot named "evaluation". This is a list with the following slots:
+#' @return A model of the class "rf_evaluate" with a new slot named "evaluation". Additionally, spatial cross-validation performance scores are added to the "performance" slot of the model.
+#'
+#' Objects written to `model$evaluation`:
 #' \itemize{
-#'   \item `metrics`: names of the metrics used for the evaluation.
-#'   \item `spatial.folds`: list with the training and testing spatial folds used during the evaluation.
+#'   \item `spatial.folds`: list of lists with the training and testing spatial folds used during the evaluation. Each element of the list corresponds to a row in the `per.fold` data frame.
 #'   \item `training.fraction`: Value of the argument `training.fraction`.
-#'   \item `per.fold`: Data frame with the evaluation results per spatial fold and evaluation set ("training" and "testing"). It contains the ID of each fold, it's central coordinates, the number of training and testing cases, and the training and testing performance measures: R squared, rmse, and normalized rmse.
+#'   \item `per.fold`: Data frame with the cross-validation results per spatial fold. It contains the numeric id of each fold, it's central coordinates, the number of training and testing cases, and the training and testing performance metrics.
 #'   \item `aggregated`: Aggregated version of `per.fold` with median, median absolute deviation, quartile 1, quartile 3, mean, standard error, standard deviation, minimum, and maximum performance scores across spatial folds.
+#'   \item `roc.curve.ib`, `roc.curve.oob`, and `roc.curve.scv`: Produced only when the response is binary (values one and zero). Lists of data frames with the in-bag (.ib suffix), out-of-bag (.oob), and spatial cross-validation (.scv) confusion matrices, sensitivity and specificity across all spatial folds.
+#' }
+#'
+#' Objects written to `model$performance`:
+#' \itemize{
+#'   \item
 #' }
 #' @details The evaluation algorithm works as follows:
 #'
@@ -26,11 +33,19 @@
 #'
 #' \itemize{
 #'   \item The function [thinning_til_n()] finds a set of coordinates of size `repetitions` in `xy`. These pairs of coordinates are as separated as possible, and will be used as "training-fold centers".
-#'   \item From each training-fold center, a quadrangular buffer is grown one step at a time, until it encloses a proportion of records as close as possible to `training.fraction`. The amount of buffer growth on each step is controlled by `distance.step`, `distance.step.x`, and `distance.step.y`.
+#'   \item From each training fold-center, a quadrangular buffer is grown one step at a time, until it encloses a proportion of records as close as possible to `training.fraction`. The amount of buffer growth on each step is controlled either by `distance.step`, or `distance.step.x` and `distance.step.y`.
 #'   \item For each "training-fold" a model is fitted with the records within the buffer (training records), and predicted over the records outside of the buffer (testing records).
 #'   \item The values of the response in the testing records are compared with the predictions over these same records to compute model performance metrics.
 #'   \item If there are training folds yielding identical performance metrics, only one of them is kept to avoid pseudorreplication.
 #' }
+#'
+#' If the response variable is continuous, the metrics used are "r.squared", "rmse", and "nrmse" (normalized rmse).
+#'
+#' If the response is binary (zeros and ones), the metrics used are "auc" (area under the ROC curve), "biserial.cor" (point-biserial correlation), and "roc.curve" (components of the confusion matrix for different prediction thresholds).
+#'
+#' In any case, these metrics are identified by the suffix ".scv" (from "spatial cross-validation").
+#'
+#' The medians of the cross-validation performance metrics are stored in the "performance" slot of the model, while the complete results are stored in the "evaluation" slot.
 #'
 #' @examples
 #' if(interactive()){
@@ -71,9 +86,10 @@
 #' @export
 #' @importFrom doParallel registerDoParallel
 #' @importFrom foreach foreach
-#' @importFrom stats predict mad
-#' @importFrom dplyr select contains group_by summarise
+#' @importFrom stats predict mad setNames
+#' @importFrom dplyr select contains group_by summarise across
 #' @importFrom tidyr pivot_longer
+#' @importFrom purrr map_dfr
 rf_evaluate <- function(
   model = NULL,
   xy = NULL,
@@ -98,6 +114,8 @@ rf_evaluate <- function(
   roc.curve.oob <- NULL
   roc.curve.scv <- NULL
   metrics <- NULL
+  group <- NULL
+  id <- NULL
 
   if(is.null(model)){
 
@@ -472,16 +490,43 @@ rf_evaluate <- function(
     model$performance[[scv.column.i]] <- performance.df.long %>%
       dplyr::filter(
         metric == scv.column.i
-        ) %>%
+      ) %>%
       dplyr::pull(
-      value
-      )
+        value
+      ) %>%
+      median()
   }
 
-  #adding roc to performance slot
+  #adding median of roc curves
   if(!is.nan(roc.curves.scv[[1]]$sensitivity[1])){
-    model$performance$roc.curve.scv <- roc.curves.scv
+    model$performance$roc.curve.scv <- roc.curves.scv %>%
+      purrr::map_dfr(
+        ~stats::setNames(
+          .x,
+          paste0(
+            "a",
+            1:ncol(.x)
+            )
+          ),
+        .id = "group"
+        ) %>%
+      dplyr::group_by(group) %>%
+      dplyr::mutate(id = 1:dplyr::n()) %>%
+      dplyr::group_by(id) %>%
+      dplyr::summarize(
+        dplyr::across(
+          -group,
+          .fns = median,
+          na.rm = TRUE
+          )
+        ) %>%
+      dplyr::select(-id) %>%
+      as.data.frame()
+    names(model$performance$roc.curve.scv) <- names(roc.curves.scv[[1]])
   }
+
+  #ordering performance list by name
+  model$performance = model$performance[order(names(model$performance))]
 
   #aggregating
   performande.df.aggregated <- performance.df.long %>%
@@ -504,7 +549,6 @@ rf_evaluate <- function(
     model$evaluation <- NULL
   }
   model$evaluation <- list()
-  model$evaluation$metrics <- metrics
   model$evaluation$spatial.folds <- spatial.folds
   model$evaluation$training.fraction <- training.fraction
   model$evaluation$per.fold <- performance.df.long
@@ -516,19 +560,37 @@ rf_evaluate <- function(
   }
 
   if(verbose == TRUE){
-    message("Evaluation results stored in model$evaluation.")
+    message("Full evaluation results stored in model$evaluation.")
+    message("Median evaluation scores (identified by the suffix '.scv') stored in model$performance")
   }
 
   class(model) <- c(class(model), "rf_evaluate")
 
   #coercing output to tibble
   if(return.tibble == TRUE){
+
     model$evaluation$per.fold <- tibble::as_tibble(model$evaluation$per.fold)
     model$evaluation$aggregated <- tibble::as_tibble(model$evaluation$aggregated)
-    if(!is.nan(roc.curves.scv[[1]]$sensitivity[1])){
-      model$evaluation$roc.curve.ib <- lapply(X = roc.curves.ib, FUN = tibble::as_tibble)
-      model$evaluation$roc.curve.oob <- lapply(X = roc.curve.oob, FUN = tibble::as_tibble)
-      model$evaluation$roc.curve.scv <- lapply(X = roc.curve.scv, FUN = tibble::as_tibble)
+
+    if(!is.null(model$performance$roc.curve.ib)){
+
+      model$evaluation$roc.curve.ib <- lapply(
+        X = roc.curves.ib,
+        FUN = tibble::as_tibble
+        )
+
+      model$evaluation$roc.curve.oob <- lapply(
+        X = roc.curve.oob,
+        FUN = tibble::as_tibble
+        )
+
+      model$evaluation$roc.curve.scv <- lapply(
+        X = roc.curve.scv,
+        FUN = tibble::as_tibble
+        )
+
+      model$performance$roc.curve.scv <- tibble::as_tibble(model$performance$roc.curve.scv)
+
     }
   }
 

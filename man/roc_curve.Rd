@@ -15,10 +15,10 @@ roc_curve(o, p)
 A data frame with the following columns:
 \itemize{
 \item prediction_threshold: prediction thresholds from 0 to 1.
-\item true_positives: correctly predicted ones per threshold.
-\item false_positives: incorrectly predicted ones per threshold.
-\item false_negatives: correctly predicted zeroes per threshold.
-\item true_negatives: incorrectly predicted zeroes per threshold.
+\item true_positives: proportion of correctly predicted ones per threshold.
+\item false_positives: proportion of incorrectly predicted ones per threshold.
+\item false_negatives: proportion of correctly predicted zeroes per threshold.
+\item true_negatives: proportion of incorrectly predicted zeroes per threshold.
 \item sensitivity: probability of predicting a one per threshold.
 \item specificity: probability of predicting a zero per threshold.
 }
