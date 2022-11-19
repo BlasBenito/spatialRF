@@ -2,44 +2,67 @@
 % Please edit documentation in R/make_spatial_folds.R
 \name{make_spatial_folds}
 \alias{make_spatial_folds}
-\title{Makes training and testing spatial folds}
+\alias{make_spatial_fold}
+\title{Makes training and testing spatial folds for spatial cross-validation}
 \usage{
 make_spatial_folds(
+  xy = NULL,
+  fold.centers = NULL,
+  training.fraction = 0.75,
   data = NULL,
   dependent.variable.name = NULL,
-  xy.selected = NULL,
-  xy = NULL,
-  distance.step.x = NULL,
-  distance.step.y = NULL,
-  training.fraction = 0.75,
+  distance.step = NULL,
+  swap.spatial.folds = FALSE,
   n.cores = parallel::detectCores() - 1,
   cluster = NULL
 )
+
+make_spatial_fold(
+  xy = NULL,
+  fold.center = NULL,
+  training.fraction = 0.75,
+  data = NULL,
+  dependent.variable.name = NULL,
+  distance.step = NULL,
+  swap.spatial.folds = FALSE
+)
 }
 \arguments{
-\item{data}{Data frame with a response variable and a set of predictors. Default: \code{NULL}}
+\item{xy}{(required; data frame) data frame with columns "x" (longitude) and "y" (latitude). Default: \code{NULL}.}
 
-\item{dependent.variable.name}{Character string with the name of the response variable. Must be in the column names of \code{data}. Default: \code{NULL}}
+\item{fold.centers}{(required; data frame) Subset of \code{xy} usually obtained via \code{\link[=thinning]{thinning()}} or \code{\link[=thinning_til_n]{thinning_til_n()}}. Default: \code{NULL}.}
 
-\item{xy.selected}{Data frame with at least three columns: "x" (longitude), "y" (latitude), and "id" (integer, id of the record). Usually a subset of \code{xy}. Usually the result of applying \code{\link[=thinning]{thinning()}} or \code{\link[=thinning_til_n]{thinning_til_n()}} to 'xy' Default: \code{NULL}.}
+\item{training.fraction}{(optional, numeric) Training fraction. Numeric between 0.1 and  0.9. When the response variable is binary with values zero and one, this fraction refers to the number of ones to be used in the training set. Notice that in most cases the algorithm will return a number of training cases as approximate as possible to this fraction. Default: \code{0.75}}
 
-\item{xy}{data frame with at least three columns: "x" (longitude), "y" (latitude), and "id" (integer, index of the record). Default: \code{NULL}.}
+\item{data}{(optional, data frame). Training data frame. Default: \code{NULL}}
 
-\item{distance.step.x}{Numeric, distance step used during the growth in the x axis of the buffers defining the training folds. Default: \code{NULL} (1/1000th the range of the x coordinates).}
+\item{dependent.variable.name}{(optional; character string). Name of the response variable in \code{data}. Used to check if the response is binary with values 0 and 1. Default: \code{NULL}}
 
-\item{distance.step.y}{Numeric, distance step used during the growth in the y axis of the buffers defining the training folds. Default: \code{NULL} (1/1000th the range of the y coordinates).}
+\item{distance.step}{(optional; numeric) Numeric vector of length one or two. Distance step used during the growth of the buffer containing the training cases. Must be in the same units as the coordinates in \code{xy}. When only one distance is provided, the same growth is applied to the x and y axes. If two distances are provided, the first one is applied to the x axis, and the second one to the y. When \code{NULL}, it uses 1/1000th of the range of each axis as distance. The smaller this number is, the easier is to achieve an accurate \code{training.fraction}, but the slower the algorithm becomes. Default: \code{NULL}}
 
-\item{training.fraction}{numeric, fraction of the data to be included in the growing buffer as training data, Default: \code{0.75}}
+\item{swap.spatial.folds}{(optional; logical) If true, the cases inside the rectangular buffer are used as testing set instead of training. This can help in edge cases when the data distribution is highly irregular. Default: \code{FALSE}}
 
-\item{n.cores}{Integer, number of cores used for parallel execution. Default: \code{NULL}}
+\item{n.cores}{(optional; integer) Number of cores used for parallel execution. Default: \code{NULL}}
 
-\item{cluster}{A cluster definition generated with \code{parallel::makeCluster()} or \code{\link{start_cluster}}. If provided, overrides \code{n.cores}. The function does not stop a cluster, please remember to shut it down with \code{parallel::stopCluster(cl = cluster_name)} at the end of your pipeline. Default: \code{parallel::detectCores() - 1}}
+\item{cluster}{(optional; cluster) A cluster definition generated with \code{parallel::makeCluster()} or \code{\link{start_cluster}}. If provided, overrides \code{n.cores}. The function does not stop a cluster, please remember to shut it down with \code{parallel::stopCluster(cl = cluster_name)} at the end of your pipeline. Default: \code{parallel::detectCores() - 1}}
+
+\item{fold.center}{(required; data frame) One row of \code{fold.centers}.  Default: \code{NULL}}
 }
 \value{
-A list with as many slots as rows are in \code{xy.selected}. Each slot has two slots named \code{training} and \code{testing}, with the former having the indices of the training records selected from xy, and the latter having the indices of the testing records.
+A list with as many nested lists as rows are in \code{fold.centers}. Each nested list has two slots named \code{training} and \code{testing}, with the former having the indices of the training records selected from xy, and the latter having the indices of the testing records.
 }
 \description{
-Applies \code{\link[=make_spatial_fold]{make_spatial_fold()}} to every record in a data frame \code{xy.selected} to generate as many spatially independent folds over the dataset \code{xy} as rows are in \code{xy.selected}.
+This function generates a list of lists. Each nested list contains two numeric vectors named "training" and "testing". The training vector contains the indices of a set of contiguous cases in \code{data} to be used as training set during spatial-cross validation. The testing vector contains the cases to be used as testing set.
+
+The training set is selected as follows:
+\itemize{
+\item 1. The first row of the data frame \code{fold.centers} is selected. This data frame is the result of applying \code{\link[=thinning_til_n]{thinning_til_n()}} to \code{data}. The coordinates in this row represent the "training fold center".
+\item 2. A rectangular buffer is grown from the training fold center one step at a time until it encloses a number of records in \code{data} as close as possible to the \code{training.fraction}. The step wise growth of this buffer is controlled by the argument \code{distance.step}.
+\item 3. The indices of all records in \code{data} within the buffer are written to the "training" vector of the nested list.
+\item 4. The indices of the remaining records are written to the "testing" list.
+}
+
+This method ensures that the training set is geographically contiguous, and has a spatial structure that is as representative as possible of the overall spatial structure of the full data set.
 }
 \examples{
 if(interactive()){
@@ -51,14 +74,14 @@ if(interactive()){
  xy <- ecoregions_df[, c("x", "y")]
 
  #thining til 20 cases
- xy.selected <- thinning_til_n(
+ fold.centers <- thinning_til_n(
    xy = xy,
    n = 20
    )
 
  #making spatial folds centered on these 20 cases
  out <- make_spatial_folds(
-   xy.selected = xy.selected,
+   fold.centers = fold.centers,
    xy = xy,
    distance.step = 0.05, #degrees
    training.fraction = 0.6,
@@ -71,7 +94,7 @@ if(interactive()){
  points(xy[out[[10]]$training, c("x", "y")], col = "red4", pch = 15)
  #plots testing points
  points(xy[out[[10]]$testing, c("x", "y")], col = "blue4", pch = 15)
- #plots xy.i
+ #plots fold.center
  points(xy[10, c("x", "y")], col = "black", pch = 15, cex = 2)
 
 }

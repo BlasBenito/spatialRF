@@ -12,8 +12,6 @@ rf_select(
   max.vif = 5,
   max.cor = 0.75,
   distance.step = NULL,
-  distance.step.x = NULL,
-  distance.step.y = NULL,
   fill.color = viridis::viridis(5, option = "F", direction = 1, alpha = 1, end = 0.9),
   seed = 1,
   verbose = TRUE,
@@ -34,11 +32,7 @@ rf_select(
 
 \item{max.cor}{Numeric between 0 and 1, with recommended values between 0.5 and 0.9. Maximum Pearson correlation between any pair of the selected variables. Higher values increase the number of predictors returned. If \code{NULL}, bivariate filtering is disabled. Default: \code{0.75}}
 
-\item{distance.step}{Numeric, argument \code{distance.step} of \code{\link[=thinning_til_n]{thinning_til_n()}}. distance step used during the selection of the centers of the training folds. These fold centers are selected by thinning the data until a number of folds equal or lower than \code{repetitions} is reached. Its default value is 1/1000th the maximum distance within records in \code{xy}. Reduce it if the number of training folds is lower than expected.}
-
-\item{distance.step.x}{Numeric, argument \code{distance.step.x} of \code{\link[=make_spatial_folds]{make_spatial_folds()}}. Distance step used during the growth in the x axis of the buffers defining the training folds. Default: \code{NULL} (1/1000th the range of the x coordinates).}
-
-\item{distance.step.y}{Numeric, argument \code{distance.step.x} of \code{\link[=make_spatial_folds]{make_spatial_folds()}}. Distance step used during the growth in the y axis of the buffers defining the training folds. Default: \code{NULL} (1/1000th the range of the y coordinates).}
+\item{distance.step}{(optional; numeric) Numeric vector of length one or two. Distance step used during the growth of the buffer containing the training cases. Must be in the same units as the coordinates in \code{xy}. When only one distance is provided, the same growth is applied to the x and y axes. If two distances are provided, the first one is applied to the x axis, and the second one to the y. When \code{NULL}, it uses 1/1000th of the range of each axis as distance. The smaller this number is, the easier is to achieve an accurate \code{training.fraction}, but the slower the algorithm becomes. Default: \code{NULL}}
 
 \item{fill.color}{Character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. \code{viridis::viridis(100)}). Default: \code{viridis::viridis(100, option = "F", direction = -1, alpha = 0.8, end = 0.9)}}
 

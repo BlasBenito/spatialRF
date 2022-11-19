@@ -4,10 +4,8 @@
 #' @param xy (required; data frame or matrix) Must have two columns named "x" and "y" containing the geographic coordinates of the sampling locations. Default: `NULL`
 #' @param repetitions (optional; integer) Number of spatial folds to use during cross-validation. Must be lower than the total number of rows available in the training data. Default: `30`
 #' @param training.fraction (optional; numeric) Proportion of records to be used as training set during spatial cross-validation. Default: `0.75`
-#' @param distance.step (optional; numeric). Argument `distance.step` of [thinning_til_n()]. It's used to tune the selection of the pairs of coordinates that originate each training fold. Its default value is 1/1000th the maximum distance within records in `xy`. Try lower values if the number of training folds is lower than expected. Default: `NULL`
-#' @param distance.step.x  (optional; numeric) Like `distance.step`, but for the longitude axis alone. It is set automatically to the range of longitudes  Default: `NULL`
-#' @param distance.step.y (optional; numeric) Like `distance.step.x` but for the latitude. Useful when the height of the study area is at least two times its width Default: `NULL`
-#' @param grow.testing.folds (optional; logical) If `TRUE`, grows testing (instead of training) folds from fold centers. This option might be useful when the training data has a spatial structure that does not match well with the default behavior of the function. Default: `FALSE`
+#' @param distance.step (optional; numeric) Numeric vector of length one or two. Distance step used during the growth of the buffer containing the training cases. Must be in the same units as the coordinates in `xy`. When only one distance is provided, the same growth is applied to the x and y axes. If two distances are provided, the first one is applied to the x axis, and the second one to the y. When `NULL`, it uses 1/1000th of the range of each axis as distance. The smaller this number is, the easier is to achieve an accurate `training.fraction`, but the slower the algorithm becomes. Default: `NULL`
+#' @param swap.spatial.folds (optional; logical) If true, the cases inside the rectangular buffer are used as testing set instead of training. This can help in edge cases when the data distribution is highly irregular. Default: `FALSE`
 #' @param seed (optional; integer) Random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same. Default: `1`.
 #' @param verbose (optional; logical) If `TRUE`, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
 #' @param n.cores (optional; integer) Number of cores used by \code{\link[ranger]{ranger}} for parallel execution (used as value for the argument `num.threads` in `ranger()`). Default: `parallel::detectCores() - 1`
@@ -32,14 +30,15 @@
 #' Generation of contiguous training folds:
 #'
 #' \itemize{
-#'   \item The function [thinning_til_n()] finds a set of coordinates of size `repetitions` in `xy`. These pairs of coordinates are as separated as possible, and will be used as "training-fold centers".
-#'   \item From each training fold-center, a quadrangular buffer is grown one step at a time, until it encloses a proportion of records as close as possible to `training.fraction`. The amount of buffer growth on each step is controlled either by `distance.step`, or `distance.step.x` and `distance.step.y`.
-#'   \item For each "training-fold" a model is fitted with the records within the buffer (training records), and predicted over the records outside of the buffer (testing records).
-#'   \item The values of the response in the testing records are compared with the predictions over these same records to compute model performance metrics.
-#'   \item If there are training folds yielding identical performance metrics, only one of them is kept to avoid pseudorreplication.
+#'   \item 1. The function [thinning_til_n()] finds a set of coordinates from `xy` of size `repetitions`. These pairs of coordinates are as separated as possible, and will be used as "training fold centers".
+#'   \item 2. From each training fold-center, a rectangular buffer is grown from the training fold center one step at a time until it encloses a number of records in `data` as close as possible to the `training.fraction`. The step wise growth of this buffer is controlled by the argument `distance.step`.
+#'   \item 3. The indices of all records in `data` within the buffer are written to the "training" vector of the nested list.
+#'   \item 4. The indices of the remaining records are written to the "testing" list.
+#'   \item 5. In each repetition, a model is fitted with the training cases.
+#'   \item 6. The predictions of the model in 5. are compared with the values of the response in the testing records to compute model performance metrics.
 #' }
 #'
-#' If the response variable is continuous, the metrics used are "r.squared", "rmse", and "nrmse" (normalized rmse).
+#' If the response variable is continuous, the metrics used are "rsquared", "rmse", and "nrmse" (normalized rmse).
 #'
 #' If the response is binary (zeros and ones), the metrics used are "auc" (area under the ROC curve), "biserial.cor" (point-biserial correlation), and "roc.curve" (components of the confusion matrix for different prediction thresholds).
 #'
@@ -96,9 +95,7 @@ rf_evaluate <- function(
   repetitions = 30,
   training.fraction = 0.75,
   distance.step = NULL,
-  distance.step.x = NULL,
-  distance.step.y = NULL,
-  grow.testing.folds = FALSE,
+  swap.spatial.folds = FALSE,
   seed = 1,
   verbose = TRUE,
   n.cores = parallel::detectCores() - 1,
@@ -201,11 +198,6 @@ rf_evaluate <- function(
     training.fraction <- 0.9
   }
 
-  #flipping training fraction if grow.testing.folds is TRUE
-  if(grow.testing.folds == TRUE){
-    training.fraction <- 1 - training.fraction
-  }
-
   #add id to data and xy
   data$id <- xy$id <- seq(1, nrow(data))
 
@@ -215,7 +207,7 @@ rf_evaluate <- function(
     message("Selecting centers of training folds.")
   }
 
-  xy.reference.records <- thinning_til_n(
+  fold.centers.df <- thinning_til_n(
     xy = xy,
     n = repetitions,
     distance.step = distance.step
@@ -246,7 +238,7 @@ rf_evaluate <- function(
 
   #iterations
   evaluation.list <- foreach::foreach(
-    i = seq_len(nrow(xy.reference.records)),
+    i = seq_len(nrow(fold.centers.df)),
     .verbose = FALSE
   ) %iterator% {
 
@@ -260,19 +252,12 @@ rf_evaluate <- function(
     training.testing.folds <- spatialRF::make_spatial_fold(
       data = data,
       dependent.variable.name = dependent.variable.name,
-      xy.i = xy.reference.records[i, ],
+      fold.center = fold.centers.df[i, ],
       xy = xy,
-      distance.step.x = distance.step.x,
-      distance.step.y = distance.step.y,
-      training.fraction = training.fraction
+      distance.step = distance.step,
+      training.fraction = training.fraction,
+      swap.spatial.folds = swap.spatial.folds
     )
-
-    #flipping spatial folds if grow.testing.folds = TRUE
-    if(grow.testing.folds == TRUE){
-      for(j in 1:length(training.testing.folds)){
-        names(training.testing.folds[[j]]) <- c("testing", "training")
-      }
-    }
 
     #separating training and testing data
     data.training <- data[data$id %in% training.testing.folds$training, ]
@@ -311,19 +296,19 @@ rf_evaluate <- function(
     #computing performance metrics
     performance.df <- data.frame(
       fold.id = i,
-      fold.center.x = xy.reference.records[i, "x"],
-      fold.center.y = xy.reference.records[i, "y"],
+      fold.center.x = fold.centers.df[i, "x"],
+      fold.center.y = fold.centers.df[i, "y"],
       training.records = nrow(data.training),
       testing.records = nrow(data.testing)
     )
 
-    #r.squared
-    performance.df$r.squared.ib <- m.training$performance$r.squared.ib
-    performance.df$r.squared.oob <- m.training$performance$r.squared.oob
-    if(is.null(performance.df$r.squared.ib)){
-      performance.df$r.squared.scv <- NULL
+    #rsquared
+    performance.df$rsquared.ib <- m.training$performance$rsquared.ib
+    performance.df$rsquared.oob <- m.training$performance$rsquared.oob
+    if(is.null(performance.df$rsquared.ib)){
+      performance.df$rsquared.scv <- NULL
     } else {
-      performance.df$r.squared.scv <- cor(observed, predicted) ^ 2
+      performance.df$rsquared.scv <- cor(observed, predicted) ^ 2
     }
 
     performance.df$rmse.ib <- m.training$performance$rmse.ib

@@ -4,9 +4,7 @@
 #' @param xy Data frame or matrix with two columns containing coordinates and named "x" and "y". If `NULL`, the function will throw an error. Default: `NULL`
 #' @param repetitions Integer, number of spatial folds to use during cross-validation. Must be lower than the total number of rows available in the model's data. Default: `30`
 #' @param training.fraction Proportion between 0.5 and 0.9 indicating the proportion of records to be used as training set during spatial cross-validation. Default: `0.75`
-#' @param distance.step Numeric, argument `distance.step` of [thinning_til_n()]. distance step used during the selection of the centers of the training folds. These fold centers are selected by thinning the data until a number of folds equal or lower than `repetitions` is reached. Its default value is 1/1000th the maximum distance within records in `xy`. Reduce it if the number of training folds is lower than expected.
-#' @param distance.step.x Numeric, argument `distance.step.x` of [make_spatial_folds()]. Distance step used during the growth in the x axis of the buffers defining the training folds. Default: `NULL` (1/1000th the range of the x coordinates).
-#' @param distance.step.y Numeric, argument `distance.step.x` of [make_spatial_folds()]. Distance step used during the growth in the y axis of the buffers defining the training folds. Default: `NULL` (1/1000th the range of the y coordinates).
+#' @param distance.step (optional; numeric) Numeric vector of length one or two. Distance step used during the growth of the buffer containing the training cases. Must be in the same units as the coordinates in `xy`. When only one distance is provided, the same growth is applied to the x and y axes. If two distances are provided, the first one is applied to the x axis, and the second one to the y. When `NULL`, it uses 1/1000th of the range of each axis as distance. The smaller this number is, the easier is to achieve an accurate `training.fraction`, but the slower the algorithm becomes. Default: `NULL`
 #' @param fill.color Character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. `viridis::viridis(100)`). Default: `viridis::viridis(100, option = "F", direction = -1, alpha = 0.8, end = 0.9)`
 #' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same. Default: `1`.
 #' @param verbose Logical. If `TRUE`, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
@@ -62,8 +60,6 @@ rf_jackknife <- function(
   repetitions = 30,
   training.fraction = 0.75,
   distance.step = NULL,
-  distance.step.x = NULL,
-  distance.step.y = NULL,
   fill.color = viridis::viridis(
     3,
     option = "F",
@@ -167,8 +163,6 @@ rf_jackknife <- function(
       repetitions = repetitions,
       training.fraction = training.fraction,
       distance.step = distance.step,
-      distance.step.x = distance.step.x,
-      distance.step.y = distance.step.y,
       seed = seed,
       verbose = FALSE,
       n.cores = n.cores,
@@ -209,8 +203,6 @@ rf_jackknife <- function(
       repetitions = repetitions,
       training.fraction = training.fraction,
       distance.step = distance.step,
-      distance.step.x = distance.step.x,
-      distance.step.y = distance.step.y,
       seed = seed,
       verbose = FALSE,
       n.cores = n.cores,
@@ -241,8 +233,6 @@ rf_jackknife <- function(
         xy = xy,
         training.fraction = training.fraction,
         distance.step = distance.step,
-        distance.step.x = distance.step.x,
-        distance.step.y = distance.step.y,
         seed = seed,
         verbose = FALSE,
         n.cores = n.cores,

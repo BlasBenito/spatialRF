@@ -59,11 +59,11 @@ A ranger model with several extra slots:
 \item \code{importance}: A list containing a data frame with the predictors ordered by their importance, a ggplot showing the importance values, and local importance scores (difference in accuracy between permuted and non permuted variables for every case, computed on the out-of-bag data).
 \item \code{performance}: Performance scores computed on the in-bag and out-of-bag data. These performance scores can be highly inflated (especially the "in-bag" ones!)  if the spatial structure of the training data is strong, so I beg you to never report these as the actual performance metrics of your models, and advise you to use \code{\link[=rf_evaluate]{rf_evaluate()}} instead. In any case, if you wish to proceed, these are the metrics provided in this slot:
 \itemize{
-\item \code{r.squared.oob}: R-squared computed on the out-of-bag predictions using the expression \code{cor(observed, predicted.oob) ^ 2}.
+\item \code{rsquared.oob}: R-squared computed on the out-of-bag predictions using the expression \code{cor(observed, predicted.oob) ^ 2}.
 \item \code{rmse.oob}: Root mean squared error computed on the out-of-bag predictions using the expression \code{spatialRF::root_mean_squared_error(o = observed, p = predicted.oob)}.
 \item \code{nrmse.oob}: Normalized rood mean squared error computed on the out-of-bag data using the expression \code{spatialRF::root_mean_squared_error(o = observed, p = predicted.oob, normalization = "iq")}.
 \item \code{auc.oob}: Only for binary responses with values 0 and 1. Area under the ROC curve computed on the out-of-bag predictions using the expression \code{spatialRF::auc(o = observed, p = predicted.oob)}.
-\item \code{r.squared.ib}: R-squared computed on the in-bag predictions using the expression \code{cor(observed, predicted.ib) ^ 2}.
+\item \code{rsquared.ib}: R-squared computed on the in-bag predictions using the expression \code{cor(observed, predicted.ib) ^ 2}.
 \item \code{rmse.ib}: Root mean squared error computed on the in-bag predictions using the expression \code{spatialRF::root_mean_squared_error(o = observed, p = predicted.ib)}.
 \item \code{nrmse.ib}: Normalized rood mean squared error computed on the in-bag data using the expression \code{spatialRF::root_mean_squared_error(o = observed, p = predicted.ib, normalization = "iq")}.
 \item \code{auc.ib}: Only for binary responses with values 0 and 1. Area under the ROC curve computed on the in-bag predictions using the expression \code{spatialRF::auc(o = observed, p = predicted.ib)}.

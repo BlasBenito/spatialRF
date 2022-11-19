@@ -10,9 +10,7 @@ rf_evaluate(
   repetitions = 30,
   training.fraction = 0.75,
   distance.step = NULL,
-  distance.step.x = NULL,
-  distance.step.y = NULL,
-  grow.testing.folds = FALSE,
+  swap.spatial.folds = FALSE,
   seed = 1,
   verbose = TRUE,
   n.cores = parallel::detectCores() - 1,
@@ -28,13 +26,9 @@ rf_evaluate(
 
 \item{training.fraction}{(optional; numeric) Proportion of records to be used as training set during spatial cross-validation. Default: \code{0.75}}
 
-\item{distance.step}{(optional; numeric). Argument \code{distance.step} of \code{\link[=thinning_til_n]{thinning_til_n()}}. It's used to tune the selection of the pairs of coordinates that originate each training fold. Its default value is 1/1000th the maximum distance within records in \code{xy}. Try lower values if the number of training folds is lower than expected. Default: \code{NULL}}
+\item{distance.step}{(optional; numeric) Numeric vector of length one or two. Distance step used during the growth of the buffer containing the training cases. Must be in the same units as the coordinates in \code{xy}. When only one distance is provided, the same growth is applied to the x and y axes. If two distances are provided, the first one is applied to the x axis, and the second one to the y. When \code{NULL}, it uses 1/1000th of the range of each axis as distance. The smaller this number is, the easier is to achieve an accurate \code{training.fraction}, but the slower the algorithm becomes. Default: \code{NULL}}
 
-\item{distance.step.x}{(optional; numeric) Like \code{distance.step}, but for the longitude axis alone. It is set automatically to the range of longitudes  Default: \code{NULL}}
-
-\item{distance.step.y}{(optional; numeric) Like \code{distance.step.x} but for the latitude. Useful when the height of the study area is at least two times its width Default: \code{NULL}}
-
-\item{grow.testing.folds}{(optional; logical) If \code{TRUE}, grows testing (instead of training) folds from fold centers. This option might be useful when the training data has a spatial structure that does not match well with the default behavior of the function. Default: \code{FALSE}}
+\item{swap.spatial.folds}{(optional; logical) If true, the cases inside the rectangular buffer are used as testing set instead of training. This can help in edge cases when the data distribution is highly irregular. Default: \code{FALSE}}
 
 \item{seed}{(optional; integer) Random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same. Default: \code{1}.}
 
@@ -70,14 +64,15 @@ The evaluation algorithm works as follows:
 Generation of contiguous training folds:
 
 \itemize{
-\item The function \code{\link[=thinning_til_n]{thinning_til_n()}} finds a set of coordinates of size \code{repetitions} in \code{xy}. These pairs of coordinates are as separated as possible, and will be used as "training-fold centers".
-\item From each training fold-center, a quadrangular buffer is grown one step at a time, until it encloses a proportion of records as close as possible to \code{training.fraction}. The amount of buffer growth on each step is controlled either by \code{distance.step}, or \code{distance.step.x} and \code{distance.step.y}.
-\item For each "training-fold" a model is fitted with the records within the buffer (training records), and predicted over the records outside of the buffer (testing records).
-\item The values of the response in the testing records are compared with the predictions over these same records to compute model performance metrics.
-\item If there are training folds yielding identical performance metrics, only one of them is kept to avoid pseudorreplication.
+\item 1. The function \code{\link[=thinning_til_n]{thinning_til_n()}} finds a set of coordinates from \code{xy} of size \code{repetitions}. These pairs of coordinates are as separated as possible, and will be used as "training fold centers".
+\item 2. From each training fold-center, a rectangular buffer is grown from the training fold center one step at a time until it encloses a number of records in \code{data} as close as possible to the \code{training.fraction}. The step wise growth of this buffer is controlled by the argument \code{distance.step}.
+\item 3. The indices of all records in \code{data} within the buffer are written to the "training" vector of the nested list.
+\item 4. The indices of the remaining records are written to the "testing" list.
+\item 5. In each repetition, a model is fitted with the training cases.
+\item 6. The predictions of the model in 5. are compared with the values of the response in the testing records to compute model performance metrics.
 }
 
-If the response variable is continuous, the metrics used are "r.squared", "rmse", and "nrmse" (normalized rmse).
+If the response variable is continuous, the metrics used are "rsquared", "rmse", and "nrmse" (normalized rmse).
 
 If the response is binary (zeros and ones), the metrics used are "auc" (area under the ROC curve), "biserial.cor" (point-biserial correlation), and "roc.curve" (components of the confusion matrix for different prediction thresholds).
 
