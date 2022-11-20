@@ -14,7 +14,7 @@
 #' @param ranger.arguments Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.
 #' @param spatial.predictors.df Data frame of spatial predictors.
 #' @param spatial.predictors.ranking Ranking of predictors returned by [rank_spatial_predictors()].
-#' @param weight.r.squared Numeric between 0 and 1, weight of R-squared in the optimization index. Default: `0.25`
+#' @param weight.performance Numeric between 0 and 1, weight of R-squared in the optimization index. Default: `0.25`
 #' @param weight.penalization.n.predictors Numeric between 0 and 1, weight of the penalization for the number of spatial predictors added in the optimization index. Default: `0`
 #' @param n.cores Integer, number of cores used by \code{\link[ranger]{ranger}} for parallel execution (used as value for the argument `num.threads` in `ranger()`). Default: `NULL`
 #' @param cluster A cluster definition generated with `parallel::makeCluster()` or \code{\link{start_cluster}}. Only advisable if you need to spread a large number of repetitions over the nodes of a large cluster. If provided, overrides `n.cores`. The function does not stop a cluster, please remember to shut it down with `parallel::stopCluster(cl = cluster_name)` at the end of your pipeline. Default: `parallel::detectCores() - 1`
@@ -87,7 +87,7 @@ select_spatial_predictors_recursive <- function(
   ranger.arguments = NULL,
   spatial.predictors.df = NULL,
   spatial.predictors.ranking = NULL,
-  weight.r.squared = 0.25,
+  weight.performance = 0.25,
   weight.penalization.n.predictors = 0,
   n.cores = parallel::detectCores() - 1,
   cluster = NULL
@@ -122,9 +122,9 @@ select_spatial_predictors_recursive <- function(
   spatial.predictors.candidates.i <- spatial.predictors.ranking$ranking
 
   #weights limits
-  if(is.null(weight.r.squared)){weight.r.squared <- 0.25}
-  if(weight.r.squared > 1){weight.r.squared <- 1}
-  if(weight.r.squared < 0){weight.r.squared <- 0}
+  if(is.null(weight.performance)){weight.performance <- 0.25}
+  if(weight.performance > 1){weight.performance <- 1}
+  if(weight.performance < 0){weight.performance <- 0}
   if(is.null(weight.penalization.n.predictors)){weight.penalization.n.predictors <- 0}
   if(weight.penalization.n.predictors > 1){weight.penalization.n.predictors <- 1}
   if(weight.penalization.n.predictors < 0){weight.penalization.n.predictors <- 0}
@@ -140,7 +140,7 @@ select_spatial_predictors_recursive <- function(
     moran.i = rep(NA, length(spatial.predictors.ranking$ranking)),
     p.value = rep(NA, length(spatial.predictors.ranking$ranking)),
     p.value.binary  = rep(NA, length(spatial.predictors.ranking$ranking)),
-    r.squared = rep(NA, length(spatial.predictors.ranking$ranking)),
+    performance = rep(NA, length(spatial.predictors.ranking$ranking)),
     penalization.per.variable = rep(NA, length(spatial.predictors.ranking$ranking)),
     optimization = rep(NA, length(spatial.predictors.ranking$ranking))
   )
@@ -201,10 +201,10 @@ select_spatial_predictors_recursive <- function(
       optimization.df[i, "spatial.predictor.name"] <- spatial.predictors.ranking.i$ranking[1]
       optimization.df[i, "moran.i"] <- spatial.predictors.ranking.i$criteria[1, "moran.i"]
       optimization.df[i, "p.value"] <- spatial.predictors.ranking.i$criteria[1, "p.value"]
-      optimization.df[i, "r.squared"] <- spatial.predictors.ranking.i$criteria[1, "model.r.squared"]
+      optimization.df[i, "performance"] <- spatial.predictors.ranking.i$criteria[1, "model.performance"]
       optimization.df[i, "p.value.binary"] <- ifelse(optimization.df[i, "p.value"] >= 0.05, 1, 0)
       optimization.df[i, "penalization.per.variable"] <- (1/nrow(optimization.df)) * i
-      optimization.df[i, "optimization"] <- (1 - optimization.df[i, "moran.i"]) + (weight.r.squared * optimization.df[i, "r.squared"]) - (weight.penalization.n.predictors * optimization.df[i, "penalization.per.variable"])
+      optimization.df[i, "optimization"] <- (1 - optimization.df[i, "moran.i"]) + (weight.performance * optimization.df[i, "performance"]) - (weight.penalization.n.predictors * optimization.df[i, "penalization.per.variable"])
 
     }
 

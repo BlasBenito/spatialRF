@@ -202,7 +202,7 @@ rf_tuning <- function(
   ){
     metric <- "auc"
   } else {
-    metric <- "r.squared"
+    metric <- "rsquared"
   }
 
 
@@ -330,7 +330,7 @@ rf_tuning <- function(
 
       #getting performance
       m.i.performance <- data.frame(
-        r.squared = m.i.performance[m.i.performance$metric == metric, "median"],
+        rsquared = m.i.performance[m.i.performance$metric == metric, "median"],
         moran.i.interpretation = moran.i.interpretation
       )
 
@@ -446,7 +446,7 @@ rf_tuning <- function(
     cluster = cluster
   )
 
-  #extract r.squared values
+  #extract rsquared values
   #tuned model
   new.performance <- round(
     model.tuned$evaluation$aggregated[model.tuned$evaluation$aggregated$model == "Testing" &

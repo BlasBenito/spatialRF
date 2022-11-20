@@ -101,6 +101,13 @@ rank_spatial_predictors <- function(
   #reference.moran.i
   if(is.null(reference.moran.i)){reference.moran.i <- 1}
 
+  #check if response is binary
+  binary.response <- is_binary_response(
+    x = dplyr::pull(
+      data,
+      dependent.variable.name
+    )
+  )
 
   #HANDLING PARALLELIZATION
   ##########################
@@ -174,7 +181,11 @@ rank_spatial_predictors <- function(
       #out.df
       out.i <- data.frame(
         spatial.predictors.name = spatial.predictors.name.i,
-        model.r.squared = m.i$performance$r.squared.oob,
+        performance = ifelse(
+          binary.response,
+          m.i$performance$auc.oob,
+          m.i$performance$rsquared.oob
+        ),
         moran.i = m.i$residuals$autocorrelation$max.moran,
         p.value = m.i$residuals$autocorrelation$per.distance$p.value[1],
         ranking.criteria = reference.moran.i - m.i$residuals$autocorrelation$max.moran

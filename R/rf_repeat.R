@@ -28,11 +28,11 @@
 #'   }
 #'   \item `performance`: Performance scores computed on the in-bag and out-of-bag data. These performance scores can be highly inflated (especially the "in-bag" ones!)  if the spatial structure of the training data is strong, so I beg you to never report these as the actual performance metrics of your models, and advise you to use [rf_evaluate()] instead. In any case, if you wish to proceed, these are the metrics provided in this slot:
 #'   \itemize{
-#'     \item `r.squared.oob`: R-squared computed on the out-of-bag predictions using the expression `cor(observed, predicted.oob) ^ 2`.
+#'     \item `rsquared.oob`: R-squared computed on the out-of-bag predictions using the expression `cor(observed, predicted.oob) ^ 2`.
 #'     \item `rmse.oob`: Root mean squared error computed on the out-of-bag predictions using the expression `spatialRF::root_mean_squared_error(o = observed, p = predicted.oob)`.
 #'     \item `nrmse.oob`: Normalized rood mean squared error computed on the out-of-bag data using the expression `spatialRF::root_mean_squared_error(o = observed, p = predicted.oob, normalization = "iq")`.
 #'     \item `auc.oob`: Only for binary responses with values 0 and 1. Area under the ROC curve computed on the out-of-bag predictions using the expression `spatialRF::auc(o = observed, p = predicted.oob)`.
-#'     \item `r.squared.ib`: R-squared computed on the in-bag predictions using the expression `cor(observed, predicted.ib) ^ 2`.
+#'     \item `rsquared.ib`: R-squared computed on the in-bag predictions using the expression `cor(observed, predicted.ib) ^ 2`.
 #'     \item `rmse.ib`: Root mean squared error computed on the in-bag predictions using the expression `spatialRF::root_mean_squared_error(o = observed, p = predicted.ib)`.
 #'     \item `nrmse.ib`: Normalized rood mean squared error computed on the in-bag data using the expression `spatialRF::root_mean_squared_error(o = observed, p = predicted.ib, normalization = "iq")`.
 #'     \item `auc.ib`: Only for binary responses with values 0 and 1. Area under the ROC curve computed on the in-bag predictions using the expression `spatialRF::auc(o = observed, p = predicted.ib)`.
@@ -322,8 +322,8 @@ rf_repeat <- function(
     out$importance <- m.i$importance$per.variable
     out$importance.local <- as.matrix(m.i$importance$local)
     out$prediction.error <- m.i$prediction.error
-    out$r.squared.ib <- m.i$performance$r.squared.ib
-    out$r.squared.oob <- m.i$performance$r.squared.oob
+    out$rsquared.ib <- m.i$performance$rsquared.ib
+    out$rsquared.oob <- m.i$performance$rsquared.oob
     out$rmse.ib <- m.i$performance$rmse.ib
     out$rmse.oob <- m.i$performance$rmse.oob
     out$nrmse.ib <- m.i$performance$nrmse.ib
@@ -635,11 +635,11 @@ rf_repeat <- function(
   #------------------------------
   m$performance <- list()
 
-  m$performance$r.squared.oob <- unlist(
+  m$performance$rsquared.oob <- unlist(
     lapply(
       repeated.models,
       "[[",
-      "r.squared.oob"
+      "rsquared.oob"
     )
   )
 
@@ -670,11 +670,11 @@ rf_repeat <- function(
   )
   names(m$performance$auc.oob) <- NULL
 
-  m$performance$r.squared.ib <- unlist(
+  m$performance$rsquared.ib <- unlist(
     lapply(
       repeated.models,
       "[[",
-      "r.squared.ib"
+      "rsquared.ib"
     )
   )
 

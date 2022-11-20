@@ -112,7 +112,7 @@ the_feature_engineer <- function(
   ){
     metric <- "auc"
   } else {
-    metric <- "r.squared"
+    metric <- "rsquared"
   }
 
   #declaring variables to avoid check complaints
@@ -549,7 +549,7 @@ the_feature_engineer <- function(
   if(verbose == TRUE){
 
     x <- interaction.screening.selected
-    if(metric == "r.squared"){
+    if(metric == "rsquared"){
       colnames(x) <- c("Interaction", "Importance (% of max)", "R-squared improvement", "Max cor with predictors")
 
     }

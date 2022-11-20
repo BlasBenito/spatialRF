@@ -18,7 +18,7 @@
 #' }
 #' Default: `"mem.moran.sequential"`.
 #' @param max.spatial.predictors Integer, maximum number of spatial predictors to generate. Useful when memory problems arise due to a large number of spatial predictors, Default: `NULL`
-#' @param weight.r.squared Numeric between 0 and 1, weight of R-squared in the selection of spatial components. See Details, Default: `NULL`
+#' @param weight.performance Numeric between 0 and 1, weight of R-squared in the selection of spatial components. See Details, Default: `NULL`
 #' @param weight.penalization.n.predictors Numeric between 0 and 1, weight of the penalization for adding an increasing number of spatial predictors during selection. Default: `NULL`
 #' @param seed Integer, random seed to facilitate reproducibility. Default: `1`.
 #' @param verbose Logical. If TRUE, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
@@ -55,7 +55,7 @@
 #'   \item `"sequential"` (see [select_spatial_predictors_sequential()]): The Moran's Eigenvector Maps are added one by one in the order they were ranked, and once all MEMs are introduced, the best first n predictors are selected. This method is similar to the one employed in the MEM methodology (Moran's Eigenvector Maps) described in [Dray, Legendre and Peres-Neto (2006)](https://www.sciencedirect.com/science/article/abs/pii/S0304380006000925) and [Legendre and Gauthier (2014)](https://royalsocietypublishing.org/doi/10.1098/rspb.2013.2728). This method generally introduces tens of predictors into the model, but usually offers good results.
 #'   \item `"recursive"` (see [select_spatial_predictors_recursive()]): This method tries to find the smallest combination of Moran's Eigenvector Maps that reduces residual correlation the most. The algorithm goes as follows: 1. The first ranked MEM is introduced into the model; 2. the remaining predictors are ranked again using the "effect" method, using the model in 1. as reference. The first spatial predictor in the resulting ranking is then introduced into the model, and the steps 1. and 2. are repeated until spatial predictors stop having an effect in reducing the autocorrelation of the residuals. This method takes longer to compute, but generates smaller sets of spatial predictors. This is an experimental method, use with caution.
 #' }
-#' Once ranking procedure is completed, an algorithm is used to select the minimal subset of Moran's Eigenvector Maps that reduce the most the Moran's I of the residuals: for each new spatial predictor introduced in the model, the Moran's I of the residuals, it's p-value, a binary version of the p-value (0 if < 0.05 and 1 if >= 0.05), the R-squared of the model, and a penalization linear with the number of spatial predictors introduced (computed as `(1 / total spatial predictors) * introduced spatial predictors`) are rescaled between 0 and 1. Then, the optimization criteria is computed as `max(1 - Moran's I, p-value binary) + (weight.r.squared * R-squared) - (weight.penalization.n.predictors * penalization)`. The predictors from the first one to the one with the highest optimization criteria are then selected as the best ones in reducing the spatial correlation of the model residuals, and used along with `data` to fit the final spatial model.
+#' Once ranking procedure is completed, an algorithm is used to select the minimal subset of Moran's Eigenvector Maps that reduce the most the Moran's I of the residuals: for each new spatial predictor introduced in the model, the Moran's I of the residuals, it's p-value, a binary version of the p-value (0 if < 0.05 and 1 if >= 0.05), the R-squared of the model, and a penalization linear with the number of spatial predictors introduced (computed as `(1 / total spatial predictors) * introduced spatial predictors`) are rescaled between 0 and 1. Then, the optimization criteria is computed as `max(1 - Moran's I, p-value binary) + (weight.performance * R-squared) - (weight.penalization.n.predictors * penalization)`. The predictors from the first one to the one with the highest optimization criteria are then selected as the best ones in reducing the spatial correlation of the model residuals, and used along with `data` to fit the final spatial model.
 #' @examples
 #' if(interactive()){
 #'
@@ -126,7 +126,7 @@ rf_spatial <- function(
       "hengl" #all distance matrix columns as predictors
     ),
     max.spatial.predictors = NULL,
-    weight.r.squared = NULL,
+    weight.performance = NULL,
     weight.penalization.n.predictors = NULL,
     seed = 1,
     verbose = TRUE,
@@ -435,7 +435,7 @@ rf_spatial <- function(
       ranger.arguments = ranger.arguments,
       spatial.predictors.df = spatial.predictors.df,
       spatial.predictors.ranking = spatial.predictors.ranking,
-      weight.r.squared = weight.r.squared,
+      weight.performance = weight.performance,
       weight.penalization.n.predictors = weight.penalization.n.predictors,
       verbose = FALSE,
       n.cores = n.cores,
@@ -465,7 +465,7 @@ rf_spatial <- function(
       ranger.arguments = ranger.arguments,
       spatial.predictors.df = spatial.predictors.df,
       spatial.predictors.ranking = spatial.predictors.ranking,
-      weight.r.squared = weight.r.squared,
+      weight.performance = weight.performance,
       weight.penalization.n.predictors = weight.penalization.n.predictors,
       n.cores = n.cores,
       cluster = cluster

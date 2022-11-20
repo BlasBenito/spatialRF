@@ -92,7 +92,7 @@ rf_compare <- function(
   #testing method argument
   metrics <- match.arg(
     arg = metrics,
-    choices = c("r.squared", "rmse", "nrmse", "auc"),
+    choices = c("rsquared", "rmse", "nrmse", "auc"),
     several.ok = TRUE
   )
 
@@ -183,7 +183,7 @@ rf_compare <- function(
 
   #df to plot
   x <- evaluation.df
-  x[x$metric == "r.squared", "metric"] <- "R squared"
+  x[x$metric == "rsquared", "metric"] <- "R squared"
   x[x$metric == "rmse", "metric"] <- "RMSE"
   x[x$metric == "nrmse", "metric"] <- "NRMSE"
   x[x$metric == "auc", "metric"] <- "AUC"

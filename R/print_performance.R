@@ -50,7 +50,7 @@ print_performance <- function(model){
   #performance metrics and their pretty names
   metrics_dictionary <- data.frame(
     metric = c(
-      "r.squared",
+      "rsquared",
       "rmse",
       "nrmse",
       "auc"
@@ -86,7 +86,7 @@ print_performance <- function(model){
   #checking what methods are available
   methods <- unique(
     gsub(
-      pattern = "r.squared.|rmse.|auc.|nrmse.",
+      pattern = "rsquared.|rmse.|auc.|nrmse.",
       replacement = "",
       x = names(x.median)
     )

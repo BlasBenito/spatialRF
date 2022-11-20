@@ -11,7 +11,7 @@
 #' @param n.cores Integer, number of cores used by \code{\link[ranger]{ranger}} for parallel execution (used as value for the argument `num.threads` in `ranger()`). Default: `parallel::detectCores() - 1`
 #' @param cluster A cluster definition generated with `parallel::makeCluster()` or \code{\link{start_cluster}}. Faster than using `n.cores` for smaller models. If provided, overrides `n.cores`. The function does not stop a cluster, please remember to shut it down with `parallel::stopCluster(cl = cluster_name)` or \code{\link{stop_cluster}} at the end of your pipeline. Default: `NULL`
 #' @details Model evaluation is based on spatial cross-validation. If the response is numeric, the R-squared is used, but if the response is binary (with values 1 and 0), then AUC is used instead.
-#' @return The input model with new slot named "jackknife". This is a list with slots named after the metrics introduced in the argument `metrics`. For example, if one of the metrics used is "r.squared", then the plot of this metric will be in `model$jackknife$r.squared$plot`, and the dataframe used to build the plot will be in `model$jackknife$r.squared$df`.
+#' @return The input model with new slot named "jackknife". This is a list with slots named after the metrics introduced in the argument `metrics`. For example, if one of the metrics used is "rsquared", then the plot of this metric will be in `model$jackknife$rsquared$plot`, and the dataframe used to build the plot will be in `model$jackknife$rsquared$df`.
 #' @examples
 #' if(interactive()){
 #'
@@ -47,8 +47,8 @@
 #' stop_cluster(cluster)
 #'
 #' #accessing results
-#' rf.model$jackknife$r.squared$df
-#' rf.model$jackknife$r.squared$plot
+#' rf.model$jackknife$rsquared$df
+#' rf.model$jackknife$rsquared$plot
 #'
 #' }
 #'
@@ -324,7 +324,7 @@ rf_jackknife <- function(
       dplyr::ungroup()
 
     #arranging
-    if(metric.i %in% c("r.squared", "auc")){
+    if(metric.i %in% c("rsquared", "auc")){
 
       importance.per.variable <- dplyr::arrange(
         importance.per.variable,

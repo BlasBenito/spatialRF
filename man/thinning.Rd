@@ -2,23 +2,32 @@
 % Please edit documentation in R/thinning.R
 \name{thinning}
 \alias{thinning}
-\title{Applies thinning to pairs of coordinates}
+\alias{thinning_til_n}
+\title{Thinning of spatial points}
 \usage{
 thinning(xy, minimum.distance = NULL)
+
+thinning_til_n(xy = NULL, n = 30, distance.step = NULL)
 }
 \arguments{
-\item{xy}{A data frame with columns named "x" and "y" representing geographic coordinates.}
+\item{xy}{(required; data frame) A data frame with columns named "x" and "y" representing  the geographic coordinates of the spatial points.}
 
-\item{minimum.distance}{Numeric, minimum distance to be set between nearby points, in the same units as the coordinates of xy.}
+\item{minimum.distance}{(required; numeric) Minimum distance nearby points in the sub-sample. Must be in the same units as the coordinates of \code{xy}.}
+
+\item{n}{(optional; integer) Number of samples to obtain. Must be lower than \code{nrow(xy)}. Default: \code{30}}
+
+\item{distance.step}{(optional; numeric) Distance step used during thinning iterations in \code{thinning_til_n()}. If \code{NULL}, the one percent of the maximum distance among points in \code{xy} is used. Default: \code{NULL}}
 }
 \value{
-A data frame with the same columns as \code{xy} with points separated by the defined minimum distance.
+A data frame with the same columns as \code{xy} with spatial points separated by the defined minimum distance in the case of \code{thinning()}, or with a sample size as close as possible to \code{n} in the case of \code{thinning_til_n()}.
 }
 \description{
-Resamples a set of points with x and y coordinates to impose a minimum distance among nearby points.
+Extracts a sub-sample from a set of spatial points by imposing a given minimum distance between them. Used to reduce sample size while keeping spatial representativity, reduce spatial autocorrelation, or select fold centers for spatial cross validation (see \code{\link[=rf_evaluate]{rf_evaluate()}}).
+
+The function \code{thinning()} imposes a \code{minimum.distance} between spatial points, while \code{thinning_til_n()} increases the distance between nearby points until a given sample (\code{n}) size is reached.
 }
 \details{
-Generally used to remove redundant points that could produce pseudo-replication, and to limit sampling bias by disaggregating clusters of points.
+Generally used to remove spatially redundant data to minimize pseudo-replication, to limit sampling bias by disaggregating clusters of points, and to select fold centers for spatial cross-validation.
 }
 \examples{
 if(interactive()){
@@ -26,16 +35,22 @@ if(interactive()){
  #load example data
  data(ecoregions_df)
 
- #thinning to points separated by 5 degrees
- ecoregions_df.thin <- thinning(
+ #thinning to obtain points separated by 5 degrees
+ x <- thinning(
    x = ecoregions_df,
    minimum.distance = 5 #output points separated by at least 5 degrees
    )
 
- ecoregions_df.thin
+ x
+
+ #sub-sample of given sample size
+ x <- thinning_til_n(
+   x = ecoregions_df,
+   n = 30
+   )
+
+ nrow(ecoregions_df)
+ nrow(x)
 
 }
-}
-\seealso{
-\code{\link[=thinning_til_n]{thinning_til_n()}}
 }

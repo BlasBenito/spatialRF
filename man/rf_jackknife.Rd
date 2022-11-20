@@ -39,7 +39,7 @@ rf_jackknife(
 \item{cluster}{A cluster definition generated with \code{parallel::makeCluster()} or \code{\link{start_cluster}}. Faster than using \code{n.cores} for smaller models. If provided, overrides \code{n.cores}. The function does not stop a cluster, please remember to shut it down with \code{parallel::stopCluster(cl = cluster_name)} or \code{\link{stop_cluster}} at the end of your pipeline. Default: \code{NULL}}
 }
 \value{
-The input model with new slot named "jackknife". This is a list with slots named after the metrics introduced in the argument \code{metrics}. For example, if one of the metrics used is "r.squared", then the plot of this metric will be in \code{model$jackknife$r.squared$plot}, and the dataframe used to build the plot will be in \code{model$jackknife$r.squared$df}.
+The input model with new slot named "jackknife". This is a list with slots named after the metrics introduced in the argument \code{metrics}. For example, if one of the metrics used is "rsquared", then the plot of this metric will be in \code{model$jackknife$rsquared$plot}, and the dataframe used to build the plot will be in \code{model$jackknife$rsquared$df}.
 }
 \description{
 Fits and evaluates (via spatial cross-validation with \code{\link[=rf_evaluate]{rf_evaluate()}}) models with and without each predictor to compute a jackknife-based importance score. The predictors are ranked according to the difference in performance between models fitted only with (univariate models) and without the predictor (all predictors but the given one).
@@ -82,8 +82,8 @@ rf.model <- rf_jackknife(
 stop_cluster(cluster)
 
 #accessing results
-rf.model$jackknife$r.squared$df
-rf.model$jackknife$r.squared$plot
+rf.model$jackknife$rsquared$df
+rf.model$jackknife$rsquared$plot
 
 }
 

@@ -64,7 +64,7 @@ Functions to get evaluation objects from models fitted with \code{\link[=rf_eval
 
 Functions to get objects related with the model performance and predictions
 \itemize{
-\item \code{get_performance()}: data frame with performance metrics that can be either computed from the out-of-bag data (r.squared.oob and rmse.oob) or by comparing the response variable with the predictions for all cases (r.squared, rmse, nrmse). For models fitted with \code{\link[=rf_repeat]{rf_repeat()}}, the median and median absolute deviation of the performances are shown.
+\item \code{get_performance()}: data frame with performance metrics that can be either computed from the out-of-bag data (rsquared.oob and rmse.oob) or by comparing the response variable with the predictions for all cases (rsquared, rmse, nrmse). For models fitted with \code{\link[=rf_repeat]{rf_repeat()}}, the median and median absolute deviation of the performances are shown.
 \item \code{get_predictions()}: numeric vector of model predictions or median of model predictions if the model was fitted with \code{\link[=rf_repeat]{rf_repeat()}}.
 }
 

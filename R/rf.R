@@ -648,7 +648,10 @@ rf <- function(
 
   #defining_metrics
   if(is_binary_response(
-    x = dplyr::pull(data, dependent.variable.name)
+    x = dplyr::pull(
+      data,
+      dependent.variable.name
+      )
   ) == TRUE){
 
     #point biserial correlation

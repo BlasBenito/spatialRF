@@ -88,7 +88,7 @@ rf_select <- function(
   metrics <- match.arg(
     arg = metrics,
     choices = c(
-      "r.squared",
+      "rsquared",
       "rmse",
       "nrmse",
       "auc"
@@ -183,7 +183,7 @@ rf_select <- function(
       ".all"
       )
 
-    if(metric %in% c("r.squared", "auc")){
+    if(metric %in% c("rsquared", "auc")){
 
       jackknife_df[, paste0(metric, ".loss")] <-  as.vector(
         scale(
@@ -381,7 +381,7 @@ rf_select <- function(
   #computing differences without - all
   for(metric in metrics){
 
-    if(metric %in% c("r.squared", "auc")){
+    if(metric %in% c("rsquared", "auc")){
 
       sequential.models.df.combined[, metric] <- as.vector(
         scale(
@@ -419,7 +419,7 @@ rf_select <- function(
 
   #all metrics and colors
   all.metrics <- c(
-    "r.squared",
+    "rsquared",
     "auc",
     "rmse",
     "nrmse"

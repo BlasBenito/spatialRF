@@ -13,7 +13,7 @@ select_spatial_predictors_sequential(
   ranger.arguments = NULL,
   spatial.predictors.df = NULL,
   spatial.predictors.ranking = NULL,
-  weight.r.squared = 0.75,
+  weight.performance = 0.75,
   weight.penalization.n.predictors = 0.25,
   verbose = FALSE,
   n.cores = parallel::detectCores() - 1,
@@ -37,7 +37,7 @@ select_spatial_predictors_sequential(
 
 \item{spatial.predictors.ranking}{Ranking of the spatial predictors returned by \code{\link[=rank_spatial_predictors]{rank_spatial_predictors()}}.}
 
-\item{weight.r.squared}{Numeric between 0 and 1, weight of R-squared in the optimization index. Default: \code{0.75}}
+\item{weight.performance}{Numeric between 0 and 1, weight of R-squared in the optimization index. Default: \code{0.75}}
 
 \item{weight.penalization.n.predictors}{Numeric between 0 and 1, weight of the penalization for the number of spatial predictors added in the optimization index. Default: \code{0.25}}
 

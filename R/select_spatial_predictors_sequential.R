@@ -8,7 +8,7 @@
 #' @param ranger.arguments Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.
 #' @param spatial.predictors.df Data frame of spatial predictors.
 #' @param spatial.predictors.ranking Ranking of the spatial predictors returned by [rank_spatial_predictors()].
-#' @param weight.r.squared Numeric between 0 and 1, weight of R-squared in the optimization index. Default: `0.75`
+#' @param weight.performance Numeric between 0 and 1, weight of R-squared in the optimization index. Default: `0.75`
 #' @param weight.penalization.n.predictors Numeric between 0 and 1, weight of the penalization for the number of spatial predictors added in the optimization index. Default: `0.25`
 #' @param verbose Logical, ff `TRUE`, messages and plots generated during the execution of the function are displayed, Default: `FALSE`
 #' @param n.cores Integer, number of cores used by \code{\link[ranger]{ranger}} for parallel execution (used as value for the argument `num.threads` in `ranger()`). Default: `NULL`
@@ -80,7 +80,7 @@ select_spatial_predictors_sequential <- function(
   ranger.arguments = NULL,
   spatial.predictors.df = NULL,
   spatial.predictors.ranking = NULL,
-  weight.r.squared = 0.75,
+  weight.performance = 0.75,
   weight.penalization.n.predictors = 0.25,
   verbose = FALSE,
   n.cores = parallel::detectCores() - 1,
@@ -101,9 +101,9 @@ select_spatial_predictors_sequential <- function(
   spatial.predictors.ranking <- spatial.predictors.ranking$ranking
 
   #weights limits
-  if(is.null(weight.r.squared)){weight.r.squared <- 0.75}
-  if(weight.r.squared > 1){weight.r.squared <- 1}
-  if(weight.r.squared < 0){weight.r.squared <- 0}
+  if(is.null(weight.performance)){weight.performance <- 0.75}
+  if(weight.performance > 1){weight.performance <- 1}
+  if(weight.performance < 0){weight.performance <- 0}
   if(is.null(weight.penalization.n.predictors)){weight.penalization.n.predictors <- 0.25}
   if(weight.penalization.n.predictors > 1){weight.penalization.n.predictors <- 1}
   if(weight.penalization.n.predictors < 0){weight.penalization.n.predictors <- 0}
@@ -149,21 +149,29 @@ select_spatial_predictors_sequential <- function(
 
   }
 
+  #check if response is binary
+  binary.response <- is_binary_response(
+    x = dplyr::pull(
+      data,
+      dependent.variable.name
+      )
+    )
+
   ##########################
   #END OF HANDLING PARALLELIZATION
 
   #parallelized loop
   spatial.predictors.i <- NULL
   optimization.df <- foreach::foreach(
-    spatial.predictors.i = seq(1, length(spatial.predictors.ranking)),
+    spatial.predictors.i = seq_len(length(spatial.predictors.ranking)),
     .combine = "rbind",
     .verbose = verbose
   ) %iterator% {
 
-    #pca factor names
+    #identify spatial predictor
     spatial.predictors.selected.names.i <- spatial.predictors.ranking[1:spatial.predictors.i]
 
-    #add pca factor to training data
+    #add o training data
     data.i <- data.frame(
       data,
       spatial.predictors.df[, spatial.predictors.selected.names.i]
@@ -197,7 +205,11 @@ select_spatial_predictors_sequential <- function(
         which.max(m.i$residuals$autocorrelation$per.distance$moran.i),
         "p.value"
         ],
-      r.squared = m.i$performance$r.squared.oob
+      performance = ifelse(
+        binary.response,
+        m.i$performance$auc.oob,
+        m.i$performance$rsquared.oob
+        )
     )
 
     return(out.df)
@@ -211,13 +223,13 @@ select_spatial_predictors_sequential <- function(
     moran.i = optimization.df$moran.i,
     p.value = optimization.df$p.value,
     p.value.binary = ifelse(optimization.df$p.value >= 0.05, 1, 0),
-    r.squared = optimization.df$r.squared,
+    performance = optimization.df$performance,
     penalization.per.variable = (1/nrow(optimization.df)) * optimization.df$spatial.predictor.index
   )
 
   optimization.df$optimization <- optimization_function(
     x = optimization.df,
-    weight.r.squared = weight.r.squared,
+    weight.performance = weight.performance,
     weight.penalization.n.predictors = weight.penalization.n.predictors
   )
 

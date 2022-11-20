@@ -61,7 +61,7 @@ plot_optimization <- function(
   #declaring variables
   moran.i <- NULL
   optimization <- NULL
-  r.squared <- NULL
+  performance <- NULL
   spatial.predictor.index <- NULL
 
   #getting optimization df from the model
@@ -71,11 +71,22 @@ plot_optimization <- function(
     x <- model
   }
 
+  #check if response is binary
+  binary.response <- is_binary_response(
+      x$ranger.arguments$data[x$ranger.arguments$dependent.variable.name][[1]]
+  )
+
+  x.lab.title <- ifelse(
+    binary.response,
+    "AUC (out-of-bag)",
+    "R squared (out-of-bag)"
+  )
+
   #plot
   p <- ggplot2::ggplot(data = x) +
     ggplot2::aes(
       y = moran.i,
-      x = r.squared,
+      x = performance,
       color = optimization,
       size = spatial.predictor.index
     ) +
@@ -85,7 +96,7 @@ plot_optimization <- function(
       data = x[x$selected, ],
       aes(
         y = moran.i,
-        x = r.squared),
+        x = performance),
       colour="black",
       size = 5,
       shape = 1,
@@ -95,7 +106,7 @@ plot_optimization <- function(
     ggplot2::geom_path(data = x[x$selected, ],
                        aes(
                          y = moran.i,
-                         x = r.squared
+                         x = performance
                        ),
                        size = 0.5,
                        color = "black",
@@ -111,7 +122,7 @@ plot_optimization <- function(
       color = "Weighted \noptimization index"
     ) +
     ggplot2::ylab("Maximum Moran's I of the residuals") +
-    ggplot2::xlab("Model's R squared (out-of-bag)") +
+    ggplot2::xlab(x.lab.title) +
     ggplot2::ggtitle("Selection of spatial predictors (selection path shown in gray)") +
     ggplot2::theme_bw() +
     ggplot2::theme(plot.title = element_text(hjust = 0.5))
