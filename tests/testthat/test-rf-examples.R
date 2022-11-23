@@ -131,7 +131,9 @@ testthat::test_that("`rf()` works", {
        verbose = FALSE,
        preference.order = ecoregions_predictor_variable_names
      ) %>%
-       auto_vif()
+       auto_vif(
+         verbose = FALSE
+       )
    )
 
    #fitting model

@@ -31,89 +31,96 @@
 #' }
 #' @rdname print_performance
 #' @export
-print_performance <- function(model){
-
-  #performance methods and their pretty names
-  methods_dictionary <- data.frame(
-    method = c(
-      "ib",
-      "oob",
-      "scv"
-    ),
-    name = c(
-      "In_bag",
-      "Out_of_bag",
-      "Spatial_CV"
-    )
-  )
-
-  #performance metrics and their pretty names
-  metrics_dictionary <- data.frame(
-    metric = c(
-      "rsquared",
-      "rmse",
-      "nrmse",
-      "auc"
-    ),
-    name = c(
-      "R-squared",
-      "RMSE",
-      "nRMSE",
-      "AUC"
-    )
-  )
+print_performance <- function(
+    model,
+    centrality.fun = stats::median,
+    dispersion.fun = stats::mad
+    ){
 
   #getting performance
   x <- model$performance
 
   #remove slots with NA
   # x <- x[!is.na(x)]
-
   x <- Filter(Negate(anyNA), x)
 
-  #compute median and mad
-  x.median <- lapply(X = x, FUN = median)
+  #get roc curves in another list if any
+  x.roc <- x[grep(
+    pattern = "roc",
+    x = names(x)
+  )]
+
+  x <- x[!(names(x) %in% names(x.roc))]
 
   #checking what metrics are available
   metrics <- unique(
     gsub(
       pattern = ".ib|.oob|.scv",
       replacement = "",
-      x = names(x.median)
+      x = names(x)
     )
   )
+
+  #adding sensitivity and specificty
+  if("roc.ib" %in% names(x.roc)){
+    metrics <- c(
+      metrics,
+      "sensitivity",
+      "specificity"
+    )
+  }
 
   #checking what methods are available
   methods <- unique(
     gsub(
-      pattern = "rsquared.|rmse.|auc.|nrmse.",
+      pattern = "rsquared.|rmse.|auc.|nrmse.|rbiserial.",
       replacement = "",
-      x = names(x.median)
+      x = names(x)
     )
   )
 
-
-  #empty performance data frame
-  performance_df <- matrix(
-    data = NA,
-    nrow = length(metrics),
-    ncol = length(methods),
-    dimnames = list(
-      metrics,
-      methods
-    )
+  #data frame
+  performance_df <- expand.grid(
+    metrics,
+    methods
   ) %>%
-    as.data.frame()
+    dplyr::rename(
+      metric = Var1,
+      method = Var2
+    ) %>%
+    dplyr::mutate(
+      value = NA,
+      median = NA,
+      mad = NA
+    ) %>%
+    dplyr::arrange(
+      metric,
+      method
+    )
+
 
   #filling performance data frame with medians
   for(metric.i in metrics){
     for(method.i in methods){
-      performance_df[metric.i, method.i] <-
-        x.median[[paste(
-          metric.i,
-          method.i,
-          sep = "."
-          )]]
+
+      #capture values
+      values <- x[[paste(
+        metric.i,
+        method.i,
+        sep = "."
+      )]]
+
+      if(length(values) == 1){
+
+        performance_df[performance_df$metric == metric.i & performance_df$method == method.i, "value"] <- values
+
+      } else {
+
+        performance_df[performance_df$metric == metric.i & performance_df$method == method.i, "median"] <- stats::median(values)
+
+        performance_df[performance_df$metric == metric.i & performance_df$method == method.i, "mad"] <- stats::mad(values)
+
+      }
     }
   }
 
@@ -149,15 +156,17 @@ print_performance <- function(model){
 
   huxtable::number_format(performance_df_hux) <- 3
 
+  cat("\nModel performance:\n")
+
   huxtable::print_screen(
     ht = performance_df_hux,
     colnames = FALSE
     )
 
   cat("\nInterpretation:\n")
-  cat(" - In_bag: from the prediction of the entire training set. Please, never report this number. It is highly inflated.\n")
-  cat("- Out_of_bag: from the prediction of data left out during the training of each regression tree. It might be inflated when the training data shows a strong spatial structure.\n")
-  cat("- Spatial_CV: median performance from predictions over spatially independent data. Trustworthy, but negatively affected when the importance of spatial predictors is high.\n")
+  cat(" - In_bag: from predictions of the entire training set. Highly inflated and overoptimistic.\n")
+  cat("- Out_of_bag: from predictions on data left out during model training. Inflated when spatial autocorrelation is strong.\n")
+  cat("- Spatial_CV: from the prediction over spatially-independent data. Deflated when spatial autocorrelation is strong.\n")
 
 
 }

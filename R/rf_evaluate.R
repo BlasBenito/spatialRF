@@ -18,7 +18,7 @@
 #'   \item `training.fraction`: Value of the argument `training.fraction`.
 #'   \item `per.fold`: Data frame with the cross-validation results per spatial fold. It contains the numeric id of each fold, it's central coordinates, the number of training and testing cases, and the training and testing performance metrics.
 #'   \item `aggregated`: Aggregated version of `per.fold` with median, median absolute deviation, quartile 1, quartile 3, mean, standard error, standard deviation, minimum, and maximum performance scores across spatial folds.
-#'   \item `roc.curve.ib`, `roc.curve.oob`, and `roc.curve.scv`: Produced only when the response is binary (values one and zero). Lists of data frames with the in-bag (.ib suffix), out-of-bag (.oob), and spatial cross-validation (.scv) confusion matrices, sensitivity and specificity across all spatial folds.
+#'   \item `roc.ib`, `roc.oob`, and `roc.scv`: Produced only when the response is binary (values one and zero). Lists of data frames with the in-bag (.ib suffix), out-of-bag (.oob), and spatial cross-validation (.scv) confusion matrices, sensitivity and specificity across all spatial folds.
 #' }
 #'
 #' Objects written to `model$performance`:
@@ -40,7 +40,7 @@
 #'
 #' If the response variable is continuous, the metrics used are "rsquared", "rmse", and "nrmse" (normalized rmse).
 #'
-#' If the response is binary (zeros and ones), the metrics used are "auc" (area under the ROC curve), "biserial.cor" (point-biserial correlation), and "roc.curve" (components of the confusion matrix for different prediction thresholds).
+#' If the response is binary (zeros and ones), the metrics used are "auc" (area under the ROC curve), "rsquared" (point-biserial correlation), and "roc" (components of the confusion matrix for different prediction thresholds).
 #'
 #' In any case, these metrics are identified by the suffix ".scv" (from "spatial cross-validation").
 #'
@@ -108,8 +108,8 @@ rf_evaluate <- function(
   value <- NULL
   evaluation.set <- NULL
   name <- NULL
-  roc.curve.oob <- NULL
-  roc.curve.scv <- NULL
+  roc.oob <- NULL
+  roc.scv <- NULL
   metrics <- NULL
   group <- NULL
   id <- NULL
@@ -347,12 +347,12 @@ rf_evaluate <- function(
       )
     }
 
-    performance.df$biserial.cor.ib <- m.training$performance$biserial.cor.ib
-    performance.df$biserial.cor.oob <- m.training$performance$biserial.cor.oob
-    if(is.null(performance.df$biserial.cor.ib)){
-      performance.df$biserial.cor.scv <- NULL
+    performance.df$rbiserial.ib <- m.training$performance$rbiserial.ib
+    performance.df$rbiserial.oob <- m.training$performance$rbiserial.oob
+    if(is.null(performance.df$rbiserial.ib)){
+      performance.df$rbiserial.scv <- NULL
     } else {
-      performance.df$biserial.cor.scv <- stats::cor.test(
+      performance.df$rbiserial.scv <- stats::cor.test(
         x = observed,
         y = predicted
       )$estimate
@@ -363,9 +363,9 @@ rf_evaluate <- function(
     out.list <- list()
     out.list$spatial.folds <- training.testing.folds
     out.list$performance.df <- performance.df
-    out.list$roc.curve.ib <- m.training$performance$roc.curve.ib
-    out.list$roc.curve.oob <- m.training$performance$roc.curve.oob
-    out.list$roc.curve.scv <- spatialRF::roc_curve(
+    out.list$roc.ib <- m.training$performance$roc.ib
+    out.list$roc.oob <- m.training$performance$roc.oob
+    out.list$roc.scv <- spatialRF::roc_curve(
       o = observed,
       p = predicted
     )
@@ -394,22 +394,22 @@ rf_evaluate <- function(
   )
 
   #getting roc curves
-  roc.curves.ib <- lapply(
+  rocs.ib <- lapply(
     evaluation.list,
     "[[",
-    "roc.curve.ib"
+    "roc.ib"
   )
 
-  roc.curves.oob <- lapply(
+  rocs.oob <- lapply(
     evaluation.list,
     "[[",
-    "roc.curve.oob"
+    "roc.oob"
   )
 
-  roc.curves.scv <- lapply(
+  rocs.scv <- lapply(
     evaluation.list,
     "[[",
-    "roc.curve.scv"
+    "roc.scv"
   )
 
   #copy of results
@@ -426,16 +426,16 @@ rf_evaluate <- function(
   spatial.folds <- spatial.folds[performance.df.unique$fold.id]
 
   #subsetting roc curves
-  roc.curves.ib <- roc.curves.ib[performance.df.unique$fold.id]
-  roc.curves.oob <- roc.curves.oob[performance.df.unique$fold.id]
-  roc.curves.scv <- roc.curves.scv[performance.df.unique$fold.id]
+  rocs.ib <- rocs.ib[performance.df.unique$fold.id]
+  rocs.oob <- rocs.oob[performance.df.unique$fold.id]
+  rocs.scv <- rocs.scv[performance.df.unique$fold.id]
 
   #resetting fold ID
   performance.df.unique$fold.id <-
     names(spatial.folds) <-
-    names(roc.curves.ib) <-
-    names(roc.curves.oob) <-
-    names(roc.curves.scv) <-
+    names(rocs.ib) <-
+    names(rocs.oob) <-
+    names(rocs.scv) <-
     seq(
       from = 1,
       to = nrow(performance.df.unique),
@@ -483,8 +483,8 @@ rf_evaluate <- function(
   }
 
   #adding median of roc curves
-  if(!is.nan(roc.curves.scv[[1]]$sensitivity[1])){
-    model$performance$roc.curve.scv <- roc.curves.scv %>%
+  if(!is.nan(rocs.scv[[1]]$sensitivity[1])){
+    model$performance$roc.scv <- rocs.scv %>%
       purrr::map_dfr(
         ~stats::setNames(
           .x,
@@ -507,7 +507,7 @@ rf_evaluate <- function(
         ) %>%
       dplyr::select(-id) %>%
       as.data.frame()
-    names(model$performance$roc.curve.scv) <- names(roc.curves.scv[[1]])
+    names(model$performance$roc.scv) <- names(rocs.scv[[1]])
   }
 
   #ordering performance list by name
@@ -538,10 +538,10 @@ rf_evaluate <- function(
   model$evaluation$training.fraction <- training.fraction
   model$evaluation$per.fold <- performance.df.long
   model$evaluation$aggregated <- performande.df.aggregated
-  if(!is.nan(roc.curves.scv[[1]]$sensitivity[1])){
-    model$evaluation$roc.curve.ib <- roc.curves.ib
-    model$evaluation$roc.curve.oob <- roc.curves.oob
-    model$evaluation$roc.curve.scv <- roc.curves.scv
+  if(!is.nan(rocs.scv[[1]]$sensitivity[1])){
+    model$evaluation$roc.ib <- rocs.ib
+    model$evaluation$roc.oob <- rocs.oob
+    model$evaluation$roc.scv <- rocs.scv
   }
 
   if(verbose == TRUE){
@@ -557,24 +557,24 @@ rf_evaluate <- function(
     model$evaluation$per.fold <- tibble::as_tibble(model$evaluation$per.fold)
     model$evaluation$aggregated <- tibble::as_tibble(model$evaluation$aggregated)
 
-    if(!is.null(model$performance$roc.curve.ib)){
+    if(!is.null(model$performance$roc.ib)){
 
-      model$evaluation$roc.curve.ib <- lapply(
-        X = roc.curves.ib,
+      model$evaluation$roc.ib <- lapply(
+        X = rocs.ib,
         FUN = tibble::as_tibble
         )
 
-      model$evaluation$roc.curve.oob <- lapply(
-        X = roc.curve.oob,
+      model$evaluation$roc.oob <- lapply(
+        X = roc.oob,
         FUN = tibble::as_tibble
         )
 
-      model$evaluation$roc.curve.scv <- lapply(
-        X = roc.curve.scv,
+      model$evaluation$roc.scv <- lapply(
+        X = roc.scv,
         FUN = tibble::as_tibble
         )
 
-      model$performance$roc.curve.scv <- tibble::as_tibble(model$performance$roc.curve.scv)
+      model$performance$roc.scv <- tibble::as_tibble(model$performance$roc.scv)
 
     }
   }

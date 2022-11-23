@@ -201,7 +201,7 @@ select_spatial_predictors_recursive <- function(
       optimization.df[i, "spatial.predictor.name"] <- spatial.predictors.ranking.i$ranking[1]
       optimization.df[i, "moran.i"] <- spatial.predictors.ranking.i$criteria[1, "moran.i"]
       optimization.df[i, "p.value"] <- spatial.predictors.ranking.i$criteria[1, "p.value"]
-      optimization.df[i, "performance"] <- spatial.predictors.ranking.i$criteria[1, "model.performance"]
+      optimization.df[i, "performance"] <- spatial.predictors.ranking.i$criteria[1, "performance"]
       optimization.df[i, "p.value.binary"] <- ifelse(optimization.df[i, "p.value"] >= 0.05, 1, 0)
       optimization.df[i, "penalization.per.variable"] <- (1/nrow(optimization.df)) * i
       optimization.df[i, "optimization"] <- (1 - optimization.df[i, "moran.i"]) + (weight.performance * optimization.df[i, "performance"]) - (weight.penalization.n.predictors * optimization.df[i, "penalization.per.variable"])

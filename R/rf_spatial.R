@@ -469,7 +469,6 @@ rf_spatial <- function(
       weight.penalization.n.predictors = weight.penalization.n.predictors,
       n.cores = n.cores,
       cluster = cluster
-
     )
 
     #broadcast spatial.predictors.selected

@@ -655,12 +655,12 @@ rf <- function(
   ) == TRUE){
 
     #point biserial correlation
-    m$performance$biserial.cor.oob <- stats::cor.test(
+    m$performance$rbiserial.oob <- stats::cor.test(
       x = observed,
       y = predicted.oob
     )$estimate
 
-    m$performance$biserial.cor.ib <- stats::cor.test(
+    m$performance$rbiserial.ib <- stats::cor.test(
       x = observed,
       y = predicted.ib
     )$estimate
@@ -676,12 +676,12 @@ rf <- function(
       p = predicted.ib
     )
 
-    m$performance$roc.curve.oob <- roc_curve(
+    m$performance$roc.oob <- roc_curve(
       o = observed,
       p = predicted.oob
     )
 
-    m$performance$roc.curve.ib <- roc_curve(
+    m$performance$roc.ib <- roc_curve(
       o = observed,
       p = predicted.ib
     )
@@ -795,9 +795,9 @@ rf <- function(
     if(is.null(m$residuals$autocorrelation$per.distance) == FALSE){
       m$residuals$autocorrelation$per.distance <- tibble::as_tibble(m$residuals$autocorrelation$per.distance)
 
-      if(!is.null(m$performance$roc.curve.ib)){
-          m$performance$roc.curve.ib <- tibble::as_tibble(m$performance$roc.curve.ib)
-          m$performance$roc.curve.oob <- tibble::as_tibble(m$performance$roc.curve.oob)
+      if(!is.null(m$performance$roc.ib)){
+          m$performance$roc.ib <- tibble::as_tibble(m$performance$roc.ib)
+          m$performance$roc.oob <- tibble::as_tibble(m$performance$roc.oob)
       }
 
     }

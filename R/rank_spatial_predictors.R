@@ -78,9 +78,6 @@ rank_spatial_predictors <- function(
 
   }
 
-  #END OF HANDLING ARGUMENTS
-  ##########################
-
   #add write.forest = FALSE to ranger.arguments
   if(is.null(ranger.arguments)){
     ranger.arguments <- list()
@@ -141,7 +138,7 @@ rank_spatial_predictors <- function(
   #parallelized loop
   spatial.predictors.i <- NULL
   spatial.predictors.order <- foreach::foreach(
-    spatial.predictors.i = seq(1, ncol(spatial.predictors.df)),
+    spatial.predictors.i = seq_len(ncol(spatial.predictors.df)),
     .combine = "rbind",
     .verbose = verbose
     ) %iterator% {
