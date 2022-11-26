@@ -35,7 +35,13 @@ print_performance <- function(
     model,
     centrality.fun = stats::median,
     dispersion.fun = stats::mad
-    ){
+){
+
+  titlecase <- function(x) {
+    x <- tolower(x)
+    substr(x, 1, 1) <- toupper(substr(x, 1, 1))
+    x
+  }
 
   #getting performance
   x <- model$performance
@@ -50,9 +56,10 @@ print_performance <- function(
     x = names(x)
   )]
 
+  #keep non roc data
   x <- x[!(names(x) %in% names(x.roc))]
 
-  #checking what metrics are available
+  #available metrics
   metrics <- unique(
     gsub(
       pattern = ".ib|.oob|.scv",
@@ -63,17 +70,27 @@ print_performance <- function(
 
   #adding sensitivity and specificty
   if("roc.ib" %in% names(x.roc)){
+
     metrics <- c(
       metrics,
       "sensitivity",
       "specificity"
     )
+
+    x$sensitivity.ib <- median(x.roc$roc.ib$sensitivity)
+
+    x$sensitivity.oob <- median(x.roc$roc.oob$sensitivity)
+
+    x$specificity.ib <- median(x.roc$roc.ib$specificity)
+
+    x$specificity.oob <- median(x.roc$roc.oob$specificity)
+
   }
 
-  #checking what methods are available
+  #available methods
   methods <- unique(
     gsub(
-      pattern = "rsquared.|rmse.|auc.|nrmse.|rbiserial.",
+      pattern = "rsquared.|rmse.|auc.|nrmse.|rbiserial.|sensitivity.|specificity.",
       replacement = "",
       x = names(x)
     )
@@ -110,37 +127,38 @@ print_performance <- function(
         sep = "."
       )]]
 
-      if(length(values) == 1){
+      performance_df[performance_df$metric == metric.i & performance_df$method == method.i, "value"] <- values
 
-        performance_df[performance_df$metric == metric.i & performance_df$method == method.i, "value"] <- values
-
-      } else {
-
-        performance_df[performance_df$metric == metric.i & performance_df$method == method.i, "median"] <- stats::median(values)
-
-        performance_df[performance_df$metric == metric.i & performance_df$method == method.i, "mad"] <- stats::mad(values)
-
-      }
     }
   }
 
-  #ordering columns as in methods_dictionary
-  performance_df <- performance_df[
-    metrics_dictionary$metric[metrics_dictionary$metric %in% metrics],
-    methods_dictionary$method[methods_dictionary$method %in% methods]
-    ]
+  #remove columns with all NA
+  performance_df <- Filter(function(x)!all(is.na(x)), performance_df)
 
-  #renaming with pretty names
-  colnames(performance_df) <- methods_dictionary$name[methods_dictionary$method %in% methods]
+  #pretty names
+  performance_df <- performance_df %>%
+    dplyr::mutate(
+      method = dplyr::case_when(
+        method == "ib" ~ "In-bag",
+        method == "oob" ~ "Out-of-bag",
+        method == "scv" ~ "Spatial CV"
+      )
+    ) %>%
+    dplyr::mutate(
+      metric = dplyr::case_when(
+        metric == "rsquared" ~ "R-squared",
+        metric == "rmse" ~ "RMSE",
+        metric == "nrmse" ~ "nRMSE",
+        metric == "auc" ~ "AUC",
+        metric == "rbiserial" ~ "Biserial R-squared",
+        metric == "sensitivity" ~ "Sensitivity",
+        metric == "specificity" ~ "Specificity"
+      )
+    )
 
-  #renaming rows
-  rownames(performance_df) <- metrics_dictionary$name[metrics_dictionary$metric %in% metrics]
+  #pretty titles
+  names(performance_df) <- titlecase(x = names(performance_df))
 
-  #rownames as Metric
-  performance_df <- data.frame(
-    Metric = rownames(performance_df),
-    performance_df
-  )
 
   #remove rownames
   rownames(performance_df) <- NULL
@@ -151,7 +169,7 @@ print_performance <- function(
       row = 1,
       col = huxtable::everywhere,
       value = TRUE
-      ) %>%
+    ) %>%
     huxtable::set_all_borders(TRUE)
 
   huxtable::number_format(performance_df_hux) <- 3
@@ -161,12 +179,15 @@ print_performance <- function(
   huxtable::print_screen(
     ht = performance_df_hux,
     colnames = FALSE
-    )
+  )
 
   cat("\nInterpretation:\n")
-  cat(" - In_bag: from predictions of the entire training set. Highly inflated and overoptimistic.\n")
-  cat("- Out_of_bag: from predictions on data left out during model training. Inflated when spatial autocorrelation is strong.\n")
-  cat("- Spatial_CV: from the prediction over spatially-independent data. Deflated when spatial autocorrelation is strong.\n")
+  cat(" - In-bag: from predictions of the entire training set. Highly inflated and overoptimistic.\n")
+  cat("- Out-of-bag: from predictions on data left out during model training. Inflated when spatial autocorrelation is strong.\n")
+  if("scv" %in% methods){
+    cat("- Spatial CV: from the prediction over spatially-independent data. Deflated when spatial autocorrelation is strong.\n")
+  }
+
 
 
 }
