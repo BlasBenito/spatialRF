@@ -18,16 +18,20 @@
 #'   \item `ranger.arguments`: Stores the values of the arguments used to fit the ranger model.
 #'   \item `predictions`: Predicted values.
 #'   \itemize{
-#'    \item `ib`: Numeric vector, predictions computed on the in-bag data.
+#'    \item `full`: Numeric vector, predictions computed on the from the full training dataset.
 #'    \item `oob`: Numeric vector, predictions computed on the out-of-bag data.
 #'   }
 #'   \item `importance`: A list containing a data frame with the predictors ordered by their importance, a ggplot showing the importance values, and local importance scores (difference in accuracy between permuted and non permuted variables for every case, computed on the out-of-bag data).
-#'   \item `performance`: Performance scores computed on the in-bag and out-of-bag data. These performance scores can be highly inflated (especially the "in-bag" ones!)  if the spatial structure of the training data is strong, so I beg you to never report these as the actual performance metrics of your models, and advise you to use [rf_evaluate()] instead. In any case, if you wish to proceed, these are the metrics provided in this slot:
+#'   \item `performance`: Performance scores computed on the full training data ("full") and out-of-bag data ("oob").
 #'   \itemize{
-#'     \item `rsquared_oob`: R-squared computed on the out-of-bag predictions using the expression `cor(observed, predicted_oob) ^ 2`.
-#'     \item `rmse_oob`: Root mean squared error computed on the out-of-bag predictions using the expression `spatialRF::root_mean_squared_error(o = observed, p = predicted_oob)`.
-#'     \item `nrmse_oob`: Normalized rood mean squared error computed on the out-of-bag data using the expression `spatialRF::root_mean_squared_error(o = observed, p = predicted_oob, normalization = "iq")`.
-#'     \item `auc_oob`: Only for binary responses with values 0 and 1. Area under the ROC curve computed on the out-of-bag predictions using the expression `spatialRF::auc(o = observed, p = predicted_oob)`.
+#'     \item `rsquared_full`: R-squared computed on the predictions of the full training dataset using the expression `cor(observed, predicted_oob) ^ 2`.
+#'     \item `rsquared_oob`: As above, but using the out-of-bag predictions instead.
+#'     \item `rmse_full`: Root mean squared error computed on the predictions of the full training dataset using the expression `spatialRF::root_mean_squared_error(o = observed, p = predicted)`
+#'     \item `rmse_oob`: As above, but using the out-of-bag predictions instead.
+#'     \item `nrmse_full`: Interquartile-normalized root mean squared error computed on the predictions of the full training dataset using the expression `spatialRF::root_mean_squared_error(o = observed, p = predicted_oob, normalization = "iq")`.
+#'     \item `nrmse_oob`: As above, but using the out-of-bag predictions instead.
+#'     \item `auc_full`: (only for binomial responses) Area under the ROC curve computed using the predictions of the full training dataset using the expression `spatialRF::auc(o = observed, p = predicted_oob)`.
+#'     \item `auc_oob`: Only for binary responses with values 0 and 1. Area under the ROC curve computed on the out-of-bag predictions using the expression .
 #'     \item `rsquared_full`: R-squared computed on the in-bag predictions using the expression `cor(observed, predicted_full) ^ 2`.
 #'     \item `rmse_full`: Root mean squared error computed on the in-bag predictions using the expression `spatialRF::root_mean_squared_error(o = observed, p = predicted_full)`.
 #'     \item `nrmse_full`: Normalized rood mean squared error computed on the in-bag data using the expression `spatialRF::root_mean_squared_error(o = observed, p = predicted_full, normalization = "iq")`.
@@ -655,12 +659,12 @@ rf <- function(
   ) == TRUE){
 
     #point biserial correlation
-    m$performance$rbiserial_oob <- stats::cor.test(
+    m$performance$biserial_rsquared_oob <- stats::cor.test(
       x = observed,
       y = predicted_oob
     )$estimate
 
-    m$performance$rbiserial_full <- stats::cor.test(
+    m$performance$biserial_rsquared_full <- stats::cor.test(
       x = observed,
       y = predicted_full
     )$estimate

@@ -90,7 +90,7 @@ print_performance <- function(
   #available methods
   methods <- unique(
     gsub(
-      pattern = "rsquared.|rmse.|auc.|nrmse.|rbiserial.|sensitivity_0.5.|specificity_0.5.",
+      pattern = "rsquared.|rmse.|auc.|nrmse.|biserial_rsquared.|sensitivity_0.5.|specificity_0.5.",
       replacement = "",
       x = names(x)
     )
@@ -150,7 +150,7 @@ print_performance <- function(
         metric == "rmse" ~ "RMSE",
         metric == "nrmse" ~ "nRMSE",
         metric == "auc" ~ "AUC",
-        metric == "rbiserial" ~ "Biserial R-squared",
+        metric == "biserial_rsquared" ~ "Biserial R-squared",
         metric == "sensitivity_0.5" ~ "Sensitivity (0.5)",
         metric == "specificity_0.5" ~ "Specificity (0.5)"
       )

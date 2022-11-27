@@ -347,12 +347,12 @@ rf_evaluate <- function(
       )
     }
 
-    performance.df$rbiserial_full <- m.training$performance$rbiserial_full
-    performance.df$rbiserial_oob <- m.training$performance$rbiserial_oob
-    if(is.null(performance.df$rbiserial_full)){
-      performance.df$rbiserial_scv <- NULL
+    performance.df$biserial_rsquared_full <- m.training$performance$biserial_rsquared_full
+    performance.df$biserial_rsquared_oob <- m.training$performance$biserial_rsquared_oob
+    if(is.null(performance.df$biserial_rsquared_full)){
+      performance.df$biserial_rsquared_scv <- NULL
     } else {
-      performance.df$rbiserial_scv <- stats::cor.test(
+      performance.df$biserial_rsquared_scv <- stats::cor.test(
         x = observed,
         y = predicted
       )$estimate
