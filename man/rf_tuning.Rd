@@ -20,7 +20,7 @@ rf_tuning(
 )
 }
 \arguments{
-\item{model}{A model fitted with \code{\link[=rf]{rf()}}. If provided, the training data is taken directly from the model definition (stored in \code{model$ranger.arguments}). Default: \code{NULL}}
+\item{model}{A model fitted with \code{\link[=rf]{rf()}}. If provided, the training data is taken directly from the model definition (stored in \code{model$ranger_arguments}). Default: \code{NULL}}
 
 \item{num.trees}{Numeric integer vector with the number of trees to fit on each model repetition. Default: \code{c(100, 1000)}.}
 

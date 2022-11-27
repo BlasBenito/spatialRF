@@ -23,7 +23,7 @@ rf_repeat(
 )
 }
 \arguments{
-\item{model}{(required if \code{data} is \code{NULL}; model produced with \code{spatialRF}) A model fitted with \code{\link[=rf]{rf()}}. If provided, the data and ranger arguments are taken directly from the model definition (stored in \code{model$ranger.arguments}), and the argument \code{ranger.arguments} is ignored. Default: \code{NULL}}
+\item{model}{(required if \code{data} is \code{NULL}; model produced with \code{spatialRF}) A model fitted with \code{\link[=rf]{rf()}}. If provided, the data and ranger arguments are taken directly from the model definition (stored in \code{model$ranger_arguments}), and the argument \code{ranger.arguments} is ignored. Default: \code{NULL}}
 
 \item{data}{(required if \code{model} is \code{NULL}; data frame or tibble) Data frame with a response variable and a set of predictors. If \code{data} is a tibble, all data frames in the output model are coerced to tibble. Default: \code{NULL}}
 
@@ -67,14 +67,14 @@ A ranger model with several new slots:
 }
 \item \code{performance}: Performance scores computed on the in-bag and out-of-bag data. These performance scores can be highly inflated (especially the "in-bag" ones!)  if the spatial structure of the training data is strong, so I beg you to never report these as the actual performance metrics of your models, and advise you to use \code{\link[=rf_evaluate]{rf_evaluate()}} instead. In any case, if you wish to proceed, these are the metrics provided in this slot:
 \itemize{
-\item \code{rsquared.oob}: R-squared computed on the out-of-bag predictions using the expression \code{cor(observed, predicted.oob) ^ 2}.
-\item \code{rmse.oob}: Root mean squared error computed on the out-of-bag predictions using the expression \code{spatialRF::root_mean_squared_error(o = observed, p = predicted.oob)}.
-\item \code{nrmse.oob}: Normalized rood mean squared error computed on the out-of-bag data using the expression \code{spatialRF::root_mean_squared_error(o = observed, p = predicted.oob, normalization = "iq")}.
-\item \code{auc.oob}: Only for binary responses with values 0 and 1. Area under the ROC curve computed on the out-of-bag predictions using the expression \code{spatialRF::auc(o = observed, p = predicted.oob)}.
-\item \code{rsquared.ib}: R-squared computed on the in-bag predictions using the expression \code{cor(observed, predicted.ib) ^ 2}.
-\item \code{rmse.ib}: Root mean squared error computed on the in-bag predictions using the expression \code{spatialRF::root_mean_squared_error(o = observed, p = predicted.ib)}.
-\item \code{nrmse.ib}: Normalized rood mean squared error computed on the in-bag data using the expression \code{spatialRF::root_mean_squared_error(o = observed, p = predicted.ib, normalization = "iq")}.
-\item \code{auc.ib}: Only for binary responses with values 0 and 1. Area under the ROC curve computed on the in-bag predictions using the expression \code{spatialRF::auc(o = observed, p = predicted.ib)}.
+\item \code{rsquared_oob}: R-squared computed on the out-of-bag predictions using the expression \code{cor(observed, predicted_oob) ^ 2}.
+\item \code{rmse_oob}: Root mean squared error computed on the out-of-bag predictions using the expression \code{spatialRF::root_mean_squared_error(o = observed, p = predicted_oob)}.
+\item \code{nrmse_oob}: Normalized rood mean squared error computed on the out-of-bag data using the expression \code{spatialRF::root_mean_squared_error(o = observed, p = predicted_oob, normalization = "iq")}.
+\item \code{auc_oob}: Only for binary responses with values 0 and 1. Area under the ROC curve computed on the out-of-bag predictions using the expression \code{spatialRF::auc(o = observed, p = predicted_oob)}.
+\item \code{rsquared_full}: R-squared computed on the in-bag predictions using the expression \code{cor(observed, predicted_full) ^ 2}.
+\item \code{rmse_full}: Root mean squared error computed on the in-bag predictions using the expression \code{spatialRF::root_mean_squared_error(o = observed, p = predicted_full)}.
+\item \code{nrmse_full}: Normalized rood mean squared error computed on the in-bag data using the expression \code{spatialRF::root_mean_squared_error(o = observed, p = predicted_full, normalization = "iq")}.
+\item \code{auc_full}: Only for binary responses with values 0 and 1. Area under the ROC curve computed on the in-bag predictions using the expression \code{spatialRF::auc(o = observed, p = predicted_full)}.
 }
 \item \code{residuals}: residuals, normality test of the residuals computed with \code{\link[=residuals_test]{residuals_test()}}, and spatial autocorrelation of the residuals computed with \code{\link[=moran_multithreshold]{moran_multithreshold()}}.
 }
@@ -105,13 +105,13 @@ data(
  )
 
  #data frame with median variable importance
- out$importance$per.variable
+ out$importance$global
 
  #importance per repetition
- out$importance$per.repetition
+ out$importance$per_repetition
 
  #variable importance plot
- out$importance$per.repetition.plot
+ out$importance$per_repetition.plot
 
  #also
  plot_importance(out)
@@ -121,7 +121,7 @@ data(
 
 
  #spatial correlation of the residuals for different distance thresholds
- out$spatial.correlation.residuals$per.distance
+ out$spatial.correlation.residuals$per_distance
 
  #plot of the Moran's I of the residuals for different distance thresholds
  out$spatial.correlation.residuals$plot
@@ -145,7 +145,7 @@ data(
 
 
  rf.repeat$performance
- rf.repeat$importance$per.repetition.plot
+ rf.repeat$importance$per_repetition.plot
 
 }
 }

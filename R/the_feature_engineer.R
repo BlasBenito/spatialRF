@@ -175,13 +175,13 @@ the_feature_engineer <- function(
 
   #setting quantile of the importance threshold
   importance.threshold <- quantile(
-    x = model.without.interactions$importance$per.variable$importance,
+    x = model.without.interactions$importance$global$importance,
     probs = importance.threshold
   )
 
   #selected variables
-  variables.to.test <- model.without.interactions$importance$per.variable[
-    model.without.interactions$importance$per.variable$importance >= importance.threshold,
+  variables.to.test <- model.without.interactions$importance$global[
+    model.without.interactions$importance$global$importance >= importance.threshold,
     "variable"
   ]
 
@@ -278,7 +278,7 @@ the_feature_engineer <- function(
       )
 
       #importance data frame
-      model.i.importance <- model.i$importance$per.variable
+      model.i.importance <- model.i$importance$global
 
       #metric
       model.i.evaluation <- model.i$evaluation$aggregated
@@ -391,7 +391,7 @@ the_feature_engineer <- function(
       )
 
       #importance data frame
-      model.i.importance <- model.i$importance$per.variable
+      model.i.importance <- model.i$importance$global
 
       #metric
       model.i.evaluation <- model.i$evaluation$aggregated

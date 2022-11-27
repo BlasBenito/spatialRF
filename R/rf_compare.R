@@ -127,7 +127,7 @@ rf_compare <- function(
         abs(xy.means - mean(xy.means)) < .Machine$double.eps ^ 0.5
       )
     ){
-      xy <- models[[1]]$ranger.arguments$xy
+      xy <- models[[1]]$ranger_arguments$xy
     } else {
       stop("Argument 'xy' is missing.")
     }
@@ -154,7 +154,7 @@ rf_compare <- function(
     )
 
     #getting evaluation data frame
-    evaluation.df.i <- models[[model.i]]$evaluation$per.fold.long
+    evaluation.df.i <- models[[model.i]]$evaluation$per_fold.long
     evaluation.df.i$model.name <- model.i
 
     #adding it to the evaluation list

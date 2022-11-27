@@ -24,14 +24,14 @@
 #'   \item `importance`: A list containing a data frame with the predictors ordered by their importance, a ggplot showing the importance values, and local importance scores (difference in accuracy between permuted and non permuted variables for every case, computed on the out-of-bag data).
 #'   \item `performance`: Performance scores computed on the in-bag and out-of-bag data. These performance scores can be highly inflated (especially the "in-bag" ones!)  if the spatial structure of the training data is strong, so I beg you to never report these as the actual performance metrics of your models, and advise you to use [rf_evaluate()] instead. In any case, if you wish to proceed, these are the metrics provided in this slot:
 #'   \itemize{
-#'     \item `rsquared.oob`: R-squared computed on the out-of-bag predictions using the expression `cor(observed, predicted.oob) ^ 2`.
-#'     \item `rmse.oob`: Root mean squared error computed on the out-of-bag predictions using the expression `spatialRF::root_mean_squared_error(o = observed, p = predicted.oob)`.
-#'     \item `nrmse.oob`: Normalized rood mean squared error computed on the out-of-bag data using the expression `spatialRF::root_mean_squared_error(o = observed, p = predicted.oob, normalization = "iq")`.
-#'     \item `auc.oob`: Only for binary responses with values 0 and 1. Area under the ROC curve computed on the out-of-bag predictions using the expression `spatialRF::auc(o = observed, p = predicted.oob)`.
-#'     \item `rsquared.ib`: R-squared computed on the in-bag predictions using the expression `cor(observed, predicted.ib) ^ 2`.
-#'     \item `rmse.ib`: Root mean squared error computed on the in-bag predictions using the expression `spatialRF::root_mean_squared_error(o = observed, p = predicted.ib)`.
-#'     \item `nrmse.ib`: Normalized rood mean squared error computed on the in-bag data using the expression `spatialRF::root_mean_squared_error(o = observed, p = predicted.ib, normalization = "iq")`.
-#'     \item `auc.ib`: Only for binary responses with values 0 and 1. Area under the ROC curve computed on the in-bag predictions using the expression `spatialRF::auc(o = observed, p = predicted.ib)`.
+#'     \item `rsquared_oob`: R-squared computed on the out-of-bag predictions using the expression `cor(observed, predicted_oob) ^ 2`.
+#'     \item `rmse_oob`: Root mean squared error computed on the out-of-bag predictions using the expression `spatialRF::root_mean_squared_error(o = observed, p = predicted_oob)`.
+#'     \item `nrmse_oob`: Normalized rood mean squared error computed on the out-of-bag data using the expression `spatialRF::root_mean_squared_error(o = observed, p = predicted_oob, normalization = "iq")`.
+#'     \item `auc_oob`: Only for binary responses with values 0 and 1. Area under the ROC curve computed on the out-of-bag predictions using the expression `spatialRF::auc(o = observed, p = predicted_oob)`.
+#'     \item `rsquared_full`: R-squared computed on the in-bag predictions using the expression `cor(observed, predicted_full) ^ 2`.
+#'     \item `rmse_full`: Root mean squared error computed on the in-bag predictions using the expression `spatialRF::root_mean_squared_error(o = observed, p = predicted_full)`.
+#'     \item `nrmse_full`: Normalized rood mean squared error computed on the in-bag data using the expression `spatialRF::root_mean_squared_error(o = observed, p = predicted_full, normalization = "iq")`.
+#'     \item `auc_full`: Only for binary responses with values 0 and 1. Area under the ROC curve computed on the in-bag predictions using the expression `spatialRF::auc(o = observed, p = predicted_full)`.
 #'   }
 #'   \item `residuals`: residuals, normality test of the residuals computed with [residuals_test()], and spatial autocorrelation of the residuals computed with [moran_multithreshold()].
 #' }
@@ -60,16 +60,16 @@
 #'  class(out)
 #'
 #'  #data frame with ordered variable importance
-#'  out$importance$per.variable
+#'  out$importance$global
 #'
 #'  #variable importance plot
-#'  out$importance$per.variable.plot
+#'  out$importance_per_variable_plot
 #'
 #'  #performance
 #'  out$performance
 #'
 #'  #spatial correlation of the residuals
-#'  out$spatial.correlation.residuals$per.distance
+#'  out$spatial_correlation_residuals$per_distance
 #'
 #'  #plot of the Moran's I of the residuals for different distance thresholds
 #'  out$spatial.correlation.residuals$plot
@@ -227,48 +227,48 @@ rf <- function(
       predictor.variable.names <- NULL
 
       #letting the user add elements if they are missing
-      if(is.null(model$ranger.arguments$distance.matrix) & !is.null(distance.matrix)){
-        model$ranger.arguments$distance.matrix <- distance.matrix
+      if(is.null(model$ranger_arguments$distance.matrix) & !is.null(distance.matrix)){
+        model$ranger_arguments$distance.matrix <- distance.matrix
       }
 
-      if(is.null(model$ranger.arguments$distance.thresholds) & !is.null(distance.thresholds)){
-        model$ranger.arguments$distance.thresholds <- distance.thresholds
+      if(is.null(model$ranger_arguments$distance.thresholds) & !is.null(distance.thresholds)){
+        model$ranger_arguments$distance.thresholds <- distance.thresholds
       }
 
       if(!is.null(xy) & !is.null(ranger.arguments$xy)){
-      if(is.null(model$ranger.arguments$xy) & !is.null(xy)){
-        model$ranger.arguments$xy <- xy
+      if(is.null(model$ranger_arguments$xy) & !is.null(xy)){
+        model$ranger_arguments$xy <- xy
       }
       }
 
       if(!is.null(scaled.importance) & !is.null(ranger.arguments$scaled.importance)){
-      if(model$ranger.arguments$scaled.importance != scaled.importance){
-        model$ranger.arguments$scaled.importance <- scaled.importance
+      if(model$ranger_arguments$scaled.importance != scaled.importance){
+        model$ranger_arguments$scaled.importance <- scaled.importance
       }
       }
 
       if(!is.null(seed) & !is.null(ranger.arguments$seed)){
-      if(model$ranger.arguments$seed != seed){
-        model$ranger.arguments$seed <- seed
+      if(model$ranger_arguments$seed != seed){
+        model$ranger_arguments$seed <- seed
       }
       }
 
       if(!is.null(n.cores) & !is.null(ranger.arguments$n.cores)){
-      if(model$ranger.arguments$n.cores != n.cores){
-        model$ranger.arguments$n.cores <- n.cores
+      if(model$ranger_arguments$n.cores != n.cores){
+        model$ranger_arguments$n.cores <- n.cores
       }
       }
 
       #writing the model's ranger.arguments to the environment
-      ranger.arguments <- model$ranger.arguments
+      ranger.arguments <- model$ranger_arguments
 
       #writing arguments to the function environment
-      list2env(model$ranger.arguments, envir=environment())
+      list2env(model$ranger_arguments, envir=environment())
 
     } else {
 
       #RULE 2:
-      #input arguments in model$ranger.arguments take precedence
+      #input arguments in model$ranger_arguments take precedence
 
       #letting the user add elements if they are missing
       if(!is.null(distance.matrix) & !is.null(ranger.arguments$distance.matrix)){
@@ -309,7 +309,7 @@ rf <- function(
 
 
       #writing arguments to the function environment
-      list2env(model$ranger.arguments, envir=environment())
+      list2env(model$ranger_arguments, envir=environment())
       list2env(ranger.arguments, envir=environment())
 
 
@@ -321,39 +321,39 @@ rf <- function(
     if(!is.null(ranger.arguments)){
 
       if(is.null(data)){
-        data <- model$ranger.arguments$data
+        data <- model$ranger_arguments$data
       }
 
       if(is.null(dependent.variable.name)){
-        dependent.variable.name <- model$ranger.arguments$dependent.variable.name
+        dependent.variable.name <- model$ranger_arguments$dependent.variable.name
       }
 
       if(is.null(predictor.variable.names)){
-        predictor.variable.names <- model$ranger.arguments$predictor.variable.names
+        predictor.variable.names <- model$ranger_arguments$predictor.variable.names
       }
 
       if(is.null(distance.matrix)){
-        distance.matrix <- model$ranger.arguments$distance.matrix
+        distance.matrix <- model$ranger_arguments$distance.matrix
       }
 
       if(is.null(distance.thresholds)){
-        distance.thresholds <- model$ranger.arguments$distance.thresholds
+        distance.thresholds <- model$ranger_arguments$distance.thresholds
       }
 
       if(is.null(xy)){
-        xy <- model$ranger.arguments$xy
+        xy <- model$ranger_arguments$xy
       }
 
       if(is.null(cluster)){
-        cluster <- model$ranger.arguments$cluster
+        cluster <- model$ranger_arguments$cluster
       }
 
       if(is.null(seed)){
-        seed <- model$ranger.arguments$seed
+        seed <- model$ranger_arguments$seed
       }
 
       if(is.null(n.cores)){
-        n.cores <- model$ranger.arguments$n.cores
+        n.cores <- model$ranger_arguments$n.cores
       }
 
       #writing ranger.arguments to the function environment
@@ -483,7 +483,7 @@ rf <- function(
 
   #get variable importance
   variable.importance.global <- m$variable.importance
-  variable.importance.local <- m$variable.importance.local
+  variable.importance.local <- m$variable_importance_local
 
   #if scaled.importance is TRUE
   if(scaled.importance == TRUE){
@@ -528,12 +528,12 @@ rf <- function(
 
     #overwrite variable importance
     variable.importance.global <- m.scaled$variable.importance
-    variable.importance.local <- m.scaled$variable.importance.local
+    variable.importance.local <- m.scaled$variable_importance_local
 
   }
 
   #adding model arguments
-  m$ranger.arguments <- list(
+  m$ranger_arguments <- list(
     data = data,
     dependent.variable.name = dependent.variable.name,
     predictor.variable.names = predictor.variable.names,
@@ -590,7 +590,7 @@ rf <- function(
     #applying sqrt
     variable.importance.global <- sqrt(abs(variable.importance.global)) * variable.importance.global.sign
 
-    m$importance$per.variable <- data.frame(
+    m$importance$global <- data.frame(
       variable = names(variable.importance.global),
       importance = variable.importance.global
     ) %>%
@@ -599,10 +599,10 @@ rf <- function(
       dplyr::mutate(importance = round(importance, 3))
 
 
-    m$importance$per.variable.plot <- plot_importance(
-      m$importance$per.variable,
-      verbose = verbose
-    )
+    # m$importance$plot <- plot_importance(
+    #   model = m$importance$global,
+    #   verbose = verbose
+    # )
 
     #local importance (reconverting values from ^2 to sqrt())
 
@@ -623,10 +623,10 @@ rf <- function(
   }
 
   #getting oob predictions
-  predicted.oob <- m$predictions
+  predicted_oob <- m$predictions
 
   #computing predictions
-  predicted.ib <- stats::predict(
+  predicted_full <- stats::predict(
     object = m,
     data = data,
     type = "response"
@@ -634,8 +634,8 @@ rf <- function(
 
   #saving predictions
   m$predictions <- list()
-  m$predictions$ib <- predicted.ib
-  m$predictions$oob <- predicted.oob
+  m$predictions$full <- predicted_full
+  m$predictions$oob <- predicted_oob
 
   #getting observed data
   observed <- dplyr::pull(data, dependent.variable.name)
@@ -655,70 +655,78 @@ rf <- function(
   ) == TRUE){
 
     #point biserial correlation
-    m$performance$rbiserial.oob <- stats::cor.test(
+    m$performance$rbiserial_oob <- stats::cor.test(
       x = observed,
-      y = predicted.oob
+      y = predicted_oob
     )$estimate
 
-    m$performance$rbiserial.ib <- stats::cor.test(
+    m$performance$rbiserial_full <- stats::cor.test(
       x = observed,
-      y = predicted.ib
+      y = predicted_full
     )$estimate
 
     #binary response metrics
-    m$performance$auc.oob <- auc(
+    m$performance$auc_oob <- auc(
       o = observed,
-      p = predicted.oob
+      p = predicted_oob
     )
 
-    m$performance$auc.ib <- auc(
+    m$performance$auc_full <- auc(
       o = observed,
-      p = predicted.ib
+      p = predicted_full
     )
 
-    m$performance$roc.oob <- roc_curve(
+    m$performance$roc_oob <- roc_curve(
       o = observed,
-      p = predicted.oob
+      p = predicted_oob
     )
 
-    m$performance$roc.ib <- roc_curve(
+    m$performance$roc_full <- roc_curve(
       o = observed,
-      p = predicted.ib
+      p = predicted_full
     )
+
+    m$performance$sensitivity_0.5_full <- median(m$performance$roc_full$sensitivity_0.5)
+
+    m$performance$sensitivity_0.5_oob <- median(m$performance$roc_oob$sensitivity_0.5)
+
+    m$performance$specificity_0.5_full <- median(m$performance$roc_full$specificity_0.5)
+
+    m$performance$specificity_0.5_oob <- median(m$performance$roc_oob$specificity_0.5)
 
   } else {
 
     #continuous response metrics
-    m$performance$rsquared.oob <- cor(observed, predicted.oob) ^ 2
-    m$performance$rsquared.ib <- cor(observed, predicted.ib) ^ 2
+    m$performance$rsquared_oob <- cor(observed, predicted_oob) ^ 2
+    m$performance$rsquared_full <- cor(observed, predicted_full) ^ 2
 
-    m$performance$rmse.oob <- root_mean_squared_error(
+    m$performance$rmse_oob <- root_mean_squared_error(
       o = observed,
-      p = predicted.oob,
+      p = predicted_oob,
       normalization = "rmse"
     )
-    names(m$performance$rmse.oob) <- NULL
+    names(m$performance$rmse_oob) <- NULL
 
-    m$performance$rmse.ib <- root_mean_squared_error(
+    m$performance$rmse_full <- root_mean_squared_error(
       o = observed,
-      p = predicted.ib,
+      p = predicted_full,
       normalization = "rmse"
     )
-    names(m$performance$rmse.ib) <- NULL
+    names(m$performance$rmse_full) <- NULL
 
-    m$performance$nrmse.oob <- root_mean_squared_error(
+    m$performance$nrmse_oob <- root_mean_squared_error(
       o = observed,
-      p = predicted.oob,
+      p = predicted_oob,
       normalization = "iq"
     )
-    names(m$performance$nrmse.oob) <- NULL
+    names(m$performance$nrmse_oob) <- NULL
 
-    m$performance$nrmse.ib <- root_mean_squared_error(
+    m$performance$nrmse_full <- root_mean_squared_error(
       o = observed,
-      p = predicted.ib,
+      p = predicted_full,
       normalization = "iq"
     )
-    names(m$performance$nrmse.ib) <- NULL
+    names(m$performance$nrmse_full) <- NULL
 
 
   }
@@ -729,8 +737,10 @@ rf <- function(
   #ordering performance list by name
   m$performance = m$performance[order(names(m$performance))]
 
+
   #residuals
-  m$residuals$values <- observed - predicted.ib
+  ############################
+  m$residuals$values <- observed - predicted_full
   m$residuals$stats <- summary(m$residuals$values)
 
   #compute moran I of residuals if distance.matrix is provided
@@ -748,14 +758,14 @@ rf <- function(
   #normality of the residuals
   m$residuals$normality <- residuals_diagnostics(
     residuals = m$residuals$values,
-    predictions = predicted.ib
+    predictions = predicted_full
     )
 
   #plot of the residuals diagnostics
-  m$residuals$diagnostics <- plot_residuals_diagnostics(
-    model = m,
-    verbose = verbose
-  )
+  # m$residuals$diagnostics <- plot_residuals_diagnostics(
+  #   model = m,
+  #   verbose = verbose
+  # )
 
   #adding evaluation and tuning slots if they exist
   if(!is.null(model)){
@@ -768,13 +778,13 @@ rf <- function(
       m$evaluation <- model$evaluation
     }
     if("variable.selection" %in% names(model)){
-      m$variable.selection <- model$variable.selection
+      m$variable_selection <- model$variable_selection
     }
   }
 
   #adding cluster to model
   if(!is.null(cluster) & "cluster" %in% class(cluster)){
-    m$ranger.arguments$cluster <- cluster
+    m$ranger_arguments$cluster <- cluster
   }
 
   #adding rf class
@@ -783,21 +793,21 @@ rf <- function(
   #coercing output to tibble
   if(return.tibble == TRUE){
 
-    if(is.null(m$variable.importance.local) == FALSE){
-      m$variable.importance.local <- tibble::as_tibble(m$variable.importance.local)
+    if(is.null(m$variable_importance_local) == FALSE){
+      m$variable_importance_local <- tibble::as_tibble(m$variable_importance_local)
     }
 
     if(importance == "permutation"){
-      m$importance$per.variable <- tibble::as_tibble(m$importance$per.variable)
+      m$importance$global <- tibble::as_tibble(m$importance$global)
       m$importance$local <- tibble::as_tibble(m$importance$local)
     }
 
-    if(is.null(m$residuals$autocorrelation$per.distance) == FALSE){
-      m$residuals$autocorrelation$per.distance <- tibble::as_tibble(m$residuals$autocorrelation$per.distance)
+    if(is.null(m$residuals$autocorrelation$per_distance) == FALSE){
+      m$residuals$autocorrelation$per_distance <- tibble::as_tibble(m$residuals$autocorrelation$per_distance)
 
-      if(!is.null(m$performance$roc.ib)){
-          m$performance$roc.ib <- tibble::as_tibble(m$performance$roc.ib)
-          m$performance$roc.oob <- tibble::as_tibble(m$performance$roc.oob)
+      if(!is.null(m$performance$roc_full)){
+          m$performance$roc_full <- tibble::as_tibble(m$performance$roc_full)
+          m$performance$roc_oob <- tibble::as_tibble(m$performance$roc_oob)
       }
 
     }

@@ -62,35 +62,35 @@ print_performance <- function(
   #available metrics
   metrics <- unique(
     gsub(
-      pattern = ".ib|.oob|.scv",
+      pattern = "_full|_oob|_scv",
       replacement = "",
       x = names(x)
     )
   )
 
   #adding sensitivity and specificty
-  if("roc.ib" %in% names(x.roc)){
+  if("roc_full" %in% names(x.roc)){
 
     metrics <- c(
       metrics,
-      "sensitivity",
-      "specificity"
+      "sensitivity_0.5",
+      "specificity_0.5"
     )
 
-    x$sensitivity.ib <- median(x.roc$roc.ib$sensitivity)
+    x$sensitivity_0.5_full <- median(x.roc$roc_full$sensitivity_0.5)
 
-    x$sensitivity.oob <- median(x.roc$roc.oob$sensitivity)
+    x$sensitivity_0.5_oob <- median(x.roc$roc_oob$sensitivity_0.5)
 
-    x$specificity.ib <- median(x.roc$roc.ib$specificity)
+    x$specificity_0.5_full <- median(x.roc$roc_full$specificity_0.5)
 
-    x$specificity.oob <- median(x.roc$roc.oob$specificity)
+    x$specificity_0.5_oob <- median(x.roc$roc_oob$specificity_0.5)
 
   }
 
   #available methods
   methods <- unique(
     gsub(
-      pattern = "rsquared.|rmse.|auc.|nrmse.|rbiserial.|sensitivity.|specificity.",
+      pattern = "rsquared.|rmse.|auc.|nrmse.|rbiserial.|sensitivity_0.5.|specificity_0.5.",
       replacement = "",
       x = names(x)
     )
@@ -151,8 +151,8 @@ print_performance <- function(
         metric == "nrmse" ~ "nRMSE",
         metric == "auc" ~ "AUC",
         metric == "rbiserial" ~ "Biserial R-squared",
-        metric == "sensitivity" ~ "Sensitivity",
-        metric == "specificity" ~ "Specificity"
+        metric == "sensitivity_0.5" ~ "Sensitivity (0.5)",
+        metric == "specificity_0.5" ~ "Specificity (0.5)"
       )
     )
 

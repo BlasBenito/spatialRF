@@ -74,12 +74,12 @@ plot_response_surface <- function(
   quantiles <- quantiles[quantiles >= 0]
   quantiles <- quantiles[quantiles <= 1]
 
-  data <- model$ranger.arguments$data
+  data <- model$ranger_arguments$data
 
   #response variable and predictors
-  response.variable <- model$ranger.arguments$dependent.variable.name
+  response.variable <- model$ranger_arguments$dependent.variable.name
 
-  predictors <- model$ranger.arguments$predictor.variable.names
+  predictors <- model$ranger_arguments$predictor.variable.names
 
   if(inherits(model, "rf_spatial")){
     predictors <- predictors[!(predictors %in% model$spatial$names)]
@@ -100,18 +100,18 @@ plot_response_surface <- function(
 
   if(!(a %in% colnames(data))){
 
-    stop("Argument 'a' must be a column name of model$ranger.arguments$data.")
+    stop("Argument 'a' must be a column name of model$ranger_arguments$data.")
 
   }
 
   if(!(b %in% colnames(data))){
 
-    stop("Argument 'b' must be a column name of model$ranger.arguments$data.")
+    stop("Argument 'b' must be a column name of model$ranger_arguments$data.")
 
   }
 
   #names of the other variables
-  other.variables <- setdiff(model$ranger.arguments$predictor.variable.names, c(a, b))
+  other.variables <- setdiff(model$ranger_arguments$predictor.variable.names, c(a, b))
 
   #generating grid
   ab.grid <- expand.grid(

@@ -106,10 +106,10 @@ rf_jackknife <- function(
 
 
   #getting data and ranger arguments from the model
-  data <- model$ranger.arguments$data
-  dependent.variable.name <- model$ranger.arguments$dependent.variable.name
-  predictor.variable.names <- model$ranger.arguments$predictor.variable.names
-  ranger.arguments <- model$ranger.arguments
+  data <- model$ranger_arguments$data
+  dependent.variable.name <- model$ranger_arguments$dependent.variable.name
+  predictor.variable.names <- model$ranger_arguments$predictor.variable.names
+  ranger.arguments <- model$ranger_arguments
   ranger.arguments$data <- NULL
   ranger.arguments$dependent.variable.name <- NULL
   ranger.arguments$predictor.variable.names <- NULL
@@ -121,10 +121,10 @@ rf_jackknife <- function(
 
   #getting xy
   if(is.null(xy)){
-    if(is.null(model$ranger.arguments$xy)){
+    if(is.null(model$ranger_arguments$xy)){
       stop("The argument 'xy' is required for spatial cross-validation.")
     } else {
-      xy <- model$ranger.arguments$xy
+      xy <- model$ranger_arguments$xy
     }
   }
 
@@ -210,7 +210,7 @@ rf_jackknife <- function(
     )
 
     #getting the evaluation.df
-    evaluation.df.only.with <- model.only.with$evaluation$per.fold
+    evaluation.df.only.with <- model.only.with$evaluation$per_fold
 
     #model without the variable
 
@@ -240,7 +240,7 @@ rf_jackknife <- function(
       )
 
     #getting the evaluation.df
-    evaluation.df.without <- model.without$evaluation$per.fold
+    evaluation.df.without <- model.without$evaluation$per_fold
 
     #getting evaluation data frame
     evaluation.df <- evaluation.df.without %>%
@@ -331,7 +331,7 @@ rf_jackknife <- function(
         dplyr::desc(without.minus.only.with)
       ) %>%
         dplyr::mutate(
-          full.median = model$evaluation$per.fold %>%
+          full.median = model$evaluation$per_fold %>%
             dplyr::filter(
               metric == metric.i,
               evaluation.set == "testing"
@@ -356,7 +356,7 @@ rf_jackknife <- function(
         without.minus.only.with
       ) %>%
         dplyr::mutate(
-          full.median = model$evaluation$per.fold %>%
+          full.median = model$evaluation$per_fold %>%
             dplyr::filter(
               metric == metric.i,
               evaluation.set == "testing"

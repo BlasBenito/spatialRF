@@ -68,7 +68,7 @@ plot_importance(
 
 #plotting directly from the importance data frame
 plot_importance(
-  model = rf.model$importance$per.variable
+  model = rf.model$importance$global
 )
 
 }

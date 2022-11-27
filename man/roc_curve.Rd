@@ -14,7 +14,7 @@ roc_curve(o, p)
 \value{
 A data frame with the following columns:
 \itemize{
-\item prediction_threshold: prediction thresholds from 0 to 1.
+\item prediction: prediction thresholds from 0 to 1.
 \item true_positives: proportion of correctly predicted ones per threshold.
 \item false_positives: proportion of incorrectly predicted ones per threshold.
 \item false_negatives: proportion of correctly predicted zeroes per threshold.

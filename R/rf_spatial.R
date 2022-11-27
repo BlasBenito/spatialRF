@@ -174,15 +174,15 @@ rf_spatial <- function(
       xy <- NULL
 
       #writing the model's ranger.arguments to the environment
-      ranger.arguments <- model$ranger.arguments
+      ranger.arguments <- model$ranger_arguments
 
       #writing arguments to the function environment
-      list2env(model$ranger.arguments, envir=environment())
+      list2env(model$ranger_arguments, envir=environment())
 
     } else {
 
       #RULE 2:
-      #input arguments in model$ranger.arguments take precedence
+      #input arguments in model$ranger_arguments take precedence
 
       ranger.arguments$data <- NULL
       ranger.arguments$dependent.variable.name <- NULL
@@ -192,7 +192,7 @@ rf_spatial <- function(
       ranger.arguments$xy <- NULL
 
       #writing arguments to the function environment
-      list2env(model$ranger.arguments, envir = environment())
+      list2env(model$ranger_arguments, envir = environment())
       list2env(ranger.arguments, envir = environment())
 
 
@@ -204,31 +204,31 @@ rf_spatial <- function(
     if(!is.null(ranger.arguments)){
 
       if(is.null(data)){
-        data <- model$ranger.arguments$data
+        data <- model$ranger_arguments$data
       }
 
       if(is.null(dependent.variable.name)){
-        dependent.variable.name <- model$ranger.arguments$dependent.variable.name
+        dependent.variable.name <- model$ranger_arguments$dependent.variable.name
       }
 
       if(is.null(predictor.variable.names)){
-        predictor.variable.names <- model$ranger.arguments$predictor.variable.names
+        predictor.variable.names <- model$ranger_arguments$predictor.variable.names
       }
 
       if(is.null(distance.matrix)){
-        distance.matrix <- model$ranger.arguments$distance.matrix
+        distance.matrix <- model$ranger_arguments$distance.matrix
       }
 
       if(is.null(distance.thresholds)){
-        distance.thresholds <- model$ranger.arguments$distance.thresholds
+        distance.thresholds <- model$ranger_arguments$distance.thresholds
       }
 
       if(is.null(xy)){
-        xy <- model$ranger.arguments$xy
+        xy <- model$ranger_arguments$xy
       }
 
       if(is.null(cluster)){
-        cluster <- model$ranger.arguments$cluster
+        cluster <- model$ranger_arguments$cluster
       }
 
       #writing ranger.arguments to the function environment
@@ -275,14 +275,14 @@ rf_spatial <- function(
   }
 
   #reference moran's I for selection of spatial predictors
-  if(!is.null(model$residuals$autocorrelation$max.moran)){
-    reference.moran.i <- model$residuals$autocorrelation$max.moran
+  if(!is.null(model$residuals$autocorrelation$max_moran)){
+    reference.moran.i <- model$residuals$autocorrelation$max_moran
   } else {
     reference.moran.i <- 1
   }
 
   #extracting autocorrelation of the residuals
-  model.moran.i <- model$residuals$autocorrelation$per.distance %>%
+  model.moran.i <- model$residuals$autocorrelation$per_distance %>%
     dplyr::arrange(dplyr::desc(moran.i)) %>%
     dplyr::filter(interpretation == "Positive spatial correlation")
 
@@ -527,13 +527,13 @@ rf_spatial <- function(
   model.spatial$importance <- prepare_importance_spatial(model = model.spatial)
 
   #preparing local variable importance
-  model.spatial$importance$local <- as.data.frame(model.spatial$variable.importance.local)
+  model.spatial$importance$local <- as.data.frame(model.spatial$variable_importance_local)
 
   #adding spatial method and predictors to the model
   model.spatial$spatial <- list()
   model.spatial$spatial$method <- method
   model.spatial$spatial$names <- spatial.predictors.selected
-  model.spatial$spatial$spatial.predictors <- spatial.predictors.df
+  model.spatial$spatial$spatial_predictors <- spatial.predictors.df
 
   if(exists("spatial.predictors.selection")){
 
@@ -547,7 +547,7 @@ rf_spatial <- function(
 
   #adding cluster to model
   if(!is.null(cluster) & "cluster" %in% class(cluster)){
-    model.spatial$ranger.arguments$cluster <- cluster
+    model.spatial$ranger_arguments$cluster <- cluster
   }
 
   if(verbose == TRUE){

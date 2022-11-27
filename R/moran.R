@@ -202,10 +202,10 @@ moran <- function(
 
   #df with Moran's I test
   out.df <- data.frame(
-    distance.threshold = distance.threshold,
-    moran.i.null = moran.i.expected,
-    moran.i = moran.i.observed,
-    p.value = p.value,
+    distance_threshold = distance.threshold,
+    moran_i_null = moran.i.expected,
+    moran_i = moran.i.observed,
+    p_value = p.value,
     interpretation = interpretation
   )
 
@@ -213,7 +213,7 @@ moran <- function(
   out.list <- list()
   out.list$test <- out.df
   out.list$plot <- moran.plot
-  out.list$plot.df <- plot.df
+  out.list$plot_df <- plot.df
 
   class(out.list) <- "moran"
 
@@ -249,10 +249,10 @@ moran_multithreshold <- function(
 
   #create output dataframe
   out.df <- data.frame(
-    distance.threshold = distance.thresholds,
-    moran.i = NA,
-    moran.i.null = NA,
-    p.value = NA,
+    distance_threshold = distance.thresholds,
+    moran_i = NA,
+    moran_i_null = NA,
+    p_value = NA,
     interpretation = NA
   )
 
@@ -263,29 +263,29 @@ moran_multithreshold <- function(
     moran.out <- moran(
       x = x,
       distance.matrix = distance.matrix,
-      distance.threshold = out.df[i, "distance.threshold"],
+      distance.threshold = out.df[i, "distance_threshold"],
       verbose = FALSE
     )
 
-    out.df[i, "moran.i"] <- moran.out$test$moran.i
-    out.df[i, "moran.i.null"] <- moran.out$test$moran.i.null
-    out.df[i, "p.value"] <- moran.out$test$p.value
+    out.df[i, "moran_i"] <- moran.out$test$moran_i
+    out.df[i, "moran_i_null"] <- moran.out$test$moran_i_null
+    out.df[i, "p_value"] <- moran.out$test$p_value
     out.df[i, "interpretation"] <- moran.out$test$interpretation
 
   }
 
   #getting scale of max moran
-  distance.threshold.max.moran <- out.df[which.max(out.df$moran.i), "distance.threshold"]
+  distance.threshold.max.moran <- out.df[which.max(out.df$moran_i), "distance_threshold"]
 
   #preparing output list
   out.list <- list()
-  out.list$per.distance <- out.df
-  out.list$max.moran <- max(out.df$moran.i)
-  out.list$max.moran.distance.threshold <- distance.threshold.max.moran
-  out.list$plot <- plot_moran(
-    model = out.df,
-    verbose = verbose
-  )
+  out.list$per_distance <- out.df
+  out.list$max_moran <- max(out.df$moran_i)
+  out.list$max_moran_distance_threshold <- distance.threshold.max.moran
+  # out.list$plot <- plot_moran(
+  #   model = out.df,
+  #   verbose = verbose
+  # )
 
   out.list
 

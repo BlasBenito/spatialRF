@@ -86,7 +86,7 @@ spatial.predictors <- mem_multithreshold(
 spatial.predictors.ranking <- rank_spatial_predictors(
   ranking.method = "moran",
   spatial.predictors.df = spatial.predictors,
-  reference.moran.i = model$spatial.correlation.residuals$max.moran,
+  reference.moran.i = model$spatial.correlation.residuals$max_moran,
   distance.matrix = ecoregions_distance_matrix,
   distance.thresholds = 0,
   n.cores = 1

@@ -52,7 +52,7 @@ plot_training_df_moran <- function(
 
   #declaring variables to avoid check complaints
   distance.threshold <- NULL
-  p.value.binary <- NULL
+  p_value_binary <- NULL
   moran.i <- NULL
 
   if(
@@ -95,7 +95,7 @@ plot_training_df_moran <- function(
       distance.matrix = distance.matrix,
       distance.thresholds = distance.thresholds,
       verbose = FALSE
-    )$per.distance
+    )$per_distance
 
     #adding the variable name to the data frame
     temp.df$variable <- variable
@@ -109,10 +109,10 @@ plot_training_df_moran <- function(
   rownames(plot.df) <- NULL
 
   #adding binary p.value
-  plot.df$p.value.binary <- "< 0.05"
-  plot.df[plot.df$p.value >= 0.05, "p.value.binary"] <- ">= 0.05"
-  plot.df$p.value.binary <- factor(
-    plot.df$p.value.binary,
+  plot.df$p_value_binary <- "< 0.05"
+  plot.df[plot.df$p.value >= 0.05, "$p_value_binary"] <- ">= 0.05"
+  plot.df$p_value_binary <- factor(
+    plot.df$p_value_binary,
     levels = c("< 0.05", ">= 0.05")
     )
 
@@ -139,7 +139,7 @@ plot_training_df_moran <- function(
       ggplot2::aes(
         x = factor(distance.threshold),
         y = variable,
-        size = p.value.binary
+        size = x$p_value_binary
       ),
       color = point.color,
       pch = 1

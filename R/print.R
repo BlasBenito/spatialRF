@@ -38,12 +38,12 @@ print.rf <- function(x, ...) {
     cat("Model type\n")
     cat("  - Fitted with:                     ", class(x)[2], "()\n", sep="")
     if(inherits(x, "rf_repeat")){
-    cat("  - Repetitions:                     ", x$ranger.arguments$repetitions, "\n", sep="")
+    cat("  - Repetitions:                     ", x$ranger_arguments$repetitions, "\n", sep="")
     }
     if(inherits(x, "rf_spatial")){
     cat("  - rf_spatial() method:             ", x$spatial$method, "\n", sep="")
     }
-    cat("  - Response variable:               ", x$ranger.arguments$dependent.variable.name, "\n", sep="")
+    cat("  - Response variable:               ", x$ranger_arguments$dependent.variable.name, "\n", sep="")
 
     cat("\n")
     cat("Random forest parameters\n")

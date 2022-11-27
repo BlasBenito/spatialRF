@@ -46,7 +46,7 @@
 #' spatial.predictors.ranking <- rank_spatial_predictors(
 #'   ranking.method = "moran",
 #'   spatial.predictors.df = spatial.predictors,
-#'   reference.moran.i = model$spatial.correlation.residuals$max.moran,
+#'   reference.moran.i = model$spatial.correlation.residuals$max_moran,
 #'   distance.matrix = ecoregions_distance_matrix,
 #'   distance.thresholds = 0,
 #'   n.cores = 1
@@ -200,15 +200,15 @@ select_spatial_predictors_sequential <- function(
     #output.df
     out.df <- data.frame(
       spatial.predictor.index = spatial.predictors.i,
-      moran.i = m.i$residuals$autocorrelation$max.moran,
-      p.value = m.i$residuals$autocorrelation$per.distance[
-        which.max(m.i$residuals$autocorrelation$per.distance$moran.i),
+      moran.i = m.i$residuals$autocorrelation$max_moran,
+      p.value = m.i$residuals$autocorrelation$per_distance[
+        which.max(m.i$residuals$autocorrelation$per_distance$moran.i),
         "p.value"
         ],
       performance = ifelse(
         binary.response,
-        m.i$performance$auc.oob,
-        m.i$performance$rsquared.oob
+        m.i$performance$auc_oob,
+        m.i$performance$rsquared_oob
         )
     )
 
@@ -222,7 +222,7 @@ select_spatial_predictors_sequential <- function(
     spatial.predictor.index = optimization.df$spatial.predictor.index,
     moran.i = optimization.df$moran.i,
     p.value = optimization.df$p.value,
-    p.value.binary = ifelse(optimization.df$p.value >= 0.05, 1, 0),
+    p_value_binary = ifelse(optimization.df$p.value >= 0.05, 1, 0),
     performance = optimization.df$performance,
     penalization.per.variable = (1/nrow(optimization.df)) * optimization.df$spatial.predictor.index
   )

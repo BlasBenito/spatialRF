@@ -55,7 +55,7 @@
 #'
 #' #plotting directly from the importance data frame
 #' plot_importance(
-#'   model = rf.model$importance$per.variable
+#'   model = rf.model$importance$global
 #' )
 #'
 #' }
@@ -80,7 +80,6 @@ plot_importance <- function(
   #declaring variables
   importance <- NULL
   variable <- NULL
-  importance.oob <- NULL
 
   #if x is not a data frame
   if(!is.data.frame(model)){
@@ -92,33 +91,34 @@ plot_importance <- function(
     #importance from rf
     if(inherits(model, "rf") & !inherits(model, "rf_spatial") & !inherits(model, "rf_repeat")){
 
-        x <- model$importance$per.variable
+        x <- model$importance$global
 
-      if("importance.oob" %in% colnames(x)){
-        x <- dplyr::rename(
-          x,
-          importance = importance.oob
-        )
-      }
+      # #TODO check if this is possible
+      # if("importance_oob" %in% colnames(x)){
+      #   x <- dplyr::rename(
+      #     x,
+      #     importance = importance_oob
+      #   )
+      # }
 
     }
 
     #importance from rf_repeat
     if(inherits(model, "rf_repeat")& !inherits(model, "rf_spatial")){
 
-      if(!is.null(model$ranger.arguments$repetitions)){
-        if(model$ranger.arguments$repetitions >= 10){
-          x <- model$importance$per.repetition
+      if(!is.null(model$ranger_arguments$repetitions)){
+        if(model$ranger_arguments$repetitions >= 10){
+          x <- model$importance$per_repetition
         }
       } else {
-        x <- model$importance$per.variable
+        x <- model$importance$global
       }
 
     }
 
     #importance from rf_spatial and rf
     if(inherits(model, "rf_spatial")){
-      x <- model$importance$spatial.predictors
+      x <- model$importance$spatial_predictors
     }
 
   } else {

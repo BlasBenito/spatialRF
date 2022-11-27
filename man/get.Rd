@@ -45,7 +45,7 @@ get_spatial_predictors(model)
 \value{
 Functions to get permutation importance scores from any model type (fitted with \code{spatialRF}):
 \itemize{
-\item \code{get_importance()}: data frame with permutation importance scores for each model predictor. If the model too many spatial predictors, then the function returns the statistics of importance of the model predictors (the one stored in \code{model$importance$spatial.predictors.stats}).
+\item \code{get_importance()}: data frame with permutation importance scores for each model predictor. If the model too many spatial predictors, then the function returns the statistics of importance of the model predictors (the one stored in \code{model$importance$spatial_predictors.stats}).
 \item \code{get_importance_local()} data frame with the permutation error on the out-of-bag data of each predictor on each location.
 }
 
@@ -64,7 +64,7 @@ Functions to get evaluation objects from models fitted with \code{\link[=rf_eval
 
 Functions to get objects related with the model performance and predictions
 \itemize{
-\item \code{get_performance()}: data frame with performance metrics that can be either computed from the out-of-bag data (rsquared.oob and rmse.oob) or by comparing the response variable with the predictions for all cases (rsquared, rmse, nrmse). For models fitted with \code{\link[=rf_repeat]{rf_repeat()}}, the median and median absolute deviation of the performances are shown.
+\item \code{get_performance()}: data frame with performance metrics that can be either computed from the out-of-bag data (rsquared_oob and rmse_oob) or by comparing the response variable with the predictions for all cases (rsquared, rmse, nrmse). For models fitted with \code{\link[=rf_repeat]{rf_repeat()}}, the median and median absolute deviation of the performances are shown.
 \item \code{get_predictions()}: numeric vector of model predictions or median of model predictions if the model was fitted with \code{\link[=rf_repeat]{rf_repeat()}}.
 }
 

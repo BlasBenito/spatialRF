@@ -90,7 +90,7 @@ spatial.predictors.ranking <- rank_spatial_predictors(
   predictor.variable.names = ecoregions_predictor_variable_names,
   spatial.predictors.df = spatial.predictors,
   ranking.method = "moran",
-  reference.moran.i = model$spatial.correlation.residuals$max.moran,
+  reference.moran.i = model$spatial.correlation.residuals$max_moran,
   distance.matrix = ecoregions_distance_matrix,
   distance.thresholds = 0,
   n.cores = 1

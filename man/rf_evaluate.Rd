@@ -47,7 +47,7 @@ Objects written to \code{model$evaluation}:
 \item \code{training.fraction}: Value of the argument \code{training.fraction}.
 \item \code{per.fold}: Data frame with the cross-validation results per spatial fold. It contains the numeric id of each fold, it's central coordinates, the number of training and testing cases, and the training and testing performance metrics.
 \item \code{aggregated}: Aggregated version of \code{per.fold} with median, median absolute deviation, quartile 1, quartile 3, mean, standard error, standard deviation, minimum, and maximum performance scores across spatial folds.
-\item \code{roc.curve.ib}, \code{roc.curve.oob}, and \code{roc.curve.scv}: Produced only when the response is binary (values one and zero). Lists of data frames with the in-bag (.ib suffix), out-of-bag (.oob), and spatial cross-validation (.scv) confusion matrices, sensitivity and specificity across all spatial folds.
+\item \code{roc_full}, \code{roc_oob}, and \code{roc_scv}: Produced only when the response is binary (values one and zero). Lists of data frames with the in-bag (_full suffix), out-of-bag (_oob), and spatial cross-validation (_scv) confusion matrices, sensitivity and specificity across all spatial folds.
 }
 
 Objects written to \code{model$performance}:
@@ -74,9 +74,9 @@ Generation of contiguous training folds:
 
 If the response variable is continuous, the metrics used are "rsquared", "rmse", and "nrmse" (normalized rmse).
 
-If the response is binary (zeros and ones), the metrics used are "auc" (area under the ROC curve), "biserial.cor" (point-biserial correlation), and "roc.curve" (components of the confusion matrix for different prediction thresholds).
+If the response is binary (zeros and ones), the metrics used are "auc" (area under the ROC curve), "rsquared" (point-biserial correlation), and "roc" (components of the confusion matrix for different prediction thresholds).
 
-In any case, these metrics are identified by the suffix ".scv" (from "spatial cross-validation").
+In any case, these metrics are identified by the suffix "_scv" (from "spatial cross-validation").
 
 The medians of the cross-validation performance metrics are stored in the "performance" slot of the model, while the complete results are stored in the "evaluation" slot.
 }

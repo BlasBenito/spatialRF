@@ -4,7 +4,11 @@
 \alias{print_performance}
 \title{print_performance}
 \usage{
-print_performance(model)
+print_performance(
+  model,
+  centrality.fun = stats::median,
+  dispersion.fun = stats::mad
+)
 }
 \arguments{
 \item{model}{Model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}.}

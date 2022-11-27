@@ -71,13 +71,16 @@ plot_residuals_diagnostics <- function(
   #getting residuals
   residuals <- model$residuals$values
   residuals.df <- as.data.frame(residuals)
-  predictions <- model$predictions$ib
+  predictions <- model$predictions$full
 
   #getting normality test
   normality <- model$residuals$normality
 
   #normality scores of the residuals
-  residuals.qq <- qqnorm(residuals, plot.it = FALSE) %>%
+  residuals.qq <- qqnorm(
+    residuals,
+    plot.it = FALSE
+    ) %>%
     as.data.frame()
 
   #plot title
@@ -107,9 +110,12 @@ plot_residuals_diagnostics <- function(
       linetype = "dashed"
     ) +
     ggplot2::theme_bw() +
-    ggplot2::theme(legend.position = "none") +
+    ggplot2::theme(
+      legend.position = "none",
+      plot.title = ggplot2::element_text(hjust = 0.5)) +
     ggplot2::ylab("Residuals") +
-    ggplot2::xlab("Theoretical")
+    ggplot2::xlab("Theoretical") +
+    ggplot2::ggtitle("Q-Q plot")
 
   #computing optimal binwidth for histogram
   #using the max of the Freedman-Diaconist rule
@@ -130,14 +136,18 @@ plot_residuals_diagnostics <- function(
       fill = fill.color
     ) +
     ggplot2::theme_bw() +
-    ggplot2::theme(legend.position = "none") +
+    ggplot2::theme(
+      legend.position = "none",
+      plot.title = ggplot2::element_text(hjust = 0.5)
+      ) +
     ggplot2::geom_vline(
       xintercept = median(residuals),
       col = line.color,
       linetype = "dashed"
     ) +
     ggplot2::ylab("Count") +
-    ggplot2::xlab("Residuals")
+    ggplot2::xlab("Residuals") +
+    ggplot2::ggtitle("Residuals distribution")
 
   #residuals vs predictions
   p3 <- ggplot2::ggplot(data = data.frame(

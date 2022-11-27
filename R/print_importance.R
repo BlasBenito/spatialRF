@@ -51,7 +51,7 @@ print_importance <- function(model, verbose = TRUE){
 
     #importance from rf
     if((inherits(model, "rf") & !inherits(model, "rf_spatial")) | (inherits(model, "rf_repeat") & !inherits(model, "rf_spatial"))){
-      x <- model$importance$per.variable
+      x <- model$importance$global
     }
 
     #importance from rf_repeat
@@ -61,14 +61,14 @@ print_importance <- function(model, verbose = TRUE){
       length.spatial.predictors <- length(model$spatial$names)
 
       #count non-spatial predictors
-      length.non.spatial.predictors <- length(model$ranger.arguments$predictor.variable.names) - length.spatial.predictors
+      length.non.spatial.predictors <- length(model$ranger_arguments$predictor.variable.names) - length.spatial.predictors
 
 
       #get spatial.predictor.stats if too many spatial predictors
       if(length.spatial.predictors > length.non.spatial.predictors){
-        x <- model$importance$spatial.predictors.stats
+        x <- model$importance$spatial_predictors.stats
       } else {
-        x <- model$importance$per.variable
+        x <- model$importance$global
       }
     }
   }

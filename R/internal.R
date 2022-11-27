@@ -33,7 +33,7 @@ optimization_function <- function(
     optimization <- rescale_vector(
       pmax(
         rescale_vector(1 - x$moran.i),
-        x$p.value.binary
+        x$p_value_binary
       ) +
         (weight.performance * rescale_vector(x$performance)) -
         (weight.penalization.n.predictors * rescale_vector(x$penalization.per.variable))
@@ -249,7 +249,7 @@ prepare_importance_spatial <- function(model){
   if(inherits(model, "rf_spatial") == FALSE){
     stop("This function requires a model fitted with rf_spatial()")
   }
-  importance.df <- model$importance$per.variable
+  importance.df <- model$importance$global
 
   #spatial predictors only
   spatial.predictors <- importance.df[grepl(
@@ -300,18 +300,18 @@ prepare_importance_spatial <- function(model){
   out.list <- list()
 
   #common slots
-  out.list$per.variable <- model$importance$per.variable
+  out.list$per.variable <- model$importance$global
   out.list$per.variable.plot <- plot_importance(
-    model$importance$per.variable,
+    model$importance$global,
     verbose = FALSE
   )
-  out.list$spatial.predictors <- importance.plot.df
-  out.list$spatial.predictors.plot <- plot_importance(
+  out.list$spatial_predictors <- importance.plot.df
+  out.list$spatial_predictors.plot <- plot_importance(
     importance.plot.df,
     verbose = FALSE
   )
-  out.list$spatial.predictors.stats <- importance.df
-  out.list$spatial.predictors.stats.plot <- plot_importance(
+  out.list$spatial_predictors.stats <- importance.df
+  out.list$spatial_predictors_stats_plot <- plot_importance(
     importance.df,
     verbose = FALSE
   )

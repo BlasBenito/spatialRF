@@ -73,7 +73,7 @@ plot_optimization <- function(
 
   #check if response is binary
   binary.response <- is_binary_response(
-      x$ranger.arguments$data[x$ranger.arguments$dependent.variable.name][[1]]
+      x$ranger_arguments$data[x$ranger_arguments$dependent.variable.name][[1]]
   )
 
   x.lab.title <- ifelse(

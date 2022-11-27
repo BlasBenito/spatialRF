@@ -67,11 +67,11 @@ get_response_curves <- function(
   quantiles <- quantiles[quantiles <= 1]
 
   #getting the training data
-  data <- model$ranger.arguments$data
+  data <- model$ranger_arguments$data
 
   #getting the response variable
-  response.variable <- model$ranger.arguments$dependent.variable.name
-  predictors <- model$ranger.arguments$predictor.variable.names
+  response.variable <- model$ranger_arguments$dependent.variable.name
+  predictors <- model$ranger_arguments$predictor.variable.names
   if(inherits(model, "rf_spatial")){
 
     predictors <- predictors[!(predictors %in% model$spatial$names)]
@@ -81,13 +81,13 @@ get_response_curves <- function(
   #default values for variables
   if(is.null(variables)){
 
-    variables <- model$importance$per.variable[model$importance$per.variable$variable %in% predictors, "variable"][1:floor(length(predictors) / 2)]
+    variables <- model$importance$global[model$importance$global$variable %in% predictors, "variable"][1:floor(length(predictors) / 2)]
 
   }
 
   if(sum(variables %in% colnames(data)) != length(variables)){
 
-    stop("Variable names in 'variables' must be column names of model$ranger.arguments$data.")
+    stop("Variable names in 'variables' must be column names of model$ranger_arguments$data.")
 
   }
 
@@ -100,7 +100,7 @@ get_response_curves <- function(
   for(variable.i in variables){
 
     #names of the other variables
-    other.variables <- setdiff(model$ranger.arguments$predictor.variable.names, variable.i)
+    other.variables <- setdiff(model$ranger_arguments$predictor.variable.names, variable.i)
 
     #generating grid
     variable.i.grid <- data.frame(

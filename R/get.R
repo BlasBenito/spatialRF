@@ -4,7 +4,7 @@
 #' @return
 #' Functions to get permutation importance scores from any model type (fitted with `spatialRF`):
 #' \itemize{
-#'   \item `get_importance()`: data frame with permutation importance scores for each model predictor. If the model too many spatial predictors, then the function returns the statistics of importance of the model predictors (the one stored in `model$importance$spatial.predictors.stats`).
+#'   \item `get_importance()`: data frame with permutation importance scores for each model predictor. If the model too many spatial predictors, then the function returns the statistics of importance of the model predictors (the one stored in `model$importance$spatial_predictors.stats`).
 #'   \item `get_importance_local()` data frame with the permutation error on the out-of-bag data of each predictor on each location.
 #' }
 #'
@@ -23,7 +23,7 @@
 #'
 #' Functions to get objects related with the model performance and predictions
 #' \itemize{
-#'   \item `get_performance()`: data frame with performance metrics that can be either computed from the out-of-bag data (rsquared.oob and rmse.oob) or by comparing the response variable with the predictions for all cases (rsquared, rmse, nrmse). For models fitted with [rf_repeat()], the median and median absolute deviation of the performances are shown.
+#'   \item `get_performance()`: data frame with performance metrics that can be either computed from the out-of-bag data (rsquared_oob and rmse_oob) or by comparing the response variable with the predictions for all cases (rsquared, rmse, nrmse). For models fitted with [rf_repeat()], the median and median absolute deviation of the performances are shown.
 #'   \item `get_predictions()`: numeric vector of model predictions or median of model predictions if the model was fitted with [rf_repeat()].
 #' }
 #'
@@ -131,7 +131,7 @@ get_evaluation <- function(model){
     stop("Object 'x' does not have an 'evaluation' slot.")
   }
 
-  model$evaluation$per.fold
+  model$evaluation$per_fold
 
 }
 
@@ -167,28 +167,28 @@ get_importance <- function(model){
 
   #importance from rf
   if((inherits(model, "rf") & !inherits(model, "rf_spatial")) | (inherits(model, "rf_repeat") & !inherits(model, "rf_spatial"))){
-    x <- model$importance$per.variable
+    x <- model$importance$global
   }
 
   #importance from rf_repeat
   if(inherits(model, "rf_spatial")){
 
-    if(!is.null(model$ranger.arguments$repetitions)){
-      repetitions <- model$ranger.arguments$repetitions
+    if(!is.null(model$ranger_arguments$repetitions)){
+      repetitions <- model$ranger_arguments$repetitions
     } else {
       repetitions <- 1
     }
 
     #count non-spatial predictors
-    length.non.spatial.predictors <- sum(model$importance$spatial.predictors$variable != "spatial_predictors") / repetitions
+    length.non.spatial.predictors <- sum(model$importance$spatial_predictors$variable != "spatial_predictors") / repetitions
 
-    length.spatial.predictors <- sum(model$importance$spatial.predictors$variable == "spatial_predictors") / repetitions
+    length.spatial.predictors <- sum(model$importance$spatial_predictors$variable == "spatial_predictors") / repetitions
 
     #get spatial.predictor.stats if too many spatial predictors
     if(length.spatial.predictors >= length.non.spatial.predictors){
-      x <- model$importance$spatial.predictors.stats
+      x <- model$importance$spatial_predictors.stats
     } else {
-      x <- model$importance$per.variable
+      x <- model$importance$global
     }
   }
 
@@ -226,7 +226,7 @@ get_moran <- function(model){
     stop("This is not an 'rf' object.")
   }
 
-  model$residuals$autocorrelation$per.distance
+  model$residuals$autocorrelation$per_distance
 
 }
 
@@ -349,6 +349,6 @@ get_spatial_predictors <- function(model){
     stop("This function only works on models fitted with 'rf_spatial()'")
   }
 
-  model$spatial$spatial.predictors
+  model$spatial$spatial_predictors
 
 }

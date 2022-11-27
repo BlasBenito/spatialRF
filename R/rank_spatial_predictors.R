@@ -180,12 +180,12 @@ rank_spatial_predictors <- function(
         spatial.predictors.name = spatial.predictors.name.i,
         performance = ifelse(
           binary.response,
-          m.i$performance$auc.oob,
-          m.i$performance$rsquared.oob
+          m.i$performance$auc_oob,
+          m.i$performance$rsquared_oob
         ),
-        moran.i = m.i$residuals$autocorrelation$max.moran,
-        p.value = m.i$residuals$autocorrelation$per.distance$p.value[1],
-        ranking.criteria = reference.moran.i - m.i$residuals$autocorrelation$max.moran
+        moran.i = m.i$residuals$autocorrelation$max_moran,
+        p.value = m.i$residuals$autocorrelation$per_distance$p.value[1],
+        ranking.criteria = reference.moran.i - m.i$residuals$autocorrelation$max_moran
       )
 
     }
@@ -237,8 +237,8 @@ rank_spatial_predictors <- function(
   out.list <- list()
   out.list$method <- ranking.method
   out.list$criteria <- spatial.predictors.order
-  out.list$ranking <- spatial.predictors.order$spatial.predictors.name
-  out.list$spatial.predictors.df <- spatial.predictors.df[, spatial.predictors.order$spatial.predictors.name]
+  out.list$ranking <- spatial.predictors.order$spatial_predictors.name
+  out.list$spatial_predictors.df <- spatial.predictors.df[, spatial.predictors.order$spatial_predictors.name]
 
   #returning output list
   out.list

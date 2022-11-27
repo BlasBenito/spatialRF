@@ -97,12 +97,12 @@ rf_select <- function(
   )
 
   #getting data and ranger arguments from the model
-  data <- model$ranger.arguments$data
-  dependent.variable.name <- model$ranger.arguments$dependent.variable.name
-  predictor.variable.names <- model$ranger.arguments$predictor.variable.names
-  distance.matrix <- model$ranger.arguments$distance.matrix
-  distance.thresholds <- model$ranger.arguments$distance.thresholds
-  ranger.arguments <- model$ranger.arguments
+  data <- model$ranger_arguments$data
+  dependent.variable.name <- model$ranger_arguments$dependent.variable.name
+  predictor.variable.names <- model$ranger_arguments$predictor.variable.names
+  distance.matrix <- model$ranger_arguments$distance.matrix
+  distance.thresholds <- model$ranger_arguments$distance.thresholds
+  ranger.arguments <- model$ranger_arguments
   ranger.arguments$data <- NULL
   ranger.arguments$dependent.variable.name <- NULL
   ranger.arguments$predictor.variable.names <- NULL
@@ -533,9 +533,9 @@ rf_select <- function(
   )
 
   #adding the number of repetitions to the model
-  m$ranger.arguments$xy <- xy
-  m$ranger.arguments$distance.matrix <- distance.matrix
-  m$ranger.arguments$distance.thresholds <- distance.thresholds
+  m$ranger_arguments$xy <- xy
+  m$ranger_arguments$distance.matrix <- distance.matrix
+  m$ranger_arguments$distance.thresholds <- distance.thresholds
 
   if(verbose == TRUE){
 
@@ -566,7 +566,7 @@ rf_select <- function(
 
   #adding cluster to model
   if(!is.null(cluster) & "cluster" %in% class(cluster)){
-    m$ranger.arguments$cluster <- cluster
+    m$ranger_arguments$cluster <- cluster
   }
 
   #adding insertion order to sequential.models.df

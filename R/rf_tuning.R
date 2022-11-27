@@ -1,6 +1,6 @@
 #' @title Tuning of random forest hyperparameters via spatial cross-validation
 #' @description Finds the optimal set of random forest hyperparameters `num.trees`, `mtry`, and `min.node.size` via grid search by maximizing the model's R squared, or AUC, if the response variable is binomial, via spatial cross-validation performed with [rf_evaluate()].
-#' @param model A model fitted with [rf()]. If provided, the training data is taken directly from the model definition (stored in `model$ranger.arguments`). Default: `NULL`
+#' @param model A model fitted with [rf()]. If provided, the training data is taken directly from the model definition (stored in `model$ranger_arguments`). Default: `NULL`
 #' @param num.trees Numeric integer vector with the number of trees to fit on each model repetition. Default: `c(100, 1000)`.
 #' @param mtry Numeric integer vector, number of predictors to randomly select from the complete pool of predictors on each tree split. Default: `c(3, 6)`
 #' @param min.node.size Numeric integer, minimal number of cases in a terminal node. Default: `c(5, 20)`
@@ -132,26 +132,26 @@ rf_tuning <- function(
     #getting xy
     if(is.null(xy)){
 
-      if(is.null(model$ranger.arguments$xy)){
+      if(is.null(model$ranger_arguments$xy)){
         stop("The argument 'xy' is required for spatial cross-validation.")
       }
 
     } else {
 
-      model$ranger.arguments$xy <- xy
+      model$ranger_arguments$xy <- xy
 
       if(sum(c("x", "y") %in% colnames(xy)) < 2){
         stop("The column names of 'xy' must be 'x' and 'y'.")
       }
 
       if(nrow(xy) != nrow(data)){
-        stop("nrow(xy) and nrow(data) (stored in model$ranger.arguments$data) must be the same.")
+        stop("nrow(xy) and nrow(data) (stored in model$ranger_arguments$data) must be the same.")
       }
 
     }
 
     #loading ranger.arguments onto the function's environment
-    ranger.arguments <- model$ranger.arguments
+    ranger.arguments <- model$ranger_arguments
     list2env(ranger.arguments, envir=environment())
 
     #predictor.variable.names comes from auto_vif or auto_cor
@@ -326,7 +326,7 @@ rf_tuning <- function(
     if(inherits(model, "rf_spatial")){
 
       #getting interpretation of Moran's I if the model is rf_spatial
-      moran.i.interpretation <- m.i$residuals$autocorrelation$per.distance$interpretation[1]
+      moran.i.interpretation <- m.i$residuals$autocorrelation$per_distance$interpretation[1]
 
       #getting performance
       m.i.performance <- data.frame(

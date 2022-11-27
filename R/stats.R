@@ -212,7 +212,7 @@ auc <- function(o, p){
 #' @param p Numeric vector with predictions, must have the same length as `o`.
 #' @return A data frame with the following columns:
 #' \itemize{
-#'   \item prediction_threshold: prediction thresholds from 0 to 1.
+#'   \item prediction: prediction thresholds from 0 to 1.
 #'   \item true_positives: proportion of correctly predicted ones per threshold.
 #'   \item false_positives: proportion of incorrectly predicted ones per threshold.
 #'   \item false_negatives: proportion of correctly predicted zeroes per threshold.
@@ -239,7 +239,7 @@ roc_curve <- function(o, p){
 
   #ROC data frame
   roc_df <- data.frame(
-    prediction_threshold = seq(
+    prediction = seq(
       from = 0,
       to = 1,
       by = 0.1
@@ -254,34 +254,34 @@ roc_curve <- function(o, p){
   for(i in 1:nrow(roc_df)){
 
     #component a of confusion matrix (true positives)
-    roc_df[i, "true_positives"] <- length(
-      ones[ones >= roc_df[i, "prediction_threshold"]]
-      ) / length(p)
+    roc_df[i, "true_positives"] <- round(length(
+      ones[ones >= roc_df[i, "prediction"]]
+      ) / length(p), 3)
 
     #component b of confusion matrix (false positives)
-    roc_df[i, "false_positives"] <- length(
-      zeros[zeros >= roc_df[i, "prediction_threshold"]]
-    ) / length(p)
+    roc_df[i, "false_positives"] <- round(length(
+      zeros[zeros >= roc_df[i, "prediction"]]
+    ) / length(p), 3)
 
     #component c of confusion matrix (false negatives)
-    roc_df[i, "false_negatives"] <- length(
-      ones[ones < roc_df[i, "prediction_threshold"]]
-    ) / length(p)
+    roc_df[i, "false_negatives"] <- round(length(
+      ones[ones < roc_df[i, "prediction"]]
+    ) / length(p), 3)
 
     #component d of confusion matrix (true negatives)
-    roc_df[i, "true_negatives"] <- length(
-      zeros[zeros < roc_df[i, "prediction_threshold"]]
-    ) / length(p)
+    roc_df[i, "true_negatives"] <- round(length(
+      zeros[zeros < roc_df[i, "prediction"]]
+    ) / length(p), 3)
 
   }
 
   #sensitivity (a/(a+c))
-  roc_df$sensitivity <- roc_df$true_positives /
-    (roc_df$true_positives + roc_df$false_negatives)
+  roc_df$sensitivity <- round(roc_df$true_positives /
+    (roc_df$true_positives + roc_df$false_negatives), 3)
 
   #especificity
-  roc_df$specificity <- roc_df$true_negatives /
-    (roc_df$true_negatives + roc_df$false_positives)
+  roc_df$specificity <- round(roc_df$true_negatives /
+    (roc_df$true_negatives + roc_df$false_positives), 3)
 
 
   roc_df

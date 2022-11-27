@@ -53,7 +53,7 @@
 #'   predictor.variable.names = ecoregions_predictor_variable_names,
 #'   spatial.predictors.df = spatial.predictors,
 #'   ranking.method = "moran",
-#'   reference.moran.i = model$spatial.correlation.residuals$max.moran,
+#'   reference.moran.i = model$spatial.correlation.residuals$max_moran,
 #'   distance.matrix = ecoregions_distance_matrix,
 #'   distance.thresholds = 0,
 #'   n.cores = 1
@@ -139,7 +139,7 @@ select_spatial_predictors_recursive <- function(
     spatial.predictor.index = rep(NA, length(spatial.predictors.ranking$ranking)),
     moran.i = rep(NA, length(spatial.predictors.ranking$ranking)),
     p.value = rep(NA, length(spatial.predictors.ranking$ranking)),
-    p.value.binary  = rep(NA, length(spatial.predictors.ranking$ranking)),
+    p_value_binary  = rep(NA, length(spatial.predictors.ranking$ranking)),
     performance = rep(NA, length(spatial.predictors.ranking$ranking)),
     penalization.per.variable = rep(NA, length(spatial.predictors.ranking$ranking)),
     optimization = rep(NA, length(spatial.predictors.ranking$ranking))
@@ -170,7 +170,7 @@ select_spatial_predictors_recursive <- function(
     )
 
     #reference moran I
-    reference.moran.i <- spatial.predictors.ranking.i$criteria[spatial.predictors.ranking.i$criteria$spatial.predictors.name == spatial.predictors.candidates.i[1], "moran.i"]
+    reference.moran.i <- spatial.predictors.ranking.i$criteria[spatial.predictors.ranking.i$criteria$spatial_predictors.name == spatial.predictors.candidates.i[1], "moran.i"]
 
     #subset and order spatial.predictors
     spatial.predictors.df.i <- spatial.predictors.df[, spatial.predictors.candidates.i[2:length(spatial.predictors.candidates.i)], drop = FALSE]
@@ -202,7 +202,7 @@ select_spatial_predictors_recursive <- function(
       optimization.df[i, "moran.i"] <- spatial.predictors.ranking.i$criteria[1, "moran.i"]
       optimization.df[i, "p.value"] <- spatial.predictors.ranking.i$criteria[1, "p.value"]
       optimization.df[i, "performance"] <- spatial.predictors.ranking.i$criteria[1, "performance"]
-      optimization.df[i, "p.value.binary"] <- ifelse(optimization.df[i, "p.value"] >= 0.05, 1, 0)
+      optimization.df[i, "$p_value_binary"] <- ifelse(optimization.df[i, "p.value"] >= 0.05, 1, 0)
       optimization.df[i, "penalization.per.variable"] <- (1/nrow(optimization.df)) * i
       optimization.df[i, "optimization"] <- (1 - optimization.df[i, "moran.i"]) + (weight.performance * optimization.df[i, "performance"]) - (weight.penalization.n.predictors * optimization.df[i, "penalization.per.variable"])
 

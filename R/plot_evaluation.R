@@ -67,8 +67,8 @@ plot_evaluation <- function(
   }
 
   #getting plotting df
-  n.spatial.folds <- nrow(model$evaluation$per.fold)/2
-  x <- model$evaluation$per.fold
+  n.spatial.folds <- nrow(model$evaluation$per_fold)/2
+  x <- model$evaluation$per_fold
 
   #removing NA
   x <- na.omit(x)

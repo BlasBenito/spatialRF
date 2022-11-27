@@ -18,7 +18,7 @@
 #'   \item `training.fraction`: Value of the argument `training.fraction`.
 #'   \item `per.fold`: Data frame with the cross-validation results per spatial fold. It contains the numeric id of each fold, it's central coordinates, the number of training and testing cases, and the training and testing performance metrics.
 #'   \item `aggregated`: Aggregated version of `per.fold` with median, median absolute deviation, quartile 1, quartile 3, mean, standard error, standard deviation, minimum, and maximum performance scores across spatial folds.
-#'   \item `roc.ib`, `roc.oob`, and `roc.scv`: Produced only when the response is binary (values one and zero). Lists of data frames with the in-bag (.ib suffix), out-of-bag (.oob), and spatial cross-validation (.scv) confusion matrices, sensitivity and specificity across all spatial folds.
+#'   \item `roc_full`, `roc_oob`, and `roc_scv`: Produced only when the response is binary (values one and zero). Lists of data frames with the in-bag (_full suffix), out-of-bag (_oob), and spatial cross-validation (_scv) confusion matrices, sensitivity and specificity across all spatial folds.
 #' }
 #'
 #' Objects written to `model$performance`:
@@ -42,7 +42,7 @@
 #'
 #' If the response is binary (zeros and ones), the metrics used are "auc" (area under the ROC curve), "rsquared" (point-biserial correlation), and "roc" (components of the confusion matrix for different prediction thresholds).
 #'
-#' In any case, these metrics are identified by the suffix ".scv" (from "spatial cross-validation").
+#' In any case, these metrics are identified by the suffix "_scv" (from "spatial cross-validation").
 #'
 #' The medians of the cross-validation performance metrics are stored in the "performance" slot of the model, while the complete results are stored in the "evaluation" slot.
 #'
@@ -108,8 +108,8 @@ rf_evaluate <- function(
   value <- NULL
   evaluation.set <- NULL
   name <- NULL
-  roc.oob <- NULL
-  roc.scv <- NULL
+  roc_oob <- NULL
+  roc_scv <- NULL
   metrics <- NULL
   group <- NULL
   id <- NULL
@@ -121,10 +121,10 @@ rf_evaluate <- function(
   } else {
 
     #getting data and ranger arguments from the model
-    data <- model$ranger.arguments$data
-    dependent.variable.name <- model$ranger.arguments$dependent.variable.name
-    predictor.variable.names <- model$ranger.arguments$predictor.variable.names
-    ranger.arguments <- model$ranger.arguments
+    data <- model$ranger_arguments$data
+    dependent.variable.name <- model$ranger_arguments$dependent.variable.name
+    predictor.variable.names <- model$ranger_arguments$predictor.variable.names
+    ranger.arguments <- model$ranger_arguments
     ranger.arguments$data <- NULL
     ranger.arguments$dependent.variable.name <- NULL
     ranger.arguments$predictor.variable.names <- NULL
@@ -143,10 +143,10 @@ rf_evaluate <- function(
 
     #getting xy
     if(is.null(xy)){
-      if(is.null(model$ranger.arguments$xy)){
+      if(is.null(model$ranger_arguments$xy)){
         stop("The argument 'xy' is required for spatial cross-validation.")
       } else {
-        xy <- model$ranger.arguments$xy
+        xy <- model$ranger_arguments$xy
       }
     }
 
@@ -303,20 +303,20 @@ rf_evaluate <- function(
     )
 
     #rsquared
-    performance.df$rsquared.ib <- m.training$performance$rsquared.ib
-    performance.df$rsquared.oob <- m.training$performance$rsquared.oob
-    if(is.null(performance.df$rsquared.ib)){
-      performance.df$rsquared.scv <- NULL
+    performance.df$rsquared_full <- m.training$performance$rsquared_full
+    performance.df$rsquared_oob <- m.training$performance$rsquared_oob
+    if(is.null(performance.df$rsquared_full)){
+      performance.df$rsquared_scv <- NULL
     } else {
-      performance.df$rsquared.scv <- cor(observed, predicted) ^ 2
+      performance.df$rsquared_scv <- cor(observed, predicted) ^ 2
     }
 
-    performance.df$rmse.ib <- m.training$performance$rmse.ib
-    performance.df$rmse.oob <- m.training$performance$rmse.oob
-    if(is.null(performance.df$rmse.ib)){
-      performance.df$rmse.scv <- NULL
+    performance.df$rmse_full <- m.training$performance$rmse_full
+    performance.df$rmse_oob <- m.training$performance$rmse_oob
+    if(is.null(performance.df$rmse_full)){
+      performance.df$rmse_scv <- NULL
     } else {
-      performance.df$rmse.scv <- spatialRF::root_mean_squared_error(
+      performance.df$rmse_scv <- spatialRF::root_mean_squared_error(
         o = observed,
         p = predicted,
         normalization = "rmse"
@@ -324,35 +324,35 @@ rf_evaluate <- function(
     }
 
 
-    performance.df$nrmse.ib <- m.training$performance$nrmse.ib
-    performance.df$nrmse.oob <- m.training$performance$nrmse.oob
-    if(is.null(performance.df$nrmse.ib)){
-      performance.df$nrmse.scv <- NULL
+    performance.df$nrmse_full <- m.training$performance$nrmse_full
+    performance.df$nrmse_oob <- m.training$performance$nrmse_oob
+    if(is.null(performance.df$nrmse_full)){
+      performance.df$nrmse_scv <- NULL
     } else {
-      performance.df$nrmse.scv <- spatialRF::root_mean_squared_error(
+      performance.df$nrmse_scv <- spatialRF::root_mean_squared_error(
         o = observed,
         p = predicted,
         normalization = "iq"
       )
     }
 
-    performance.df$auc.ib <- m.training$performance$auc.ib
-    performance.df$auc.oob <- m.training$performance$auc.oob
-    if(is.null(performance.df$auc.ib)){
-      performance.df$auc.scv <- NULL
+    performance.df$auc_full <- m.training$performance$auc_full
+    performance.df$auc_oob <- m.training$performance$auc_oob
+    if(is.null(performance.df$auc_full)){
+      performance.df$auc_scv <- NULL
     } else {
-      performance.df$auc.scv <- spatialRF::auc(
+      performance.df$auc_scv <- spatialRF::auc(
         o = observed,
         p = predicted
       )
     }
 
-    performance.df$rbiserial.ib <- m.training$performance$rbiserial.ib
-    performance.df$rbiserial.oob <- m.training$performance$rbiserial.oob
-    if(is.null(performance.df$rbiserial.ib)){
-      performance.df$rbiserial.scv <- NULL
+    performance.df$rbiserial_full <- m.training$performance$rbiserial_full
+    performance.df$rbiserial_oob <- m.training$performance$rbiserial_oob
+    if(is.null(performance.df$rbiserial_full)){
+      performance.df$rbiserial_scv <- NULL
     } else {
-      performance.df$rbiserial.scv <- stats::cor.test(
+      performance.df$rbiserial_scv <- stats::cor.test(
         x = observed,
         y = predicted
       )$estimate
@@ -363,9 +363,9 @@ rf_evaluate <- function(
     out.list <- list()
     out.list$spatial.folds <- training.testing.folds
     out.list$performance.df <- performance.df
-    out.list$roc.ib <- m.training$performance$roc.ib
-    out.list$roc.oob <- m.training$performance$roc.oob
-    out.list$roc.scv <- spatialRF::roc_curve(
+    out.list$roc_full <- m.training$performance$roc_full
+    out.list$roc_oob <- m.training$performance$roc_oob
+    out.list$roc_scv <- spatialRF::roc_curve(
       o = observed,
       p = predicted
     )
@@ -394,22 +394,22 @@ rf_evaluate <- function(
   )
 
   #getting roc curves
-  rocs.ib <- lapply(
+  rocs_full <- lapply(
     evaluation.list,
     "[[",
-    "roc.ib"
+    "roc_full"
   )
 
-  rocs.oob <- lapply(
+  rocs_oob <- lapply(
     evaluation.list,
     "[[",
-    "roc.oob"
+    "roc_oob"
   )
 
-  rocs.scv <- lapply(
+  rocs_scv <- lapply(
     evaluation.list,
     "[[",
-    "roc.scv"
+    "roc_scv"
   )
 
   #copy of results
@@ -418,7 +418,11 @@ rf_evaluate <- function(
   #keep distinct values only to avoid very similar spatial folds
   performance.df.unique <- performance.df.unique %>%
     dplyr::distinct(
-      dplyr::across(dplyr::all_of(dplyr::contains(".scv"))),
+      dplyr::across(
+        dplyr::all_of(
+          dplyr::contains("_scv")
+          )
+        ),
       .keep_all = TRUE
     )
 
@@ -426,16 +430,16 @@ rf_evaluate <- function(
   spatial.folds <- spatial.folds[performance.df.unique$fold.id]
 
   #subsetting roc curves
-  rocs.ib <- rocs.ib[performance.df.unique$fold.id]
-  rocs.oob <- rocs.oob[performance.df.unique$fold.id]
-  rocs.scv <- rocs.scv[performance.df.unique$fold.id]
+  rocs_full <- rocs_full[performance.df.unique$fold.id]
+  rocs_oob <- rocs_oob[performance.df.unique$fold.id]
+  rocs_scv <- rocs_scv[performance.df.unique$fold.id]
 
   #resetting fold ID
   performance.df.unique$fold.id <-
     names(spatial.folds) <-
-    names(rocs.ib) <-
-    names(rocs.oob) <-
-    names(rocs.scv) <-
+    names(rocs_full) <-
+    names(rocs_oob) <-
+    names(rocs_scv) <-
     seq(
       from = 1,
       to = nrow(performance.df.unique),
@@ -465,7 +469,7 @@ rf_evaluate <- function(
   #performance.df.long
   performance.df.long <- performance.df %>%
     tidyr::pivot_longer(
-      cols = dplyr::contains(match = c(".ib", ".oob", ".scv")),
+      cols = dplyr::contains(match = c("_full", "_oob", "_scv")),
       names_to = "metric"
     )
 
@@ -483,8 +487,8 @@ rf_evaluate <- function(
   }
 
   #adding median of roc curves
-  if(!is.nan(rocs.scv[[1]]$sensitivity[1])){
-    model$performance$roc.scv <- rocs.scv %>%
+  if(!is.nan(rocs_scv[[1]]$sensitivity[1])){
+    model$performance$roc_scv <- rocs_scv %>%
       purrr::map_dfr(
         ~stats::setNames(
           .x,
@@ -507,14 +511,14 @@ rf_evaluate <- function(
         ) %>%
       dplyr::select(-id) %>%
       as.data.frame()
-    names(model$performance$roc.scv) <- names(rocs.scv[[1]])
+    names(model$performance$roc_scv) <- names(rocs_scv[[1]])
   }
 
   #ordering performance list by name
   model$performance = model$performance[order(names(model$performance))]
 
   #aggregating
-  performande.df.aggregated <- performance.df.long %>%
+  performance.df.aggregated <- performance.df.long %>%
     dplyr::group_by(metric) %>%
     dplyr::summarise(
       median = median(value),
@@ -536,17 +540,17 @@ rf_evaluate <- function(
   model$evaluation <- list()
   model$evaluation$spatial.folds <- spatial.folds
   model$evaluation$training.fraction <- training.fraction
-  model$evaluation$per.fold <- performance.df.long
-  model$evaluation$aggregated <- performande.df.aggregated
-  if(!is.nan(rocs.scv[[1]]$sensitivity[1])){
-    model$evaluation$roc.ib <- rocs.ib
-    model$evaluation$roc.oob <- rocs.oob
-    model$evaluation$roc.scv <- rocs.scv
+  model$evaluation$per_fold <- performance.df.long
+  model$evaluation$aggregated <- performance.df.aggregated
+  if(!is.nan(rocs_scv[[1]]$sensitivity[1])){
+    model$evaluation$roc_full <- rocs_full
+    model$evaluation$roc_oob <- rocs_oob
+    model$evaluation$roc_scv <- rocs_scv
   }
 
   if(verbose == TRUE){
     message("Full evaluation results stored in model$evaluation.")
-    message("Median evaluation scores (identified by the suffix '.scv') stored in model$performance")
+    message("Median evaluation scores (identified by the suffix '_scv') stored in model$performance")
   }
 
   class(model) <- c(class(model), "rf_evaluate")
@@ -554,27 +558,27 @@ rf_evaluate <- function(
   #coercing output to tibble
   if(return.tibble == TRUE){
 
-    model$evaluation$per.fold <- tibble::as_tibble(model$evaluation$per.fold)
+    model$evaluation$per_fold <- tibble::as_tibble(model$evaluation$per_fold)
     model$evaluation$aggregated <- tibble::as_tibble(model$evaluation$aggregated)
 
-    if(!is.null(model$performance$roc.ib)){
+    if(!is.null(model$performance$roc_full)){
 
-      model$evaluation$roc.ib <- lapply(
-        X = rocs.ib,
+      model$evaluation$roc_full <- lapply(
+        X = rocs_full,
         FUN = tibble::as_tibble
         )
 
-      model$evaluation$roc.oob <- lapply(
-        X = roc.oob,
+      model$evaluation$roc_oob <- lapply(
+        X = roc_oob,
         FUN = tibble::as_tibble
         )
 
-      model$evaluation$roc.scv <- lapply(
-        X = roc.scv,
+      model$evaluation$roc_scv <- lapply(
+        X = roc_scv,
         FUN = tibble::as_tibble
         )
 
-      model$performance$roc.scv <- tibble::as_tibble(model$performance$roc.scv)
+      model$performance$roc_scv <- tibble::as_tibble(model$performance$roc_scv)
 
     }
   }
