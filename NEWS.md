@@ -47,8 +47,8 @@ Changed the names of the example data, added new predictors, and a couple of new
   - `plant_richness_df` is now `ecoregions_df`. I added new predictors to this data frame, and removed two ecoregions.
   - `distance_matrix` is now `ecoregions_distance_matrix`.
   - `ecoregion_polygons` is an "sf" data frame with the simplified ecoregion polygons.
-  - `ecoregions_predictor_variable_names` is a character vector with the names of the predictors in `ecoregions_df`. 
-  - `ecoregions_dependent_variable_name` is a character string with the name of the dependent variable in `ecoregions_df`.
+  - `ecoregions_numeric_predictors` is a character vector with the names of the predictors in `ecoregions_df`. 
+  - `ecoregions_continuous_response` is a character string with the name of the dependent variable in `ecoregions_df`.
 
 
 ### Fixed bugs and inconsistencies

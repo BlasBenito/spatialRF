@@ -7,8 +7,8 @@ testthat::test_that("`rf()` works", {
    data(
     ecoregions_df,
     ecoregions_distance_matrix,
-    ecoregions_predictor_variable_names,
-    ecoregions_dependent_variable_name
+    ecoregions_numeric_predictors,
+    ecoregions_continuous_response
     )
 
    #checking with tibble
@@ -17,8 +17,8 @@ testthat::test_that("`rf()` works", {
   #fitting model
   model <- rf(
     data = tibble::as_tibble(ecoregions_df),
-    dependent.variable.name = ecoregions_dependent_variable_name,
-    predictor.variable.names = ecoregions_predictor_variable_names,
+    dependent.variable.name = ecoregions_continuous_response,
+    predictor.variable.names = ecoregions_numeric_predictors,
     distance.matrix = ecoregions_distance_matrix,
     distance.thresholds = c(0,100, 1000, 10000),
     xy = ecoregions_df[, c("x", "y")],
@@ -84,8 +84,8 @@ testthat::test_that("`rf()` works", {
   ############################################
    my.ranger.arguments <- list(
    data = ecoregions_df,
-   dependent.variable.name = ecoregions_dependent_variable_name,
-   predictor.variable.names = ecoregions_predictor_variable_names,
+   dependent.variable.name = ecoregions_continuous_response,
+   predictor.variable.names = ecoregions_numeric_predictors,
    distance.matrix = ecoregions_distance_matrix,
    distance.thresholds = c(0, 1000)
    )
@@ -129,7 +129,7 @@ testthat::test_that("`rf()` works", {
      variable.selection <- auto_cor(
        data = ecoregions_df,
        verbose = FALSE,
-       preference.order = ecoregions_predictor_variable_names
+       preference.order = ecoregions_numeric_predictors
      ) %>%
        auto_vif(
          verbose = FALSE
@@ -139,7 +139,7 @@ testthat::test_that("`rf()` works", {
    #fitting model
    model <- rf(
      data = ecoregions_df,
-     dependent.variable.name = ecoregions_dependent_variable_name,
+     dependent.variable.name = ecoregions_continuous_response,
      predictor.variable.names = variable.selection,
      distance.matrix = ecoregions_distance_matrix,
      distance.thresholds = c(0,100, 1000, 10000),
@@ -186,7 +186,7 @@ testthat::test_that("`rf()` works", {
    model <- rf(
      data = ecoregions_df,
      dependent.variable.name = "binary_response",
-     predictor.variable.names = ecoregions_predictor_variable_names,
+     predictor.variable.names = ecoregions_numeric_predictors,
      distance.matrix = ecoregions_distance_matrix,
      distance.thresholds = c(0,100, 1000, 10000),
      verbose = FALSE

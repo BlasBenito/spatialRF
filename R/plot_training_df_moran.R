@@ -15,15 +15,15 @@
 #' data(
 #'   ecoregions_df,
 #'   ecoregions_distance_matrix,
-#'   ecoregions_predictor_variable_names,
-#'   ecoregions_dependent_variable_name
+#'   ecoregions_numeric_predictors,
+#'   ecoregions_continuous_response
 #'   )
 #'
 #'    #plot Moran's I of training data
 #'    plot_moran_training_data(
 #'      data = ecoregions_df,
-#'      dependent.variable.name = ecoregions_dependent_variable_name,
-#'      predictor.variable.names = ecoregions_predictor_variable_names,
+#'      dependent.variable.name = ecoregions_continuous_response,
+#'      predictor.variable.names = ecoregions_numeric_predictors,
 #'      distance.matrix = ecoregions_distance_matrix,
 #'      distance.thresholds = c(
 #'        0,
@@ -54,6 +54,7 @@ plot_training_df_moran <- function(
   distance.threshold <- NULL
   p_value_binary <- NULL
   moran.i <- NULL
+  x <- NULL
 
   if(
     is.null(data) |

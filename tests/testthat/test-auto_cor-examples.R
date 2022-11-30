@@ -5,16 +5,16 @@ testthat::test_that("`auto_cor()` works", {
 
   data(
     ecoregions_df,
-    ecoregions_predictor_variable_names
+    ecoregions_numeric_predictors
   )
 
   ecoregions_df <- tibble::as_tibble(ecoregions_df)
 
   out <- auto_cor(
     data = ecoregions_df,
-    predictor.variable.names = ecoregions_predictor_variable_names,
+    predictor.variable.names = ecoregions_numeric_predictors,
     verbose = FALSE,
-    preference.order = ecoregions_predictor_variable_names[1:10]
+    preference.order = ecoregions_numeric_predictors[1:10]
   )
 
   testthat::expect_type(out, "list")
@@ -24,9 +24,9 @@ testthat::test_that("`auto_cor()` works", {
   #adding auto_vif()
   out <- auto_cor(
     data = ecoregions_df,
-    predictor.variable.names = ecoregions_predictor_variable_names,
+    predictor.variable.names = ecoregions_numeric_predictors,
     verbose = FALSE,
-    preference.order = ecoregions_predictor_variable_names
+    preference.order = ecoregions_numeric_predictors
   ) %>%
     auto_vif()
 

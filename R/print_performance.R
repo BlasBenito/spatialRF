@@ -10,15 +10,15 @@
 #' data(
 #'   ecoregions_df,
 #'   ecoregions_distance_matrix,
-#'   ecoregions_predictor_variable_names,
-#'   ecoregions_dependent_variable_name
+#'   ecoregions_numeric_predictors,
+#'   ecoregions_continuous_response
 #'   )
 #'
 #'  #fitting random forest model
 #'  rf.model <- rf(
 #'    data = ecoregions_df,
-#'    dependent.variable.name = ecoregions_dependent_variable_name,
-#'    predictor.variable.names = ecoregions_predictor_variable_names,
+#'    dependent.variable.name = ecoregions_continuous_response,
+#'    predictor.variable.names = ecoregions_numeric_predictors,
 #'    distance.matrix = ecoregions_distance_matrix,
 #'    distance.thresholds = 0,
 #'    n.cores = 1,
@@ -32,10 +32,14 @@
 #' @rdname print_performance
 #' @export
 print_performance <- function(
-    model,
-    centrality.fun = stats::median,
-    dispersion.fun = stats::mad
+    model
 ){
+
+  x <- NULL
+  Var1 <- NULL
+  Var2 <- NULL
+  metric <- NULL
+  method <- NULL
 
   titlecase <- function(x) {
     x <- tolower(x)

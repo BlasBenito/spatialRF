@@ -53,16 +53,20 @@ A ranger model with several extra slots:
 \item \code{ranger.arguments}: Stores the values of the arguments used to fit the ranger model.
 \item \code{predictions}: Predicted values.
 \itemize{
-\item \code{ib}: Numeric vector, predictions computed on the in-bag data.
+\item \code{full}: Numeric vector, predictions computed on the from the full training dataset.
 \item \code{oob}: Numeric vector, predictions computed on the out-of-bag data.
 }
 \item \code{importance}: A list containing a data frame with the predictors ordered by their importance, a ggplot showing the importance values, and local importance scores (difference in accuracy between permuted and non permuted variables for every case, computed on the out-of-bag data).
-\item \code{performance}: Performance scores computed on the in-bag and out-of-bag data. These performance scores can be highly inflated (especially the "in-bag" ones!)  if the spatial structure of the training data is strong, so I beg you to never report these as the actual performance metrics of your models, and advise you to use \code{\link[=rf_evaluate]{rf_evaluate()}} instead. In any case, if you wish to proceed, these are the metrics provided in this slot:
+\item \code{performance}: Performance scores computed on the full training data ("full") and out-of-bag data ("oob").
 \itemize{
-\item \code{rsquared_oob}: R-squared computed on the out-of-bag predictions using the expression \code{cor(observed, predicted_oob) ^ 2}.
-\item \code{rmse_oob}: Root mean squared error computed on the out-of-bag predictions using the expression \code{spatialRF::root_mean_squared_error(o = observed, p = predicted_oob)}.
-\item \code{nrmse_oob}: Normalized rood mean squared error computed on the out-of-bag data using the expression \code{spatialRF::root_mean_squared_error(o = observed, p = predicted_oob, normalization = "iq")}.
-\item \code{auc_oob}: Only for binary responses with values 0 and 1. Area under the ROC curve computed on the out-of-bag predictions using the expression \code{spatialRF::auc(o = observed, p = predicted_oob)}.
+\item \code{rsquared_full}: R-squared computed on the predictions of the full training dataset using the expression \code{cor(observed, predicted_oob) ^ 2}.
+\item \code{rsquared_oob}: As above, but using the out-of-bag predictions instead.
+\item \code{rmse_full}: Root mean squared error computed on the predictions of the full training dataset using the expression \code{spatialRF::root_mean_squared_error(o = observed, p = predicted)}
+\item \code{rmse_oob}: As above, but using the out-of-bag predictions instead.
+\item \code{nrmse_full}: Interquartile-normalized root mean squared error computed on the predictions of the full training dataset using the expression \code{spatialRF::root_mean_squared_error(o = observed, p = predicted_oob, normalization = "iq")}.
+\item \code{nrmse_oob}: As above, but using the out-of-bag predictions instead.
+\item \code{auc_full}: (only for binomial responses) Area under the ROC curve computed using the predictions of the full training dataset using the expression \code{spatialRF::auc(o = observed, p = predicted_oob)}.
+\item \code{auc_oob}: Only for binary responses with values 0 and 1. Area under the ROC curve computed on the out-of-bag predictions using the expression .
 \item \code{rsquared_full}: R-squared computed on the in-bag predictions using the expression \code{cor(observed, predicted_full) ^ 2}.
 \item \code{rmse_full}: Root mean squared error computed on the in-bag predictions using the expression \code{spatialRF::root_mean_squared_error(o = observed, p = predicted_full)}.
 \item \code{nrmse_full}: Normalized rood mean squared error computed on the in-bag data using the expression \code{spatialRF::root_mean_squared_error(o = observed, p = predicted_full, normalization = "iq")}.
@@ -84,15 +88,15 @@ if(interactive()){
  data(
   ecoregions_df,
   ecoregions_distance_matrix,
-  ecoregions_predictor_variable_names,
-  ecoregions_dependent_variable_name
+  ecoregions_numeric_predictors,
+  ecoregions_continuous_response
   )
 
  #fitting random forest model
  out <- rf(
    data = ecoregions_df,
-   dependent.variable.name = ecoregions_dependent_variable_name,
-   predictor.variable.names = ecoregions_predictor_variable_names,
+   dependent.variable.name = ecoregions_continuous_response,
+   predictor.variable.names = ecoregions_numeric_predictors,
    distance.matrix = ecoregions_distance_matrix,
    distance.thresholds = 0,
    n.cores = 1
@@ -140,8 +144,8 @@ if(interactive()){
  #ranger.arguments
  my.ranger.arguments <- list(
  data = ecoregions_df,
- dependent.variable.name = ecoregions_dependent_variable_name,
- predictor.variable.names = ecoregions_predictor_variable_names,
+ dependent.variable.name = ecoregions_continuous_response,
+ predictor.variable.names = ecoregions_numeric_predictors,
  distance.matrix = ecoregions_distance_matrix,
  distance.thresholds = c(0, 1000)
  )

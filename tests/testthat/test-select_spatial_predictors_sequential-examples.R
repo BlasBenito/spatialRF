@@ -7,8 +7,8 @@ testthat::test_that("`select_spatial_predictors_recursive()` works", {
   data(
     ecoregions_df,
     ecoregions_distance_matrix,
-    ecoregions_predictor_variable_names,
-    ecoregions_dependent_variable_name
+    ecoregions_numeric_predictors,
+    ecoregions_continuous_response
   )
 
   distance.thresholds = c(0, 100)
@@ -19,8 +19,8 @@ testthat::test_that("`select_spatial_predictors_recursive()` works", {
 
   model <- rf(
     data = ecoregions_df,
-    dependent.variable.name = ecoregions_dependent_variable_name,
-    predictor.variable.names = ecoregions_predictor_variable_names,
+    dependent.variable.name = ecoregions_continuous_response,
+    predictor.variable.names = ecoregions_numeric_predictors,
     distance.matrix = ecoregions_distance_matrix,
     xy = ecoregions_df[, c("x", "y")],
     distance.thresholds = distance.thresholds,
@@ -35,8 +35,8 @@ testthat::test_that("`select_spatial_predictors_recursive()` works", {
 
   spatial.predictors.ranking <- rank_spatial_predictors(
     data = ecoregions_df,
-    dependent.variable.name = ecoregions_dependent_variable_name,
-    predictor.variable.names = ecoregions_predictor_variable_names,
+    dependent.variable.name = ecoregions_continuous_response,
+    predictor.variable.names = ecoregions_numeric_predictors,
     distance.matrix = ecoregions_distance_matrix,
     distance.thresholds = distance.thresholds,
     spatial.predictors.df = spatial.predictors,
@@ -47,8 +47,8 @@ testthat::test_that("`select_spatial_predictors_recursive()` works", {
 
   selection <- select_spatial_predictors_sequential(
     data = ecoregions_df,
-    dependent.variable.name = ecoregions_dependent_variable_name,
-    predictor.variable.names = ecoregions_predictor_variable_names,
+    dependent.variable.name = ecoregions_continuous_response,
+    predictor.variable.names = ecoregions_numeric_predictors,
     distance.matrix = ecoregions_distance_matrix,
     distance.thresholds = distance.thresholds,
     spatial.predictors.df = spatial.predictors,

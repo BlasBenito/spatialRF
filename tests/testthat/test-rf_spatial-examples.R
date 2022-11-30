@@ -7,8 +7,8 @@ testthat::test_that("`rf_spatial()` works", {
   data(
     ecoregions_df,
     ecoregions_distance_matrix,
-    ecoregions_predictor_variable_names,
-    ecoregions_dependent_variable_name
+    ecoregions_numeric_predictors,
+    ecoregions_continuous_response
   )
 
   ecoregions_df <- ecoregions_df[1:100, ]
@@ -21,8 +21,8 @@ testthat::test_that("`rf_spatial()` works", {
   #fitting model
   out.1 <- rf_spatial(
     data = ecoregions_df,
-    dependent.variable.name = ecoregions_dependent_variable_name,
-    predictor.variable.names = ecoregions_predictor_variable_names,
+    dependent.variable.name = ecoregions_continuous_response,
+    predictor.variable.names = ecoregions_numeric_predictors,
     distance.matrix = ecoregions_distance_matrix,
     distance.thresholds = c(0,100, 1000, 10000),
     method = "hengl",
@@ -47,8 +47,8 @@ testthat::test_that("`rf_spatial()` works", {
   #fitting model
   out.2 <- rf_spatial(
     data = ecoregions_df,
-    dependent.variable.name = ecoregions_dependent_variable_name,
-    predictor.variable.names = ecoregions_predictor_variable_names,
+    dependent.variable.name = ecoregions_continuous_response,
+    predictor.variable.names = ecoregions_numeric_predictors,
     distance.matrix = ecoregions_distance_matrix,
     distance.thresholds = c(0,100, 1000, 10000),
     method = "mem.moran.sequential",
@@ -67,8 +67,8 @@ testthat::test_that("`rf_spatial()` works", {
   #fitting model
   out.3 <- rf_spatial(
     data = ecoregions_df,
-    dependent.variable.name = ecoregions_dependent_variable_name,
-    predictor.variable.names = ecoregions_predictor_variable_names,
+    dependent.variable.name = ecoregions_continuous_response,
+    predictor.variable.names = ecoregions_numeric_predictors,
     distance.matrix = ecoregions_distance_matrix,
     distance.thresholds = c(0,100, 1000, 10000),
     method = "mem.effect.sequential",
@@ -87,8 +87,8 @@ testthat::test_that("`rf_spatial()` works", {
   #fitting model
   out.4 <- rf_spatial(
     data = ecoregions_df,
-    dependent.variable.name = ecoregions_dependent_variable_name,
-    predictor.variable.names = ecoregions_predictor_variable_names,
+    dependent.variable.name = ecoregions_continuous_response,
+    predictor.variable.names = ecoregions_numeric_predictors,
     distance.matrix = ecoregions_distance_matrix,
     distance.thresholds = c(0,100, 1000, 10000),
     method = "mem.effect.recursive",
@@ -115,7 +115,7 @@ testthat::test_that("`rf_spatial()` works", {
   out.1 <- rf_spatial(
     data = ecoregions_df,
     dependent.variable.name = "binary_response",
-    predictor.variable.names = ecoregions_predictor_variable_names,
+    predictor.variable.names = ecoregions_numeric_predictors,
     distance.matrix = ecoregions_distance_matrix,
     distance.thresholds = c(0,100, 1000, 10000),
     method = "hengl",
@@ -141,7 +141,7 @@ testthat::test_that("`rf_spatial()` works", {
   out.2 <- rf_spatial(
     data = ecoregions_df,
     dependent.variable.name = "binary_response",
-    predictor.variable.names = ecoregions_predictor_variable_names,
+    predictor.variable.names = ecoregions_numeric_predictors,
     distance.matrix = ecoregions_distance_matrix,
     distance.thresholds = c(0,100, 1000, 10000),
     method = "mem.moran.sequential",
@@ -161,7 +161,7 @@ testthat::test_that("`rf_spatial()` works", {
   out.3 <- rf_spatial(
     data = ecoregions_df,
     dependent.variable.name = "binary_response",
-    predictor.variable.names = ecoregions_predictor_variable_names,
+    predictor.variable.names = ecoregions_numeric_predictors,
     distance.matrix = ecoregions_distance_matrix,
     distance.thresholds = c(0,100, 1000, 10000),
     method = "mem.effect.sequential",
@@ -181,7 +181,7 @@ testthat::test_that("`rf_spatial()` works", {
   out.4 <- rf_spatial(
     data = ecoregions_df,
     dependent.variable.name = "binary_response",
-    predictor.variable.names = ecoregions_predictor_variable_names,
+    predictor.variable.names = ecoregions_numeric_predictors,
     distance.matrix = ecoregions_distance_matrix,
     distance.thresholds = c(0,100, 1000, 10000),
     method = "mem.effect.recursive",

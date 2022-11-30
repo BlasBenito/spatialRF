@@ -5,8 +5,8 @@ library(ranger)
 #loading data
 data(
   ecoregions_df,
-  ecoregions_dependent_variable_name,
-  ecoregions_predictor_variable_names
+  ecoregions_continuous_response,
+  ecoregions_numeric_predictors
   )
 
 #converting a few variables into factors
@@ -17,10 +17,10 @@ ecoregions_df <- ecoregions_df %>%
     )
 
 model.ranger <- ranger::ranger(
-  dependent.variable.name = ecoregions_dependent_variable_name,
+  dependent.variable.name = ecoregions_continuous_response,
   data = ecoregions_df[, c(
-    ecoregions_dependent_variable_name,
-    ecoregions_predictor_variable_names)],
+    ecoregions_continuous_response,
+    ecoregions_numeric_predictors)],
   importance = "permutation"
 )
 

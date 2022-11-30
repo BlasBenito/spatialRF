@@ -4,11 +4,7 @@
 \alias{print_performance}
 \title{print_performance}
 \usage{
-print_performance(
-  model,
-  centrality.fun = stats::median,
-  dispersion.fun = stats::mad
-)
+print_performance(model)
 }
 \arguments{
 \item{model}{Model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}.}
@@ -26,15 +22,15 @@ if(interactive()){
 data(
   ecoregions_df,
   ecoregions_distance_matrix,
-  ecoregions_predictor_variable_names,
-  ecoregions_dependent_variable_name
+  ecoregions_numeric_predictors,
+  ecoregions_continuous_response
   )
 
  #fitting random forest model
  rf.model <- rf(
    data = ecoregions_df,
-   dependent.variable.name = ecoregions_dependent_variable_name,
-   predictor.variable.names = ecoregions_predictor_variable_names,
+   dependent.variable.name = ecoregions_continuous_response,
+   predictor.variable.names = ecoregions_numeric_predictors,
    distance.matrix = ecoregions_distance_matrix,
    distance.thresholds = 0,
    n.cores = 1,

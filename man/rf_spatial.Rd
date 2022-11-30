@@ -113,15 +113,15 @@ if(interactive()){
 data(
   ecoregions_df,
   ecoregions_distance_matrix,
-  ecoregions_predictor_variable_names,
-  ecoregions_dependent_variable_name
+  ecoregions_numeric_predictors,
+  ecoregions_continuous_response
   )
 
  #hengl
  model <- rf_spatial(
    data = ecoregions_df,
-   dependent.variable.name = ecoregions_dependent_variable_name,
-   predictor.variable.names = ecoregions_predictor_variable_names,
+   dependent.variable.name = ecoregions_continuous_response,
+   predictor.variable.names = ecoregions_numeric_predictors,
    distance.matrix = ecoregions_distance_matrix,
    distance.thresholds = 0,
    method = "hengl",
@@ -131,8 +131,8 @@ data(
  #mem.moran.sequential
  model <- rf_spatial(
    data = ecoregions_df,
-   dependent.variable.name = ecoregions_dependent_variable_name,
-   predictor.variable.names = ecoregions_predictor_variable_names,
+   dependent.variable.name = ecoregions_continuous_response,
+   predictor.variable.names = ecoregions_numeric_predictors,
    distance.matrix = ecoregions_distance_matrix,
    distance.thresholds = 0,
    method = "mem.moran.sequential",
@@ -142,8 +142,8 @@ data(
  #fitting an rf_spatial model from an rf model
  rf.model <- rf(
    data = ecoregions_df,
-   dependent.variable.name = ecoregions_dependent_variable_name,
-   predictor.variable.names = ecoregions_predictor_variable_names,
+   dependent.variable.name = ecoregions_continuous_response,
+   predictor.variable.names = ecoregions_numeric_predictors,
    distance.matrix = ecoregions_distance_matrix,
    distance.thresholds = 0,
    n.cores = 1,

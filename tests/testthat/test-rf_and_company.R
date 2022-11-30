@@ -13,7 +13,6 @@ testthat::test_that("`rf() and company` works", {
       #default_distance_thresholds()
     #residuals_diagnostics()
 
-
   #loading libraries
   library(spatialRF)
   library(magrittr)
@@ -21,74 +20,68 @@ testthat::test_that("`rf() and company` works", {
   #loading data
   data(
     ecoregions_df,
+    ecoregions_sf,
+    ecoregions_tibble,
     ecoregions_distance_matrix,
-    ecoregions_predictor_variable_names,
-    ecoregions_dependent_variable_name
+    ecoregions_numeric_predictors,
+    ecoregions_all_predictors,
+    ecoregions_continuous_response,
+    ecoregions_binary_response
   )
 
-  #creating binary response
-  ecoregions_df$binary_response <- ifelse(
-    ecoregions_df$plant_richness > 5000,
-    1,
-    0
+  #lists to iterate over
+  training <- list(
+    df = ecoregions_df,
+    sf = ecoregions_sf,
+    tibble = ecoregions_tibble
   )
 
-  #CONTINUOUS RESPONSE
-  ####################
-
-  #ARGUMENTS FOR DEBUGGING
-  model = NULL
-  data = tibble::as_tibble(ecoregions_df)
-  dependent.variable.name = ecoregions_dependent_variable_name
-  predictor.variable.names = ecoregions_predictor_variable_names
-  distance.matrix = ecoregions_distance_matrix
-  distance.thresholds = NULL
-  xy = ecoregions_df[, c("x", "y")]
-  ranger.arguments = NULL
-  scaled.importance = FALSE
-  seed = 1
-  verbose = FALSE
-  n.cores = parallel::detectCores() - 1
-  cluster = NULL
-
-  #model
-  model <- rf(
-    data = tibble::as_tibble(ecoregions_df),
-    dependent.variable.name = ecoregions_dependent_variable_name,
-    predictor.variable.names = ecoregions_predictor_variable_names,
-    distance.matrix = ecoregions_distance_matrix,
-    distance.thresholds = NULL,
-    xy = ecoregions_df[, c("x", "y")],
-    verbose = FALSE
+  response <- list(
+    continuous = ecoregions_continuous_response,
+    binary = ecoregions_binary_response
   )
 
-
-  #BINARY RESPONSE
-  ####################
-  model = NULL
-  data = tibble::as_tibble(ecoregions_df)
-  dependent.variable.name = "binary_response"
-  predictor.variable.names = ecoregions_predictor_variable_names
-  distance.matrix = ecoregions_distance_matrix
-  distance.thresholds = NULL
-  xy = ecoregions_df[, c("x", "y")]
-  ranger.arguments = NULL
-  scaled.importance = FALSE
-  seed = 1
-  verbose = FALSE
-  n.cores = parallel::detectCores() - 1
-  cluster = NULL
-
-
-  model <- rf(
-    data = tibble::as_tibble(ecoregions_df),
-    dependent.variable.name = "binary_response",
-    predictor.variable.names = ecoregions_predictor_variable_names,
-    distance.matrix = ecoregions_distance_matrix,
-    distance.thresholds = NULL,
-    xy = ecoregions_df[, c("x", "y")],
-    verbose = FALSE
+  predictors <- list(
+    numeric = ecoregions_numeric_predictors,
+    all = ecoregions_all_predictors
   )
+
+  #iterating over input lists
+  for(training.i in names(training)){
+    for(response.i in names(response)){
+      for(predictors.i in names(predictors)){
+
+        #arguments for debugging
+        model = NULL
+        data = training[[training.i]]
+        dependent.variable.name = response[[response.i]]
+        predictor.variable.names = predictors[[predictors.i]]
+        distance.matrix = ecoregions_distance_matrix
+        distance.thresholds = NULL
+        xy = ecoregions_df[, c("x", "y")]
+        ranger.arguments = NULL
+        scaled.importance = FALSE
+        seed = 1
+        verbose = FALSE
+        n.cores = parallel::detectCores() - 1
+        cluster = NULL
+
+        #rf model
+        model <- rf(
+          data = training[[training.i]],
+          dependent.variable.name = response[[response.i]],
+          predictor.variable.names = predictors[[predictors.i]],
+          distance.matrix = ecoregions_distance_matrix,
+          distance.thresholds = NULL,
+          xy = ecoregions_df[, c("x", "y")],
+          verbose = FALSE
+        )
+
+
+      }
+    }
+  }
+
 
 
 })

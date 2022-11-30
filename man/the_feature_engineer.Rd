@@ -85,14 +85,14 @@ if(interactive()){
  #load example data
  data(
  ecoregions_df,
- ecoregions_dependent_variable_name,
- ecoregions_predictor_variable_names
+ ecoregions_continuous_response,
+ ecoregions_numeric_predictors
  )
 
  new.features <- the_feature_engineer(
    data = ecoregions_df,
-   dependent.variable.name = ecoregions_dependent_variable_name,
-   predictor.variable.names = ecoregions_predictor_variable_names,
+   dependent.variable.name = ecoregions_continuous_response,
+   predictor.variable.names = ecoregions_numeric_predictors,
    n.cores = 1,
    verbose = TRUE
  )

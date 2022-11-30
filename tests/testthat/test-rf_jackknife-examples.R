@@ -7,15 +7,15 @@ testthat::test_that("`rf_repeat()` works", {
   data(
     ecoregions_df,
     ecoregions_distance_matrix,
-    ecoregions_predictor_variable_names,
-    ecoregions_dependent_variable_name
+    ecoregions_numeric_predictors,
+    ecoregions_continuous_response
     )
 
   #fitting random forest model
   model <- rf(
     data = tibble::as_tibble(ecoregions_df),
-    dependent.variable.name = ecoregions_dependent_variable_name,
-    predictor.variable.names = ecoregions_predictor_variable_names[1:5],
+    dependent.variable.name = ecoregions_continuous_response,
+    predictor.variable.names = ecoregions_numeric_predictors[1:5],
     distance.matrix = ecoregions_distance_matrix,
     distance.thresholds = 0,
     xy = ecoregions_df[, c("x", "y")],
@@ -62,8 +62,8 @@ testthat::test_that("`rf_repeat()` works", {
   #fitting random forest model
   model <- rf(
     data = ecoregions_df,
-    dependent.variable.name = ecoregions_dependent_variable_name,
-    predictor.variable.names = ecoregions_predictor_variable_names[1:5],
+    dependent.variable.name = ecoregions_continuous_response,
+    predictor.variable.names = ecoregions_numeric_predictors[1:5],
     distance.matrix = ecoregions_distance_matrix,
     distance.thresholds = 0,
     xy = ecoregions_df[, c("x", "y")],

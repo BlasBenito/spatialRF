@@ -14,15 +14,15 @@
 #' #loading example data
 #' data(
 #'   ecoregions_df,
-#'   ecoregions_predictor_variable_names,
-#'   ecoregions_dependent_variable_name
+#'   ecoregions_numeric_predictors,
+#'   ecoregions_continuous_response
 #'   )
 #'
 #'    #scatterplot of the training data
 #'    plot_training_data(
 #'      data = ecoregions_df,
-#'      dependent.variable.name = ecoregions_dependent_variable_name,
-#'      predictor.variable.names = ecoregions_predictor_variable_names
+#'      dependent.variable.name = ecoregions_continuous_response,
+#'      predictor.variable.names = ecoregions_numeric_predictors
 #'      )
 #'  }
 #' @importFrom ggplot2 ggplot aes_string geom_point scale_color_viridis_c theme_bw theme geom_smooth

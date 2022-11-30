@@ -84,8 +84,8 @@ if(interactive()){
 data(
   ecoregions_df,
   ecoregions_distance_matrix,
-  ecoregions_predictor_variable_names,
-  ecoregions_dependent_variable_name
+  ecoregions_numeric_predictors,
+  ecoregions_continuous_response
   )
 
 #computing Moran's Eigenvector Maps
@@ -97,7 +97,7 @@ spatial.predictors.df <- mem_multithreshold(
 #filtering spatial predictors
 spatial.predictors.df <- filter_spatial_predictors(
   data = ecoregions_df,
-  predictor.variable.names = ecoregions_predictor_variable_names,
+  predictor.variable.names = ecoregions_numeric_predictors,
   spatial.predictors.df = spatial.predictors.df,
   max.cor = 0.50
  )
@@ -121,15 +121,15 @@ if(interactive()){
 data(
   ecoregions_df,
   ecoregions_distance_matrix,
-  ecoregions_predictor_variable_names,
-  ecoregions_dependent_variable_name
+  ecoregions_numeric_predictors,
+  ecoregions_continuous_response
   )
 
  #fittind spatial model
  model <- rf_spatial(
    data = ecoregions_df,
-   dependent.variable.name = ecoregions_dependent_variable_name,
-   predictor.variable.names = ecoregions_predictor_variable_names,
+   dependent.variable.name = ecoregions_continuous_response,
+   predictor.variable.names = ecoregions_numeric_predictors,
    distance.matrix = ecoregions_distance_matrix,
    distance.thresholds =  0,
    n.cores = 1

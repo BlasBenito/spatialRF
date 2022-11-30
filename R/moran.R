@@ -20,12 +20,12 @@
 #' data(
 #'   ecoregions_df,
 #'   ecoregions_distance_matrix,
-#'   ecoregions_dependent_variable_name
+#'   ecoregions_continuous_response
 #'   )
 #'
 #'  #Moran's I of the response variable
 #'  out <- moran(
-#'    x = ecoregions_df[, ecoregions_dependent_variable_name],
+#'    x = ecoregions_df[, ecoregions_continuous_response],
 #'    distance.matrix = ecoregions_distance_matrix,
 #'    distance.threshold = 100
 #'    )
@@ -33,7 +33,7 @@
 #'
 #'  #computing Moran's I for the response variable at several neighborhood distances
 #'  out <- moran_multithreshold(
-#'    x = ecoregions_df[, ecoregions_dependent_variable_name],
+#'    x = ecoregions_df[, ecoregions_continuous_response],
 #'    distance.matrix = ecoregions_distance_matrix,
 #'    distance.thresholds = c(100, 1000, 10000)
 #'    )

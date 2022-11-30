@@ -7,15 +7,15 @@ testthat::test_that("`rf_repeat()` works", {
   data(
     ecoregions_df,
     ecoregions_distance_matrix,
-    ecoregions_predictor_variable_names,
-    ecoregions_dependent_variable_name
+    ecoregions_numeric_predictors,
+    ecoregions_continuous_response
   )
 
   #from model with tibble
   out <- rf(
     data = tibble::as_tibble(ecoregions_df),
-    dependent.variable.name = ecoregions_dependent_variable_name,
-    predictor.variable.names = ecoregions_predictor_variable_names,
+    dependent.variable.name = ecoregions_continuous_response,
+    predictor.variable.names = ecoregions_numeric_predictors,
     distance.matrix = ecoregions_distance_matrix,
     distance.thresholds = c(0,100, 1000, 10000),
     xy = ecoregions_df[, c("x", "y")],
@@ -43,8 +43,8 @@ testthat::test_that("`rf_repeat()` works", {
   #with n.cores
   out <- rf_repeat(
     data = ecoregions_df,
-    dependent.variable.name = ecoregions_dependent_variable_name,
-    predictor.variable.names = ecoregions_predictor_variable_names,
+    dependent.variable.name = ecoregions_continuous_response,
+    predictor.variable.names = ecoregions_numeric_predictors,
     distance.matrix = ecoregions_distance_matrix,
     distance.thresholds = c(0,100, 1000, 10000),
     scaled.importance = FALSE,
@@ -79,8 +79,8 @@ testthat::test_that("`rf_repeat()` works", {
   #with cluster
   out.1 <- rf_repeat(
     data = ecoregions_df,
-    dependent.variable.name = ecoregions_dependent_variable_name,
-    predictor.variable.names = ecoregions_predictor_variable_names,
+    dependent.variable.name = ecoregions_continuous_response,
+    predictor.variable.names = ecoregions_numeric_predictors,
     distance.matrix = ecoregions_distance_matrix,
     distance.thresholds = c(0,100, 1000, 10000),
     repetitions = 10,
@@ -120,7 +120,7 @@ testthat::test_that("`rf_repeat()` works", {
     variable.selection <- auto_cor(
       data = ecoregions_df,
       verbose = FALSE,
-      preference.order = ecoregions_predictor_variable_names
+      preference.order = ecoregions_numeric_predictors
     ) %>%
       auto_vif()
   )
@@ -128,7 +128,7 @@ testthat::test_that("`rf_repeat()` works", {
   #fitting model
   out.2 <- rf_repeat(
     data = ecoregions_df,
-    dependent.variable.name = ecoregions_dependent_variable_name,
+    dependent.variable.name = ecoregions_continuous_response,
     predictor.variable.names = variable.selection,
     distance.matrix = ecoregions_distance_matrix,
     distance.thresholds = c(0,100, 1000, 10000),

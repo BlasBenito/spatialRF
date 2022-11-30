@@ -6,8 +6,8 @@ testthat::test_that("`make_spatial_folds()` works", {
   data(
     ecoregions_df,
     ecoregions_distance_matrix,
-    ecoregions_predictor_variable_names,
-    ecoregions_dependent_variable_name
+    ecoregions_numeric_predictors,
+    ecoregions_continuous_response
   )
 
   ecoregions_df <- tibble::as_tibble(ecoregions_df)
@@ -35,7 +35,7 @@ testthat::test_that("`make_spatial_folds()` works", {
 
   out.1 <- make_spatial_fold(
     data = ecoregions_df,
-    dependent.variable.name = ecoregions_dependent_variable_name,
+    dependent.variable.name = ecoregions_continuous_response,
     fold.center = xy[1, ],
     xy = xy,
     training.fraction = training.fraction
@@ -54,7 +54,7 @@ testthat::test_that("`make_spatial_folds()` works", {
 
   out.2 <- make_spatial_fold(
     data = ecoregions_df,
-    dependent.variable.name = ecoregions_dependent_variable_name,
+    dependent.variable.name = ecoregions_continuous_response,
     fold.center = xy[1, ],
     xy = xy,
     training.fraction = training.fraction,

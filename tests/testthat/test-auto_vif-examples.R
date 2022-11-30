@@ -5,16 +5,16 @@ testthat::test_that("`auto_vif()` works", {
 
   data(
     ecoregions_df,
-    ecoregions_predictor_variable_names
+    ecoregions_numeric_predictors
   )
 
   ecoregions_df <- tibble::as_tibble(ecoregions_df)
 
   out <- auto_vif(
     data = ecoregions_df,
-    predictor.variable.names = ecoregions_predictor_variable_names,
+    predictor.variable.names = ecoregions_numeric_predictors,
     verbose = TRUE,
-    preference.order = ecoregions_predictor_variable_names[1:10]
+    preference.order = ecoregions_numeric_predictors[1:10]
   )
 
   testthat::expect_type(out, "list")
@@ -25,27 +25,27 @@ testthat::test_that("`auto_vif()` works", {
   testthat::expect_warning(
     out <- auto_vif(
       data = ecoregions_df,
-      predictor.variable.names = ecoregions_predictor_variable_names,
+      predictor.variable.names = ecoregions_numeric_predictors,
       verbose = TRUE,
       max.vif = 20,
-      preference.order = ecoregions_predictor_variable_names[1:10]
+      preference.order = ecoregions_numeric_predictors[1:10]
     )
   )
 
   out <- auto_vif(
     data = ecoregions_df,
-    predictor.variable.names = ecoregions_predictor_variable_names,
+    predictor.variable.names = ecoregions_numeric_predictors,
     verbose = TRUE,
     max.vif = -11,
-    preference.order = ecoregions_predictor_variable_names[1:10]
+    preference.order = ecoregions_numeric_predictors[1:10]
   )
 
   out <- auto_vif(
     data = ecoregions_df,
-    predictor.variable.names = ecoregions_predictor_variable_names,
+    predictor.variable.names = ecoregions_numeric_predictors,
     verbose = TRUE,
     max.vif = NULL,
-    preference.order = ecoregions_predictor_variable_names[1:10]
+    preference.order = ecoregions_numeric_predictors[1:10]
   )
 
 })

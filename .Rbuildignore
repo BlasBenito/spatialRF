@@ -32,3 +32,4 @@ testing_rf_select.R
 argument_rules.txt
 TODO.md
 factors.R
+generate_factor_predictors.R

@@ -275,9 +275,9 @@ It further includes:
     [`ecoregions_polygons`](https://blasbenito.github.io/spatialRF/reference/ecoregions_polygons.html).
 
 -   A character string named
-    [`ecoregions_dependent_variable_name`](https://blasbenito.github.io/spatialRF/reference/ecoregions_polygons.html)
+    [`ecoregions_continuous_response`](https://blasbenito.github.io/spatialRF/reference/ecoregions_polygons.html)
     with the name of the response variable, and a character vector named
-    [`ecoregions_predictor_variable_names`](https://blasbenito.github.io/spatialRF/reference/ecoregions_predictor_variable_names.html),
+    [`ecoregions_numeric_predictors`](https://blasbenito.github.io/spatialRF/reference/ecoregions_numeric_predictors.html),
     with the names of the predictors. These two objects come in handy to
     simplify model fitting.
 
@@ -287,10 +287,10 @@ The package follows a convention throughout functions:
     data frame `ecoregions_df`.
 -   The argument `dependent.variable.name` is the column name of the
     response variable. We will use the character string
-    `ecoregions_dependent_variable_name`.
+    `ecoregions_continuous_response`.
 -   The argument `predictor.variable.names` contains the column names of
     the predictors. We will use the character vector
-    `ecoregions_predictor_variable_names`.
+    `ecoregions_numeric_predictors`.
 -   The argument `xy` takes a data frame or matrix with two columns
     named “x” and “y”, in that order, with the case coordinates.
 -   The argument `distance.matrix` requires a matrix of distances
@@ -308,8 +308,8 @@ data(
   ecoregions_df,
   ecoregions_polygons,
   ecoregions_distance_matrix,
-  ecoregions_dependent_variable_name,
-  ecoregions_predictor_variable_names
+  ecoregions_continuous_response,
+  ecoregions_numeric_predictors
   )
 
 #coordinates of the cases
@@ -355,7 +355,7 @@ ggplot2::ggplot() +
 
 ![](README_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
-The predictors, named in `ecoregions_predictor_variable_names`, represent diverse
+The predictors, named in `ecoregions_numeric_predictors`, represent diverse
 factors that may influence plant richness such as sampling bias, the
 area of the ecoregion, climatic variables, human presence and impact,
 topography, geographical fragmentation, and features of the neighbors of
@@ -369,8 +369,8 @@ colors of their main features via specific arguments such as
 ``` r
 spatialRF::plot_training_df(
   data = ecoregions_df,
-  dependent.variable.name = ecoregions_dependent_variable_name,
-  predictor.variable.names = ecoregions_predictor_variable_names,
+  dependent.variable.name = ecoregions_continuous_response,
+  predictor.variable.names = ecoregions_numeric_predictors,
   ncol = 4,
   point.color = viridis::viridis(100, option = "F"),
   line.color = "gray30"
@@ -389,8 +389,8 @@ autocorrelation for the given variable and distance threshold.
 ``` r
 spatialRF::plot_training_df_moran(
   data = ecoregions_df,
-  dependent.variable.name = ecoregions_dependent_variable_name,
-  predictor.variable.names = ecoregions_predictor_variable_names,
+  dependent.variable.name = ecoregions_continuous_response,
+  predictor.variable.names = ecoregions_numeric_predictors,
   distance.matrix = ecoregions_distance_matrix,
   distance.thresholds = distance_thresholds,
   fill.color = viridis::viridis(
@@ -434,7 +434,7 @@ preference.order <- c(
   )
 
 multicollinearity.analysis <- spatialRF::auto_cor(
-  x = ecoregions_df[, ecoregions_predictor_variable_names],
+  x = ecoregions_df[, ecoregions_numeric_predictors],
   cor.threshold = 0.75,
   preference.order = preference.order
 ) %>% 
@@ -450,7 +450,7 @@ multicollinearity.analysis <- spatialRF::auto_cor(
 
 The output of `auto_cor()` or `auto_vif()` has the class
 “variable_selection”, which can be used as input in every function
-having the argument `ecoregions_predictor_variable_names`.
+having the argument `ecoregions_numeric_predictors`.
 
 ``` r
 names(multicollinearity.analysis)
@@ -505,8 +505,8 @@ cluster <- spatialRF::make_cluster()
 #selecting variables
 variable.selection <- spatialRF::rf_select(
   data = ecoregions_df,
-  dependent.variable.name = ecoregions_dependent_variable_name,
-  predictor.variable.names = ecoregions_predictor_variable_names,
+  dependent.variable.name = ecoregions_continuous_response,
+  predictor.variable.names = ecoregions_numeric_predictors,
   repetitions = 10,
   cor.threshold = 0.50,
   vif.threshold = 5,
@@ -927,7 +927,7 @@ cross-validation (see `rf_evaluate()`).
 ``` r
 interactions <- spatialRF::the_feature_engineer(
   data = ecoregions_df,
-  dependent.variable.name = ecoregions_dependent_variable_name,
+  dependent.variable.name = ecoregions_continuous_response,
   predictor.variable.names = variable.selection,
   xy = xy,
   importance.threshold = 0.50, #uses 50% best predictors
@@ -985,12 +985,12 @@ considered. The columns are:
     a percentage. If `interaction.importance == 100`, that means that
     the interaction is the most important predictor in the model fitted
     with the interaction and the predictors named in
-    `ecoregions_predictor_variable_names`.
+    `ecoregions_numeric_predictors`.
 -   `interaction.metric.gain`: Difference in R squared (or AUC for
     models fitting a binary response) between a model with and a model
     without the interaction.
 -   `max.cor.with.predictors`: The maximum Pearson correlation of the
-    interaction with the predictors named in `ecoregions_predictor_variable_names`.
+    interaction with the predictors named in `ecoregions_numeric_predictors`.
     Gives an idea of the amount of multicollinearity the interaction
     introduces in the model.
 -   `variable.a.name` and `variable.b.name`: Names of the predictors
@@ -1310,7 +1310,7 @@ random forest model.
 ``` r
 model.non.spatial <- spatialRF::rf(
   data = ecoregions_df,
-  dependent.variable.name = ecoregions_dependent_variable_name,
+  dependent.variable.name = ecoregions_continuous_response,
   predictor.variable.names = predictor.variable.names,
   distance.matrix = ecoregions_distance_matrix,
   distance.thresholds = distance_thresholds,
@@ -2496,7 +2496,7 @@ quantiles 0.05, 0.5, and 0.95.
 ``` r
 model.quantiles <- spatialRF::rf(
   data = ecoregions_df,
-  dependent.variable.name = ecoregions_dependent_variable_name,
+  dependent.variable.name = ecoregions_continuous_response,
   predictor.variable.names = predictor.variable.names,
   ranger.arguments = list(
     quantreg = TRUE
@@ -3528,7 +3528,7 @@ of this tutorial.
 ``` r
 model.full <- rf_spatial(
   data = ecoregions_df,
-  dependent.variable.name = ecoregions_dependent_variable_name,
+  dependent.variable.name = ecoregions_continuous_response,
   predictor.variable.names = predictor.variable.names,
   distance.matrix = ecoregions_distance_matrix,
   distance.thresholds = distance_thresholds,
@@ -3563,8 +3563,8 @@ beowulf.cluster <- spatialRF::make_cluster(
 #fitting, tuning, evaluating, and repeating a model
 model.full <- rf_spatial(
   data = ecoregions_df,
-  dependent.variable.name = ecoregions_dependent_variable_name,
-  predictor.variable.names = ecoregions_predictor_variable_names,
+  dependent.variable.name = ecoregions_continuous_response,
+  predictor.variable.names = ecoregions_numeric_predictors,
   distance.matrix = ecoregions_distance_matrix,
   distance.thresholds = distance_thresholds,
   xy = xy
@@ -4012,7 +4012,7 @@ predictors <- c(
 
 model.formula <- as.formula(
   paste(
-    ecoregions_dependent_variable_name,
+    ecoregions_continuous_response,
     " ~ ",
     paste(
       predictors,
@@ -4027,7 +4027,7 @@ scaled.predictors <- scale(ecoregions_df[,  predictors]) %>%
 
 #adding the response
 model.data <- data.frame(
-  plant_richness = ecoregions_df[, ecoregions_dependent_variable_name],
+  plant_richness = ecoregions_df[, ecoregions_continuous_response],
   scaled.predictors
 )
 
@@ -4060,7 +4060,7 @@ scaled.predictors <- data.frame(
 
 #adding the response
 model.data <- data.frame(
-  plant_richness = ecoregions_df[, ecoregions_dependent_variable_name],
+  plant_richness = ecoregions_df[, ecoregions_continuous_response],
   scaled.predictors
 )
 
@@ -4076,7 +4076,7 @@ for(mem.i in colnames(mems)){
   #generate model formula with the new spatial predictor
   model.formula.i <- as.formula(
     paste(
-      ecoregions_dependent_variable_name,
+      ecoregions_continuous_response,
       " ~ ",
       paste(
         predictors.i,

@@ -36,8 +36,8 @@
 #'data(
 #'  ecoregions_df,
 #'  ecoregions_distance_matrix,
-#'  ecoregions_predictor_variable_names,
-#'  ecoregions_dependent_variable_name
+#'  ecoregions_numeric_predictors,
+#'  ecoregions_continuous_response
 #')
 #'
 #'}

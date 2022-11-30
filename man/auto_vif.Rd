@@ -54,13 +54,13 @@ if(interactive()){
 
 data(
   ecoregions_df,
-  ecoregions_predictor_variable_names
+  ecoregions_numeric_predictors
   )
 
 #on a data frame
 out <- auto_vif(
  data = ecoregions_df,
- predictor.variable.names = ecoregions_predictor_variable_names
+ predictor.variable.names = ecoregions_numeric_predictors
  )
 
 #getting out the vif data frame
@@ -75,19 +75,19 @@ out$selected.variables.df
 #with preference order
  out <- auto_vif(
    data = ecoregions_df,
-   predictor.variable.names = ecoregions_predictor_variable_names,
-   preference.order = ecoregions_predictor_variable_names[1:5],
+   predictor.variable.names = ecoregions_numeric_predictors,
+   preference.order = ecoregions_numeric_predictors[1:5],
  )
 
 #with pipes
  out <- auto_cor(
    data = ecoregions_df,
-   predictor.variable.names = ecoregions_predictor_variable_names
+   predictor.variable.names = ecoregions_numeric_predictors
  ) \%>\%
  auto_vif()
 
  #vif function
- vif(data = ecoregions_df[, ecoregions_predictor_variable_names])
+ vif(data = ecoregions_df[, ecoregions_numeric_predictors])
 
 
 }
