@@ -21,9 +21,9 @@ A data frame with 225 rows and 49 columns:
 \item \code{landcover_bare_percent_average}, \code{landcover_herbs_percent_average}, \code{landcover_trees_percent_average}, and \code{landcover_ndvi_average}: Average cover percentage of bare soil, herbs, and trees, and NDVI, extracted from \href{https://modis-land.gsfc.nasa.gov/vcc.html}{MODIS Vegetation Continuous Fields} and the MODIS NDVI/EVI product.
 \item \code{topography_elevation_average} and \code{topography_elevation_range}: Average elevation of the ecoregion and its range.
 \item \code{fragmentation_ai} to \code{fragmentation_te}: Geographic fragmentation indices of the ecoregion,  computed with the R package \href{https://CRAN.R-project.org/package=landscapemetrics}{landscapemetrics}.
-\item \code{ndvi_character_ordered}: Ordered character version of the column \code{landcover_ndvi_average}.
-\item \code{landlocked_binary}: Defines whether a ecoregion is landlocked (value \code{1}) or not (value \code{0}).
-\item \code{landcover_character_unordered}: Dominant landcover of the ecoregion (one of: "bare", "herbs", and "trees"), computed from the columns \code{landcover_bare_percent_average}, \code{landcover_herbs_percent_average}, and \code{landcover_trees_percent_average}.
+\item \code{primary_productivity}: Character. Ordered character version of the column \code{landcover_ndvi_average}.
+\item \code{landlocked}: Binary. Defines whether a ecoregion is landlocked (value \code{1}) or not (value \code{0}).
+\item \code{dominant_landcover}: Factor. Dominant landcover of the ecoregion (one of: "bare", "herbs", and "trees"), computed from the columns \code{landcover_bare_percent_average}, \code{landcover_herbs_percent_average}, and \code{landcover_trees_percent_average}.
 
 }
 }

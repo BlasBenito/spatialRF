@@ -20,9 +20,9 @@
 #'   \item `topography_elevation_average` and `topography_elevation_range`: Average elevation of the ecoregion and its range.
 
 #'   \item `fragmentation_ai` to `fragmentation_te`: Geographic fragmentation indices of the ecoregion,  computed with the R package [landscapemetrics](https://CRAN.R-project.org/package=landscapemetrics).
-#'   \item `ndvi_character_ordered`: Ordered character version of the column `landcover_ndvi_average`.
-#'   \item `landlocked_binary`: Defines whether a ecoregion is landlocked (value `1`) or not (value `0`).
-#'   \item `landcover_character_unordered`: Dominant landcover of the ecoregion (one of: "bare", "herbs", and "trees"), computed from the columns `landcover_bare_percent_average`, `landcover_herbs_percent_average`, and `landcover_trees_percent_average`.
+#'   \item `primary_productivity`: Character. Ordered character version of the column `landcover_ndvi_average`.
+#'   \item `landlocked`: Binary. Defines whether a ecoregion is landlocked (value `1`) or not (value `0`).
+#'   \item `dominant_landcover`: Factor. Dominant landcover of the ecoregion (one of: "bare", "herbs", and "trees"), computed from the columns `landcover_bare_percent_average`, `landcover_herbs_percent_average`, and `landcover_trees_percent_average`.
 #'
 #' }
 "ecoregions_df"
