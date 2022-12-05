@@ -1,17 +1,19 @@
 #' Target encoding of character and factor variables
 #'
-#' @description Converts character and factor variables to numeric. For each character or factor column, it replaces each value with the corresponding mean of the response column (as defined by the argument `dependent.variable.name`). For example, if the response column has the values 1, 2, 3, and 4, and the character column has the values "a", "a", "b", and "b", then "a" is replaced with 1.5, and "b" is replaced by 3.5.
+#' @description Converts character and factor variables to numeric using the method known as "greedy target encoding". For each character or factor column, it replaces each value with the corresponding mean of the response column (as defined by the argument `dependent.variable.name`). For example, if the response column has the values 1, 2, 3, and 4, and the character column has the values "a", "a", "b", and "b", then "a" is replaced with 1.5, and "b" is replaced by 3.5.
 #'
 #' Target encoding facilitates using any kind of character or factor variable as numeric.
 #'
 #' @param data (required; data frame, tibble, or sf) A training data frame. Default: `NULL`
 #' @param dependent.variable.name (required; character string) Name of the response. Must be a column name of `data`. Default: `NULL`
 #' @param predictor.variable.names (required; character vector). Names of all the predictors in `data`.  Default: `NULL`
+#' @param verbose (optional; logical) If TRUE, messages and plots generated during the execution of the function are displayed. Default: `TRUE`
 #'
-#' @return A list with two slots:
+#' @return
+#' If no target encoding is needed because all predictors are numeric, the function returns `data`. Otherwise it returns a list of the class "target_encoding" with the slots:
 #' \itemize{
 #'   \item `data`: Input data frame, but with target-encoded character or factor columns.
-#'   \item `encoding_maps`: List with slots named after the variables in `predictor.variable.names` that have been target encoded. Each slot contains a data frame with the old and new values of each target-encoded variable.
+#'   \item `encoding_map`: List with slots named after the variables in `predictor.variable.names` that have been target encoded. Each slot contains a data frame with the old and new values of each target-encoded variable.
 #' }
 #'
 #'
@@ -28,13 +30,14 @@
 #'
 #' x$data
 #'
-#' x$encoding_maps
+#' x$encoding_map
 #'
 #' }
 target_encoding <- function(
     data = NULL,
     dependent.variable.name = NULL,
-    predictor.variable.names = NULL
+    predictor.variable.names = NULL,
+    verbose = TRUE
 ){
 
   #avoid check complaints
@@ -100,8 +103,13 @@ target_encoding <- function(
   if(
     sum(data.numeric) == length(predictor.variable.names)
   ){
-    message("All predictors are numeric already, nothing to do.")
+
+    if(verbose == TRUE){
+      message("All predictors are numeric, nothing to do. Returning the input data frame.")
+    }
+
     return(data)
+
   }
 
   #factors to characters
@@ -137,12 +145,12 @@ target_encoding <- function(
       x = dplyr::pull(
         data,
         dependent.variable.name
-        ),
+      ),
       by = list(dplyr::pull(
         data.character,
         character.variable
-        )
-        ),
+      )
+      ),
       FUN = mean
     )
     names(df.map) <- c(character.variable, "target_encoding")
@@ -178,8 +186,10 @@ target_encoding <- function(
   #preparing output object
   out <- list(
     data = data,
-    encoding_maps = maps
+    encoding_map = maps
   )
+
+  class(out) <- "target_encoding"
 
   #return output
   out
