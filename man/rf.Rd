@@ -41,7 +41,7 @@ rf(
 
 \item{seed}{(optional; integer) Random seed to facilitate reproducibility. If set to a given number, the returned model is always the same. Default: \code{1}}
 
-\item{verbose}{(optional; logical) If TRUE, messages and plots generated during the execution of the function are displayed. Default: \code{TRUE}}
+\item{verbose}{(optional; logical) If TRUE, messages generated during the execution of the function are displayed. Default: \code{TRUE}}
 
 \item{n.cores}{(optional; integer) Number of cores to use. Default: \code{parallel::detectCores() - 1}}
 

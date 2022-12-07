@@ -2,12 +2,33 @@
 % Please edit documentation in R/target_encoding.R
 \name{target_encoding}
 \alias{target_encoding}
+\alias{target_encoding_mean}
+\alias{target_encoding_rnorm}
 \title{Target encoding of character and factor variables}
 \usage{
 target_encoding(
   data = NULL,
   dependent.variable.name = NULL,
-  predictor.variable.names = NULL
+  predictor.variable.names = NULL,
+  method = "mean",
+  seed = 1,
+  noise = 0,
+  verbose = TRUE
+)
+
+target_encoding_mean(
+  data,
+  dependent.variable.name,
+  predictor.variable.names,
+  noise = 0,
+  seed = 1
+)
+
+target_encoding_rnorm(
+  data,
+  dependent.variable.name,
+  predictor.variable.names,
+  seed = 1
 )
 }
 \arguments{
@@ -16,16 +37,34 @@ target_encoding(
 \item{dependent.variable.name}{(required; character string) Name of the response. Must be a column name of \code{data}. Default: \code{NULL}}
 
 \item{predictor.variable.names}{(required; character vector). Names of all the predictors in \code{data}.  Default: \code{NULL}}
+
+\item{method}{(optional; character string). Name of the target encoding method. The ones available are:
+\itemize{
+\item \code{mean}: uses the mean value of the response over the group. This option may lead to leakage if no \code{noise} is applied.
+\item \code{rnorm}: uses \code{rnorm()} to generate values taken from a normal distribution with the mean and standard deviation of the response over the group. Aggressive option against leakage.
+}}
+
+\item{seed}{(optional; integer) Random seed to facilitate reproducibility. If set to a given number, the returned model is always the same. Default: \code{1}}
+
+\item{noise}{(optional; numeric) Numeric in the range 0-1. Noise to add to the encoding to reduce data leakage. Expressed as a quantile of \code{dependent.variable.name}. If \code{noise = 0.1}, a random number between \code{min(dependent.variable.name)} and \code{quantile(dependent.variable.name, probs = 0.1)} will be added to the encoding. This option only applies to \code{method = "mean"}. Default: \code{0}.}
+
+\item{verbose}{(optional; logical) If TRUE, messages and plots generated during the execution of the function are displayed. Default: \code{TRUE}}
 }
 \value{
-A list with two slots:
+If no target encoding is needed because all predictors are numeric, the function returns \code{data}. Otherwise it returns a list of the class "target_encoding" with the slots:
 \itemize{
 \item \code{data}: Input data frame, but with target-encoded character or factor columns.
-\item \code{encoding_maps}: List with slots named after the variables in \code{predictor.variable.names} that have been target encoded. Each slot contains a data frame with the old and new values of each target-encoded variable.
+\item \code{leakage_test}: Data frame with the results of a linear model between the target-encoded variable and the response aimed to identify potential data leakage. It contains the following columns:
+\itemize{
+\item \code{variable}: name of the target-encoded variable.
+\item \code{r_squared}: R-squared resulting from \code{cor.test()} on the target-encoded variable and the response.
+\item \code{interpretation}: Interpretation of the test, with the values "Leakage", "Likely leakage", "Unlikely leakage", and "No leakage". If you find concerning results, you may either increase the value of the \code{noise} argument (if \code{method = "mean"}), or select the "rnorm" method.
+}
+\item \code{encoding_map}: List with slots named after the variables in \code{predictor.variable.names} that have been target encoded. Each slot contains a data frame with the old and new values of each target-encoded variable.
 }
 }
 \description{
-Converts character and factor variables to numeric. For each character or factor column, it replaces each value with the corresponding mean of the response column (as defined by the argument \code{dependent.variable.name}). For example, if the response column has the values 1, 2, 3, and 4, and the character column has the values "a", "a", "b", and "b", then "a" is replaced with 1.5, and "b" is replaced by 3.5.
+Converts character and factor variables to numeric using the method known as "greedy target encoding". For each character or factor column, it replaces each value with the corresponding mean of the response column (as defined by the argument \code{dependent.variable.name}). For example, if the response column has the values 1, 2, 3, and 4, and the character column has the values "a", "a", "b", and "b", then "a" is replaced with 1.5, and "b" is replaced by 3.5.
 
 Target encoding facilitates using any kind of character or factor variable as numeric.
 }
@@ -40,7 +79,7 @@ x <- target_encoding(
 
 x$data
 
-x$encoding_maps
+x$encoding_map
 
 }
 }
