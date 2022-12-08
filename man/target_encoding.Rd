@@ -4,6 +4,8 @@
 \alias{target_encoding}
 \alias{target_encoding_mean}
 \alias{target_encoding_rnorm}
+\alias{target_encoding_rank}
+\alias{target_encoding_noise}
 \title{Target encoding of character and factor variables}
 \usage{
 target_encoding(
@@ -28,6 +30,22 @@ target_encoding_rnorm(
   data,
   dependent.variable.name,
   predictor.variable.names,
+  seed = 1
+)
+
+target_encoding_rank(
+  data,
+  dependent.variable.name,
+  predictor.variable.names,
+  noise = 0,
+  seed = 1
+)
+
+target_encoding_noise(
+  data,
+  dependent.variable.name,
+  predictor.variable.names,
+  noise = 0,
   seed = 1
 )
 }

@@ -57,6 +57,15 @@ target_encoding <- function(
     verbose = TRUE
 ){
 
+  # data for development
+  # data = ecoregions_df
+  # dependent.variable.name = ecoregions_continuous_response
+  # predictor.variable.names = ecoregions_all_predictors
+  # method = "mean"
+  # seed = 1
+  # noise = 0
+  # verbose = TRUE
+
   #avoid check complaints
   . <- NULL
 
@@ -111,7 +120,7 @@ target_encoding <- function(
   #return data if all predictors are numeric
   data.numeric <- unlist(
     lapply(
-      X = data[, predictor.variable.names],
+      X = data[, predictor.variable.names, drop = FALSE],
       FUN = is.numeric
     )
   )
@@ -142,7 +151,7 @@ target_encoding <- function(
   #find names of character variables
   character.variables <- predictor.variable.names[unlist(
     lapply(
-      X = data[, predictor.variable.names],
+      X = data[, predictor.variable.names, drop = FALSE],
       FUN = is.character
     )
   )]
@@ -178,6 +187,18 @@ target_encoding <- function(
       data = data,
       dependent.variable.name = dependent.variable.name,
       predictor.variable.names = predictor.variable.names,
+      seed = seed
+    )
+
+  }
+
+  if(method == "rank"){
+
+    data <- target_encoding_rank(
+      data = data,
+      dependent.variable.name = dependent.variable.name,
+      predictor.variable.names = predictor.variable.names,
+      noise = noise,
       seed = seed
     )
 
@@ -251,6 +272,9 @@ target_encoding <- function(
   if(return.tibble == TRUE){
     data <- tibble::as_tibble(data)
     leakage.df <- tibble::as_tibble(leakage.df)
+  } else {
+    data <- as.data.frame(data)
+    leakage.df <- as.data.frame(leakage.df)
   }
 
   #preparing output object
@@ -267,7 +291,7 @@ target_encoding <- function(
     message(
       "Leakage test:\n\n",
       paste0(
-        utils::capture.output(leakage.df),
+        utils::capture.output(as.data.frame(leakage.df)),
         collapse = "\n"
       ),
       "\n\nr_squared: correlation between the target-encoded variable and the response."
@@ -300,10 +324,14 @@ target_encoding_mean <- function(
   #find names of character variables
   character.variables <- predictor.variable.names[unlist(
     lapply(
-      X = data[, predictor.variable.names],
+      X = data[, predictor.variable.names, drop = FALSE],
       FUN = is.character
     )
   )]
+
+  if(length(character.variables) == 0){
+    return(data)
+  }
 
   #iterating over character variables
   for(character.variable in character.variables){
@@ -340,51 +368,16 @@ target_encoding_mean <- function(
     #rename encoded variable
     colnames(data)[colnames(data) == "target_encoding"] <- character.variable
 
-    #add noise, if any
-    if(noise > 0){
+    #add noise if any
+    data <- target_encoding_noise(
+      data = data,
+      dependent.variable.name = dependent.variable.name,
+      predictor.variable.names = character.variable,
+      noise = noise,
+      seed = seed
+    )
 
-      #finding min and max noise limits
-      y <- dplyr::pull(
-        data,
-        character.variable
-      )
-
-      #generate noise
-      set.seed(seed)
-
-      if(is_binary_response(
-        x = dplyr::pull(
-          data,
-          dependent.variable.name
-        )
-      ) == TRUE){
-
-        noise.vector <- stats::runif(
-          n = length(y),
-          min = 0,
-          max = noise
-        )
-
-      } else {
-
-        noise.vector <- stats::runif(
-          n = length(y),
-          min = min(y),
-          max = stats::quantile(
-            x = y,
-            probs = noise
-          )
-        )
-
-      }
-
-
-      #add noise
-      data[, character.variable] <- data[, character.variable] + noise.vector
-
-    }
-
-  }
+  }#end of loop over character variables
 
   data
 
@@ -410,15 +403,22 @@ target_encoding_rnorm <- function(
   #find names of character variables
   character.variables <- predictor.variable.names[unlist(
     lapply(
-      X = data[, predictor.variable.names],
+      X = data[, predictor.variable.names, drop = FALSE],
       FUN = is.character
     )
   )]
+
+  if(length(character.variables) == 0){
+    return(data)
+  }
 
   #iterating over character variables
   for(character.variable in character.variables){
 
     set.seed(seed)
+
+    #new values vector
+    new.values <- vector()
 
     #iterate over groups to encode variable
     for(group.i in unique(dplyr::pull(
@@ -431,19 +431,173 @@ target_encoding_rnorm <- function(
         dependent.variable.name
         ]
 
-      data[
-        data[, character.variable] == group.i,
-        character.variable
-      ] <- stats::rnorm(
-        n = length(group.i.response),
-        mean = mean(group.i.response),
-        sd = sd(group.i.response)
+      new.values <- c(
+        new.values,
+        stats::rnorm(
+          n = length(group.i.response),
+          mean = mean(group.i.response),
+          sd = sd(group.i.response)
+        )
       )
 
     } #end of iteration over groups
 
+    #as numeric
+    data[, character.variable] <- new.values
+
   } #end of iteration over variables
 
+  data
+
+}
+
+
+#' @rdname target_encoding
+#' @export
+target_encoding_rank <- function(
+    data,
+    dependent.variable.name,
+    predictor.variable.names,
+    noise = 0,
+    seed = 1
+){
+
+  #detect character variables
+  character.variables <- predictor.variable.names[unlist(
+    lapply(
+      X = data[, predictor.variable.names, drop = FALSE],
+      FUN = is.character
+    )
+  )]
+
+  if(length(character.variables) == 0){
+    return(data)
+  }
+
+  #mean encoding without noise
+  data <- target_encoding_mean(
+    data = data,
+    dependent.variable.name = dependent.variable.name,
+    predictor.variable.names = predictor.variable.names,
+    noise = 0,
+    seed = seed
+  )
+
+  #convert values to ranks
+  for(character.variable in character.variables){
+
+    #unique values
+    character.variable.unique <- data[, character.variable] %>%
+      unique() %>%
+      sort()
+
+    #create dictionary
+    rank.df <- data.frame(
+      x = character.variable.unique,
+      y = seq_along(character.variable.unique)
+    )
+    colnames(rank.df) <- c(character.variable, "rank")
+
+    #join to data
+    data <- merge(
+      x = data,
+      y = rank.df,
+      by = character.variable
+    )
+
+    #remove the original values
+    data[, character.variable] <- NULL
+
+    #rename rank
+    colnames(data)[colnames(data) == "rank"] <- character.variable
+
+    #add noise if any
+    data <- target_encoding_noise(
+      data = data,
+      dependent.variable.name = dependent.variable.name,
+      predictor.variable.names = character.variable,
+      noise = noise,
+      seed = seed
+    )
+
+  }
+
+  #returning output
+  data
+
+}
+
+#' @rdname target_encoding
+#' @export
+target_encoding_noise <- function(
+    data,
+    dependent.variable.name,
+    predictor.variable.names,
+    noise = 0,
+    seed = 1
+){
+
+
+  if(noise == 0){
+    return(data)
+  }
+
+  #iterating over predictors
+  for(predictor.variable.name in predictor.variable.names){
+
+
+    #finding min and max noise limits
+    y <- dplyr::pull(
+      data,
+      predictor.variable.name
+    )
+
+    #generate noise
+    set.seed(seed)
+
+    if(is_binary_response(
+      x = dplyr::pull(
+        data,
+        dependent.variable.name
+      )
+    ) == TRUE){
+
+      noise.vector <- stats::runif(
+        n = length(y),
+        min = 0,
+        max = noise
+      )
+
+    } else {
+
+      min.y <- max.y <- min(y)
+
+      #increment noise if it's too low
+      while(max.y == min.y){
+
+        max.y <- stats::quantile(
+          x = y,
+          probs = noise
+        )
+
+        noise <- noise + 0.01
+
+      }
+
+      noise.vector <- stats::runif(
+        n = length(y),
+        min = min.y,
+        max = max.y
+      )
+
+    }
+
+    #add noise
+    data[, predictor.variable.name] <- data[, predictor.variable.name] + noise.vector
+
+  }
+
+  #return data
   data
 
 }

@@ -76,10 +76,14 @@ testthat::test_that("`target_encoding()` works", {
     all = ecoregions_all_predictors
   )
 
+  methods <- c("mean", "rnorm", "rank")
+
   #iterating over input lists
   for(training.i in names(training)){
     for(response.i in names(response)){
       for(predictors.i in names(predictors)){
+        for(method.i in methods){
+
 
         #arguments for debugging
         model = NULL
@@ -101,7 +105,7 @@ testthat::test_that("`target_encoding()` works", {
           data = training[[training.i]],
           dependent.variable.name = response[[response.i]],
           predictor.variable.names = predictors[[predictors.i]],
-          method = "mean",
+          method = method.i,
           noise = 0.05,
           seed = 100
         )
@@ -127,11 +131,9 @@ testthat::test_that("`target_encoding()` works", {
           TRUE
         )
 
-
+        }
       }
     }
   }
-
-
 
 })
