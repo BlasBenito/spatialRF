@@ -178,7 +178,8 @@ target_encoding <- function(
       paste0(
         character.variables,
         collapse = "\n"
-      )
+      ),
+      "\n"
     )
   }
 
@@ -316,12 +317,14 @@ target_encoding <- function(
   #message with output
   if(verbose == TRUE){
     message(
-      "Leakage test:\n\n",
+      "Leakage test for method ",
+      method,
+      ":\n\n",
       paste0(
         utils::capture.output(as.data.frame(leakage.df)),
         collapse = "\n"
       ),
-      "\n\nr_squared: correlation between the target-encoded variable and the response."
+      "\n\nr_squared: correlation between the target-encoded variable and the response.\n"
     )
   }
 
@@ -419,14 +422,6 @@ target_encoding_rnorm <- function(
     seed = 1
 ){
 
-  #noise bounds
-  if(noise < 0){
-    noise <- 0
-  }
-  if(noise > 1){
-    noise <- 1
-  }
-
   #find names of character variables
   character.variables <- predictor.variable.names[unlist(
     lapply(
@@ -442,30 +437,40 @@ target_encoding_rnorm <- function(
   #iterating over character variables
   for(character.variable in character.variables){
 
+    data.copy <- dplyr::select(
+      data,
+      dplyr::all_of(
+        c(
+          dependent.variable.name,
+          character.variable
+          )
+      )
+    )
+
+
     set.seed(seed)
 
     #new values vector
-    new.values <- vector()
+    new.values <- rep(NA, nrow(data))
 
     #iterate over groups to encode variable
     for(group.i in unique(dplyr::pull(
-      data,
+      data.copy,
       character.variable
     ))){
 
-      group.i.response <- data[
-        data[, character.variable] == group.i,
-        dependent.variable.name
-        ]
+      group.i.indices <- which(data.copy[, character.variable] == group.i)
 
-      new.values <- c(
-        new.values,
-        stats::rnorm(
-          n = length(group.i.response),
-          mean = mean(group.i.response),
-          sd = sd(group.i.response)
+      group.i.response <- data.copy %>%
+        dplyr::select(dependent.variable.name) %>%
+        dplyr::slice(group.i.indices) %>%
+        dplyr::pull(dependent.variable.name)
+
+      new.values[group.i.indices] <- stats::rnorm(
+        n = length(group.i.response),
+        mean = mean(group.i.response),
+        sd = sd(group.i.response)
         )
-      )
 
     } #end of iteration over groups
 
