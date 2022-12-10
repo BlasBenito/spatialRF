@@ -61,7 +61,7 @@ target_encoding <- function(
 ){
 
   # data for development
-  # data = ecoregions_df
+  # data = ecoregions_sf
   # dependent.variable.name = ecoregions_continuous_response
   # predictor.variable.names = ecoregions_all_predictors
   # method = "rank"
@@ -136,7 +136,7 @@ target_encoding <- function(
   #return data if all predictors are numeric
   data.numeric <- unlist(
     lapply(
-      X = data[, predictor.variable.names, drop = FALSE],
+      X = dplyr::select(data, predictor.variable.names),
       FUN = is.numeric
     )
   )
@@ -451,7 +451,7 @@ target_encoding_rnorm <- function(
     set.seed(seed)
 
     #new values vector
-    new.values <- rep(NA, nrow(data))
+    new.values <- rep(NA, nrow(data.copy))
 
     #iterate over groups to encode variable
     for(group.i in unique(dplyr::pull(
@@ -459,12 +459,12 @@ target_encoding_rnorm <- function(
       character.variable
     ))){
 
-      group.i.indices <- which(data.copy[, character.variable] == group.i)
+      group.i.indices <- which(data.copy[[character.variable]] == group.i)
 
       group.i.response <- data.copy %>%
-        dplyr::select(dependent.variable.name) %>%
+        dplyr::select(dplyr::all_of(dependent.variable.name)) %>%
         dplyr::slice(group.i.indices) %>%
-        dplyr::pull(dependent.variable.name)
+        dplyr::pull(dplyr::all_of(dependent.variable.name))
 
       new.values[group.i.indices] <- stats::rnorm(
         n = length(group.i.response),
@@ -519,7 +519,8 @@ target_encoding_rank <- function(
   for(character.variable in character.variables){
 
     #unique means
-    character.variable.unique <- data[, character.variable] %>%
+    character.variable.unique <- data %>%
+      dplyr::pull(character.variable) %>%
       unique() %>%
       sort()
 
@@ -625,7 +626,7 @@ target_encoding_noise <- function(
     }
 
     #add noise
-    data[, predictor.variable.name] <- data[, predictor.variable.name] + noise.vector
+    data[, predictor.variable.name] <- data[[predictor.variable.name]] + noise.vector
 
   }
 
@@ -667,23 +668,20 @@ target_encoding_loo <- function(
     ))){
 
       #get group indices
-      group.i.indices <- which(data[, character.variable] == group.i)
+      group.i.indices <- which(data[[character.variable]] == group.i)
 
       #iterate over group samples
       for(sample.i in group.i.indices){
 
         new.values[sample.i] <- mean(
-          data[
-            group.i.indices[group.i.indices != sample.i],
-            dependent.variable.name
-          ]
-        )
+          data[[dependent.variable.name]][group.i.indices[group.i.indices != sample.i]]
+          )
 
       } #end of iterations over group samples
     } #end of iterations over groups
 
     #as numeric
-    data[, character.variable] <- new.values
+    data[[character.variable]] <- new.values
 
   }#end of iterations over variables
 

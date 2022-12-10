@@ -4,6 +4,8 @@ testthat::test_that("`target_encoding()` works", {
   #loading libraries
   library(spatialRF)
   library(magrittr)
+  library(sf)
+  library(dplyr)
 
   #loading data
   data(
