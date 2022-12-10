@@ -6,13 +6,14 @@
 \alias{target_encoding_rnorm}
 \alias{target_encoding_rank}
 \alias{target_encoding_noise}
+\alias{target_encoding_loo}
 \title{Target encoding of character and factor variables}
 \usage{
 target_encoding(
   data = NULL,
   dependent.variable.name = NULL,
   predictor.variable.names = NULL,
-  method = "mean",
+  method = "rank",
   seed = 1,
   noise = 0,
   verbose = TRUE
@@ -48,6 +49,8 @@ target_encoding_noise(
   noise = 0,
   seed = 1
 )
+
+target_encoding_loo(data, dependent.variable.name, predictor.variable.names)
 }
 \arguments{
 \item{data}{(required; data frame, tibble, or sf) A training data frame. Default: \code{NULL}}
@@ -58,8 +61,10 @@ target_encoding_noise(
 
 \item{method}{(optional; character string). Name of the target encoding method. The ones available are:
 \itemize{
-\item \code{mean}: uses the mean value of the response over the group. This option may lead to leakage if no \code{noise} is applied.
-\item \code{rnorm}: uses \code{rnorm()} to generate values taken from a normal distribution with the mean and standard deviation of the response over the group. Aggressive option against leakage.
+\item \code{rank} (default method): returns the order of the group as a integer if \code{noise = 0}, being the 1 the rank of the group with the lower mean of \code{dependent.variable.name}. This option accepts \code{noise}.
+\item \code{mean}: uses the mean value of the response over the group. This option accepts \code{noise}.
+\item \code{rnorm}: uses \code{rnorm()} to generate values taken from a normal distribution with the mean and standard deviation of the response over the group. This option does not accept \code{noise}.
+\item \code{leave-one-out} or \code{loo}: within each group, each character string is replaced with the mean of \code{dependent.variable.name} over the other cases of the same group.
 }}
 
 \item{seed}{(optional; integer) Random seed to facilitate reproducibility. If set to a given number, the returned model is always the same. Default: \code{1}}

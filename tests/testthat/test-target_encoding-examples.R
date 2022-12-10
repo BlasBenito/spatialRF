@@ -76,7 +76,7 @@ testthat::test_that("`target_encoding()` works", {
     all = ecoregions_all_predictors
   )
 
-  methods <- c("mean", "rnorm", "rank")
+  methods <- c("mean", "rnorm", "rank", "loo")
 
   #iterating over input lists
   for(training.i in names(training)){

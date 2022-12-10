@@ -9,8 +9,11 @@
 #' @param predictor.variable.names (required; character vector). Names of all the predictors in `data`.  Default: `NULL`
 #' @param method (optional; character string). Name of the target encoding method. The ones available are:
 #' \itemize{
-#'   \item `mean`: uses the mean value of the response over the group. This option may lead to leakage if no `noise` is applied.
-#'   \item `rnorm`: uses `rnorm()` to generate values taken from a normal distribution with the mean and standard deviation of the response over the group. Aggressive option against leakage.
+#'   \item `rank` (default method): returns the order of the group as a integer if `noise = 0`, being the 1 the rank of the group with the lower mean of `dependent.variable.name`. This option accepts `noise`.
+#'   \item `mean`: uses the mean value of the response over the group. This option accepts `noise`.
+
+#'   \item `rnorm`: uses `rnorm()` to generate values taken from a normal distribution with the mean and standard deviation of the response over the group. This option does not accept `noise`.
+#'   \item `leave-one-out` or `loo`: within each group, each character string is replaced with the mean of `dependent.variable.name` over the other cases of the same group.
 #' }
 #' @param seed (optional; integer) Random seed to facilitate reproducibility. If set to a given number, the returned model is always the same. Default: `1`
 #' @param noise (optional; numeric) Numeric in the range 0-1. Noise to add to the encoding to reduce data leakage. Expressed as a quantile of `dependent.variable.name`. If `noise = 0.1`, a random number between `min(dependent.variable.name)` and `quantile(dependent.variable.name, probs = 0.1)` will be added to the encoding. This option only applies to `method = "mean"`. Default: `0`.
@@ -51,7 +54,7 @@ target_encoding <- function(
     data = NULL,
     dependent.variable.name = NULL,
     predictor.variable.names = NULL,
-    method = "mean",
+    method = "rank",
     seed = 1,
     noise = 0,
     verbose = TRUE
@@ -61,10 +64,23 @@ target_encoding <- function(
   # data = ecoregions_df
   # dependent.variable.name = ecoregions_continuous_response
   # predictor.variable.names = ecoregions_all_predictors
-  # method = "mean"
+  # method = "rank"
   # seed = 1
   # noise = 0
   # verbose = TRUE
+
+  #testing method argument
+  method <- match.arg(
+    arg = method,
+    choices = c(
+      "rank",
+      "mean",
+      "rnorm",
+      "loo",
+      "leave-one-out"
+    ),
+    several.ok = FALSE
+  )
 
   #avoid check complaints
   . <- NULL
@@ -201,6 +217,17 @@ target_encoding <- function(
       noise = noise,
       seed = seed
     )
+
+  }
+
+  if(method %in% c("loo", "leave-one-out")){
+
+    data <- target_encoding_loo(
+      data = data,
+      dependent.variable.name = dependent.variable.name,
+      predictor.variable.names = predictor.variable.names
+    )
+
 
   }
 
@@ -483,10 +510,10 @@ target_encoding_rank <- function(
     seed = seed
   )
 
-  #convert values to ranks
+  #convert means to ranks
   for(character.variable in character.variables){
 
-    #unique values
+    #unique means
     character.variable.unique <- data[, character.variable] %>%
       unique() %>%
       sort()
@@ -598,6 +625,63 @@ target_encoding_noise <- function(
   }
 
   #return data
+  data
+
+}
+
+#' @rdname target_encoding
+#' @export
+target_encoding_loo <- function(
+    data,
+    dependent.variable.name,
+    predictor.variable.names
+){
+
+  #find names of character variables
+  character.variables <- predictor.variable.names[unlist(
+    lapply(
+      X = data[, predictor.variable.names, drop = FALSE],
+      FUN = is.character
+    )
+  )]
+
+  if(length(character.variables) == 0){
+    return(data)
+  }
+
+  #iterating over character variables
+  for(character.variable in character.variables){
+
+    #new values vector
+    new.values <- rep(NA, nrow(data))
+
+    #iterate over groups to encode variable
+    for(group.i in unique(dplyr::pull(
+      data,
+      character.variable
+    ))){
+
+      #get group indices
+      group.i.indices <- which(data[, character.variable] == group.i)
+
+      #iterate over group samples
+      for(sample.i in group.i.indices){
+
+        new.values[sample.i] <- mean(
+          data[
+            group.i.indices[group.i.indices != sample.i],
+            dependent.variable.name
+          ]
+        )
+
+      } #end of iterations over group samples
+    } #end of iterations over groups
+
+    #as numeric
+    data[, character.variable] <- new.values
+
+  }#end of iterations over variables
+
   data
 
 }
