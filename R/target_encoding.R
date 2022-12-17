@@ -428,45 +428,16 @@ target_encoding_rnorm <- function(
   #iterating over character variables
   for(character.variable in character.variables){
 
-    data.copy <- dplyr::select(
-      data,
-      dplyr::all_of(
-        c(
-          dependent.variable.name,
-          character.variable
-          )
+    set.seed(1)
+    data <- data %>%
+      dplyr::group_by({{character.variable}}) %>%
+      dplyr::mutate(!!character.variable := stats::rnorm(
+        n = dplyr::n(),
+        mean = mean(get(dependent.variable.name), na.rm = TRUE),
+        sd = sd(get(dependent.variable.name), na.rm = TRUE)
       )
-    )
-
-
-    set.seed(seed)
-
-    #new values vector
-    new.values <- rep(NA, nrow(data.copy))
-
-    #iterate over groups to encode variable
-    for(group.i in unique(dplyr::pull(
-      data.copy,
-      character.variable
-    ))){
-
-      group.i.indices <- which(data.copy[[character.variable]] == group.i)
-
-      group.i.response <- data.copy %>%
-        dplyr::select(dplyr::all_of(dependent.variable.name)) %>%
-        dplyr::slice(group.i.indices) %>%
-        dplyr::pull(dplyr::all_of(dependent.variable.name))
-
-      new.values[group.i.indices] <- stats::rnorm(
-        n = length(group.i.response),
-        mean = mean(group.i.response),
-        sd = sd(group.i.response)
-        )
-
-    } #end of iteration over groups
-
-    #as numeric
-    data[, character.variable] <- new.values
+      ) %>%
+      dplyr::ungroup()
 
   } #end of iteration over variables
 

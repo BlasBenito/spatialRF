@@ -20,7 +20,7 @@ seed <- 1
 
 character.variables <- predictor.variable.names[unlist(
   lapply(
-    X = data[, predictor.variable.names, drop = FALSE],
+    X = df[, predictor.variable.names, drop = FALSE],
     FUN = is.character
   )
 )]
@@ -31,12 +31,15 @@ data <- df
 #original time: 17 seconds
 #optimized: 1.2 seconds
 
+# target_encoding_rnorm ----------------------------------------------------
+#original time: 2 seconds
+#optimized: 0.5 seconds
+
 tic()
-x <- target_encoding_mean(
+x <- target_encoding_rnorm(
   data,
   dependent.variable.name,
   predictor.variable.names,
-  noise = 0.25,
   seed
 )
 toc()
