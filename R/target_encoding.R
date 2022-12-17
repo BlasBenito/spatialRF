@@ -367,36 +367,27 @@ target_encoding_mean <- function(
   for(character.variable in character.variables){
 
     #aggregate by groups
-    df.map <- stats::aggregate(
-      x = dplyr::pull(
-        data,
-        dependent.variable.name
-      ),
-      by = list(
-        dplyr::pull(
-          data,
-          character.variable
-        )
-      ),
-      FUN = mean
+    df.map <- tapply(
+      X = data[[dependent.variable.name]],
+      INDEX = data[[character.variable]],
+      FUN = mean,
+      na.rm = TRUE
     )
+    df.map <- data.frame(names(df.map), df.map)
     names(df.map) <- c(character.variable, "target_encoding")
 
     #merge
-    data <- merge(
+    data <- dplyr::inner_join(
       x = data,
       y = df.map,
       by = character.variable
-    )
-
-    #remove character variable
-    data <- dplyr::select(
-      data,
-      -{{character.variable}}
-    )
-
-    #rename encoded variable
-    colnames(data)[colnames(data) == "target_encoding"] <- character.variable
+    ) %>%
+      dplyr::select(
+        -!!character.variable
+      ) %>%
+      dplyr::rename(
+        !!character.variable := target_encoding
+      )
 
     #add noise if any
     data <- target_encoding_noise(
