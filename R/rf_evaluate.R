@@ -162,7 +162,7 @@ rf_evaluate <- function(
 
   #if data is binary, "auc" is used
   if(is_binary_response(
-    x = dplyr::pull(data, dependent.variable.name)
+    x = data[[dependent.variable.name]]
   )){
     binary_response <- TRUE
   } else {
@@ -288,10 +288,7 @@ rf_evaluate <- function(
     )$predictions
 
     #getting observed data
-    observed <- dplyr::pull(
-      data.testing,
-      dependent.variable.name
-      )
+    observed <- data.testing[[dependent.variable.name]]
 
     #computing performance metrics
     performance.df <- data.frame(
@@ -480,9 +477,7 @@ rf_evaluate <- function(
       dplyr::filter(
         metric == scv.column.i
       ) %>%
-      dplyr::pull(
-        value
-      ) %>%
+      dplyr::pull(value) %>%
       median()
   }
 

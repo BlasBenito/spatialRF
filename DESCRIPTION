@@ -23,13 +23,13 @@ Imports:
     foreach,
     doParallel,
     ranger,
-    rlang,
     tidyr,
     tidyselect,
     huxtable,
     patchwork,
     viridis,
-    purrr
+    purrr,
+    rlang
 Suggests: 
     testthat,
     spelling

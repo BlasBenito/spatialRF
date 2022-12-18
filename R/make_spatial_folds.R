@@ -187,15 +187,9 @@ make_spatial_fold <- function(
   names(distance.step) <- c("x", "y")
 
   #getting details of fold.center
-  fold.center.x <- dplyr::pull(
-    fold.center,
-    x
-    )
+  fold.center.x <- fold.center[[x]]
 
-  fold.center.y <- dplyr::pull(
-    fold.center,
-    y
-    )
+  fold.center.y <- fold.center[[y]]
 
   #finding out if data is binary
   is.binary <- FALSE

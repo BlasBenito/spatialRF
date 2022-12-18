@@ -138,7 +138,7 @@ rf_jackknife <- function(
 
   #if data is binary, "auc" is added
   if(is_binary_response(
-    x = dplyr::pull(data, dependent.variable.name)
+    x = data[[dependent.variable.name]]
   )){
     metrics <- c(metrics, "auc")
   } else {
@@ -181,10 +181,10 @@ rf_jackknife <- function(
 
     #generating training data
     training.df.without.i <- data.frame(
-      y = dplyr::pull(data, dependent.variable.name),
-      x1 = dplyr::pull(data, predictor.i),
-      x2 = dplyr::pull(data, predictor.i),
-      x3 = dplyr::pull(data, predictor.i)
+      y = data[[dependent.variable.name ]],
+      x1 = data[[predictor.i]],
+      x2 = data[[predictor.i]],
+      x3 = data[[predictor.i]]
     )
 
     #evaluating the model with only the variable

@@ -440,10 +440,7 @@ rf <- function(
 
   #computing case weights if dependent.variable.name is binary
   case.weights <- case_weights(
-    x = dplyr::pull(
-      data,
-      dependent.variable.name
-      ),
+    x = data[[dependent.variable.name]],
     case.weights = case.weights
   )
 
@@ -642,7 +639,7 @@ rf <- function(
   m$predictions$oob <- predicted_oob
 
   #getting observed data
-  observed <- dplyr::pull(data, dependent.variable.name)
+  observed <- data[[dependent.variable.name]]
 
   #MODEL PERFORMANCE
   ##################################
@@ -652,10 +649,7 @@ rf <- function(
 
   #defining_metrics
   if(is_binary_response(
-    x = dplyr::pull(
-      data,
-      dependent.variable.name
-      )
+    x = data[[dependent.variable.name]]
   ) == TRUE){
 
     #point biserial correlation

@@ -138,9 +138,9 @@ plot_response_surface <- function(
 
     #iterating through variables
     for(variable in other.variables){
-      ab.grid.i[, variable] <- quantile(
-        dplyr::pull(data, variable),
-        quantile.i
+      ab.grid.i[, variable] <- stats::quantile(
+        x = data[[variable]],
+        probs = quantile.i
         )
     }
 

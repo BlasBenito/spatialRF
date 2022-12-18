@@ -123,8 +123,8 @@ plot_response_curves <- function(
     #generating grid
     variable.i.grid <- data.frame(
       variable = seq(
-        min(dplyr::pull(data, variable.i)),
-        max(dplyr::pull(data, variable.i)),
+        from = min(data[[variable.i]]),
+        to = max(data[[variable.i]]),
         length.out = grid.resolution
       )
     )
@@ -144,8 +144,8 @@ plot_response_curves <- function(
       for(variable.j in other.variables){
 
         variable.i.grid.copy[, variable.j] <- quantile(
-          dplyr::pull(data, variable.j),
-          quantile.i
+          x = data[[variable.j]],
+          probs = quantile.i
           )
 
       }

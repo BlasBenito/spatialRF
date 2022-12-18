@@ -151,10 +151,7 @@ select_spatial_predictors_sequential <- function(
 
   #check if response is binary
   binary.response <- is_binary_response(
-    x = dplyr::pull(
-      data,
-      dependent.variable.name
-      )
+    x = data[[dependent.variable.name]]
     )
 
   ##########################

@@ -197,7 +197,7 @@ rf_tuning <- function(
 
   #testing if the data is binary
   if(is_binary_response(
-    x = dplyr::pull(data, dependent.variable.name)
+    x = data[[dependent.variable.name]]
   )
   ){
     metric <- "auc"

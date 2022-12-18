@@ -109,7 +109,7 @@ rf_select <- function(
 
   #if data is binary, "auc" is added
   if(is_binary_response(
-    x = dplyr::pull(data, dependent.variable.name)
+    x = data[[dependent.variable.name]]
   )){
     metrics <- c(metrics, "auc")
   } else {
@@ -305,10 +305,10 @@ rf_select <- function(
       variable.i <- selected.variables[1]
       model.i <- spatialRF::rf(
         data = data.frame(
-          y = dplyr::pull(data, dependent.variable.name),
-          x1 = dplyr::pull(data, variable.i),
-          x2 = dplyr::pull(data, variable.i),
-          x3 = dplyr::pull(data, variable.i)
+          y = data[[dependent.variable.name]],
+          x1 = data[[variable.i]],
+          x2 = data[[variable.i]],
+          x3 = data[[variable.i]]
         ),
         dependent.variable.name = "y",
         predictor.variable.names = c("x1", "x2", "x3"),
