@@ -6,7 +6,7 @@
 #'
 #' @param data (required; data frame, tibble, or sf) A training data frame. Default: `NULL`
 #' @param dependent.variable.name (required; character string) Name of the response. Must be a column name of `data`. Default: `NULL`
-#' @param predictor.variable.names (required; character vector). Names of all the predictors in `data`.  Default: `NULL`
+#' @param predictor.variable.names (required; character vector). Names of all the predictors in `data`. Only character and factor predictors are processed, but all are returned in the "data" slot of the function's output.  Default: `NULL`
 #' @param method (optional; character string). Name of the target encoding method. The ones available are:
 #' \itemize{
 #'   \item `rank` (default method): returns the order of the group as a integer if `noise = 0`, being the 1 the rank of the group with the lower mean of `dependent.variable.name`. This option accepts `noise`.
@@ -16,7 +16,8 @@
 #'   \item `leave-one-out` or `loo`: within each group, each character string is replaced with the mean of `dependent.variable.name` over the other cases of the same group.
 #' }
 #' @param seed (optional; integer) Random seed to facilitate reproducibility. If set to a given number, the returned model is always the same. Default: `1`
-#' @param noise (optional; numeric) Numeric in the range 0-1. Noise to add to the encoding to reduce data leakage. Expressed as a quantile of `dependent.variable.name`. If `noise = 0.1`, a random number between `min(dependent.variable.name)` and `quantile(dependent.variable.name, probs = 0.1)` will be added to the encoding. This option only applies to `method = "mean"`. Default: `0`.
+#' @param noise (optional; numeric) Only in methods "mean" and "rank". Numeric in the range 0-1. White noise (generated with `stats::rnorm()`) to add to a target-encoded variable to increase diversity and reduce data leakage. Represents a fraction of the average between-groups difference of a target-encoded variable. For example, if noise = 0.25 and the target-encoded variable has the unique values c(1, 2, 3), as it could be the case when using the "rank" method, then the average between-groups difference would be 1, and the range of the noise added to each row would go between 0 and 0.25. Default: `0`.
+#' @param sd.width (optional; numeric) Only in method "rnorm". Numeric in the range 0.01-1 representing the width of the actual per-group standard deviation to use. For example, if the standard deviation of the values of the response for a given group in a character variable is 1.2, and sd.wdith = 0.5, then the standard deviation used in `rnorm()` is 0.6 instead. Smaller numbers help reduce the width of the random values assigned to each group. Default: `0.5` (half the standard deviation of the response for each group).
 #' @param verbose (optional; logical) If TRUE, messages and plots generated during the execution of the function are displayed. Default: `TRUE`
 #'
 #' @return
@@ -38,15 +39,160 @@
 #' @examples
 #' if(interactive()){
 #'
-#' x <- target_encoding(
-#'   data = ecoregions_df,
-#'   dependent.variable.name = ecoregions_continuous_response,
-#'   predictor.variable.names = ecoregions_all_predictors
+#' #loading example data
+#' data(
+#'   ecoregions_df,
+#'   ecoregions_continuous_response
 #'   )
 #'
-#' x$data
+#' #selecting response and two character/factor variables
+#' df <- ecoregions_df %>%
+#'   dplyr::select(
+#'     !!ecoregions_continuous_response,
+#'     dominant_landcover
+#'   )
 #'
-#' x$encoding_map
+#' #levels of the variable
+#' unique(df$dominant_landcover)
+#'
+#' #first few lines of df
+#' head(df)
+#'
+#'
+#' #method = "mean"
+#' #--------------------------------------------------------
+#' x.mean <- target_encoding(
+#'   data = df,
+#'   dependent.variable.name = ecoregions_continuous_response,
+#'   #you can pass all your numeric and character predictors to this function
+#'   #here I only pass it the character ones to simplify the example
+#'   predictor.variable.names = "dominant_landcover",
+#'   method = "mean"
+#'   )
+#'
+#' #leakage test produced by the function
+#' #use `verbose = FALSE` to disable
+#' # Encoding the variables:
+#' #   primary_productivity
+#' # dominant_landcover
+#' #
+#' # Leakage test for method mean:
+#' #
+#' #   variable r_squared   interpretation
+#' # 1 primary_productivity     0.485 Unlikely leakage
+#' # 2   dominant_landcover     0.157       No leakage
+#' #
+#' # r_squared: correlation between the target-encoded variable and the response.
+#'
+#' #checking the new version of the data
+#' head(x.mean$data)
+#'
+#' #plot spread
+#' plot(x = sort(x.mean$data$dominant_landcover))
+#'
+#' #checking the encoding map
+#' lapply(x.mean$encoding_map, head)
+#'
+#'
+#' #method = "mean" plus noise
+#' #--------------------------------------------------------
+#' x.mean.noise <- target_encoding(
+#'   data = df,
+#'   dependent.variable.name = ecoregions_continuous_response,
+#'   predictor.variable.names = "dominant_landcover",
+#'   method = "mean",
+#'   noise = 0.25,
+#'   seed = 1 #important to replicate results!
+#' )
+#'
+#' #checking the new version of the data
+#' head(x.mean.noise$data)
+#'
+#' #plot spread
+#' plot(x = sort(x.mean.noise$data$dominant_landcover))
+#'
+#' #checking the encoding map
+#' lapply(x.mean.noise$encoding_map, head)
+#'
+#'
+#' #method = "rank"
+#' #--------------------------------------------------------
+#' x.rank <- target_encoding(
+#'   data = df,
+#'   dependent.variable.name = ecoregions_continuous_response,
+#'   predictor.variable.names = "dominant_landcover",
+#'   method = "rank"
+#' )
+#'
+#' #checking the new version of the data
+#' head(x.rank$data)
+#'
+#' #plot spread
+#' plot(x = sort(x.rank$data$dominant_landcover))
+#'
+#' #checking the encoding map
+#' lapply(x.rank$encoding_map, head)
+#'
+#'
+#' #method = "rank" plus noise
+#' #--------------------------------------------------------
+#' x.rank.noise <- target_encoding(
+#'   data = df,
+#'   dependent.variable.name = ecoregions_continuous_response,
+#'   predictor.variable.names = "dominant_landcover",
+#'   method = "rank",
+#'   noise = 0.25,
+#'   seed = 1
+#' )
+#'
+#' #checking the new version of the data
+#' head(x.rank.noise$data)
+#'
+#' #plot spread
+#' plot(x = sort(x.rank.noise$data$dominant_landcover))
+#'
+#' #checking the encoding map
+#' lapply(x.rank.noise$encoding_map, head)
+#'
+#'
+#' #method = "loo" (leave-one-out)
+#' #--------------------------------------------------------
+#' x.loo <- target_encoding(
+#'   data = df,
+#'   dependent.variable.name = ecoregions_continuous_response,
+#'   predictor.variable.names = "dominant_landcover",
+#'   method = "loo"
+#' )
+#'
+#' #checking the new version of the data
+#' head(x.loo$data)
+#'
+#' #plot spread
+#' plot(x = sort(x.loo$data$dominant_landcover))
+#'
+#' #checking the encoding map
+#' lapply(x.loo$encoding_map, head)
+#'
+#'
+#' #method = "rnorm"
+#' #--------------------------------------------------------
+#' x.rnorm <- target_encoding(
+#'   data = dplyr::arrange(df, dominant_landcover),
+#'   dependent.variable.name = ecoregions_continuous_response,
+#'   predictor.variable.names = "dominant_landcover",
+#'   sd.width = 0.001, #experiment with this number and check the spread plot
+#'   method = "rnorm"
+#' )
+#'
+#' #checking the new version of the data
+#' head(x.rnorm$data)
+#'
+#' #plot spread
+#' plot(x = x.rnorm$data$dominant_landcover)
+#'
+#' #checking the encoding map
+#' lapply(x.rnorm$encoding_map, head)
+#'
 #'
 #' }
 #' @importFrom rlang :=
@@ -56,6 +202,7 @@ target_encoding <- function(
     dependent.variable.name = NULL,
     predictor.variable.names = NULL,
     method = "rank",
+    sd.width = 0.1,
     seed = 1,
     noise = 0,
     verbose = TRUE
@@ -85,6 +232,7 @@ target_encoding <- function(
 
   #avoid check complaints
   . <- NULL
+  new_value <- NULL
 
   #CHECK INPUT ARGUMENTS
 
@@ -244,7 +392,8 @@ target_encoding <- function(
     encoding.maps[[character.variable]] <- data.frame(
       old_value = data.copy[[character.variable]],
       new_value = data[[character.variable]]
-    )
+    ) %>%
+      dplyr::arrange(new_value)
 
     if(return.tibble == TRUE){
       encoding.maps[[character.variable]] <- tibble::as_tibble(encoding.maps[[character.variable]])
@@ -377,7 +526,6 @@ target_encoding_mean <- function(
     #add noise if any
     data <- target_encoding_noise(
       data = data,
-      dependent.variable.name = dependent.variable.name,
       predictor.variable.names = character.variable,
       noise = noise,
       seed = seed
@@ -395,8 +543,16 @@ target_encoding_rnorm <- function(
     data,
     dependent.variable.name,
     predictor.variable.names,
+    sd.width = 0.1,
     seed = 1
 ){
+
+  if(sd.width <= 0){
+    sd.width <- 0.0001
+  }
+  if(sd.width > 1){
+    sd.width <- 1
+  }
 
   #find names of character variables
   character.variables <- predictor.variable.names[unlist(
@@ -415,12 +571,13 @@ target_encoding_rnorm <- function(
 
     set.seed(1)
     data <- data %>%
-      dplyr::group_by_at(character.variable) %>%
-      dplyr::mutate(!!character.variable := stats::rnorm(
-        n = dplyr::n(),
-        mean = mean(get(dependent.variable.name), na.rm = TRUE),
-        sd = sd(get(dependent.variable.name), na.rm = TRUE)
-      )
+      dplyr::group_by(.data[[character.variable]]) %>%
+      dplyr::mutate(
+        !!character.variable := stats::rnorm(
+          n = dplyr::n(),
+          mean = mean(get(dependent.variable.name), na.rm = TRUE),
+          sd = sd(get(dependent.variable.name), na.rm = TRUE) * sd.width
+        )
       ) %>%
       dplyr::ungroup()
 
@@ -491,7 +648,6 @@ target_encoding_rank <- function(
     #add noise if any
     data <- target_encoding_noise(
       data = data,
-      dependent.variable.name = dependent.variable.name,
       predictor.variable.names = character.variable,
       noise = noise,
       seed = seed
@@ -507,7 +663,6 @@ target_encoding_rank <- function(
 #' @export
 target_encoding_noise <- function(
     data,
-    dependent.variable.name,
     predictor.variable.names,
     noise = 0,
     seed = 1
@@ -518,28 +673,22 @@ target_encoding_noise <- function(
     return(data)
   }
 
-  #generate noise
-  set.seed(seed)
+  #iterating over predictors
+  for(predictor.variable.name in predictor.variable.names){
 
-  #get response vector
-  x <- data[[dependent.variable.name]]
+    #get response vector
+    predictor.values <- data[[predictor.variable.name]]
 
-  #check if response is binary
-  response.is.binary <- is_binary_response(
-    x = x
-    )
-
-  #finding max noise
-  if(response.is.binary == FALSE){
+    #mean difference between groups
+    between.group.difference <- predictor.values %>%
+      sort() %>%
+      unique() %>%
+      diff() %>%
+      mean()
 
     #minimum noise
-    min.noise <- min(x)
-
-    #for continuous response, max.noise == quantile(x, noise)
-    max.noise <- stats::quantile(
-      x = x,
-      probs = noise
-    )
+    min.noise <- 0
+    max.noise <- between.group.difference * noise
 
     #if noise is too small
     if(min.noise == max.noise){
@@ -549,36 +698,22 @@ target_encoding_noise <- function(
 
         noise <- noise + 0.01
 
-        max.noise <- stats::quantile(
-          x = x,
-          probs = noise
-        )
+        max.noise <- between.group.difference * noise
 
       }
 
     }
 
-    #subtract min noise to center noise at 0
-    max.noise <- max.noise - min.noise
+    #reset random seed
+    set.seed(seed)
 
-
-  } else {
-    #for binary responses, max.noise == noise
-    max.noise <- noise
-  }
-
-  #random seed
-  set.seed(seed)
-
-  #iterating over predictors
-  for(predictor.variable.name in predictor.variable.names){
-
-    #add noise
-    data[[predictor.variable.name]] <- data[[predictor.variable.name]] + stats::runif(
-      n = length(x),
-      min = 0,
-      max = max.noise
-    )
+    #add noise to the given variable
+    data[[predictor.variable.name]] <- predictor.values +
+      stats::rnorm(
+        n = length(predictor.values)
+      ) %>%
+      abs() %>%
+      rescale_vector(new.min = min.noise, new.max = max.noise)
 
   }
 
