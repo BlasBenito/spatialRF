@@ -2,51 +2,21 @@
 % Please edit documentation in R/fe_target_encoding.R
 \name{fe_target_encoding}
 \alias{fe_target_encoding}
-\alias{fe_target_encoding_mean}
-\alias{fe_target_encoding_rnorm}
-\alias{fe_target_encoding_rank}
 \alias{fe_target_encoding_noise}
-\alias{fe_target_encoding_loo}
 \title{Target encoding of character and factor variables}
 \usage{
 fe_target_encoding(
   data = NULL,
   dependent.variable.name = NULL,
   predictor.variable.names = NULL,
-  method = "rank",
+  methods = c("mean", "rank", "rnorm", "loo"),
   sd.width = 0.1,
   seed = 1,
   noise = 0,
   verbose = TRUE
 )
 
-fe_target_encoding_mean(
-  data,
-  dependent.variable.name,
-  predictor.variable.names,
-  noise = 0,
-  seed = 1
-)
-
-fe_target_encoding_rnorm(
-  data,
-  dependent.variable.name,
-  predictor.variable.names,
-  sd.width = 0.1,
-  seed = 1
-)
-
-fe_target_encoding_rank(
-  data,
-  dependent.variable.name,
-  predictor.variable.names,
-  noise = 0,
-  seed = 1
-)
-
-fe_target_encoding_noise(data, predictor.variable.names, noise = 0, seed = 1)
-
-fe_target_encoding_loo(data, dependent.variable.name, predictor.variable.names)
+fe_target_encoding_noise(data, categorical.variable.name, noise = 0, seed = 1)
 }
 \arguments{
 \item{data}{(required; data frame, tibble, or sf) A training data frame. Default: \code{NULL}}
@@ -55,19 +25,13 @@ fe_target_encoding_loo(data, dependent.variable.name, predictor.variable.names)
 
 \item{predictor.variable.names}{(required; character vector). Names of all the predictors in \code{data}. Only character and factor predictors are processed, but all are returned in the "data" slot of the function's output.  Default: \code{NULL}}
 
-\item{method}{(optional; character string). Name of the target encoding method. The ones available are:
-\itemize{
-\item \code{rank} (default method): returns the order of the group as a integer if \code{noise = 0}, being the 1 the rank of the group with the lower mean of \code{dependent.variable.name}. This option accepts \code{noise}.
-\item \code{mean}: uses the mean value of the response over the group. This option accepts \code{noise}.
-\item \code{rnorm}: uses \code{rnorm()} to generate values taken from a normal distribution with the mean and standard deviation of the response over the group. This option does not accept \code{noise}.
-\item \code{leave-one-out} or \code{loo}: within each group, each character string is replaced with the mean of \code{dependent.variable.name} over the other cases of the same group.
-}}
+\item{methods}{(optional; character string). Name of the target encoding methods. Default: \code{c("mean", "rank", "rnorm", "loo")}}
 
-\item{sd.width}{(optional; numeric) Only in method "rnorm". Numeric in the range 0.01-1 representing the width of the actual per-group standard deviation to use. For example, if the standard deviation of the values of the response for a given group in a character variable is 1.2, and sd.wdith = 0.5, then the standard deviation used in \code{rnorm()} is 0.6 instead. Smaller numbers help reduce the width of the random values assigned to each group. Default: \code{0.5} (half the standard deviation of the response for each group).}
+\item{sd.width}{(optional; numeric) Only for the method "rnorm". Numeric in the range 0.01-1. Default: \code{0.1}}
 
-\item{seed}{(optional; integer) Random seed to facilitate reproducibility. If set to a given number, the returned model is always the same. Default: \code{1}}
+\item{seed}{(optional; integer) Random seed to facilitate reproducibility. Default: \code{1}}
 
-\item{noise}{(optional; numeric) Only in methods "mean" and "rank". Numeric in the range 0-1. White noise (generated with \code{stats::rnorm()}) to add to a target-encoded variable to increase diversity and reduce data leakage. Represents a fraction of the average between-groups difference of a target-encoded variable. For example, if noise = 0.25 and the target-encoded variable has the unique values c(1, 2, 3), as it could be the case when using the "rank" method, then the average between-groups difference would be 1, and the range of the noise added to each row would go between 0 and 0.25. Default: \code{0}.}
+\item{noise}{(optional; numeric) Only in methods "mean" and "rank". Numeric in the range 0-1. Default: \code{0}.}
 
 \item{verbose}{(optional; logical) If TRUE, messages and plots generated during the execution of the function are displayed. Default: \code{TRUE}}
 }
@@ -77,175 +41,31 @@ If no target encoding is needed because all predictors are numeric, the function
 \item \code{data}: Input data frame, but with target-encoded character or factor columns.
 \item \code{leakage_test}: Data frame with the results of a linear model between the target-encoded variable and the response aimed to identify potential data leakage. It contains the following columns:
 \itemize{
-\item \code{variable}: name of the target-encoded variable.
-\item \code{r_squared}: R-squared resulting from \code{cor.test()} on the target-encoded variable and the response.
+\item \code{encoded_predictor}: name of the target-encoded variable.
+\item \code{correlation_with_response}: R-squared resulting from \code{cor.test()} on the target-encoded variable and the response.
 \item \code{interpretation}: Interpretation of the test, with the values "Leakage", "Likely leakage", "Unlikely leakage", and "No leakage". If you find concerning results, you may either increase the value of the \code{noise} argument (if \code{method = "mean"}), or select the "rnorm" method.
 }
-\item \code{encoding_map}: List with slots named after the variables in \code{predictor.variable.names} that have been target encoded. Each slot contains a data frame with the old and new values of each target-encoded variable.
 }
 }
 \description{
-Converts character and factor variables to numeric using the method known as "greedy target encoding". For each character or factor column, it replaces each value with the corresponding mean of the response column (as defined by the argument \code{dependent.variable.name}). For example, if the response column has the values 1, 2, 3, and 4, and the character column has the values "a", "a", "b", and "b", then "a" is replaced with 1.5, and "b" is replaced by 3.5.
+Target encoding involves replacing the values of categorical variables with continuous values that are indicative of the response variable. There are several approaches to target encoding, including calculating the mean target value for each level of the categorical variable. Target encoding can be useful for improving the performance of machine learning models, but it can also introduce bias if the encoded values are not representative of the true underlying relationship between the categorical variables and the target.
 
-Target encoding facilitates using any kind of character or factor variable as numeric.
+This function identifies categorical variables in the input data frame, transforms them using a set of methods defined by the user, and returns the input data frame with the newly encoded variables.
+
+The target encoding methods implemented in this function are:
+
+#' \itemize{
+\item \code{rank}: returns the order of the group as a integer, being the 1 the rank of the group with the lower mean of of the response variable. This method accepts the  \code{noise} argument, which adds white noise to the result to increase data variability and reduce leakage. The variables returned by this method are named with the suffix "__encoded_rank". This method is implemented in the function \code{\link[=fe_target_encoding_rank]{fe_target_encoding_rank()}}.
+\item \code{mean}: uses the mean value of the response over each group in the categorical variable. This option accepts \code{noise}. The variables returned by this method are named with the suffix "__encoded_mean".  This method is implemented in the function \code{\link[=fe_target_encoding_mean]{fe_target_encoding_mean()}}.
+\item \code{rnorm}: This method computes the mean and standard deviation of the response for each group of the categorical variable, and uses \code{\link[=rnorm]{rnorm()}} to generate values taken from a normal distribution. The argument \code{sd.width} is used as a multiplier of the standard deviation to reduce the range of values produced by \code{\link[=rnorm]{rnorm()}} for each group of the categorical predictor. The variables returned by this method are named with the suffix "__encoded_rnorm".  This method is implemented in the function \code{\link[=fe_target_encoding_rnorm]{fe_target_encoding_rnorm()}}.
+\item \code{loo}: This is the leave-one-out method. Each categorical value is replaced with the mean of the response variable across the other cases within the same group. The variables returned by this method are named with the suffix "__encoded_loo". This method is implemented in the function \code{\link[=fe_target_encoding_loo]{fe_target_encoding_loo()}}.
+}
+
+The methods "mean" and "rank" support the \code{noise} argument. Values larger than zero in this argument add white noise to the target-encoded variables using \code{stats::rnorm()} via the function \code{\link[=fe_target_encoding_noise]{fe_target_encoding_noise()}}). The \code{noise} argument represents a fraction of the average differences between groups of the target-encoded variable. For example, if noise = 0.25 and the target-encoded variable has the unique values c(1, 2, 3), as it could be the case when using the "rank" method, then the average between-groups difference would be 1, and the range of the noise added to each row would go between 0 and 0.25
+
+The method "rnorm" has the argument \code{sd.width}, which multiplies the standard deviation argument of the \code{rnorm()} function to limit the spread of the encoded values between groups.
 }
 \examples{
 if(interactive()){
-
-#loading example data
-data(
-  ecoregions_df,
-  ecoregions_continuous_response
-  )
-
-#selecting response and two character/factor variables
-df <- ecoregions_df \%>\%
-  dplyr::select(
-    !!ecoregions_continuous_response,
-    dominant_landcover
-  )
-
-#levels of the variable
-unique(df$dominant_landcover)
-
-#first few lines of df
-head(df)
-
-
-#method = "mean"
-#--------------------------------------------------------
-x.mean <- fe_target_encoding(
-  data = df,
-  dependent.variable.name = ecoregions_continuous_response,
-  #you can pass all your numeric and character predictors to this function
-  #here I only pass it the character ones to simplify the example
-  predictor.variable.names = "dominant_landcover",
-  method = "mean"
-  )
-
-#leakage test produced by the function
-#use `verbose = FALSE` to disable
-# Encoding the variables:
-#   primary_productivity
-# dominant_landcover
-#
-# Leakage test for method mean:
-#
-#   variable r_squared   interpretation
-# 1 primary_productivity     0.485 Unlikely leakage
-# 2   dominant_landcover     0.157       No leakage
-#
-# r_squared: correlation between the target-encoded variable and the response.
-
-#checking the new version of the data
-head(x.mean$data)
-
-#plot spread
-plot(x = sort(x.mean$data$dominant_landcover))
-
-#checking the encoding map
-lapply(x.mean$encoding_map, head)
-
-
-#method = "mean" plus noise
-#--------------------------------------------------------
-x.mean.noise <- fe_target_encoding(
-  data = df,
-  dependent.variable.name = ecoregions_continuous_response,
-  predictor.variable.names = "dominant_landcover",
-  method = "mean",
-  noise = 0.25,
-  seed = 1 #important to replicate results!
-)
-
-#checking the new version of the data
-head(x.mean.noise$data)
-
-#plot spread
-plot(x = sort(x.mean.noise$data$dominant_landcover))
-
-#checking the encoding map
-lapply(x.mean.noise$encoding_map, head)
-
-
-#method = "rank"
-#--------------------------------------------------------
-x.rank <- fe_target_encoding(
-  data = df,
-  dependent.variable.name = ecoregions_continuous_response,
-  predictor.variable.names = "dominant_landcover",
-  method = "rank"
-)
-
-#checking the new version of the data
-head(x.rank$data)
-
-#plot spread
-plot(x = sort(x.rank$data$dominant_landcover))
-
-#checking the encoding map
-lapply(x.rank$encoding_map, head)
-
-
-#method = "rank" plus noise
-#--------------------------------------------------------
-x.rank.noise <- fe_target_encoding(
-  data = df,
-  dependent.variable.name = ecoregions_continuous_response,
-  predictor.variable.names = "dominant_landcover",
-  method = "rank",
-  noise = 0.25,
-  seed = 1
-)
-
-#checking the new version of the data
-head(x.rank.noise$data)
-
-#plot spread
-plot(x = sort(x.rank.noise$data$dominant_landcover))
-
-#checking the encoding map
-lapply(x.rank.noise$encoding_map, head)
-
-
-#method = "loo" (leave-one-out)
-#--------------------------------------------------------
-x.loo <- fe_target_encoding(
-  data = df,
-  dependent.variable.name = ecoregions_continuous_response,
-  predictor.variable.names = "dominant_landcover",
-  method = "loo"
-)
-
-#checking the new version of the data
-head(x.loo$data)
-
-#plot spread
-plot(x = sort(x.loo$data$dominant_landcover))
-
-#checking the encoding map
-lapply(x.loo$encoding_map, head)
-
-
-#method = "rnorm"
-#--------------------------------------------------------
-x.rnorm <- fe_target_encoding(
-  data = dplyr::arrange(df, dominant_landcover),
-  dependent.variable.name = ecoregions_continuous_response,
-  predictor.variable.names = "dominant_landcover",
-  sd.width = 0.001, #experiment with this number and check the spread plot
-  method = "rnorm"
-)
-
-#checking the new version of the data
-head(x.rnorm$data)
-
-#plot spread
-plot(x = x.rnorm$data$dominant_landcover)
-
-#checking the encoding map
-lapply(x.rnorm$encoding_map, head)
-
-
 }
 }

@@ -1,7 +1,8 @@
 #loading example data
 data(
   ecoregions_df,
-  ecoregions_continuous_response
+  ecoregions_continuous_response,
+  ecoregions_all_predictors
   )
 
 #selecting response and two character/factor variables

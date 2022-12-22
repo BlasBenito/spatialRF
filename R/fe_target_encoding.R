@@ -1,23 +1,29 @@
 #' Target encoding of character and factor variables
 #'
-#' @description Converts character and factor variables to numeric using the method known as "greedy target encoding". For each character or factor column, it replaces each value with the corresponding mean of the response column (as defined by the argument `dependent.variable.name`). For example, if the response column has the values 1, 2, 3, and 4, and the character column has the values "a", "a", "b", and "b", then "a" is replaced with 1.5, and "b" is replaced by 3.5.
+#' @description Target encoding involves replacing the values of categorical variables with continuous values that are indicative of the response variable. There are several approaches to target encoding, including calculating the mean target value for each level of the categorical variable. Target encoding can be useful for improving the performance of machine learning models, but it can also introduce bias if the encoded values are not representative of the true underlying relationship between the categorical variables and the target.
 #'
-#' Target encoding facilitates using any kind of character or factor variable as numeric.
+#' This function identifies categorical variables in the input data frame, transforms them using a set of methods defined by the user, and returns the input data frame with the newly encoded variables.
+#'
+#' The target encoding methods implemented in this function are:
+#'
+#' #' \itemize{
+#'   \item `rank`: returns the order of the group as a integer, being the 1 the rank of the group with the lower mean of of the response variable. This method accepts the  `noise` argument, which adds white noise to the result to increase data variability and reduce leakage. The variables returned by this method are named with the suffix "__encoded_rank". This method is implemented in the function [fe_target_encoding_rank()].
+#'   \item `mean`: uses the mean value of the response over each group in the categorical variable. This option accepts `noise`. The variables returned by this method are named with the suffix "__encoded_mean".  This method is implemented in the function [fe_target_encoding_mean()].
+#'   \item `rnorm`: This method computes the mean and standard deviation of the response for each group of the categorical variable, and uses [rnorm()] to generate values taken from a normal distribution. The argument `sd.width` is used as a multiplier of the standard deviation to reduce the range of values produced by [rnorm()] for each group of the categorical predictor. The variables returned by this method are named with the suffix "__encoded_rnorm".  This method is implemented in the function [fe_target_encoding_rnorm()].
+#'   \item `loo`: This is the leave-one-out method. Each categorical value is replaced with the mean of the response variable across the other cases within the same group. The variables returned by this method are named with the suffix "__encoded_loo". This method is implemented in the function [fe_target_encoding_loo()].
+#' }
+#'
+#' The methods "mean" and "rank" support the `noise` argument. Values larger than zero in this argument add white noise to the target-encoded variables using `stats::rnorm()` via the function [fe_target_encoding_noise()]). The `noise` argument represents a fraction of the average differences between groups of the target-encoded variable. For example, if noise = 0.25 and the target-encoded variable has the unique values c(1, 2, 3), as it could be the case when using the "rank" method, then the average between-groups difference would be 1, and the range of the noise added to each row would go between 0 and 0.25
+#'
+#' The method "rnorm" has the argument `sd.width`, which multiplies the standard deviation argument of the `rnorm()` function to limit the spread of the encoded values between groups.
 #'
 #' @param data (required; data frame, tibble, or sf) A training data frame. Default: `NULL`
 #' @param dependent.variable.name (required; character string) Name of the response. Must be a column name of `data`. Default: `NULL`
 #' @param predictor.variable.names (required; character vector). Names of all the predictors in `data`. Only character and factor predictors are processed, but all are returned in the "data" slot of the function's output.  Default: `NULL`
-#' @param method (optional; character string). Name of the target encoding method. The ones available are:
-#' \itemize{
-#'   \item `rank` (default method): returns the order of the group as a integer if `noise = 0`, being the 1 the rank of the group with the lower mean of `dependent.variable.name`. This option accepts `noise`.
-#'   \item `mean`: uses the mean value of the response over the group. This option accepts `noise`.
-
-#'   \item `rnorm`: uses `rnorm()` to generate values taken from a normal distribution with the mean and standard deviation of the response over the group. This option does not accept `noise`.
-#'   \item `leave-one-out` or `loo`: within each group, each character string is replaced with the mean of `dependent.variable.name` over the other cases of the same group.
-#' }
-#' @param seed (optional; integer) Random seed to facilitate reproducibility. If set to a given number, the returned model is always the same. Default: `1`
-#' @param noise (optional; numeric) Only in methods "mean" and "rank". Numeric in the range 0-1. White noise (generated with `stats::rnorm()`) to add to a target-encoded variable to increase diversity and reduce data leakage. Represents a fraction of the average between-groups difference of a target-encoded variable. For example, if noise = 0.25 and the target-encoded variable has the unique values c(1, 2, 3), as it could be the case when using the "rank" method, then the average between-groups difference would be 1, and the range of the noise added to each row would go between 0 and 0.25. Default: `0`.
-#' @param sd.width (optional; numeric) Only in method "rnorm". Numeric in the range 0.01-1 representing the width of the actual per-group standard deviation to use. For example, if the standard deviation of the values of the response for a given group in a character variable is 1.2, and sd.wdith = 0.5, then the standard deviation used in `rnorm()` is 0.6 instead. Smaller numbers help reduce the width of the random values assigned to each group. Default: `0.5` (half the standard deviation of the response for each group).
+#' @param methods (optional; character string). Name of the target encoding methods. Default: `c("mean", "rank", "rnorm", "loo")`
+#' @param seed (optional; integer) Random seed to facilitate reproducibility. Default: `1`
+#' @param noise (optional; numeric) Only in methods "mean" and "rank". Numeric in the range 0-1. Default: `0`.
+#' @param sd.width (optional; numeric) Only for the method "rnorm". Numeric in the range 0.01-1. Default: `0.1`
 #' @param verbose (optional; logical) If TRUE, messages and plots generated during the execution of the function are displayed. Default: `TRUE`
 #'
 #' @return
@@ -26,11 +32,10 @@
 #'   \item `data`: Input data frame, but with target-encoded character or factor columns.
 #'   \item `leakage_test`: Data frame with the results of a linear model between the target-encoded variable and the response aimed to identify potential data leakage. It contains the following columns:
 #'   \itemize{
-#'     \item `variable`: name of the target-encoded variable.
-#'     \item `r_squared`: R-squared resulting from `cor.test()` on the target-encoded variable and the response.
+#'     \item `encoded_predictor`: name of the target-encoded variable.
+#'     \item `correlation_with_response`: R-squared resulting from `cor.test()` on the target-encoded variable and the response.
 #'     \item `interpretation`: Interpretation of the test, with the values "Leakage", "Likely leakage", "Unlikely leakage", and "No leakage". If you find concerning results, you may either increase the value of the `noise` argument (if `method = "mean"`), or select the "rnorm" method.
 #'   }
-#'   \item `encoding_map`: List with slots named after the variables in `predictor.variable.names` that have been target encoded. Each slot contains a data frame with the old and new values of each target-encoded variable.
 #' }
 #'
 #'
@@ -168,7 +173,7 @@ fe_target_encoding <- function(
   )
 
   #find names of character variables
-  categorical.variables <- predictor.variable.names[unlist(
+  categorical.predictors <- predictor.variable.names[unlist(
     lapply(
       X = data[, predictor.variable.names, drop = FALSE],
       FUN = is.character
@@ -179,7 +184,7 @@ fe_target_encoding <- function(
     message(
       "Encoding the variables:\n",
       paste0(
-        categorical.variables,
+        categorical.predictors,
         collapse = "\n"
       ),
       "\n"
@@ -190,7 +195,7 @@ fe_target_encoding <- function(
   original.column.names <- colnames(data)
 
   #iterating over categorical variables
-  for(categorical.variable in categorical.variables){
+  for(categorical.predictor in categorical.predictors){
 
     #method "mean"
     if("mean" %in% methods){
@@ -198,7 +203,7 @@ fe_target_encoding <- function(
       data <- fe_target_encoding_mean(
         data = data,
         dependent.variable.name = dependent.variable.name,
-        categorical.variable.name = categorical.variable,
+        categorical.variable.name = categorical.predictor,
         noise = noise,
         seed = seed,
         verbose = verbose
@@ -211,7 +216,7 @@ fe_target_encoding <- function(
       data <- fe_target_encoding_rnorm(
         data = data,
         dependent.variable.name = dependent.variable.name,
-        categorical.variable.name = categorical.variable,
+        categorical.variable.name = categorical.predictor,
         seed = seed,
         verbose = verbose
       )
@@ -223,7 +228,7 @@ fe_target_encoding <- function(
       data <- fe_target_encoding_rank(
         data = data,
         dependent.variable.name = dependent.variable.name,
-        categorical.variable.name = categorical.variable,
+        categorical.variable.name = categorical.predictor,
         noise = noise,
         seed = seed
       )
@@ -235,7 +240,7 @@ fe_target_encoding <- function(
       data <- fe_target_encoding_loo(
         data = data,
         dependent.variable.name = dependent.variable.name,
-        categorical.variable.name = categorical.variable
+        categorical.variable.name = categorical.predictor
       )
 
     }
