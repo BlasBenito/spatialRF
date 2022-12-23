@@ -72,6 +72,9 @@ tidyr::pivot_longer(
   )
 
 
+
+
+
 #target_encoding mean
 data(
   ecoregions_df,
@@ -79,41 +82,23 @@ data(
   ecoregions_all_predictors
 )
 
-#the dataframe ecoregions_df contains two categorical variables
-unique(ecoregions_df$dominant_landcover)
+#the dataframe ecoregions_df contains a categorical variable named primary_productivity
 unique(ecoregions_df$primary_productivity)
 
 #transforming primary_productivity
-ecoregions_df <- fe_target_encoding_mean(
+ecoregions_df <- fe_target_encoding_loo(
   data = ecoregions_df,
   dependent.variable.name = ecoregions_continuous_response,
   categorical.variable.name = "primary_productivity"
   )
 
-#the encoded variable is named primary_productivity__encoded_mean
-ecoregions_df$primary_productivity__encoded_mean
+#the encoded variable is named primary_productivity__encoded_loo
 
-#correlation with the response
-cor(
-  x = ecoregions_df$plant_richness,
-  y = ecoregions_df$primary_productivity__encoded_mean
-)
-
-#adding noise
-ecoregions_df <- fe_target_encoding_mean(
-  data = ecoregions_df,
-  dependent.variable.name = ecoregions_continuous_response,
-  categorical.variable.name = "primary_productivity",
-  noise = 0.25
-)
-
-#the new encoded variable is named primary_productivity__encoded_mean_noise_0.25
-ecoregions_df$primary_productivity__encoded_mean_noise_0.25
-
-#correlation with the response
-cor(
-  x = ecoregions_df$plant_richness,
-  y = ecoregions_df$primary_productivity__encoded_mean_noise_0.25
-)
-
-
+#plotting it against the response
+ggplot2::ggplot(data = ecoregions_df) +
+  ggplot2::aes(
+    x = plant_richness,
+    y = primary_productivity__encoded_loo,
+    color = primary_productivity
+  ) +
+  ggplot2::geom_point()

@@ -58,54 +58,117 @@ fe_target_encoding_loo(
 }
 \value{
 The input data frame with a target-encoded variable.
-
-#' @examples
+}
+\description{
+Methods to apply target-encoding to individual categorical variables. The functions implemented are:
+\itemize{
+\item \code{fe_target_encoding_mean()}: Each group is identified by the mean of the response over the group cases. White noise can be added via the \code{noise} argument. Columns encoded with this function are identified by the suffix "__encoded_mean". If \code{noise} is used, then the amount of noise is also added to the suffix.
+\item \code{fe_target_encoding_rank()}: Each group is identified by the rank of the mean of the response variable over the group cases. The group with the lower mean receives the rank 1. White noise can be added via the \code{noise} argument. Columns encoded with this function are identified by the suffix "__encoded_rank". If \code{noise} is used, then the amount of noise is also added to the suffix.
+\item \code{fe_target_encoding_rnorm()}: Each case in a group receives a value coming from a normal distribution with the mean and the standard deviation of the response over the cases of the group. The argument \code{sd.width} multiplies the standard deviation to reduce the spread of the obtained values. Columns encoded with this function are identified by the suffix "__encoded_rnorm_sd.width_X", where X is the amount of \code{sd.width} used.
+\item \code{fe_target_encoding_loo()}: The suffix "loo" stands for "leave-one-out". Each case in a group is encoded as the average of the response over the other cases of the group. olumns encoded with this function are identified by the suffix "__encoded_loo".
+}
+}
+\examples{
 if(interactive()){
 
+#target_encoding mean
 data(
-ecoregions_df,
-ecoregions_continuous_response,
-ecoregions_all_predictors
+  ecoregions_df,
+  ecoregions_continuous_response,
+  ecoregions_all_predictors
 )
 
-#the dataframe ecoregions_df contains two categorical variables
-unique(ecoregions_df$dominant_landcover)
+#the dataframe ecoregions_df contains a categorical variable named primary_productivity
 unique(ecoregions_df$primary_productivity)
+
+
+#Group mean
+#########################################################
 
 #transforming primary_productivity
 ecoregions_df <- fe_target_encoding_mean(
-data = ecoregions_df,
-dependent.variable.name = ecoregions_continuous_response,
-categorical.variable.name = "primary_productivity"
+  data = ecoregions_df,
+  dependent.variable.name = ecoregions_continuous_response,
+  categorical.variable.name = "primary_productivity"
 )
 
 #the encoded variable is named primary_productivity__encoded_mean
-ecoregions_df$primary_productivity__encoded_mean
 
-#correlation with the response
-cor(
-x = ecoregions_df$plant_richness,
-y = ecoregions_df$primary_productivity__encoded_mean
+#plotting it against the response
+ggplot2::ggplot(data = ecoregions_df) +
+  ggplot2::aes(
+    x = plant_richness,
+    y = primary_productivity__encoded_mean,
+    color = primary_productivity
+  ) +
+  ggplot2::geom_point()
+
+
+#Group rank
+#########################################################
+
+#transforming primary_productivity
+ecoregions_df <- fe_target_encoding_rank(
+  data = ecoregions_df,
+  dependent.variable.name = ecoregions_continuous_response,
+  categorical.variable.name = "primary_productivity"
 )
 
-#adding noise
-ecoregions_df <- fe_target_encoding_mean(
-data = ecoregions_df,
-dependent.variable.name = ecoregions_continuous_response,
-categorical.variable.name = "primary_productivity",
-noise = 0.25
+#the encoded variable is named primary_productivity__encoded_rank
+
+#plotting it against the response
+ggplot2::ggplot(data = ecoregions_df) +
+  ggplot2::aes(
+    x = plant_richness,
+    y = primary_productivity__encoded_rank,
+    color = primary_productivity
+  ) +
+  ggplot2::geom_point()
+
+
+#Leave-one-out
+#########################################################
+#transforming primary_productivity
+ecoregions_df <- fe_target_encoding_loo(
+  data = ecoregions_df,
+  dependent.variable.name = ecoregions_continuous_response,
+  categorical.variable.name = "primary_productivity"
 )
 
-#the new encoded variable is named primary_productivity__encoded_mean_noise_0.25
-ecoregions_df$primary_productivity__encoded_mean_noise_0.25
+#the encoded variable is named primary_productivity__encoded_loo
 
-#correlation with the response
-cor(
-x = ecoregions_df$plant_richness,
-y = ecoregions_df$primary_productivity__encoded_mean_noise_0.25
+#plotting it against the response
+ggplot2::ggplot(data = ecoregions_df) +
+  ggplot2::aes(
+    x = plant_richness,
+    y = primary_productivity__encoded_loo,
+    color = primary_productivity
+  ) +
+  ggplot2::geom_point()
+
+
+#rnorm
+#########################################################
+
+#transforming primary_productivity
+ecoregions_df <- fe_target_encoding_rnorm(
+  data = ecoregions_df,
+  dependent.variable.name = ecoregions_continuous_response,
+  categorical.variable.name = "primary_productivity"
+)
+
+#the encoded variable is named primary_productivity__encoded_rnorm_sd.width_0.1
+
+#plotting it against the response
+ggplot2::ggplot(data = ecoregions_df) +
+  ggplot2::aes(
+    x = plant_richness,
+    y = primary_productivity__encoded_rnorm_sd.width_0.1,
+    color = primary_productivity
+  ) +
+  ggplot2::geom_point()
+
 
 }
-}
-\description{
-Target-encoding methods
+
 }
