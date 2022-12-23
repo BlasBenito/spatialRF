@@ -6,7 +6,7 @@
 #'
 #' The target encoding methods implemented in this function are:
 #'
-#' #' \itemize{
+#' \itemize{
 #'   \item `rank`: returns the order of the group as a integer, being the 1 the rank of the group with the lower mean of of the response variable. This method accepts the  `noise` argument, which adds white noise to the result to increase data variability and reduce leakage. The variables returned by this method are named with the suffix "__encoded_rank". This method is implemented in the function [fe_target_encoding_rank()].
 #'   \item `mean`: uses the mean value of the response over each group in the categorical variable. This option accepts `noise`. The variables returned by this method are named with the suffix "__encoded_mean".  This method is implemented in the function [fe_target_encoding_mean()].
 #'   \item `rnorm`: This method computes the mean and standard deviation of the response for each group of the categorical variable, and uses [rnorm()] to generate values taken from a normal distribution. The argument `sd.width` is used as a multiplier of the standard deviation to reduce the range of values produced by [rnorm()] for each group of the categorical predictor. The variables returned by this method are named with the suffix "__encoded_rnorm".  This method is implemented in the function [fe_target_encoding_rnorm()].
@@ -19,11 +19,11 @@
 #'
 #' @param data (required; data frame, tibble, or sf) A training data frame. Default: `NULL`
 #' @param dependent.variable.name (required; character string) Name of the response. Must be a column name of `data`. Default: `NULL`
-#' @param predictor.variable.names (required; character vector). Names of all the predictors in `data`. Only character and factor predictors are processed, but all are returned in the "data" slot of the function's output.  Default: `NULL`
+#' @param predictor.variable.names (required; character vector) Names of all the predictors in `data`. Only character and factor predictors are processed, but all are returned in the "data" slot of the function's output.  Default: `NULL`
 #' @param methods (optional; character string). Name of the target encoding methods. Default: `c("mean", "rank", "rnorm", "loo")`
 #' @param seed (optional; integer) Random seed to facilitate reproducibility. Default: `1`
-#' @param noise (optional; numeric) Only in methods "mean" and "rank". Numeric in the range 0-1. Default: `0`.
-#' @param sd.width (optional; numeric) Only for the method "rnorm". Numeric in the range 0.01-1. Default: `0.1`
+#' @param noise (optional; numeric vector) Only in methods "mean" and "rank". Numeric vector with noise values in the range 0-1. Default: `0`.
+#' @param sd.width (optional; numeric vector) Only for the method "rnorm". Numeric vector with multiplicators of the standard deviation of each group in the categorical variable, in the range 0.01-1. Default: `0.1`
 #' @param verbose (optional; logical) If TRUE, messages and plots generated during the execution of the function are displayed. Default: `TRUE`
 #'
 #' @return
@@ -43,8 +43,78 @@
 #'
 #' @examples
 #' if(interactive()){
+#'
+#' #loading example data
+#' data(
+#'   ecoregions_df,
+#'   ecoregions_continuous_response,
+#'   ecoregions_all_predictors
+#'   )
+#'
+#' #the dataframe ecoregions_df contains two categorical variables
+#' unique(ecoregions_df$dominant_landcover)
+#' unique(ecoregions_df$primary_productivity)
+#'
+#' #applying all methods for a continuous response
+#' output <- fe_target_encoding(
+#'   data = ecoregions_df,
+#'   dependent.variable.name = ecoregions_continuous_response,
+#'   predictor.variable.names = ecoregions_all_predictors,
+#'   methods = c(
+#'     "mean",
+#'     "rank",
+#'     "rnorm",
+#'     "loo"
+#'   ),
+#'   sd.width = c(0.01, 0.1, 1),
+#'   noise = c(0, 1)
+#' )
+#'
+#' #the output has several objects
+#' names(output)
+#'
+#' #names of the encoded predictors
+#' output$encoded_predictors
+#'
+#' #the data with the original and the encoded predictors
+#' colnames(output$data)
+#'
+#' #a leakage test assessing the correlation between the response and the encoded predictors
+#' output$leakage_test
+#'
+#' #plotting the transformations of "primary_productivity"
+#' tidyr::pivot_longer(
+#'   data = output$data,
+#'   cols = dplyr::all_of(
+#'     grep(
+#'       pattern = "primary_productivity",
+#'       x = output$encoded_predictors,
+#'       value = TRUE)
+#'     )
+#' ) %>%
+#'   dplyr::select(
+#'     plant_richness,
+#'     primary_productivity,
+#'     name,
+#'     value
+#'   ) %>%
+#'   ggplot2::ggplot() +
+#'   ggplot2::aes(
+#'     x = plant_richness,
+#'     y = value,
+#'     color = primary_productivity
+#'   ) +
+#'   ggplot2::facet_wrap(~name, scales = "free_y") +
+#'   ggplot2::geom_point() +
+#'   ggplot2::labs(
+#'     x = "Response values",
+#'     y = "Encoded values",
+#'     color = "Original\ngroups"
+#'   )
+#'
 #' }
 #' @importFrom rlang :=
+#' @importFrom sf st_drop_geometry
 #' @rdname fe_target_encoding
 fe_target_encoding <- function(
     data = NULL,
@@ -72,9 +142,9 @@ fe_target_encoding <- function(
   #   "rnorm",
   #   "loo"
   # )
-  # sd.width = 0.1
+  # sd.width = c(0.1, 0.2, 0.3)
   # seed = 1
-  # noise = 0
+  # noise = c(0, 0.1, 0.2)
   # verbose = TRUE
 
   #testing method argument
@@ -92,6 +162,10 @@ fe_target_encoding <- function(
   #avoid check complaints
   . <- NULL
   new_value <- NULL
+  r_squared <- NULL
+  encoded_predictor <- NULL
+  interpretation <- NULL
+  correlation_with_response <- NULL
 
   #CHECK INPUT ARGUMENTS
 
@@ -140,7 +214,10 @@ fe_target_encoding <- function(
   #return data if all predictors are numeric
   data.numeric <- unlist(
     lapply(
-      X = dplyr::select(data, predictor.variable.names),
+      X = dplyr::select(
+        data,
+        dplyr::all_of(predictor.variable.names)
+        ),
       FUN = is.numeric
     )
   )
@@ -156,9 +233,6 @@ fe_target_encoding <- function(
     return(data)
 
   }
-
-  #copy of data
-  data.copy <- data
 
   #factors to characters
   data <- rapply(
@@ -197,41 +271,55 @@ fe_target_encoding <- function(
   #iterating over categorical variables
   for(categorical.predictor in categorical.predictors){
 
-    #method "mean"
-    if("mean" %in% methods){
+      #method "mean"
+      if("mean" %in% methods){
 
-      data <- fe_target_encoding_mean(
-        data = data,
-        dependent.variable.name = dependent.variable.name,
-        categorical.variable.name = categorical.predictor,
-        noise = noise,
-        seed = seed,
-        verbose = verbose
-      )
+        for(noise.i in noise){
 
-    }
+        data <- fe_target_encoding_mean(
+          data = data,
+          dependent.variable.name = dependent.variable.name,
+          categorical.variable.name = categorical.predictor,
+          noise = noise.i,
+          seed = seed,
+          verbose = verbose
+        )
+
+        }
+
+      }
+
+      if("rank" %in% methods){
+
+        for(noise.i in noise){
+
+        data <- fe_target_encoding_rank(
+          data = data,
+          dependent.variable.name = dependent.variable.name,
+          categorical.variable.name = categorical.predictor,
+          noise = noise.i,
+          seed = seed
+        )
+
+        }
+
+      }
+
 
     if("rnorm" %in% methods){
 
-      data <- fe_target_encoding_rnorm(
-        data = data,
-        dependent.variable.name = dependent.variable.name,
-        categorical.variable.name = categorical.predictor,
-        seed = seed,
-        verbose = verbose
-      )
+      for(sd.width.i in sd.width){
 
-    }
+        data <- fe_target_encoding_rnorm(
+          data = data,
+          dependent.variable.name = dependent.variable.name,
+          categorical.variable.name = categorical.predictor,
+          sd.width = sd.width.i,
+          seed = seed,
+          verbose = verbose
+        )
 
-    if("rank" %in% methods){
-
-      data <- fe_target_encoding_rank(
-        data = data,
-        dependent.variable.name = dependent.variable.name,
-        categorical.variable.name = categorical.predictor,
-        noise = noise,
-        seed = seed
-      )
+      }
 
     }
 
@@ -255,7 +343,7 @@ fe_target_encoding <- function(
 
 
   leakage.df <- lapply(
-    X = data[, encoded.predictors],
+    X = sf::st_drop_geometry(data[, encoded.predictors]),
     FUN = function(x){
       stats::cor.test(
         x,
@@ -283,6 +371,9 @@ fe_target_encoding <- function(
       encoded_predictor,
       correlation_with_response = r_squared,
       interpretation
+    ) %>%
+    dplyr::arrange(
+      correlation_with_response
     )
 
   rownames(leakage.df) <- seq_len(nrow(leakage.df))
@@ -293,7 +384,9 @@ fe_target_encoding <- function(
     data <- tibble::as_tibble(data)
     leakage.df <- tibble::as_tibble(leakage.df)
   } else {
-    data <- as.data.frame(data)
+    if(!("sf" %in% class(data))){
+      data <- as.data.frame(data)
+    }
     leakage.df <- as.data.frame(leakage.df)
   }
 
@@ -309,9 +402,7 @@ fe_target_encoding <- function(
   #message with output
   if(verbose == TRUE){
     message(
-      "Leakage test for method ",
-      method,
-      ":\n\n",
+      "Leakage test for method:\n\n",
       paste0(
         utils::capture.output(as.data.frame(leakage.df)),
         collapse = "\n"
@@ -326,60 +417,3 @@ fe_target_encoding <- function(
 }
 
 
-#' @rdname fe_target_encoding
-#' @export
-fe_target_encoding_noise <- function(
-    data,
-    categorical.variable.name,
-    noise = 0,
-    seed = 1
-){
-
-  if(noise == 0){
-    return(data)
-  }
-
-  if(noise > 1){
-    noise <- 1
-  }
-
-  #mean difference between groups
-  between.group.difference <- data[[categorical.variable.name]] %>%
-    sort() %>%
-    unique() %>%
-    diff() %>%
-    mean()
-
-  #minimum noise
-  min.noise <- 0
-  max.noise <- between.group.difference * noise
-
-  #if noise is too small
-  if(min.noise == max.noise){
-
-    #increase noise until min and max noise are different
-    while(max.noise == min.noise){
-
-      noise <- noise + 0.01
-
-      max.noise <- between.group.difference * noise
-
-    }
-
-  }
-
-  #reset random seed
-  set.seed(seed)
-
-  #add noise to the given variable
-  data[[categorical.variable.name]] <- data[[categorical.variable.name]] +
-    stats::rnorm(
-      n = length(predictor.values)
-    ) %>%
-    abs() %>%
-    rescale_vector(new.min = min.noise, new.max = max.noise)
-
-  #return data
-  data
-
-}

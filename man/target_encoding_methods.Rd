@@ -5,7 +5,7 @@
 \alias{fe_target_encoding_rnorm}
 \alias{fe_target_encoding_rank}
 \alias{fe_target_encoding_loo}
-\title{Target encoding of character and factor variables}
+\title{Target-encoding methods}
 \usage{
 fe_target_encoding_mean(
   data,
@@ -46,45 +46,66 @@ fe_target_encoding_loo(
 
 \item{dependent.variable.name}{(required; character string) Name of the response. Must be a column name of \code{data}. Default: \code{NULL}}
 
-\item{noise}{(optional; numeric) Only in methods "mean" and "rank". Numeric in the range 0-1. White noise (generated with \code{stats::rnorm()}) to add to a target-encoded variable to increase diversity and reduce data leakage. Represents a fraction of the average between-groups difference of a target-encoded variable. For example, if noise = 0.25 and the target-encoded variable has the unique values c(1, 2, 3), as it could be the case when using the "rank" method, then the average between-groups difference would be 1, and the range of the noise added to each row would go between 0 and 0.25. Default: \code{0}.}
+\item{categorical.variable.name}{(required; character) Name of the categorical variable to encode.}
 
-\item{seed}{(optional; integer) Random seed to facilitate reproducibility. If set to a given number, the returned model is always the same. Default: \code{1}}
+\item{noise}{(optional; numeric) Numeric with noise values in the range 0-1. Default: \code{0}.}
+
+\item{seed}{(optional; integer) Random seed to facilitate reproducibility. Default: \code{1}}
 
 \item{verbose}{(optional; logical) If TRUE, messages and plots generated during the execution of the function are displayed. Default: \code{TRUE}}
 
-\item{sd.width}{(optional; numeric) Only in method "rnorm". Numeric in the range 0.01-1 representing the width of the actual per-group standard deviation to use. For example, if the standard deviation of the values of the response for a given group in a character variable is 1.2, and sd.wdith = 0.5, then the standard deviation used in \code{rnorm()} is 0.6 instead. Smaller numbers help reduce the width of the random values assigned to each group. Default: \code{0.5} (half the standard deviation of the response for each group).}
-
-\item{predictor.variable.names}{(required; character vector). Names of all the predictors in \code{data}. Only character and factor predictors are processed, but all are returned in the "data" slot of the function's output.  Default: \code{NULL}}
-
-\item{method}{(optional; character string). Name of the target encoding method. The ones available are:
-\itemize{
-\item \code{rank} (default method): returns the order of the group as a integer if \code{noise = 0}, being the 1 the rank of the group with the lower mean of \code{dependent.variable.name}. This option accepts \code{noise}.
-\item \code{mean}: uses the mean value of the response over the group. This option accepts \code{noise}.
-\item \code{rnorm}: uses \code{rnorm()} to generate values taken from a normal distribution with the mean and standard deviation of the response over the group. This option does not accept \code{noise}.
-\item \code{leave-one-out} or \code{loo}: within each group, each character string is replaced with the mean of \code{dependent.variable.name} over the other cases of the same group.
-}}
+\item{sd.width}{(optional; numeric) Numeric with multiplicator of the standard deviation of each group in the categorical variable, in the range 0.01-1. Default: \code{0.1}}
 }
 \value{
-If no target encoding is needed because all predictors are numeric, the function returns \code{data}. Otherwise it returns a list of the class "fe_target_encoding" with the slots:
-\itemize{
-\item \code{data}: Input data frame, but with target-encoded character or factor columns.
-\item \code{leakage_test}: Data frame with the results of a linear model between the target-encoded variable and the response aimed to identify potential data leakage. It contains the following columns:
-\itemize{
-\item \code{variable}: name of the target-encoded variable.
-\item \code{r_squared}: R-squared resulting from \code{cor.test()} on the target-encoded variable and the response.
-\item \code{interpretation}: Interpretation of the test, with the values "Leakage", "Likely leakage", "Unlikely leakage", and "No leakage". If you find concerning results, you may either increase the value of the \code{noise} argument (if \code{method = "mean"}), or select the "rnorm" method.
-}
-\item \code{encoding_map}: List with slots named after the variables in \code{predictor.variable.names} that have been target encoded. Each slot contains a data frame with the old and new values of each target-encoded variable.
+The input data frame with a target-encoded variable.
+
+#' @examples
+if(interactive()){
+
+data(
+ecoregions_df,
+ecoregions_continuous_response,
+ecoregions_all_predictors
+)
+
+#the dataframe ecoregions_df contains two categorical variables
+unique(ecoregions_df$dominant_landcover)
+unique(ecoregions_df$primary_productivity)
+
+#transforming primary_productivity
+ecoregions_df <- fe_target_encoding_mean(
+data = ecoregions_df,
+dependent.variable.name = ecoregions_continuous_response,
+categorical.variable.name = "primary_productivity"
+)
+
+#the encoded variable is named primary_productivity__encoded_mean
+ecoregions_df$primary_productivity__encoded_mean
+
+#correlation with the response
+cor(
+x = ecoregions_df$plant_richness,
+y = ecoregions_df$primary_productivity__encoded_mean
+)
+
+#adding noise
+ecoregions_df <- fe_target_encoding_mean(
+data = ecoregions_df,
+dependent.variable.name = ecoregions_continuous_response,
+categorical.variable.name = "primary_productivity",
+noise = 0.25
+)
+
+#the new encoded variable is named primary_productivity__encoded_mean_noise_0.25
+ecoregions_df$primary_productivity__encoded_mean_noise_0.25
+
+#correlation with the response
+cor(
+x = ecoregions_df$plant_richness,
+y = ecoregions_df$primary_productivity__encoded_mean_noise_0.25
+
 }
 }
 \description{
-Converts character and factor variables to numeric using the method known as "greedy target encoding". For each character or factor column, it replaces each value with the corresponding mean of the response column (as defined by the argument \code{dependent.variable.name}). For example, if the response column has the values 1, 2, 3, and 4, and the character column has the values "a", "a", "b", and "b", then "a" is replaced with 1.5, and "b" is replaced by 3.5.
-
-Target encoding facilitates using any kind of character or factor variable as numeric.
-}
-\examples{
-if(interactive()){
-
-
-}
+Target-encoding methods
 }

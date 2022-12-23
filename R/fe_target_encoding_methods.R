@@ -1,5 +1,66 @@
-#' @rdname target_encoding_methods
+#' Target-encoding methods
+#'
+#' @param data (required; data frame, tibble, or sf) A training data frame. Default: `NULL`
+#' @param dependent.variable.name (required; character string) Name of the response. Must be a column name of `data`. Default: `NULL`
+#' @param categorical.variable.name (required; character) Name of the categorical variable to encode.
+#' @param noise (optional; numeric) Numeric with noise values in the range 0-1. Default: `0`.
+#' @param sd.width (optional; numeric) Numeric with multiplicator of the standard deviation of each group in the categorical variable, in the range 0.01-1. Default: `0.1`
+#' @param seed (optional; integer) Random seed to facilitate reproducibility. Default: `1`
+#' @param verbose (optional; logical) If TRUE, messages and plots generated during the execution of the function are displayed. Default: `TRUE`
+#'
+#'
+#' @return The input data frame with a target-encoded variable.
+#'
+#' #' @examples
+#' if(interactive()){
+#'
+#' data(
+#'   ecoregions_df,
+#'   ecoregions_continuous_response,
+#'   ecoregions_all_predictors
+#' )
+#'
+#' #the dataframe ecoregions_df contains two categorical variables
+#' unique(ecoregions_df$dominant_landcover)
+#' unique(ecoregions_df$primary_productivity)
+#'
+#' #transforming primary_productivity
+#' ecoregions_df <- fe_target_encoding_mean(
+#'   data = ecoregions_df,
+#'   dependent.variable.name = ecoregions_continuous_response,
+#'   categorical.variable.name = "primary_productivity"
+#'   )
+#'
+#' #the encoded variable is named primary_productivity__encoded_mean
+#' ecoregions_df$primary_productivity__encoded_mean
+#'
+#' #correlation with the response
+#' cor(
+#'   x = ecoregions_df$plant_richness,
+#'   y = ecoregions_df$primary_productivity__encoded_mean
+#' )
+#'
+#' #adding noise
+#' ecoregions_df <- fe_target_encoding_mean(
+#'   data = ecoregions_df,
+#'   dependent.variable.name = ecoregions_continuous_response,
+#'   categorical.variable.name = "primary_productivity",
+#'   noise = 0.25
+#' )
+#'
+#' #the new encoded variable is named primary_productivity__encoded_mean_noise_0.25
+#' ecoregions_df$primary_productivity__encoded_mean_noise_0.25
+#'
+#' #correlation with the response
+#' cor(
+#'   x = ecoregions_df$plant_richness,
+#'   y = ecoregions_df$primary_productivity__encoded_mean_noise_0.25
+#'
+#'
+#' }
+#'
 #' @export
+#' @rdname target_encoding_methods
 fe_target_encoding_mean <- function(
     data,
     dependent.variable.name,
@@ -10,10 +71,20 @@ fe_target_encoding_mean <- function(
 ){
 
   #new variable name
-  categorical.variable.new.name <- paste0(
-    categorical.variable.name,
-    "__encoded_mean"
-  )
+  if(noise == 0){
+    categorical.variable.new.name <- paste0(
+      categorical.variable.name,
+      "__encoded_mean"
+    )
+  } else {
+    categorical.variable.new.name <- paste0(
+      categorical.variable.name,
+      "__encoded_mean_",
+      "noise_",
+      noise
+    )
+  }
+
 
   #aggregate by groups
   df.map <- tapply(
@@ -28,7 +99,6 @@ fe_target_encoding_mean <- function(
     categorical.variable.new.name
   )
 
-  #join
   data <- dplyr::inner_join(
     x = data,
     y = df.map,
@@ -74,10 +144,12 @@ fe_target_encoding_rnorm <- function(
     sd.width <- 1
   }
 
-  #new variable name
+
   categorical.variable.new.name <- paste0(
     categorical.variable.name,
-    "__encoded_rnorm"
+    "__encoded_rnorm_",
+    "sd.width_",
+    sd.width
   )
 
   set.seed(seed)
@@ -123,10 +195,19 @@ fe_target_encoding_rank <- function(
 ){
 
   #new variable name
-  categorical.variable.new.name <- paste0(
-    categorical.variable.name,
-    "__encoded_rank"
-  )
+  if(noise == 0){
+    categorical.variable.new.name <- paste0(
+      categorical.variable.name,
+      "__encoded_rank"
+    )
+  } else {
+    categorical.variable.new.name <- paste0(
+      categorical.variable.name,
+      "__encoded_rank_",
+      "noise_",
+      noise
+    )
+  }
 
   #aggregate by groups
   df.map <- tapply(
@@ -188,7 +269,7 @@ fe_target_encoding_loo <- function(
   #leave one out
   #by group, sum all cases of the response, subtract the value of the current row, and divide by n-1
   data <- data %>%
-    dplyr::group_by_at(categorical.variable.name) %>%
+    dplyr::group_by(.data[[categorical.variable.name]]) %>%
     dplyr::mutate(
       !!categorical.variable.new.name := (
         sum(
@@ -198,7 +279,8 @@ fe_target_encoding_loo <- function(
           get(dependent.variable.name)
       ) /
         (dplyr::n() - 1)
-    )
+    ) %>%
+    dplyr::ungroup()
 
   if(verbose == TRUE){
     message(
@@ -212,3 +294,61 @@ fe_target_encoding_loo <- function(
 
 }
 
+#' @rdname internal
+#' @keywords internal
+#' @export
+fe_target_encoding_noise <- function(
+    data,
+    categorical.variable.name,
+    noise = 0,
+    seed = 1
+){
+
+  if(noise == 0){
+    return(data)
+  }
+
+  if(noise > 1){
+    noise <- 1
+  }
+
+  #mean difference between groups
+  between.group.difference <- data[[categorical.variable.name]] %>%
+    sort() %>%
+    unique() %>%
+    diff() %>%
+    mean()
+
+  #minimum noise
+  min.noise <- 0
+  max.noise <- between.group.difference * noise
+
+  #if noise is too small
+  if(min.noise == max.noise){
+
+    #increase noise until min and max noise are different
+    while(max.noise == min.noise){
+
+      noise <- noise + 0.01
+
+      max.noise <- between.group.difference * noise
+
+    }
+
+  }
+
+  #reset random seed
+  set.seed(seed)
+
+  #add noise to the given variable
+  data[[categorical.variable.name]] <- data[[categorical.variable.name]] +
+    stats::rnorm(
+      n = nrow(data)
+    ) %>%
+    abs() %>%
+    rescale_vector(new.min = min.noise, new.max = max.noise)
+
+  #return data
+  data
+
+}

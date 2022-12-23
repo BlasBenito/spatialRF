@@ -2,7 +2,6 @@
 % Please edit documentation in R/fe_target_encoding.R
 \name{fe_target_encoding}
 \alias{fe_target_encoding}
-\alias{fe_target_encoding_noise}
 \title{Target encoding of character and factor variables}
 \usage{
 fe_target_encoding(
@@ -15,23 +14,21 @@ fe_target_encoding(
   noise = 0,
   verbose = TRUE
 )
-
-fe_target_encoding_noise(data, categorical.variable.name, noise = 0, seed = 1)
 }
 \arguments{
 \item{data}{(required; data frame, tibble, or sf) A training data frame. Default: \code{NULL}}
 
 \item{dependent.variable.name}{(required; character string) Name of the response. Must be a column name of \code{data}. Default: \code{NULL}}
 
-\item{predictor.variable.names}{(required; character vector). Names of all the predictors in \code{data}. Only character and factor predictors are processed, but all are returned in the "data" slot of the function's output.  Default: \code{NULL}}
+\item{predictor.variable.names}{(required; character vector) Names of all the predictors in \code{data}. Only character and factor predictors are processed, but all are returned in the "data" slot of the function's output.  Default: \code{NULL}}
 
 \item{methods}{(optional; character string). Name of the target encoding methods. Default: \code{c("mean", "rank", "rnorm", "loo")}}
 
-\item{sd.width}{(optional; numeric) Only for the method "rnorm". Numeric in the range 0.01-1. Default: \code{0.1}}
+\item{sd.width}{(optional; numeric vector) Only for the method "rnorm". Numeric vector with multiplicators of the standard deviation of each group in the categorical variable, in the range 0.01-1. Default: \code{0.1}}
 
 \item{seed}{(optional; integer) Random seed to facilitate reproducibility. Default: \code{1}}
 
-\item{noise}{(optional; numeric) Only in methods "mean" and "rank". Numeric in the range 0-1. Default: \code{0}.}
+\item{noise}{(optional; numeric vector) Only in methods "mean" and "rank". Numeric vector with noise values in the range 0-1. Default: \code{0}.}
 
 \item{verbose}{(optional; logical) If TRUE, messages and plots generated during the execution of the function are displayed. Default: \code{TRUE}}
 }
@@ -54,7 +51,7 @@ This function identifies categorical variables in the input data frame, transfor
 
 The target encoding methods implemented in this function are:
 
-#' \itemize{
+\itemize{
 \item \code{rank}: returns the order of the group as a integer, being the 1 the rank of the group with the lower mean of of the response variable. This method accepts the  \code{noise} argument, which adds white noise to the result to increase data variability and reduce leakage. The variables returned by this method are named with the suffix "__encoded_rank". This method is implemented in the function \code{\link[=fe_target_encoding_rank]{fe_target_encoding_rank()}}.
 \item \code{mean}: uses the mean value of the response over each group in the categorical variable. This option accepts \code{noise}. The variables returned by this method are named with the suffix "__encoded_mean".  This method is implemented in the function \code{\link[=fe_target_encoding_mean]{fe_target_encoding_mean()}}.
 \item \code{rnorm}: This method computes the mean and standard deviation of the response for each group of the categorical variable, and uses \code{\link[=rnorm]{rnorm()}} to generate values taken from a normal distribution. The argument \code{sd.width} is used as a multiplier of the standard deviation to reduce the range of values produced by \code{\link[=rnorm]{rnorm()}} for each group of the categorical predictor. The variables returned by this method are named with the suffix "__encoded_rnorm".  This method is implemented in the function \code{\link[=fe_target_encoding_rnorm]{fe_target_encoding_rnorm()}}.
@@ -67,5 +64,74 @@ The method "rnorm" has the argument \code{sd.width}, which multiplies the standa
 }
 \examples{
 if(interactive()){
+
+#loading example data
+data(
+  ecoregions_df,
+  ecoregions_continuous_response,
+  ecoregions_all_predictors
+  )
+
+#the dataframe ecoregions_df contains two categorical variables
+unique(ecoregions_df$dominant_landcover)
+unique(ecoregions_df$primary_productivity)
+
+#applying all methods for a continuous response
+output <- fe_target_encoding(
+  data = ecoregions_df,
+  dependent.variable.name = ecoregions_continuous_response,
+  predictor.variable.names = ecoregions_all_predictors,
+  methods = c(
+    "mean",
+    "rank",
+    "rnorm",
+    "loo"
+  ),
+  sd.width = c(0.01, 0.1, 1),
+  noise = c(0, 1)
+)
+
+#the output has several objects
+names(output)
+
+#names of the encoded predictors
+output$encoded_predictors
+
+#the data with the original and the encoded predictors
+colnames(output$data)
+
+#a leakage test assessing the correlation between the response and the encoded predictors
+output$leakage_test
+
+#plotting the transformations of "primary_productivity"
+tidyr::pivot_longer(
+  data = output$data,
+  cols = dplyr::all_of(
+    grep(
+      pattern = "primary_productivity",
+      x = output$encoded_predictors,
+      value = TRUE)
+    )
+) \%>\%
+  dplyr::select(
+    plant_richness,
+    primary_productivity,
+    name,
+    value
+  ) \%>\%
+  ggplot2::ggplot() +
+  ggplot2::aes(
+    x = plant_richness,
+    y = value,
+    color = primary_productivity
+  ) +
+  ggplot2::facet_wrap(~name, scales = "free_y") +
+  ggplot2::geom_point() +
+  ggplot2::labs(
+    x = "Response values",
+    y = "Encoded values",
+    color = "Original\ngroups"
+  )
+
 }
 }

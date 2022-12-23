@@ -29,7 +29,8 @@ Imports:
     patchwork,
     viridis,
     purrr,
-    rlang
+    rlang,
+    sf
 Suggests: 
     testthat,
     spelling

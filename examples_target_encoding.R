@@ -1,154 +1,119 @@
-#loading example data
+#' #loading example data
+data(
+  ecoregions_df,
+  ecoregions_sf,
+  ecoregions_tibble,
+  ecoregions_continuous_response,
+  ecoregions_binary_response,
+  ecoregions_all_predictors
+  )
+
+ecoregions_df <- ecoregions_sf
+
+#the dataframe ecoregions_df contains two categorical variables
+unique(ecoregions_df$dominant_landcover)
+unique(ecoregions_df$primary_productivity)
+
+#applying all methods for a continuous response
+output <- fe_target_encoding(
+  data = ecoregions_df,
+  dependent.variable.name = ecoregions_continuous_response,
+  predictor.variable.names = ecoregions_all_predictors,
+  methods = c(
+    "mean",
+    "rank",
+    "rnorm",
+    "loo"
+  ),
+  sd.width = c(0.01, 0.1, 1),
+  noise = c(0, 1)
+)
+
+#the output has several objects
+names(output)
+
+#names of the encoded predictors
+output$encoded_predictors
+
+#the data with the original and the encoded predictors
+colnames(output$data)
+
+#a leakage test assessing the correlation between the response and the encoded predictors
+output$leakage_test
+
+#plotting the transformations of "primary_productivity"
+tidyr::pivot_longer(
+  data = output$data,
+  cols = dplyr::all_of(
+    grep(
+      pattern = "primary_productivity",
+      x = output$encoded_predictors,
+      value = TRUE)
+    )
+) %>%
+  dplyr::select(
+    plant_richness,
+    primary_productivity,
+    name,
+    value
+  ) %>%
+  ggplot2::ggplot() +
+  ggplot2::aes(
+    x = plant_richness,
+    y = value,
+    color = primary_productivity
+  ) +
+  ggplot2::facet_wrap(~name, scales = "free_y") +
+  ggplot2::geom_point() +
+  ggplot2::labs(
+    x = "Response values",
+    y = "Encoded values",
+    color = "Original\ngroups"
+  )
+
+
+#target_encoding mean
 data(
   ecoregions_df,
   ecoregions_continuous_response,
   ecoregions_all_predictors
+)
+
+#the dataframe ecoregions_df contains two categorical variables
+unique(ecoregions_df$dominant_landcover)
+unique(ecoregions_df$primary_productivity)
+
+#transforming primary_productivity
+ecoregions_df <- fe_target_encoding_mean(
+  data = ecoregions_df,
+  dependent.variable.name = ecoregions_continuous_response,
+  categorical.variable.name = "primary_productivity"
   )
 
-#selecting response and two character/factor variables
-df <- ecoregions_df %>%
-  dplyr::select(
-    !!ecoregions_continuous_response,
-    dominant_landcover
-  )
+#the encoded variable is named primary_productivity__encoded_mean
+ecoregions_df$primary_productivity__encoded_mean
 
-#levels of the variable
-unique(df$dominant_landcover)
-
-#first few lines of df
-head(df)
-
-
-#method = "mean"
-#--------------------------------------------------------
-x.mean <- target_encoding(
-  data = df,
-  dependent.variable.name = ecoregions_continuous_response,
-  #you can pass all your numeric and character predictors to this function
-  #here I only pass it the character ones to simplify the example
-  predictor.variable.names = "dominant_landcover",
-  method = "mean"
-  )
-
-#leakage test produced by the function
-#use `verbose = FALSE` to disable
-# Encoding the variables:
-#   primary_productivity
-# dominant_landcover
-#
-# Leakage test for method mean:
-#
-#   variable r_squared   interpretation
-# 1 primary_productivity     0.485 Unlikely leakage
-# 2   dominant_landcover     0.157       No leakage
-#
-# r_squared: correlation between the target-encoded variable and the response.
-
-#checking the new version of the data
-head(x.mean$data)
-
-#plot spread
-plot(x = sort(x.mean$data$dominant_landcover))
-
-#checking the encoding map
-lapply(x.mean$encoding_map, head)
-
-
-#method = "mean" plus noise
-#--------------------------------------------------------
-x.mean.noise <- target_encoding(
-  data = df,
-  dependent.variable.name = ecoregions_continuous_response,
-  predictor.variable.names = "dominant_landcover",
-  method = "mean",
-  noise = 0.25,
-  seed = 1 #important to replicate results!
+#correlation with the response
+cor(
+  x = ecoregions_df$plant_richness,
+  y = ecoregions_df$primary_productivity__encoded_mean
 )
 
-#checking the new version of the data
-head(x.mean.noise$data)
-
-#plot spread
-plot(x = sort(x.mean.noise$data$dominant_landcover))
-
-#checking the encoding map
-lapply(x.mean.noise$encoding_map, head)
-
-
-#method = "rank"
-#--------------------------------------------------------
-x.rank <- target_encoding(
-  data = df,
+#adding noise
+ecoregions_df <- fe_target_encoding_mean(
+  data = ecoregions_df,
   dependent.variable.name = ecoregions_continuous_response,
-  predictor.variable.names = "dominant_landcover",
-  method = "rank"
+  categorical.variable.name = "primary_productivity",
+  noise = 0.25
 )
 
-#checking the new version of the data
-head(x.rank$data)
+#the new encoded variable is named primary_productivity__encoded_mean_noise_0.25
+ecoregions_df$primary_productivity__encoded_mean_noise_0.25
 
-#plot spread
-plot(x = sort(x.rank$data$dominant_landcover))
-
-#checking the encoding map
-lapply(x.rank$encoding_map, head)
-
-
-#method = "rank" plus noise
-#--------------------------------------------------------
-x.rank.noise <- target_encoding(
-  data = df,
-  dependent.variable.name = ecoregions_continuous_response,
-  predictor.variable.names = "dominant_landcover",
-  method = "rank",
-  noise = 0.25,
-  seed = 1
+#correlation with the response
+cor(
+  x = ecoregions_df$plant_richness,
+  y = ecoregions_df$primary_productivity__encoded_mean_noise_0.25
 )
 
-#checking the new version of the data
-head(x.rank.noise$data)
 
-#plot spread
-plot(x = sort(x.rank.noise$data$dominant_landcover))
-
-#checking the encoding map
-lapply(x.rank.noise$encoding_map, head)
-
-
-#method = "loo" (leave-one-out)
-#--------------------------------------------------------
-x.loo <- target_encoding(
-  data = df,
-  dependent.variable.name = ecoregions_continuous_response,
-  predictor.variable.names = "dominant_landcover",
-  method = "loo"
-)
-
-#checking the new version of the data
-head(x.loo$data)
-
-#plot spread
-plot(x = sort(x.loo$data$dominant_landcover))
-
-#checking the encoding map
-lapply(x.loo$encoding_map, head)
-
-
-#method = "rnorm"
-#--------------------------------------------------------
-x.rnorm <- target_encoding(
-  data = dplyr::arrange(df, dominant_landcover),
-  dependent.variable.name = ecoregions_continuous_response,
-  predictor.variable.names = "dominant_landcover",
-  sd.width = 0.001, #experiment with this number and check the spread plot
-  method = "rnorm"
-)
-
-#checking the new version of the data
-head(x.rnorm$data)
-
-#plot spread
-plot(x = x.rnorm$data$dominant_landcover)
-
-#checking the encoding map
-lapply(x.rnorm$encoding_map, head)
