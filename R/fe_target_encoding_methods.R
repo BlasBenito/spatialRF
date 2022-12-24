@@ -387,18 +387,18 @@ fe_target_encoding_noise <- function(
   max.noise <- between.group.difference * noise
 
   #if noise is too small
-  if(min.noise == max.noise){
-
-    #increase noise until min and max noise are different
-    while(max.noise == min.noise){
-
-      noise <- noise + 0.01
-
-      max.noise <- between.group.difference * noise
-
-    }
-
-  }
+  # if(min.noise == max.noise){
+  #
+  #   #increase noise until min and max noise are different
+  #   while(max.noise == min.noise){
+  #
+  #     noise <- noise + 0.01
+  #
+  #     max.noise <- between.group.difference * noise
+  #
+  #   }
+  #
+  # }
 
   #reset random seed
   set.seed(seed)

@@ -97,9 +97,9 @@ print.rf <- function(x, ...) {
       print_importance(x)
     }
 
-    if(inherits(x, "rf_evaluate")){
-      print_evaluation(x)
-    }
+    # if(inherits(x, "rf_evaluate")){
+    #   print_evaluation(x)
+    # }
 
 }
 

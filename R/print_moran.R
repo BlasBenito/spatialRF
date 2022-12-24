@@ -49,7 +49,7 @@ print_moran <- function(model, caption = NULL, verbose = TRUE){
   }
 
   #subsetting columns
-  x <- x[, c("distance.threshold", "moran.i", "p.value", "interpretation")]
+  x <- x[, c("distance_threshold", "moran_i", "p_value", "interpretation")]
 
     #for models rf and rf_repeat
     if(!("model" %in% colnames(x))){

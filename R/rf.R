@@ -209,7 +209,10 @@ rf <- function(
   )
 
   #writing the default ranger.arguments to the function environment
-  list2env(ranger.arguments.default, envir=environment())
+  list2env(
+    ranger.arguments.default,
+    envir = environment()
+    )
 
   #HANDLING ARGUMENTS
   ######################################
@@ -428,7 +431,13 @@ rf <- function(
   #scaling the data if required
   if(scaled.importance == TRUE){
 
-    data.scaled <-  as.data.frame(scale(x = data))
+    data.scaled <- data %>%
+      dplyr::mutate(
+        dplyr::across(
+          tidyselect::where(is.numeric),
+          scale
+          )
+        )
 
     #check if there are NaN
     if(sum(apply(data.scaled, 2, is.nan)) > 0 | sum(apply(data.scaled, 2, is.infinite)) > 0){
@@ -446,7 +455,7 @@ rf <- function(
 
   #ranger model for r-squared and predictions
   m <- ranger::ranger(
-    data = data,
+    data = sf::st_drop_geometry(data),
     dependent.variable.name = dependent.variable.name,
     num.trees = num.trees,
     mtry = mtry,
@@ -491,7 +500,7 @@ rf <- function(
 
     #ranger model for variable importance
     m.scaled <- ranger::ranger(
-      data = data.scaled,
+      data = sf::st_drop_geometry(data.scaled),
       dependent.variable.name = dependent.variable.name,
       num.trees = num.trees,
       mtry = mtry,
@@ -684,13 +693,13 @@ rf <- function(
       p = predicted_full
     )
 
-    m$performance$sensitivity_0.5_full <- median(m$performance$roc_full$sensitivity_0.5)
+    m$performance$sensitivity_0.5_full <- median(m$performance$roc_full$sensitivity)
 
-    m$performance$sensitivity_0.5_oob <- median(m$performance$roc_oob$sensitivity_0.5)
+    m$performance$sensitivity_0.5_oob <- median(m$performance$roc_oob$sensitivity)
 
-    m$performance$specificity_0.5_full <- median(m$performance$roc_full$specificity_0.5)
+    m$performance$specificity_0.5_full <- median(m$performance$roc_full$specificity)
 
-    m$performance$specificity_0.5_oob <- median(m$performance$roc_oob$specificity_0.5)
+    m$performance$specificity_0.5_oob <- median(m$performance$roc_oob$specificity)
 
   } else {
 

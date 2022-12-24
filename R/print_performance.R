@@ -72,29 +72,29 @@ print_performance <- function(
     )
   )
 
-  #adding sensitivity and specificty
-  if("roc_full" %in% names(x.roc)){
-
-    metrics <- c(
-      metrics,
-      "sensitivity_0.5",
-      "specificity_0.5"
-    )
-
-    x$sensitivity_0.5_full <- median(x.roc$roc_full$sensitivity_0.5)
-
-    x$sensitivity_0.5_oob <- median(x.roc$roc_oob$sensitivity_0.5)
-
-    x$specificity_0.5_full <- median(x.roc$roc_full$specificity_0.5)
-
-    x$specificity_0.5_oob <- median(x.roc$roc_oob$specificity_0.5)
-
-  }
+  # #adding sensitivity and specificty
+  # if("roc_full" %in% names(x.roc)){
+  #
+  #   metrics <- c(
+  #     metrics,
+  #     "sensitivity_0.5",
+  #     "specificity_0.5"
+  #   )
+  #
+  #   x$sensitivity_0.5_full <- median(x.roc$roc_full$sensitivity)
+  #
+  #   x$sensitivity_0.5_oob <- median(x.roc$roc_oob$sensitivity)
+  #
+  #   x$specificity_0.5_full <- median(x.roc$roc_full$specificity)
+  #
+  #   x$specificity_0.5_oob <- median(x.roc$roc_oob$specificity)
+  #
+  # }
 
   #available methods
   methods <- unique(
     gsub(
-      pattern = "rsquared.|rmse.|auc.|nrmse.|biserial_rsquared.|sensitivity_0.5.|specificity_0.5.",
+      pattern = "rsquared_|rmse_|auc_|nrmse_|biserial_rsquared_|sensitivity_0.5_|specificity_0.5_",
       replacement = "",
       x = names(x)
     )
@@ -128,7 +128,7 @@ print_performance <- function(
       values <- x[[paste(
         metric.i,
         method.i,
-        sep = "."
+        sep = "_"
       )]]
 
       performance_df[performance_df$metric == metric.i & performance_df$method == method.i, "value"] <- values
@@ -143,7 +143,7 @@ print_performance <- function(
   performance_df <- performance_df %>%
     dplyr::mutate(
       method = dplyr::case_when(
-        method == "ib" ~ "In-bag",
+        method == "full" ~ "All samples",
         method == "oob" ~ "Out-of-bag",
         method == "scv" ~ "Spatial CV"
       )

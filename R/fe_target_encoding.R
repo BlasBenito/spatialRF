@@ -177,12 +177,17 @@ fe_target_encoding <- function(
     stop("Argument 'dependent.variable.name' must be provided.")
   }
 
-  if(is.null(predictor.variable.names)){
-    stop("Argument 'predictor.variable.names' must be provided.")
-  }
-
   if(!(dependent.variable.name %in% colnames(data))){
     stop("Argument 'dependent.variable.name' must be a column of 'data'")
+  }
+
+  if(is.numeric(data[[dependent.variable.name]]
+  ) == FALSE){
+    stop("The column ", dependent.variable.name, " must be numeric.")
+  }
+
+  if(is.null(predictor.variable.names)){
+    stop("Argument 'predictor.variable.names' must be provided.")
   }
 
   if(sum(predictor.variable.names %in% colnames(data)) < length(predictor.variable.names)){
@@ -199,10 +204,7 @@ fe_target_encoding <- function(
     )
   }
 
-  if(is.numeric(data[[dependent.variable.name]]
-  ) == FALSE){
-    stop("The column ", dependent.variable.name, " must be numeric.")
-  }
+
 
   #check if input is tibble
   if(tibble::is_tibble(data) == TRUE){
