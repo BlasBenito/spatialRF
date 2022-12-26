@@ -101,15 +101,16 @@ auto_cor <- function(
   #coerce categorical to numeric with target encoding
   if(!is.null(dependent.variable.name)){
 
-    data <- fe_target_encoding(
+    data_ <- fe_target_encoding(
       data = data,
       dependent.variable.name = dependent.variable.name,
       predictor.variable.names = predictor.variable.names,
       methods = "mean",
+      replace = TRUE,
       verbose = verbose
     )
 
-    data_ <- data$data[, predictor.variable.names]
+    data_ <- data_[, predictor.variable.names]
 
   } else {
 
