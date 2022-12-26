@@ -20,14 +20,17 @@
 #' @param data (required; data frame, tibble, or sf) A training data frame. Default: `NULL`
 #' @param dependent.variable.name (required; character string) Name of the response. Must be a column name of `data`. Default: `NULL`
 #' @param predictor.variable.names (required; character vector) Names of all the predictors in `data`. Only character and factor predictors are processed, but all are returned in the "data" slot of the function's output.  Default: `NULL`
-#' @param methods (optional; character string). Name of the target encoding methods. Default: `c("mean", "rank", "rnorm", "loo")`
+#' @param methods (optional; character string). Name of the target encoding methods. Default: `c("mean", "rank", "loo", "rnorm")`
 #' @param seed (optional; integer) Random seed to facilitate reproducibility. Default: `1`
 #' @param noise (optional; numeric vector) Only in methods "mean" and "rank". Numeric vector with noise values in the range 0-1. Default: `0`.
 #' @param sd.width (optional; numeric vector) Only for the method "rnorm". Numeric vector with multiplicators of the standard deviation of each group in the categorical variable, in the range 0.01-1. Default: `0.1`
+#' @param replace (optional; logical) Advanced option that changes the behavior of the function. Use only if you really know exactly what you need. If `TRUE`, only the first option in the `methods`, `noise`, and `sd.width` arguments is used, it replaces each categorical variable with its encoded version, and returns the input data frame with the replaced variables. Default: `FALSE`
 #' @param verbose (optional; logical) If TRUE, messages and plots generated during the execution of the function are displayed. Default: `TRUE`
 #'
 #' @return
-#' If no target encoding is needed because all predictors are numeric, the function returns `data`. Otherwise it returns a list of the class "fe_target_encoding" with the slots:
+#' If no target encoding is needed because all predictors are numeric, the function returns `data`.
+#'
+#' Otherwise it returns a list of the class "fe_target_encoding" with the slots:
 #' \itemize{
 #'   \item `data`: Input data frame, but with target-encoded character or factor columns.
 #'   \item `leakage_test`: Data frame with the results of a linear model between the target-encoded variable and the response aimed to identify potential data leakage. It contains the following columns:
@@ -37,6 +40,8 @@
 #'     \item `interpretation`: Interpretation of the test, with the values "Leakage", "Likely leakage", "Unlikely leakage", and "No leakage". If you find concerning results, you may either increase the value of the `noise` argument (if `method = "mean"`), or select the "rnorm" method.
 #'   }
 #' }
+#'
+#' If the advanced option `replace` is `TRUE`, then the input data frame is returned with the categorical variables replaced with their encoded versions.
 #'
 #'
 #' @export
@@ -123,38 +128,24 @@ fe_target_encoding <- function(
     methods = c(
       "mean",
       "rank",
-      "rnorm",
-      "loo"
+      "loo",
+      "rnorm"
       ),
     sd.width = 0.1,
     seed = 1,
     noise = 0,
+    replace = FALSE,
     verbose = TRUE
 ){
-
-  # data for development
-  # data = ecoregions_df
-  # dependent.variable.name = ecoregions_continuous_response
-  # predictor.variable.names = ecoregions_all_predictors
-  # methods = c(
-  #   "mean",
-  #   "rank",
-  #   "rnorm",
-  #   "loo"
-  # )
-  # sd.width = c(0.1, 0.2, 0.3)
-  # seed = 1
-  # noise = c(0, 0.1, 0.2)
-  # verbose = TRUE
 
   #testing method argument
   methods <- match.arg(
     arg = methods,
     choices = c(
-      "rank",
       "mean",
-      "rnorm",
-      "loo"
+      "rank",
+      "loo",
+      "rnorm"
     ),
     several.ok = TRUE
   )
@@ -204,7 +195,12 @@ fe_target_encoding <- function(
     )
   }
 
-
+  if(replace == TRUE){
+    verbose <- FALSE
+    methods <- methods[1]
+    noise <- noise[1]
+    sd.width <- sd.width[1]
+  }
 
   #check if input is tibble
   if(tibble::is_tibble(data) == TRUE){
@@ -284,6 +280,7 @@ fe_target_encoding <- function(
           categorical.variable.name = categorical.predictor,
           noise = noise.i,
           seed = seed,
+          replace = replace,
           verbose = verbose
         )
 
@@ -300,7 +297,9 @@ fe_target_encoding <- function(
           dependent.variable.name = dependent.variable.name,
           categorical.variable.name = categorical.predictor,
           noise = noise.i,
-          seed = seed
+          seed = seed,
+          replace = replace,
+          verbose = verbose
         )
 
         }
@@ -318,6 +317,7 @@ fe_target_encoding <- function(
           categorical.variable.name = categorical.predictor,
           sd.width = sd.width.i,
           seed = seed,
+          replace = replace,
           verbose = verbose
         )
 
@@ -330,7 +330,9 @@ fe_target_encoding <- function(
       data <- fe_target_encoding_loo(
         data = data,
         dependent.variable.name = dependent.variable.name,
-        categorical.variable.name = categorical.predictor
+        categorical.variable.name = categorical.predictor,
+        replace = replace,
+        verbose = verbose
       )
 
     }
@@ -338,58 +340,83 @@ fe_target_encoding <- function(
   } #end of iteration over predictors
 
   #new variables
-  encoded.predictors <- setdiff(
-    x = colnames(data),
-    y = original.column.names
-  )
+  if(replace == FALSE){
 
-
-  leakage.df <- lapply(
-    X = sf::st_drop_geometry(data[, encoded.predictors]),
-    FUN = function(x){
-      stats::cor.test(
-        x,
-        data[[dependent.variable.name]]
-      )$estimate
-    }
-  ) %>%
-    unlist() %>%
-    as.data.frame() %>%
-    dplyr::rename(
-      r_squared = "."
-    ) %>%
-    dplyr::mutate(
-      r_squared = round(r_squared, 2),
-      encoded_predictor = encoded.predictors,
-      interpretation = dplyr::case_when(
-
-        r_squared >= 0.9 ~ "Leakage",
-        r_squared < 0.9 & r_squared >= 0.75 ~ "Likely leakage",
-        r_squared < 0.75 & r_squared >= 0.25 ~ "Unlikely leakage",
-        r_squared < 0.25 ~ "No leakage"
-      )
-    ) %>%
-    dplyr::transmute(
-      encoded_predictor,
-      correlation_with_response = r_squared,
-      interpretation
-    ) %>%
-    dplyr::arrange(
-      correlation_with_response
+    encoded.predictors <- setdiff(
+      x = colnames(data),
+      y = original.column.names
     )
 
-  rownames(leakage.df) <- seq_len(nrow(leakage.df))
+    leakage.df <- lapply(
+      X = sf::st_drop_geometry(data[, encoded.predictors]),
+      FUN = function(x){
+        stats::cor.test(
+          x,
+          data[[dependent.variable.name]]
+        )$estimate
+      }
+    ) %>%
+      unlist() %>%
+      as.data.frame() %>%
+      dplyr::rename(
+        r_squared = "."
+      ) %>%
+      dplyr::mutate(
+        r_squared = round(r_squared, 2),
+        encoded_predictor = encoded.predictors,
+        interpretation = dplyr::case_when(
+
+          r_squared >= 0.9 ~ "Leakage",
+          r_squared < 0.9 & r_squared >= 0.75 ~ "Likely leakage",
+          r_squared < 0.75 & r_squared >= 0.25 ~ "Unlikely leakage",
+          r_squared < 0.25 ~ "No leakage"
+        )
+      ) %>%
+      dplyr::transmute(
+        encoded_predictor,
+        correlation_with_response = r_squared,
+        interpretation
+      ) %>%
+      dplyr::arrange(
+        correlation_with_response
+      )
+
+    rownames(leakage.df) <- seq_len(nrow(leakage.df))
+
+    #to tibble
+    if(return.tibble == TRUE){
+      leakage.df <- tibble::as_tibble(leakage.df)
+    } else {
+      leakage.df <- as.data.frame(leakage.df)
+    }
+
+    #message with output
+    if(verbose == TRUE){
+      message(
+        "Leakage test for method:\n\n",
+        paste0(
+          utils::capture.output(as.data.frame(leakage.df)),
+          collapse = "\n"
+        ),
+        "\n\nr_squared: correlation between the target-encoded variable and the response.\n"
+      )
+    }
+
+  }
 
 
   #to tibble
   if(return.tibble == TRUE){
     data <- tibble::as_tibble(data)
-    leakage.df <- tibble::as_tibble(leakage.df)
   } else {
     if(!("sf" %in% class(data))){
       data <- as.data.frame(data)
     }
-    leakage.df <- as.data.frame(leakage.df)
+  }
+
+  #return data frame right away if replace is TRUE
+  if(replace == TRUE){
+    return(data)
   }
 
   #preparing output object
@@ -400,18 +427,6 @@ fe_target_encoding <- function(
   )
 
   class(out) <- "fe_target_encoding"
-
-  #message with output
-  if(verbose == TRUE){
-    message(
-      "Leakage test for method:\n\n",
-      paste0(
-        utils::capture.output(as.data.frame(leakage.df)),
-        collapse = "\n"
-      ),
-      "\n\nr_squared: correlation between the target-encoded variable and the response.\n"
-    )
-  }
 
   #return output
   out

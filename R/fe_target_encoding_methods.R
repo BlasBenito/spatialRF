@@ -14,6 +14,7 @@
 #' @param noise (optional; numeric) Numeric with noise values in the range 0-1. Default: `0`.
 #' @param sd.width (optional; numeric) Numeric with multiplicator of the standard deviation of each group in the categorical variable, in the range 0.01-1. Default: `0.1`
 #' @param seed (optional; integer) Random seed to facilitate reproducibility. Default: `1`
+#' @param replace (optional; logical) Advanced option that changes the behavior of the function. Use only if you really know exactly what you need. If `TRUE`, it replaces each categorical variable with its encoded version, and returns the input data frame with the replaced variables.
 #' @param verbose (optional; logical) If TRUE, messages and plots generated during the execution of the function are displayed. Default: `TRUE`
 #'
 #'
@@ -130,24 +131,15 @@ fe_target_encoding_mean <- function(
     categorical.variable.name,
     noise = 0,
     seed = 1,
+    replace = FALSE,
     verbose = TRUE
 ){
 
   #new variable name
-  if(noise == 0){
     categorical.variable.new.name <- paste0(
       categorical.variable.name,
       "__encoded_mean"
     )
-  } else {
-    categorical.variable.new.name <- paste0(
-      categorical.variable.name,
-      "__encoded_mean_",
-      "noise_",
-      noise
-    )
-  }
-
 
   #aggregate by groups
   df.map <- tapply(
@@ -176,12 +168,18 @@ fe_target_encoding_mean <- function(
     seed = seed
   )
 
-  if(verbose == TRUE){
+  if(verbose == TRUE && replace == FALSE){
     message(
       "New encoded predictor: '",
       categorical.variable.new.name,
       "'"
     )
+  }
+
+  #replacing original variable with encoded version
+  if(replace == TRUE){
+    data[[categorical.variable.name]] <- NULL
+    colnames(data)[colnames(data) == categorical.variable.new.name] <- categorical.variable.name
   }
 
   data
@@ -197,6 +195,7 @@ fe_target_encoding_rnorm <- function(
     categorical.variable.name,
     sd.width = 0.1,
     seed = 1,
+    replace = FALSE,
     verbose = TRUE
 ){
 
@@ -233,12 +232,18 @@ fe_target_encoding_rnorm <- function(
     ) %>%
     dplyr::ungroup()
 
-  if(verbose == TRUE){
+  if(verbose == TRUE && replace == FALSE){
     message(
       "New encoded predictor: '",
       categorical.variable.new.name,
       "'"
     )
+  }
+
+  #replacing original variable with encoded version
+  if(replace == TRUE){
+    data[[categorical.variable.name]] <- NULL
+    colnames(data)[colnames(data) == categorical.variable.new.name] <- categorical.variable.name
   }
 
   data
@@ -254,6 +259,7 @@ fe_target_encoding_rank <- function(
     categorical.variable.name,
     noise = 0,
     seed = 1,
+    replace = FALSE,
     verbose = TRUE
 ){
 
@@ -302,12 +308,18 @@ fe_target_encoding_rank <- function(
     seed = seed
   )
 
-  if(verbose == TRUE){
+  if(verbose == TRUE && replace == FALSE){
     message(
       "New encoded predictor: '",
       categorical.variable.new.name,
       "'"
     )
+  }
+
+  #replacing original variable with encoded version
+  if(replace == TRUE){
+    data[[categorical.variable.name]] <- NULL
+    colnames(data)[colnames(data) == categorical.variable.new.name] <- categorical.variable.name
   }
 
   data
@@ -320,6 +332,7 @@ fe_target_encoding_loo <- function(
     data,
     dependent.variable.name,
     categorical.variable.name,
+    replace = FALSE,
     verbose = TRUE
 ){
 
@@ -345,12 +358,18 @@ fe_target_encoding_loo <- function(
     ) %>%
     dplyr::ungroup()
 
-  if(verbose == TRUE){
+  if(verbose == TRUE && replace == FALSE){
     message(
       "New encoded predictor: '",
       categorical.variable.new.name,
       "'"
     )
+  }
+
+  #replacing original variable with encoded version
+  if(replace == TRUE){
+    data[[categorical.variable.name]] <- NULL
+    colnames(data)[colnames(data) == categorical.variable.new.name] <- categorical.variable.name
   }
 
   data

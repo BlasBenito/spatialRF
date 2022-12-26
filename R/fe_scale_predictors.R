@@ -1,5 +1,3 @@
-utils::globalVariables("where")
-
 #' Scale model predictors
 #'
 #' @description Applies the `scale()` function to the numeric predictors of a training data frame.
@@ -131,10 +129,6 @@ fe_scale_all <- function(
       )
     ) %>%
     as.data.frame()
-
-
-
-  #check scaling
 
 
   #return tibble

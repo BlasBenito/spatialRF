@@ -8,8 +8,12 @@
 #' The argument `preference.order` allows the user to "protect" variables that might be interesting or even required for the given analysis.
 #'
 #' If `preference.order` is not provided, then the predictors are ranked from lower to higher sum of R-squared with the other preodictors, and removed one by one until the maximum R-squared of the correlation matrix is lower than `max.cor`.
+#'
+#' If there are categorical variables named in `predictor.variable.names` and `dependent.variable.name` is provided, then the function applies [fe_target_encoding()] with the method "mean" to transform the categorical variables into numeric. If a categorical variable is selected, then its original categorical values are returned.
+#'
 #' @param data (required; data frame or tibble) A data frame with predictors. Default: `NULL`.
-#' @param predictor.variable.names (optional; character vector) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. If `NULL`, all the columns in data are used, and non-numeric ones discarded. Default: `NULL`
+#' @param dependent.variable.name (optional; character string) Name of the dependent variable. Only required when there are categorical variables within `predictor.variable.names`. Default: `NULL`
+#' @param predictor.variable.names (optional; character vector) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. If `NULL`, all the columns in data except `dependent.variable.name` are used. Default: `NULL`
 #' @param preference.order  (optional; character vector) Character vector indicating the user's order of preference to keep variables. Predictors not included in this argument are ranked by the sum of their correlation with other variables (variables with higher sums receive lower ranks and have therefore lower preference order). Default: `NULL`.
 #' @param max.cor (optional; numeric) Numeric between 0 and 1, with recommended values between 0.5 and 0.9. Maximum Pearson correlation between any pair of the selected variables. Default: `0.75`
 #' @param verbose (optional, logical) Logical. if `TRUE`, describes the function operations to the user. Default:: `TRUE`
@@ -64,23 +68,60 @@
 #' @export
 auto_cor <- function(
     data = NULL,
+    dependent.variable.name = NULL,
     predictor.variable.names = NULL,
     preference.order = NULL,
     max.cor = 0.75,
     verbose = TRUE
 ){
 
-  #subsetting data
+  if(is.null(data)){
+    stop("Argument 'data' is required.")
+  } else {
+    # if(inherits(data, "variable_selection") == TRUE){
+    #   data <- data$selected.variables.df
+    #   preference.order <- colnames(data)
+    # }
+  }
+
+  #setting predictor.variable.names
   if(!is.null(predictor.variable.names)){
     predictor.variable.names <- intersect(
       x = predictor.variable.names,
       y = colnames(data)
     )
-    data <- data[, predictor.variable.names]
+  } else {
+    predictor.variable.names <- setdiff(
+      x = colnames(data),
+      y = dependent.variable.name
+    )
+  }
+
+
+  #coerce categorical to numeric with target encoding
+  if(!is.null(dependent.variable.name)){
+
+    data <- fe_target_encoding(
+      data = data,
+      dependent.variable.name = dependent.variable.name,
+      predictor.variable.names = predictor.variable.names,
+      methods = "mean",
+      verbose = verbose
+    )
+
+    data_ <- data$data[, predictor.variable.names]
+
+  } else {
+
+    data_ <- data[, predictor.variable.names]
+
   }
 
   if(is.null(max.cor)){
     max.cor <- 1
+    if(verbose == TRUE){
+      message("max.cor is NULL, setting it to 1. All variables will be selected.")
+    }
   }
 
   if(max.cor < 0){
@@ -97,23 +138,8 @@ auto_cor <- function(
     }
   }
 
-  #finding and removing non-numeric columns
-  non.numeric.columns <- colnames(data)[!sapply(data, is.numeric)]
-  if(length(non.numeric.columns) > 0){
-    if(verbose == TRUE){
-      message(
-        "These columns are non-numeric and will be removed: ",
-        paste(
-          non.numeric.columns,
-          collapse = ", "
-        )
-      )
-    }
-    data <- data[, !(colnames(data) %in% non.numeric.columns), drop = FALSE]
-  }
-
   #finding zero variance columns
-  zero.variance.columns <- colnames(data)[round(apply(data, 2, var), 6) == 0]
+  zero.variance.columns <- colnames(data_)[round(apply(data_, 2, var), 6) == 0]
   if(length(zero.variance.columns) > 0){
     if(verbose == TRUE){
       message(

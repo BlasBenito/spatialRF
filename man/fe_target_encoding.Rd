@@ -8,10 +8,11 @@ fe_target_encoding(
   data = NULL,
   dependent.variable.name = NULL,
   predictor.variable.names = NULL,
-  methods = c("mean", "rank", "rnorm", "loo"),
+  methods = c("mean", "rank", "loo", "rnorm"),
   sd.width = 0.1,
   seed = 1,
   noise = 0,
+  replace = FALSE,
   verbose = TRUE
 )
 }
@@ -22,7 +23,7 @@ fe_target_encoding(
 
 \item{predictor.variable.names}{(required; character vector) Names of all the predictors in \code{data}. Only character and factor predictors are processed, but all are returned in the "data" slot of the function's output.  Default: \code{NULL}}
 
-\item{methods}{(optional; character string). Name of the target encoding methods. Default: \code{c("mean", "rank", "rnorm", "loo")}}
+\item{methods}{(optional; character string). Name of the target encoding methods. Default: \code{c("mean", "rank", "loo", "rnorm")}}
 
 \item{sd.width}{(optional; numeric vector) Only for the method "rnorm". Numeric vector with multiplicators of the standard deviation of each group in the categorical variable, in the range 0.01-1. Default: \code{0.1}}
 
@@ -30,10 +31,14 @@ fe_target_encoding(
 
 \item{noise}{(optional; numeric vector) Only in methods "mean" and "rank". Numeric vector with noise values in the range 0-1. Default: \code{0}.}
 
+\item{replace}{(optional; logical) Advanced option that changes the behavior of the function. Use only if you really know exactly what you need. If \code{TRUE}, only the first option in the \code{methods}, \code{noise}, and \code{sd.width} arguments is used, it replaces each categorical variable with its encoded version, and returns the input data frame with the replaced variables. Default: \code{FALSE}}
+
 \item{verbose}{(optional; logical) If TRUE, messages and plots generated during the execution of the function are displayed. Default: \code{TRUE}}
 }
 \value{
-If no target encoding is needed because all predictors are numeric, the function returns \code{data}. Otherwise it returns a list of the class "fe_target_encoding" with the slots:
+If no target encoding is needed because all predictors are numeric, the function returns \code{data}.
+
+Otherwise it returns a list of the class "fe_target_encoding" with the slots:
 \itemize{
 \item \code{data}: Input data frame, but with target-encoded character or factor columns.
 \item \code{leakage_test}: Data frame with the results of a linear model between the target-encoded variable and the response aimed to identify potential data leakage. It contains the following columns:
@@ -43,6 +48,8 @@ If no target encoding is needed because all predictors are numeric, the function
 \item \code{interpretation}: Interpretation of the test, with the values "Leakage", "Likely leakage", "Unlikely leakage", and "No leakage". If you find concerning results, you may either increase the value of the \code{noise} argument (if \code{method = "mean"}), or select the "rnorm" method.
 }
 }
+
+If the advanced option \code{replace} is \code{TRUE}, then the input data frame is returned with the categorical variables replaced with their encoded versions.
 }
 \description{
 Target encoding involves replacing the values of categorical variables with continuous values that are indicative of the response variable. There are several approaches to target encoding, including calculating the mean target value for each level of the categorical variable. Target encoding can be useful for improving the performance of machine learning models, but it can also introduce bias if the encoded values are not representative of the true underlying relationship between the categorical variables and the target.

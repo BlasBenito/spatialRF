@@ -5,16 +5,18 @@ testthat::test_that("`auto_cor()` works", {
 
   data(
     ecoregions_df,
-    ecoregions_numeric_predictors
+    ecoregions_all_predictors,
+    ecoregions_continuous_response
   )
 
   ecoregions_df <- tibble::as_tibble(ecoregions_df)
 
   out <- auto_cor(
     data = ecoregions_df,
-    predictor.variable.names = ecoregions_numeric_predictors,
+    dependent.variable.name = ecoregions_continuous_response,
+    predictor.variable.names = ecoregions_all_predictors,
     verbose = FALSE,
-    preference.order = ecoregions_numeric_predictors[1:10]
+    preference.order = ecoregions_all_predictors
   )
 
   testthat::expect_type(out, "list")

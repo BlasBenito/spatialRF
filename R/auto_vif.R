@@ -10,14 +10,17 @@
 #'
 #' The function `auto_vif()` applies a recursive algorithm to remove variables with a VIF higher than a given threshold (defined by the argument `max.vif`). However, `auto_vif()` allows the user to define preference selection order via the argument `preference.order`.
 #'
-#' If `preference.order` is, for example, `c("a", "b", "c")`, `max.vif` equals 5, and the VIFs of these variables are 15, 10, and 5, then variable `"b"` is removed instead of `"a"`.
-#'
 #' The argument `preference.order` allows the user to "protect" variables that might be interesting or even required for the given analysis.
+#'
+#' If `preference.order` is, for example, `c("a", "b", "c")`, `max.vif` equals 5, and the VIFs of these variables are 15, 10, and 5, then variable `"b"` is removed instead of `"a"`.
 #'
 #' If `preference.order` is not provided, then the predictors are ranked from lower to higher VIF, and removed one by one until their VIF is lower than `max.vif`.
 #'
+#' If there are categorical variables named in `predictor.variable.names` and `dependent.variable.name` is provided, then the function applies [fe_target_encoding()] with the method "mean" to transform the categorical variables into numeric. If a categorical variable is selected, then its original categorical values are returned.
+#'
 #' @param data (required; data.frame or tibble) A data frame or tibble, or the result of [auto_cor()]. Default: `NULL`.
-#' @param predictor.variable.names (optional; character vector) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. If `NULL`, all the columns in data are used. Default: `NULL`
+#' @param dependent.variable.name (optional; character string) Name of the dependent variable. Only required when there are categorical variables within `predictor.variable.names`. Default: `NULL`
+#' @param predictor.variable.names (optional; character vector) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. If `NULL`, all the columns in data except `dependent.variable.name` are used. Default: `NULL`
 #' @param preference.order (optional, character vector) Character vector indicating the preference order to protect variables from elimination.  Predictors not included in this argument are ranked by their VIFs. Default: `NULL`.
 #' @param max.vif (optional, numeric) Numeric between 2.5 and 10 defining the maximum VIF allowed in the output dataset. Higher VIF thresholds should result in a higher number of selected variables. Default: 5.
 #' @param verbose (optional, logical) Logical. if `TRUE`, `auto_vif()` prints messages describing its operations on the input data. Default:: `TRUE`
@@ -76,6 +79,7 @@
 #' @export
 auto_vif <- function(
     data = NULL,
+    dependent.variable.name = NULL,
     predictor.variable.names = NULL,
     preference.order = NULL,
     max.vif = 5,
@@ -86,15 +90,47 @@ auto_vif <- function(
 
   if(is.null(data)){
     stop("Argument 'data' is required.")
+  } else {
+    # if(inherits(data, "variable_selection") == TRUE){
+    #   data <- data$selected.variables.df
+    #   preference.order <- colnames(data)
+    # }
   }
 
-  #subsetting data
+  #setting predictor.variable.names
   if(!is.null(predictor.variable.names)){
     predictor.variable.names <- intersect(
       x = predictor.variable.names,
       y = colnames(data)
     )
-    data <- data[, predictor.variable.names]
+  } else {
+    predictor.variable.names <- setdiff(
+      x = colnames(data),
+      y = dependent.variable.name
+    )
+  }
+
+  #coerce categorical to numeric with target encoding
+  if(!is.null(dependent.variable.name)){
+
+    x <- fe_target_encoding(
+      data = data,
+      dependent.variable.name = dependent.variable.name,
+      predictor.variable.names = predictor.variable.names,
+      methods = "mean",
+      verbose = verbose
+    )
+
+    data_ <- x$data
+
+    colnames(data) <- gsub(
+      pattern = "__encoded_mean"
+    )
+
+  } else {
+
+    data_ <- data[, predictor.variable.names]
+
   }
 
   if(max.vif > 10){
@@ -117,30 +153,10 @@ auto_vif <- function(
     }
   }
 
-  if(inherits(data, "variable_selection") == TRUE){
-    data <- data$selected.variables.df
-    preference.order <- colnames(data)
-  }
-
   #removing non-numeric and zero variance columns
 
-  #finding and removing non-numeric columns
-  non.numeric.columns <- colnames(data)[!sapply(data, is.numeric)]
-  if(length(non.numeric.columns) > 0){
-    if(verbose == TRUE){
-      message(
-        "These columns are non-numeric and will be removed: ",
-        paste(
-          non.numeric.columns,
-          collapse = ", "
-        )
-      )
-    }
-    data <- data[, !(colnames(data) %in% non.numeric.columns), drop = FALSE]
-  }
-
   #finding zero variance columns
-  zero.variance.columns <- colnames(data)[round(apply(data, 2, var), 6) == 0]
+  zero.variance.columns <- colnames(data_)[round(apply(data_, 2, var), 6) == 0]
   if(length(zero.variance.columns) > 0){
     if(verbose == TRUE){
       message(
@@ -148,7 +164,7 @@ auto_vif <- function(
         paste(
           zero.variance.columns,
           collapse = ", "
-        )
+        ),
       )
     }
   }

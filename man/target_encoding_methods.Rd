@@ -13,6 +13,7 @@ fe_target_encoding_mean(
   categorical.variable.name,
   noise = 0,
   seed = 1,
+  replace = FALSE,
   verbose = TRUE
 )
 
@@ -22,6 +23,7 @@ fe_target_encoding_rnorm(
   categorical.variable.name,
   sd.width = 0.1,
   seed = 1,
+  replace = FALSE,
   verbose = TRUE
 )
 
@@ -31,6 +33,7 @@ fe_target_encoding_rank(
   categorical.variable.name,
   noise = 0,
   seed = 1,
+  replace = FALSE,
   verbose = TRUE
 )
 
@@ -38,6 +41,7 @@ fe_target_encoding_loo(
   data,
   dependent.variable.name,
   categorical.variable.name,
+  replace = FALSE,
   verbose = TRUE
 )
 }
@@ -51,6 +55,8 @@ fe_target_encoding_loo(
 \item{noise}{(optional; numeric) Numeric with noise values in the range 0-1. Default: \code{0}.}
 
 \item{seed}{(optional; integer) Random seed to facilitate reproducibility. Default: \code{1}}
+
+\item{replace}{(optional; logical) Advanced option that changes the behavior of the function. Use only if you really know exactly what you need. If \code{TRUE}, it replaces each categorical variable with its encoded version, and returns the input data frame with the replaced variables.}
 
 \item{verbose}{(optional; logical) If TRUE, messages and plots generated during the execution of the function are displayed. Default: \code{TRUE}}
 

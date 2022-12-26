@@ -6,6 +6,7 @@
 \usage{
 auto_cor(
   data = NULL,
+  dependent.variable.name = NULL,
   predictor.variable.names = NULL,
   preference.order = NULL,
   max.cor = 0.75,
@@ -15,7 +16,9 @@ auto_cor(
 \arguments{
 \item{data}{(required; data frame or tibble) A data frame with predictors. Default: \code{NULL}.}
 
-\item{predictor.variable.names}{(optional; character vector) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. If \code{NULL}, all the columns in data are used, and non-numeric ones discarded. Default: \code{NULL}}
+\item{dependent.variable.name}{(optional; character string) Name of the dependent variable. Only required when there are categorical variables within \code{predictor.variable.names}. Default: \code{NULL}}
+
+\item{predictor.variable.names}{(optional; character vector) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. If \code{NULL}, all the columns in data except \code{dependent.variable.name} are used. Default: \code{NULL}}
 
 \item{preference.order}{(optional; character vector) Character vector indicating the user's order of preference to keep variables. Predictors not included in this argument are ranked by the sum of their correlation with other variables (variables with higher sums receive lower ranks and have therefore lower preference order). Default: \code{NULL}.}
 
@@ -41,6 +44,8 @@ The function \code{auto_vif()} allows the user to define preference selection or
 The argument \code{preference.order} allows the user to "protect" variables that might be interesting or even required for the given analysis.
 
 If \code{preference.order} is not provided, then the predictors are ranked from lower to higher sum of R-squared with the other preodictors, and removed one by one until the maximum R-squared of the correlation matrix is lower than \code{max.cor}.
+
+If there are categorical variables named in \code{predictor.variable.names} and \code{dependent.variable.name} is provided, then the function applies \code{\link[=fe_target_encoding]{fe_target_encoding()}} with the method "mean" to transform the categorical variables into numeric. If a categorical variable is selected, then its original categorical values are returned.
 }
 \details{
 Can be chained together with \code{\link[=auto_vif]{auto_vif()}} through pipes, see the examples below.

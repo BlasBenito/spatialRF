@@ -7,6 +7,7 @@
 \usage{
 auto_vif(
   data = NULL,
+  dependent.variable.name = NULL,
   predictor.variable.names = NULL,
   preference.order = NULL,
   max.vif = 5,
@@ -18,7 +19,9 @@ vif(data)
 \arguments{
 \item{data}{(required; data.frame or tibble) A data frame or tibble, or the result of \code{\link[=auto_cor]{auto_cor()}}. Default: \code{NULL}.}
 
-\item{predictor.variable.names}{(optional; character vector) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. If \code{NULL}, all the columns in data are used. Default: \code{NULL}}
+\item{dependent.variable.name}{(optional; character string) Name of the dependent variable. Only required when there are categorical variables within \code{predictor.variable.names}. Default: \code{NULL}}
+
+\item{predictor.variable.names}{(optional; character vector) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. If \code{NULL}, all the columns in data except \code{dependent.variable.name} are used. Default: \code{NULL}}
 
 \item{preference.order}{(optional, character vector) Character vector indicating the preference order to protect variables from elimination.  Predictors not included in this argument are ranked by their VIFs. Default: \code{NULL}.}
 
@@ -43,11 +46,13 @@ The possible range of VIF values is (1, Inf]. A VIF lower than 10 suggest that r
 
 The function \code{auto_vif()} applies a recursive algorithm to remove variables with a VIF higher than a given threshold (defined by the argument \code{max.vif}). However, \code{auto_vif()} allows the user to define preference selection order via the argument \code{preference.order}.
 
-If \code{preference.order} is, for example, \code{c("a", "b", "c")}, \code{max.vif} equals 5, and the VIFs of these variables are 15, 10, and 5, then variable \code{"b"} is removed instead of \code{"a"}.
-
 The argument \code{preference.order} allows the user to "protect" variables that might be interesting or even required for the given analysis.
 
+If \code{preference.order} is, for example, \code{c("a", "b", "c")}, \code{max.vif} equals 5, and the VIFs of these variables are 15, 10, and 5, then variable \code{"b"} is removed instead of \code{"a"}.
+
 If \code{preference.order} is not provided, then the predictors are ranked from lower to higher VIF, and removed one by one until their VIF is lower than \code{max.vif}.
+
+If there are categorical variables named in \code{predictor.variable.names} and \code{dependent.variable.name} is provided, then the function applies \code{\link[=fe_target_encoding]{fe_target_encoding()}} with the method "mean" to transform the categorical variables into numeric. If a categorical variable is selected, then its original categorical values are returned.
 }
 \examples{
 if(interactive()){
