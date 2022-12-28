@@ -136,10 +136,19 @@ fe_target_encoding_mean <- function(
 ){
 
   #new variable name
+  if(noise == 0){
     categorical.variable.new.name <- paste0(
       categorical.variable.name,
       "__encoded_mean"
     )
+  } else {
+    categorical.variable.new.name <- paste0(
+      categorical.variable.name,
+      "__encoded_mean_",
+      "noise_",
+      noise
+    )
+  }
 
   #aggregate by groups
   df.map <- tapply(
@@ -148,12 +157,20 @@ fe_target_encoding_mean <- function(
     FUN = mean,
     na.rm = TRUE
   )
-  df.map <- data.frame(names(df.map), df.map)
+
+  #to data frame
+  df.map <- data.frame(
+    names(df.map),
+    df.map
+    )
+
+  #add new name
   names(df.map) <- c(
     categorical.variable.name,
     categorical.variable.new.name
   )
 
+  #join with data
   data <- dplyr::inner_join(
     x = data,
     y = df.map,
@@ -385,6 +402,10 @@ fe_target_encoding_noise <- function(
     noise = 0,
     seed = 1
 ){
+
+  if(noise < 0){
+    noise <- 0
+  }
 
   if(noise == 0){
     return(data)

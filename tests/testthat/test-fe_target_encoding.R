@@ -30,13 +30,13 @@ testthat::test_that("`target_encoding()` works", {
 
   #target_encoding
   testthat::expect_error(
-  out <- fe_target_encoding(
-    data = NULL,
-    dependent.variable.name = NULL,
-    predictor.variable.names = NULL,
-    noise = NULL,
-    sd.width = NULL
-  ))
+    out <- fe_target_encoding(
+      data = NULL,
+      dependent.variable.name = NULL,
+      predictor.variable.names = NULL,
+      noise = NULL,
+      sd.width = NULL
+    ))
 
   testthat::expect_error(
     out <- fe_target_encoding(
@@ -84,32 +84,32 @@ testthat::test_that("`target_encoding()` works", {
     ))
 
 
-    out <- fe_target_encoding(
-      data = ecoregions_df,
-      dependent.variable.name = ecoregions_continuous_response,
-      predictor.variable.names = ecoregions_all_predictors,
-      noise = c(-1, 2),
-      sd.width = c(-1, 2)
-    )
+  out <- fe_target_encoding(
+    data = ecoregions_df,
+    dependent.variable.name = ecoregions_continuous_response,
+    predictor.variable.names = ecoregions_all_predictors,
+    noise = c(-1, 2),
+    sd.width = c(-1, 2)
+  )
 
-    out <- fe_target_encoding(
-      data = ecoregions_df,
-      dependent.variable.name = ecoregions_binary_response,
-      predictor.variable.names = ecoregions_all_predictors,
-      noise = c(0, 0.0001),
-      sd.width = c(-1, 2)
-    )
+  out <- fe_target_encoding(
+    data = ecoregions_df,
+    dependent.variable.name = ecoregions_binary_response,
+    predictor.variable.names = ecoregions_all_predictors,
+    noise = c(0, 0.0001),
+    sd.width = c(-1, 2)
+  )
 
-    out <- fe_target_encoding(
-      data = ecoregions_df,
-      dependent.variable.name = ecoregions_binary_response,
-      predictor.variable.names = ecoregions_numeric_predictors
-    )
+  out <- fe_target_encoding(
+    data = ecoregions_df,
+    dependent.variable.name = ecoregions_binary_response,
+    predictor.variable.names = ecoregions_numeric_predictors
+  )
 
-    testthat::expect_equal(
-      colnames(out),
-      colnames(ecoregions_df)
-    )
+  testthat::expect_equal(
+    colnames(out),
+    colnames(ecoregions_df)
+  )
 
 
 
@@ -131,36 +131,68 @@ testthat::test_that("`target_encoding()` works", {
   #iterating over input lists
   for(training.i in names(training)){
     for(response.i in names(response)){
+      for(replace.i in replace){
 
-      #target_encoding
-      out <- fe_target_encoding(
-        data = training[[training.i]],
-        dependent.variable.name = response[[response.i]],
-        predictor.variable.names = ecoregions_all_predictors,
-        noise = c(0, 0.5),
-        sd.width = c(0.1, 0.5)
-      )
+        #test replace == TRUE
+        for(method.i in c("mean", "rank", "rnorm", "loo")){
 
-      testthat::expect_equal(
-        length(out),
-        3
-      )
+          #target_encoding
+          out <- fe_target_encoding(
+            data = training[[training.i]],
+            dependent.variable.name = response[[response.i]],
+            predictor.variable.names = ecoregions_all_predictors,
+            methods = method.i,
+            noise = c(0, 0.5),
+            sd.width = c(0.1, 0.5),
+            replace = TRUE
+          )
 
-      if("sf" %in% class(training[[training.i]])){
-        testthat::expect_equal(
-          "sf" %in% class(out$data),
-          TRUE
+          if("sf" %in% class(training[[training.i]])){
+            testthat::expect_equal(
+              "sf" %in% class(out),
+              TRUE
+            )
+          }
+
+          if("tbl_df" %in% class(training[[training.i]])){
+            testthat::expect_equal(
+              "tbl_df" %in% class(out),
+              TRUE
+            )
+          }
+        }
+
+        #test replace FALSE
+
+        #target_encoding
+        out <- fe_target_encoding(
+          data = training[[training.i]],
+          dependent.variable.name = response[[response.i]],
+          predictor.variable.names = ecoregions_all_predictors,
+          noise = c(0, 0.5),
+          sd.width = c(0.1, 0.5),
+          replace = FALSE
         )
-      }
 
-      if("tbl_df" %in% class(training[[training.i]])){
         testthat::expect_equal(
-          "tbl_df" %in% class(out$data),
-          TRUE
+          length(out),
+          3
         )
+
+        if("sf" %in% class(training[[training.i]])){
+          testthat::expect_equal(
+            "sf" %in% class(out$data),
+            TRUE
+          )
+        }
+
+        if("tbl_df" %in% class(training[[training.i]])){
+          testthat::expect_equal(
+            "tbl_df" %in% class(out$data),
+            TRUE
+          )
+        }
       }
-
-
     }
   }
 

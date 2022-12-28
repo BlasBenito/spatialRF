@@ -12,16 +12,14 @@ testthat::test_that("`auto_cor()` works", {
   ecoregions_df <- tibble::as_tibble(ecoregions_df)
 
   out <- auto_cor(
+    predictor.variable.names = ecoregions_all_predictors,
     data = ecoregions_df,
     dependent.variable.name = ecoregions_continuous_response,
-    predictor.variable.names = ecoregions_all_predictors,
     verbose = FALSE,
     preference.order = ecoregions_all_predictors
   )
 
-  testthat::expect_type(out, "list")
-  testthat::expect_length(out, 3)
-  testthat::expect_named(out, c("cor", "selected.variables", "selected.variables.df"))
+
 
   #adding auto_vif()
   out <- auto_cor(

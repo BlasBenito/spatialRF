@@ -16,20 +16,15 @@
 #'
 #' If `preference.order` is not provided, then the predictors are ranked from lower to higher VIF, and removed one by one until their VIF is lower than `max.vif`.
 #'
-#' If there are categorical variables named in `predictor.variable.names` and `dependent.variable.name` is provided, then the function applies [fe_target_encoding()] with the method "mean" to transform the categorical variables into numeric. If a categorical variable is selected, then its original categorical values are returned.
+#' If there are categorical variables named in `predictor.variable.names` and `dependent.variable.name` is provided, then the function applies [fe_target_encoding()] with the method "mean" to transform the categorical variables into numeric before the VIF analysis
 #'
 #' @param data (required; data.frame or tibble) A data frame or tibble, or the result of [auto_cor()]. Default: `NULL`.
-#' @param dependent.variable.name (optional; character string) Name of the dependent variable. Only required when there are categorical variables within `predictor.variable.names`. Default: `NULL`
+#' @param dependent.variable.name (optional; character string) Name of the dependent variable. Required when there are categorical variables within `predictor.variable.names`. Default: `NULL`
 #' @param predictor.variable.names (optional; character vector) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. If `NULL`, all the columns in data except `dependent.variable.name` are used. Default: `NULL`
 #' @param preference.order (optional, character vector) Character vector indicating the preference order to protect variables from elimination.  Predictors not included in this argument are ranked by their VIFs. Default: `NULL`.
 #' @param max.vif (optional, numeric) Numeric between 2.5 and 10 defining the maximum VIF allowed in the output dataset. Higher VIF thresholds should result in a higher number of selected variables. Default: 5.
 #' @param verbose (optional, logical) Logical. if `TRUE`, `auto_vif()` prints messages describing its operations on the input data. Default:: `TRUE`
-#' @return List with three slots:
-#' \itemize{
-#'   \item `vif`: data frame with the names of the selected variables and their respective VIF scores.
-#'   \item `selected.variables`: character vector with the names of the selected variables.
-#'   \item `selected.variables.df`: data frame with the selected variables.
-#'  }
+#' @return Character vector with selected predictor variable names.
 #' @seealso [auto_cor()]
 #' @examples
 #' if(interactive()){
@@ -40,22 +35,13 @@
 #'   )
 #'
 #'#on a data frame
-#'out <- auto_vif(
+#'new.predictor.variable.names <- auto_vif(
 #'  data = ecoregions_df,
 #'  predictor.variable.names = ecoregions_numeric_predictors
 #'  )
 #'
-#'#getting out the vif data frame
-#'out$vif
-#'
-#'#getting the names of the selected variables
-#'out$selected.variables
-#'
-#'#getting the data frame of selected variables
-#'out$selected.variables.df
-#'
 #'#with preference order
-#'  out <- auto_vif(
+#'  new.predictor.variable.names <- auto_vif(
 #'    data = ecoregions_df,
 #'    predictor.variable.names = ecoregions_numeric_predictors,
 #'    preference.order = ecoregions_numeric_predictors[1:5],
@@ -78,9 +64,9 @@
 #' @importFrom stats cor
 #' @export
 auto_vif <- function(
+    predictor.variable.names = NULL,
     data = NULL,
     dependent.variable.name = NULL,
-    predictor.variable.names = NULL,
     preference.order = NULL,
     max.vif = 5,
     verbose = TRUE
@@ -90,11 +76,31 @@ auto_vif <- function(
 
   if(is.null(data)){
     stop("Argument 'data' is required.")
-  } else {
-    # if(inherits(data, "variable_selection") == TRUE){
-    #   data <- data$selected.variables.df
-    #   preference.order <- colnames(data)
-    # }
+  }
+
+  if(max.vif > 10){
+    if(verbose == TRUE){
+      warning("Argument max.vif is higher than 10. Recommended values for this argument are in the range [2.5, 10]")
+    }
+  }
+
+  if(max.vif < 0){
+    max.vif <- 0
+    if(verbose == TRUE){
+      message("max.vif is negative, setting it to 0.")
+    }
+  }
+
+  if(is.null(max.vif)){
+    if(verbose == TRUE){
+      message("max.vif is NULL, returning all predictors.")
+    }
+    return(predictor.variable.names)
+  }
+
+  #dropping geometry if sf
+  if("sf" %in% class(data)){
+    data <- sf::st_drop_geometry(data)
   }
 
   #setting predictor.variable.names
@@ -111,9 +117,9 @@ auto_vif <- function(
   }
 
   #coerce categorical to numeric with target encoding
-  if(!is.null(dependent.variable.name)){
+  if(!is.null(dependent.variable.name) && dependent.variable.name %in% colnames(data)){
 
-    data_ <- fe_target_encoding(
+    data <- fe_target_encoding(
       data = data,
       dependent.variable.name = dependent.variable.name,
       predictor.variable.names = predictor.variable.names,
@@ -122,53 +128,36 @@ auto_vif <- function(
       verbose = verbose
     )
 
-    data_ <- data_[, predictor.variable.names]
-
-  } else {
-
-    data_ <- data[, predictor.variable.names]
-
   }
 
-  if(max.vif > 10){
-    if(verbose == TRUE){
-      warning("Argument max.vif is higher than 10.. Recommended values for this argument are in the range [2.5, 10]")
-    }
-  }
-
-  if(max.vif < 0){
-    max.vif <- 2.5
-    if(verbose == TRUE){
-      message("max.vif is negative, setting it to 0.")
-    }
-  }
-
-  if(is.null(max.vif)){
-    max.vif <- Inf
-    if(verbose == TRUE){
-      message("max.vif is NULL, setting it to Inf. All variables will be selected.")
-    }
-  }
-
-  #removing non-numeric and zero variance columns
+    data <- data[, predictor.variable.names]
 
   #finding zero variance columns
-  zero.variance.columns <- colnames(data_)[round(apply(data_, 2, var), 6) == 0]
-  if(length(zero.variance.columns) > 0){
-    if(verbose == TRUE){
-      message(
-        "These columns have zero variance and might cause issues: ",
-        paste(
-          zero.variance.columns,
-          collapse = ", "
-        ),
-      )
+    zero.variance.columns <- colnames(data)[round(apply(data, 2, var), 6) == 0]
+    if(length(zero.variance.columns) > 0){
+      if(verbose == TRUE){
+        message(
+          "These columns have almost zero variance and will be ignored: ",
+          paste(
+            zero.variance.columns,
+            collapse = ", "
+          )
+        )
+      }
     }
-  }
+
+    #remove zero variance columns
+    if(length(zero.variance.columns) > 0){
+
+      predictor.variable.names <- predictor.variable.names[!(predictor.variable.names %in% zero.variance.columns)]
+
+      #subset for correlation analysis
+      data <- data[, predictor.variable.names]
+
+    }
 
   #auto preference order by vif
-  preference.order.auto <- vif(data) %>%
-    dplyr::pull(variable)
+  preference.order.auto <- vif(data)[["variable"]]
 
   #if preference.order is not provided, use auto
   if(is.null(preference.order)){
@@ -199,9 +188,6 @@ auto_vif <- function(
     rank = 1:ncol(data)
   )
 
-  #vector to store variables to remove
-  removed.vars <- vector()
-
   #iterating through reversed preference order
   for(i in seq(from = nrow(data.rank), to = 2)){
 
@@ -214,9 +200,6 @@ auto_vif <- function(
     #removing var if vif is above threshold
     if(vif.i > max.vif){
 
-      #adding it to removed.vars
-      removed.vars <- c(removed.vars, data.rank[i, "variable"])
-
       #removing it from x.rank
       data.rank <- dplyr::filter(
         data.rank,
@@ -226,6 +209,11 @@ auto_vif <- function(
     }
 
   }
+
+  removed.vars <- setdiff(
+    x = colnames(data),
+    y = data.rank$variable
+  )
 
   #message
   if(verbose == TRUE){
@@ -246,7 +234,6 @@ auto_vif <- function(
 
   #selected variables
   selected.variables <- preference.order[preference.order %in% setdiff(colnames(data), removed.vars)]
-  selected.variables.df <- data[, selected.variables, drop = FALSE]
 
   if(verbose == TRUE){
     message(
@@ -257,18 +244,8 @@ auto_vif <- function(
     )
   }
 
-  #final vif.df
-  vif.df <- vif(data = selected.variables.df)
 
-  #output list
-  output.list <- list()
-  output.list$vif <- vif.df[, c("variable", "vif")]
-  output.list$selected.variables <- selected.variables
-  output.list$selected.variables.df <- data[, selected.variables, drop = FALSE]
-
-  class(output.list) <- "variable_selection"
-
-  output.list
+  selected.variables
 
 }
 
@@ -276,31 +253,6 @@ auto_vif <- function(
 #' @rdname auto_vif
 #' @export
 vif <- function(data){
-
-  #finding and removing non-numeric columns
-  non.numeric.columns <- colnames(data)[!sapply(data, is.numeric)]
-  if(length(non.numeric.columns) > 0){
-    warning(
-      "These columns are non-numeric and will be removed: ",
-      paste(
-        non.numeric.columns,
-        collapse = ", "
-      )
-    )
-    data <- data[, !(colnames(data) %in% non.numeric.columns)]
-  }
-
-  #finding zero variance columns
-  zero.variance.columns <- colnames(data)[round(apply(data, 2, var), 4) == 0]
-  if(length(zero.variance.columns) > 0){
-    warning(
-      "These columns have zero variance and might cause issues: ",
-      paste(
-        zero.variance.columns,
-        collapse = ", "
-      )
-    )
-  }
 
   out <- data.frame(
     diag(
