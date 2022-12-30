@@ -2,23 +2,23 @@
 % Please edit documentation in R/auto_cor.R
 \name{auto_cor}
 \alias{auto_cor}
-\title{Multicollinearity reduction via Pearson correlation}
+\title{Automated multicollinearity reduction via pairwise Pearson correlation}
 \usage{
 auto_cor(
+  predictor.variable.names = NULL,
   data = NULL,
   dependent.variable.name = NULL,
-  predictor.variable.names = NULL,
   preference.order = NULL,
   max.cor = 0.75,
   verbose = TRUE
 )
 }
 \arguments{
+\item{predictor.variable.names}{(optional; character vector) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. If \code{NULL}, all the columns in data except \code{dependent.variable.name} are used. Default: \code{NULL}}
+
 \item{data}{(required; data frame or tibble) A data frame with predictors. Default: \code{NULL}.}
 
 \item{dependent.variable.name}{(optional; character string) Name of the dependent variable. Only required when there are categorical variables within \code{predictor.variable.names}. Default: \code{NULL}}
-
-\item{predictor.variable.names}{(optional; character vector) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. If \code{NULL}, all the columns in data except \code{dependent.variable.name} are used. Default: \code{NULL}}
 
 \item{preference.order}{(optional; character vector) Character vector indicating the user's order of preference to keep variables. Predictors not included in this argument are ranked by the sum of their correlation with other variables (variables with higher sums receive lower ranks and have therefore lower preference order). Default: \code{NULL}.}
 
@@ -27,15 +27,10 @@ auto_cor(
 \item{verbose}{(optional, logical) Logical. if \code{TRUE}, describes the function operations to the user. Default:: \code{TRUE}}
 }
 \value{
-List with three slots:
-\itemize{
-\item \code{cor}: correlation matrix of the selected variables.
-\item \code{selected.variables}: character vector with the names of the selected variables.
-\item \code{selected.variables.df}: data frame with the selected variables.
-}
+Character vector with predictor variable names.
 }
 \description{
-Iterative reduction of multicollinearity in a data frame via Pearson bivariate correlation.
+Iterative reduction of multicollinearity via Pearson bivariate correlation.
 
 The function \code{auto_cor()} applies a recursive algorithm to remove variables with a Pearson correlation with another variable higher than a given threshold (defined by the argument \code{max.cor}).  When two variables are correlated above this threshold, the one with the highest sum of R-squared with all the other variables is removed.
 
@@ -46,9 +41,6 @@ The argument \code{preference.order} allows the user to "protect" variables that
 If \code{preference.order} is not provided, then the predictors are ranked from lower to higher sum of R-squared with the other preodictors, and removed one by one until the maximum R-squared of the correlation matrix is lower than \code{max.cor}.
 
 If there are categorical variables named in \code{predictor.variable.names} and \code{dependent.variable.name} is provided, then the function applies \code{\link[=fe_target_encoding]{fe_target_encoding()}} with the method "mean" to transform the categorical variables into numeric. If a categorical variable is selected, then its original categorical values are returned.
-}
-\details{
-Can be chained together with \code{\link[=auto_vif]{auto_vif()}} through pipes, see the examples below.
 }
 \examples{
 if(interactive()){

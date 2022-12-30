@@ -1,4 +1,4 @@
-#' @title Multicollinearity reduction via Pearson correlation
+#' @title Automated multicollinearity reduction via pairwise Pearson correlation
 #' @description Iterative reduction of multicollinearity via Pearson bivariate correlation.
 #'
 #' The function `auto_cor()` applies a recursive algorithm to remove variables with a Pearson correlation with another variable higher than a given threshold (defined by the argument `max.cor`).  When two variables are correlated above this threshold, the one with the highest sum of R-squared with all the other variables is removed.

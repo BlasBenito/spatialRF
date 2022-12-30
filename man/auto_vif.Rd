@@ -3,12 +3,12 @@
 \name{auto_vif}
 \alias{auto_vif}
 \alias{vif}
-\title{Multicollinearity reduction via Variance Inflation Factor}
+\title{Automated multicollinearity reduction via Variance Inflation Factor}
 \usage{
 auto_vif(
+  predictor.variable.names = NULL,
   data = NULL,
   dependent.variable.name = NULL,
-  predictor.variable.names = NULL,
   preference.order = NULL,
   max.vif = 5,
   verbose = TRUE
@@ -17,11 +17,11 @@ auto_vif(
 vif(data)
 }
 \arguments{
+\item{predictor.variable.names}{(optional; character vector) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. If \code{NULL}, all the columns in data except \code{dependent.variable.name} are used. Default: \code{NULL}}
+
 \item{data}{(required; data.frame or tibble) A data frame or tibble, or the result of \code{\link[=auto_cor]{auto_cor()}}. Default: \code{NULL}.}
 
-\item{dependent.variable.name}{(optional; character string) Name of the dependent variable. Only required when there are categorical variables within \code{predictor.variable.names}. Default: \code{NULL}}
-
-\item{predictor.variable.names}{(optional; character vector) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. If \code{NULL}, all the columns in data except \code{dependent.variable.name} are used. Default: \code{NULL}}
+\item{dependent.variable.name}{(optional; character string) Name of the dependent variable. Required when there are categorical variables within \code{predictor.variable.names}. Default: \code{NULL}}
 
 \item{preference.order}{(optional, character vector) Character vector indicating the preference order to protect variables from elimination.  Predictors not included in this argument are ranked by their VIFs. Default: \code{NULL}.}
 
@@ -30,69 +30,167 @@ vif(data)
 \item{verbose}{(optional, logical) Logical. if \code{TRUE}, \code{auto_vif()} prints messages describing its operations on the input data. Default:: \code{TRUE}}
 }
 \value{
-List with three slots:
-\itemize{
-\item \code{vif}: data frame with the names of the selected variables and their respective VIF scores.
-\item \code{selected.variables}: character vector with the names of the selected variables.
-\item \code{selected.variables.df}: data frame with the selected variables.
-}
+Character vector with selected predictor variable names.
 }
 \description{
-NOTE: It is highly recommended to run \code{\link[=auto_cor]{auto_cor()}} before \code{\link[=auto_vif]{auto_vif()}}.
-
 The Variance Inflation Factor for a given variable \code{y} is computed as \code{1/(1-R2)}, where \code{R2} is the multiple R-squared of a multiple regression model fitted using \code{y} as response and all the remaining variables of the input data set as predictors. The equation can be interpreted as "the rate of perfect model's R-squared to the unexplained variance of this model".
 
 The possible range of VIF values is (1, Inf]. A VIF lower than 10 suggest that removing \code{y} from the data set would reduce overall multicollinearity. The recommended thresholds for maximum VIF may vary depending on the source consulted, being the most common values, 2.5, 5, and 10.
 
-The function \code{auto_vif()} applies a recursive algorithm to remove variables with a VIF higher than a given threshold (defined by the argument \code{max.vif}). However, \code{auto_vif()} allows the user to define preference selection order via the argument \code{preference.order}.
+The function \code{auto_vif()} applies a recursive algorithm to remove variables with a VIF higher than a given threshold (defined by the argument \code{max.vif}).
 
-The argument \code{preference.order} allows the user to "protect" variables that might be interesting or even required for the given analysis.
+The function allows the user to define a preference selection order via the argument \code{preference.order}. This argument helps "protect" variables that might be interesting or even required for the given analysis. Please, see the examples to understand better how this feature works.
 
-If \code{preference.order} is, for example, \code{c("a", "b", "c")}, \code{max.vif} equals 5, and the VIFs of these variables are 15, 10, and 5, then variable \code{"b"} is removed instead of \code{"a"}.
-
-If \code{preference.order} is not provided, then the predictors are ranked from lower to higher VIF, and removed one by one until their VIF is lower than \code{max.vif}.
-
-If there are categorical variables named in \code{predictor.variable.names} and \code{dependent.variable.name} is provided, then the function applies \code{\link[=fe_target_encoding]{fe_target_encoding()}} with the method "mean" to transform the categorical variables into numeric. If a categorical variable is selected, then its original categorical values are returned.
+If there are categorical variables named in \code{predictor.variable.names} and \code{dependent.variable.name} is provided, then the function applies \code{\link[=fe_target_encoding]{fe_target_encoding()}} with the method "mean" to transform the categorical variables into numeric before the VIF analysis
 }
 \examples{
 if(interactive()){
 
 data(
   ecoregions_df,
-  ecoregions_numeric_predictors
+  ecoregions_continuous_response,
+  ecoregions_numeric_predictors,
+  ecoregions_all_predictors
+)
+
+#NUMERIC PREDICTORS ONLY
+################################
+
+
+#automatic VIF reduction with low max.vif
+#-------------------------------
+selected.predictors <- auto_vif(
+  data = ecoregions_df,
+  predictor.variable.names = ecoregions_numeric_predictors,
+  max.vif = 2
+)
+
+#check vif of the resulting dataset
+#variance inflation factor
+vif(data = ecoregions_df[, selected.predictors])
+
+#a small number of predictors is selected
+length(selected.predictors)
+
+
+#automatic VIF reduction with high max.vif
+#-------------------------------
+selected.predictors <- auto_vif(
+  data = ecoregions_df,
+  predictor.variable.names = ecoregions_numeric_predictors,
+  max.vif = 10
+)
+
+#a larger number of predictors is selected
+length(selected.predictors)
+
+
+#supervised VIF reduction
+#------------------------------------------------
+#1. Notice that "fragmentation_ca" is selected
+#even though it has the maximum VIF in the dataset
+#2. "climate_bio12_average" is excluded from the result
+#because it's highly correlated to "climate_bio1_average"
+selected.predictors <- auto_vif(
+  data = ecoregions_df,
+  predictor.variable.names = ecoregions_numeric_predictors,
+  preference.order = c(
+    "fragmentation_ca",
+    "climate_bio1_average",
+    "climate_bio12_average"
+  )
+)
+
+
+#using quantitative criteria as preference.order
+#-----------------------------------------------
+#computing univariate correlation between each predictor and the response
+preference.order <- apply(
+  X = ecoregions_df[, ecoregions_numeric_predictors],
+  MARGIN = 2,
+  FUN = function(x){
+    cor(
+      x = x,
+      y = ecoregions_df[, ecoregions_continuous_response]
+      )
+    }
   )
 
-#on a data frame
-out <- auto_vif(
- data = ecoregions_df,
- predictor.variable.names = ecoregions_numeric_predictors
- )
+#sorting from maximum to minimum and getting names only
+preference.order <- names(
+  sort(
+    preference.order,
+    decreasing = TRUE
+    )
+  )
 
-#getting out the vif data frame
-out$vif
+#using it in auto_vif as preference.order
+selected.predictors <- auto_vif(
+  data = ecoregions_df,
+  predictor.variable.names = ecoregions_numeric_predictors,
+  preference.order = preference.order
+)
 
-#getting the names of the selected variables
-out$selected.variables
 
-#getting the data frame of selected variables
-out$selected.variables.df
+#using auto_vif and auto_cor together
+#-----------------------------------------------
+auto_cor.result <- auto_cor(
+  data = ecoregions_df,
+  predictor.variable.names = ecoregions_numeric_predictors,
+  preference.order = preference.order,
+  max.cor = 0.75
+)
 
-#with preference order
- out <- auto_vif(
-   data = ecoregions_df,
-   predictor.variable.names = ecoregions_numeric_predictors,
-   preference.order = ecoregions_numeric_predictors[1:5],
- )
+selected.predictors <- auto_vif(
+  data = ecoregions_df,
+  predictor.variable.names = auto_cor.result,
+  preference.order = preference.order
+)
 
-#with pipes
- out <- auto_cor(
-   data = ecoregions_df,
-   predictor.variable.names = ecoregions_numeric_predictors
- ) \%>\%
- auto_vif()
+#NUMERIC AND CATEGORICAL PREDICTORS
+#-----------------------------------
 
- #vif function
- vif(data = ecoregions_df[, ecoregions_numeric_predictors])
+#there are two categorial predictors in the dataset below
+class(ecoregions_df$dominant_landcover)
+class(ecoregions_df$primary_productivity)
+
+#these variables are included in the vector ecoregions_all_predictors
+ecoregions_all_predictors[45:46]
+
+#automatic VIF reduction using target-encoding for categorical predictors
+#---------------------------------------------------
+#requires the name of the response to compute the target-encoding
+selected.predictors <- auto_vif(
+  data = ecoregions_df,
+  dependent.variable.name = ecoregions_continuous_response,
+  predictor.variable.names = ecoregions_all_predictors
+)
+
+#both categorical predictors have been selected
+ecoregions_all_predictors[45:46] \%in\% selected.predictors
+
+
+#applying target-encoding before vif
+#---------------------------------------------------
+#if you wish more control over the target-encoding
+#you can apply fe_target_encoding() to your categoricals
+#with the desired method before the vif
+data.encoded <- fe_target_encoding(
+  data = ecoregions_df,
+  dependent.variable.name = ecoregions_continuous_response,
+  predictor.variable.names = ecoregions_all_predictors,
+  methods = "mean",
+  replace = TRUE
+)
+
+#now the function does not require the response's name
+selected.predictors <- auto_vif(
+  data = data.encoded,
+  predictor.variable.names = ecoregions_all_predictors
+)
+
+#both categorical predictors have been selected again
+ecoregions_all_predictors[45:46] \%in\% selected.predictors
 
 
 }
