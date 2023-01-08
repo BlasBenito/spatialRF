@@ -2,7 +2,7 @@
 #' @description Plots the the Moran's I test of the response and the predictors in a training data frame.
 #' @param data Data frame with a response variable and a set of predictors. Default: `NULL`
 #' @param dependent.variable.name Character string with the name of the response variable. Must be in the column names of `data`. If the dependent variable is binary with values 1 and 0, the argument `case.weights` of `ranger` is populated by the function [case_weights()]. Default: `NULL`
-#' @param predictor.variable.names Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Optionally, the result of [auto_cor()] or [auto_vif()] Default: `NULL`
+#' @param predictor.variable.names Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Optionally, the result of [mc_auto_cor()] or [mc_auto_vif()] Default: `NULL`
 #' @param distance.matrix Squared matrix with the distances among the records in `data`. The number of rows of `distance.matrix` and `data` must be the same. If not provided, the computation of the Moran's I of the residuals is omitted. Default: `NULL`
 #' @param distance.thresholds Numeric vector, distances below each value are set to 0 on separated copies of the distance matrix for the computation of Moran's I at different neighborhood distances. If `NULL`, it defaults to `seq(0, max(distance.matrix)/4, length.out = 2)`. Default: `NULL`
 #' @param fill.color Character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. `viridis::viridis(100)`). Default: `viridis::viridis(100, option = "F", direction = -1)`
@@ -64,7 +64,7 @@ plot_training_df_moran <- function(
     stop("No variables to plot.")
   }
 
-  #predictor.variable.names comes from auto_vif or auto_cor
+  #predictor.variable.names comes from mc_auto_vif or mc_auto_cor
   if(!is.null(predictor.variable.names)){
     if(inherits(predictor.variable.names, "variable_selection")){
       predictor.variable.names <- predictor.variable.names$selected.variables

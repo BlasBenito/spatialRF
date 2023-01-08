@@ -100,7 +100,7 @@ filter_spatial_predictors <- function(
     max.cor = 0.50
 ){
 
-  #predictor.variable.names comes from auto_vif or auto_cor
+  #predictor.variable.names comes from mc_auto_vif or mc_auto_cor
   if(!is.null(predictor.variable.names)){
     if(inherits(predictor.variable.names, "variable_selection")){
       predictor.variable.names <- predictor.variable.names$selected.variables
@@ -108,7 +108,7 @@ filter_spatial_predictors <- function(
   }
 
   #filtering spatial predictors by pair-wise correlation
-  spatial.predictors.selection <- auto_cor(
+  spatial.predictors.selection <- mc_auto_cor(
     data = spatial.predictors.df,
     max.cor = max.cor,
     verbose = FALSE

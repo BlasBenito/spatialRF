@@ -3,7 +3,7 @@
 #' @param model (required if `data` is `NULL`; model produced with `spatialRF`) A model fitted with [rf()]. If provided, it overrides all other input arguments (these are: `data`, `dependent.variable.name`, `predictor.variable.names`, `distance.matrix`, `distance.thresholds`, `xy`). However, you can provide new execution arguments and hyperparameters (like: `num.trees`, `mtry`, and any other argument accepted by the function `ranger::ranger()`) via the argument `ranger.arguments`. Default: `NULL`.
 #' @param data (required if `model` is `NULL`; data frame or tibble) Data frame with a response variable and a set of predictors. If `data` is a tibble, all data frames in the output model are coerced to tibble. Default: `NULL`
 #' @param dependent.variable.name (required if `model` is `NULL`; character string) Character string with the name of the response variable. Must be in the column names of `data`. If the dependent variable is binary with values 1 and 0, the argument `case.weights` of `ranger` is populated by the function [case_weights()]. Default: `NULL`
-#' @param predictor.variable.names (required if `model` is `NULL`; character vector with column names of `data`) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Optionally, the result of [auto_cor()] or [auto_vif()]. Default: `NULL`
+#' @param predictor.variable.names (required if `model` is `NULL`; character vector with column names of `data`) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Optionally, the result of [mc_auto_cor()] or [mc_auto_vif()]. Default: `NULL`
 #' @param distance.matrix (optional; distance matrix) Squared matrix with the distances among the records in `data`. The number of rows of `distance.matrix` and `data` must be the same. If not provided, the computation of the Moran's I of the residuals is omitted. Default: `NULL`
 #' @param distance.thresholds  (optional; numeric vector with distances in the same units as `distance.matrix`) Numeric vector with neighborhood distances. All distances in the distance matrix below each value in `dustance.thresholds` are set to 0 for the computation of Moran's I. If `NULL`, it defaults to seq(0, max(distance.matrix), length.out = 4). Default: `NULL`
 #' @param xy (optional; data frame, tibble, or matrix) Data frame or matrix with two columns containing coordinates and named "x" and "y". It is not used by this function, but it is stored in the slot `ranger.arguments$xy` of the model, so it can be used by [rf_evaluate()] and [rf_tuning()]. Default: `NULL`
@@ -370,7 +370,7 @@ rf <- function(
 
   }
 
-  #predictor.variable.names comes from auto_vif or auto_cor
+  #predictor.variable.names comes from mc_auto_vif or mc_auto_cor
   if(inherits(predictor.variable.names, "variable_selection")){
 
     predictor.variable.names <- predictor.variable.names$selected.variables
@@ -380,7 +380,7 @@ rf <- function(
   #END OF HANDLING ARGUMENTS
   ##########################
 
-  #predictor.variable.names comes from auto_vif or auto_cor
+  #predictor.variable.names comes from mc_auto_vif or mc_auto_cor
   if(inherits(predictor.variable.names, "variable_selection")){
 
     predictor.variable.names <- predictor.variable.names$selected.variables

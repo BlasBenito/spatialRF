@@ -238,7 +238,7 @@ rf_spatial <- function(
 
   }
 
-  #predictor.variable.names comes from auto_vif or auto_cor
+  #predictor.variable.names comes from mc_auto_vif or mc_auto_cor
   if(inherits(predictor.variable.names, "variable_selection")){
 
     predictor.variable.names <- predictor.variable.names$selected.variables

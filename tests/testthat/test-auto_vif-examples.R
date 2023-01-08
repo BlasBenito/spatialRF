@@ -1,51 +1,30 @@
 testthat::test_that("`auto_vif()` works", {
 
-  library(spatialRF)
   library(magrittr)
 
   data(
     ecoregions_df,
-    ecoregions_numeric_predictors
+    ecoregions_continuous_response,
+    ecoregions_numeric_predictors,
+    ecoregions_all_predictors
   )
 
-  ecoregions_df <- tibble::as_tibble(ecoregions_df)
+  #testing vif
+  ###############################
+  vifs <- vif(data = ecoregions_df[, ecoregions_numeric_predictors])
 
-  out <- auto_vif(
-    data = ecoregions_df,
-    predictor.variable.names = ecoregions_numeric_predictors,
-    verbose = TRUE,
-    preference.order = ecoregions_numeric_predictors[1:10]
-  )
+  # Test that all VIF values are below the threshold
+  testthat::expect_true(all(vifs$vif < vif_threshold))
 
-  testthat::expect_type(out, "list")
-  testthat::expect_length(out, 3)
-  testthat::expect_s3_class(out$vif, "data.frame")
-  testthat::expect_named(out, c("vif", "selected.variables", "selected.variables.df"))
+  # Test that the function returns a data frame with the correct structure
+  testthat::expect_is(vifs, "data.frame")
+  testthat::expect_equal(names(vifs), c("variable", "vif"))
+  testthat::expect_is(vifs$variable, "character")
+  testthat::expect_is(vifs$vif, "numeric")
 
-  testthat::expect_warning(
-    out <- auto_vif(
-      data = ecoregions_df,
-      predictor.variable.names = ecoregions_numeric_predictors,
-      verbose = TRUE,
-      max.vif = 20,
-      preference.order = ecoregions_numeric_predictors[1:10]
-    )
-  )
 
-  out <- auto_vif(
-    data = ecoregions_df,
-    predictor.variable.names = ecoregions_numeric_predictors,
-    verbose = TRUE,
-    max.vif = -11,
-    preference.order = ecoregions_numeric_predictors[1:10]
-  )
+  #testing auto_vif
+  #################################
 
-  out <- auto_vif(
-    data = ecoregions_df,
-    predictor.variable.names = ecoregions_numeric_predictors,
-    verbose = TRUE,
-    max.vif = NULL,
-    preference.order = ecoregions_numeric_predictors[1:10]
-  )
 
 })

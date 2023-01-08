@@ -3,7 +3,7 @@
 #' @description Applies the `scale()` function to the numeric predictors of a training data frame.
 #'
 #' @param data (required if `model` is `NULL`; data frame or tibble) Data frame with a response variable and a set of predictors. If `data` is a tibble, all data frames in the output model are coerced to tibble. Default: `NULL`
-#' @param predictor.variable.names (required if `model` is `NULL`; character vector with column names of `data`) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Optionally, the result of [auto_cor()] or [auto_vif()]. Default: `NULL`
+#' @param predictor.variable.names (required if `model` is `NULL`; character vector with column names of `data`) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Optionally, the result of [mc_auto_cor()] or [mc_auto_vif()]. Default: `NULL`
 #'
 #' @return Input data frame with scaled numeric predictors.
 #' @export
@@ -73,7 +73,7 @@ fe_scale_predictors <- function(
 #'
 #' @param data (required if `model` is `NULL`; data frame or tibble) Data frame with a response variable and a set of predictors. If `data` is a tibble, all data frames in the output model are coerced to tibble. Default: `NULL`
 #' @param dependent.variable.name (required if `model` is `NULL`; character string) Character string with the name of the response variable. Must be in the column names of `data`. Default: `NULL`
-#' @param predictor.variable.names (required if `model` is `NULL`; character vector with column names of `data`) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Optionally, the result of [auto_cor()] or [auto_vif()]. Default: `NULL`
+#' @param predictor.variable.names (required if `model` is `NULL`; character vector with column names of `data`) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Optionally, the result of [mc_auto_cor()] or [mc_auto_vif()]. Default: `NULL`
 #'
 #' @return Input data frame with scaled numeric response and predictors.
 #' @export

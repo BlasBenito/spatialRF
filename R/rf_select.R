@@ -229,7 +229,7 @@ rf_select <- function(
 
 
   #filtering by bivariate correlation
-  out.cor <- auto_cor(
+  out.cor <- mc_auto_cor(
     data = data,
     predictor.variable.names = predictor.variable.names,
     preference.order = preference.order,
@@ -238,7 +238,7 @@ rf_select <- function(
   )
 
   #filtering by VIF
-  out.vif <- auto_vif(
+  out.vif <- mc_auto_vif(
     data = out.cor,
     preference.order = preference.order,
     max.vif = max.vif,

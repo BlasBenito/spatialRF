@@ -15,7 +15,7 @@ fe_scale_all(
 
 \item{dependent.variable.name}{(required if \code{model} is \code{NULL}; character string) Character string with the name of the response variable. Must be in the column names of \code{data}. Default: \code{NULL}}
 
-\item{predictor.variable.names}{(required if \code{model} is \code{NULL}; character vector with column names of \code{data}) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. Optionally, the result of \code{\link[=auto_cor]{auto_cor()}} or \code{\link[=auto_vif]{auto_vif()}}. Default: \code{NULL}}
+\item{predictor.variable.names}{(required if \code{model} is \code{NULL}; character vector with column names of \code{data}) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. Optionally, the result of \code{\link[=mc_auto_cor]{mc_auto_cor()}} or \code{\link[=mc_auto_vif]{mc_auto_vif()}}. Default: \code{NULL}}
 }
 \value{
 Input data frame with scaled numeric response and predictors.

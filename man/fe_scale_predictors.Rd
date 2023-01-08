@@ -9,7 +9,7 @@ fe_scale_predictors(data, predictor.variable.names)
 \arguments{
 \item{data}{(required if \code{model} is \code{NULL}; data frame or tibble) Data frame with a response variable and a set of predictors. If \code{data} is a tibble, all data frames in the output model are coerced to tibble. Default: \code{NULL}}
 
-\item{predictor.variable.names}{(required if \code{model} is \code{NULL}; character vector with column names of \code{data}) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. Optionally, the result of \code{\link[=auto_cor]{auto_cor()}} or \code{\link[=auto_vif]{auto_vif()}}. Default: \code{NULL}}
+\item{predictor.variable.names}{(required if \code{model} is \code{NULL}; character vector with column names of \code{data}) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. Optionally, the result of \code{\link[=mc_auto_cor]{mc_auto_cor()}} or \code{\link[=mc_auto_vif]{mc_auto_vif()}}. Default: \code{NULL}}
 }
 \value{
 Input data frame with scaled numeric predictors.

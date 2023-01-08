@@ -6,7 +6,7 @@
 #'
 #' The possible range of VIF values is (1, Inf]. A VIF lower than 10 suggest that removing `y` from the data set would reduce overall multicollinearity. The recommended thresholds for maximum VIF may vary depending on the source consulted, being the most common values, 2.5, 5, and 10.
 #'
-#' The function `auto_vif()` applies a recursive algorithm to remove variables with a VIF higher than a given threshold (defined by the argument `max.vif`).
+#' The function `mc_auto_vif()` applies a recursive algorithm to remove variables with a VIF higher than a given threshold (defined by the argument `max.vif`).
 #'
 #' The function allows the user to define a preference selection order via the argument `preference.order`. This argument helps "protect" variables that might be interesting or even required for the given analysis. Please, see the examples to understand better how this feature works.
 #'
@@ -18,9 +18,9 @@
 #' @param predictor.variable.names (optional; character vector) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. If `NULL`, all the columns in data except `dependent.variable.name` are used. Default: `NULL`
 #' @param preference.order (optional, character vector) Character vector indicating the preference order to protect variables from elimination.  Predictors not included in this argument are ranked by their VIFs. Default: `NULL`.
 #' @param max.vif (optional, numeric) Numeric between 2.5 and 10 defining the maximum VIF allowed in the output dataset. Higher VIF thresholds should result in a higher number of selected variables. Default: 5.
-#' @param verbose (optional, logical) Logical. if `TRUE`, `auto_vif()` prints messages describing its operations on the input data. Default:: `TRUE`
-#' @return Character vector with selected predictor variable names.
-#' @seealso [auto_cor()]
+#' @param verbose (optional, logical) Logical. if `TRUE`, `mc_auto_vif()` prints messages describing its operations on the input data. Default:: `TRUE`
+#' @return Character vector with the names of uncorrelated predictors.
+#' @seealso [mc_auto_cor()]
 #' @examples
 #' if(interactive()){
 #'
@@ -37,7 +37,7 @@
 #'
 #' #automatic VIF reduction with low max.vif
 #' #-------------------------------
-#' selected.predictors <- auto_vif(
+#' selected.predictors <- mc_auto_vif(
 #'   data = ecoregions_df,
 #'   predictor.variable.names = ecoregions_numeric_predictors,
 #'   max.vif = 2
@@ -53,7 +53,7 @@
 #'
 #' #automatic VIF reduction with high max.vif
 #' #-------------------------------
-#' selected.predictors <- auto_vif(
+#' selected.predictors <- mc_auto_vif(
 #'   data = ecoregions_df,
 #'   predictor.variable.names = ecoregions_numeric_predictors,
 #'   max.vif = 10
@@ -69,7 +69,7 @@
 #' #even though it has the maximum VIF in the dataset
 #' #2. "climate_bio12_average" is excluded from the result
 #' #because it's highly correlated to "climate_bio1_average"
-#' selected.predictors <- auto_vif(
+#' selected.predictors <- mc_auto_vif(
 #'   data = ecoregions_df,
 #'   predictor.variable.names = ecoregions_numeric_predictors,
 #'   preference.order = c(
@@ -102,26 +102,26 @@
 #'     )
 #'   )
 #'
-#' #using it in auto_vif as preference.order
-#' selected.predictors <- auto_vif(
+#' #using it in mc_auto_vif as preference.order
+#' selected.predictors <- mc_auto_vif(
 #'   data = ecoregions_df,
 #'   predictor.variable.names = ecoregions_numeric_predictors,
 #'   preference.order = preference.order
 #' )
 #'
 #'
-#' #using auto_vif and auto_cor together
+#' #using mc_auto_vif and mc_auto_cor together
 #' #-----------------------------------------------
-#' auto_cor.result <- auto_cor(
+#' mc_auto_cor.result <- mc_auto_cor(
 #'   data = ecoregions_df,
 #'   predictor.variable.names = ecoregions_numeric_predictors,
 #'   preference.order = preference.order,
 #'   max.cor = 0.75
 #' )
 #'
-#' selected.predictors <- auto_vif(
+#' selected.predictors <- mc_auto_vif(
 #'   data = ecoregions_df,
-#'   predictor.variable.names = auto_cor.result,
+#'   predictor.variable.names = mc_auto_cor.result,
 #'   preference.order = preference.order
 #' )
 #'
@@ -138,7 +138,7 @@
 #' #automatic VIF reduction using target-encoding for categorical predictors
 #' #---------------------------------------------------
 #' #requires the name of the response to compute the target-encoding
-#' selected.predictors <- auto_vif(
+#' selected.predictors <- mc_auto_vif(
 #'   data = ecoregions_df,
 #'   dependent.variable.name = ecoregions_continuous_response,
 #'   predictor.variable.names = ecoregions_all_predictors
@@ -162,7 +162,7 @@
 #' )
 #'
 #' #now the function does not require the response's name
-#' selected.predictors <- auto_vif(
+#' selected.predictors <- mc_auto_vif(
 #'   data = data.encoded,
 #'   predictor.variable.names = ecoregions_all_predictors
 #' )
@@ -172,13 +172,13 @@
 #'
 #'
 #' }
-#' @rdname auto_vif
+#' @rdname mc_auto_vif
 #' @importFrom magrittr `%>%`
 #' @importFrom stats cor
 #' @export
-auto_vif <- function(
-    predictor.variable.names = NULL,
+mc_auto_vif <- function(
     data = NULL,
+    predictor.variable.names = NULL,
     dependent.variable.name = NULL,
     preference.order = NULL,
     max.vif = 5,
@@ -223,10 +223,38 @@ auto_vif <- function(
       y = colnames(data)
     )
   } else {
-    predictor.variable.names <- setdiff(
-      x = colnames(data),
-      y = dependent.variable.name
-    )
+    if(!is.null(dependent.variable.name)){
+      predictor.variable.names <- colnames(data)
+    } else {
+      predictor.variable.names <- setdiff(
+        x = colnames(data),
+        y = dependent.variable.name
+      )
+    }
+  }
+
+  #internal vif function
+  .vif <- function(data){
+
+    out <- data.frame(
+      diag(
+        solve(
+          cor(
+            x = data,
+            use = "complete.obs"
+          ),
+          tol = 0
+        )
+      ),
+      stringsAsFactors = FALSE
+    ) %>%
+      dplyr::rename(vif = 1) %>%
+      tibble::rownames_to_column(var = "variable") %>%
+      dplyr::mutate(vif = round(vif, 3)) %>%
+      dplyr::arrange(vif)
+
+    out
+
   }
 
   #coerce categorical to numeric with target encoding
@@ -270,7 +298,7 @@ auto_vif <- function(
   }
 
   #auto preference order by vif
-  preference.order.auto <- vif(data)[["variable"]]
+  preference.order.auto <- .vif(data)[["variable"]]
 
   #if preference.order is not provided, use auto
   if(is.null(preference.order)){
@@ -304,7 +332,7 @@ auto_vif <- function(
   #iterating through reversed preference order
   for(i in seq(from = nrow(data.rank), to = 2)){
 
-    vif.i <- vif(data = data[, data.rank$variable]) %>%
+    vif.i <- .vif(data = data[, data.rank$variable]) %>%
       dplyr::filter(
         variable == data.rank[i, "variable"]
       ) %>%
@@ -351,33 +379,6 @@ auto_vif <- function(
   selected.variables
 
 }
-
-
-#' @rdname auto_vif
-#' @export
-vif <- function(data){
-
-  out <- data.frame(
-    diag(
-      solve(
-        cor(
-          x = data,
-          use = "complete.obs"
-        ),
-        tol = 0
-      )
-    ),
-    stringsAsFactors = FALSE
-  ) %>%
-    dplyr::rename(vif = 1) %>%
-    tibble::rownames_to_column(var = "variable") %>%
-    dplyr::mutate(vif = round(vif, 3)) %>%
-    dplyr::arrange(vif)
-
-  out
-
-}
-
 
 
 

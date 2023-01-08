@@ -27,7 +27,7 @@ rf(
 
 \item{dependent.variable.name}{(required if \code{model} is \code{NULL}; character string) Character string with the name of the response variable. Must be in the column names of \code{data}. If the dependent variable is binary with values 1 and 0, the argument \code{case.weights} of \code{ranger} is populated by the function \code{\link[=case_weights]{case_weights()}}. Default: \code{NULL}}
 
-\item{predictor.variable.names}{(required if \code{model} is \code{NULL}; character vector with column names of \code{data}) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. Optionally, the result of \code{\link[=auto_cor]{auto_cor()}} or \code{\link[=auto_vif]{auto_vif()}}. Default: \code{NULL}}
+\item{predictor.variable.names}{(required if \code{model} is \code{NULL}; character vector with column names of \code{data}) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. Optionally, the result of \code{\link[=mc_auto_cor]{mc_auto_cor()}} or \code{\link[=mc_auto_vif]{mc_auto_vif()}}. Default: \code{NULL}}
 
 \item{distance.matrix}{(optional; distance matrix) Squared matrix with the distances among the records in \code{data}. The number of rows of \code{distance.matrix} and \code{data} must be the same. If not provided, the computation of the Moran's I of the residuals is omitted. Default: \code{NULL}}
 
