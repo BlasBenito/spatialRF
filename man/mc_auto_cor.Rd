@@ -41,6 +41,8 @@ The argument \code{preference.order} allows the user to "protect" variables that
 If \code{preference.order} is not provided, then the predictors are ranked from lower to higher sum of R-squared with the other preodictors, and removed one by one until the maximum R-squared of the correlation matrix is lower than \code{max.cor}.
 
 If there are categorical variables named in \code{predictor.variable.names} and \code{dependent.variable.name} is provided, then the function applies \code{\link[=fe_target_encoding]{fe_target_encoding()}} with the method "mean" to transform the categorical variables into numeric. If a categorical variable is selected, then its original categorical values are returned.
+
+Please note that near-zero variance columns are ignored by this function.
 }
 \examples{
 if(interactive()){

@@ -13,6 +13,8 @@
 #'
 #' If there are categorical variables named in `predictor.variable.names` and `dependent.variable.name` is provided, then the function applies [fe_target_encoding()] with the method "mean" to transform the categorical variables into numeric before the VIF analysis
 #'
+#' Please note that near-zero variance columns are ignored by this function.
+#'
 #' @param data (required; data.frame or tibble) A data frame, tibble, or sf. Default: `NULL`.
 #' @param dependent.variable.name (optional; character string) Name of the dependent variable. Required when there are categorical variables within `predictor.variable.names`. Default: `NULL`
 #' @param predictor.variable.names (optional; character vector) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. If `NULL`, all the columns in data except `dependent.variable.name` are used. Default: `NULL`
@@ -186,6 +188,7 @@ mc_auto_vif <- function(
 ){
 
   variable <- NULL
+  vif <- NULL
 
   if(is.null(data)){
     stop("Argument 'data' is required.")
@@ -235,6 +238,8 @@ mc_auto_vif <- function(
 
   #internal vif function
   .vif <- function(data){
+
+    vif <- NULL
 
     out <- data.frame(
       diag(

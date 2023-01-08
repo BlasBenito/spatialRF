@@ -39,6 +39,8 @@ The function \code{mc_auto_vif()} applies a recursive algorithm to remove variab
 The function allows the user to define a preference selection order via the argument \code{preference.order}. This argument helps "protect" variables that might be interesting or even required for the given analysis. Please, see the examples to understand better how this feature works.
 
 If there are categorical variables named in \code{predictor.variable.names} and \code{dependent.variable.name} is provided, then the function applies \code{\link[=fe_target_encoding]{fe_target_encoding()}} with the method "mean" to transform the categorical variables into numeric before the VIF analysis
+
+Please note that near-zero variance columns are ignored by this function.
 }
 \examples{
 if(interactive()){

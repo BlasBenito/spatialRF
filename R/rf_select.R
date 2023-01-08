@@ -229,24 +229,14 @@ rf_select <- function(
 
 
   #filtering by bivariate correlation
-  out.cor <- mc_auto_cor(
+  selected.variables <- mc_auto(
     data = data,
     predictor.variable.names = predictor.variable.names,
     preference.order = preference.order,
     max.cor = max.cor,
-    verbose = FALSE
-  )
-
-  #filtering by VIF
-  out.vif <- mc_auto_vif(
-    data = out.cor,
-    preference.order = preference.order,
     max.vif = max.vif,
     verbose = FALSE
   )
-
-  #selected variables
-  selected.variables <- out.vif$selected.variables
 
   #HANDLING PARALLELIZATION
   ##########################
@@ -596,8 +586,16 @@ rf_select <- function(
     variables = selected.variables,
     plot = sequential.models.plot,
     df = sequential.models.df,
-    cor = round(cor(data[, selected.variables]), 2),
-    vif = out.vif$vif
+    cor = mc_cor(
+      data = data,
+      dependent.variable.name = dependent.variable.name,
+      predictor.variable.names = selected.variables
+      ),
+    vif = mc_vif(
+      data = data,
+      dependent.variable.name = dependent.variable.name,
+      predictor.variable.names = selected.variables
+    )
   )
 
   m

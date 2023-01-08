@@ -12,6 +12,7 @@
 #'
 #' If there are categorical variables named in `predictor.variable.names` and `dependent.variable.name` is provided, then the function applies [fe_target_encoding()] with the method "mean" to transform the categorical variables into numeric. If a categorical variable is selected, then its original categorical values are returned.
 #'
+#' Please note that near-zero variance columns are ignored by this function.
 #'
 #' @param data (required; data.frame or tibble) A data frame, tibble, or sf. Default: `NULL`.
 #' @param dependent.variable.name (optional; character string) Name of the dependent variable. Required when there are categorical variables within `predictor.variable.names`. Default: `NULL`
@@ -35,7 +36,34 @@
 #'   ecoregions_all_predictors
 #' )
 #'
+#' #unsupervised multicollinearity reduction
+#' #------------------------------------------------
+#' selected.predictors <- mc_auto(
+#'   data = ecoregions_df,
+#'   predictor.variable.names = ecoregions_all_predictors,
+#'   dependent.variable.name = ecoregions_continuous_response,
+#'   max.cor = 0.75,
+#'   max.vif = 5
+#'   )
 #'
+#'
+#' #supervised multicollinearity reduction
+#' #------------------------------------------------
+#' #1. Notice that "fragmentation_ca" is selected
+#' #even though it has the maximum VIF in the dataset
+#' #2. "climate_bio12_average" is excluded from the result
+#' #because it's highly correlated to "climate_bio1_average"
+#' selected.predictors <- mc_auto(
+#'   data = ecoregions_df,
+#'   predictor.variable.names = ecoregions_numeric_predictors,
+#'   preference.order = c(
+#'     "fragmentation_ca",
+#'     "climate_bio1_average",
+#'     "climate_bio12_average"
+#'   ),
+#'   max.cor = 0.75,
+#'   max.vif = 5
+#' )
 #'
 #' }
 mc_auto <- function(

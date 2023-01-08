@@ -24,6 +24,8 @@ Data frame with the columns "a" and "b" containing the names of pairs of predict
 Returns the pairwise Pearson correlation between all pairs of predictors in a training dataset.
 
 If there are categorical variables named in \code{predictor.variable.names} and \code{dependent.variable.name} is provided, then the function applies \code{\link[=fe_target_encoding]{fe_target_encoding()}} with the method "mean" to transform the categorical variables into numeric. If a categorical variable is selected, then its original categorical values are returned.
+
+Please note that near-zero variance columns are ignored by this function. Use \code{\link[=mc_auto_vif]{mc_auto_vif()}} to remove them.
 }
 \examples{
 if(interactive()){

@@ -44,6 +44,8 @@ The argument \code{preference.order} allows the user to "protect" variables that
 If \code{preference.order} is not provided, then the predictors are ranked from lower to higher sum of R-squared with the other preodictors, and removed one by one until the maximum R-squared of the correlation matrix is lower than \code{max.cor} and the maximum VIF is below \code{max.vif}.
 
 If there are categorical variables named in \code{predictor.variable.names} and \code{dependent.variable.name} is provided, then the function applies \code{\link[=fe_target_encoding]{fe_target_encoding()}} with the method "mean" to transform the categorical variables into numeric. If a categorical variable is selected, then its original categorical values are returned.
+
+Please note that near-zero variance columns are ignored by this function.
 }
 \examples{
 if(interactive()){
@@ -54,7 +56,34 @@ data(
   ecoregions_all_predictors
 )
 
+#unsupervised multicollinearity reduction
+#------------------------------------------------
+selected.predictors <- mc_auto(
+  data = ecoregions_df,
+  predictor.variable.names = ecoregions_all_predictors,
+  dependent.variable.name = ecoregions_continuous_response,
+  max.cor = 0.75,
+  max.vif = 5
+  )
 
+
+#supervised multicollinearity reduction
+#------------------------------------------------
+#1. Notice that "fragmentation_ca" is selected
+#even though it has the maximum VIF in the dataset
+#2. "climate_bio12_average" is excluded from the result
+#because it's highly correlated to "climate_bio1_average"
+selected.predictors <- mc_auto(
+  data = ecoregions_df,
+  predictor.variable.names = ecoregions_numeric_predictors,
+  preference.order = c(
+    "fragmentation_ca",
+    "climate_bio1_average",
+    "climate_bio12_average"
+  ),
+  max.cor = 0.75,
+  max.vif = 5
+)
 
 }
 }
