@@ -35,6 +35,33 @@ covr::report(
   )
 )
 
+#auto_coor auto_vif functions
+#100%
+covr::report(
+  x = covr::file_coverage(
+    source_files = c(
+      "R/auto_cor.R",
+      "R/auto_vif.R"
+    ),
+    test_files = "tests/testthat/test-auto_cor-auto_vif.R"
+  )
+)
+
+#mc functions
+covr::report(
+  x = covr::file_coverage(
+    source_files = c(
+      "R/mc_auto.R",
+      "R/mc_cor.R",
+      "R/mc_vif.R",
+      "R/mc_auto_vif.R",
+      "R/mc_auto_cor.R"
+    ),
+    test_files = "tests/testthat/test-mc_functions.R"
+  )
+)
+
+
 
 #run all tests with coverage
 covr::with_coverage(

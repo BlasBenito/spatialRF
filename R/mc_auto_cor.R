@@ -83,10 +83,9 @@ mc_auto_cor <- function(
     return(predictor.variable.names)
   }
 
-  if(max.cor < 0){
-    max.cor <- 0
+  if(max.cor < 0 | max.cor > 1){
     if(verbose == TRUE){
-      message("max.cor is negative, setting it to 0.")
+      stop("max.cor must be between zero and one.")
     }
   }
 
@@ -96,26 +95,36 @@ mc_auto_cor <- function(
   }
 
   #setting predictor.variable.names
-  if(!is.null(predictor.variable.names)){
+  if(is.null(predictor.variable.names)){
+
+    #from data
+    predictor.variable.names <- colnames(data)
+
+  } else {
+
+    #ensuring they are in data
     predictor.variable.names <- intersect(
       x = predictor.variable.names,
       y = colnames(data)
     )
-  } else {
-    if(!is.null(dependent.variable.name)){
-      predictor.variable.names <- colnames(data)
-    } else {
-      predictor.variable.names <- setdiff(
-        x = colnames(data),
-        y = dependent.variable.name
-      )
-    }
+
   }
 
+  #dependent.variable.name
+  if(is.null(dependent.variable.name)){
 
-  #coerce categorical to numeric with target encoding
-  if(!is.null(dependent.variable.name) && dependent.variable.name %in% colnames(data)){
+    #take numerics only
+    predictor.variable.names <- colnames(data)[sapply(data, is.numeric)]
 
+  } else {
+
+    if(!(dependent.variable.name %in% colnames(data))){
+      warning(
+        "Argument 'dependent.variable.name' is not in the column names of 'data'."
+      )
+    }
+
+    #coerce categorical to numeric
     data <- fe_target_encoding(
       data = data,
       dependent.variable.name = dependent.variable.name,

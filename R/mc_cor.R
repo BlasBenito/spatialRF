@@ -7,7 +7,7 @@
 #' Please note that near-zero variance columns are ignored by this function. Use [mc_auto_vif()] to remove them.
 #'
 #' @param data (required; data frame or tibble) A data frame with predictors. Default: `NULL`.
-#' @param dependent.variable.name (optional; character string) Name of the dependent variable. Only required when there are categorical variables within `predictor.variable.names`. Default: `NULL`
+#' @param dependent.variable.name (optional; character string) Name of the dependent variable. Only required when there are categorical variables within `predictor.variable.names`. If not provided, non-numeric columns are ignored. Default: `NULL`
 #' @param predictor.variable.names (optional; character vector) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. If `NULL`, all the columns in data except `dependent.variable.name` are used. Default: `NULL`
 #'
 #' @return Data frame with the columns "a" and "b" containing the names of pairs of predictors, and "cor" containing Pearson correlation between each pair of predictors.
@@ -52,34 +52,43 @@ mc_cor <- function(
   }
 
   #setting predictor.variable.names
-  if(!is.null(predictor.variable.names)){
+  if(is.null(predictor.variable.names)){
+
+    #from data
+    predictor.variable.names <- colnames(data)
+
+  } else {
+
+    #ensuring they are in data
     predictor.variable.names <- intersect(
       x = predictor.variable.names,
       y = colnames(data)
     )
-  } else {
-
-    if(!is.null(dependent.variable.name)){
-      predictor.variable.names <- colnames(data)
-    } else {
-      predictor.variable.names <- setdiff(
-        x = colnames(data),
-        y = dependent.variable.name
-      )
-    }
 
   }
 
-  #coerce categorical to numeric with target encoding
-  if(!is.null(dependent.variable.name) && dependent.variable.name %in% colnames(data)){
+  #dependent.variable.name
+  if(is.null(dependent.variable.name)){
 
+    #take numerics only
+    predictor.variable.names <- colnames(data)[sapply(data, is.numeric)]
+
+  } else {
+
+    if(!(dependent.variable.name %in% colnames(data))){
+      warning(
+        "Argument 'dependent.variable.name' is not in the column names of 'data'."
+      )
+    }
+
+    #coerce categorical to numeric
     data <- fe_target_encoding(
       data = data,
       dependent.variable.name = dependent.variable.name,
       predictor.variable.names = predictor.variable.names,
       methods = "mean",
       replace = TRUE,
-      verbose = FALSE
+      verbose = verbose
     )
 
   }

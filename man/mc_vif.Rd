@@ -15,7 +15,7 @@ mc_vif(
 
 \item{predictor.variable.names}{(optional; character vector) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. If \code{NULL}, all the columns in data except \code{dependent.variable.name} are used. Default: \code{NULL}}
 
-\item{dependent.variable.name}{(optional; character string) Name of the dependent variable. Only required when there are categorical variables within \code{predictor.variable.names}. Default: \code{NULL}}
+\item{dependent.variable.name}{(optional; character string) Name of the dependent variable. Only required when there are categorical variables within \code{predictor.variable.names}. If not provided, non-numeric columns are ignored. Default: \code{NULL}}
 }
 \value{
 Data frame with the columns "variable" containing the predictor name, and "vif" containing the variance inflation factor of the given variable.

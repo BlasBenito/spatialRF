@@ -25,9 +25,9 @@
 #' @rdname weights_from_distance_matrix
 #' @export
 weights_from_distance_matrix <- function(
-  distance.matrix = NULL,
-  distance.threshold = 0
-  ){
+    distance.matrix = NULL,
+    distance.threshold = 0
+){
 
   if(is.null(distance.matrix)){
     stop("Argument 'distance.matrix' is missing.`")
@@ -46,7 +46,7 @@ weights_from_distance_matrix <- function(
   weight.rowsums <- rowSums(
     x.weights,
     na.rm = TRUE
-    )
+  )
   x.weights <- x.weights/weight.rowsums
 
   #fixing Inf and diag

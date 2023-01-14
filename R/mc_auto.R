@@ -81,8 +81,9 @@ mc_auto <- function(
     data = data,
     predictor.variable.names = predictor.variable.names,
     dependent.variable.name = dependent.variable.name,
+    preference.order = preference.order,
     max.cor = max.cor,
-    verbose = FALSE
+    verbose = verbose
   )
 
   #applying auto_vif
@@ -90,8 +91,9 @@ mc_auto <- function(
     data = data,
     predictor.variable.names = selected.predictors,
     dependent.variable.name = dependent.variable.name,
+    preference.order = preference.order,
     max.vif = max.vif,
-    verbose = FALSE
+    verbose = verbose
   )
 
   selected.predictors
