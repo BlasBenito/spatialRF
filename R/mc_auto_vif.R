@@ -2,6 +2,10 @@
 #'
 #' @description
 #'
+#' Warning: input predictors with a pairwise correlation very close to 1 might create issues during VIF computation. If that's the case, please apply [mc_auto_cor()] before.
+#'
+#' Warning: near-zero variance columns are ignored by this function.
+#'
 #' The Variance Inflation Factor for a given variable `y` is computed as `1/(1-R2)`, where `R2` is the multiple R-squared of a multiple regression model fitted using `y` as response and all the remaining variables of the input data set as predictors. The equation can be interpreted as "the rate of perfect model's R-squared to the unexplained variance of this model".
 #'
 #' The possible range of VIF values is (1, Inf]. A VIF lower than 10 suggest that removing `y` from the data set would reduce overall multicollinearity. The recommended thresholds for maximum VIF may vary depending on the source consulted, being the most common values, 2.5, 5, and 10.
@@ -10,16 +14,14 @@
 #'
 #' The function allows the user to define a preference selection order via the argument `preference.order`. This argument helps "protect" variables that might be interesting or even required for the given analysis. Please, see the examples to understand better how this feature works.
 #'
-#'
 #' If there are categorical variables named in `predictor.variable.names` and `dependent.variable.name` is provided, then the function applies [fe_target_encoding()] with the method "mean" to transform the categorical variables into numeric before the VIF analysis
 #'
-#' Please note that near-zero variance columns are ignored by this function.
 #'
 #' @param data (required; data.frame or tibble) A data frame, tibble, or sf. Default: `NULL`.
 #' @param dependent.variable.name (optional; character string) Name of the dependent variable. Required when there are categorical variables within `predictor.variable.names`. Default: `NULL`
 #' @param predictor.variable.names (optional; character vector) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. If `NULL`, all the columns in data except `dependent.variable.name` are used. Default: `NULL`
 #' @param preference.order (optional, character vector) Character vector indicating the preference order to protect variables from elimination.  Predictors not included in this argument are ranked by their VIFs. Default: `NULL`.
-#' @param max.vif (optional, numeric) Numeric between 2.5 and 10 defining the maximum VIF allowed in the output dataset. Higher VIF thresholds should result in a higher number of selected variables. Default: 5.
+#' @param max.vif (optional, numeric) Numeric with recommended values between 2.5 and 10 defining the maximum VIF allowed in the output dataset. Higher VIF thresholds should result in a higher number of selected variables. Default: `5`.
 #' @param verbose (optional, logical) Logical. if `TRUE`, `mc_auto_vif()` prints messages describing its operations on the input data. Default:: `TRUE`
 #' @return Character vector with the names of uncorrelated predictors.
 #' @seealso [mc_auto_cor()]
@@ -194,24 +196,8 @@ mc_auto_vif <- function(
     stop("Argument 'data' is required.")
   }
 
-  if(max.vif > 10){
-    if(verbose == TRUE){
-      warning("Argument max.vif is higher than 10. Recommended values for this argument are in the range [2.5, 10]")
-    }
-  }
-
-  if(max.vif < 0){
-    max.vif <- 0
-    if(verbose == TRUE){
-      message("max.vif is negative, setting it to 0.")
-    }
-  }
-
-  if(is.null(max.vif)){
-    if(verbose == TRUE){
-      message("max.vif is NULL, returning all predictors.")
-    }
-    return(predictor.variable.names)
+  if((is.null(max.vif)) | (max.vif < 0)){
+    stop("Argument 'max.vif' must be in the range (0, Inf).")
   }
 
   #dropping geometry if sf
@@ -262,18 +248,15 @@ mc_auto_vif <- function(
   }
 
   #dependent.variable.name
-  if(is.null(dependent.variable.name)){
+  if(
+    is.null(dependent.variable.name) |
+    (!is.null(dependent.variable.name) && !(dependent.variable.name %in% colnames(data)))
+  ){
 
     #take numerics only
-    predictor.variable.names <- colnames(data)[sapply(data, is.numeric)]
+    predictor.variable.names <- colnames(data[, predictor.variable.names])[sapply(data[, predictor.variable.names], is.numeric)]
 
   } else {
-
-    if(!(dependent.variable.name %in% colnames(data))){
-      warning(
-        "Argument 'dependent.variable.name' is not in the column names of 'data'."
-      )
-    }
 
     #coerce categorical to numeric
     data <- fe_target_encoding(
@@ -311,6 +294,21 @@ mc_auto_vif <- function(
     #subset for correlation analysis
     data <- data[, predictor.variable.names]
 
+  }
+
+  #stop if not enough data
+  if(ncol(data) == 1){
+    stop("There are not enough predictors to perform the analysis.")
+  }
+
+  #check cor
+  data.cor <- mc_cor(
+    data = data,
+    predictor.variable.names = predictor.variable.names
+  )
+
+  if(max(data.cor$cor) >= 0.99){
+    stop("The maximum correlation between a pair of predictors is > 0.99. The VIF computation will fail. Please use the output of 'mc_cor_auto()' as input for the argument 'predictor.variable.names'.")
   }
 
   #auto preference order by vif

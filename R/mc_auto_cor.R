@@ -17,7 +17,7 @@
 #' @param dependent.variable.name (optional; character string) Name of the dependent variable. Only required when there are categorical variables within `predictor.variable.names`. Default: `NULL`
 #' @param predictor.variable.names (optional; character vector) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. If `NULL`, all the columns in data except `dependent.variable.name` are used. Default: `NULL`
 #' @param preference.order  (optional; character vector) Character vector indicating the user's order of preference to keep variables. Predictors not included in this argument are ranked by the sum of their correlation with other variables (variables with higher sums receive lower ranks and have therefore lower preference order). Default: `NULL`.
-#' @param max.cor (optional; numeric) Numeric between 0 and 1, with recommended values between 0.5 and 0.9. Maximum Pearson correlation between any pair of the selected variables. Default: `0.75`
+#' @param max.cor (optional; numeric) Numeric between 0 and 1. Maximum Pearson correlation between any pair of the selected variables. Higher values return larger number of predictors with higher multicollinearity. Default: `0.75`
 #' @param verbose (optional, logical) Logical. if `TRUE`, describes the function operations to the user. Default: `TRUE`
 #' @return Character vector with the names of uncorrelated predictors.
 #' @examples
@@ -75,18 +75,8 @@ mc_auto_cor <- function(
     stop("Argument 'data' is required.")
   }
 
-  #returning all variables
-  if((is.null(max.cor)) | (max.cor > 1)){
-    if(verbose == TRUE){
-      message("max.cor is NULL or larger than 1, returning all predictor's names.")
-    }
-    return(predictor.variable.names)
-  }
-
-  if(max.cor < 0 | max.cor > 1){
-    if(verbose == TRUE){
-      stop("max.cor must be between zero and one.")
-    }
+  if((is.null(max.cor)) | (max.cor < 0) | (max.cor > 1)){
+    stop("Argument 'max.cor' must be in the range (0, 1].")
   }
 
   #dropping geometry if sf
@@ -111,18 +101,15 @@ mc_auto_cor <- function(
   }
 
   #dependent.variable.name
-  if(is.null(dependent.variable.name)){
+  if(
+    is.null(dependent.variable.name) |
+    (!is.null(dependent.variable.name) && !(dependent.variable.name %in% colnames(data)))
+    ){
 
     #take numerics only
-    predictor.variable.names <- colnames(data)[sapply(data, is.numeric)]
+    predictor.variable.names <- colnames(data[, predictor.variable.names])[sapply(data[, predictor.variable.names], is.numeric)]
 
   } else {
-
-    if(!(dependent.variable.name %in% colnames(data))){
-      warning(
-        "Argument 'dependent.variable.name' is not in the column names of 'data'."
-      )
-    }
 
     #coerce categorical to numeric
     data <- fe_target_encoding(
@@ -161,6 +148,11 @@ mc_auto_cor <- function(
     #subset for correlation analysis
     data <- data[, predictor.variable.names]
 
+  }
+
+  #stop if not enough data
+  if(ncol(data) == 1){
+    stop("There are not enough predictors to perform the analysis.")
   }
 
   #compute correlation matrix of x
@@ -213,9 +205,10 @@ mc_auto_cor <- function(
 
     }
 
-    if(is.null(dim(data.cor))){
-      break
-    }
+    #this never happens?
+    # if(is.null(dim(data.cor))){
+    #   break
+    # }
 
   }
 

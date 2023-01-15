@@ -22,7 +22,7 @@ mc_auto_vif(
 
 \item{preference.order}{(optional, character vector) Character vector indicating the preference order to protect variables from elimination.  Predictors not included in this argument are ranked by their VIFs. Default: \code{NULL}.}
 
-\item{max.vif}{(optional, numeric) Numeric between 2.5 and 10 defining the maximum VIF allowed in the output dataset. Higher VIF thresholds should result in a higher number of selected variables. Default: 5.}
+\item{max.vif}{(optional, numeric) Numeric with recommended values between 2.5 and 10 defining the maximum VIF allowed in the output dataset. Higher VIF thresholds should result in a higher number of selected variables. Default: \code{5}.}
 
 \item{verbose}{(optional, logical) Logical. if \code{TRUE}, \code{mc_auto_vif()} prints messages describing its operations on the input data. Default:: \code{TRUE}}
 }
@@ -30,6 +30,10 @@ mc_auto_vif(
 Character vector with the names of uncorrelated predictors.
 }
 \description{
+Warning: input predictors with a pairwise correlation very close to 1 might create issues during VIF computation. If that's the case, please apply \code{\link[=mc_auto_cor]{mc_auto_cor()}} before.
+
+Warning: near-zero variance columns are ignored by this function.
+
 The Variance Inflation Factor for a given variable \code{y} is computed as \code{1/(1-R2)}, where \code{R2} is the multiple R-squared of a multiple regression model fitted using \code{y} as response and all the remaining variables of the input data set as predictors. The equation can be interpreted as "the rate of perfect model's R-squared to the unexplained variance of this model".
 
 The possible range of VIF values is (1, Inf]. A VIF lower than 10 suggest that removing \code{y} from the data set would reduce overall multicollinearity. The recommended thresholds for maximum VIF may vary depending on the source consulted, being the most common values, 2.5, 5, and 10.
@@ -39,8 +43,6 @@ The function \code{mc_auto_vif()} applies a recursive algorithm to remove variab
 The function allows the user to define a preference selection order via the argument \code{preference.order}. This argument helps "protect" variables that might be interesting or even required for the given analysis. Please, see the examples to understand better how this feature works.
 
 If there are categorical variables named in \code{predictor.variable.names} and \code{dependent.variable.name} is provided, then the function applies \code{\link[=fe_target_encoding]{fe_target_encoding()}} with the method "mean" to transform the categorical variables into numeric before the VIF analysis
-
-Please note that near-zero variance columns are ignored by this function.
 }
 \examples{
 if(interactive()){

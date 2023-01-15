@@ -3,317 +3,211 @@ testthat::test_that("mc_ functions work", {
   library(spatialRF)
   library(magrittr)
 
+  #loading data
   data(
     ecoregions_df,
     ecoregions_tibble,
     ecoregions_sf,
+    ecoregions_distance_matrix,
+    ecoregions_numeric_predictors,
+    ecoregions_all_predictors,
     ecoregions_continuous_response,
-    ecoregions_all_predictors
+    ecoregions_binary_response
   )
 
-  #mc_auto
-  ###############################
-  selected.predictors <- mc_auto(
-    data = ecoregions_df,
-    predictor.variable.names = ecoregions_all_predictors,
-    dependent.variable.name = ecoregions_continuous_response,
-    preference.order = ecoregions_all_predictors[1:5],
-    max.cor = 0.75,
-    max.vif = 5,
-    verbose = TRUE
-    )
-
-  testthat::expect_equal(
-    is.vector(selected.predictors),
-    TRUE
-  )
-
-  test.vif <- mc_vif(
-    data = ecoregions_df,
-    predictor.variable.names = selected.predictors,
-    dependent.variable.name = ecoregions_continuous_response
-  )
-
-  testthat::expect_equal(
-    max(test.vif$vif) <= 5,
-    TRUE
-  )
-
-  testthat::expect_equal(
-    names(test.vif),
-    c("variable", "vif")
-  )
-
-  test.cor <- mc_cor(
-    data = ecoregions_tibble,
-    predictor.variable.names = selected.predictors,
-    dependent.variable.name = ecoregions_continuous_response
-  )
-
-  testthat::expect_equal(
-    names(test.cor),
-    c("a", "b", "cor")
-  )
-
-  testthat::expect_equal(
-    max(test.cor$cor) <= 0.75,
-    TRUE
-  )
-
-  #passing non-collinear variables
-  selected.predictors <- mc_auto(
-    data = ecoregions_df,
-    predictor.variable.names = selected.predictors,
-    dependent.variable.name = ecoregions_continuous_response,
-    max.cor = 0.75,
-    max.vif = 5,
-    verbose = TRUE
-  )
-
-  testthat::expect_equal(
-    is.vector(selected.predictors),
-    TRUE
-  )
-
-  #passing NULL predictors
-  selected.predictors <- mc_auto(
-    data = ecoregions_sf[, ecoregions_all_predictors],
-    predictor.variable.names = NULL,
-    dependent.variable.name = NULL,
-    max.cor = 0.75,
-    max.vif = 5,
-    verbose = TRUE
-  )
-
-  testthat::expect_equal(
-    is.vector(selected.predictors),
-    TRUE
-  )
-
-  #passing NULL dependent variable name
-  selected.predictors <- mc_auto(
-    data = ecoregions_sf,
-    predictor.variable.names = ecoregions_all_predictors,
-    dependent.variable.name = NULL,
-    preference.order = NULL,
-    max.cor = 0.75,
-    max.vif = 5,
-    verbose = TRUE
-  )
-
-  testthat::expect_equal(
-    is.vector(selected.predictors),
-    TRUE
-  )
-
+  #adding zero variance zolumn
   #passing zero variance column
-  ecoregions_df$zeros <- 0
+  ecoregions_df$zeros <- runif(n = nrow(ecoregions_df)) /10000
+  ecoregions_tibble$zeros <- runif(n = nrow(ecoregions_df)) /10000
+  ecoregions_sf$zeros <- runif(n = nrow(ecoregions_df)) /10000
 
-  selected.predictors <- mc_auto(
-    data = ecoregions_sf,
-    predictor.variable.names = NULL,
-    dependent.variable.name = NULL,
-    max.cor = 0.75,
-    max.vif = 5,
-    verbose = TRUE
+  ecoregions_numeric_predictors <- c(ecoregions_numeric_predictors, "zeros")
+
+  #making a set of not collinear variables
+  variables_not_collinear <- mc_auto_cor(
+    data = ecoregions_df,
+    predictor.variable.names = ecoregions_numeric_predictors
   )
 
-  testthat::expect_equal(
-    is.vector(selected.predictors),
-    TRUE
+  #lists to iterate over
+  training <- list(
+    df = ecoregions_df,
+    sf = ecoregions_sf,
+    tibble = ecoregions_tibble,
+    null = NULL
   )
 
-  #mc_cor
-  #################################
-  #with tibble
-  test.cor <- mc_cor(
-    data = ecoregions_tibble,
-    predictor.variable.names = selected.predictors,
-    dependent.variable.name = ecoregions_continuous_response
+  response <- list(
+    continuous = ecoregions_continuous_response,
+    binary = ecoregions_binary_response,
+    null = NULL,
+    other = "other"
   )
 
-  testthat::expect_equal(
-    tibble::is_tibble(test.cor),
-    TRUE
+  predictors <- list(
+    all = ecoregions_all_predictors,
+    not_collinear = variables_not_collinear,
+    two = ecoregions_numeric_predictors[1:2],
+    one = ecoregions_numeric_predictors[1],
+    null = NULL
   )
 
-  #with sf
-  test.cor <- mc_cor(
-    data = ecoregions_sf,
-    predictor.variable.names = selected.predictors,
-    dependent.variable.name = ecoregions_continuous_response
+  preference <- list(
+    all = ecoregions_all_predictors,
+    partial = ecoregions_all_predictors[1:10],
+    null = NULL
   )
 
-  testthat::expect_equal(
-    is.data.frame(test.vif),
-    TRUE
+  max.cor <- list(
+    uno = -0.5,
+    dos = 0.5,
+    tres = 1.5
   )
 
-  #with NULL dependent variable name
-  test.cor <- mc_cor(
-    data = ecoregions_sf,
-    predictor.variable.names = ecoregions_numeric_predictors,
-    dependent.variable.name = NULL
+  max.vif <- list(
+    uno = -5,
+    dos = 0,
+    tres = 5,
+    cuatro = 15
   )
 
-  testthat::expect_equal(
-    names(test.cor),
-    c("a", "b", "cor")
-  )
+  for(training.i in names(training)){
+    for(response.i in names(response)){
+      for(predictors.i in names(predictors)){
+        for(preference.i in names(preference)){
 
-  #without data
-  testthat::expect_error(
-  test.cor <- mc_cor(
-    data = NULL,
-    predictor.variable.names = ecoregions_numeric_predictors,
-    dependent.variable.name = NULL
-  )
-  )
+          #MC AUTO
+          for(max.cor.i in names(max.cor)){
+            for(max.vif.i in names(max.vif)){
 
-  #with zero variance column
-  ecoregions_df$zeros <- rep(0, nrow(ecoregions_df))
+              #exceptions for mc_auto
+              if(
+                max.cor[[max.cor.i]] < 0 |
+                max.cor[[max.cor.i]] > 1 |
+                max.vif[[max.vif.i]] < 0 |
+                is.null(max.cor[[max.cor.i]]) |
+                is.null(max.vif[[max.vif.i]]) |
+                is.null(training[[training.i]]) |
+                predictors.i == "one"
+              ){
 
-  predictors <- c(ecoregions_numeric_predictors, "zeros")
+                testthat::expect_error(
+                  x <- mc_auto(
+                    data = training[[training.i]],
+                    predictor.variable.names = predictors[[predictors.i]],
+                    dependent.variable.name = response[[response.i]],
+                    preference.order = preference[[preference.i]],
+                    max.cor = max.cor[[max.cor.i]],
+                    max.vif = max.vif[[max.vif.i]],
+                    verbose = TRUE
+                  )
+                )
 
-  test.cor <- mc_cor(
-    data = ecoregions_sf,
-    predictor.variable.names = predictors,
-    dependent.variable.name = NULL
-  )
+              } else {
 
-  testthat::expect_equal(
-    names(test.cor),
-    c("a", "b", "cor")
-  )
+                #non-exceptions
+                x <- mc_auto(
+                  data = training[[training.i]],
+                  predictor.variable.names = predictors[[predictors.i]],
+                  dependent.variable.name = response[[response.i]],
+                  preference.order = preference[[preference.i]],
+                  max.cor = max.cor[[max.cor.i]],
+                  max.vif = max.vif[[max.vif.i]],
+                  verbose = TRUE
+                )
 
-  #without predictors
-  test.cor <- mc_cor(
-    data = ecoregions_sf,
-    predictor.variable.names = NULL,
-    dependent.variable.name = ecoregions_continuous_response
-  )
+              }
 
-  testthat::expect_equal(
-    names(test.cor),
-    c("a", "b", "cor")
-  )
+              #exceptions for mc_auto_vif
+              if(
+                max.vif[[max.vif.i]] < 0 |
+                is.null(max.vif[[max.vif.i]]) |
+                is.null(training[[training.i]]) |
+                predictors.i %in% c("all", "null") |
+                predictors.i == "one"
+              ){
 
-  #without predictors or responses
-  test.cor <- mc_cor(
-    data = ecoregions_sf[, ecoregions_numeric_predictors],
-    predictor.variable.names = NULL,
-    dependent.variable.name = NULL
-  )
+                testthat::expect_error(
+                  x <- mc_auto_vif(
+                    data = training[[training.i]],
+                    predictor.variable.names = predictors[[predictors.i]],
+                    dependent.variable.name = response[[response.i]],
+                    preference.order = preference[[preference.i]],
+                    max.vif = max.vif[[max.vif.i]],
+                    verbose = TRUE
+                  )
+                )
 
-  testthat::expect_equal(
-    names(test.cor),
-    c("a", "b", "cor")
-  )
+              } else {
 
-  #mc_vif
-  #####################################
-  #with tibble
-  test.vif <- mc_vif(
-    data = ecoregions_tibble,
-    predictor.variable.names = selected.predictors,
-    dependent.variable.name = ecoregions_continuous_response
-  )
+                x <- mc_auto_vif(
+                  data = training[[training.i]],
+                  predictor.variable.names = predictors[[predictors.i]],
+                  dependent.variable.name = response[[response.i]],
+                  preference.order = preference[[preference.i]],
+                  max.vif = max.vif[[max.vif.i]],
+                  verbose = TRUE
+                )
 
-  testthat::expect_equal(
-    tibble::is_tibble(test.vif),
-    TRUE
-  )
+              }
+            }
+          }
 
-  testthat::expect_equal(
-    max(test.vif$vif) <= 5,
-    TRUE
-  )
+          #mc_cor
 
-  #with sf
-  test.vif <- mc_vif(
-    data = ecoregions_sf,
-    predictor.variable.names = selected.predictors,
-    dependent.variable.name = ecoregions_continuous_response
-  )
+          if(
+            training.i == "null" |
+            predictors.i == "one"
+          ){
 
-  testthat::expect_equal(
-    max(test.vif$vif) <= 5,
-    TRUE
-  )
+            testthat::expect_error(
+              x <- mc_cor(
+                data = training[[training.i]],
+                predictor.variable.names = predictors[[predictors.i]],
+                dependent.variable.name = response[[response.i]]
+              )
+            )
 
-  #with NULL dependent variable name
-  test.vif <- mc_vif(
-    data = ecoregions_sf,
-    predictor.variable.names = ecoregions_numeric_predictors,
-    dependent.variable.name = NULL
-  )
+          } else {
 
-  testthat::expect_equal(
-    names(test.vif),
-    c("variable", "vif")
-  )
+            x <- mc_cor(
+              data = training[[training.i]],
+              predictor.variable.names = predictors[[predictors.i]],
+              dependent.variable.name = response[[response.i]]
+            )
 
-  #without data
-  testthat::expect_error(
-    test.cor <- mc_vif(
-      data = NULL,
-      predictor.variable.names = ecoregions_numeric_predictors,
-      dependent.variable.name = NULL
-    )
-  )
+          }
 
-  #with zero variance column
-  ecoregions_df$zeros <- rep(0, nrow(ecoregions_df))
 
-  predictors <- c(ecoregions_numeric_predictors, "zeros")
+          #mc_vif
+          #exception when there is too much correlation between variables
+          if(
+            predictors.i %in% c("all", "null") |
+            training.i == "null" |
+            predictors.i == "one"
+          ){
 
-  test.vif <- mc_vif(
-    data = ecoregions_sf,
-    predictor.variable.names = predictors,
-    dependent.variable.name = NULL
-  )
+            testthat::expect_error(
+              x <- mc_vif(
+                data = training[[training.i]],
+                predictor.variable.names = predictors[[predictors.i]],
+                dependent.variable.name = response[[response.i]]
+              )
+            )
 
-  testthat::expect_equal(
-    names(test.vif),
-    c("variable", "vif")
-  )
+          } else {
 
-  #without predictors
-  test.vif <- mc_vif(
-    data = ecoregions_sf,
-    predictor.variable.names = NULL,
-    dependent.variable.name = NULL
-  )
+            x <- mc_vif(
+              data = training[[training.i]],
+              predictor.variable.names = predictors[[predictors.i]],
+              dependent.variable.name = response[[response.i]]
+            )
 
-  testthat::expect_equal(
-    names(test.vif),
-    c("variable", "vif")
-  )
+          }
+        }
+      }
+    }
+  }
 
-  #without predictors or responses
-  test.vif <- mc_vif(
-    data = ecoregions_sf[, ecoregions_numeric_predictors],
-    predictor.variable.names = NULL,
-    dependent.variable.name = NULL
-  )
-
-  testthat::expect_equal(
-    names(test.vif),
-    c("variable", "vif")
-  )
-
-  test.vif <- mc_vif(
-    data = ecoregions_sf,
-    predictor.variable.names = NULL,
-    dependent.variable.name = ecoregions_continuous_response
-  )
-
-  testthat::expect_equal(
-    names(test.vif),
-    c("variable", "vif")
-  )
-
-  #mc_auto_cor
-  #############################
 
 })

@@ -22,7 +22,7 @@ mc_auto_cor(
 
 \item{preference.order}{(optional; character vector) Character vector indicating the user's order of preference to keep variables. Predictors not included in this argument are ranked by the sum of their correlation with other variables (variables with higher sums receive lower ranks and have therefore lower preference order). Default: \code{NULL}.}
 
-\item{max.cor}{(optional; numeric) Numeric between 0 and 1, with recommended values between 0.5 and 0.9. Maximum Pearson correlation between any pair of the selected variables. Default: \code{0.75}}
+\item{max.cor}{(optional; numeric) Numeric between 0 and 1. Maximum Pearson correlation between any pair of the selected variables. Higher values return larger number of predictors with higher multicollinearity. Default: \code{0.75}}
 
 \item{verbose}{(optional, logical) Logical. if \code{TRUE}, describes the function operations to the user. Default: \code{TRUE}}
 }

@@ -76,18 +76,15 @@ mc_vif <- function(
   }
 
   #dependent.variable.name
-  if(is.null(dependent.variable.name)){
+  if(
+    is.null(dependent.variable.name) |
+    (!is.null(dependent.variable.name) && !(dependent.variable.name %in% colnames(data)))
+  ){
 
     #take numerics only
-    predictor.variable.names <- colnames(data)[sapply(data, is.numeric)]
+    predictor.variable.names <- colnames(data[, predictor.variable.names])[sapply(data[, predictor.variable.names], is.numeric)]
 
   } else {
-
-    if(!(dependent.variable.name %in% colnames(data))){
-      warning(
-        "Argument 'dependent.variable.name' is not in the column names of 'data'."
-      )
-    }
 
     #coerce categorical to numeric
     data <- fe_target_encoding(
@@ -96,7 +93,7 @@ mc_vif <- function(
       predictor.variable.names = predictor.variable.names,
       methods = "mean",
       replace = TRUE,
-      verbose = verbose
+      verbose = FALSE
     )
 
   }
@@ -116,6 +113,11 @@ mc_vif <- function(
     #subset for correlation analysis
     data <- data[, predictor.variable.names]
 
+  }
+
+  #stop if not enough data
+  if(ncol(data) == 1){
+    stop("There are not enough predictors to perform the analysis.")
   }
 
   #check cor

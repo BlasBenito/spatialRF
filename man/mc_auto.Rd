@@ -23,9 +23,9 @@ mc_auto(
 
 \item{preference.order}{(optional, character vector) Character vector indicating the preference order to protect variables from elimination.  Predictors not included in this argument are ranked by their VIFs. Default: \code{NULL}.}
 
-\item{max.cor}{(optional; numeric) Numeric between 0 and 1, with recommended values between 0.5 and 0.9. Maximum Pearson correlation between any pair of the selected variables. Default: \code{0.75}}
+\item{max.cor}{(optional; numeric) Numeric between 0 and 1. Maximum Pearson correlation between any pair of the selected variables. Higher values return larger number of predictors with higher multicollinearity. Default: \code{0.75}}
 
-\item{max.vif}{(optional, numeric) Numeric between 2.5 and 10 defining the maximum VIF allowed in the output dataset. Higher VIF thresholds should result in a higher number of selected variables. Default: 5.}
+\item{max.vif}{(optional, numeric) Numeric with recommended values between 2.5 and 10 defining the maximum VIF allowed in the output dataset. Higher VIF thresholds should result in a higher number of selected variables. Default: \code{5}.}
 
 \item{verbose}{(optional, logical) Logical. if \code{TRUE}, describes the function operations to the user. Default: \code{TRUE}}
 }
