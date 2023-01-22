@@ -2,7 +2,9 @@
 
 ## add function to plot roc curve
 
-## remove scaled.importance argument from everywhere, now the user has to use fe_scale_all() to get it.
+## add function fe_rescale() like fe_scale() but to rescale the given columns to a given range.
+
+## remove scaled.importance argument from everywhere, now the user has to use fe_scale() to get it.
 
 #complete functions fe_scale_predictors and fe_scale_alll
 
