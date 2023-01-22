@@ -62,6 +62,15 @@ covr::report(
   )
 )
 
+covr::report(
+  x = covr::file_coverage(
+    source_files = c(
+      "R/fe_scale.R"
+    ),
+    test_files = "tests/testthat/test-fe_scale.R"
+  )
+)
+
 
 
 #run all tests with coverage
