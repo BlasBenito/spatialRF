@@ -8,12 +8,14 @@
 mem(
   distance.matrix = NULL,
   distance.threshold = 0,
+  what.mem = "positive",
   colnames.prefix = "spatial_predictor_"
 )
 
 mem_multithreshold(
   distance.matrix = NULL,
   distance.thresholds = NULL,
+  what.mem = "positive",
   colnames.prefix = "spatial_predictor_",
   max.spatial.predictors = NULL
 )
@@ -22,6 +24,8 @@ mem_multithreshold(
 \item{distance.matrix}{Distance matrix. Default: \code{NULL}.}
 
 \item{distance.threshold}{(argument of \code{\link[=mem]{mem()}}) Numeric vector with distance thresholds defining different neighborhood extents within the distance matrix, Default: \code{0}}
+
+\item{what.mem}{(optional, character) Character string indicating what Moran's Eigenvector Maps to generate. If "positive", only MEMs with positive eigenvectors are returned. If "negative", only MEMs with negative eigenvectors are returned. If "all", all MEMs are returned. Default: \code{"positive"}}
 
 \item{colnames.prefix}{Character, name prefix for the output columns. Default: \code{"spatial_predictor_"}}
 

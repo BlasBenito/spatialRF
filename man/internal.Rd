@@ -21,6 +21,7 @@ optimization_function(
 filter_spatial_predictors(
   data = NULL,
   predictor.variable.names = NULL,
+  dependent.variable.name = NULL,
   spatial.predictors.df = NULL,
   max.cor = 0.5
 )
@@ -32,7 +33,7 @@ is_binary_response(x)
 prepare_importance_spatial(model)
 }
 \arguments{
-\item{data}{Data frame with a response variable and a set of predictors. Default: \code{NULL}}
+\item{data}{(required, data frame) Data frame with a response variable and a set of predictors. Default: \code{NULL}}
 
 \item{x}{Optimization data frame generated internally by \code{\link[=select_spatial_predictors_sequential]{select_spatial_predictors_sequential()}} or \code{\link[=select_spatial_predictors_recursive]{select_spatial_predictors_recursive()}}. Default: \code{NULL}}
 
@@ -42,11 +43,13 @@ prepare_importance_spatial(model)
 
 \item{optimization.method}{Character, one of "moran.i", and "p.value". Default: \code{"moran.i"}}
 
-\item{predictor.variable.names}{Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. Default: \code{NULL}}
+\item{predictor.variable.names}{(required, character vector) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. Default: \code{NULL}}
 
-\item{spatial.predictors.df}{Data frame of spatial predictors.}
+\item{dependent.variable.name}{(optional; character string) Name of the dependent variable. Only required when there are categorical variables within \code{predictor.variable.names}. Default: \code{NULL}}
 
-\item{max.cor}{Numeric between 0 and 1, maximum Pearson correlation between any pair of the selected variables. Default: \code{0.50}}
+\item{spatial.predictors.df}{(required, data frame) Data frame of spatial predictors.}
+
+\item{max.cor}{(optional, numeric) Numeric between 0 and 1, maximum Pearson correlation between any pair of the selected variables. Default: \code{0.50}}
 
 \item{distance.matrix}{Distance matrix. Default: \code{NULL}.}
 

@@ -170,7 +170,7 @@ select_spatial_predictors_recursive <- function(
     )
 
     #reference moran I
-    reference.moran.i <- spatial.predictors.ranking.i$criteria[spatial.predictors.ranking.i$criteria$spatial_predictors.name == spatial.predictors.candidates.i[1], "moran.i"]
+    reference.moran.i <- spatial.predictors.ranking.i$criteria[spatial.predictors.ranking.i$criteria$spatial.predictors.name == spatial.predictors.candidates.i[1], "moran.i"]
 
     #subset and order spatial.predictors
     spatial.predictors.df.i <- spatial.predictors.df[, spatial.predictors.candidates.i[2:length(spatial.predictors.candidates.i)], drop = FALSE]

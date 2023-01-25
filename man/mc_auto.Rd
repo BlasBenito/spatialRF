@@ -19,7 +19,7 @@ mc_auto(
 
 \item{predictor.variable.names}{(optional; character vector) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. If \code{NULL}, all the columns in data except \code{dependent.variable.name} are used. Default: \code{NULL}}
 
-\item{dependent.variable.name}{(optional; character string) Name of the dependent variable. Required when there are categorical variables within \code{predictor.variable.names}. Default: \code{NULL}}
+\item{dependent.variable.name}{(optional; character string) Name of the dependent variable. Required when there are categorical variables in \code{predictor.variable.names}. Default: \code{NULL}}
 
 \item{preference.order}{(optional, character vector) Character vector indicating the preference order to protect variables from elimination.  Predictors not included in this argument are ranked by their VIFs. Default: \code{NULL}.}
 

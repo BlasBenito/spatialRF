@@ -251,7 +251,7 @@ rf_spatial <- function(
   #stopping if no distance matrix
   if(is.null(distance.matrix)){
 
-    stop("The argument 'distance.matrix' is missing.")
+    stop("The argument 'distance.matrix' is required.")
 
   }
 

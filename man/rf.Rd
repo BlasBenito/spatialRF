@@ -31,7 +31,7 @@ rf(
 
 \item{distance.matrix}{(optional; distance matrix) Squared matrix with the distances among the records in \code{data}. The number of rows of \code{distance.matrix} and \code{data} must be the same. If not provided, the computation of the Moran's I of the residuals is omitted. Default: \code{NULL}}
 
-\item{distance.thresholds}{(optional; numeric vector with distances in the same units as \code{distance.matrix}) Numeric vector with neighborhood distances. All distances in the distance matrix below each value in \code{dustance.thresholds} are set to 0 for the computation of Moran's I. If \code{NULL}, it defaults to seq(0, max(distance.matrix), length.out = 4). Default: \code{NULL}}
+\item{distance.thresholds}{(optional; numeric vector with distances in the same units as \code{distance.matrix}) Numeric vector with neighborhood distances. All distances in the distance matrix below each value in \code{distance.thresholds} are set to 0 for the computation of Moran's I. If \code{NULL}, it defaults to seq(0, max(distance.matrix), length.out = 4). Default: \code{NULL}}
 
 \item{xy}{(optional; data frame, tibble, or matrix) Data frame or matrix with two columns containing coordinates and named "x" and "y". It is not used by this function, but it is stored in the slot \code{ranger.arguments$xy} of the model, so it can be used by \code{\link[=rf_evaluate]{rf_evaluate()}} and \code{\link[=rf_tuning]{rf_tuning()}}. Default: \code{NULL}}
 

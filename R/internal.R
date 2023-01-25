@@ -57,10 +57,11 @@ optimization_function <- function(
 
 #' @title Removes redundant spatial predictors
 #' @description Removes spatial predictors that are pair-wise correlated with other spatial predictors (which happens when there are several close distance thresholds), and spatial predictors correlated with non-spatial predictors.
-#' @param data Data frame with a response variable and a set of predictors. Default: `NULL`
-#' @param predictor.variable.names Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Default: `NULL`
-#' @param spatial.predictors.df Data frame of spatial predictors.
-#' @param max.cor Numeric between 0 and 1, maximum Pearson correlation between any pair of the selected variables. Default: `0.50`
+#' @param data (required, data frame) Data frame with a response variable and a set of predictors. Default: `NULL`
+#' @param predictor.variable.names (required, character vector) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Default: `NULL`
+#' @param dependent.variable.name (optional; character string) Name of the dependent variable. Only required when there are categorical variables within `predictor.variable.names`. Default: `NULL`
+#' @param spatial.predictors.df (required, data frame) Data frame of spatial predictors.
+#' @param max.cor (optional, numeric) Numeric between 0 and 1, maximum Pearson correlation between any pair of the selected variables. Default: `0.50`
 #' @return A data frame with non-redundant spatial predictors.
 #' @examples
 #' if(interactive()){
@@ -96,6 +97,7 @@ optimization_function <- function(
 filter_spatial_predictors <- function(
     data = NULL,
     predictor.variable.names = NULL,
+    dependent.variable.name = NULL,
     spatial.predictors.df = NULL,
     max.cor = 0.50
 ){
@@ -114,6 +116,17 @@ filter_spatial_predictors <- function(
     verbose = FALSE
   )
 
+  spatial.predictors.df <- spatial.predictors.df[, spatial.predictors.selection]
+
+  #converting factor predictors to numeric
+  data <- fe_target_encoding(
+    data = data,
+    dependent.variable.name = dependent.variable.name,
+    predictor.variable.names = predictor.variable.names,
+    methods = "mean",
+    replace = TRUE,
+    verbose = FALSE
+  )
 
   #filtering spatial predictors by correlation with non-spatial ones
 
@@ -121,10 +134,10 @@ filter_spatial_predictors <- function(
   non.spatial.predictors.df <- data[, predictor.variable.names, drop = FALSE]
 
   #correlation between spatial and non-spatial predictors
-  cor.predictors <- cor(
+  cor.predictors <- abs(cor(
     non.spatial.predictors.df,
     spatial.predictors.df
-  )
+  ))
 
   #max correlation of the spatial predictors
   max.cor.spatial.predictors <- apply(cor.predictors, 2, FUN = max)

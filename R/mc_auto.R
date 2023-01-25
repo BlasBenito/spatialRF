@@ -15,7 +15,7 @@
 #' Please note that near-zero variance columns are ignored by this function.
 #'
 #' @param data (required; data.frame or tibble) A data frame, tibble, or sf. Default: `NULL`.
-#' @param dependent.variable.name (optional; character string) Name of the dependent variable. Required when there are categorical variables within `predictor.variable.names`. Default: `NULL`
+#' @param dependent.variable.name (optional; character string) Name of the dependent variable. Required when there are categorical variables in `predictor.variable.names`. Default: `NULL`
 #' @param predictor.variable.names (optional; character vector) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. If `NULL`, all the columns in data except `dependent.variable.name` are used. Default: `NULL`
 #' @param preference.order (optional, character vector) Character vector indicating the preference order to protect variables from elimination.  Predictors not included in this argument are ranked by their VIFs. Default: `NULL`.
 #' @param max.cor (optional; numeric) Numeric between 0 and 1. Maximum Pearson correlation between any pair of the selected variables. Higher values return larger number of predictors with higher multicollinearity. Default: `0.75`

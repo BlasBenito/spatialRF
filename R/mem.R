@@ -3,6 +3,7 @@
 #' @param distance.matrix Distance matrix. Default: `NULL`.
 #' @param distance.threshold (argument of [mem()]) Numeric vector with distance thresholds defining different neighborhood extents within the distance matrix, Default: `0`
 #' @param distance.thresholds (argument of [mem_multithreshold()]) Numeric vector with distance thresholds defining neighborhood in the distance matrix, Default: `NULL`.
+#' @param what.mem (optional, character) Character string indicating what Moran's Eigenvector Maps to generate. If "positive", only MEMs with positive eigenvectors are returned. If "negative", only MEMs with negative eigenvectors are returned. If "all", all MEMs are returned. Default: `"positive"`
 #' @param colnames.prefix Character, name prefix for the output columns. Default: `"spatial_predictor_"`
 #' @param max.spatial.predictors (argument of [mem_multithreshold()]) Positive integer, maximum number of Moran's Eigenvector Maps to return. Default: `NULL`.
 #' @return A data frame with positive Moran's Eigenvector Maps.
@@ -29,6 +30,7 @@
 mem <- function(
   distance.matrix = NULL,
   distance.threshold = 0,
+  what.mem = "positive",
   colnames.prefix = "spatial_predictor_"
   ){
 
@@ -53,12 +55,23 @@ mem <- function(
   mem.values.normalized <- mem$values/max(abs(mem$values))
 
   #get positive mem
-  mem <- as.data.frame(mem$vectors[, which(mem.values.normalized > 0)])
+  if(is.null(what.mem)){
+    what.mem <- "positive"
+  }
+  if(what.mem == "positive"){
+    mem <- as.data.frame(mem$vectors[, which(mem.values.normalized > 0)])
+  }
+  if(what.mem == "negative"){
+    mem <- as.data.frame(mem$vectors[, which(mem.values.normalized < 0)])
+  }
+  if(what.mem == "all"){
+    mem <- as.data.frame(mem$vectors)
+  }
 
   #adding colnames
   colnames(mem) <- paste(
     colnames.prefix,
-    seq(1, ncol(mem)),
+    seq_len(ncol(mem)),
     sep = "_"
     )
 
@@ -73,6 +86,7 @@ mem <- function(
 mem_multithreshold <- function(
     distance.matrix = NULL,
     distance.thresholds = NULL,
+    what.mem = "positive",
     colnames.prefix = "spatial_predictor_",
     max.spatial.predictors = NULL
 ){
@@ -99,6 +113,7 @@ mem_multithreshold <- function(
     mem.list[[as.character(distance.threshold.i)]] <- mem(
       distance.matrix = distance.matrix,
       distance.threshold = distance.threshold.i,
+      what.mem = what.mem,
       colnames.prefix = paste0(
         colnames.prefix,
         format(
