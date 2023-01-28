@@ -24,7 +24,7 @@
 #' @param seed (optional; integer) Random seed to facilitate reproducibility. Default: `1`
 #' @param noise (optional; numeric vector) Only in methods "mean" and "rank". Numeric vector with noise values in the range 0-1. Default: `0`.
 #' @param sd.width (optional; numeric vector) Only for the method "rnorm". Numeric vector with multiplicators of the standard deviation of each group in the categorical variable, in the range 0.01-1. Default: `0.1`
-#' @param replace (optional; logical) Advanced option that changes the behavior of the function. Use only if you really know exactly what you need. If `TRUE`, only the first option in the `methods`, `noise`, and `sd.width` arguments is used, it replaces each categorical variable with its encoded version, and returns the input data frame with the replaced variables. Default: `FALSE`
+#' @param replace (optional; logical) Advanced option that changes the behavior of the function. Use only if you really know exactly what you need. If `TRUE`, only the first option in the `methods`, `noise`, and `sd.width` arguments is used, it replaces each categorical variable with its encoded version, and returns the input data frame with the encoded variables and without the original ones. Default: `FALSE`
 #' @param verbose (optional; logical) If TRUE, messages and plots generated during the execution of the function are displayed. Default: `TRUE`
 #'
 #' @return

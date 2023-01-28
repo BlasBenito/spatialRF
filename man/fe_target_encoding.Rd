@@ -31,7 +31,7 @@ fe_target_encoding(
 
 \item{noise}{(optional; numeric vector) Only in methods "mean" and "rank". Numeric vector with noise values in the range 0-1. Default: \code{0}.}
 
-\item{replace}{(optional; logical) Advanced option that changes the behavior of the function. Use only if you really know exactly what you need. If \code{TRUE}, only the first option in the \code{methods}, \code{noise}, and \code{sd.width} arguments is used, it replaces each categorical variable with its encoded version, and returns the input data frame with the replaced variables. Default: \code{FALSE}}
+\item{replace}{(optional; logical) Advanced option that changes the behavior of the function. Use only if you really know exactly what you need. If \code{TRUE}, only the first option in the \code{methods}, \code{noise}, and \code{sd.width} arguments is used, it replaces each categorical variable with its encoded version, and returns the input data frame with the encoded variables and without the original ones. Default: \code{FALSE}}
 
 \item{verbose}{(optional; logical) If TRUE, messages and plots generated during the execution of the function are displayed. Default: \code{TRUE}}
 }
