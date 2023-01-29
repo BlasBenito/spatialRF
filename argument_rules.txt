@@ -7,8 +7,8 @@
 These arguments that represent modelling data. These are:
 
   - data
-  - dependent.variable.name
-  - predictor.variable.names
+  - response.name
+  - predictors.names
   - distance.matrix
   - distance.thresholds
   - xy

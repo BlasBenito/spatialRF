@@ -58,8 +58,8 @@ optimization_function <- function(
 #' @title Removes redundant spatial predictors
 #' @description Removes spatial predictors that are pair-wise correlated with other spatial predictors (which happens when there are several close distance thresholds), and spatial predictors correlated with non-spatial predictors.
 #' @param data (required, data frame) Data frame with a response variable and a set of predictors. Default: `NULL`
-#' @param predictor.variable.names (required, character vector) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Default: `NULL`
-#' @param dependent.variable.name (optional; character string) Name of the dependent variable. Only required when there are categorical variables within `predictor.variable.names`. Default: `NULL`
+#' @param predictors.names (required, character vector) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Default: `NULL`
+#' @param response.name (optional; character string) Name of the dependent variable. Only required when there are categorical variables within `predictors.names`. Default: `NULL`
 #' @param spatial.predictors.df (required, data frame) Data frame of spatial predictors.
 #' @param max.cor (optional, numeric) Numeric between 0 and 1, maximum Pearson correlation between any pair of the selected variables. Default: `0.50`
 #' @return A data frame with non-redundant spatial predictors.
@@ -82,7 +82,7 @@ optimization_function <- function(
 #' #filtering spatial predictors
 #' spatial.predictors.df <- filter_spatial_predictors(
 #'   data = ecoregions_df,
-#'   predictor.variable.names = ecoregions_numeric_predictors,
+#'   predictors.names = ecoregions_numeric_predictors,
 #'   spatial.predictors.df = spatial.predictors.df,
 #'   max.cor = 0.50
 #'  )
@@ -96,16 +96,16 @@ optimization_function <- function(
 #' @export
 filter_spatial_predictors <- function(
     data = NULL,
-    predictor.variable.names = NULL,
-    dependent.variable.name = NULL,
+    predictors.names = NULL,
+    response.name = NULL,
     spatial.predictors.df = NULL,
     max.cor = 0.50
 ){
 
-  #predictor.variable.names comes from mc_auto_vif or mc_auto_cor
-  if(!is.null(predictor.variable.names)){
-    if(inherits(predictor.variable.names, "variable_selection")){
-      predictor.variable.names <- predictor.variable.names$selected.variables
+  #predictors.names comes from mc_auto_vif or mc_auto_cor
+  if(!is.null(predictors.names)){
+    if(inherits(predictors.names, "variable_selection")){
+      predictors.names <- predictors.names$selected.variables
     }
   }
 
@@ -121,8 +121,8 @@ filter_spatial_predictors <- function(
   #converting factor predictors to numeric
   data <- fe_target_encoding(
     data = data,
-    dependent.variable.name = dependent.variable.name,
-    predictor.variable.names = predictor.variable.names,
+    response.name = response.name,
+    predictors.names = predictors.names,
     methods = "mean",
     replace = TRUE,
     verbose = FALSE
@@ -131,7 +131,7 @@ filter_spatial_predictors <- function(
   #filtering spatial predictors by correlation with non-spatial ones
 
   #generating df of non-spatial predictors
-  non.spatial.predictors.df <- data[, predictor.variable.names, drop = FALSE]
+  non.spatial.predictors.df <- data[, predictors.names, drop = FALSE]
 
   #correlation between spatial and non-spatial predictors
   cor.predictors <- abs(cor(
@@ -238,8 +238,8 @@ is_binary_response <- function(
 #'  #fittind spatial model
 #'  model <- rf_spatial(
 #'    data = ecoregions_df,
-#'    dependent.variable.name = ecoregions_continuous_response,
-#'    predictor.variable.names = ecoregions_numeric_predictors,
+#'    response.name = ecoregions_continuous_response,
+#'    predictors.names = ecoregions_numeric_predictors,
 #'    distance.matrix = ecoregions_distance_matrix,
 #'    distance.thresholds =  0,
 #'    n.cores = 1

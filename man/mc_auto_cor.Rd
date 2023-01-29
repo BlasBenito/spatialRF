@@ -6,8 +6,8 @@
 \usage{
 mc_auto_cor(
   data = NULL,
-  predictor.variable.names = NULL,
-  dependent.variable.name = NULL,
+  predictors.names = NULL,
+  response.name = NULL,
   preference.order = NULL,
   max.cor = 0.75,
   verbose = TRUE
@@ -16,9 +16,9 @@ mc_auto_cor(
 \arguments{
 \item{data}{(required; data frame or tibble) A data frame with predictors. Default: \code{NULL}.}
 
-\item{predictor.variable.names}{(optional; character vector) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. If \code{NULL}, all the columns in data except \code{dependent.variable.name} are used. Default: \code{NULL}}
+\item{predictors.names}{(optional; character vector) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. If \code{NULL}, all the columns in data except \code{response.name} are used. Default: \code{NULL}}
 
-\item{dependent.variable.name}{(optional; character string) Name of the dependent variable. Only required when there are categorical variables within \code{predictor.variable.names}. Default: \code{NULL}}
+\item{response.name}{(optional; character string) Name of the dependent variable. Only required when there are categorical variables within \code{predictors.names}. Default: \code{NULL}}
 
 \item{preference.order}{(optional; character vector) Character vector indicating the user's order of preference to keep variables. Predictors not included in this argument are ranked by the sum of their correlation with other variables (variables with higher sums receive lower ranks and have therefore lower preference order). Default: \code{NULL}.}
 
@@ -40,7 +40,7 @@ The argument \code{preference.order} allows the user to "protect" variables that
 
 If \code{preference.order} is not provided, then the predictors are ranked from lower to higher sum of R-squared with the other preodictors, and removed one by one until the maximum R-squared of the correlation matrix is lower than \code{max.cor}.
 
-If there are categorical variables named in \code{predictor.variable.names} and \code{dependent.variable.name} is provided, then the function applies \code{\link[=fe_target_encoding]{fe_target_encoding()}} with the method "mean" to transform the categorical variables into numeric. If a categorical variable is selected, then its original categorical values are returned.
+If there are categorical variables named in \code{predictors.names} and \code{response.name} is provided, then the function applies \code{\link[=fe_target_encoding]{fe_target_encoding()}} with the method "mean" to transform the categorical variables into numeric. If a categorical variable is selected, then its original categorical values are returned.
 
 Please note that near-zero variance columns are ignored by this function.
 }
@@ -56,7 +56,7 @@ if(interactive()){
  #on a data frame
  out <- mc_auto_cor(
    data = ecoregions_df,
-   predictor.variable.names = ecoregions_numeric_predictors
+   predictors.names = ecoregions_numeric_predictors
  )
 
  #getting the correlation matrix
@@ -71,14 +71,14 @@ if(interactive()){
  #with preference order (fiver first in ecoregions_numeric_predictors)
  out <- mc_auto_cor(
    data = ecoregions_df,
-   predictor.variable.names = ecoregions_numeric_predictors,
+   predictors.names = ecoregions_numeric_predictors,
    preference.order = ecoregions_numeric_predictors[1:5],
  )
 
  #with pipes
  out <- mc_auto_cor(
    data = ecoregions_df,
-   predictor.variable.names = ecoregions_numeric_predictors
+   predictors.names = ecoregions_numeric_predictors
  ) \%>\%
  mc_auto_vif()
 

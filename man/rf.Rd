@@ -7,8 +7,8 @@
 rf(
   model = NULL,
   data = NULL,
-  dependent.variable.name = NULL,
-  predictor.variable.names = NULL,
+  response.name = NULL,
+  predictors.names = NULL,
   distance.matrix = NULL,
   distance.thresholds = NULL,
   xy = NULL,
@@ -21,13 +21,13 @@ rf(
 )
 }
 \arguments{
-\item{model}{(required if \code{data} is \code{NULL}; model produced with \code{spatialRF}) A model fitted with \code{\link[=rf]{rf()}}. If provided, it overrides all other input arguments (these are: \code{data}, \code{dependent.variable.name}, \code{predictor.variable.names}, \code{distance.matrix}, \code{distance.thresholds}, \code{xy}). However, you can provide new execution arguments and hyperparameters (like: \code{num.trees}, \code{mtry}, and any other argument accepted by the function \code{ranger::ranger()}) via the argument \code{ranger.arguments}. Default: \code{NULL}.}
+\item{model}{(required if \code{data} is \code{NULL}; model produced with \code{spatialRF}) A model fitted with \code{\link[=rf]{rf()}}. If provided, it overrides all other input arguments (these are: \code{data}, \code{response.name}, \code{predictors.names}, \code{distance.matrix}, \code{distance.thresholds}, \code{xy}). However, you can provide new execution arguments and hyperparameters (like: \code{num.trees}, \code{mtry}, and any other argument accepted by the function \code{ranger::ranger()}) via the argument \code{ranger.arguments}. Default: \code{NULL}.}
 
 \item{data}{(required if \code{model} is \code{NULL}; data frame or tibble) Data frame with a response variable and a set of predictors. If \code{data} is a tibble, all data frames in the output model are coerced to tibble. Default: \code{NULL}}
 
-\item{dependent.variable.name}{(required if \code{model} is \code{NULL}; character string) Character string with the name of the response variable. Must be in the column names of \code{data}. If the dependent variable is binary with values 1 and 0, the argument \code{case.weights} of \code{ranger} is populated by the function \code{\link[=case_weights]{case_weights()}}. Default: \code{NULL}}
+\item{response.name}{(required if \code{model} is \code{NULL}; character string) Character string with the name of the response variable. Must be in the column names of \code{data}. If the dependent variable is binary with values 1 and 0, the argument \code{case.weights} of \code{ranger} is populated by the function \code{\link[=case_weights]{case_weights()}}. Default: \code{NULL}}
 
-\item{predictor.variable.names}{(required if \code{model} is \code{NULL}; character vector with column names of \code{data}) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. Optionally, the result of \code{\link[=mc_auto_cor]{mc_auto_cor()}} or \code{\link[=mc_auto_vif]{mc_auto_vif()}}. Default: \code{NULL}}
+\item{predictors.names}{(required if \code{model} is \code{NULL}; character vector with column names of \code{data}) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. Optionally, the result of \code{\link[=mc_auto_cor]{mc_auto_cor()}} or \code{\link[=mc_auto_vif]{mc_auto_vif()}}. Default: \code{NULL}}
 
 \item{distance.matrix}{(optional; distance matrix) Squared matrix with the distances among the records in \code{data}. The number of rows of \code{distance.matrix} and \code{data} must be the same. If not provided, the computation of the Moran's I of the residuals is omitted. Default: \code{NULL}}
 
@@ -95,8 +95,8 @@ if(interactive()){
  #fitting random forest model
  out <- rf(
    data = ecoregions_df,
-   dependent.variable.name = ecoregions_continuous_response,
-   predictor.variable.names = ecoregions_numeric_predictors,
+   response.name = ecoregions_continuous_response,
+   predictors.names = ecoregions_numeric_predictors,
    distance.matrix = ecoregions_distance_matrix,
    distance.thresholds = 0,
    n.cores = 1
@@ -144,8 +144,8 @@ if(interactive()){
  #ranger.arguments
  my.ranger.arguments <- list(
  data = ecoregions_df,
- dependent.variable.name = ecoregions_continuous_response,
- predictor.variable.names = ecoregions_numeric_predictors,
+ response.name = ecoregions_continuous_response,
+ predictors.names = ecoregions_numeric_predictors,
  distance.matrix = ecoregions_distance_matrix,
  distance.thresholds = c(0, 1000)
  )

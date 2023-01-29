@@ -16,13 +16,13 @@
 #'
 #' If only `data` is provided, then all numeric columns in `data` are scaled.
 #'
-#' If `data` and `dependent.variable.name` are provided, then `dependent.variable.name` is scaled if it is numeric and continuous (binary dependent variables with values 0 and 1 are not scaled). This is useful to compare the importance scores of models fitted with response variables with different ranges and/or units.
+#' If `data` and `response.name` are provided, then `response.name` is scaled if it is numeric and continuous (binary dependent variables with values 0 and 1 are not scaled). This is useful to compare the importance scores of models fitted with response variables with different ranges and/or units.
 #'
-#' If `data` and `predictor.variable.names` are provided, then all numeric variables in `predictor.variable.names` are scaled.
+#' If `data` and `predictors.names` are provided, then all numeric variables in `predictors.names` are scaled.
 #'
 #' @param data (required, data frame, tibble, or sf data frame) Data frame with a response variable and a set of predictors. Default: `NULL`
-#' @param dependent.variable.name (optional; character string) Character string with the name of the response variable. Must be in the column names of `data`. Default: `NULL`
-#' @param predictor.variable.names (optional; character vector with column names of `data`) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Default: `NULL`
+#' @param response.name (optional; character string) Character string with the name of the response variable. Must be in the column names of `data`. Default: `NULL`
+#' @param predictors.names (optional; character vector with column names of `data`) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Default: `NULL`
 #' @param center (optional, logical) If `TRUE`, the selected numeric columns are centered by subtracting their respective means. Default: `TRUE`
 #' @param scale (optional, logical) If `TRUE`, the data is scaled. If `center = TRUE`, the scaling is performed using the expression `(a - mean(a))/sd(a)` If `center = FALSE`, then a numeric column `a` is scaled using the expression `a/(sqrt(sum(a^2)/(length(a)-1)))`
 
@@ -42,16 +42,16 @@
 #'
 #' data.scaled <- fe_scale(
 #'   data = ecoregions_df,
-#'   dependent.variable.name = ecoregions_continuous_response,
-#'   predictor.variable.names = ecoregions_all_predictors
+#'   response.name = ecoregions_continuous_response,
+#'   predictors.names = ecoregions_all_predictors
 #'   )
 #'
 #' }
 #'
 fe_scale <- function(
     data = NULL,
-    dependent.variable.name = NULL,
-    predictor.variable.names = NULL,
+    response.name = NULL,
+    predictors.names = NULL,
     scale = TRUE,
     center = TRUE,
     verbose = TRUE
@@ -73,7 +73,7 @@ fe_scale <- function(
   }
 
   #columns to scale
-  cols <- c(dependent.variable.name, predictor.variable.names)
+  cols <- c(response.name, predictors.names)
   if(is.null(cols)){
     cols <- colnames(data)
   } else {

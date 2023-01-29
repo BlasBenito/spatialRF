@@ -126,8 +126,8 @@ Users should not use the suggested variable interactions hastily. Most likely, o
 
     <pre class="usage"><span class='fu'>rf_interactions</span>(
   <span class='kw'>data</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>dependent.variable.name</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>predictor.variable.names</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>response.name</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>predictors.names</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>ranger.arguments</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>importance.threshold</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>point.color</span> <span class='kw'>=</span> <span class='kw pkg'>viridis</span><span class='kw ns'>::</span><span class='fu'><a href='https://sjmgarnier.github.io/viridis/reference/reexports.html'>viridis</a></span>(<span class='fl'>100</span>, <span class='kw'>option</span> <span class='kw'>=</span> <span class='st'>"F"</span>),
@@ -148,11 +148,11 @@ Users should not use the suggested variable interactions hastily. Most likely, o
       <td><p>Data frame with a response variable and a set of predictors. Default: <code>NULL</code></p></td>
     </tr>
     <tr>
-      <th>dependent.variable.name</th>
+      <th>response.name</th>
       <td><p>Character string with the name of the response variable. Must be in the column names of <code>data</code>. If the dependent variable is binary with values 1 and 0, the argument <code>case.weights</code> of <code>ranger</code> is populated by the function <code><a href='case_weights.html'>case_weights()</a></code>. Default: <code>NULL</code></p></td>
     </tr>
     <tr>
-      <th>predictor.variable.names</th>
+      <th>predictors.names</th>
       <td><p>Character vector with the names of the predictive variables. Every element of this vector must be in the column names of <code>data</code>. Default: <code>NULL</code></p></td>
     </tr>
     <tr>
@@ -209,8 +209,8 @@ Users should not use the suggested variable interactions hastily. Most likely, o
 
  <span class='no'>interactions</span> <span class='kw'>&lt;-</span> <span class='fu'>rf_interactions</span>(
    <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>plant_richness_df</span>,
-   <span class='kw'>dependent.variable.name</span> <span class='kw'>=</span> <span class='st'>"richness_species_vascular"</span>,
-   <span class='kw'>predictor.variable.names</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span>(<span class='no'>plant_richness_df</span>)[<span class='fl'>5</span>:<span class='fl'>21</span>],
+   <span class='kw'>response.name</span> <span class='kw'>=</span> <span class='st'>"richness_species_vascular"</span>,
+   <span class='kw'>predictors.names</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span>(<span class='no'>plant_richness_df</span>)[<span class='fl'>5</span>:<span class='fl'>21</span>],
    <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
  )
 

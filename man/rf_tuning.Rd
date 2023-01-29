@@ -64,8 +64,8 @@ data(
 #fitting model to tune
 out <- rf(
   data = ecoregions_df,
-  dependent.variable.name = ecoregions_continuous_response,
-  predictor.variable.names = ecoregions_numeric_predictors,
+  response.name = ecoregions_continuous_response,
+  predictors.names = ecoregions_numeric_predictors,
   distance.matrix = ecoregions_distance_matrix,
   distance.thresholds = 0,
   n.cores = 1,
@@ -94,8 +94,8 @@ cluster <- start_cluster(cluster.cores = 1)
 
 out <- rf(
   data = ecoregions_df,
-  dependent.variable.name = ecoregions_continuous_response,
-  predictor.variable.names = ecoregions_numeric_predictors,
+  response.name = ecoregions_continuous_response,
+  predictors.names = ecoregions_numeric_predictors,
   distance.matrix = ecoregions_distance_matrix,
   xy = ecoregions_df[, c("x", "y")],
   distance.thresholds = 0,

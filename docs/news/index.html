@@ -132,8 +132,8 @@ library(magrittr)
 data(plant_richness_df)
 data("distance_matrix")
 xy &lt;- plant_richness_df[, c("x", "y")]
-dependent.variable.name &lt;- "richness_species_vascular"
-predictor.variable.names &lt;- colnames(plant_richness_df)[5:21]
+response.name &lt;- "richness_species_vascular"
+predictors.names &lt;- colnames(plant_richness_df)[5:21]
 
 
 #creating cluster
@@ -148,8 +148,8 @@ doParallel::registerDoParallel(cl = cluster)
   #fitting model
   m &lt;- rf(
     data = plant_richness_df,
-    dependent.variable.name = dependent.variable.name,
-    predictor.variable.names = predictor.variable.names,
+    response.name = response.name,
+    predictors.names = predictors.names,
     distance.matrix = distance_matrix,
     xy = xy,
     cluster = my.cluster

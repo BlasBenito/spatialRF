@@ -122,8 +122,8 @@
 
     <pre class="usage"><span class='fu'>select_spatial_predictors_sequential</span>(
   <span class='kw'>data</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>dependent.variable.name</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>predictor.variable.names</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>response.name</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>predictors.names</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>distance.matrix</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>distance.thresholds</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>ranger.arguments</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
@@ -144,11 +144,11 @@
       <td><p>Data frame with a response variable and a set of predictors. Default: <code>NULL</code></p></td>
     </tr>
     <tr>
-      <th>dependent.variable.name</th>
+      <th>response.name</th>
       <td><p>Character string with the name of the response variable. Must be in the column names of <code>data</code>. Default: <code>NULL</code></p></td>
     </tr>
     <tr>
-      <th>predictor.variable.names</th>
+      <th>predictors.names</th>
       <td><p>Character vector with the names of the predictive variables. Every element of this vector must be in the column names of <code>data</code>. Default: <code>NULL</code></p></td>
     </tr>
     <tr>
@@ -208,14 +208,14 @@
 <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>plant_richness_df</span>)
 
 <span class='co'>#common arguments</span>
-<span class='no'>dependent.variable.name</span> <span class='kw'>=</span> <span class='st'>"richness_species_vascular"</span>
-<span class='no'>predictor.variable.names</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span>(<span class='no'>plant_richness_df</span>)[<span class='fl'>5</span>:<span class='fl'>21</span>]
+<span class='no'>response.name</span> <span class='kw'>=</span> <span class='st'>"richness_species_vascular"</span>
+<span class='no'>predictors.names</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span>(<span class='no'>plant_richness_df</span>)[<span class='fl'>5</span>:<span class='fl'>21</span>]
 
 <span class='co'>#non-spatial model</span>
 <span class='no'>model</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='rf.html'>rf</a></span>(
   <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>plant_richness_df</span>,
-  <span class='kw'>dependent.variable.name</span> <span class='kw'>=</span> <span class='no'>dependent.variable.name</span>,
-  <span class='kw'>predictor.variable.names</span> <span class='kw'>=</span> <span class='no'>predictor.variable.names</span>,
+  <span class='kw'>response.name</span> <span class='kw'>=</span> <span class='no'>response.name</span>,
+  <span class='kw'>predictors.names</span> <span class='kw'>=</span> <span class='no'>predictors.names</span>,
   <span class='kw'>distance.matrix</span> <span class='kw'>=</span> <span class='no'>distance_matrix</span>,
   <span class='kw'>distance.thresholds</span> <span class='kw'>=</span> <span class='fl'>0</span>,
   <span class='kw'>n.cores</span> <span class='kw'>=</span> <span class='fl'>1</span>
@@ -239,8 +239,8 @@
 <span class='co'>#selecting the best subset of predictors</span>
 <span class='no'>selection</span> <span class='kw'>&lt;-</span> <span class='fu'>select_spatial_predictors_sequential</span>(
   <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>plant_richness_df</span>,
-  <span class='kw'>dependent.variable.name</span> <span class='kw'>=</span> <span class='no'>dependent.variable.name</span>,
-  <span class='kw'>predictor.variable.names</span> <span class='kw'>=</span> <span class='no'>predictor.variable.names</span>,
+  <span class='kw'>response.name</span> <span class='kw'>=</span> <span class='no'>response.name</span>,
+  <span class='kw'>predictors.names</span> <span class='kw'>=</span> <span class='no'>predictors.names</span>,
   <span class='kw'>distance.matrix</span> <span class='kw'>=</span> <span class='no'>distance_matrix</span>,
   <span class='kw'>distance.thresholds</span> <span class='kw'>=</span> <span class='fl'>0</span>,
   <span class='kw'>spatial.predictors.df</span> <span class='kw'>=</span> <span class='no'>spatial.predictors</span>,

@@ -6,8 +6,8 @@
 \usage{
 select_spatial_predictors_recursive(
   data = NULL,
-  dependent.variable.name = NULL,
-  predictor.variable.names = NULL,
+  response.name = NULL,
+  predictors.names = NULL,
   distance.matrix = NULL,
   distance.thresholds = NULL,
   ranger.arguments = NULL,
@@ -22,9 +22,9 @@ select_spatial_predictors_recursive(
 \arguments{
 \item{data}{Data frame with a response variable and a set of predictors. Default: \code{NULL}}
 
-\item{dependent.variable.name}{Character string with the name of the response variable. Must be in the column names of \code{data}. Default: \code{NULL}}
+\item{response.name}{Character string with the name of the response variable. Must be in the column names of \code{data}. Default: \code{NULL}}
 
-\item{predictor.variable.names}{Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. Default: \code{NULL}}
+\item{predictors.names}{Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. Default: \code{NULL}}
 
 \item{distance.matrix}{Squared matrix with the distances among the records in \code{data}. The number of rows of \code{distance.matrix} and \code{data} must be the same. If not provided, the computation of the Moran's I of the residuals is omitted. Default: \code{NULL}}
 
@@ -70,8 +70,8 @@ data(
 #non-spatial model
 model <- rf(
   data = ecoregions_df,
-  dependent.variable.name = ecoregions_continuous_response,
-  predictor.variable.names = ecoregions_numeric_predictors,
+  response.name = ecoregions_continuous_response,
+  predictors.names = ecoregions_numeric_predictors,
   distance.matrix = ecoregions_distance_matrix,
   distance.thresholds = 0,
   n.cores = 1
@@ -86,8 +86,8 @@ spatial.predictors <- mem_multithreshold(
 #ranking spatial predictors
 spatial.predictors.ranking <- rank_spatial_predictors(
   data = ecoregions_df,
-  dependent.variable.name = ecoregions_continuous_response,
-  predictor.variable.names = ecoregions_numeric_predictors,
+  response.name = ecoregions_continuous_response,
+  predictors.names = ecoregions_numeric_predictors,
   spatial.predictors.df = spatial.predictors,
   ranking.method = "moran",
   reference.moran.i = model$spatial.correlation.residuals$max_moran,
@@ -99,8 +99,8 @@ spatial.predictors.ranking <- rank_spatial_predictors(
 #selecting the best subset of predictors
 selection <- select_spatial_predictors_recursive(
   data = ecoregions_df,
-  dependent.variable.name = ecoregions_continuous_response,
-  predictor.variable.names = ecoregions_numeric_predictors,
+  response.name = ecoregions_continuous_response,
+  predictors.names = ecoregions_numeric_predictors,
   distance.matrix = ecoregions_distance_matrix,
   distance.thresholds = 0,
   spatial.predictors.df = spatial.predictors,

@@ -9,13 +9,13 @@
 #'
 #' If `preference.order` is not provided, then the predictors are ranked from lower to higher sum of R-squared with the other preodictors, and removed one by one until the maximum R-squared of the correlation matrix is lower than `max.cor`.
 #'
-#' If there are categorical variables named in `predictor.variable.names` and `dependent.variable.name` is provided, then the function applies [fe_target_encoding()] with the method "mean" to transform the categorical variables into numeric. If a categorical variable is selected, then its original categorical values are returned.
+#' If there are categorical variables named in `predictors.names` and `response.name` is provided, then the function applies [fe_target_encoding()] with the method "mean" to transform the categorical variables into numeric. If a categorical variable is selected, then its original categorical values are returned.
 #'
 #' Please note that near-zero variance columns are ignored by this function.
 #'
 #' @param data (required; data frame or tibble) A data frame with predictors. Default: `NULL`.
-#' @param predictor.variable.names (optional; character vector) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. If `NULL`, all the columns in data except `dependent.variable.name` are used. Default: `NULL`
-#' @param dependent.variable.name (optional; character string) Name of the dependent variable. Only required when there are categorical variables within `predictor.variable.names`. Default: `NULL`
+#' @param predictors.names (optional; character vector) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. If `NULL`, all the columns in data except `response.name` are used. Default: `NULL`
+#' @param response.name (optional; character string) Name of the dependent variable. Only required when there are categorical variables within `predictors.names`. Default: `NULL`
 #' @param preference.order  (optional; character vector) Character vector indicating the user's order of preference to keep variables. Predictors not included in this argument are ranked by the sum of their correlation with other variables (variables with higher sums receive lower ranks and have therefore lower preference order). Default: `NULL`.
 #' @param max.cor (optional; numeric) Numeric between 0 and 1. Maximum Pearson correlation between any pair of the selected variables. Higher values return larger number of predictors with higher multicollinearity. Default: `0.75`
 #' @param verbose (optional, logical) Logical. if `TRUE`, describes the function operations to the user. Default: `TRUE`
@@ -32,7 +32,7 @@
 #'  #on a data frame
 #'  out <- mc_auto_cor(
 #'    data = ecoregions_df,
-#'    predictor.variable.names = ecoregions_numeric_predictors
+#'    predictors.names = ecoregions_numeric_predictors
 #'  )
 #'
 #'  #getting the correlation matrix
@@ -47,14 +47,14 @@
 #'  #with preference order (fiver first in ecoregions_numeric_predictors)
 #'  out <- mc_auto_cor(
 #'    data = ecoregions_df,
-#'    predictor.variable.names = ecoregions_numeric_predictors,
+#'    predictors.names = ecoregions_numeric_predictors,
 #'    preference.order = ecoregions_numeric_predictors[1:5],
 #'  )
 #'
 #'  #with pipes
 #'  out <- mc_auto_cor(
 #'    data = ecoregions_df,
-#'    predictor.variable.names = ecoregions_numeric_predictors
+#'    predictors.names = ecoregions_numeric_predictors
 #'  ) %>%
 #'  mc_auto_vif()
 #'
@@ -64,8 +64,8 @@
 #' @export
 mc_auto_cor <- function(
     data = NULL,
-    predictor.variable.names = NULL,
-    dependent.variable.name = NULL,
+    predictors.names = NULL,
+    response.name = NULL,
     preference.order = NULL,
     max.cor = 0.75,
     verbose = TRUE
@@ -84,38 +84,38 @@ mc_auto_cor <- function(
     data <- sf::st_drop_geometry(data)
   }
 
-  #setting predictor.variable.names
-  if(is.null(predictor.variable.names)){
+  #setting predictors.names
+  if(is.null(predictors.names)){
 
     #from data
-    predictor.variable.names <- colnames(data)
+    predictors.names <- colnames(data)
 
   } else {
 
     #ensuring they are in data
-    predictor.variable.names <- intersect(
-      x = predictor.variable.names,
+    predictors.names <- intersect(
+      x = predictors.names,
       y = colnames(data)
     )
 
   }
 
-  #dependent.variable.name
+  #response.name
   if(
-    is.null(dependent.variable.name) |
-    (!is.null(dependent.variable.name) && !(dependent.variable.name %in% colnames(data)))
+    is.null(response.name) |
+    (!is.null(response.name) && !(response.name %in% colnames(data)))
     ){
 
     #take numerics only
-    predictor.variable.names <- colnames(data[, predictor.variable.names])[sapply(data[, predictor.variable.names], is.numeric)]
+    predictors.names <- colnames(data[, predictors.names])[sapply(data[, predictors.names], is.numeric)]
 
   } else {
 
     #coerce categorical to numeric
     data <- fe_target_encoding(
       data = data,
-      dependent.variable.name = dependent.variable.name,
-      predictor.variable.names = predictor.variable.names,
+      response.name = response.name,
+      predictors.names = predictors.names,
       methods = "mean",
       replace = TRUE,
       verbose = verbose
@@ -124,7 +124,7 @@ mc_auto_cor <- function(
   }
 
   #subset for correlation analysis
-  data <- data[, predictor.variable.names]
+  data <- data[, predictors.names]
 
   #finding zero variance columns
   zero.variance.columns <- colnames(data)[round(apply(data, 2, var), 6) == 0]
@@ -143,10 +143,10 @@ mc_auto_cor <- function(
   #remove zero variance columns
   if(length(zero.variance.columns) > 0){
 
-    predictor.variable.names <- predictor.variable.names[!(predictor.variable.names %in% zero.variance.columns)]
+    predictors.names <- predictors.names[!(predictors.names %in% zero.variance.columns)]
 
     #subset for correlation analysis
-    data <- data[, predictor.variable.names]
+    data <- data[, predictors.names]
 
   }
 
@@ -235,7 +235,7 @@ mc_auto_cor <- function(
   }
 
   #selected variables
-  selected.variables <- preference.order[preference.order %in% setdiff(predictor.variable.names, removed.vars)]
+  selected.variables <- preference.order[preference.order %in% setdiff(predictors.names, removed.vars)]
 
   if(verbose == TRUE){
     message(

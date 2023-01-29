@@ -6,8 +6,8 @@
 \usage{
 fe_scale(
   data = NULL,
-  dependent.variable.name = NULL,
-  predictor.variable.names = NULL,
+  response.name = NULL,
+  predictors.names = NULL,
   scale = TRUE,
   center = TRUE,
   verbose = TRUE
@@ -16,9 +16,9 @@ fe_scale(
 \arguments{
 \item{data}{(required, data frame, tibble, or sf data frame) Data frame with a response variable and a set of predictors. Default: \code{NULL}}
 
-\item{dependent.variable.name}{(optional; character string) Character string with the name of the response variable. Must be in the column names of \code{data}. Default: \code{NULL}}
+\item{response.name}{(optional; character string) Character string with the name of the response variable. Must be in the column names of \code{data}. Default: \code{NULL}}
 
-\item{predictor.variable.names}{(optional; character vector with column names of \code{data}) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. Default: \code{NULL}}
+\item{predictors.names}{(optional; character vector with column names of \code{data}) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. Default: \code{NULL}}
 
 \item{scale}{(optional, logical) If \code{TRUE}, the data is scaled. If \code{center = TRUE}, the scaling is performed using the expression \code{(a - mean(a))/sd(a)} If \code{center = FALSE}, then a numeric column \code{a} is scaled using the expression \code{a/(sqrt(sum(a^2)/(length(a)-1)))}}
 
@@ -46,9 +46,9 @@ What columns are standardized?
 
 If only \code{data} is provided, then all numeric columns in \code{data} are scaled.
 
-If \code{data} and \code{dependent.variable.name} are provided, then \code{dependent.variable.name} is scaled if it is numeric and continuous (binary dependent variables with values 0 and 1 are not scaled). This is useful to compare the importance scores of models fitted with response variables with different ranges and/or units.
+If \code{data} and \code{response.name} are provided, then \code{response.name} is scaled if it is numeric and continuous (binary dependent variables with values 0 and 1 are not scaled). This is useful to compare the importance scores of models fitted with response variables with different ranges and/or units.
 
-If \code{data} and \code{predictor.variable.names} are provided, then all numeric variables in \code{predictor.variable.names} are scaled.
+If \code{data} and \code{predictors.names} are provided, then all numeric variables in \code{predictors.names} are scaled.
 }
 \examples{
 if(interactive()){
@@ -61,8 +61,8 @@ data(
 
 data.scaled <- fe_scale(
   data = ecoregions_df,
-  dependent.variable.name = ecoregions_continuous_response,
-  predictor.variable.names = ecoregions_all_predictors
+  response.name = ecoregions_continuous_response,
+  predictors.names = ecoregions_all_predictors
   )
 
 }

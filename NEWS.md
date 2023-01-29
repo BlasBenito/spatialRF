@@ -19,7 +19,7 @@ The functions auto_vif() and auto_cor() have new argument names. "x" is now "dat
 
 Simplified the methods in `rf_spatial()`, and now all experimental methods have been removed.
 
-`auto_cor()` and `auto_vif()` now have explicit `data` (previously named `x`) and `predictor.variable.names` arguments.
+`auto_cor()` and `auto_vif()` now have explicit `data` (previously named `x`) and `predictors.names` arguments.
 
 The performance metric `pseudo.r.squared` has been removed from all functions.
 
@@ -81,8 +81,8 @@ library(magrittr)
 data(plant_richness_df)
 data("distance_matrix")
 xy <- plant_richness_df[, c("x", "y")]
-dependent.variable.name <- "richness_species_vascular"
-predictor.variable.names <- colnames(plant_richness_df)[5:21]
+response.name <- "richness_species_vascular"
+predictors.names <- colnames(plant_richness_df)[5:21]
 
 
 #creating cluster
@@ -97,8 +97,8 @@ doParallel::registerDoParallel(cl = cluster)
   #fitting model
   m <- rf(
     data = plant_richness_df,
-    dependent.variable.name = dependent.variable.name,
-    predictor.variable.names = predictor.variable.names,
+    response.name = response.name,
+    predictors.names = predictors.names,
     distance.matrix = distance_matrix,
     xy = xy,
     cluster = my.cluster

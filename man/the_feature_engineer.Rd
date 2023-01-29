@@ -6,8 +6,8 @@
 \usage{
 the_feature_engineer(
   data = NULL,
-  dependent.variable.name = NULL,
-  predictor.variable.names = NULL,
+  response.name = NULL,
+  predictors.names = NULL,
   xy = NULL,
   ranger.arguments = NULL,
   repetitions = 30,
@@ -24,9 +24,9 @@ the_feature_engineer(
 \arguments{
 \item{data}{Data frame with a response variable and a set of predictors. Default: \code{NULL}}
 
-\item{dependent.variable.name}{Character string with the name of the response variable. Must be in the column names of \code{data}. If the dependent variable is binary with values 1 and 0, the argument \code{case.weights} of \code{ranger} is populated by the function \code{\link[=case_weights]{case_weights()}}. Default: \code{NULL}}
+\item{response.name}{Character string with the name of the response variable. Must be in the column names of \code{data}. If the dependent variable is binary with values 1 and 0, the argument \code{case.weights} of \code{ranger} is populated by the function \code{\link[=case_weights]{case_weights()}}. Default: \code{NULL}}
 
-\item{predictor.variable.names}{Character vector with the names of the predictive variables, or object of class \code{"variable_selection"} produced by \code{\link[=mc_auto_vif]{mc_auto_vif()}} and/or \code{\link[=mc_auto_cor]{mc_auto_cor()}}. Every element of this vector must be in the column names of \code{data}. Default: \code{NULL}}
+\item{predictors.names}{Character vector with the names of the predictive variables, or object of class \code{"variable_selection"} produced by \code{\link[=mc_auto_vif]{mc_auto_vif()}} and/or \code{\link[=mc_auto_cor]{mc_auto_cor()}}. Every element of this vector must be in the column names of \code{data}. Default: \code{NULL}}
 
 \item{xy}{Data frame or matrix with two columns containing coordinates and named "x" and "y". If not provided, the comparison between models with and without variable interactions is not done.}
 
@@ -38,7 +38,7 @@ the_feature_engineer(
 
 \item{importance.threshold}{Numeric between 0 and 1, quantile of variable importance scores over which to select individual predictors to explore interactions among them. Larger values reduce the number of potential interactions explored. Default: \code{0.75}}
 
-\item{max.cor}{Numeric, maximum Pearson correlation between any pair of the selected interactions, and between any interaction and the predictors in \code{predictor.variable.names}. Default: \code{0.75}}
+\item{max.cor}{Numeric, maximum Pearson correlation between any pair of the selected interactions, and between any interaction and the predictors in \code{predictors.names}. Default: \code{0.75}}
 
 \item{point.color}{Colors of the plotted points. Can be a single color name (e.g. "red4"), a character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. \code{viridis::viridis(100)}). Default: \code{viridis::viridis(100, option = "F", alpha = 0.8)}}
 
@@ -54,8 +54,8 @@ the_feature_engineer(
 If the function finds no interactions, a list with four slots containing input arguments:
 \itemize{
 #'   \item \code{data}: Data frame with the response variable, the predictors, and the selected interactions, ready to be used as \code{data} argument in the package functions.
-\item \code{dependent.variable.name}: Character, name of the response.
-\item \code{predictor.variable.names}: Character vector with the names of the predictors and the selected interactions.
+\item \code{response.name}: Character, name of the response.
+\item \code{predictors.names}: Character vector with the names of the predictors and the selected interactions.
 \item \code{xy}: Data frame or matrix with two columns containing coordinates and named "x" and "y".
 }
 
@@ -71,11 +71,11 @@ If the function finds interesting interactions, then it adds several new slots t
 \description{
 Suggests candidate variable interactions and composite features able to improve predictive accuracy over data not used to train the model via spatial cross-validation with \code{\link[=rf_evaluate]{rf_evaluate()}}. For a pair of predictors \code{a} and \code{b}, interactions are build via multiplication (\code{a * b}), while composite features are built by extracting the first factor of a principal component analysis performed with \code{\link[=pca]{pca()}}, after rescaling \code{a} and \code{b} between 1 and 100. Interactions and composite features are named \code{a..x..b} and \code{a..pca..b} respectively.
 
-Candidate variables \code{a} and \code{b} are selected from those predictors in \code{predictor.variable.names} with a variable importance above \code{importance.threshold} (set by default to the median of the importance scores).
+Candidate variables \code{a} and \code{b} are selected from those predictors in \code{predictors.names} with a variable importance above \code{importance.threshold} (set by default to the median of the importance scores).
 
 For each interaction and composite feature, a model including all the predictors plus the interaction or composite feature is fitted, and it's R squared (or AUC if the response is binary) computed via spatial cross-validation (see \code{\link[=rf_evaluate]{rf_evaluate()}}) is compared with the R squared of the model without interactions or composite features.
 
-From all the potential interactions screened, only those with a positive increase in R squared (or AUC when the response is binomial) of the model, a variable importance above the median, and a maximum correlation among themselves and with the predictors in \code{predictor.variable.names} not higher than \code{max.cor} are selected. Such a restrictive set of rules ensures that the selected interactions can be used right away for modeling purposes without increasing model complexity unnecessarily. However, the suggested variable interactions might not make sense from a domain expertise standpoint, so please, examine them with care.
+From all the potential interactions screened, only those with a positive increase in R squared (or AUC when the response is binomial) of the model, a variable importance above the median, and a maximum correlation among themselves and with the predictors in \code{predictors.names} not higher than \code{max.cor} are selected. Such a restrictive set of rules ensures that the selected interactions can be used right away for modeling purposes without increasing model complexity unnecessarily. However, the suggested variable interactions might not make sense from a domain expertise standpoint, so please, examine them with care.
 
 The function returns the criteria used to select the interactions, and the data required to use these interactions a model.
 }
@@ -91,8 +91,8 @@ if(interactive()){
 
  new.features <- the_feature_engineer(
    data = ecoregions_df,
-   dependent.variable.name = ecoregions_continuous_response,
-   predictor.variable.names = ecoregions_numeric_predictors,
+   response.name = ecoregions_continuous_response,
+   predictors.names = ecoregions_numeric_predictors,
    n.cores = 1,
    verbose = TRUE
  )

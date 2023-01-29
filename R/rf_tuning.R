@@ -28,8 +28,8 @@
 #' #fitting model to tune
 #' out <- rf(
 #'   data = ecoregions_df,
-#'   dependent.variable.name = ecoregions_continuous_response,
-#'   predictor.variable.names = ecoregions_numeric_predictors,
+#'   response.name = ecoregions_continuous_response,
+#'   predictors.names = ecoregions_numeric_predictors,
 #'   distance.matrix = ecoregions_distance_matrix,
 #'   distance.thresholds = 0,
 #'   n.cores = 1,
@@ -58,8 +58,8 @@
 #'
 #' out <- rf(
 #'   data = ecoregions_df,
-#'   dependent.variable.name = ecoregions_continuous_response,
-#'   predictor.variable.names = ecoregions_numeric_predictors,
+#'   response.name = ecoregions_continuous_response,
+#'   predictors.names = ecoregions_numeric_predictors,
 #'   distance.matrix = ecoregions_distance_matrix,
 #'   xy = ecoregions_df[, c("x", "y")],
 #'   distance.thresholds = 0,
@@ -99,7 +99,7 @@ rf_tuning <- function(
   mtry.i <- NULL
   min.node.size.i <- NULL
   max.depth.i <- NULL
-  dependent.variable.name <- NULL
+  response.name <- NULL
   distance.matrix <- NULL
   distance.thresholds <- NULL
   data <- NULL
@@ -154,9 +154,9 @@ rf_tuning <- function(
     ranger.arguments <- model$ranger_arguments
     list2env(ranger.arguments, envir=environment())
 
-    #predictor.variable.names comes from mc_auto_vif or mc_auto_cor
-    if(inherits(predictor.variable.names, "variable_selection")){
-      predictor.variable.names <- predictor.variable.names$selected.variables
+    #predictors.names comes from mc_auto_vif or mc_auto_cor
+    if(inherits(predictors.names, "variable_selection")){
+      predictors.names <- predictors.names$selected.variables
     }
 
   } else {
@@ -197,7 +197,7 @@ rf_tuning <- function(
 
   #testing if the data is binary
   if(is_binary_response(
-    x = data[[dependent.variable.name]]
+    x = data[[response.name]]
   )
   ){
     metric <- "auc"
@@ -208,11 +208,11 @@ rf_tuning <- function(
 
   #mtry
   mtry <- as.integer(mtry.vector)
-    if(max(mtry) > length(predictor.variable.names)){
+    if(max(mtry) > length(predictors.names)){
       if(verbose == TRUE){
-        message("Maximum 'mtry' set to length(predictor.variable.names)")
+        message("Maximum 'mtry' set to length(predictors.names)")
       }
-      mtry <- mtry[mtry < length(predictor.variable.names)]
+      mtry <- mtry[mtry < length(predictors.names)]
     }
 
 
@@ -392,8 +392,8 @@ rf_tuning <- function(
   #fitting tuned model
   model.tuned <- rf(
     data = data,
-    dependent.variable.name = dependent.variable.name,
-    predictor.variable.names = predictor.variable.names,
+    response.name = response.name,
+    predictors.names = predictors.names,
     ranger.arguments = ranger.arguments,
     distance.matrix = distance.matrix,
     distance.thresholds = distance.thresholds,

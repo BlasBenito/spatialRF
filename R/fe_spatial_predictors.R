@@ -9,8 +9,8 @@
 #' When using the method "mem", then Moran's Eigenvector Maps (MEMs) are added as spatial component instead. Using the argument `what.mem` the user can select whether to add only positive, only negative, or all MEMs to the input data frame.
 #'
 #' @param data (required; data.frame or tibble) A data frame, tibble, or sf. Default: `NULL`.
-#' @param dependent.variable.name (optional; character string) Name of the dependent variable. Required when there are categorical variables in `predictor.variable.names`. Default: `NULL`
-#' @param predictor.variable.names (required; character vector with column names of `data`) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Default: `NULL`
+#' @param response.name (optional; character string) Name of the dependent variable. Required when there are categorical variables in `predictors.names`. Default: `NULL`
+#' @param predictors.names (required; character vector with column names of `data`) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Default: `NULL`
 #' @param distance.matrix (required; distance matrix) Squared matrix with the distances among the records in `data`. The number of rows of `distance.matrix` and `data` must be the same. Default: `NULL`
 #' @param distance.thresholds  (optional; numeric vector with distances in the same units as `distance.matrix`) Numeric vector with neighborhood distances to be used to compute Moran's Eigenvector Maps. Default: `NULL`
 #' @param what.mem  (optional, character) Only relevant for `method = "mem`. Character string indicating what Moran's Eigenvector Maps to generate. If "positive", only MEMs with positive eigenvectors are returned. If "negative", only MEMs with negative eigenvectors are returned. If "all", all MEMs are returned. Default: `"positive"`
@@ -35,8 +35,8 @@
 #'
 #'  ecoregions_df <- fe_spatial_predictors(
 #'    data = ecoregions_df,
-#'    dependent.variable.name = ecoregions_continuous_response,
-#'    predictor.variable.names,
+#'    response.name = ecoregions_continuous_response,
+#'    predictors.names,
 #'    distance.matrix = ecoregions_distance_matrix,
 #'    what.mem = "positive",
 #'    method = "mem",
@@ -48,8 +48,8 @@
 #' }}
 fe_spatial_predictors <- function(
     data,
-    dependent.variable.name,
-    predictor.variable.names,
+    response.name,
+    predictors.names,
     distance.matrix,
     distance.thresholds,
     what.mem = "positive",
@@ -136,8 +136,8 @@ fe_spatial_predictors <- function(
     #filter mem
     mem.df <- filter_spatial_predictors(
       data = data,
-      predictor.variable.names = predictor.variable.names,
-      dependent.variable.name = dependent.variable.name,
+      predictors.names = predictors.names,
+      response.name = response.name,
       spatial.predictors.df = mem.df,
       max.cor = 0.50
       )

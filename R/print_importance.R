@@ -23,8 +23,8 @@
 #'  #fitting random forest model
 #'  rf.model <- rf(
 #'    data = ecoregions_df,
-#'    dependent.variable.name = ecoregions_continuous_response,
-#'    predictor.variable.names = ecoregions_numeric_predictors,
+#'    response.name = ecoregions_continuous_response,
+#'    predictors.names = ecoregions_numeric_predictors,
 #'    distance.matrix = ecoregions_distance_matrix,
 #'    distance.thresholds = 0,
 #'    n.cores = 1,
@@ -61,7 +61,7 @@ print_importance <- function(model, verbose = TRUE){
       length.spatial.predictors <- length(model$spatial$names)
 
       #count non-spatial predictors
-      length.non.spatial.predictors <- length(model$ranger_arguments$predictor.variable.names) - length.spatial.predictors
+      length.non.spatial.predictors <- length(model$ranger_arguments$predictors.names) - length.spatial.predictors
 
 
       #get spatial.predictor.stats if too many spatial predictors

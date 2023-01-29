@@ -1,23 +1,23 @@
 #' @title Suggest variable interactions and composite features for random forest models
 #' @description Suggests candidate variable interactions and composite features able to improve predictive accuracy over data not used to train the model via spatial cross-validation with [rf_evaluate()]. For a pair of predictors `a` and `b`, interactions are build via multiplication (`a * b`), while composite features are built by extracting the first factor of a principal component analysis performed with [pca()], after rescaling `a` and `b` between 1 and 100. Interactions and composite features are named `a..x..b` and `a..pca..b` respectively.
 #'
-#'Candidate variables `a` and `b` are selected from those predictors in `predictor.variable.names` with a variable importance above `importance.threshold` (set by default to the median of the importance scores).
+#'Candidate variables `a` and `b` are selected from those predictors in `predictors.names` with a variable importance above `importance.threshold` (set by default to the median of the importance scores).
 #'
 #' For each interaction and composite feature, a model including all the predictors plus the interaction or composite feature is fitted, and it's R squared (or AUC if the response is binary) computed via spatial cross-validation (see [rf_evaluate()]) is compared with the R squared of the model without interactions or composite features.
 #'
-#'From all the potential interactions screened, only those with a positive increase in R squared (or AUC when the response is binomial) of the model, a variable importance above the median, and a maximum correlation among themselves and with the predictors in `predictor.variable.names` not higher than `max.cor` are selected. Such a restrictive set of rules ensures that the selected interactions can be used right away for modeling purposes without increasing model complexity unnecessarily. However, the suggested variable interactions might not make sense from a domain expertise standpoint, so please, examine them with care.
+#'From all the potential interactions screened, only those with a positive increase in R squared (or AUC when the response is binomial) of the model, a variable importance above the median, and a maximum correlation among themselves and with the predictors in `predictors.names` not higher than `max.cor` are selected. Such a restrictive set of rules ensures that the selected interactions can be used right away for modeling purposes without increasing model complexity unnecessarily. However, the suggested variable interactions might not make sense from a domain expertise standpoint, so please, examine them with care.
 #'
 #'The function returns the criteria used to select the interactions, and the data required to use these interactions a model.
 #'
 #' @param data Data frame with a response variable and a set of predictors. Default: `NULL`
-#' @param dependent.variable.name Character string with the name of the response variable. Must be in the column names of `data`. If the dependent variable is binary with values 1 and 0, the argument `case.weights` of `ranger` is populated by the function [case_weights()]. Default: `NULL`
-#' @param predictor.variable.names Character vector with the names of the predictive variables, or object of class `"variable_selection"` produced by [mc_auto_vif()] and/or [mc_auto_cor()]. Every element of this vector must be in the column names of `data`. Default: `NULL`
+#' @param response.name Character string with the name of the response variable. Must be in the column names of `data`. If the dependent variable is binary with values 1 and 0, the argument `case.weights` of `ranger` is populated by the function [case_weights()]. Default: `NULL`
+#' @param predictors.names Character vector with the names of the predictive variables, or object of class `"variable_selection"` produced by [mc_auto_vif()] and/or [mc_auto_cor()]. Every element of this vector must be in the column names of `data`. Default: `NULL`
 #' @param xy Data frame or matrix with two columns containing coordinates and named "x" and "y". If not provided, the comparison between models with and without variable interactions is not done.
 #' @param ranger.arguments Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.
 #' @param repetitions Integer, number of spatial folds to use during cross-validation. Must be lower than the total number of rows available in the model's data. Default: `30`
 #' @param training.fraction Proportion between 0.5 and 0.9 indicating the proportion of records to be used as training set during spatial cross-validation. Default: `0.75`
 #' @param importance.threshold Numeric between 0 and 1, quantile of variable importance scores over which to select individual predictors to explore interactions among them. Larger values reduce the number of potential interactions explored. Default: `0.75`
-#' @param max.cor Numeric, maximum Pearson correlation between any pair of the selected interactions, and between any interaction and the predictors in `predictor.variable.names`. Default: `0.75`
+#' @param max.cor Numeric, maximum Pearson correlation between any pair of the selected interactions, and between any interaction and the predictors in `predictors.names`. Default: `0.75`
 #' @param point.color Colors of the plotted points. Can be a single color name (e.g. "red4"), a character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. `viridis::viridis(100)`). Default: `viridis::viridis(100, option = "F", alpha = 0.8)`
 #' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same. Default: `NULL`
 #' @param verbose Logical. If `TRUE`, messages and plots generated during the execution of the function are displayed. Default: `TRUE`
@@ -26,8 +26,8 @@
 #' @return If the function finds no interactions, a list with four slots containing input arguments:
 #' \itemize{
 #' #'   \item `data`: Data frame with the response variable, the predictors, and the selected interactions, ready to be used as `data` argument in the package functions.
-#'   \item `dependent.variable.name`: Character, name of the response.
-#'   \item `predictor.variable.names`: Character vector with the names of the predictors and the selected interactions.
+#'   \item `response.name`: Character, name of the response.
+#'   \item `predictors.names`: Character vector with the names of the predictors and the selected interactions.
 #'   \item `xy`: Data frame or matrix with two columns containing coordinates and named "x" and "y".
 #' }
 #'
@@ -53,8 +53,8 @@
 #'
 #'  new.features <- the_feature_engineer(
 #'    data = ecoregions_df,
-#'    dependent.variable.name = ecoregions_continuous_response,
-#'    predictor.variable.names = ecoregions_numeric_predictors,
+#'    response.name = ecoregions_continuous_response,
+#'    predictors.names = ecoregions_numeric_predictors,
 #'    n.cores = 1,
 #'    verbose = TRUE
 #'  )
@@ -70,8 +70,8 @@
 #' @export
 the_feature_engineer <- function(
   data = NULL,
-  dependent.variable.name = NULL,
-  predictor.variable.names = NULL,
+  response.name = NULL,
+  predictors.names = NULL,
   xy = NULL,
   ranger.arguments = NULL,
   repetitions = 30,
@@ -101,13 +101,13 @@ the_feature_engineer <- function(
   #output list
   out.list <- list()
   out.list$data <- data
-  out.list$dependent.variable.name <- dependent.variable.name
-  out.list$predictor.variable.names <- predictor.variable.names
+  out.list$response.name <- response.name
+  out.list$predictors.names <- predictors.names
   out.list$xy <- xy
 
   #finding out if the response is binary
   if(is_binary_response(
-    x = data[[dependent.variable.name]]
+    x = data[[response.name]]
   )
   ){
     metric <- "auc"
@@ -119,10 +119,10 @@ the_feature_engineer <- function(
   variable <- NULL
   y <- NULL
 
-  #predictor.variable.names comes from mc_auto_vif or mc_auto_cor
-  if(!is.null(predictor.variable.names)){
-    if(inherits(predictor.variable.names, "variable_selection")){
-      predictor.variable.names <- predictor.variable.names$selected.variables
+  #predictors.names comes from mc_auto_vif or mc_auto_cor
+  if(!is.null(predictors.names)){
+    if(inherits(predictors.names, "variable_selection")){
+      predictors.names <- predictors.names$selected.variables
     }
   }
 
@@ -140,8 +140,8 @@ the_feature_engineer <- function(
   #without
   model.without.interactions <- rf(
     data = data,
-    dependent.variable.name = dependent.variable.name,
-    predictor.variable.names = predictor.variable.names,
+    response.name = response.name,
+    predictors.names = predictors.names,
     ranger.arguments = ranger.arguments,
     n.cores = n.cores,
     seed = seed,
@@ -170,8 +170,8 @@ the_feature_engineer <- function(
   #ranger.arguments.i
   ranger.arguments.i <- ranger.arguments
   ranger.arguments.i$data <- NULL
-  ranger.arguments.i$dependent.variable.name <- NULL
-  ranger.arguments.i$predictor.variable.names <- NULL
+  ranger.arguments.i$response.name <- NULL
+  ranger.arguments.i$predictors.names <- NULL
 
   #setting quantile of the importance threshold
   importance.threshold <- quantile(
@@ -240,14 +240,14 @@ the_feature_engineer <- function(
     )
     colnames(data.i)[ncol(data.i)] <- pair.i.name
 
-    #prepare predictor.variable.names.i
-    predictor.variable.names.i <- c(
-      predictor.variable.names,
+    #prepare predictors.names.i
+    predictors.names.i <- c(
+      predictors.names,
       pair.i.name
     )
 
     #computing max correlation with predictors
-    cor.out <- cor(data.i[, predictor.variable.names.i])
+    cor.out <- cor(data.i[, predictors.names.i])
     diag(cor.out) <- NA
     max.cor <- max(cor.out[pair.i.name, ], na.rm = TRUE)
 
@@ -257,8 +257,8 @@ the_feature_engineer <- function(
       #without
       model.i <- spatialRF::rf(
         data = data.i,
-        dependent.variable.name = dependent.variable.name,
-        predictor.variable.names = predictor.variable.names.i,
+        response.name = response.name,
+        predictors.names = predictors.names.i,
         ranger.arguments = ranger.arguments.i,
         seed = seed,
         verbose = FALSE,
@@ -353,14 +353,14 @@ the_feature_engineer <- function(
     )
     colnames(data.i)[ncol(data.i)] <- pair.i.name
 
-    #prepare predictor.variable.names.i
-    predictor.variable.names.i <- c(
-      predictor.variable.names,
+    #prepare predictors.names.i
+    predictors.names.i <- c(
+      predictors.names,
       pair.i.name
     )
 
     #computing max correlation with predictors
-    cor.out <- cor(data.i[, predictor.variable.names.i])
+    cor.out <- cor(data.i[, predictors.names.i])
     diag(cor.out) <- NA
     max.cor <- max(cor.out[pair.i.name, ], na.rm = TRUE)
 
@@ -370,8 +370,8 @@ the_feature_engineer <- function(
       #without
       model.i <- spatialRF::rf(
         data = data.i,
-        dependent.variable.name = dependent.variable.name,
-        predictor.variable.names = predictor.variable.names.i,
+        response.name = response.name,
+        predictors.names = predictors.names.i,
         ranger.arguments = ranger.arguments.i,
         seed = seed,
         verbose = FALSE,
@@ -577,7 +577,7 @@ the_feature_engineer <- function(
 
     #create plot data frame
     plot.df <- data.frame(
-      y = data[, dependent.variable.name],
+      y = data[, response.name],
       x = interaction.df[, variable]
     )
 
@@ -593,7 +593,7 @@ the_feature_engineer <- function(
       ) +
       ggplot2::scale_color_gradientn(colors = point.color) +
       ggplot2::xlab(variable) +
-      ggplot2::ylab(dependent.variable.name) +
+      ggplot2::ylab(response.name) +
       ggplot2::ggtitle(
         paste0(
           "+R2: ",
@@ -637,9 +637,9 @@ the_feature_engineer <- function(
 
   #preparing out list
   out.list$data <- training.df
-  out.list$dependent.variable.name <- dependent.variable.name
-  out.list$predictor.variable.names <- c(
-    predictor.variable.names,
+  out.list$response.name <- response.name
+  out.list$predictors.names <- c(
+    predictors.names,
     colnames(interaction.df)
   )
   out.list$screening <- interaction.screening
@@ -655,9 +655,9 @@ the_feature_engineer <- function(
   #with
   model.with.interactions <- spatialRF::rf(
     data = training.df,
-    dependent.variable.name = dependent.variable.name,
-    predictor.variable.names = c(
-      predictor.variable.names,
+    response.name = response.name,
+    predictors.names = c(
+      predictors.names,
       colnames(interaction.df)
     ),
     ranger.arguments = ranger.arguments,

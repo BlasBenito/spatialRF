@@ -122,7 +122,7 @@
 
     <pre class="usage"><span class='fu'>filter_spatial_predictors</span>(
   <span class='kw'>data</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>predictor.variable.names</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>predictors.names</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>spatial.predictors.df</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>cor.threshold</span> <span class='kw'>=</span> <span class='fl'>0.5</span>
 )</pre>
@@ -135,7 +135,7 @@
       <td><p>Data frame with a response variable and a set of predictors. Default: <code>NULL</code></p></td>
     </tr>
     <tr>
-      <th>predictor.variable.names</th>
+      <th>predictors.names</th>
       <td><p>Character vector with the names of the predictive variables. Every element of this vector must be in the column names of <code>data</code>. Default: <code>NULL</code></p></td>
     </tr>
     <tr>
@@ -168,7 +168,7 @@
 <span class='co'>#filtering spatial predictors</span>
 <span class='no'>spatial.predictors.df</span> <span class='kw'>&lt;-</span> <span class='fu'>filter_spatial_predictors</span>(
   <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>plant_richness_df</span>,
-  <span class='kw'>predictor.variable.names</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span>(<span class='no'>plant_richness_df</span>)[<span class='fl'>5</span>:<span class='fl'>21</span>],
+  <span class='kw'>predictors.names</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span>(<span class='no'>plant_richness_df</span>)[<span class='fl'>5</span>:<span class='fl'>21</span>],
   <span class='kw'>spatial.predictors.df</span> <span class='kw'>=</span> <span class='no'>spatial.predictors.df</span>,
   <span class='kw'>cor.threshold</span> <span class='kw'>=</span> <span class='fl'>0.50</span>
  )

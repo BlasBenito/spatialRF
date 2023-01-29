@@ -1,9 +1,9 @@
 #' @title Fits spatial random forest models
 #' @description Fits spatial random forest models using different methods to generate, rank, and select spatial predictors acting as proxies of spatial processes not considered by the non-spatial predictors. The end goal is providing the model with information about the spatial structure of the data to minimize the spatial correlation (Moran's I) of the model residuals and generate honest variable importance scores.
-#' @param model A model fitted with [rf()]. If used, the arguments `data`, `dependent.variable.name`, `predictor.variable.names`, `distance.matrix`, `distance.thresholds`, `ranger.arguments`, and `scaled.importance` are taken directly from the model definition. Default: NULL
+#' @param model A model fitted with [rf()]. If used, the arguments `data`, `response.name`, `predictors.names`, `distance.matrix`, `distance.thresholds`, `ranger.arguments`, and `scaled.importance` are taken directly from the model definition. Default: NULL
 #' @param data Data frame with a response variable and a set of predictors. Default: `NULL`
-#' @param dependent.variable.name Character string with the name of the response variable. Must be in the column names of `data`. If the dependent variable is binary with values 1 and 0, the argument `case.weights` of `ranger` is populated by the function [case_weights()]. Default: `NULL`
-#' @param predictor.variable.names Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Default: `NULL`
+#' @param response.name Character string with the name of the response variable. Must be in the column names of `data`. If the dependent variable is binary with values 1 and 0, the argument `case.weights` of `ranger` is populated by the function [case_weights()]. Default: `NULL`
+#' @param predictors.names Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Default: `NULL`
 #' @param distance.matrix Squared matrix with the distances among the records in `data`. The number of rows of `distance.matrix` and `data` must be the same. If not provided, the computation of the Moran's I of the residuals is omitted. Default: `NULL`
 #' @param distance.thresholds Numeric vector with distances in the same units as `distance.matrix` Distances below each distance threshold are set to 0 on separated copies of the distance matrix to compute Moran's I at different neighborhood distances. If `NULL`, it defaults to `seq(0, max(distance.matrix)/2, length.out = 4)` (defined by [default_distance_thresholds()]). Default: `NULL`
 #' @param xy (optional) Data frame or matrix with two columns containing coordinates and named "x" and "y". It is not used by this function, but it is stored in the slot `ranger.arguments$xy` of the model, so it can be used by [rf_evaluate()] and [rf_tuning()]. Default: `NULL`
@@ -70,8 +70,8 @@
 #'  #hengl
 #'  model <- rf_spatial(
 #'    data = ecoregions_df,
-#'    dependent.variable.name = ecoregions_continuous_response,
-#'    predictor.variable.names = ecoregions_numeric_predictors,
+#'    response.name = ecoregions_continuous_response,
+#'    predictors.names = ecoregions_numeric_predictors,
 #'    distance.matrix = ecoregions_distance_matrix,
 #'    distance.thresholds = 0,
 #'    method = "hengl",
@@ -81,8 +81,8 @@
 #'  #mem.moran.sequential
 #'  model <- rf_spatial(
 #'    data = ecoregions_df,
-#'    dependent.variable.name = ecoregions_continuous_response,
-#'    predictor.variable.names = ecoregions_numeric_predictors,
+#'    response.name = ecoregions_continuous_response,
+#'    predictors.names = ecoregions_numeric_predictors,
 #'    distance.matrix = ecoregions_distance_matrix,
 #'    distance.thresholds = 0,
 #'    method = "mem.moran.sequential",
@@ -92,8 +92,8 @@
 #'  #fitting an rf_spatial model from an rf model
 #'  rf.model <- rf(
 #'    data = ecoregions_df,
-#'    dependent.variable.name = ecoregions_continuous_response,
-#'    predictor.variable.names = ecoregions_numeric_predictors,
+#'    response.name = ecoregions_continuous_response,
+#'    predictors.names = ecoregions_numeric_predictors,
 #'    distance.matrix = ecoregions_distance_matrix,
 #'    distance.thresholds = 0,
 #'    n.cores = 1,
@@ -112,8 +112,8 @@
 rf_spatial <- function(
     model = NULL,
     data = NULL,
-    dependent.variable.name = NULL,
-    predictor.variable.names = NULL,
+    response.name = NULL,
+    predictors.names = NULL,
     distance.matrix = NULL,
     distance.thresholds = NULL,
     xy = NULL,
@@ -167,8 +167,8 @@ rf_spatial <- function(
 
       #overriding input arguments
       data <- NULL
-      dependent.variable.name <- NULL
-      predictor.variable.names <- NULL
+      response.name <- NULL
+      predictors.names <- NULL
       distance.matrix <- NULL
       distance.thresholds <- NULL
       xy <- NULL
@@ -185,8 +185,8 @@ rf_spatial <- function(
       #input arguments in model$ranger_arguments take precedence
 
       ranger.arguments$data <- NULL
-      ranger.arguments$dependent.variable.name <- NULL
-      ranger.arguments$predictor.variable.names <- NULL
+      ranger.arguments$response.name <- NULL
+      ranger.arguments$predictors.names <- NULL
       ranger.arguments$distance.matrix <- NULL
       ranger.arguments$distance.thresholds <- NULL
       ranger.arguments$xy <- NULL
@@ -207,12 +207,12 @@ rf_spatial <- function(
         data <- model$ranger_arguments$data
       }
 
-      if(is.null(dependent.variable.name)){
-        dependent.variable.name <- model$ranger_arguments$dependent.variable.name
+      if(is.null(response.name)){
+        response.name <- model$ranger_arguments$response.name
       }
 
-      if(is.null(predictor.variable.names)){
-        predictor.variable.names <- model$ranger_arguments$predictor.variable.names
+      if(is.null(predictors.names)){
+        predictors.names <- model$ranger_arguments$predictors.names
       }
 
       if(is.null(distance.matrix)){
@@ -238,10 +238,10 @@ rf_spatial <- function(
 
   }
 
-  #predictor.variable.names comes from mc_auto_vif or mc_auto_cor
-  if(inherits(predictor.variable.names, "variable_selection")){
+  #predictors.names comes from mc_auto_vif or mc_auto_cor
+  if(inherits(predictors.names, "variable_selection")){
 
-    predictor.variable.names <- predictor.variable.names$selected.variables
+    predictors.names <- predictors.names$selected.variables
 
   }
 
@@ -260,8 +260,8 @@ rf_spatial <- function(
 
     model <- rf(
       data = data,
-      dependent.variable.name = dependent.variable.name,
-      predictor.variable.names = predictor.variable.names,
+      response.name = response.name,
+      predictors.names = predictors.names,
       distance.matrix = distance.matrix,
       distance.thresholds = distance.thresholds,
       xy = xy,
@@ -304,7 +304,7 @@ rf_spatial <- function(
 
     #removing data from ranger arguments
     ranger.arguments$data <- NULL
-    ranger.arguments$predictor.variable.names <- NULL
+    ranger.arguments$predictors.names <- NULL
 
   }
 
@@ -388,7 +388,7 @@ rf_spatial <- function(
     #removes redundant spatial predictors
     spatial.predictors.df <- filter_spatial_predictors(
       data = data,
-      predictor.variable.names = predictor.variable.names,
+      predictors.names = predictors.names,
       spatial.predictors.df = spatial.predictors.df,
       max.cor = 0.50
     )
@@ -396,8 +396,8 @@ rf_spatial <- function(
     #ranking spatial predictors
     spatial.predictors.ranking <- rank_spatial_predictors(
       data = data,
-      dependent.variable.name = dependent.variable.name,
-      predictor.variable.names = predictor.variable.names,
+      response.name = response.name,
+      predictors.names = predictors.names,
       distance.matrix = distance.matrix,
       distance.thresholds = distance.thresholds,
       ranger.arguments = ranger.arguments,
@@ -428,8 +428,8 @@ rf_spatial <- function(
     #selecting spatial predictors sequentially
     spatial.predictors.selection <- select_spatial_predictors_sequential(
       data = data,
-      dependent.variable.name = dependent.variable.name,
-      predictor.variable.names = predictor.variable.names,
+      response.name = response.name,
+      predictors.names = predictors.names,
       distance.matrix = distance.matrix,
       distance.thresholds = distance.thresholds,
       ranger.arguments = ranger.arguments,
@@ -458,8 +458,8 @@ rf_spatial <- function(
     #selecting spatial predictors by maximizing their joint effect
     spatial.predictors.selection <- select_spatial_predictors_recursive(
       data = data,
-      dependent.variable.name = dependent.variable.name,
-      predictor.variable.names = predictor.variable.names,
+      response.name = response.name,
+      predictors.names = predictors.names,
       distance.matrix = distance.matrix,
       distance.thresholds = distance.thresholds,
       ranger.arguments = ranger.arguments,
@@ -496,16 +496,16 @@ rf_spatial <- function(
   )
 
   #prepare predictor variable names
-  predictor.variable.names.spatial <- c(
-    predictor.variable.names,
+  predictors.names.spatial <- c(
+    predictors.names,
     spatial.predictors.selected
   )
 
   #fitting model
   model.spatial <- spatialRF::rf(
     data = data.spatial,
-    dependent.variable.name = dependent.variable.name,
-    predictor.variable.names = predictor.variable.names.spatial,
+    response.name = response.name,
+    predictors.names = predictors.names.spatial,
     distance.matrix = distance.matrix,
     distance.thresholds = distance.thresholds,
     xy = xy,

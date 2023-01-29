@@ -14,12 +14,12 @@
 #'
 #' The function allows the user to define a preference selection order via the argument `preference.order`. This argument helps "protect" variables that might be interesting or even required for the given analysis. Please, see the examples to understand better how this feature works.
 #'
-#' If there are categorical variables named in `predictor.variable.names` and `dependent.variable.name` is provided, then the function applies [fe_target_encoding()] with the method "mean" to transform the categorical variables into numeric before the VIF analysis
+#' If there are categorical variables named in `predictors.names` and `response.name` is provided, then the function applies [fe_target_encoding()] with the method "mean" to transform the categorical variables into numeric before the VIF analysis
 #'
 #'
 #' @param data (required; data.frame or tibble) A data frame, tibble, or sf. Default: `NULL`.
-#' @param dependent.variable.name (optional; character string) Name of the dependent variable. Required when there are categorical variables within `predictor.variable.names`. Default: `NULL`
-#' @param predictor.variable.names (optional; character vector) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. If `NULL`, all the columns in data except `dependent.variable.name` are used. Default: `NULL`
+#' @param response.name (optional; character string) Name of the dependent variable. Required when there are categorical variables within `predictors.names`. Default: `NULL`
+#' @param predictors.names (optional; character vector) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. If `NULL`, all the columns in data except `response.name` are used. Default: `NULL`
 #' @param preference.order (optional, character vector) Character vector indicating the preference order to protect variables from elimination.  Predictors not included in this argument are ranked by their VIFs. Default: `NULL`.
 #' @param max.vif (optional, numeric) Numeric with recommended values between 2.5 and 10 defining the maximum VIF allowed in the output dataset. Higher VIF thresholds should result in a higher number of selected variables. Default: `5`.
 #' @param verbose (optional, logical) Logical. if `TRUE`, `mc_auto_vif()` prints messages describing its operations on the input data. Default:: `TRUE`
@@ -43,7 +43,7 @@
 #' #-------------------------------
 #' selected.predictors <- mc_auto_vif(
 #'   data = ecoregions_df,
-#'   predictor.variable.names = ecoregions_numeric_predictors,
+#'   predictors.names = ecoregions_numeric_predictors,
 #'   max.vif = 2
 #' )
 #'
@@ -59,7 +59,7 @@
 #' #-------------------------------
 #' selected.predictors <- mc_auto_vif(
 #'   data = ecoregions_df,
-#'   predictor.variable.names = ecoregions_numeric_predictors,
+#'   predictors.names = ecoregions_numeric_predictors,
 #'   max.vif = 10
 #' )
 #'
@@ -75,7 +75,7 @@
 #' #because it's highly correlated to "climate_bio1_average"
 #' selected.predictors <- mc_auto_vif(
 #'   data = ecoregions_df,
-#'   predictor.variable.names = ecoregions_numeric_predictors,
+#'   predictors.names = ecoregions_numeric_predictors,
 #'   preference.order = c(
 #'     "fragmentation_ca",
 #'     "climate_bio1_average",
@@ -109,7 +109,7 @@
 #' #using it in mc_auto_vif as preference.order
 #' selected.predictors <- mc_auto_vif(
 #'   data = ecoregions_df,
-#'   predictor.variable.names = ecoregions_numeric_predictors,
+#'   predictors.names = ecoregions_numeric_predictors,
 #'   preference.order = preference.order
 #' )
 #'
@@ -118,14 +118,14 @@
 #' #-----------------------------------------------
 #' mc_auto_cor.result <- mc_auto_cor(
 #'   data = ecoregions_df,
-#'   predictor.variable.names = ecoregions_numeric_predictors,
+#'   predictors.names = ecoregions_numeric_predictors,
 #'   preference.order = preference.order,
 #'   max.cor = 0.75
 #' )
 #'
 #' selected.predictors <- mc_auto_vif(
 #'   data = ecoregions_df,
-#'   predictor.variable.names = mc_auto_cor.result,
+#'   predictors.names = mc_auto_cor.result,
 #'   preference.order = preference.order
 #' )
 #'
@@ -144,8 +144,8 @@
 #' #requires the name of the response to compute the target-encoding
 #' selected.predictors <- mc_auto_vif(
 #'   data = ecoregions_df,
-#'   dependent.variable.name = ecoregions_continuous_response,
-#'   predictor.variable.names = ecoregions_all_predictors
+#'   response.name = ecoregions_continuous_response,
+#'   predictors.names = ecoregions_all_predictors
 #' )
 #'
 #' #both categorical predictors have been selected
@@ -159,8 +159,8 @@
 #' #with the desired method before the vif
 #' data.encoded <- fe_target_encoding(
 #'   data = ecoregions_df,
-#'   dependent.variable.name = ecoregions_continuous_response,
-#'   predictor.variable.names = ecoregions_all_predictors,
+#'   response.name = ecoregions_continuous_response,
+#'   predictors.names = ecoregions_all_predictors,
 #'   methods = "mean",
 #'   replace = TRUE
 #' )
@@ -168,7 +168,7 @@
 #' #now the function does not require the response's name
 #' selected.predictors <- mc_auto_vif(
 #'   data = data.encoded,
-#'   predictor.variable.names = ecoregions_all_predictors
+#'   predictors.names = ecoregions_all_predictors
 #' )
 #'
 #' #both categorical predictors have been selected again
@@ -182,8 +182,8 @@
 #' @export
 mc_auto_vif <- function(
     data = NULL,
-    predictor.variable.names = NULL,
-    dependent.variable.name = NULL,
+    predictors.names = NULL,
+    response.name = NULL,
     preference.order = NULL,
     max.vif = 5,
     verbose = TRUE
@@ -231,38 +231,38 @@ mc_auto_vif <- function(
 
   }
 
-  #setting predictor.variable.names
-  if(is.null(predictor.variable.names)){
+  #setting predictors.names
+  if(is.null(predictors.names)){
 
     #from data
-    predictor.variable.names <- colnames(data)
+    predictors.names <- colnames(data)
 
   } else {
 
     #ensuring they are in data
-    predictor.variable.names <- intersect(
-      x = predictor.variable.names,
+    predictors.names <- intersect(
+      x = predictors.names,
       y = colnames(data)
     )
 
   }
 
-  #dependent.variable.name
+  #response.name
   if(
-    is.null(dependent.variable.name) |
-    (!is.null(dependent.variable.name) && !(dependent.variable.name %in% colnames(data)))
+    is.null(response.name) |
+    (!is.null(response.name) && !(response.name %in% colnames(data)))
   ){
 
     #take numerics only
-    predictor.variable.names <- colnames(data[, predictor.variable.names])[sapply(data[, predictor.variable.names], is.numeric)]
+    predictors.names <- colnames(data[, predictors.names])[sapply(data[, predictors.names], is.numeric)]
 
   } else {
 
     #coerce categorical to numeric
     data <- fe_target_encoding(
       data = data,
-      dependent.variable.name = dependent.variable.name,
-      predictor.variable.names = predictor.variable.names,
+      response.name = response.name,
+      predictors.names = predictors.names,
       methods = "mean",
       replace = TRUE,
       verbose = verbose
@@ -270,7 +270,7 @@ mc_auto_vif <- function(
 
   }
 
-  data <- data[, predictor.variable.names]
+  data <- data[, predictors.names]
 
   #finding zero variance columns
   zero.variance.columns <- colnames(data)[round(apply(data, 2, var), 6) == 0]
@@ -289,10 +289,10 @@ mc_auto_vif <- function(
   #remove zero variance columns
   if(length(zero.variance.columns) > 0){
 
-    predictor.variable.names <- predictor.variable.names[!(predictor.variable.names %in% zero.variance.columns)]
+    predictors.names <- predictors.names[!(predictors.names %in% zero.variance.columns)]
 
     #subset for correlation analysis
-    data <- data[, predictor.variable.names]
+    data <- data[, predictors.names]
 
   }
 
@@ -304,11 +304,11 @@ mc_auto_vif <- function(
   #check cor
   data.cor <- mc_cor(
     data = data,
-    predictor.variable.names = predictor.variable.names
+    predictors.names = predictors.names
   )
 
   if(max(data.cor$cor) >= 0.99){
-    stop("The maximum correlation between a pair of predictors is > 0.99. The VIF computation will fail. Please use the output of 'mc_cor_auto()' as input for the argument 'predictor.variable.names'.")
+    stop("The maximum correlation between a pair of predictors is > 0.99. The VIF computation will fail. Please use the output of 'mc_cor_auto()' as input for the argument 'predictors.names'.")
   }
 
   #auto preference order by vif

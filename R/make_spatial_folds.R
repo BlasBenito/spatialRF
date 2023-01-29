@@ -18,7 +18,7 @@
 #' @param fold.center (required; data frame) One row of `fold.centers`.  Default: `NULL`
 #' @param training.fraction (optional, numeric) Training fraction. Numeric between 0.1 and  0.9. When the response variable is binary with values zero and one, this fraction refers to the number of ones to be used in the training set. Notice that in most cases the algorithm will return a number of training cases as approximate as possible to this fraction. Default: `0.75`
 #' @param data (optional, data frame). Training data frame. Default: `NULL`
-#' @param dependent.variable.name (optional; character string). Name of the response variable in `data`. Used to check if the response is binary with values 0 and 1. Default: `NULL`
+#' @param response.name (optional; character string). Name of the response variable in `data`. Used to check if the response is binary with values 0 and 1. Default: `NULL`
 #' @param distance.step (optional; numeric) Numeric vector of length one or two. Distance step used during the growth of the buffer containing the training cases. Must be in the same units as the coordinates in `xy`. When only one distance is provided, the same growth is applied to the x and y axes. If two distances are provided, the first one is applied to the x axis, and the second one to the y. When `NULL`, it uses 1/1000th of the range of each axis as distance. The smaller this number is, the easier is to achieve an accurate `training.fraction`, but the slower the algorithm becomes. Default: `NULL`
 #' @param swap.spatial.folds (optional; logical) If true, the cases inside the rectangular buffer are used as testing set instead of training. This can help in edge cases when the data distribution is highly irregular. Default: `FALSE`
 #' @param n.cores (optional; integer) Number of cores used for parallel execution. Default: `NULL`
@@ -68,7 +68,7 @@ make_spatial_folds <- function(
   fold.centers = NULL,
   training.fraction = 0.75,
   data = NULL,
-  dependent.variable.name = NULL,
+  response.name = NULL,
   distance.step = NULL,
   swap.spatial.folds = FALSE,
   n.cores = parallel::detectCores() - 1,
@@ -111,7 +111,7 @@ make_spatial_folds <- function(
       fold.center = fold.centers[i, ],
       training.fraction = training.fraction,
       data = data,
-      dependent.variable.name = dependent.variable.name,
+      response.name = response.name,
       distance.step = distance.step
     )
 
@@ -130,7 +130,7 @@ make_spatial_fold <- function(
     fold.center = NULL,
     training.fraction = 0.75,
     data = NULL,
-    dependent.variable.name = NULL,
+    response.name = NULL,
     distance.step = NULL,
     swap.spatial.folds = FALSE
 ){
@@ -193,18 +193,18 @@ make_spatial_fold <- function(
 
   #finding out if data is binary
   is.binary <- FALSE
-  if(!is.null(data) & !is.null(dependent.variable.name)){
+  if(!is.null(data) & !is.null(response.name)){
     is.binary <- is_binary_response(
       x = dplyr::pull(
         data,
-        dependent.variable.name
+        response.name
         )
     )
   }
 
   #number of records to select
   if(is.binary == TRUE){
-    records.to.select <- floor(training.fraction * sum(data[, dependent.variable.name]))
+    records.to.select <- floor(training.fraction * sum(data[, response.name]))
   } else {
     records.to.select <- floor(training.fraction * nrow(xy))
   }
@@ -242,7 +242,7 @@ make_spatial_fold <- function(
     if(is.binary == TRUE){
       records.selected <- records.selected[
         data[data$id %in% records.selected$id,
-             dependent.variable.name] == 1,
+             response.name] == 1,
       ]
     }
 

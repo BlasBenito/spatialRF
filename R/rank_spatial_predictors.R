@@ -9,8 +9,8 @@
 #'
 #' This function has been designed to be used internally by [rf_spatial()] rather than directly by a user.
 #' @param data Data frame with a response variable and a set of predictors. Default: `NULL`
-#' @param dependent.variable.name Character string with the name of the response variable. Must be in the column names of `data`. Default: `NULL`
-#' @param predictor.variable.names Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Default: `NULL`
+#' @param response.name Character string with the name of the response variable. Must be in the column names of `data`. Default: `NULL`
+#' @param predictors.names Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Default: `NULL`
 #' @param reference.moran.i Moran's I of the residuals of the model without spatial predictors. Default: `1`
 #' @param distance.matrix Squared matrix with the distances among the records in `data`. The number of rows of `distance.matrix` and `data` must be the same. If not provided, the computation of the Moran's I of the residuals is omitted. Default: `NULL`
 #' @param distance.thresholds Numeric vector with neighborhood distances. All distances in the distance matrix below each value in `dustance.thresholds` are set to 0 for the computation of Moran's I. If `NULL`, it defaults to seq(0, max(distance.matrix), length.out = 4). Default: `NULL`
@@ -58,8 +58,8 @@
 #' @export
 rank_spatial_predictors <- function(
   data = NULL,
-  dependent.variable.name = NULL,
-  predictor.variable.names = NULL,
+  response.name = NULL,
+  predictors.names = NULL,
   distance.matrix = NULL,
   distance.thresholds = NULL,
   ranger.arguments = NULL,
@@ -71,10 +71,10 @@ rank_spatial_predictors <- function(
   cluster = NULL
 ){
 
-  #predictor.variable.names comes from mc_auto_vif or mc_auto_cor
-  if(inherits(predictor.variable.names, "variable_selection")){
+  #predictors.names comes from mc_auto_vif or mc_auto_cor
+  if(inherits(predictors.names, "variable_selection")){
 
-    predictor.variable.names <- predictor.variable.names$selected.variables
+    predictors.names <- predictors.names$selected.variables
 
   }
 
@@ -100,7 +100,7 @@ rank_spatial_predictors <- function(
 
   #check if response is binary
   binary.response <- is_binary_response(
-    x = data[[dependent.variable.name]]
+    x = data[[response.name]]
     )
 
   #HANDLING PARALLELIZATION
@@ -155,14 +155,14 @@ rank_spatial_predictors <- function(
       )
       colnames(data.i)[ncol(data.i)] <- spatial.predictors.name.i
 
-      #new predictor.variable.names
-      predictor.variable.names.i <- c(predictor.variable.names, spatial.predictors.name.i)
+      #new predictors.names
+      predictors.names.i <- c(predictors.names, spatial.predictors.name.i)
 
       #fitting model I
       m.i <- spatialRF::rf(
         data = data.i,
-        dependent.variable.name = dependent.variable.name,
-        predictor.variable.names = predictor.variable.names.i,
+        response.name = response.name,
+        predictors.names = predictors.names.i,
         seed = spatial.predictors.i,
         distance.matrix = distance.matrix,
         distance.thresholds = distance.thresholds,

@@ -46,8 +46,8 @@ data(
  #spatial model
  rf.model <- rf_spatial(
    data = ecoregions_df,
-   dependent.variable.name = ecoregions_continuous_response,
-   predictor.variable.names = ecoregions_numeric_predictors,
+   response.name = ecoregions_continuous_response,
+   predictors.names = ecoregions_numeric_predictors,
    distance.matrix = ecoregions_distance_matrix,
    distance.thresholds = 0,
    method = "mem.moran.sequential",

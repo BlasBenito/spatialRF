@@ -2,8 +2,8 @@
 #' @description Fits several random forest models on the same data in order to capture the effect of the algorithm's stochasticity on the variable importance scores, predictions, residuals, and performance measures. The function relies on the median to aggregate performance and importance values across repetitions. It is recommended to use it after a model is fitted ([rf()] or [rf_spatial()]), tuned ([rf_tuning()]), and/or evaluated ([rf_evaluate()]). This function is designed to be used after fitting a model with [rf()] or [rf_spatial()], tuning it with [rf_tuning()] and evaluating it with [rf_evaluate()].
 #' @param model (required if `data` is `NULL`; model produced with `spatialRF`) A model fitted with [rf()]. If provided, the data and ranger arguments are taken directly from the model definition (stored in `model$ranger_arguments`), and the argument `ranger.arguments` is ignored. Default: `NULL`
 #' @param data (required if `model` is `NULL`; data frame or tibble) Data frame with a response variable and a set of predictors. If `data` is a tibble, all data frames in the output model are coerced to tibble. Default: `NULL`
-#' @param dependent.variable.name (required if `model` is `NULL`; character string) Character string with the name of the response variable. Must be in the column names of `data`. If the dependent variable is binary with values 1 and 0, the argument `case.weights` of `ranger` is populated by the function [case_weights()]. Default: `NULL`
-#' @param predictor.variable.names (required if `model` is `NULL`; character vector with column names of `data`) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Default: `NULL`
+#' @param response.name (required if `model` is `NULL`; character string) Character string with the name of the response variable. Must be in the column names of `data`. If the dependent variable is binary with values 1 and 0, the argument `case.weights` of `ranger` is populated by the function [case_weights()]. Default: `NULL`
+#' @param predictors.names (required if `model` is `NULL`; character vector with column names of `data`) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Default: `NULL`
 #' @param distance.matrix (optional; distance matrix) Squared matrix with the distances among the records in `data`. The number of rows of `distance.matrix` and `data` must be the same. If not provided, the computation of the Moran's I of the residuals is omitted. Default: `NULL`
 #' @param distance.thresholds (optional; numeric vector with distances in the same units as `distance.matrix`) Numeric vector with neighborhood distances. All distances in the distance matrix below each value in `dustance.thresholds` are set to 0 for the computation of Moran's I. If `NULL`, it defaults to seq(0, max(distance.matrix), length.out = 4). Default: `NULL`
 #' @param xy (optional; data frame, tibble, or matrix) Data frame or matrix with two columns containing coordinates and named "x" and "y". It is not used by this function, but it is stored in the slot `ranger.arguments$xy` of the model, so it can be used by [rf_evaluate()] and [rf_tuning()]. Default: `NULL`
@@ -54,8 +54,8 @@
 #'  #fitting 10 random forest models
 #'  out <- rf_repeat(
 #'    data = ecoregions_df,
-#'    dependent.variable.name = ecoregions_continuous_response,
-#'    predictor.variable.names = ecoregions_numeric_predictors,
+#'    response.name = ecoregions_continuous_response,
+#'    predictors.names = ecoregions_numeric_predictors,
 #'    distance.matrix = ecoregions_distance_matrix,
 #'    distance.thresholds = 0,
 #'    repetitions = 10,
@@ -87,8 +87,8 @@
 #'  #using a model as an input for rf_repeat()
 #'  rf.model <- rf(
 #'    data = ecoregions_df,
-#'    dependent.variable.name = ecoregions_continuous_response,
-#'    predictor.variable.names = ecoregions_numeric_predictors,
+#'    response.name = ecoregions_continuous_response,
+#'    predictors.names = ecoregions_numeric_predictors,
 #'    distance.matrix = ecoregions_distance_matrix,
 #'    distance.thresholds = 0,
 #'    n.cores = 1
@@ -112,8 +112,8 @@
 rf_repeat <- function(
   model = NULL,
   data = NULL,
-  dependent.variable.name = NULL,
-  predictor.variable.names = NULL,
+  response.name = NULL,
+  predictors.names = NULL,
   distance.matrix = NULL,
   distance.thresholds = NULL,
   xy = NULL,
@@ -154,8 +154,8 @@ rf_repeat <- function(
 
       #overriding input arguments
       data <- NULL
-      dependent.variable.name <- NULL
-      predictor.variable.names <- NULL
+      response.name <- NULL
+      predictors.names <- NULL
       distance.matrix <- NULL
       distance.thresholds <- NULL
       xy <- NULL
@@ -172,8 +172,8 @@ rf_repeat <- function(
       #input arguments in model$ranger_arguments take precedence
 
       ranger.arguments$data <- NULL
-      ranger.arguments$dependent.variable.name <- NULL
-      ranger.arguments$predictor.variable.names <- NULL
+      ranger.arguments$response.name <- NULL
+      ranger.arguments$predictors.names <- NULL
       ranger.arguments$distance.matrix <- NULL
       ranger.arguments$distance.thresholds <- NULL
       ranger.arguments$xy <- NULL
@@ -194,12 +194,12 @@ rf_repeat <- function(
         data <- model$ranger_arguments$data
       }
 
-      if(is.null(dependent.variable.name)){
-        dependent.variable.name <- model$ranger_arguments$dependent.variable.name
+      if(is.null(response.name)){
+        response.name <- model$ranger_arguments$response.name
       }
 
-      if(is.null(predictor.variable.names)){
-        predictor.variable.names <- model$ranger_arguments$predictor.variable.names
+      if(is.null(predictors.names)){
+        predictors.names <- model$ranger_arguments$predictors.names
       }
 
       if(is.null(distance.matrix)){
@@ -229,10 +229,10 @@ rf_repeat <- function(
 
   }
 
-  #predictor.variable.names comes from mc_auto_vif or mc_auto_cor
-  if(inherits(predictor.variable.names, "variable_selection")){
+  #predictors.names comes from mc_auto_vif or mc_auto_cor
+  if(inherits(predictors.names, "variable_selection")){
 
-    predictor.variable.names <- predictor.variable.names$selected.variables
+    predictors.names <- predictors.names$selected.variables
 
   }
 
@@ -303,8 +303,8 @@ rf_repeat <- function(
     #model on raw data
     m.i <- spatialRF::rf(
       data = data,
-      dependent.variable.name = dependent.variable.name,
-      predictor.variable.names = predictor.variable.names,
+      response.name = response.name,
+      predictors.names = predictors.names,
       distance.matrix = distance.matrix,
       distance.thresholds = distance.thresholds,
       xy = xy,
@@ -359,8 +359,8 @@ rf_repeat <- function(
 
       m <- rf(
         data = data,
-        dependent.variable.name = dependent.variable.name,
-        predictor.variable.names = predictor.variable.names,
+        response.name = response.name,
+        predictors.names = predictors.names,
         distance.matrix = distance.matrix,
         distance.thresholds = distance.thresholds,
         xy = xy,

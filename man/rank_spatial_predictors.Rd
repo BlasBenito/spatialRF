@@ -6,8 +6,8 @@
 \usage{
 rank_spatial_predictors(
   data = NULL,
-  dependent.variable.name = NULL,
-  predictor.variable.names = NULL,
+  response.name = NULL,
+  predictors.names = NULL,
   distance.matrix = NULL,
   distance.thresholds = NULL,
   ranger.arguments = NULL,
@@ -22,9 +22,9 @@ rank_spatial_predictors(
 \arguments{
 \item{data}{Data frame with a response variable and a set of predictors. Default: \code{NULL}}
 
-\item{dependent.variable.name}{Character string with the name of the response variable. Must be in the column names of \code{data}. Default: \code{NULL}}
+\item{response.name}{Character string with the name of the response variable. Must be in the column names of \code{data}. Default: \code{NULL}}
 
-\item{predictor.variable.names}{Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. Default: \code{NULL}}
+\item{predictors.names}{Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. Default: \code{NULL}}
 
 \item{distance.matrix}{Squared matrix with the distances among the records in \code{data}. The number of rows of \code{distance.matrix} and \code{data} must be the same. If not provided, the computation of the Moran's I of the residuals is omitted. Default: \code{NULL}}
 

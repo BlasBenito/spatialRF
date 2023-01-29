@@ -98,18 +98,18 @@ rf_select <- function(
 
   #getting data and ranger arguments from the model
   data <- model$ranger_arguments$data
-  dependent.variable.name <- model$ranger_arguments$dependent.variable.name
-  predictor.variable.names <- model$ranger_arguments$predictor.variable.names
+  response.name <- model$ranger_arguments$response.name
+  predictors.names <- model$ranger_arguments$predictors.names
   distance.matrix <- model$ranger_arguments$distance.matrix
   distance.thresholds <- model$ranger_arguments$distance.thresholds
   ranger.arguments <- model$ranger_arguments
   ranger.arguments$data <- NULL
-  ranger.arguments$dependent.variable.name <- NULL
-  ranger.arguments$predictor.variable.names <- NULL
+  ranger.arguments$response.name <- NULL
+  ranger.arguments$predictors.names <- NULL
 
   #if data is binary, "auc" is added
   if(is_binary_response(
-    x = data[[dependent.variable.name]]
+    x = data[[response.name]]
   )){
     metrics <- c(metrics, "auc")
   } else {
@@ -231,7 +231,7 @@ rf_select <- function(
   #filtering by bivariate correlation
   selected.variables <- mc_auto(
     data = data,
-    predictor.variable.names = predictor.variable.names,
+    predictors.names = predictors.names,
     preference.order = preference.order,
     max.cor = max.cor,
     max.vif = max.vif,
@@ -295,13 +295,13 @@ rf_select <- function(
       variable.i <- selected.variables[1]
       model.i <- spatialRF::rf(
         data = data.frame(
-          y = data[[dependent.variable.name]],
+          y = data[[response.name]],
           x1 = data[[variable.i]],
           x2 = data[[variable.i]],
           x3 = data[[variable.i]]
         ),
-        dependent.variable.name = "y",
-        predictor.variable.names = c("x1", "x2", "x3"),
+        response.name = "y",
+        predictors.names = c("x1", "x2", "x3"),
         ranger.arguments = in.loop.ranger.arguments,
         seed = seed,
         n.cores = in.loop.n.cores,
@@ -313,8 +313,8 @@ rf_select <- function(
       #multivariate model otherwise
       model.i <- spatialRF::rf(
         data = data,
-        dependent.variable.name = dependent.variable.name,
-        predictor.variable.names = selected.variables[1:i],
+        response.name = response.name,
+        predictors.names = selected.variables[1:i],
         ranger.arguments = in.loop.ranger.arguments,
         seed = seed,
         n.cores = in.loop.n.cores,
@@ -510,8 +510,8 @@ rf_select <- function(
 
   m <- spatialRF::rf(
     data = data,
-    dependent.variable.name = dependent.variable.name,
-    predictor.variable.names = selected.variables,
+    response.name = response.name,
+    predictors.names = selected.variables,
     ranger.arguments = ranger.arguments,
     xy = xy,
     distance.matrix = distance.matrix,
@@ -588,13 +588,13 @@ rf_select <- function(
     df = sequential.models.df,
     cor = mc_cor(
       data = data,
-      dependent.variable.name = dependent.variable.name,
-      predictor.variable.names = selected.variables
+      response.name = response.name,
+      predictors.names = selected.variables
       ),
     vif = mc_vif(
       data = data,
-      dependent.variable.name = dependent.variable.name,
-      predictor.variable.names = selected.variables
+      response.name = response.name,
+      predictors.names = selected.variables
     )
   )
 

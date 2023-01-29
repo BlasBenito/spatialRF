@@ -130,8 +130,8 @@ This function has been designed to be used internally by rf_spatial() rather tha
 
     <pre class="usage"><span class='fu'>rank_spatial_predictors</span>(
   <span class='kw'>data</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>dependent.variable.name</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>predictor.variable.names</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>response.name</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>predictors.names</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>distance.matrix</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>distance.thresholds</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>ranger.arguments</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
@@ -151,11 +151,11 @@ This function has been designed to be used internally by rf_spatial() rather tha
       <td><p>Data frame with a response variable and a set of predictors. Default: <code>NULL</code></p></td>
     </tr>
     <tr>
-      <th>dependent.variable.name</th>
+      <th>response.name</th>
       <td><p>Character string with the name of the response variable. Must be in the column names of <code>data</code>. Default: <code>NULL</code></p></td>
     </tr>
     <tr>
-      <th>predictor.variable.names</th>
+      <th>predictors.names</th>
       <td><p>Character vector with the names of the predictive variables. Every element of this vector must be in the column names of <code>data</code>. Default: <code>NULL</code></p></td>
     </tr>
     <tr>

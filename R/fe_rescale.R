@@ -3,8 +3,8 @@
 #' @description Re-scales all indicated variables to a new range.
 #'
 #' @param data (required, data frame, tibble, or sf data frame) Data frame with a response variable and a set of predictors. Default: `NULL`
-#' @param dependent.variable.name (optional; character string) Character string with the name of the response variable. Must be in the column names of `data`. Default: `NULL`
-#' @param predictor.variable.names (optional; character vector with column names of `data`) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Default: `NULL`
+#' @param response.name (optional; character string) Character string with the name of the response variable. Must be in the column names of `data`. Default: `NULL`
+#' @param predictors.names (optional; character vector with column names of `data`) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Default: `NULL`
 #' @param new.min New minimum value. Default: `0`
 #' @param new.max New maximum value. Default: `1`
 #' @param verbose (optional, logical) If `TRUE`, the function prints message indicating what columns have been scaled. Default: `TRUE`
@@ -23,8 +23,8 @@
 #'
 #' data.rescaled <- fe_rescale(
 #'   data = ecoregions_df,
-#'   dependent.variable.name = ecoregions_continuous_response,
-#'   predictor.variable.names = ecoregions_all_predictors,
+#'   response.name = ecoregions_continuous_response,
+#'   predictors.names = ecoregions_all_predictors,
 #'   new.min = 0,
 #'   new.max = 100
 #'   )
@@ -33,8 +33,8 @@
 #'
 fe_rescale <- function(
     data = NULL,
-    dependent.variable.name = NULL,
-    predictor.variable.names = NULL,
+    response.name = NULL,
+    predictors.names = NULL,
     new.min = 0,
     new.max = 1,
     verbose = TRUE
@@ -56,7 +56,7 @@ fe_rescale <- function(
   }
 
   #columns to scale
-  cols <- c(dependent.variable.name, predictor.variable.names)
+  cols <- c(response.name, predictors.names)
   if(is.null(cols)){
     cols <- colnames(data)
   } else {

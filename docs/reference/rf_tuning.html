@@ -147,7 +147,7 @@
     </tr>
     <tr>
       <th>mtry</th>
-      <td><p>Numeric integer vector, number of predictors to randomly select from the complete pool of predictors on each tree split. Default: <code><a href='https://rdrr.io/r/base/Round.html'>floor(seq(1, length(predictor.variable.names), length.out = 4))</a></code></p></td>
+      <td><p>Numeric integer vector, number of predictors to randomly select from the complete pool of predictors on each tree split. Default: <code><a href='https://rdrr.io/r/base/Round.html'>floor(seq(1, length(predictors.names), length.out = 4))</a></code></p></td>
     </tr>
     <tr>
       <th>min.node.size</th>
@@ -200,8 +200,8 @@
 <span class='co'>#fitting model to tune</span>
 <span class='no'>out</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='rf.html'>rf</a></span>(
   <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>plant_richness_df</span>,
-  <span class='kw'>dependent.variable.name</span> <span class='kw'>=</span> <span class='st'>"richness_species_vascular"</span>,
-  <span class='kw'>predictor.variable.names</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span>(<span class='no'>plant_richness_df</span>)[<span class='fl'>5</span>:<span class='fl'>21</span>],
+  <span class='kw'>response.name</span> <span class='kw'>=</span> <span class='st'>"richness_species_vascular"</span>,
+  <span class='kw'>predictors.names</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span>(<span class='no'>plant_richness_df</span>)[<span class='fl'>5</span>:<span class='fl'>21</span>],
   <span class='kw'>distance.matrix</span> <span class='kw'>=</span> <span class='no'>distance_matrix</span>,
   <span class='kw'>distance.thresholds</span> <span class='kw'>=</span> <span class='fl'>0</span>,
   <span class='kw'>n.cores</span> <span class='kw'>=</span> <span class='fl'>1</span>

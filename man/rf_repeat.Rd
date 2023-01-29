@@ -7,8 +7,8 @@
 rf_repeat(
   model = NULL,
   data = NULL,
-  dependent.variable.name = NULL,
-  predictor.variable.names = NULL,
+  response.name = NULL,
+  predictors.names = NULL,
   distance.matrix = NULL,
   distance.thresholds = NULL,
   xy = NULL,
@@ -27,9 +27,9 @@ rf_repeat(
 
 \item{data}{(required if \code{model} is \code{NULL}; data frame or tibble) Data frame with a response variable and a set of predictors. If \code{data} is a tibble, all data frames in the output model are coerced to tibble. Default: \code{NULL}}
 
-\item{dependent.variable.name}{(required if \code{model} is \code{NULL}; character string) Character string with the name of the response variable. Must be in the column names of \code{data}. If the dependent variable is binary with values 1 and 0, the argument \code{case.weights} of \code{ranger} is populated by the function \code{\link[=case_weights]{case_weights()}}. Default: \code{NULL}}
+\item{response.name}{(required if \code{model} is \code{NULL}; character string) Character string with the name of the response variable. Must be in the column names of \code{data}. If the dependent variable is binary with values 1 and 0, the argument \code{case.weights} of \code{ranger} is populated by the function \code{\link[=case_weights]{case_weights()}}. Default: \code{NULL}}
 
-\item{predictor.variable.names}{(required if \code{model} is \code{NULL}; character vector with column names of \code{data}) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. Default: \code{NULL}}
+\item{predictors.names}{(required if \code{model} is \code{NULL}; character vector with column names of \code{data}) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. Default: \code{NULL}}
 
 \item{distance.matrix}{(optional; distance matrix) Squared matrix with the distances among the records in \code{data}. The number of rows of \code{distance.matrix} and \code{data} must be the same. If not provided, the computation of the Moran's I of the residuals is omitted. Default: \code{NULL}}
 
@@ -96,8 +96,8 @@ data(
  #fitting 10 random forest models
  out <- rf_repeat(
    data = ecoregions_df,
-   dependent.variable.name = ecoregions_continuous_response,
-   predictor.variable.names = ecoregions_numeric_predictors,
+   response.name = ecoregions_continuous_response,
+   predictors.names = ecoregions_numeric_predictors,
    distance.matrix = ecoregions_distance_matrix,
    distance.thresholds = 0,
    repetitions = 10,
@@ -129,8 +129,8 @@ data(
  #using a model as an input for rf_repeat()
  rf.model <- rf(
    data = ecoregions_df,
-   dependent.variable.name = ecoregions_continuous_response,
-   predictor.variable.names = ecoregions_numeric_predictors,
+   response.name = ecoregions_continuous_response,
+   predictors.names = ecoregions_numeric_predictors,
    distance.matrix = ecoregions_distance_matrix,
    distance.thresholds = 0,
    n.cores = 1

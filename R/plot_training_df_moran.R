@@ -1,8 +1,8 @@
 #' @title Moran's I plots of a training data frame
 #' @description Plots the the Moran's I test of the response and the predictors in a training data frame.
 #' @param data Data frame with a response variable and a set of predictors. Default: `NULL`
-#' @param dependent.variable.name Character string with the name of the response variable. Must be in the column names of `data`. If the dependent variable is binary with values 1 and 0, the argument `case.weights` of `ranger` is populated by the function [case_weights()]. Default: `NULL`
-#' @param predictor.variable.names Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Optionally, the result of [mc_auto_cor()] or [mc_auto_vif()] Default: `NULL`
+#' @param response.name Character string with the name of the response variable. Must be in the column names of `data`. If the dependent variable is binary with values 1 and 0, the argument `case.weights` of `ranger` is populated by the function [case_weights()]. Default: `NULL`
+#' @param predictors.names Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Optionally, the result of [mc_auto_cor()] or [mc_auto_vif()] Default: `NULL`
 #' @param distance.matrix Squared matrix with the distances among the records in `data`. The number of rows of `distance.matrix` and `data` must be the same. If not provided, the computation of the Moran's I of the residuals is omitted. Default: `NULL`
 #' @param distance.thresholds Numeric vector, distances below each value are set to 0 on separated copies of the distance matrix for the computation of Moran's I at different neighborhood distances. If `NULL`, it defaults to `seq(0, max(distance.matrix)/4, length.out = 2)`. Default: `NULL`
 #' @param fill.color Character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. `viridis::viridis(100)`). Default: `viridis::viridis(100, option = "F", direction = -1)`
@@ -22,8 +22,8 @@
 #'    #plot Moran's I of training data
 #'    plot_moran_training_data(
 #'      data = ecoregions_df,
-#'      dependent.variable.name = ecoregions_continuous_response,
-#'      predictor.variable.names = ecoregions_numeric_predictors,
+#'      response.name = ecoregions_continuous_response,
+#'      predictors.names = ecoregions_numeric_predictors,
 #'      distance.matrix = ecoregions_distance_matrix,
 #'      distance.thresholds = c(
 #'        0,
@@ -38,8 +38,8 @@
 #' @export
 plot_training_df_moran <- function(
   data = NULL,
-  dependent.variable.name = NULL,
-  predictor.variable.names = NULL,
+  response.name = NULL,
+  predictors.names = NULL,
   distance.matrix = NULL,
   distance.thresholds = NULL,
   fill.color = viridis::viridis(
@@ -58,16 +58,16 @@ plot_training_df_moran <- function(
 
   if(
     is.null(data) |
-    is.null(dependent.variable.name) |
-    is.null(predictor.variable.names)
+    is.null(response.name) |
+    is.null(predictors.names)
   ){
     stop("No variables to plot.")
   }
 
-  #predictor.variable.names comes from mc_auto_vif or mc_auto_cor
-  if(!is.null(predictor.variable.names)){
-    if(inherits(predictor.variable.names, "variable_selection")){
-      predictor.variable.names <- predictor.variable.names$selected.variables
+  #predictors.names comes from mc_auto_vif or mc_auto_cor
+  if(!is.null(predictors.names)){
+    if(inherits(predictors.names, "variable_selection")){
+      predictors.names <- predictors.names$selected.variables
     }
   }
 
@@ -85,8 +85,8 @@ plot_training_df_moran <- function(
   df.list <- list()
 
   for(variable in c(
-    dependent.variable.name,
-    predictor.variable.names
+    response.name,
+    predictors.names
   )
   ){
 
@@ -121,8 +121,8 @@ plot_training_df_moran <- function(
   plot.df$variable <- factor(
     plot.df$variable,
     levels = c(
-      rev(predictor.variable.names),
-      dependent.variable.name
+      rev(predictors.names),
+      response.name
       )
   )
 

@@ -4,18 +4,14 @@
 \alias{mc_vif}
 \title{Variance Inflation Factor}
 \usage{
-mc_vif(
-  data = NULL,
-  predictor.variable.names = NULL,
-  dependent.variable.name = NULL
-)
+mc_vif(data = NULL, predictors.names = NULL, response.name = NULL)
 }
 \arguments{
 \item{data}{(required; data frame or tibble) A data frame with predictors. Default: \code{NULL}.}
 
-\item{predictor.variable.names}{(optional; character vector) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. If \code{NULL}, all the columns in data except \code{dependent.variable.name} are used. Default: \code{NULL}}
+\item{predictors.names}{(optional; character vector) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. If \code{NULL}, all the columns in data except \code{response.name} are used. Default: \code{NULL}}
 
-\item{dependent.variable.name}{(optional; character string) Name of the dependent variable. Only required when there are categorical variables within \code{predictor.variable.names}. If not provided, non-numeric columns are ignored. Default: \code{NULL}}
+\item{response.name}{(optional; character string) Name of the dependent variable. Only required when there are categorical variables within \code{predictors.names}. If not provided, non-numeric columns are ignored. Default: \code{NULL}}
 }
 \value{
 Data frame with the columns "variable" containing the predictor name, and "vif" containing the variance inflation factor of the given variable.
@@ -27,7 +23,7 @@ The Variance Inflation Factor for a given variable \code{y} is computed as \code
 
 The possible range of VIF values is (1, Inf]. A VIF lower than 10 suggest that removing \code{y} from the data set would reduce overall multicollinearity.
 
-If there are categorical variables named in \code{predictor.variable.names} and \code{dependent.variable.name} is provided, then the function applies \code{\link[=fe_target_encoding]{fe_target_encoding()}} with the method "mean" to transform the categorical variables into numeric. If a categorical variable is selected, then its original categorical values are returned.
+If there are categorical variables named in \code{predictors.names} and \code{response.name} is provided, then the function applies \code{\link[=fe_target_encoding]{fe_target_encoding()}} with the method "mean" to transform the categorical variables into numeric. If a categorical variable is selected, then its original categorical values are returned.
 
 Please note that near-zero variance columns are ignored by this function. Use \code{\link[=mc_auto_vif]{mc_auto_vif()}} to remove them.
 }
@@ -42,8 +38,8 @@ data(
 
 df <- mc_vif(
       data = ecoregions_df,
-      predictor.variable.names = ecoregions_all_predictors,
-      dependent.variable.name = ecoregions_continuous_response
+      predictors.names = ecoregions_all_predictors,
+      response.name = ecoregions_continuous_response
 )
 
 }

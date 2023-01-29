@@ -25,8 +25,8 @@
 #'  #fitting random forest model
 #'  rf.model <- rf(
 #'    data = ecoregions_df,
-#'    dependent.variable.name = ecoregions_continuous_response,
-#'    predictor.variable.names = ecoregions_numeric_predictors,
+#'    response.name = ecoregions_continuous_response,
+#'    predictors.names = ecoregions_numeric_predictors,
 #'    distance.thresholds = 0,
 #'    n.cores = 1,
 #'    verbose = FALSE
@@ -86,10 +86,10 @@ plot_response_curves <- function(
   data <- model$ranger_arguments$data
 
   #getting the response variable
-  response.variable <- model$ranger_arguments$dependent.variable.name
+  response.variable <- model$ranger_arguments$response.name
 
   #getting the predictors
-  predictors <- model$ranger_arguments$predictor.variable.names
+  predictors <- model$ranger_arguments$predictors.names
 
   #removing spatial predictors
   if(inherits(model, "rf_spatial")){
@@ -118,7 +118,7 @@ plot_response_curves <- function(
   for(variable.i in variables){
 
     #names of the other variables
-    other.variables <- setdiff(model$ranger_arguments$predictor.variable.names, variable.i)
+    other.variables <- setdiff(model$ranger_arguments$predictors.names, variable.i)
 
     #generating grid
     variable.i.grid <- data.frame(

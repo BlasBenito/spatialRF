@@ -18,8 +18,8 @@
 #'  #fitting random forest model
 #'  rf.model <- rf(
 #'    data = ecoregions_df,
-#'    dependent.variable.name = ecoregions_continuous_response,
-#'    predictor.variable.names = ecoregions_numeric_predictors,
+#'    response.name = ecoregions_continuous_response,
+#'    predictors.names = ecoregions_numeric_predictors,
 #'    distance.matrix = ecoregions_distance_matrix,
 #'    distance.thresholds = 0,
 #'    n.cores = 1
@@ -43,7 +43,7 @@ print.rf <- function(x, ...) {
     if(inherits(x, "rf_spatial")){
     cat("  - rf_spatial() method:             ", x$spatial$method, "\n", sep="")
     }
-    cat("  - Response variable:               ", x$ranger_arguments$dependent.variable.name, "\n", sep="")
+    cat("  - Response variable:               ", x$ranger_arguments$response.name, "\n", sep="")
 
     cat("\n")
     cat("Random forest parameters\n")

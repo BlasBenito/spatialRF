@@ -28,8 +28,8 @@
 #' #fitting random forest model
 #' rf.model <- rf(
 #'   data = ecoregions_df,
-#'   dependent.variable.name = ecoregions_continuous_response,
-#'   predictor.variable.names = ecoregions_numeric_predictors,
+#'   response.name = ecoregions_continuous_response,
+#'   predictors.names = ecoregions_numeric_predictors,
 #'   distance.matrix = ecoregions_distance_matrix,
 #'   distance.thresholds = 0,
 #'   xy = ecoregions_df[, c("x", "y")],
@@ -107,12 +107,12 @@ rf_jackknife <- function(
 
   #getting data and ranger arguments from the model
   data <- model$ranger_arguments$data
-  dependent.variable.name <- model$ranger_arguments$dependent.variable.name
-  predictor.variable.names <- model$ranger_arguments$predictor.variable.names
+  response.name <- model$ranger_arguments$response.name
+  predictors.names <- model$ranger_arguments$predictors.names
   ranger.arguments <- model$ranger_arguments
   ranger.arguments$data <- NULL
-  ranger.arguments$dependent.variable.name <- NULL
-  ranger.arguments$predictor.variable.names <- NULL
+  ranger.arguments$response.name <- NULL
+  ranger.arguments$predictors.names <- NULL
   ranger.arguments$importance <- "none"
   ranger.arguments$local.importance <- FALSE
   ranger.arguments$data <- NULL
@@ -138,7 +138,7 @@ rf_jackknife <- function(
 
   #if data is binary, "auc" is added
   if(is_binary_response(
-    x = data[[dependent.variable.name]]
+    x = data[[response.name]]
   )){
     metrics <- c(metrics, "auc")
   } else {
@@ -175,13 +175,13 @@ rf_jackknife <- function(
   }
 
   #iterating over predictors
-  for(predictor.i in predictor.variable.names){
+  for(predictor.i in predictors.names){
 
     #model with only the variable
 
     #generating training data
     training.df.without.i <- data.frame(
-      y = data[[dependent.variable.name ]],
+      y = data[[response.name ]],
       x1 = data[[predictor.i]],
       x2 = data[[predictor.i]],
       x3 = data[[predictor.i]]
@@ -190,8 +190,8 @@ rf_jackknife <- function(
     #evaluating the model with only the variable
     model.only.with <- rf(
       data = training.df.without.i,
-      dependent.variable.name = "y",
-      predictor.variable.names = c("x1", "x2", "x3"),
+      response.name = "y",
+      predictors.names = c("x1", "x2", "x3"),
       xy = xy,
       ranger.arguments = ranger.arguments,
       seed = seed,
@@ -215,13 +215,13 @@ rf_jackknife <- function(
     #model without the variable
 
     #removing predictor.i
-    predictor.variable.names.i <- predictor.variable.names[predictor.variable.names != predictor.i]
+    predictors.names.i <- predictors.names[predictors.names != predictor.i]
 
     #fitting model without predictor.i
     model.without <- rf(
       data = data,
-      dependent.variable.name = dependent.variable.name,
-      predictor.variable.names = predictor.variable.names.i,
+      response.name = response.name,
+      predictors.names = predictors.names.i,
       xy = xy,
       ranger.arguments = ranger.arguments,
       seed = seed,

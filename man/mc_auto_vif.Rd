@@ -6,8 +6,8 @@
 \usage{
 mc_auto_vif(
   data = NULL,
-  predictor.variable.names = NULL,
-  dependent.variable.name = NULL,
+  predictors.names = NULL,
+  response.name = NULL,
   preference.order = NULL,
   max.vif = 5,
   verbose = TRUE
@@ -16,9 +16,9 @@ mc_auto_vif(
 \arguments{
 \item{data}{(required; data.frame or tibble) A data frame, tibble, or sf. Default: \code{NULL}.}
 
-\item{predictor.variable.names}{(optional; character vector) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. If \code{NULL}, all the columns in data except \code{dependent.variable.name} are used. Default: \code{NULL}}
+\item{predictors.names}{(optional; character vector) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. If \code{NULL}, all the columns in data except \code{response.name} are used. Default: \code{NULL}}
 
-\item{dependent.variable.name}{(optional; character string) Name of the dependent variable. Required when there are categorical variables within \code{predictor.variable.names}. Default: \code{NULL}}
+\item{response.name}{(optional; character string) Name of the dependent variable. Required when there are categorical variables within \code{predictors.names}. Default: \code{NULL}}
 
 \item{preference.order}{(optional, character vector) Character vector indicating the preference order to protect variables from elimination.  Predictors not included in this argument are ranked by their VIFs. Default: \code{NULL}.}
 
@@ -42,7 +42,7 @@ The function \code{mc_auto_vif()} applies a recursive algorithm to remove variab
 
 The function allows the user to define a preference selection order via the argument \code{preference.order}. This argument helps "protect" variables that might be interesting or even required for the given analysis. Please, see the examples to understand better how this feature works.
 
-If there are categorical variables named in \code{predictor.variable.names} and \code{dependent.variable.name} is provided, then the function applies \code{\link[=fe_target_encoding]{fe_target_encoding()}} with the method "mean" to transform the categorical variables into numeric before the VIF analysis
+If there are categorical variables named in \code{predictors.names} and \code{response.name} is provided, then the function applies \code{\link[=fe_target_encoding]{fe_target_encoding()}} with the method "mean" to transform the categorical variables into numeric before the VIF analysis
 }
 \examples{
 if(interactive()){
@@ -62,7 +62,7 @@ data(
 #-------------------------------
 selected.predictors <- mc_auto_vif(
   data = ecoregions_df,
-  predictor.variable.names = ecoregions_numeric_predictors,
+  predictors.names = ecoregions_numeric_predictors,
   max.vif = 2
 )
 
@@ -78,7 +78,7 @@ length(selected.predictors)
 #-------------------------------
 selected.predictors <- mc_auto_vif(
   data = ecoregions_df,
-  predictor.variable.names = ecoregions_numeric_predictors,
+  predictors.names = ecoregions_numeric_predictors,
   max.vif = 10
 )
 
@@ -94,7 +94,7 @@ length(selected.predictors)
 #because it's highly correlated to "climate_bio1_average"
 selected.predictors <- mc_auto_vif(
   data = ecoregions_df,
-  predictor.variable.names = ecoregions_numeric_predictors,
+  predictors.names = ecoregions_numeric_predictors,
   preference.order = c(
     "fragmentation_ca",
     "climate_bio1_average",
@@ -128,7 +128,7 @@ preference.order <- names(
 #using it in mc_auto_vif as preference.order
 selected.predictors <- mc_auto_vif(
   data = ecoregions_df,
-  predictor.variable.names = ecoregions_numeric_predictors,
+  predictors.names = ecoregions_numeric_predictors,
   preference.order = preference.order
 )
 
@@ -137,14 +137,14 @@ selected.predictors <- mc_auto_vif(
 #-----------------------------------------------
 mc_auto_cor.result <- mc_auto_cor(
   data = ecoregions_df,
-  predictor.variable.names = ecoregions_numeric_predictors,
+  predictors.names = ecoregions_numeric_predictors,
   preference.order = preference.order,
   max.cor = 0.75
 )
 
 selected.predictors <- mc_auto_vif(
   data = ecoregions_df,
-  predictor.variable.names = mc_auto_cor.result,
+  predictors.names = mc_auto_cor.result,
   preference.order = preference.order
 )
 
@@ -163,8 +163,8 @@ ecoregions_all_predictors[45:46]
 #requires the name of the response to compute the target-encoding
 selected.predictors <- mc_auto_vif(
   data = ecoregions_df,
-  dependent.variable.name = ecoregions_continuous_response,
-  predictor.variable.names = ecoregions_all_predictors
+  response.name = ecoregions_continuous_response,
+  predictors.names = ecoregions_all_predictors
 )
 
 #both categorical predictors have been selected
@@ -178,8 +178,8 @@ ecoregions_all_predictors[45:46] \%in\% selected.predictors
 #with the desired method before the vif
 data.encoded <- fe_target_encoding(
   data = ecoregions_df,
-  dependent.variable.name = ecoregions_continuous_response,
-  predictor.variable.names = ecoregions_all_predictors,
+  response.name = ecoregions_continuous_response,
+  predictors.names = ecoregions_all_predictors,
   methods = "mean",
   replace = TRUE
 )
@@ -187,7 +187,7 @@ data.encoded <- fe_target_encoding(
 #now the function does not require the response's name
 selected.predictors <- mc_auto_vif(
   data = data.encoded,
-  predictor.variable.names = ecoregions_all_predictors
+  predictors.names = ecoregions_all_predictors
 )
 
 #both categorical predictors have been selected again

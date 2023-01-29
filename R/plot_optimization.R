@@ -32,8 +32,8 @@
 #'  #spatial model
 #'  rf.model <- rf_spatial(
 #'    data = ecoregions_df,
-#'    dependent.variable.name = ecoregions_continuous_response,
-#'    predictor.variable.names = ecoregions_numeric_predictors,
+#'    response.name = ecoregions_continuous_response,
+#'    predictors.names = ecoregions_numeric_predictors,
 #'    distance.matrix = ecoregions_distance_matrix,
 #'    distance.thresholds = 0,
 #'    method = "mem.moran.sequential",
@@ -73,7 +73,7 @@ plot_optimization <- function(
 
   #check if response is binary
   binary.response <- is_binary_response(
-      x$ranger_arguments$data[x$ranger_arguments$dependent.variable.name][[1]]
+      x$ranger_arguments$data[x$ranger_arguments$response.name][[1]]
   )
 
   x.lab.title <- ifelse(

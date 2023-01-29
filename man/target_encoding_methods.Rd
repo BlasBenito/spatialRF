@@ -9,7 +9,7 @@
 \usage{
 fe_target_encoding_mean(
   data,
-  dependent.variable.name,
+  response.name,
   categorical.variable.name,
   noise = 0,
   seed = 1,
@@ -19,7 +19,7 @@ fe_target_encoding_mean(
 
 fe_target_encoding_rnorm(
   data,
-  dependent.variable.name,
+  response.name,
   categorical.variable.name,
   sd.width = 0.1,
   seed = 1,
@@ -29,7 +29,7 @@ fe_target_encoding_rnorm(
 
 fe_target_encoding_rank(
   data,
-  dependent.variable.name,
+  response.name,
   categorical.variable.name,
   noise = 0,
   seed = 1,
@@ -39,7 +39,7 @@ fe_target_encoding_rank(
 
 fe_target_encoding_loo(
   data,
-  dependent.variable.name,
+  response.name,
   categorical.variable.name,
   replace = FALSE,
   verbose = TRUE
@@ -48,7 +48,7 @@ fe_target_encoding_loo(
 \arguments{
 \item{data}{(required; data frame, tibble, or sf) A training data frame. Default: \code{NULL}}
 
-\item{dependent.variable.name}{(required; character string) Name of the response. Must be a column name of \code{data}. Default: \code{NULL}}
+\item{response.name}{(required; character string) Name of the response. Must be a column name of \code{data}. Default: \code{NULL}}
 
 \item{categorical.variable.name}{(required; character) Name of the categorical variable to encode.}
 
@@ -94,7 +94,7 @@ unique(ecoregions_df$primary_productivity)
 #transforming primary_productivity
 ecoregions_df <- fe_target_encoding_mean(
   data = ecoregions_df,
-  dependent.variable.name = ecoregions_continuous_response,
+  response.name = ecoregions_continuous_response,
   categorical.variable.name = "primary_productivity"
 )
 
@@ -116,7 +116,7 @@ ggplot2::ggplot(data = ecoregions_df) +
 #transforming primary_productivity
 ecoregions_df <- fe_target_encoding_rank(
   data = ecoregions_df,
-  dependent.variable.name = ecoregions_continuous_response,
+  response.name = ecoregions_continuous_response,
   categorical.variable.name = "primary_productivity"
 )
 
@@ -137,7 +137,7 @@ ggplot2::ggplot(data = ecoregions_df) +
 #transforming primary_productivity
 ecoregions_df <- fe_target_encoding_loo(
   data = ecoregions_df,
-  dependent.variable.name = ecoregions_continuous_response,
+  response.name = ecoregions_continuous_response,
   categorical.variable.name = "primary_productivity"
 )
 
@@ -159,7 +159,7 @@ ggplot2::ggplot(data = ecoregions_df) +
 #transforming primary_productivity
 ecoregions_df <- fe_target_encoding_rnorm(
   data = ecoregions_df,
-  dependent.variable.name = ecoregions_continuous_response,
+  response.name = ecoregions_continuous_response,
   categorical.variable.name = "primary_productivity"
 )
 

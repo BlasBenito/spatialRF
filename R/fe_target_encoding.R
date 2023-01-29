@@ -18,8 +18,8 @@
 #' The method "rnorm" has the argument `sd.width`, which multiplies the standard deviation argument of the `rnorm()` function to limit the spread of the encoded values between groups.
 #'
 #' @param data (required; data frame, tibble, or sf) A training data frame. Default: `NULL`
-#' @param dependent.variable.name (required; character string) Name of the response. Must be a column name of `data`. Default: `NULL`
-#' @param predictor.variable.names (required; character vector) Names of all the predictors in `data`. Only character and factor predictors are processed, but all are returned in the "data" slot of the function's output.  Default: `NULL`
+#' @param response.name (required; character string) Name of the response. Must be a column name of `data`. Default: `NULL`
+#' @param predictors.names (required; character vector) Names of all the predictors in `data`. Only character and factor predictors are processed, but all are returned in the "data" slot of the function's output.  Default: `NULL`
 #' @param methods (optional; character string). Name of the target encoding methods. Default: `c("mean", "rank", "loo", "rnorm")`
 #' @param seed (optional; integer) Random seed to facilitate reproducibility. Default: `1`
 #' @param noise (optional; numeric vector) Only in methods "mean" and "rank". Numeric vector with noise values in the range 0-1. Default: `0`.
@@ -63,8 +63,8 @@
 #' #applying all methods for a continuous response
 #' output <- fe_target_encoding(
 #'   data = ecoregions_df,
-#'   dependent.variable.name = ecoregions_continuous_response,
-#'   predictor.variable.names = ecoregions_all_predictors,
+#'   response.name = ecoregions_continuous_response,
+#'   predictors.names = ecoregions_all_predictors,
 #'   methods = c(
 #'     "mean",
 #'     "rank",
@@ -123,8 +123,8 @@
 #' @rdname fe_target_encoding
 fe_target_encoding <- function(
     data = NULL,
-    dependent.variable.name = NULL,
-    predictor.variable.names = NULL,
+    response.name = NULL,
+    predictors.names = NULL,
     methods = c(
       "mean",
       "rank",
@@ -164,30 +164,30 @@ fe_target_encoding <- function(
     stop("Argument 'data' must be provided.")
   }
 
-  if(is.null(dependent.variable.name)){
-    stop("Argument 'dependent.variable.name' must be provided.")
+  if(is.null(response.name)){
+    stop("Argument 'response.name' must be provided.")
   }
 
-  if(!(dependent.variable.name %in% colnames(data))){
-    stop("Argument 'dependent.variable.name' must be a column of 'data'")
+  if(!(response.name %in% colnames(data))){
+    stop("Argument 'response.name' must be a column of 'data'")
   }
 
-  if(is.numeric(data[[dependent.variable.name]]
+  if(is.numeric(data[[response.name]]
   ) == FALSE){
-    stop("The column ", dependent.variable.name, " must be numeric.")
+    stop("The column ", response.name, " must be numeric.")
   }
 
-  if(is.null(predictor.variable.names)){
-    stop("Argument 'predictor.variable.names' must be provided.")
+  if(is.null(predictors.names)){
+    stop("Argument 'predictors.names' must be provided.")
   }
 
-  if(sum(predictor.variable.names %in% colnames(data)) < length(predictor.variable.names)){
+  if(sum(predictors.names %in% colnames(data)) < length(predictors.names)){
 
     stop(
       paste0(
-        "The predictor.variable.names ",
+        "The predictors.names ",
         paste0(
-          predictor.variable.names[!(predictor.variable.names %in% colnames(data))],
+          predictors.names[!(predictors.names %in% colnames(data))],
           collapse = ", "
         ),
         " are missing from 'data'"
@@ -214,14 +214,14 @@ fe_target_encoding <- function(
     lapply(
       X = dplyr::select(
         data,
-        dplyr::all_of(predictor.variable.names)
+        dplyr::all_of(predictors.names)
         ),
       FUN = is.numeric
     )
   )
 
   if(
-    sum(data.numeric) == length(predictor.variable.names)
+    sum(data.numeric) == length(predictors.names)
   ){
 
     if(verbose == TRUE){
@@ -245,9 +245,9 @@ fe_target_encoding <- function(
   )
 
   #find names of character variables
-  categorical.predictors <- predictor.variable.names[unlist(
+  categorical.predictors <- predictors.names[unlist(
     lapply(
-      X = data[, predictor.variable.names, drop = FALSE],
+      X = data[, predictors.names, drop = FALSE],
       FUN = is.character
     )
   )]
@@ -276,7 +276,7 @@ fe_target_encoding <- function(
 
         data <- fe_target_encoding_mean(
           data = data,
-          dependent.variable.name = dependent.variable.name,
+          response.name = response.name,
           categorical.variable.name = categorical.predictor,
           noise = noise.i,
           seed = seed,
@@ -294,7 +294,7 @@ fe_target_encoding <- function(
 
         data <- fe_target_encoding_rank(
           data = data,
-          dependent.variable.name = dependent.variable.name,
+          response.name = response.name,
           categorical.variable.name = categorical.predictor,
           noise = noise.i,
           seed = seed,
@@ -313,7 +313,7 @@ fe_target_encoding <- function(
 
         data <- fe_target_encoding_rnorm(
           data = data,
-          dependent.variable.name = dependent.variable.name,
+          response.name = response.name,
           categorical.variable.name = categorical.predictor,
           sd.width = sd.width.i,
           seed = seed,
@@ -329,7 +329,7 @@ fe_target_encoding <- function(
 
       data <- fe_target_encoding_loo(
         data = data,
-        dependent.variable.name = dependent.variable.name,
+        response.name = response.name,
         categorical.variable.name = categorical.predictor,
         replace = replace,
         verbose = verbose
@@ -352,7 +352,7 @@ fe_target_encoding <- function(
       FUN = function(x){
         stats::cor.test(
           x,
-          data[[dependent.variable.name]]
+          data[[response.name]]
         )$estimate
       }
     ) %>%

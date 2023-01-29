@@ -97,8 +97,8 @@ predictors, and a distance matrix, as shown below.
 ``` r
 spatial.model <- spatialRF::rf_spatial(
   data = your_dataframe,
-  dependent.variable.name = "your_response_variable",
-  predictor.variable.names = c("predictor1", "predictor2", ..., "predictorN"),
+  response.name = "your_response_variable",
+  predictors.names = c("predictor1", "predictor2", ..., "predictorN"),
   distance.matrix = your_distance_matrix
   )
 ```
@@ -285,10 +285,10 @@ The package follows a convention throughout functions:
 
 -   The argument `data` requires a training data frame. We will use the
     data frame `ecoregions_df`.
--   The argument `dependent.variable.name` is the column name of the
+-   The argument `response.name` is the column name of the
     response variable. We will use the character string
     `ecoregions_continuous_response`.
--   The argument `predictor.variable.names` contains the column names of
+-   The argument `predictors.names` contains the column names of
     the predictors. We will use the character vector
     `ecoregions_numeric_predictors`.
 -   The argument `xy` takes a data frame or matrix with two columns
@@ -369,8 +369,8 @@ colors of their main features via specific arguments such as
 ``` r
 spatialRF::plot_training_df(
   data = ecoregions_df,
-  dependent.variable.name = ecoregions_continuous_response,
-  predictor.variable.names = ecoregions_numeric_predictors,
+  response.name = ecoregions_continuous_response,
+  predictors.names = ecoregions_numeric_predictors,
   ncol = 4,
   point.color = viridis::viridis(100, option = "F"),
   line.color = "gray30"
@@ -389,8 +389,8 @@ autocorrelation for the given variable and distance threshold.
 ``` r
 spatialRF::plot_training_df_moran(
   data = ecoregions_df,
-  dependent.variable.name = ecoregions_continuous_response,
-  predictor.variable.names = ecoregions_numeric_predictors,
+  response.name = ecoregions_continuous_response,
+  predictors.names = ecoregions_numeric_predictors,
   distance.matrix = ecoregions_distance_matrix,
   distance.thresholds = distance_thresholds,
   fill.color = viridis::viridis(
@@ -482,7 +482,7 @@ The slot `selected.variables.df` contains a data frame with all the
 selected predictors.
 
 **NOTE**: The object `multicollinearity.analysis` can be used as input
-for the argument `predictor.variable.names` in most modelling functions
+for the argument `predictors.names` in most modelling functions
 of this package.
 
 ## Method 2: Using the new function `rf_select()`
@@ -505,8 +505,8 @@ cluster <- spatialRF::make_cluster()
 #selecting variables
 variable.selection <- spatialRF::rf_select(
   data = ecoregions_df,
-  dependent.variable.name = ecoregions_continuous_response,
-  predictor.variable.names = ecoregions_numeric_predictors,
+  response.name = ecoregions_continuous_response,
+  predictors.names = ecoregions_numeric_predictors,
   repetitions = 10,
   cor.threshold = 0.50,
   vif.threshold = 5,
@@ -900,7 +900,7 @@ variable.selection$selected.variables
     ## [13] "neighbors_percent_shared_edge"
 
 The output of `rf_select()` can be used as input for the argument
-`predictor.variable.names` in the modelling functions of the package.
+`predictors.names` in the modelling functions of the package.
 
 Please notice that this function is not designed to improve model
 performance, but to define an order of preference to reduce
@@ -927,8 +927,8 @@ cross-validation (see `rf_evaluate()`).
 ``` r
 interactions <- spatialRF::the_feature_engineer(
   data = ecoregions_df,
-  dependent.variable.name = ecoregions_continuous_response,
-  predictor.variable.names = variable.selection,
+  response.name = ecoregions_continuous_response,
+  predictors.names = variable.selection,
   xy = xy,
   importance.threshold = 0.50, #uses 50% best predictors
   cor.threshold = 0.60, #max corr between interactions and predictors
@@ -1282,8 +1282,8 @@ frame as training data.
 #adding interaction column to the training data
 ecoregions_df <- interactions$data
 
-#adding interaction name to predictor.variable.names
-predictor.variable.names <- interactions$predictor.variable.names
+#adding interaction name to predictors.names
+predictors.names <- interactions$predictors.names
 ```
 
 # Fitting a non-spatial Random Forest model with `rf()`
@@ -1302,16 +1302,16 @@ check the spatial autocorrelation of the residuals. Their values may
 depend on the spatial scale of the data, and the ecological system under
 study.
 
-Notice that here I plug the object `predictor.variable.names`, output of
+Notice that here I plug the object `predictors.names`, output of
 `auto_cor()` and `auto_vif()`, directly into the
-`predictor.variable.names` argument of the `rf()` function to fit a
+`predictors.names` argument of the `rf()` function to fit a
 random forest model.
 
 ``` r
 model.non.spatial <- spatialRF::rf(
   data = ecoregions_df,
-  dependent.variable.name = ecoregions_continuous_response,
-  predictor.variable.names = predictor.variable.names,
+  response.name = ecoregions_continuous_response,
+  predictors.names = predictors.names,
   distance.matrix = ecoregions_distance_matrix,
   distance.thresholds = distance_thresholds,
   xy = xy, #not needed by rf, but other functions read it from the model
@@ -2496,8 +2496,8 @@ quantiles 0.05, 0.5, and 0.95.
 ``` r
 model.quantiles <- spatialRF::rf(
   data = ecoregions_df,
-  dependent.variable.name = ecoregions_continuous_response,
-  predictor.variable.names = predictor.variable.names,
+  response.name = ecoregions_continuous_response,
+  predictors.names = predictors.names,
   ranger.arguments = list(
     quantreg = TRUE
   ),
@@ -3412,7 +3412,7 @@ model.spatial <- spatialRF::rf_tuning(
   num.trees = c(500, 1000),
   mtry = seq(
     2,
-    length(model.spatial$ranger.arguments$predictor.variable.names), #number of predictors
+    length(model.spatial$ranger.arguments$predictors.names), #number of predictors
     by = 9),
   min.node.size = c(5, 15),
   seed = random.seed,
@@ -3528,8 +3528,8 @@ of this tutorial.
 ``` r
 model.full <- rf_spatial(
   data = ecoregions_df,
-  dependent.variable.name = ecoregions_continuous_response,
-  predictor.variable.names = predictor.variable.names,
+  response.name = ecoregions_continuous_response,
+  predictors.names = predictors.names,
   distance.matrix = ecoregions_distance_matrix,
   distance.thresholds = distance_thresholds,
   xy = xy,
@@ -3563,8 +3563,8 @@ beowulf.cluster <- spatialRF::make_cluster(
 #fitting, tuning, evaluating, and repeating a model
 model.full <- rf_spatial(
   data = ecoregions_df,
-  dependent.variable.name = ecoregions_continuous_response,
-  predictor.variable.names = ecoregions_numeric_predictors,
+  response.name = ecoregions_continuous_response,
+  predictors.names = ecoregions_numeric_predictors,
   distance.matrix = ecoregions_distance_matrix,
   distance.thresholds = distance_thresholds,
   xy = xy
@@ -3704,8 +3704,8 @@ model to see what am I talking about.
 ``` r
 model.non.spatial <- spatialRF::rf(
   data = ecoregions_df,
-  dependent.variable.name = "response_binomial",
-  predictor.variable.names = predictor.variable.names,
+  response.name = "response_binomial",
+  predictors.names = predictors.names,
   distance.matrix = ecoregions_distance_matrix,
   distance.thresholds = distance_thresholds,
   seed = random.seed,
@@ -4007,7 +4007,7 @@ model follows.
 ``` r
 #model definition
 predictors <- c(
-  predictor.variable.names[1:6]
+  predictors.names[1:6]
 )
 
 model.formula <- as.formula(

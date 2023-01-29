@@ -55,8 +55,8 @@ data(
  #fitting random forest model
  rf.model <- rf(
    data = ecoregions_df,
-   dependent.variable.name = ecoregions_continuous_response,
-   predictor.variable.names = ecoregions_numeric_predictors,
+   response.name = ecoregions_continuous_response,
+   predictors.names = ecoregions_numeric_predictors,
    distance.thresholds = 0,
    n.cores = 1,
    verbose = FALSE

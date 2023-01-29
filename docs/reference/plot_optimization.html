@@ -164,14 +164,14 @@ and <code><a href='select_spatial_predictors_recursive.html'>select_spatial_pred
  <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>plant_richness_df</span>)
 
  <span class='co'>#names of the response and predictors</span>
- <span class='no'>dependent.variable.name</span> <span class='kw'>&lt;-</span> <span class='st'>"richness_species_vascular"</span>
- <span class='no'>predictor.variable.names</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span>(<span class='no'>plant_richness_df</span>)[<span class='fl'>5</span>:<span class='fl'>21</span>]
+ <span class='no'>response.name</span> <span class='kw'>&lt;-</span> <span class='st'>"richness_species_vascular"</span>
+ <span class='no'>predictors.names</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span>(<span class='no'>plant_richness_df</span>)[<span class='fl'>5</span>:<span class='fl'>21</span>]
 
  <span class='co'>#spatial model</span>
  <span class='no'>model</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='rf_spatial.html'>rf_spatial</a></span>(
    <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>plant_richness_df</span>,
-   <span class='kw'>dependent.variable.name</span> <span class='kw'>=</span> <span class='no'>dependent.variable.name</span>,
-   <span class='kw'>predictor.variable.names</span> <span class='kw'>=</span> <span class='no'>predictor.variable.names</span>,
+   <span class='kw'>response.name</span> <span class='kw'>=</span> <span class='no'>response.name</span>,
+   <span class='kw'>predictors.names</span> <span class='kw'>=</span> <span class='no'>predictors.names</span>,
    <span class='kw'>distance.matrix</span> <span class='kw'>=</span> <span class='no'>distance_matrix</span>,
    <span class='kw'>distance.thresholds</span> <span class='kw'>=</span> <span class='fl'>0</span>,
    <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"mem.moran.sequential"</span>,

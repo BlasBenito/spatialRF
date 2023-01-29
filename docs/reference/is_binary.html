@@ -40,7 +40,7 @@
 
 
 <meta property="og:title" content="Checks if dependent variable is binary with values 1 and 0 — is_binary" />
-<meta property="og:description" content="Returns TRUE if dependent.variable.name is a binary variable with the values 1 and 0." />
+<meta property="og:description" content="Returns TRUE if response.name is a binary variable with the values 1 and 0." />
 
 
 
@@ -117,10 +117,10 @@
     </div>
 
     <div class="ref-description">
-    <p>Returns <code>TRUE</code> if <code>dependent.variable.name</code> is a binary variable with the values 1 and 0.</p>
+    <p>Returns <code>TRUE</code> if <code>response.name</code> is a binary variable with the values 1 and 0.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>is_binary</span>(<span class='kw'>data</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>dependent.variable.name</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>is_binary</span>(<span class='kw'>data</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>response.name</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -130,7 +130,7 @@
       <td><p>Data frame with a response variable and a set of predictors. Default: <code>NULL</code></p></td>
     </tr>
     <tr>
-      <th>dependent.variable.name</th>
+      <th>response.name</th>
       <td><p>Character string with the name of the response variable. Must be in the column names of <code>data</code>. Default: <code>NULL</code></p></td>
     </tr>
     </table>
@@ -150,7 +150,7 @@
  <span class='co'>#checking if response is binary</span>
  <span class='fu'>is_binary</span>(
    <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>data</span>,
-   <span class='kw'>dependent.variable.name</span> <span class='kw'>=</span> <span class='st'>"response"</span>
+   <span class='kw'>response.name</span> <span class='kw'>=</span> <span class='st'>"response"</span>
  )
 
 }</div></pre>

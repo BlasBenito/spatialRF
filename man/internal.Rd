@@ -20,8 +20,8 @@ optimization_function(
 
 filter_spatial_predictors(
   data = NULL,
-  predictor.variable.names = NULL,
-  dependent.variable.name = NULL,
+  predictors.names = NULL,
+  response.name = NULL,
   spatial.predictors.df = NULL,
   max.cor = 0.5
 )
@@ -43,9 +43,9 @@ prepare_importance_spatial(model)
 
 \item{optimization.method}{Character, one of "moran.i", and "p.value". Default: \code{"moran.i"}}
 
-\item{predictor.variable.names}{(required, character vector) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. Default: \code{NULL}}
+\item{predictors.names}{(required, character vector) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. Default: \code{NULL}}
 
-\item{dependent.variable.name}{(optional; character string) Name of the dependent variable. Only required when there are categorical variables within \code{predictor.variable.names}. Default: \code{NULL}}
+\item{response.name}{(optional; character string) Name of the dependent variable. Only required when there are categorical variables within \code{predictors.names}. Default: \code{NULL}}
 
 \item{spatial.predictors.df}{(required, data frame) Data frame of spatial predictors.}
 
@@ -103,7 +103,7 @@ spatial.predictors.df <- mem_multithreshold(
 #filtering spatial predictors
 spatial.predictors.df <- filter_spatial_predictors(
   data = ecoregions_df,
-  predictor.variable.names = ecoregions_numeric_predictors,
+  predictors.names = ecoregions_numeric_predictors,
   spatial.predictors.df = spatial.predictors.df,
   max.cor = 0.50
  )
@@ -134,8 +134,8 @@ data(
  #fittind spatial model
  model <- rf_spatial(
    data = ecoregions_df,
-   dependent.variable.name = ecoregions_continuous_response,
-   predictor.variable.names = ecoregions_numeric_predictors,
+   response.name = ecoregions_continuous_response,
+   predictors.names = ecoregions_numeric_predictors,
    distance.matrix = ecoregions_distance_matrix,
    distance.thresholds =  0,
    n.cores = 1

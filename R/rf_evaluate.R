@@ -60,8 +60,8 @@
 #' #fitting random forest model
 #' rf.model <- rf(
 #'   data = ecoregions_df,
-#'   dependent.variable.name = ecoregions_continuous_response,
-#'   predictor.variable.names = ecoregions_numeric_predictors,
+#'   response.name = ecoregions_continuous_response,
+#'   predictors.names = ecoregions_numeric_predictors,
 #'   distance.matrix = ecoregions_distance_matrix,
 #'   distance.thresholds = 0,
 #'   n.cores = 1,
@@ -122,12 +122,12 @@ rf_evaluate <- function(
 
     #getting data and ranger arguments from the model
     data <- model$ranger_arguments$data
-    dependent.variable.name <- model$ranger_arguments$dependent.variable.name
-    predictor.variable.names <- model$ranger_arguments$predictor.variable.names
+    response.name <- model$ranger_arguments$response.name
+    predictors.names <- model$ranger_arguments$predictors.names
     ranger.arguments <- model$ranger_arguments
     ranger.arguments$data <- NULL
-    ranger.arguments$dependent.variable.name <- NULL
-    ranger.arguments$predictor.variable.names <- NULL
+    ranger.arguments$response.name <- NULL
+    ranger.arguments$predictors.names <- NULL
     ranger.arguments$importance <- "none"
     ranger.arguments$local.importance <- FALSE
     ranger.arguments$data <- NULL
@@ -162,7 +162,7 @@ rf_evaluate <- function(
 
   #if data is binary, "auc" is used
   if(is_binary_response(
-    x = data[[dependent.variable.name]]
+    x = data[[response.name]]
   )){
     binary_response <- TRUE
   } else {
@@ -251,7 +251,7 @@ rf_evaluate <- function(
     #generating spatial folds
     training.testing.folds <- spatialRF::make_spatial_fold(
       data = data,
-      dependent.variable.name = dependent.variable.name,
+      response.name = response.name,
       fold.center = fold.centers.df[i, ],
       xy = xy,
       distance.step = distance.step,
@@ -271,8 +271,8 @@ rf_evaluate <- function(
     #training model
     m.training <- spatialRF::rf(
       data = data.training,
-      dependent.variable.name = dependent.variable.name,
-      predictor.variable.names = predictor.variable.names,
+      response.name = response.name,
+      predictors.names = predictors.names,
       ranger.arguments = ranger.arguments.training,
       seed = seed,
       n.cores = n.cores,
@@ -288,7 +288,7 @@ rf_evaluate <- function(
     )$predictions
 
     #getting observed data
-    observed <- data.testing[[dependent.variable.name]]
+    observed <- data.testing[[response.name]]
 
     #computing performance metrics
     performance.df <- data.frame(

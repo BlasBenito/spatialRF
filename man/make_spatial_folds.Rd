@@ -10,7 +10,7 @@ make_spatial_folds(
   fold.centers = NULL,
   training.fraction = 0.75,
   data = NULL,
-  dependent.variable.name = NULL,
+  response.name = NULL,
   distance.step = NULL,
   swap.spatial.folds = FALSE,
   n.cores = parallel::detectCores() - 1,
@@ -22,7 +22,7 @@ make_spatial_fold(
   fold.center = NULL,
   training.fraction = 0.75,
   data = NULL,
-  dependent.variable.name = NULL,
+  response.name = NULL,
   distance.step = NULL,
   swap.spatial.folds = FALSE
 )
@@ -36,7 +36,7 @@ make_spatial_fold(
 
 \item{data}{(optional, data frame). Training data frame. Default: \code{NULL}}
 
-\item{dependent.variable.name}{(optional; character string). Name of the response variable in \code{data}. Used to check if the response is binary with values 0 and 1. Default: \code{NULL}}
+\item{response.name}{(optional; character string). Name of the response variable in \code{data}. Used to check if the response is binary with values 0 and 1. Default: \code{NULL}}
 
 \item{distance.step}{(optional; numeric) Numeric vector of length one or two. Distance step used during the growth of the buffer containing the training cases. Must be in the same units as the coordinates in \code{xy}. When only one distance is provided, the same growth is applied to the x and y axes. If two distances are provided, the first one is applied to the x axis, and the second one to the y. When \code{NULL}, it uses 1/1000th of the range of each axis as distance. The smaller this number is, the easier is to achieve an accurate \code{training.fraction}, but the slower the algorithm becomes. Default: \code{NULL}}
 

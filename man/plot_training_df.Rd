@@ -6,8 +6,8 @@
 \usage{
 plot_training_df(
   data = NULL,
-  dependent.variable.name = NULL,
-  predictor.variable.names = NULL,
+  response.name = NULL,
+  predictors.names = NULL,
   ncol = 4,
   method = "loess",
   point.color = viridis::viridis(100, option = "F"),
@@ -17,9 +17,9 @@ plot_training_df(
 \arguments{
 \item{data}{Data frame with a response variable and a set of predictors. Default: \code{NULL}}
 
-\item{dependent.variable.name}{Character string with the name of the response variable. Must be in the column names of \code{data}. If the dependent variable is binary with values 1 and 0, the argument \code{case.weights} of \code{ranger} is populated by the function \code{\link[=case_weights]{case_weights()}}. Default: \code{NULL}}
+\item{response.name}{Character string with the name of the response variable. Must be in the column names of \code{data}. If the dependent variable is binary with values 1 and 0, the argument \code{case.weights} of \code{ranger} is populated by the function \code{\link[=case_weights]{case_weights()}}. Default: \code{NULL}}
 
-\item{predictor.variable.names}{Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. Optionally, the result of \code{\link[=mc_auto_cor]{mc_auto_cor()}} or \code{\link[=mc_auto_vif]{mc_auto_vif()}} Default: \code{NULL}}
+\item{predictors.names}{Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. Optionally, the result of \code{\link[=mc_auto_cor]{mc_auto_cor()}} or \code{\link[=mc_auto_vif]{mc_auto_vif()}} Default: \code{NULL}}
 
 \item{ncol}{Number of columns of the plot. Argument \code{ncol} of \link[patchwork]{wrap_plots}.}
 
@@ -48,8 +48,8 @@ data(
    #scatterplot of the training data
    plot_training_data(
      data = ecoregions_df,
-     dependent.variable.name = ecoregions_continuous_response,
-     predictor.variable.names = ecoregions_numeric_predictors
+     response.name = ecoregions_continuous_response,
+     predictors.names = ecoregions_numeric_predictors
      )
  }
 }

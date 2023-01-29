@@ -6,16 +6,16 @@
 #'
 #' \itemize{
 #'   \item If `predictor.groups` is provided, then the predictors listed each slot of the list are used to generate separate sets of PCA factors, and the respective names of this list are used to identify the output PCA factors. If `NULL`, then it goes to the next step.
-#'   \item If `predictor.variable.names` is provided, then all predictors listed here are used as input for the PCA and the resulting PCA factors have the prefix "predictors_". If `NUL`, then it goes to the next step.
+#'   \item If `predictors.names` is provided, then all predictors listed here are used as input for the PCA and the resulting PCA factors have the prefix "predictors_". If `NUL`, then it goes to the next step.
 #'   \item All the columns in `data` are used as input for the PCA analysis and the resulting PCA factors have the prefix "predictors_".
 #' }
 #'
-#' The function uses [fe_target_encoding()] to transform non-numeric columns into numeric. If there are non-numeric columns you wish to use as input for PCA factor computation, then `dependent.variable.name` must be provided.
+#' The function uses [fe_target_encoding()] to transform non-numeric columns into numeric. If there are non-numeric columns you wish to use as input for PCA factor computation, then `response.name` must be provided.
 #'
 #' @param data (required, data frame, tibble, or sf data frame) Data frame with a response variable and a set of predictors. Default: `NULL`
-#' @param dependent.variable.name (optional; character string) Character string with the name of the response variable. Must be in the column names of `data`. Only required when there are non-numeric variables in `predictor.groups`. Default: `NULL`
-#' @param predictor.variable.names (optional; character vector with column names of `data`) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Default: `NULL`
-#' @param predictor.groups (required, named list of character strings or vectors) List indicating the predictor groups for which PCA factors should be generated. The predictors to use on each group are either indicated by their actual names, or by a pattern. For example, `predictor.groups = list(a = c("x", "y", "z"))` generates the PCA factors `a_PC1`, `a_PC2`, and `a_PC3` From the variables `"x"`, `"y"`, and `"z"`. Also, a pattern can be used. For example, `predictor.groups = list(climate = "climate")` will generate PCA factors named with the prefix `"climate_"` for all the predictors containing the word "climate" in `predictor.variable.names`, or the column names of `data` if `predictor.variable.names = NULL`. If `NULL`, then all predictors in `predictor.variable.names` are used as group, all columns in `data`. Default: `NULL`
+#' @param response.name (optional; character string) Character string with the name of the response variable. Must be in the column names of `data`. Only required when there are non-numeric variables in `predictor.groups`. Default: `NULL`
+#' @param predictors.names (optional; character vector with column names of `data`) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Default: `NULL`
+#' @param predictor.groups (required, named list of character strings or vectors) List indicating the predictor groups for which PCA factors should be generated. The predictors to use on each group are either indicated by their actual names, or by a pattern. For example, `predictor.groups = list(a = c("x", "y", "z"))` generates the PCA factors `a_PC1`, `a_PC2`, and `a_PC3` From the variables `"x"`, `"y"`, and `"z"`. Also, a pattern can be used. For example, `predictor.groups = list(climate = "climate")` will generate PCA factors named with the prefix `"climate_"` for all the predictors containing the word "climate" in `predictors.names`, or the column names of `data` if `predictors.names = NULL`. If `NULL`, then all predictors in `predictors.names` are used as group, all columns in `data`. Default: `NULL`
 #' @param replace (optional, logical) If `TRUE`, the original groups of predictors are replaced in the output data frame with the PCA factors. Default: `FALSE`
 #' @param max.explained.variance (optional, numeric) Maximum cumulative sum of the explained variance of the PCA factors selected. Default: `0.80`
 #' @param verbose (optional, logical) If `TRUE`, the function prints message indicating what columns have been scaled. Default: `TRUE`
@@ -33,8 +33,8 @@
 #'
 #' df <- fe_pca_factors(
 #'   data = ecoregions_df,
-#'   dependent.variable.name = ecoregions_continuous_response,
-#'   predictor.variable.names = ecoregions_all_predictors,
+#'   response.name = ecoregions_continuous_response,
+#'   predictors.names = ecoregions_all_predictors,
 #'   predictor.groups = list(
 #'     climate = "climate",
 #'     landcover = "landcover",
@@ -50,18 +50,21 @@
 #' }
 fe_pca_factors <- function(
     data = NULL,
-    dependent.variable.name = NULL,
-    predictor.variable.names = NULL,
+    response.name = NULL,
+    predictors.names = NULL,
     predictor.groups = NULL,
     replace = FALSE,
     max.explained.variance = 0.80,
     verbose = TRUE
 ){
 
-  #check list pca factors, either character strings or column names that show up in predictor.variable.names
-
+  #check list pca factors, either character strings or column names that show up in predictors.names
   if(is.null(data)){
-    stop("Argument 'data' must be a data frame or tibble.")
+    stop("Argument 'data' must be a data frame (tibbles and sf data frames are supported as well).")
+  }
+
+  if(!("data.frame" %in% class(data))){
+    stop("Argument 'data' must be a data frame (tibbles and sf data frames are supported as well).")
   }
 
   #check if input is tibble
@@ -71,18 +74,25 @@ fe_pca_factors <- function(
     return.tibble <- FALSE
   }
 
-  #storing predictors to remove if replace == TRUE
-  predictors.to.remove <- vector()
+
 
   if(is.null(predictor.groups)){
 
-    if(!is.null(predictor.variable.names)){
+    if(!is.null(predictors.names)){
+
+      if(verbose == TRUE){
+        message("Argument 'predictor.groups' was not provided. PCA factors from all predictors in 'predictors.names' will be generated.")
+      }
 
       predictor.groups <- list(
-        predictors = predictor.variable.names
+        predictors = predictors.names
       )
 
     } else {
+
+      if(verbose == TRUE){
+        message("Arguments 'predictor.groups' and 'predictors.names' were not provided. PCA factors from all columns in 'data' will be generated.")
+      }
 
       predictor.groups <- list(
         predictors = colnames(data)
@@ -91,6 +101,9 @@ fe_pca_factors <- function(
     }
 
   }
+
+  #storing predictors to remove if replace == TRUE
+  predictors.to.remove <- vector()
 
   #iterating over groups of variables
   for(predictor.group.i in names(predictor.groups)){
@@ -101,13 +114,13 @@ fe_pca_factors <- function(
     if(length(variables.i) > 1){
 
       #variables.i are column names
-      if(sum(variables.i %in% predictor.variable.names) == length(variables.i)){
+      if(sum(variables.i %in% predictors.names) == length(variables.i)){
 
         pca.columns <- variables.i
 
       } else {
 
-        pca.columns <- variables.i[variables.i %in% predictor.variable.names]
+        pca.columns <- variables.i[variables.i %in% predictors.names]
 
       }
 
@@ -118,7 +131,7 @@ fe_pca_factors <- function(
 
       pca.columns <- grep(
         pattern = variables.i,
-        x = predictor.variable.names,
+        x = predictors.names,
         value = TRUE
       )
 
@@ -127,7 +140,7 @@ fe_pca_factors <- function(
           paste0(
             "Variables with the word '",
             variables.i,
-            "' were not found in 'predictor.variable.names', ignoring this pattern."
+            "' were not found in 'predictors.names', ignoring this pattern."
           )
         )
       }
@@ -157,21 +170,21 @@ fe_pca_factors <- function(
     #coerce categorical to numeric
     if(
       length(non.numeric.predictors) > 0 &
-      !is.null(dependent.variable.name)
+      !is.null(response.name)
     ){
 
-      pca.df.i[[dependent.variable.name]] <- data[[dependent.variable.name]]
+      pca.df.i[[response.name]] <- data[[response.name]]
 
       pca.df.i <- fe_target_encoding(
         data = pca.df.i,
-        dependent.variable.name = dependent.variable.name,
-        predictor.variable.names = pca.columns,
+        response.name = response.name,
+        predictors.names = pca.columns,
         methods = "mean",
         replace = TRUE,
         verbose = verbose
       )
 
-      pca.df.i[[dependent.variable.name]] <- NULL
+      pca.df.i[[response.name]] <- NULL
 
     }
 

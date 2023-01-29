@@ -6,8 +6,8 @@
 \usage{
 fe_spatial_predictors(
   data,
-  dependent.variable.name,
-  predictor.variable.names,
+  response.name,
+  predictors.names,
   distance.matrix,
   distance.thresholds,
   what.mem = "positive",
@@ -18,9 +18,9 @@ fe_spatial_predictors(
 \arguments{
 \item{data}{(required; data.frame or tibble) A data frame, tibble, or sf. Default: \code{NULL}.}
 
-\item{dependent.variable.name}{(optional; character string) Name of the dependent variable. Required when there are categorical variables in \code{predictor.variable.names}. Default: \code{NULL}}
+\item{response.name}{(optional; character string) Name of the dependent variable. Required when there are categorical variables in \code{predictors.names}. Default: \code{NULL}}
 
-\item{predictor.variable.names}{(required; character vector with column names of \code{data}) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. Default: \code{NULL}}
+\item{predictors.names}{(required; character vector with column names of \code{data}) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. Default: \code{NULL}}
 
 \item{distance.matrix}{(required; distance matrix) Squared matrix with the distances among the records in \code{data}. The number of rows of \code{distance.matrix} and \code{data} must be the same. Default: \code{NULL}}
 
@@ -59,8 +59,8 @@ data(
 
  ecoregions_df <- fe_spatial_predictors(
    data = ecoregions_df,
-   dependent.variable.name = ecoregions_continuous_response,
-   predictor.variable.names,
+   response.name = ecoregions_continuous_response,
+   predictors.names,
    distance.matrix = ecoregions_distance_matrix,
    what.mem = "positive",
    method = "mem",

@@ -120,7 +120,7 @@
     <p>When the data is binary, setting the <code>ranager</code> argument <code>case.weights</code> helps to minimize the issues produced by class imbalance. This function takes a binary response variable and returns a vector of weights populated with the values <code>1/#zeros</code> and <code>1/#ones</code>. It is used internally by the function <code><a href='rf.html'>rf()</a></code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>case_weights</span>(<span class='kw'>data</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>dependent.variable.name</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>case_weights</span>(<span class='kw'>data</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>response.name</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -130,7 +130,7 @@
       <td><p>Data frame with a response variable and a set of predictors. Default: <code>NULL</code></p></td>
     </tr>
     <tr>
-      <th>dependent.variable.name</th>
+      <th>response.name</th>
       <td><p>Character string with the name of the response variable. Must be in the column names of <code>data</code>. Default: <code>NULL</code></p></td>
     </tr>
     </table>
@@ -148,7 +148,7 @@
 
  <span class='fu'>case_weights</span>(
    <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>data</span>,
-   <span class='kw'>dependent.variable.name</span> <span class='kw'>=</span> <span class='st'>"response"</span>
+   <span class='kw'>response.name</span> <span class='kw'>=</span> <span class='st'>"response"</span>
  )
 
  }</div></pre>

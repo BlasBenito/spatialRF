@@ -6,8 +6,8 @@
 \usage{
 fe_rescale(
   data = NULL,
-  dependent.variable.name = NULL,
-  predictor.variable.names = NULL,
+  response.name = NULL,
+  predictors.names = NULL,
   new.min = 0,
   new.max = 1,
   verbose = TRUE
@@ -16,9 +16,9 @@ fe_rescale(
 \arguments{
 \item{data}{(required, data frame, tibble, or sf data frame) Data frame with a response variable and a set of predictors. Default: \code{NULL}}
 
-\item{dependent.variable.name}{(optional; character string) Character string with the name of the response variable. Must be in the column names of \code{data}. Default: \code{NULL}}
+\item{response.name}{(optional; character string) Character string with the name of the response variable. Must be in the column names of \code{data}. Default: \code{NULL}}
 
-\item{predictor.variable.names}{(optional; character vector with column names of \code{data}) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. Default: \code{NULL}}
+\item{predictors.names}{(optional; character vector with column names of \code{data}) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. Default: \code{NULL}}
 
 \item{new.min}{New minimum value. Default: \code{0}}
 
@@ -43,8 +43,8 @@ data(
 
 data.rescaled <- fe_rescale(
   data = ecoregions_df,
-  dependent.variable.name = ecoregions_continuous_response,
-  predictor.variable.names = ecoregions_all_predictors,
+  response.name = ecoregions_continuous_response,
+  predictors.names = ecoregions_all_predictors,
   new.min = 0,
   new.max = 100
   )

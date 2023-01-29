@@ -7,8 +7,8 @@
 rf_spatial(
   model = NULL,
   data = NULL,
-  dependent.variable.name = NULL,
-  predictor.variable.names = NULL,
+  response.name = NULL,
+  predictors.names = NULL,
   distance.matrix = NULL,
   distance.thresholds = NULL,
   xy = NULL,
@@ -26,13 +26,13 @@ rf_spatial(
 )
 }
 \arguments{
-\item{model}{A model fitted with \code{\link[=rf]{rf()}}. If used, the arguments \code{data}, \code{dependent.variable.name}, \code{predictor.variable.names}, \code{distance.matrix}, \code{distance.thresholds}, \code{ranger.arguments}, and \code{scaled.importance} are taken directly from the model definition. Default: NULL}
+\item{model}{A model fitted with \code{\link[=rf]{rf()}}. If used, the arguments \code{data}, \code{response.name}, \code{predictors.names}, \code{distance.matrix}, \code{distance.thresholds}, \code{ranger.arguments}, and \code{scaled.importance} are taken directly from the model definition. Default: NULL}
 
 \item{data}{Data frame with a response variable and a set of predictors. Default: \code{NULL}}
 
-\item{dependent.variable.name}{Character string with the name of the response variable. Must be in the column names of \code{data}. If the dependent variable is binary with values 1 and 0, the argument \code{case.weights} of \code{ranger} is populated by the function \code{\link[=case_weights]{case_weights()}}. Default: \code{NULL}}
+\item{response.name}{Character string with the name of the response variable. Must be in the column names of \code{data}. If the dependent variable is binary with values 1 and 0, the argument \code{case.weights} of \code{ranger} is populated by the function \code{\link[=case_weights]{case_weights()}}. Default: \code{NULL}}
 
-\item{predictor.variable.names}{Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. Default: \code{NULL}}
+\item{predictors.names}{Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. Default: \code{NULL}}
 
 \item{distance.matrix}{Squared matrix with the distances among the records in \code{data}. The number of rows of \code{distance.matrix} and \code{data} must be the same. If not provided, the computation of the Moran's I of the residuals is omitted. Default: \code{NULL}}
 
@@ -120,8 +120,8 @@ data(
  #hengl
  model <- rf_spatial(
    data = ecoregions_df,
-   dependent.variable.name = ecoregions_continuous_response,
-   predictor.variable.names = ecoregions_numeric_predictors,
+   response.name = ecoregions_continuous_response,
+   predictors.names = ecoregions_numeric_predictors,
    distance.matrix = ecoregions_distance_matrix,
    distance.thresholds = 0,
    method = "hengl",
@@ -131,8 +131,8 @@ data(
  #mem.moran.sequential
  model <- rf_spatial(
    data = ecoregions_df,
-   dependent.variable.name = ecoregions_continuous_response,
-   predictor.variable.names = ecoregions_numeric_predictors,
+   response.name = ecoregions_continuous_response,
+   predictors.names = ecoregions_numeric_predictors,
    distance.matrix = ecoregions_distance_matrix,
    distance.thresholds = 0,
    method = "mem.moran.sequential",
@@ -142,8 +142,8 @@ data(
  #fitting an rf_spatial model from an rf model
  rf.model <- rf(
    data = ecoregions_df,
-   dependent.variable.name = ecoregions_continuous_response,
-   predictor.variable.names = ecoregions_numeric_predictors,
+   response.name = ecoregions_continuous_response,
+   predictors.names = ecoregions_numeric_predictors,
    distance.matrix = ecoregions_distance_matrix,
    distance.thresholds = 0,
    n.cores = 1,

@@ -7,8 +7,8 @@
 #' }
 #' This method allows to select the smallest set of spatial predictors that have the largest joint effect in reducing the spatial correlation of the model residuals, while maintaining the model's R-squared as high as possible. As a consequence of running [rank_spatial_predictors()] on each iteration, this method includes in the final model less spatial predictors than the sequential method implemented in [select_spatial_predictors_sequential()] would do, while minimizing spatial correlation and maximizing the R squared of the model as much as possible.
 #' @param data Data frame with a response variable and a set of predictors. Default: `NULL`
-#' @param dependent.variable.name Character string with the name of the response variable. Must be in the column names of `data`. Default: `NULL`
-#' @param predictor.variable.names Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Default: `NULL`
+#' @param response.name Character string with the name of the response variable. Must be in the column names of `data`. Default: `NULL`
+#' @param predictors.names Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Default: `NULL`
 #' @param distance.matrix Squared matrix with the distances among the records in `data`. The number of rows of `distance.matrix` and `data` must be the same. If not provided, the computation of the Moran's I of the residuals is omitted. Default: `NULL`
 #' @param distance.thresholds Numeric vector with neighborhood distances. All distances in the distance matrix below each value in `dustance.thresholds` are set to 0 for the computation of Moran's I. If `NULL`, it defaults to seq(0, max(distance.matrix), length.out = 4). Default: `NULL`
 #' @param ranger.arguments Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.
@@ -33,8 +33,8 @@
 #' #non-spatial model
 #' model <- rf(
 #'   data = ecoregions_df,
-#'   dependent.variable.name = ecoregions_continuous_response,
-#'   predictor.variable.names = ecoregions_numeric_predictors,
+#'   response.name = ecoregions_continuous_response,
+#'   predictors.names = ecoregions_numeric_predictors,
 #'   distance.matrix = ecoregions_distance_matrix,
 #'   distance.thresholds = 0,
 #'   n.cores = 1
@@ -49,8 +49,8 @@
 #' #ranking spatial predictors
 #' spatial.predictors.ranking <- rank_spatial_predictors(
 #'   data = ecoregions_df,
-#'   dependent.variable.name = ecoregions_continuous_response,
-#'   predictor.variable.names = ecoregions_numeric_predictors,
+#'   response.name = ecoregions_continuous_response,
+#'   predictors.names = ecoregions_numeric_predictors,
 #'   spatial.predictors.df = spatial.predictors,
 #'   ranking.method = "moran",
 #'   reference.moran.i = model$spatial.correlation.residuals$max_moran,
@@ -62,8 +62,8 @@
 #' #selecting the best subset of predictors
 #' selection <- select_spatial_predictors_recursive(
 #'   data = ecoregions_df,
-#'   dependent.variable.name = ecoregions_continuous_response,
-#'   predictor.variable.names = ecoregions_numeric_predictors,
+#'   response.name = ecoregions_continuous_response,
+#'   predictors.names = ecoregions_numeric_predictors,
 #'   distance.matrix = ecoregions_distance_matrix,
 #'   distance.thresholds = 0,
 #'   spatial.predictors.df = spatial.predictors,
@@ -80,8 +80,8 @@
 #' @export
 select_spatial_predictors_recursive <- function(
   data = NULL,
-  dependent.variable.name = NULL,
-  predictor.variable.names = NULL,
+  response.name = NULL,
+  predictors.names = NULL,
   distance.matrix = NULL,
   distance.thresholds = NULL,
   ranger.arguments = NULL,
@@ -93,10 +93,10 @@ select_spatial_predictors_recursive <- function(
   cluster = NULL
 ){
 
-  #predictor.variable.names comes from mc_auto_vif or mc_auto_cor
-  if(inherits(predictor.variable.names, "variable_selection")){
+  #predictors.names comes from mc_auto_vif or mc_auto_cor
+  if(inherits(predictors.names, "variable_selection")){
 
-    predictor.variable.names <- predictor.variable.names$selected.variables
+    predictors.names <- predictors.names$selected.variables
 
   }
 
@@ -114,8 +114,8 @@ select_spatial_predictors_recursive <- function(
   ranger.arguments$num.trees <- 500
   ranger.arguments$data <- NULL
   ranger.arguments$formula <- NULL
-  ranger.arguments$dependent.variable.name <- NULL
-  ranger.arguments$predictor.variable.names <- NULL
+  ranger.arguments$response.name <- NULL
+  ranger.arguments$predictors.names <- NULL
 
   #initializing data for loop
   spatial.predictors.ranking.i <- spatial.predictors.ranking
@@ -131,7 +131,7 @@ select_spatial_predictors_recursive <- function(
 
   #copy of data
   data.i <- data
-  predictor.variable.names.i <- predictor.variable.names
+  predictors.names.i <- predictors.names
 
   #putting together the optimization data frame
   optimization.df <- data.frame(
@@ -163,9 +163,9 @@ select_spatial_predictors_recursive <- function(
     )
     colnames(data.i)[ncol(data.i)] <- spatial.predictors.candidates.i[1]
 
-    #new predictor.variable.names
-    predictor.variable.names.i <- c(
-      predictor.variable.names.i,
+    #new predictors.names
+    predictors.names.i <- c(
+      predictors.names.i,
       spatial.predictors.candidates.i[1]
     )
 
@@ -178,8 +178,8 @@ select_spatial_predictors_recursive <- function(
     #rank pca factors
     spatial.predictors.ranking.i <- rank_spatial_predictors(
       data = data.i,
-      dependent.variable.name = dependent.variable.name,
-      predictor.variable.names = predictor.variable.names.i,
+      response.name = response.name,
+      predictors.names = predictors.names.i,
       distance.matrix = distance.matrix,
       distance.thresholds = distance.thresholds,
       ranger.arguments = ranger.arguments,
