@@ -1,3 +1,207 @@
+#' Checks 'data' argument
+#'
+#' @param data data argument.
+#' @param na.allowed logical, changes the check depending on whether NAs are allowed in data or not.
+#'
+#' @return data
+#' @export
+#' @rdname internal
+#' @keywords internal
+check_data <- function(
+    data = NULL,
+    na.allowed = TRUE,
+    verbose = TRUE
+){
+
+  #check if it's NULL
+  if(is.null(data)){
+    stop("Argument 'data' is missing.")
+  }
+
+  if(!("data.frame" %in% class(data))){
+    stop("Argument 'data' must be a data frame (tibbles and sf data frames are supported as well).")
+  }
+
+  #check if it has NA
+  sum.na <- sum(is.na(data))
+
+  if(sum.na > 0){
+    if(na.allowed == TRUE){
+      if(verbose == TRUE){
+        message("Argument 'data' has ", sum.na, " NA values.")
+      }
+    } else {
+
+      #removes NA
+      original.nrow <- nrow(data)
+      data <- na.omit(data)
+
+      warning(
+        original.nrow - nrow(data),
+        " with NA values where removed from argument 'data'."
+      )
+
+    }
+
+  }
+
+  #check number of rows
+  if(nrow(data) < 30){
+    if(verbose == TRUE){
+      message("Argument 'data' has too few rows .")
+    }
+  }
+
+  data
+
+}
+
+
+#' Checks 'predictors.names' argument
+#'
+#' @param data data argument.
+#' @param predictors.names predictors.names.argument
+#'
+#' @return predictor.names
+#' @export
+#' @rdname internal
+#' @keywords internal
+check_predictors_names <- function(
+    predictors.names = NULL,
+    data = NULL,
+    numeric.only = TRUE,
+    is.required = TRUE,
+    verbose = TRUE
+){
+
+  if(is.null(predictors.names) == TRUE){
+    if(is.required == TRUE){
+      stop("Argument 'predictors.names' is required.")
+    }
+  }
+
+  if(is.character(predictors.names) == FALSE){
+    stop("Argument 'predictors.names' must be a character vector.")
+  }
+
+  if(length(predictors.names) == 0){
+    if(is.required == TRUE){
+      stop("Argument 'predictors.names' is empty.")
+    }
+  }
+
+  #check that all predictors are in data
+  if(sum(predictors.names %in% colnames(data)) < length(predictors.names)){
+
+    if(verbose == TRUE){
+      message(
+        paste0(
+          "The predictors.names ",
+          paste0(
+            predictors.names[!(predictors.names %in% colnames(data))],
+            collapse = ", "
+          ),
+          " are missing from 'data'."
+        )
+      )
+    }
+
+    predictors.names <- predictors.names[predictors.names %in% colnames(data)]
+
+  }
+
+  #check that all predictors are numeric
+  if(numeric.only == TRUE){
+
+    numeric.predictors.names <- lapply(
+      X = data[, predictors.names],
+      FUN = is.numeric
+    ) %>%
+      unlist()
+
+    if(sum(numeric.predictors.names) < length(predictors.names)){
+
+      if(verbose == TRUE){
+        message(
+          "These non-numeric predictors will be removed:\n",
+          paste0(
+            predictors.names[!numeric.predictors.names],
+          collapse = "\n"
+          )
+        )
+      }
+
+      predictors.names <- predictors.names[numeric.predictors.names]
+
+    }
+
+  }
+
+  predictors.names
+
+}
+
+#' Checks 'response.name' argument
+#'
+#' @param data data argument.
+#' @param response.name response.name
+#'
+#' @return response.name
+#' @export
+#' @rdname internal
+#' @keywords internal
+check_response_name <- function(
+    response.name = NULL,
+    data = NULL,
+    is.required = TRUE,
+    verbose = TRUE
+){
+
+  if(is.null(response.name) == TRUE){
+    if(is.required == TRUE){
+      stop("Argument 'response.name' is required.")
+    }
+  }
+
+  if(is.character(response.name) == FALSE){
+    stop("Argument 'response.name' must be a character vector.")
+  }
+
+  if(length(response.name) != 1){
+    if(is.required == TRUE){
+      stop("Argument 'response.name' must be of length 1 but it is empty.")
+    }
+  }
+
+  #check that all predictors are in data
+  if(!(response.name %in% colnames(data))){
+    if(is.required == TRUE){
+      stop("Argument 'response.name' must be a column name of 'data'.")
+    } else {
+      if(verbose == TRUE){
+        message("Argument 'response.name' must be a column name of 'data'.")
+      }
+    }
+  }
+
+  if(is.numeric(data[[response.name]]) == FALSE){
+    if(is.required == TRUE){
+      stop("Argument 'response.name' must be the name of a numeric column of 'data'.")
+    } else {
+      if(verbose == TRUE){
+        message("Argument 'response.name' is not the name of a numeric column of 'data' and will be ignored.")
+      }
+      return(NULL)
+    }
+
+  }
+
+  response.name
+
+}
+
+
+
 #' @title Optimization equation to select spatial predictors
 #' @description Optimizes the selection of spatial predictors using two different methods: "moran.i", and "p.value".
 #' @param x Optimization data frame generated internally by [select_spatial_predictors_sequential()] or [select_spatial_predictors_recursive()]. Default: `NULL`
@@ -45,8 +249,8 @@ optimization_function <- function(
   if(optimization.method == "moran.i"){
 
     optimization <- rescale_vector(rescale_vector(1 - x$moran.i) +
-      (weight.performance * rescale_vector(x$performance)) -
-      (weight.penalization.n.predictors * rescale_vector(x$penalization.per.variable)))
+                                     (weight.performance * rescale_vector(x$performance)) -
+                                     (weight.penalization.n.predictors * rescale_vector(x$penalization.per.variable)))
 
   }
 

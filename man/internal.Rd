@@ -2,14 +2,34 @@
 % Please edit documentation in R/fe_target_encoding_methods.R, R/internal.R
 \name{fe_target_encoding_noise}
 \alias{fe_target_encoding_noise}
+\alias{check_data}
+\alias{check_predictors_names}
+\alias{check_response_name}
 \alias{optimization_function}
 \alias{filter_spatial_predictors}
 \alias{default_distance_thresholds}
 \alias{is_binary_response}
 \alias{prepare_importance_spatial}
-\title{Optimization equation to select spatial predictors}
+\title{Checks 'data' argument}
 \usage{
 fe_target_encoding_noise(data, categorical.variable.name, noise = 0, seed = 1)
+
+check_data(data = NULL, na.allowed = TRUE, verbose = TRUE)
+
+check_predictors_names(
+  predictors.names = NULL,
+  data = NULL,
+  numeric.only = TRUE,
+  is.required = TRUE,
+  verbose = TRUE
+)
+
+check_response_name(
+  response.name = NULL,
+  data = NULL,
+  is.required = TRUE,
+  verbose = TRUE
+)
 
 optimization_function(
   x = NULL,
@@ -35,6 +55,12 @@ prepare_importance_spatial(model)
 \arguments{
 \item{data}{(required, data frame) Data frame with a response variable and a set of predictors. Default: \code{NULL}}
 
+\item{na.allowed}{logical, changes the check depending on whether NAs are allowed in data or not.}
+
+\item{predictors.names}{(required, character vector) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. Default: \code{NULL}}
+
+\item{response.name}{(optional; character string) Name of the dependent variable. Only required when there are categorical variables within \code{predictors.names}. Default: \code{NULL}}
+
 \item{x}{Optimization data frame generated internally by \code{\link[=select_spatial_predictors_sequential]{select_spatial_predictors_sequential()}} or \code{\link[=select_spatial_predictors_recursive]{select_spatial_predictors_recursive()}}. Default: \code{NULL}}
 
 \item{weight.performance}{Numeric between 0 and 1, weight of R-squared in the optimization process. Default: \code{NULL}}
@@ -42,10 +68,6 @@ prepare_importance_spatial(model)
 \item{weight.penalization.n.predictors}{Numeric between 0 and 1, weight of the penalization on the number of added spatial predictors. Default: \code{NULL}}
 
 \item{optimization.method}{Character, one of "moran.i", and "p.value". Default: \code{"moran.i"}}
-
-\item{predictors.names}{(required, character vector) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. Default: \code{NULL}}
-
-\item{response.name}{(optional; character string) Name of the dependent variable. Only required when there are categorical variables within \code{predictors.names}. Default: \code{NULL}}
 
 \item{spatial.predictors.df}{(required, data frame) Data frame of spatial predictors.}
 
@@ -56,6 +78,12 @@ prepare_importance_spatial(model)
 \item{model}{An importance data frame with spatial predictors, or a model fitted with \code{\link[=rf_spatial]{rf_spatial()}}.}
 }
 \value{
+data
+
+predictor.names
+
+response.name
+
 A numeric vector with the optimization criteria.
 
 A data frame with non-redundant spatial predictors.

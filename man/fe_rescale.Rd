@@ -20,9 +20,9 @@ fe_rescale(
 
 \item{predictors.names}{(optional; character vector with column names of \code{data}) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. Default: \code{NULL}}
 
-\item{new.min}{New minimum value. Default: \code{0}}
+\item{new.min}{(optional, numeric) New minimum value. Default: \code{0}}
 
-\item{new.max}{New maximum value. Default: \code{1}}
+\item{new.max}{(optional, numeric) New maximum value. Default: \code{1}}
 
 \item{verbose}{(optional, logical) If \code{TRUE}, the function prints message indicating what columns have been scaled. Default: \code{TRUE}}
 }

@@ -5,8 +5,8 @@
 #' @param data (required, data frame, tibble, or sf data frame) Data frame with a response variable and a set of predictors. Default: `NULL`
 #' @param response.name (optional; character string) Character string with the name of the response variable. Must be in the column names of `data`. Default: `NULL`
 #' @param predictors.names (optional; character vector with column names of `data`) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Default: `NULL`
-#' @param new.min New minimum value. Default: `0`
-#' @param new.max New maximum value. Default: `1`
+#' @param new.min (optional, numeric) New minimum value. Default: `0`
+#' @param new.max (optional, numeric) New maximum value. Default: `1`
 #' @param verbose (optional, logical) If `TRUE`, the function prints message indicating what columns have been scaled. Default: `TRUE`
 #'
 #' @return Input data frame with scaled numeric response and predictors.
