@@ -1,3 +1,60 @@
+#' Extract Numeric Columns from a Data Frame
+#'
+#' This function takes a data frame and a set of columns and returns the names of the numeric columns in the selected data frame.
+#'
+#' @param data A data frame to extract numeric columns from.
+#' @param columns A character vector specifying the columns of the data frame to extract.
+#' @return A character vector with the names of the numeric columns in the selected data frame.
+#' @export
+#' @rdname internal
+#' @keywords internal
+non_numeric_columns <- function(
+    data,
+    columns = NULL
+){
+
+  if(is.null(columns)){
+    columns <- colnames(data)
+  }
+
+  data <- data[, columns]
+
+  out <- colnames(data)[!sapply(data, is.numeric)]
+
+  out
+
+}
+
+
+#' Extract Non-numeric Columns from a Data Frame
+#'
+#' This function takes a data frame and a set of columns and returns the names of the non-numeric columns in the selected data frame.
+#'
+#' @param data A data frame to extract numeric columns from.
+#' @param columns A character vector specifying the columns of the data frame to extract.
+#' @return A character vector with the names of the non-numeric columns in the selected data frame.
+#' @export
+#' @rdname internal
+#' @keywords internal
+numeric_columns <- function(
+    data = NULL,
+    columns = NULL
+){
+
+  if(is.null(columns)){
+    columns <- colnames(data)
+  }
+
+  data <- data[, columns]
+
+  out <- colnames(data)[sapply(data, is.numeric)]
+
+  out
+
+}
+
+
+
 #' Checks 'data' argument
 #'
 #' @param data data argument.

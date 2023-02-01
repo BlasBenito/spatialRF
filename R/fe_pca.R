@@ -86,8 +86,7 @@ fe_pca <- function(
     return.tibble <- FALSE
   }
 
-
-
+  #CHECK PREDICTORS GROUPS
 
 
   if(is.null(predictor.groups)){
@@ -174,11 +173,12 @@ fe_pca <- function(
       )
 
     #check if there are non-numeric predictors
-    numeric.predictors <- colnames(pca.df.i)[sapply(pca.df.i, is.numeric)]
+    numeric.predictors <- numeric_columns(
+      data = pca.df.i
+    )
 
-    non.numeric.predictors <- setdiff(
-      x = pca.columns,
-      y = numeric.predictors
+    non.numeric.predictors <- non_numeric_columns(
+      data = pca.df.i
     )
 
     #coerce categorical to numeric

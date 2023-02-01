@@ -21,8 +21,8 @@
 #' If `data` and `predictors.names` are provided, then all numeric variables in `predictors.names` are scaled.
 #'
 #' @param data (required, data frame, tibble, or sf data frame) Data frame with a response variable and a set of predictors. Default: `NULL`
-#' @param response.name (optional; character string) Character string with the name of the response variable. Must be in the column names of `data`. Default: `NULL`
-#' @param predictors.names (optional; character vector with column names of `data`) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Default: `NULL`
+#' @param response.name (required if `predictors.names = NULL`; character string) Character string with the name of the response variable. Must be in the column names of `data`. Default: `NULL`
+#' @param predictors.names (required if `response.name = NULL`; character vector with column names of `data`) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Default: `NULL`
 #' @param center (optional, logical) If `TRUE`, the selected numeric columns are centered by subtracting their respective means. Default: `TRUE`
 #' @param scale (optional, logical) If `TRUE`, the data is scaled. If `center = TRUE`, the scaling is performed using the expression `(a - mean(a))/sd(a)` If `center = FALSE`, then a numeric column `a` is scaled using the expression `a/(sqrt(sum(a^2)/(length(a)-1)))`
 
@@ -57,13 +57,27 @@ fe_scale <- function(
     verbose = TRUE
 ){
 
-  if(is.null(data)){
-    stop("Argument 'data' must be provided")
-  }
+  #checking data
+  ##############
+  data <- check_data(
+    data = data,
+    na.allowed = FALSE,
+    verbose = verbose
+  )
 
-  if(!("data.frame" %in% class(data))){
-    stop("Argument 'data' must be of class 'data.frame'.")
-  }
+  predictors.names <- check_predictors_names(
+    predictors.names = predictors.names,
+    data = data,
+    numeric.only = FALSE,
+    is.required = FALSE,
+    verbose = verbose
+  )
+
+  response.name <- check_response_name(
+    response.name = response.name,
+    data = data,
+    is.required = FALSE
+  )
 
   #check if input is tibble
   if(tibble::is_tibble(data) == TRUE){
@@ -74,11 +88,8 @@ fe_scale <- function(
 
   #columns to scale
   cols <- c(response.name, predictors.names)
-  if(is.null(cols)){
-    cols <- colnames(data)
-  } else {
-    cols <- intersect(cols, colnames(data))
-  }
+
+
 
   #find numeric predictors
   cols <- lapply(
