@@ -65,7 +65,7 @@ moran <- function(
   }
 
   #extracting weights from distance matrix
-  x.distance.weights <- weights_from_distance_matrix(
+  x.distance.weights <- distmatrix_to_weights(
     distance.matrix = distance.matrix,
     distance.threshold = distance.threshold
   )

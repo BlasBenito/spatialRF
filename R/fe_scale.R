@@ -61,7 +61,7 @@ fe_scale <- function(
   ##############
   data <- check_data(
     data = data,
-    na.allowed = FALSE,
+    na.allowed = TRUE,
     verbose = verbose
   )
 
@@ -87,21 +87,15 @@ fe_scale <- function(
   }
 
   #columns to scale
-  cols <- c(response.name, predictors.names)
-
-
+  columns.to.scale <- c(response.name, predictors.names)
 
   #find numeric predictors
-  cols <- lapply(
-    X = data[, cols],
-    FUN = is.numeric
-  ) %>%
-    unlist()
+  columns.to.scale <- numeric_columns(
+    data = data,
+    columns = columns.to.scale
+  )
 
-  #subset numerics
-  cols <- names(cols)[cols]
-
-  if(length(cols) == 0){
+  if(length(columns.to.scale) == 0){
 
     message("No numeric columns to scale in 'data', returning the original input.")
 
@@ -111,7 +105,7 @@ fe_scale <- function(
     if(verbose == TRUE){
       message(
         "Scaling columns:\n",
-        paste0(cols, collapse = "\n")
+        paste0(columns.to.scale, collapse = "\n")
       )
     }
 
@@ -119,13 +113,13 @@ fe_scale <- function(
     data <- data %>%
       dplyr::mutate(
         dplyr::across(
-          tidyselect::all_of(cols),
+          tidyselect::all_of(columns.to.scale),
           base::scale,
           scale = scale,
           center = center
         ),
         dplyr::across(
-          tidyselect::all_of(cols),
+          tidyselect::all_of(columns.to.scale),
           as.vector
         )
       )

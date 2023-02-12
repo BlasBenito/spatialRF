@@ -16,15 +16,15 @@ start_cluster(
 stop_cluster(cluster = NULL)
 }
 \arguments{
-\item{cluster.ips}{Character vector with the IPs of the machines in the cluster. The first machine will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed. Default: \code{NULL}.}
+\item{cluster.ips}{(optional, character vector) Character vector with the IPs of the machines in the cluster. The first machine will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed. Default: \code{NULL}.}
 
-\item{cluster.cores}{Numeric integer vector, number of cores on each machine. Default: \code{parallel::detectCores() - 1}.}
+\item{cluster.cores}{(optional, numeric) Numeric integer vector, number of cores on each machine. Default: \code{parallel::detectCores() - 1}.}
 
-\item{cluster.user}{Character string, name of the user (should be the same throughout machines), Defaults to the current system user.}
+\item{cluster.user}{(optional, character) Character string, name of the user (should be the same throughout machines), Defaults to the current system user.}
 
-\item{cluster.port}{Character, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: \code{"11000"}}
+\item{cluster.port}{(optional, character) Character, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: \code{"11000"}}
 
-\item{outfile}{Where to direct the messages provided by the workers. When working on a local computer, \code{""} prints the worker's messages in the console. A text file path will append worker's messages on the given file.  Default: \verb{/dev/null} en Linux and  \verb{nul:} on windows.}
+\item{outfile}{(optional, filepath) Where to direct the messages provided by the workers. When working on a local computer, \code{""} prints the worker's messages in the console. A text file path will append worker's messages on the given file.  Default: \verb{/dev/null} en Linux and  \verb{nul:} on windows.}
 
 \item{cluster}{a cluster definition created with \code{\link[=start_cluster]{start_cluster()}}. Only argument of \code{\link[=stop_cluster]{stop_cluster()}}. If \code{NULL}, any cluster within the R environment is stopped and deleted. Default: \code{NULL}}
 }

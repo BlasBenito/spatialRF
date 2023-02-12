@@ -1,11 +1,11 @@
 #' @title Functions to start and stop a cluster
 #' @description Defines a cluster. With default arguments it returns a cluster defined in the local machine. If the arguments `cluster.ips` and `cluster.cores` are provided, then a Beowulf cluster spanning as many machines as IPs is returned. All functions taking clusters as inputs in this package will register the cluster themselves using `doParallel::registerDoParallel()` internally, but if you are going to use this function for other purposes, please register your cluster before using it. Notice that Beowulf clusters require a particular configuration for your local network (see section `Network settings` at \href{https://www.blasbenito.com/post/01_home_cluster/}{https://www.blasbenito.com/post/01_home_cluster/}).
 #' @param cluster a cluster definition created with [start_cluster()]. Only argument of [stop_cluster()]. If `NULL`, any cluster within the R environment is stopped and deleted. Default: `NULL`
-#' @param cluster.ips Character vector with the IPs of the machines in the cluster. The first machine will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed. Default: `NULL`.
-#' @param cluster.cores Numeric integer vector, number of cores on each machine. Default: `parallel::detectCores() - 1`.
-#' @param cluster.user Character string, name of the user (should be the same throughout machines), Defaults to the current system user.
-#' @param cluster.port Character, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: `"11000"`
-#' @param outfile Where to direct the messages provided by the workers. When working on a local computer, `""` prints the worker's messages in the console. A text file path will append worker's messages on the given file.  Default: `/dev/null` en Linux and  `nul:` on windows.
+#' @param cluster.ips (optional, character vector) Character vector with the IPs of the machines in the cluster. The first machine will be considered the main node of the cluster, and will generally be the machine on which the R code is being executed. Default: `NULL`.
+#' @param cluster.cores (optional, numeric) Numeric integer vector, number of cores on each machine. Default: `parallel::detectCores() - 1`.
+#' @param cluster.user (optional, character) Character string, name of the user (should be the same throughout machines), Defaults to the current system user.
+#' @param cluster.port (optional, character) Character, port used by the machines in the cluster to communicate. The firewall in all computers must allow traffic from and to such port. Default: `"11000"`
+#' @param outfile (optional, filepath) Where to direct the messages provided by the workers. When working on a local computer, `""` prints the worker's messages in the console. A text file path will append worker's messages on the given file.  Default: `/dev/null` en Linux and  `nul:` on windows.
 #' @return A list ready to be used as input for the `spec` argument of the function \link[parallel]{makeCluster}.
 #' @examples
 #' if(interactive()){

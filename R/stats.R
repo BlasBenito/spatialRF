@@ -1,3 +1,53 @@
+#' @title Rescales a numeric vector into a new range
+#' @description Rescales a numeric vector to a new range.
+#' @param x (required, numeric vector) Numeric vector. Default: `NULL`
+#' @param new.min (optional, numeric) New minimum value. Default: `0`
+#' @param new.max (optional_numeric) New maximum value. Default: `1`
+#' @param old.min (optional, numeric) Old minimum value. Default: `NULL`
+#' @param old.max (optional_numeric) Old maximum value. Default: `NULL`
+#' @return A numeric vector of the same length as x, but with its values rescaled between `new.min` and `new.max.`
+#' @examples
+#' if(interactive()){
+#'
+#'  out <- rescale_vector(
+#'    x = rnorm(100),
+#'    new.min = 0,
+#'    new.max = 100,
+#'    integer = TRUE
+#'    )
+#'    out
+#'
+#' }
+#' @rdname rescale_vector
+#' @export
+rescale_vector <- function(x = NULL,
+                           new.min = 0,
+                           new.max = 1,
+                           old.min = NULL,
+                           old.max = NULL){
+
+  if(is.null(x) | !is.vector(x) | !is.numeric(x)){
+    stop("x must be a numeric vector.")
+  }
+
+  #data extremes
+  if(is.null(old.min)){
+    old.min = min(x)
+  }
+
+  if(is.null(old.max)){
+    old.max = max(x)
+  }
+
+  #scaling
+  x = ((x - old.min) / (old.max - old.min)) * (new.max - new.min) + new.min
+
+  x
+
+}
+
+
+
 #' @title Standard error of the mean of a numeric vector
 #' @description Computes the standard error of the mean of a numeric vector as `round(sqrt(var(x)/length(x)), 3)`
 #' @param x A numeric vector.

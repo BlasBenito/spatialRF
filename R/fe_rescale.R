@@ -40,13 +40,27 @@ fe_rescale <- function(
     verbose = TRUE
 ){
 
-  if(is.null(data)){
-    stop("Argument 'data' must be provided")
-  }
+  #checking data
+  ##############
+  data <- check_data(
+    data = data,
+    na.allowed = TRUE,
+    verbose = verbose
+  )
 
-  if(!("data.frame" %in% class(data))){
-    stop("Argument 'data' must be of class 'data.frame'.")
-  }
+  predictors.names <- check_predictors_names(
+    predictors.names = predictors.names,
+    data = data,
+    numeric.only = FALSE,
+    is.required = FALSE,
+    verbose = verbose
+  )
+
+  response.name <- check_response_name(
+    response.name = response.name,
+    data = data,
+    is.required = FALSE
+  )
 
   #check if input is tibble
   if(tibble::is_tibble(data) == TRUE){
@@ -56,24 +70,20 @@ fe_rescale <- function(
   }
 
   #columns to scale
-  cols <- c(response.name, predictors.names)
-  if(is.null(cols)){
-    cols <- colnames(data)
+  columns.to.scale <- c(response.name, predictors.names)
+  if(is.null(columns.to.scale)){
+    columns.to.scale <- colnames(data)
   } else {
-    cols <- intersect(cols, colnames(data))
+    columns.to.scale <- intersect(columns.to.scale, colnames(data))
   }
 
   #find numeric predictors
-  cols <- lapply(
-    X = data[, cols],
-    FUN = is.numeric
-  ) %>%
-    unlist()
+  columns.to.scale <- numeric_columns(
+    data = data,
+    columns = columns.to.scale
+  )
 
-  #subset numerics
-  cols <- names(cols)[cols]
-
-  if(length(cols) == 0){
+  if(length(columns.to.scale) == 0){
 
     message("No numeric columns to scale in 'data', returning the original input.")
 
@@ -83,7 +93,7 @@ fe_rescale <- function(
     if(verbose == TRUE){
       message(
         "Scaling columns:\n",
-        paste0(cols, collapse = "\n")
+        paste0(columns.to.scale, collapse = "\n")
       )
     }
 
@@ -91,13 +101,13 @@ fe_rescale <- function(
     data <- data %>%
       dplyr::mutate(
         dplyr::across(
-          tidyselect::all_of(cols),
+          tidyselect::all_of(columns.to.scale),
           rescale_vector,
           new.min = new.min,
           new.max = new.max
         ),
         dplyr::across(
-          tidyselect::all_of(cols),
+          tidyselect::all_of(columns.to.scale),
           as.vector
         )
       )

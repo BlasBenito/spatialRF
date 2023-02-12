@@ -216,7 +216,7 @@ plot_moran <- function(
     loop.out <- foreach::foreach(distance.threshold = distance.thresholds) %do% {
 
       #matrix of weights
-      distance.weights <- weights_from_distance_matrix(
+      distance.weights <- distmatrix_to_weights(
         distance.matrix = distance.matrix,
         distance.threshold = distance.threshold
       )

@@ -1,3 +1,67 @@
+#' @title Generates case weights for binary responses
+#' @description When the data is binary, setting the `ranager` argument `case.weights` helps to minimize the issues produced by class imbalance. This function takes a binary response variable and returns a vector of weights populated with the values `1/#zeros` and `1/#ones`. It is used internally by the function [rf()].
+#' @param x (required, numeric vector) Numeric vector with values 1 and 0 representing the response column to train a binary-response model. Default: `NULL`
+#' @param case.weights  (optional, numeric vector) Numeric vector with case weights. Only for internal use within the package. Default: `NULL`
+#' @return A vector with a length equal to `x` with case weights.
+#' @examples
+#' if(interactive()){
+#'
+#'  case_weights(
+#'    x = c(0, 0, 0, 1, 1)
+#'  )
+#'
+#'  }
+#' @rdname internal
+#' @keywords internal
+#' @export
+case_weights <- function(
+    x = NULL,
+    case.weights = NULL
+){
+
+  binary <- is_binary_response(x)
+
+  if(is.null(x) | !binary){
+    return(case.weights)
+  }
+
+  #if the user did not provide case weights
+  if(is.null(case.weights)){
+
+    #computing case weights
+    #counting number of ones and zeros
+    n <- length(x)
+    n.1 <- sum(x)
+    n.0 <- n - n.1
+
+    #computing weights
+    weight.1 <- 1/n.1
+    weight.0 <- 1/n.0
+
+    #vector of weights
+    case.weights <- rep(NA, n)
+    case.weights[x == 1] <- weight.1
+    case.weights[x == 0] <- weight.0
+
+    return(case.weights)
+
+  } else {
+
+    if(length(case.weights) == length(x)){
+
+      return(case.weights)
+
+    } else {
+      stop("The length of the argument 'case.weights' must match the number of rows of 'data'.")
+    }
+
+  }
+
+}
+
+
+
+
 #' Extract Numeric Columns from a Data Frame
 #'
 #' This function takes a data frame and a set of columns and returns the names of the numeric columns in the selected data frame.
@@ -54,6 +118,160 @@ numeric_columns <- function(
 }
 
 
+#' Checks 'distance.thresholds' argument
+#'
+#' @param distance.thresholds main argument.
+#' @param distance.matrix distance.matrix argument.
+#' @param is.required logical
+#'
+#' @return distance thresholds
+#' @export
+#' @rdname internal
+#' @keywords internal
+check_distance_thresholds <- function(
+    distance.thresholds = NULL,
+    distance.matrix = NULL,
+    is.required = TRUE,
+    verbose = TRUE
+){
+
+  #if required
+  if(is.required == TRUE){
+
+       if(is.null(distance.matrix)){
+
+         stop("Argument 'distance.matrix' is required.")
+
+       } else {
+
+         if(is.null(distance.thresholds)){
+
+           distance.thresholds <- default_distance_thresholds(
+             distance.matrix = distance.matrix
+           )
+
+           if(verbose == TRUE){
+             message(
+               "Generating default values for the argument 'distance.thresholds' from the distance matrix: ",
+               paste0(
+                 distance.thresholds,
+                 collapse = ", "
+                 )
+               )
+
+           }
+
+         }
+
+       }
+  }
+
+  #not required
+  if(!is.null(distance.thresholds)){
+
+    if(is.numeric(distance.thresholds) == FALSE){
+      as.numeric(distance.thresholds)
+    }
+
+
+    if(max(distance.thresholds) > max(distance.matrix)){
+      distance.thresholds[distance.thresholds > distance.matrix] <- max(distance.matrix)
+
+      if(verbose == TRUE){
+        "Setting maximum value of argument 'distance.thresholds' to the maximum value of the argument 'distance.matrix'."
+      }
+
+    }
+
+    distance.thresholds <- sort(unique(distance.thresholds))
+
+  }
+
+
+}
+
+#' Checks 'distance.matrix' argument
+#'
+#' @param data data argument.
+#' @param distance.matrix distance.matrix argument.
+#' @param is.required logical
+#'
+#' @return distance matrix
+#' @export
+#' @rdname internal
+#' @keywords internal
+check_distance_matrix <- function(
+    data = NULL,
+    distance.matrix = NULL,
+    is.required = TRUE,
+    verbose = TRUE
+){
+
+
+  if(is.null(distance.matrix) & is.required == TRUE){
+      stop("The argument 'distance.matrix' must be provided.")
+  }
+
+
+  if(!is.null(data)){
+    if(nrow(data) != nrow(distance.matrix)){
+      stop("The arguments 'data' and 'distance.matrix' must have the same number of rows.")
+    }
+  }
+
+
+  if(nrow(distance.matrix) != ncol(distance.matrix)){
+    stop("The argument 'distance.matrix' must have the same number of rows and columns.")
+  }
+
+
+  if(sum(diag(distance.matrix)) != 0){
+    diag(distance.matrix) <- 0
+    if(verbose == TRUE){
+      message("Diagonal of argument 'distance.matrix' was set to 0.")
+    }
+  }
+
+
+  if(is.matrix(distance.matrix) == FALSE){
+    distance.matrix <- as.matrix(distance.matrix)
+
+    if(verbose == TRUE){
+      message("Argument 'distance.matrix' was coerced to the class 'matrix'.")
+    }
+
+  }
+
+  #fill lower triangle if empty
+  if(all(is.na(distance.matrix[lower.tri(distance.matrix)]))){
+
+    distance.matrix[lower.tri(distance.matrix)] <- t(distance.matrix)[upper.tri(t(distance.matrix))]
+
+    if(verbose == TRUE){
+      message("Lower triangle of the argument 'distance.matrix' was filled with the data from the upper triangle.")
+    }
+
+  }
+
+  #fill upper triangle if empty
+  if(all(is.na(distance.matrix[upper.tri(distance.matrix)]))){
+
+    distance.matrix[upper.tri(distance.matrix)] <- t(distance.matrix)[lower.tri(t(distance.matrix))]
+
+    if(verbose == TRUE){
+      message("Upper triangle of the argument 'distance.matrix' was filled with the data from the lower triangle.")
+    }
+
+  }
+
+  if(sum(is.na(distance.matrix)) != 0){
+    stop("The argument 'distance.matrix' must not have NA values.")
+  }
+
+  distance.matrix
+
+
+}
 
 #' Checks 'data' argument
 #'
@@ -85,7 +303,7 @@ check_data <- function(
   if(sum.na > 0){
     if(na.allowed == TRUE){
       if(verbose == TRUE){
-        message("Argument 'data' has ", sum.na, " NA values.")
+        message("Argument 'data' has ", sum.na, " value/s with NA.")
       }
     } else {
 
@@ -118,6 +336,9 @@ check_data <- function(
 #'
 #' @param data data argument.
 #' @param predictors.names predictors.names.argument
+#' @param numeric.only logical
+#' @param is.required logical
+#' @param verbose logical
 #'
 #' @return predictor.names
 #' @export
@@ -363,13 +584,6 @@ filter_spatial_predictors <- function(
     max.cor = 0.50
 ){
 
-  #predictors.names comes from mc_auto_vif or mc_auto_cor
-  if(!is.null(predictors.names)){
-    if(inherits(predictors.names, "variable_selection")){
-      predictors.names <- predictors.names$selected.variables
-    }
-  }
-
   #filtering spatial predictors by pair-wise correlation
   spatial.predictors.selection <- mc_auto_cor(
     data = spatial.predictors.df,
@@ -395,13 +609,20 @@ filter_spatial_predictors <- function(
   non.spatial.predictors.df <- data[, predictors.names, drop = FALSE]
 
   #correlation between spatial and non-spatial predictors
-  cor.predictors <- abs(cor(
-    non.spatial.predictors.df,
-    spatial.predictors.df
-  ))
+  cor.predictors <- abs(
+    cor(
+      non.spatial.predictors.df,
+      spatial.predictors.df
+    )
+  )
 
   #max correlation of the spatial predictors
-  max.cor.spatial.predictors <- apply(cor.predictors, 2, FUN = max)
+  max.cor.spatial.predictors <- apply(
+    X = cor.predictors,
+    MARGIN = 2,
+    FUN = max,
+    na.rm = TRUE
+    )
 
   #selected spatial predictors
   selected.spatial.predictors <- names(max.cor.spatial.predictors[max.cor.spatial.predictors < max.cor])
@@ -448,6 +669,8 @@ default_distance_thresholds <- function(
       length.out = 4
     )
   )
+
+  distance.thresholds <- pretty(distance.thresholds)
 
   distance.thresholds
 

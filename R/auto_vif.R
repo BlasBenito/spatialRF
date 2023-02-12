@@ -12,10 +12,10 @@
 #'   vif.threshold = 5,
 #'   verbose = TRUE
 #' )
-#' @param x A data frame with predictors or the result of [auto_cor()]. Default: `NULL`.
-#' @param preference.order a character vector with columns names of x ordered by the user preference, Default: `NULL`.
-#' @param vif.threshold Numeric between 2.5 and 10 defining the selection threshold for the VIF analysis. Higher numbers result in a more relaxed variable selection. Default: 5.
-#' @param verbose Logical. if `TRUE`, describes the function operations to the user. Default:: `TRUE`
+#' @param x (required, data frame) A data frame with predictors or the result of [auto_cor()]. Default: `NULL`.
+#' @param preference.order (optional, character vector) a character vector with columns names of x ordered by the user preference, Default: `NULL`.
+#' @param vif.threshold (optional, numeric) Numeric between 2.5 and 10 defining the selection threshold for the VIF analysis. Higher numbers result in a more relaxed variable selection. Default: 5.
+#' @param verbose (optional, logical) Logical. if `TRUE`, describes the function operations to the user. Default:: `TRUE`
 #' @return List with three slots:
 #' \itemize{
 #'   \item `vif`: data frame with the names of the selected variables and their respective VIF scores.

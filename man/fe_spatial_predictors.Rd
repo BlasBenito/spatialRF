@@ -5,14 +5,15 @@
 \title{Adds spatial predictors to a training data frame}
 \usage{
 fe_spatial_predictors(
-  data,
-  response.name,
-  predictors.names,
-  distance.matrix,
-  distance.thresholds,
+  data = NULL,
+  response.name = NULL,
+  predictors.names = NULL,
+  distance.matrix = NULL,
+  distance.thresholds = NULL,
   what.mem = "positive",
   method = "mem",
-  cluster = NULL
+  cluster = NULL,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -24,13 +25,15 @@ fe_spatial_predictors(
 
 \item{distance.matrix}{(required; distance matrix) Squared matrix with the distances among the records in \code{data}. The number of rows of \code{distance.matrix} and \code{data} must be the same. Default: \code{NULL}}
 
-\item{distance.thresholds}{(optional; numeric vector with distances in the same units as \code{distance.matrix}) Numeric vector with neighborhood distances to be used to compute Moran's Eigenvector Maps. Default: \code{NULL}}
+\item{distance.thresholds}{(optional; numeric vector with distances in the same units as \code{distance.matrix}) Numeric vector with neighborhood distances to be used to compute Moran's Eigenvector Maps. Ignored if \code{method = "hengl"}. Default: \code{NULL}}
 
 \item{what.mem}{(optional, character) Only relevant for \verb{method = "mem}. Character string indicating what Moran's Eigenvector Maps to generate. If "positive", only MEMs with positive eigenvectors are returned. If "negative", only MEMs with negative eigenvectors are returned. If "all", all MEMs are returned. Default: \code{"positive"}}
 
 \item{method}{(optional, character) Name of the method used to generate spatial predictors. If "hengl", the spatial predictors are the columns of the distance matrix between cases. If "mem", then Moran's Eigenvector Maps are used as spatial predictors.}
 
 \item{cluster}{(optional, only relevant for \code{method = "mem"}; cluster object) A cluster definition generated with \code{parallel::makeCluster()} or \code{\link{start_cluster}}. Only advisable if you need to spread a large number of repetitions over the nodes of a large cluster when working with large data. The function does not stop a cluster, please remember to shut it down with \code{parallel::stopCluster(cl = cluster_name)} or \code{spatialRF::stop_cluster()} at the end of your pipeline. Default: \code{NULL}}
+
+\item{verbose}{(optional, logical) If \code{TRUE}, the function prints message indicating what columns have been scaled. Default: \code{TRUE}}
 }
 \value{
 Adds new columns to the \code{data} argument. If \code{method = "hengl"}, then these columns are named "distance_from_X", where X is the index of the case the distance is being measured from. If \code{method = "mem"}, then these columns are named "mem_D_X", where D is the distance threshold for which the MEM was computed, and X is the index is the index of the case the MEM has been computed for.
@@ -60,7 +63,7 @@ data(
  ecoregions_df <- fe_spatial_predictors(
    data = ecoregions_df,
    response.name = ecoregions_continuous_response,
-   predictors.names,
+   predictors.names = ecoregions_all_predictors,
    distance.matrix = ecoregions_distance_matrix,
    what.mem = "positive",
    method = "mem",

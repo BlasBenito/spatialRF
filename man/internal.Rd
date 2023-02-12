@@ -2,6 +2,11 @@
 % Please edit documentation in R/fe_target_encoding_methods.R, R/internal.R
 \name{fe_target_encoding_noise}
 \alias{fe_target_encoding_noise}
+\alias{case_weights}
+\alias{non_numeric_columns}
+\alias{numeric_columns}
+\alias{check_distance_thresholds}
+\alias{check_distance_matrix}
 \alias{check_data}
 \alias{check_predictors_names}
 \alias{check_response_name}
@@ -10,9 +15,29 @@
 \alias{default_distance_thresholds}
 \alias{is_binary_response}
 \alias{prepare_importance_spatial}
-\title{Checks 'data' argument}
+\title{Generates case weights for binary responses}
 \usage{
 fe_target_encoding_noise(data, categorical.variable.name, noise = 0, seed = 1)
+
+case_weights(x = NULL, case.weights = NULL)
+
+non_numeric_columns(data, columns = NULL)
+
+numeric_columns(data = NULL, columns = NULL)
+
+check_distance_thresholds(
+  distance.thresholds = NULL,
+  distance.matrix = NULL,
+  is.required = TRUE,
+  verbose = TRUE
+)
+
+check_distance_matrix(
+  data = NULL,
+  distance.matrix = NULL,
+  is.required = TRUE,
+  verbose = TRUE
+)
 
 check_data(data = NULL, na.allowed = TRUE, verbose = TRUE)
 
@@ -55,13 +80,27 @@ prepare_importance_spatial(model)
 \arguments{
 \item{data}{(required, data frame) Data frame with a response variable and a set of predictors. Default: \code{NULL}}
 
+\item{x}{Optimization data frame generated internally by \code{\link[=select_spatial_predictors_sequential]{select_spatial_predictors_sequential()}} or \code{\link[=select_spatial_predictors_recursive]{select_spatial_predictors_recursive()}}. Default: \code{NULL}}
+
+\item{case.weights}{(optional, numeric vector) Numeric vector with case weights. Only for internal use within the package. Default: \code{NULL}}
+
+\item{columns}{A character vector specifying the columns of the data frame to extract.}
+
+\item{distance.thresholds}{main argument.}
+
+\item{distance.matrix}{Distance matrix. Default: \code{NULL}.}
+
+\item{is.required}{logical}
+
+\item{verbose}{logical}
+
 \item{na.allowed}{logical, changes the check depending on whether NAs are allowed in data or not.}
 
 \item{predictors.names}{(required, character vector) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. Default: \code{NULL}}
 
-\item{response.name}{(optional; character string) Name of the dependent variable. Only required when there are categorical variables within \code{predictors.names}. Default: \code{NULL}}
+\item{numeric.only}{logical}
 
-\item{x}{Optimization data frame generated internally by \code{\link[=select_spatial_predictors_sequential]{select_spatial_predictors_sequential()}} or \code{\link[=select_spatial_predictors_recursive]{select_spatial_predictors_recursive()}}. Default: \code{NULL}}
+\item{response.name}{(optional; character string) Name of the dependent variable. Only required when there are categorical variables within \code{predictors.names}. Default: \code{NULL}}
 
 \item{weight.performance}{Numeric between 0 and 1, weight of R-squared in the optimization process. Default: \code{NULL}}
 
@@ -73,11 +112,19 @@ prepare_importance_spatial(model)
 
 \item{max.cor}{(optional, numeric) Numeric between 0 and 1, maximum Pearson correlation between any pair of the selected variables. Default: \code{0.50}}
 
-\item{distance.matrix}{Distance matrix. Default: \code{NULL}.}
-
 \item{model}{An importance data frame with spatial predictors, or a model fitted with \code{\link[=rf_spatial]{rf_spatial()}}.}
 }
 \value{
+A vector with a length equal to \code{x} with case weights.
+
+A character vector with the names of the numeric columns in the selected data frame.
+
+A character vector with the names of the non-numeric columns in the selected data frame.
+
+distance thresholds
+
+distance matrix
+
 data
 
 predictor.names
@@ -93,6 +140,12 @@ A numeric vector with distance thresholds.
 A list with importance data frames in different formats depending on whether the model was fitted with \code{\link[=rf]{rf()}} or \code{\link[=rf_repeat]{rf_repeat()}}.
 }
 \description{
+When the data is binary, setting the \code{ranager} argument \code{case.weights} helps to minimize the issues produced by class imbalance. This function takes a binary response variable and returns a vector of weights populated with the values \verb{1/#zeros} and \verb{1/#ones}. It is used internally by the function \code{\link[=rf]{rf()}}.
+
+This function takes a data frame and a set of columns and returns the names of the numeric columns in the selected data frame.
+
+This function takes a data frame and a set of columns and returns the names of the non-numeric columns in the selected data frame.
+
 Optimizes the selection of spatial predictors using two different methods: "moran.i", and "p.value".
 
 Removes spatial predictors that are pair-wise correlated with other spatial predictors (which happens when there are several close distance thresholds), and spatial predictors correlated with non-spatial predictors.
@@ -113,6 +166,13 @@ max(1 - Moran's I, binary p-value) + w1 * rsquared - w2 * penalization
 The "moran.i" method generally selects more spatial predictors than the "p.value" method.
 }
 \examples{
+if(interactive()){
+
+ case_weights(
+   x = c(0, 0, 0, 1, 1)
+ )
+
+ }
 if(interactive()){
 
 data(

@@ -159,41 +159,26 @@ fe_target_encoding <- function(
   correlation_with_response <- NULL
 
   #CHECK INPUT ARGUMENTS
+  data <- check_data(
+    data = data,
+    na.allowed = TRUE,
+    verbose = verbose
+  )
 
-  if(is.null(data)){
-    stop("Argument 'data' must be provided.")
-  }
+  predictors.names <- check_predictors_names(
+    predictors.names = predictors.names,
+    data = data,
+    numeric.only = FALSE,
+    is.required = TRUE,
+    verbose = verbose
+  )
 
-  if(is.null(response.name)){
-    stop("Argument 'response.name' must be provided.")
-  }
+  response.name <- check_response_name(
+    response.name = response.name,
+    data = data,
+    is.required = TRUE
+  )
 
-  if(!(response.name %in% colnames(data))){
-    stop("Argument 'response.name' must be a column of 'data'")
-  }
-
-  if(is.numeric(data[[response.name]]
-  ) == FALSE){
-    stop("The column ", response.name, " must be numeric.")
-  }
-
-  if(is.null(predictors.names)){
-    stop("Argument 'predictors.names' must be provided.")
-  }
-
-  if(sum(predictors.names %in% colnames(data)) < length(predictors.names)){
-
-    stop(
-      paste0(
-        "The predictors.names ",
-        paste0(
-          predictors.names[!(predictors.names %in% colnames(data))],
-          collapse = ", "
-        ),
-        " are missing from 'data'"
-      )
-    )
-  }
 
   if(replace == TRUE){
     verbose <- FALSE

@@ -3,6 +3,8 @@
 \name{mem}
 \alias{mem}
 \alias{mem_multithreshold}
+\alias{distmatrix_double_center}
+\alias{distmatrix_to_weights}
 \title{Moran's Eigenvector Maps of a distance matrix for one or several neighborhood distances}
 \usage{
 mem(
@@ -19,6 +21,10 @@ mem_multithreshold(
   colnames.prefix = "spatial_predictor_",
   max.spatial.predictors = NULL
 )
+
+distmatrix_double_center(distance.matrix = NULL, distance.threshold = 0)
+
+distmatrix_to_weights(distance.matrix = NULL, distance.threshold = 0)
 }
 \arguments{
 \item{distance.matrix}{Distance matrix. Default: \code{NULL}.}
@@ -40,7 +46,7 @@ A data frame with positive Moran's Eigenvector Maps.
 Computes the positive Moran's Eigenvector Maps of a distance matrix. These MEMs can be used as predictors in regression models to control for the spatial autocorrelation in the training data.
 }
 \details{
-Takes the distance matrix \code{x}, double-centers it with \code{\link[=double_center_distance_matrix]{double_center_distance_matrix()}}, applies \link[base]{eigen}, and returns eigenvectors with positive normalized eigenvalues (a.k.a Moran's Eigenvector Maps, or MEMs). These MEMs are later used as spatial predictors by \code{\link[=rf_spatial]{rf_spatial()}}.
+Takes the distance matrix \code{x}, double-centers it with \code{\link[=distmatrix_double_center]{distmatrix_double_center()}}, applies \link[base]{eigen}, and returns eigenvectors with positive normalized eigenvalues (a.k.a Moran's Eigenvector Maps, or MEMs). These MEMs are later used as spatial predictors by \code{\link[=rf_spatial]{rf_spatial()}}.
 }
 \examples{
 if(interactive()){

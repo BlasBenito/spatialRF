@@ -16,9 +16,9 @@ fe_scale(
 \arguments{
 \item{data}{(required, data frame, tibble, or sf data frame) Data frame with a response variable and a set of predictors. Default: \code{NULL}}
 
-\item{response.name}{(optional; character string) Character string with the name of the response variable. Must be in the column names of \code{data}. Default: \code{NULL}}
+\item{response.name}{(required if \code{predictors.names = NULL}; character string) Character string with the name of the response variable. Must be in the column names of \code{data}. Default: \code{NULL}}
 
-\item{predictors.names}{(optional; character vector with column names of \code{data}) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. Default: \code{NULL}}
+\item{predictors.names}{(required if \code{response.name = NULL}; character vector with column names of \code{data}) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. Default: \code{NULL}}
 
 \item{scale}{(optional, logical) If \code{TRUE}, the data is scaled. If \code{center = TRUE}, the scaling is performed using the expression \code{(a - mean(a))/sd(a)} If \code{center = FALSE}, then a numeric column \code{a} is scaled using the expression \code{a/(sqrt(sum(a^2)/(length(a)-1)))}}
 

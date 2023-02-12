@@ -4,10 +4,10 @@
 #' WARNING: This function is deprecated and will be removed from the package soon.
 #'
 #' Computes the correlation matrix among a set of predictors, orders the correlation matrix according to a user-defined preference order, and removes variables one by one, taking into account the preference order, until the remaining ones are below a given Pearson correlation threshold. \strong{Warning}: variables in `preference.order` not in `colnames(x)`, and non-numeric columns are removed silently from `x` and `preference.order`. The same happens with rows having NA values ([na.omit()] is applied). The function issues a warning if zero-variance columns are found.
-#' @param x A data frame with predictors, or the result of [auto_vif()] Default: `NULL`.
-#' @param preference.order Character vector indicating the user's order of preference to keep variables. Doesn't need to contain If not provided, variables in `x` are prioritised by their column order. Default: `NULL`.
-#' @param cor.threshold Numeric between 0 and 1, with recommended values between 0.5 and 0.9. Maximum Pearson correlation between any pair of the selected variables. Default: `0.50`
-#' @param verbose Logical. if `TRUE`, describes the function operations to the user. Default:: `TRUE`
+#' @param x (required, data frame) A data frame with predictors, or the result of [auto_vif()] Default: `NULL`.
+#' @param preference.order (optional, character vector) Character vector indicating the user's order of preference to keep variables. Doesn't need to contain If not provided, variables in `x` are prioritised by their column order. Default: `NULL`.
+#' @param cor.threshold (optional, numeric) Numeric between 0 and 1, with recommended values between 0.5 and 0.9. Maximum Pearson correlation between any pair of the selected variables. Default: `0.50`
+#' @param verbose (optional, logical) Logical. if `TRUE`, describes the function operations to the user. Default:: `TRUE`
 #' @return List with three slots:
 #' \itemize{
 #'   \item `cor`: correlation matrix of the selected variables.

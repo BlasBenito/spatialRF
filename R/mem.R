@@ -7,7 +7,7 @@
 #' @param colnames.prefix Character, name prefix for the output columns. Default: `"spatial_predictor_"`
 #' @param max.spatial.predictors (argument of [mem_multithreshold()]) Positive integer, maximum number of Moran's Eigenvector Maps to return. Default: `NULL`.
 #' @return A data frame with positive Moran's Eigenvector Maps.
-#' @details Takes the distance matrix `x`, double-centers it with [double_center_distance_matrix()], applies \link[base]{eigen}, and returns eigenvectors with positive normalized eigenvalues (a.k.a Moran's Eigenvector Maps, or MEMs). These MEMs are later used as spatial predictors by [rf_spatial()].
+#' @details Takes the distance matrix `x`, double-centers it with [distmatrix_double_center()], applies \link[base]{eigen}, and returns eigenvectors with positive normalized eigenvalues (a.k.a Moran's Eigenvector Maps, or MEMs). These MEMs are later used as spatial predictors by [rf_spatial()].
 #' @seealso [mem_multithreshold()], [rf_spatial()]
 #' @examples
 #' if(interactive()){
@@ -40,7 +40,7 @@ mem <- function(
   }
 
   #double center distance matrix
-  distance.matrix.double.centered <- double_center_distance_matrix(
+  distance.matrix.double.centered <- distmatrix_double_center(
     distance.matrix = distance.matrix,
     distance.threshold = distance.threshold
     )
@@ -143,3 +143,70 @@ mem_multithreshold <- function(
 
 }
 
+#' @rdname mem
+#' @export
+distmatrix_double_center <- function(
+    distance.matrix = NULL,
+    distance.threshold = 0
+){
+
+  if(is.null(distance.matrix)){
+    stop("Argument 'distance.matrix' is missing.`")
+  }
+
+  #distance matrix weights
+  x <- distmatrix_to_weights(
+    distance.matrix = distance.matrix,
+    distance.threshold = distance.threshold
+  )
+
+  #bicenter matrix
+  #compute row means
+  x.row.means <- x*0 + rowMeans(x)
+
+  #compute col means
+  x.col.means <- t(x*0 + colMeans(x))
+
+  #double centering
+  x.double.centered <- (x - x.row.means - x.col.means + mean(x[]))
+
+  #return output
+  x.double.centered
+
+}
+
+#' @rdname mem
+#' @export
+distmatrix_to_weights <- function(
+    distance.matrix = NULL,
+    distance.threshold = 0
+){
+
+  if(is.null(distance.matrix)){
+    stop("Argument 'distance.matrix' is missing.`")
+  }
+
+  #thresholding distance matrix
+  distance.matrix[distance.matrix <= distance.threshold] <- 1
+
+  #diagonal as NA
+  diag(distance.matrix) <- NA
+
+  #computing weights
+  x.weights <- 1/distance.matrix
+
+  #normalizing weights
+  weight.rowsums <- rowSums(
+    x.weights,
+    na.rm = TRUE
+  )
+  x.weights <- x.weights/weight.rowsums
+
+  #fixing Inf and diag
+  x.weights[x.weights == Inf] <- 0
+  diag(x.weights) <- 0
+
+  #returning output
+  x.weights
+
+}

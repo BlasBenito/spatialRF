@@ -12,11 +12,11 @@
 #' @param response.name (optional; character string) Name of the dependent variable. Required when there are categorical variables in `predictors.names`. Default: `NULL`
 #' @param predictors.names (required; character vector with column names of `data`) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Default: `NULL`
 #' @param distance.matrix (required; distance matrix) Squared matrix with the distances among the records in `data`. The number of rows of `distance.matrix` and `data` must be the same. Default: `NULL`
-#' @param distance.thresholds  (optional; numeric vector with distances in the same units as `distance.matrix`) Numeric vector with neighborhood distances to be used to compute Moran's Eigenvector Maps. Default: `NULL`
+#' @param distance.thresholds  (optional; numeric vector with distances in the same units as `distance.matrix`) Numeric vector with neighborhood distances to be used to compute Moran's Eigenvector Maps. Ignored if `method = "hengl"`. Default: `NULL`
 #' @param what.mem  (optional, character) Only relevant for `method = "mem`. Character string indicating what Moran's Eigenvector Maps to generate. If "positive", only MEMs with positive eigenvectors are returned. If "negative", only MEMs with negative eigenvectors are returned. If "all", all MEMs are returned. Default: `"positive"`
 #' @param method (optional, character) Name of the method used to generate spatial predictors. If "hengl", the spatial predictors are the columns of the distance matrix between cases. If "mem", then Moran's Eigenvector Maps are used as spatial predictors.
 #' @param cluster (optional, only relevant for `method = "mem"`; cluster object) A cluster definition generated with `parallel::makeCluster()` or \code{\link{start_cluster}}. Only advisable if you need to spread a large number of repetitions over the nodes of a large cluster when working with large data. The function does not stop a cluster, please remember to shut it down with `parallel::stopCluster(cl = cluster_name)` or `spatialRF::stop_cluster()` at the end of your pipeline. Default: `NULL`
-#'
+#' @param verbose (optional, logical) If `TRUE`, the function prints message indicating what columns have been scaled. Default: `TRUE`
 #' @return Adds new columns to the `data` argument. If `method = "hengl"`, then these columns are named "distance_from_X", where X is the index of the case the distance is being measured from. If `method = "mem"`, then these columns are named "mem_D_X", where D is the distance threshold for which the MEM was computed, and X is the index is the index of the case the MEM has been computed for.
 #' @export
 #'
@@ -36,7 +36,7 @@
 #'  ecoregions_df <- fe_spatial_predictors(
 #'    data = ecoregions_df,
 #'    response.name = ecoregions_continuous_response,
-#'    predictors.names,
+#'    predictors.names = ecoregions_all_predictors,
 #'    distance.matrix = ecoregions_distance_matrix,
 #'    what.mem = "positive",
 #'    method = "mem",
@@ -47,14 +47,15 @@
 #'
 #' }}
 fe_spatial_predictors <- function(
-    data,
-    response.name,
-    predictors.names,
-    distance.matrix,
-    distance.thresholds,
+    data = NULL,
+    response.name = NULL,
+    predictors.names = NULL,
+    distance.matrix = NULL,
+    distance.thresholds = NULL,
     what.mem = "positive",
     method = "mem",
-    cluster = NULL
+    cluster = NULL,
+    verbose = TRUE
     ){
 
   method <- match.arg(
@@ -66,40 +67,45 @@ fe_spatial_predictors <- function(
     several.ok = FALSE
   )
 
-  if(is.null(data)){
+  #checking data
+  ##############
+  data <- check_data(
+    data = data,
+    na.allowed = TRUE,
+    verbose = verbose
+  )
 
-    stop("The argument 'data' is required.")
+  predictors.names <- check_predictors_names(
+    predictors.names = predictors.names,
+    data = data,
+    numeric.only = FALSE,
+    is.required = TRUE,
+    verbose = verbose
+  )
 
-  }
+  response.name <- check_response_name(
+    response.name = response.name,
+    data = data,
+    is.required = FALSE,
+    verbose = verbose
+  )
 
+  distance.matrix <- check_distance_matrix(
+    data = data,
+    distance.matrix = distance.matrix,
+    is.required = TRUE,
+    verbose = verbose
+  )
 
-  if(is.null(distance.matrix)){
-
-    stop("The argument 'distance.matrix' is required.")
-
-  }
+  distance.thresholds <- check_distance_thresholds(
+    distance.thresholds = distance.thresholds,
+    distance.matrix = distance.matrix,
+    is.required = TRUE,
+    verbose = verbose
+  )
 
   #hengl method
   if(method == "hengl"){
-
-    #the distance matrix must have both triangles filled and a diagonal == 0
-
-    #fill lower triangle if empty
-    if(all(is.na(distance.matrix[lower.tri(distance.matrix)]))){
-
-      distance.matrix[lower.tri(distance.matrix)] <- t(distance.matrix)[upper.tri(t(distance.matrix))]
-
-    }
-
-    #fill upper triangle if empty
-    if(all(is.na(distance.matrix[upper.tri(distance.matrix)]))){
-
-      distance.matrix[upper.tri(distance.matrix)] <- t(distance.matrix)[lower.tri(t(distance.matrix))]
-
-    }
-
-    #fill diag with zero
-    diag(distance.matrix) <- 0
 
     #matrix to data frame
     rownames(distance.matrix) <- colnames(distance.matrix) <- paste0(
@@ -117,13 +123,6 @@ fe_spatial_predictors <- function(
 
   #mem method
   if(method == "mem"){
-
-    #generate optimal distance thresholds
-    if(is.null(distance.thresholds)){
-      distance.thresholds <- default_distance_thresholds(
-        distance.matrix = distance.matrix
-      )
-    }
 
     #generate mem
     mem.df <- mem_multithreshold(
@@ -156,7 +155,7 @@ fe_spatial_predictors <- function(
     #merging with data
     data <- cbind(
       data,
-      mem.df.rank$spatial_predictors.df
+      mem.df.rank$spatial_predictors_df
     )
 
 
