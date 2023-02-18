@@ -14,15 +14,12 @@
 #'
 #' The function allows the user to define a preference selection order via the argument `preference.order`. This argument helps "protect" variables that might be interesting or even required for the given analysis. Please, see the examples to understand better how this feature works.
 #'
-#' If there are categorical variables named in `predictors.names` and `response.name` is provided, then the function applies [fe_target_encoding()] with the method "mean" to transform the categorical variables into numeric before the VIF analysis
-#'
 #'
 #' @param data (required; data.frame or tibble) A data frame, tibble, or sf. Default: `NULL`.
-#' @param response.name (optional; character string) Name of the dependent variable. Required when there are categorical variables within `predictors.names`. Default: `NULL`
-#' @param predictors.names (optional; character vector) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. If `NULL`, all the columns in data except `response.name` are used. Default: `NULL`
+#' @param predictors.names (optional; character vector) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Default: `NULL`
 #' @param preference.order (optional, character vector) Character vector indicating the preference order to protect variables from elimination.  Predictors not included in this argument are ranked by their VIFs. Default: `NULL`.
 #' @param max.vif (optional, numeric) Numeric with recommended values between 2.5 and 10 defining the maximum VIF allowed in the output dataset. Higher VIF thresholds should result in a higher number of selected variables. Default: `5`.
-#' @param verbose (optional, logical) Logical. if `TRUE`, `mc_auto_vif()` prints messages describing its operations on the input data. Default:: `TRUE`
+#' @param verbose (optional, logical) Set to `FALSE` to silence messages. Default: `TRUE`
 #' @return Character vector with the names of uncorrelated predictors.
 #' @seealso [mc_auto_cor()]
 #' @examples
@@ -144,7 +141,6 @@
 #' #requires the name of the response to compute the target-encoding
 #' selected.predictors <- mc_auto_vif(
 #'   data = ecoregions_df,
-#'   response.name = ecoregions_continuous_response,
 #'   predictors.names = ecoregions_all_predictors
 #' )
 #'
@@ -154,12 +150,8 @@
 #'
 #' #applying target-encoding before vif
 #' #---------------------------------------------------
-#' #if you wish more control over the target-encoding
-#' #you can apply fe_target_encoding() to your categoricals
-#' #with the desired method before the vif
 #' data.encoded <- fe_target_encoding(
 #'   data = ecoregions_df,
-#'   response.name = ecoregions_continuous_response,
 #'   predictors.names = ecoregions_all_predictors,
 #'   methods = "mean",
 #'   replace = TRUE
@@ -183,7 +175,6 @@
 mc_auto_vif <- function(
     data = NULL,
     predictors.names = NULL,
-    response.name = NULL,
     preference.order = NULL,
     max.vif = 5,
     verbose = TRUE
@@ -231,75 +222,23 @@ mc_auto_vif <- function(
 
   }
 
-  #setting predictors.names
-  if(is.null(predictors.names)){
+  data <- check_data(
+    data = data,
+    drop.geometry = TRUE,
+    verbose = verbose
+  )
 
-    #from data
-    predictors.names <- colnames(data)
-
-  } else {
-
-    #ensuring they are in data
-    predictors.names <- intersect(
-      x = predictors.names,
-      y = colnames(data)
-    )
-
-  }
-
-  #response.name
-  if(
-    is.null(response.name) |
-    (!is.null(response.name) && !(response.name %in% colnames(data)))
-  ){
-
-    #take numerics only
-    predictors.names <- colnames(data[, predictors.names])[sapply(data[, predictors.names], is.numeric)]
-
-  } else {
-
-    #coerce categorical to numeric
-    data <- fe_target_encoding(
-      data = data,
-      response.name = response.name,
-      predictors.names = predictors.names,
-      methods = "mean",
-      replace = TRUE,
-      verbose = verbose
-    )
-
-  }
+  predictors.names <- check_predictors_names(
+    predictors.names = predictors.names,
+    data = data,
+    numeric.only = TRUE,
+    na.allowed = TRUE,
+    zero.variance.allowed = FALSE,
+    is.required = TRUE,
+    verbose = verbose
+  )
 
   data <- data[, predictors.names]
-
-  #finding zero variance columns
-  zero.variance.columns <- colnames(data)[round(apply(data, 2, var), 6) == 0]
-  if(length(zero.variance.columns) > 0){
-    if(verbose == TRUE){
-      message(
-        "These columns have almost zero variance and will be ignored: ",
-        paste(
-          zero.variance.columns,
-          collapse = ", "
-        )
-      )
-    }
-  }
-
-  #remove zero variance columns
-  if(length(zero.variance.columns) > 0){
-
-    predictors.names <- predictors.names[!(predictors.names %in% zero.variance.columns)]
-
-    #subset for correlation analysis
-    data <- data[, predictors.names]
-
-  }
-
-  #stop if not enough data
-  if(ncol(data) == 1){
-    stop("There are not enough predictors to perform the analysis.")
-  }
 
   #check cor
   data.cor <- mc_cor(

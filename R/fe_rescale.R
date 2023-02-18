@@ -44,7 +44,6 @@ fe_rescale <- function(
   ##############
   data <- check_data(
     data = data,
-    na.allowed = TRUE,
     verbose = verbose
   )
 

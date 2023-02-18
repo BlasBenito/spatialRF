@@ -7,7 +7,6 @@
 mc_auto_vif(
   data = NULL,
   predictors.names = NULL,
-  response.name = NULL,
   preference.order = NULL,
   max.vif = 5,
   verbose = TRUE
@@ -16,15 +15,13 @@ mc_auto_vif(
 \arguments{
 \item{data}{(required; data.frame or tibble) A data frame, tibble, or sf. Default: \code{NULL}.}
 
-\item{predictors.names}{(optional; character vector) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. If \code{NULL}, all the columns in data except \code{response.name} are used. Default: \code{NULL}}
-
-\item{response.name}{(optional; character string) Name of the dependent variable. Required when there are categorical variables within \code{predictors.names}. Default: \code{NULL}}
+\item{predictors.names}{(optional; character vector) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. Default: \code{NULL}}
 
 \item{preference.order}{(optional, character vector) Character vector indicating the preference order to protect variables from elimination.  Predictors not included in this argument are ranked by their VIFs. Default: \code{NULL}.}
 
 \item{max.vif}{(optional, numeric) Numeric with recommended values between 2.5 and 10 defining the maximum VIF allowed in the output dataset. Higher VIF thresholds should result in a higher number of selected variables. Default: \code{5}.}
 
-\item{verbose}{(optional, logical) Logical. if \code{TRUE}, \code{mc_auto_vif()} prints messages describing its operations on the input data. Default:: \code{TRUE}}
+\item{verbose}{(optional, logical) Set to \code{FALSE} to silence messages. Default: \code{TRUE}}
 }
 \value{
 Character vector with the names of uncorrelated predictors.
@@ -41,8 +38,6 @@ The possible range of VIF values is (1, Inf]. A VIF lower than 10 suggest that r
 The function \code{mc_auto_vif()} applies a recursive algorithm to remove variables with a VIF higher than a given threshold (defined by the argument \code{max.vif}).
 
 The function allows the user to define a preference selection order via the argument \code{preference.order}. This argument helps "protect" variables that might be interesting or even required for the given analysis. Please, see the examples to understand better how this feature works.
-
-If there are categorical variables named in \code{predictors.names} and \code{response.name} is provided, then the function applies \code{\link[=fe_target_encoding]{fe_target_encoding()}} with the method "mean" to transform the categorical variables into numeric before the VIF analysis
 }
 \examples{
 if(interactive()){
@@ -163,7 +158,6 @@ ecoregions_all_predictors[45:46]
 #requires the name of the response to compute the target-encoding
 selected.predictors <- mc_auto_vif(
   data = ecoregions_df,
-  response.name = ecoregions_continuous_response,
   predictors.names = ecoregions_all_predictors
 )
 
@@ -173,12 +167,8 @@ ecoregions_all_predictors[45:46] \%in\% selected.predictors
 
 #applying target-encoding before vif
 #---------------------------------------------------
-#if you wish more control over the target-encoding
-#you can apply fe_target_encoding() to your categoricals
-#with the desired method before the vif
 data.encoded <- fe_target_encoding(
   data = ecoregions_df,
-  response.name = ecoregions_continuous_response,
   predictors.names = ecoregions_all_predictors,
   methods = "mean",
   replace = TRUE

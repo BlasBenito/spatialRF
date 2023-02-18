@@ -588,12 +588,10 @@ rf_select <- function(
     df = sequential.models.df,
     cor = mc_cor(
       data = data,
-      response.name = response.name,
       predictors.names = selected.variables
       ),
     vif = mc_vif(
       data = data,
-      response.name = response.name,
       predictors.names = selected.variables
     )
   )

@@ -7,7 +7,6 @@
 mc_auto(
   data = NULL,
   predictors.names = NULL,
-  response.name = NULL,
   preference.order = NULL,
   max.cor = 0.75,
   max.vif = 5,
@@ -18,8 +17,6 @@ mc_auto(
 \item{data}{(required; data.frame or tibble) A data frame, tibble, or sf. Default: \code{NULL}.}
 
 \item{predictors.names}{(optional; character vector) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. If \code{NULL}, all the columns in data except \code{response.name} are used. Default: \code{NULL}}
-
-\item{response.name}{(optional; character string) Name of the dependent variable. Required when there are categorical variables in \code{predictors.names}. Default: \code{NULL}}
 
 \item{preference.order}{(optional, character vector) Character vector indicating the preference order to protect variables from elimination.  Predictors not included in this argument are ranked by their VIFs. Default: \code{NULL}.}
 
@@ -43,8 +40,6 @@ The argument \code{preference.order} allows the user to "protect" variables that
 
 If \code{preference.order} is not provided, then the predictors are ranked from lower to higher sum of R-squared with the other preodictors, and removed one by one until the maximum R-squared of the correlation matrix is lower than \code{max.cor} and the maximum VIF is below \code{max.vif}.
 
-If there are categorical variables named in \code{predictors.names} and \code{response.name} is provided, then the function applies \code{\link[=fe_target_encoding]{fe_target_encoding()}} with the method "mean" to transform the categorical variables into numeric. If a categorical variable is selected, then its original categorical values are returned.
-
 Please note that near-zero variance columns are ignored by this function.
 }
 \examples{
@@ -61,7 +56,6 @@ data(
 selected.predictors <- mc_auto(
   data = ecoregions_df,
   predictors.names = ecoregions_all_predictors,
-  response.name = ecoregions_continuous_response,
   max.cor = 0.75,
   max.vif = 5
   )

@@ -3,6 +3,7 @@
 \name{fe_target_encoding_noise}
 \alias{fe_target_encoding_noise}
 \alias{case_weights}
+\alias{zero_variance_columns}
 \alias{non_numeric_columns}
 \alias{numeric_columns}
 \alias{check_distance_thresholds}
@@ -20,6 +21,8 @@
 fe_target_encoding_noise(data, categorical.variable.name, noise = 0, seed = 1)
 
 case_weights(x = NULL, case.weights = NULL)
+
+zero_variance_columns(data, columns = NULL, decimal.places = 4)
 
 non_numeric_columns(data, columns = NULL)
 
@@ -39,13 +42,16 @@ check_distance_matrix(
   verbose = TRUE
 )
 
-check_data(data = NULL, na.allowed = TRUE, verbose = TRUE)
+check_data(data = NULL, drop.geometry = FALSE, verbose = TRUE)
 
 check_predictors_names(
   predictors.names = NULL,
   data = NULL,
-  numeric.only = TRUE,
   is.required = TRUE,
+  numeric.only = TRUE,
+  na.allowed = FALSE,
+  zero.variance.allowed = FALSE,
+  decimal.places = 4,
   verbose = TRUE
 )
 
@@ -53,6 +59,9 @@ check_response_name(
   response.name = NULL,
   data = NULL,
   is.required = TRUE,
+  na.allowed = FALSE,
+  zero.variance.allowed = FALSE,
+  decimal.places = 4,
   verbose = TRUE
 )
 
@@ -86,6 +95,8 @@ prepare_importance_spatial(model)
 
 \item{columns}{A character vector specifying the columns of the data frame to extract.}
 
+\item{decimal.places}{integer, number of decimals for the zero variance test}
+
 \item{distance.thresholds}{main argument.}
 
 \item{distance.matrix}{Distance matrix. Default: \code{NULL}.}
@@ -94,11 +105,13 @@ prepare_importance_spatial(model)
 
 \item{verbose}{logical}
 
-\item{na.allowed}{logical, changes the check depending on whether NAs are allowed in data or not.}
-
 \item{predictors.names}{(required, character vector) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. Default: \code{NULL}}
 
 \item{numeric.only}{logical}
+
+\item{na.allowed}{logical, changes the check depending on whether NAs are allowed in data or not.}
+
+\item{zero.variance.allowed}{logical}
 
 \item{response.name}{(optional; character string) Name of the dependent variable. Only required when there are categorical variables within \code{predictors.names}. Default: \code{NULL}}
 
@@ -113,9 +126,13 @@ prepare_importance_spatial(model)
 \item{max.cor}{(optional, numeric) Numeric between 0 and 1, maximum Pearson correlation between any pair of the selected variables. Default: \code{0.50}}
 
 \item{model}{An importance data frame with spatial predictors, or a model fitted with \code{\link[=rf_spatial]{rf_spatial()}}.}
+
+\item{drop.gemetry}{drops geometry column if data is an sf data frame}
 }
 \value{
 A vector with a length equal to \code{x} with case weights.
+
+A character vector with the names of the numeric columns in the selected data frame.
 
 A character vector with the names of the numeric columns in the selected data frame.
 
@@ -141,6 +158,8 @@ A list with importance data frames in different formats depending on whether the
 }
 \description{
 When the data is binary, setting the \code{ranager} argument \code{case.weights} helps to minimize the issues produced by class imbalance. This function takes a binary response variable and returns a vector of weights populated with the values \verb{1/#zeros} and \verb{1/#ones}. It is used internally by the function \code{\link[=rf]{rf()}}.
+
+This function takes a data frame and a set of columns and returns the names of the columns with zero variance.
 
 This function takes a data frame and a set of columns and returns the names of the numeric columns in the selected data frame.
 

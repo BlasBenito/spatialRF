@@ -4,22 +4,20 @@
 \alias{mc_cor}
 \title{Pairwise Pearson correlation}
 \usage{
-mc_cor(data = NULL, predictors.names = NULL, response.name = NULL)
+mc_cor(data = NULL, predictors.names = NULL, verbose = TRUE)
 }
 \arguments{
 \item{data}{(required; data frame or tibble) A data frame with predictors. Default: \code{NULL}.}
 
-\item{predictors.names}{(optional; character vector) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. If \code{NULL}, all the columns in data except \code{response.name} are used. Default: \code{NULL}}
+\item{predictors.names}{(optional; character vector) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. Default: \code{NULL}}
 
-\item{response.name}{(optional; character string) Name of the dependent variable. Only required when there are categorical variables within \code{predictors.names}. If not provided, non-numeric columns are ignored. Default: \code{NULL}}
+\item{verbose}{(optional, logical) Set to \code{FALSE} to silence messages. Default: \code{TRUE}}
 }
 \value{
 Data frame with the columns "a" and "b" containing the names of pairs of predictors, and "cor" containing Pearson correlation between each pair of predictors.
 }
 \description{
 Returns the pairwise Pearson correlation between all pairs of predictors in a training dataset.
-
-If there are categorical variables named in \code{predictors.names} and \code{response.name} is provided, then the function applies \code{\link[=fe_target_encoding]{fe_target_encoding()}} with the method "mean" to transform the categorical variables into numeric. If a categorical variable is selected, then its original categorical values are returned.
 
 Please note that near-zero variance columns are ignored by this function. Use \code{\link[=mc_auto_vif]{mc_auto_vif()}} to remove them.
 }
@@ -34,8 +32,7 @@ data(
 
 df <- mc_cor(
       data = ecoregions_df,
-      predictors.names = ecoregions_all_predictors,
-      response.name = ecoregions_continuous_response
+      predictors.names = ecoregions_all_predictors
 )
 
 }

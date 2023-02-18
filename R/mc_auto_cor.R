@@ -9,13 +9,10 @@
 #'
 #' If `preference.order` is not provided, then the predictors are ranked from lower to higher sum of R-squared with the other preodictors, and removed one by one until the maximum R-squared of the correlation matrix is lower than `max.cor`.
 #'
-#' If there are categorical variables named in `predictors.names` and `response.name` is provided, then the function applies [fe_target_encoding()] with the method "mean" to transform the categorical variables into numeric. If a categorical variable is selected, then its original categorical values are returned.
-#'
 #' Please note that near-zero variance columns are ignored by this function.
 #'
 #' @param data (required; data frame or tibble) A data frame with predictors. Default: `NULL`.
-#' @param predictors.names (optional; character vector) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. If `NULL`, all the columns in data except `response.name` are used. Default: `NULL`
-#' @param response.name (optional; character string) Name of the dependent variable. Only required when there are categorical variables within `predictors.names`. Default: `NULL`
+#' @param predictors.names (required; character vector) Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. If `NULL`, all the columns in data except `response.name` are used. Default: `NULL`
 #' @param preference.order  (optional; character vector) Character vector indicating the user's order of preference to keep variables. Predictors not included in this argument are ranked by the sum of their correlation with other variables (variables with higher sums receive lower ranks and have therefore lower preference order). Default: `NULL`.
 #' @param max.cor (optional; numeric) Numeric between 0 and 1. Maximum Pearson correlation between any pair of the selected variables. Higher values return larger number of predictors with higher multicollinearity. Default: `0.75`
 #' @param verbose (optional, logical) Logical. if `TRUE`, describes the function operations to the user. Default: `TRUE`
@@ -65,63 +62,33 @@
 mc_auto_cor <- function(
     data = NULL,
     predictors.names = NULL,
-    response.name = NULL,
     preference.order = NULL,
     max.cor = 0.75,
     verbose = TRUE
 ){
 
-  if(is.null(data)){
-    stop("Argument 'data' is required.")
-  }
-
+  #checking argument max.cor
   if((is.null(max.cor)) | (max.cor < 0) | (max.cor > 1)){
     stop("Argument 'max.cor' must be in the range (0, 1].")
   }
 
-  #dropping geometry if sf
-  if("sf" %in% class(data)){
-    data <- sf::st_drop_geometry(data)
-  }
+  #checking data
+  ##############
+  data <- check_data(
+    data = data,
+    drop.geometry = TRUE,
+    verbose = verbose
+  )
 
-  #setting predictors.names
-  if(is.null(predictors.names)){
-
-    #from data
-    predictors.names <- colnames(data)
-
-  } else {
-
-    #ensuring they are in data
-    predictors.names <- intersect(
-      x = predictors.names,
-      y = colnames(data)
-    )
-
-  }
-
-  #response.name
-  if(
-    is.null(response.name) |
-    (!is.null(response.name) && !(response.name %in% colnames(data)))
-    ){
-
-    #take numerics only
-    predictors.names <- colnames(data[, predictors.names])[sapply(data[, predictors.names], is.numeric)]
-
-  } else {
-
-    #coerce categorical to numeric
-    data <- fe_target_encoding(
-      data = data,
-      response.name = response.name,
-      predictors.names = predictors.names,
-      methods = "mean",
-      replace = TRUE,
-      verbose = verbose
-    )
-
-  }
+  predictors.names <- check_predictors_names(
+    predictors.names = predictors.names,
+    data = data,
+    numeric.only = TRUE,
+    na.allowed = TRUE,
+    zero.variance.allowed = FALSE,
+    is.required = TRUE,
+    verbose = verbose
+  )
 
   #subset for correlation analysis
   data <- data[, predictors.names]

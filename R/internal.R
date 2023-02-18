@@ -59,8 +59,48 @@ case_weights <- function(
 
 }
 
+#' Extract zero-variance Columns from a Data Frame
+#'
+#' This function takes a data frame and a set of columns and returns the names of the columns with zero variance.
+#'
+#' @param data A data frame to extract numeric columns from.
+#' @param columns A character vector specifying the columns of the data frame to extract.
+#' @param decimal.places Integer, number of decimal places to round `columns` to. Defines the tolerance of the test. Default: 4
+#' @return A character vector with the names of the numeric columns in the selected data frame.
+#' @export
+#' @rdname internal
+#' @keywords internal
+zero_variance_columns <- function(
+    data,
+    columns = NULL,
+    decimal.places = 4
+    ){
 
+  if(is.null(columns)){
+    columns <- colnames(data)
+  }
 
+  numeric.columns <- numeric_columns(
+    data = data,
+    columns = columns
+    )
+
+  data <- data[, numeric.columns]
+
+  zero.variance.columns <- colnames(data)[
+    round(
+      apply(
+        X = data,
+        MARGIN = 2,
+        FUN = var
+      ),
+      4
+    ) == 0
+  ]
+
+  zero.variance.columns
+
+}
 
 #' Extract Numeric Columns from a Data Frame
 #'
@@ -276,7 +316,7 @@ check_distance_matrix <- function(
 #' Checks 'data' argument
 #'
 #' @param data data argument.
-#' @param na.allowed logical, changes the check depending on whether NAs are allowed in data or not.
+#' @param drop.gemetry drops geometry column if data is an sf data frame
 #'
 #' @return data
 #' @export
@@ -284,7 +324,7 @@ check_distance_matrix <- function(
 #' @keywords internal
 check_data <- function(
     data = NULL,
-    na.allowed = TRUE,
+    drop.geometry = FALSE,
     verbose = TRUE
 ){
 
@@ -297,33 +337,19 @@ check_data <- function(
     stop("Argument 'data' must be a data frame (tibbles and sf data frames are supported as well).")
   }
 
-  #check if it has NA
-  sum.na <- sum(is.na(data))
-
-  if(sum.na > 0){
-    if(na.allowed == TRUE){
-      if(verbose == TRUE){
-        message("Argument 'data' has ", sum.na, " value/s with NA.")
-      }
-    } else {
-
-      #removes NA
-      original.nrow <- nrow(data)
-      data <- na.omit(data)
-
-      warning(
-        original.nrow - nrow(data),
-        " with NA values where removed from argument 'data'."
-      )
-
-    }
-
-  }
-
   #check number of rows
   if(nrow(data) < 30){
     if(verbose == TRUE){
-      message("Argument 'data' has too few rows .")
+      message("Argument 'data' has too few rows to fit a model.")
+    }
+  }
+
+  if(drop.geometry == TRUE){
+    if("sf" %in% class(data)){
+      if(verbose == TRUE){
+        message("Dropping geometry column from the 'data' data frame.")
+      }
+      data <- sf::st_drop_geometry(data)
     }
   }
 
@@ -338,6 +364,9 @@ check_data <- function(
 #' @param predictors.names predictors.names.argument
 #' @param numeric.only logical
 #' @param is.required logical
+#' @param na.allowed logical, changes the check depending on whether NAs are allowed in data or not.
+#' @param zero.variance.allowed logical
+#' @param decimal.places integer, number of decimals for the zero variance test
 #' @param verbose logical
 #'
 #' @return predictor.names
@@ -347,8 +376,11 @@ check_data <- function(
 check_predictors_names <- function(
     predictors.names = NULL,
     data = NULL,
-    numeric.only = TRUE,
     is.required = TRUE,
+    numeric.only = TRUE,
+    na.allowed = FALSE,
+    zero.variance.allowed = FALSE,
+    decimal.places = 4,
     verbose = TRUE
 ){
 
@@ -369,7 +401,7 @@ check_predictors_names <- function(
   }
 
   #check that all predictors are in data
-  if(sum(predictors.names %in% colnames(data)) < length(predictors.names)){
+  if(all(predictors.names %in% colnames(data)) == FALSE){
 
     if(verbose == TRUE){
       message(
@@ -391,29 +423,95 @@ check_predictors_names <- function(
   #check that all predictors are numeric
   if(numeric.only == TRUE){
 
-    numeric.predictors.names <- lapply(
-      X = data[, predictors.names],
-      FUN = is.numeric
-    ) %>%
-      unlist()
+    non.numeric.predictors <- non_numeric_columns(
+      data = data,
+      columns = predictors.names
+    )
 
-    if(sum(numeric.predictors.names) < length(predictors.names)){
+    if(length(non.numeric.predictors) > 0){
 
       if(verbose == TRUE){
         message(
-          "These non-numeric predictors will be removed:\n",
+          "These non-numeric predictors will be ignored:\n",
           paste0(
-            predictors.names[!numeric.predictors.names],
+            non.numeric.predictors,
           collapse = "\n"
           )
         )
       }
 
-      predictors.names <- predictors.names[numeric.predictors.names]
+      predictors.names <- setdiff(
+        predictors.names,
+        non.numeric.predictors
+      )
 
     }
 
   }
+
+  #remove predictors with NA
+  if(na.allowed == FALSE){
+
+    na.columns <- apply(
+      X = data[, predictors.names],
+      MARGIN = 2,
+      FUN = function(x){sum(is.na(x)) > 0}
+    )
+
+    if(all(na.columns) == FALSE){
+
+      na.columns <- names(na.columns[na.columns])
+
+      if(verbose == TRUE){
+        message(
+          "These predictors have NA and will be dropped:\n",
+          paste0(
+            na.columns,
+            collapse = "\n"
+            )
+          )
+      }
+
+      predictors.names <- setdiff(
+        predictors.names,
+        na.columns
+      )
+
+    }
+
+  }
+
+
+  #removing columns with zero variance
+  if(zero.variance.allowed == FALSE){
+
+    zero.variance.columns <- zero_variance_columns(
+      data = data,
+      columns = predictors.names,
+      decimal.places = decimal.places
+    )
+
+    if(length(zero.variance.columns) > 0){
+
+      if(verbose == TRUE){
+        message(
+          "These predictors have near zero variance and will be dropped:\n",
+          paste0(
+            zero.variance.columns,
+            collapse = "\n"
+          )
+        )
+      }
+
+      predictors.names <- setdiff(
+        predictors.names,
+        zero.variance.columns
+      )
+
+    }
+
+  }
+
 
   predictors.names
 
@@ -423,6 +521,9 @@ check_predictors_names <- function(
 #'
 #' @param data data argument.
 #' @param response.name response.name
+#' @param na.allowed logical, changes the check depending on whether NAs are allowed in data or not.
+#' @param zero.variance.allowed logical
+#' @param decimal.places integer, number of decimals for the zero variance test
 #'
 #' @return response.name
 #' @export
@@ -432,6 +533,9 @@ check_response_name <- function(
     response.name = NULL,
     data = NULL,
     is.required = TRUE,
+    na.allowed = FALSE,
+    zero.variance.allowed = FALSE,
+    decimal.places = 4,
     verbose = TRUE
 ){
 
@@ -464,15 +568,45 @@ check_response_name <- function(
 
   if(is.numeric(data[[response.name]]) == FALSE){
     if(is.required == TRUE){
-      stop("Argument 'response.name' must be the name of a numeric column of 'data'.")
+      stop("Argument 'response.name' must be a numeric column of 'data'.")
     } else {
       if(verbose == TRUE){
-        message("Argument 'response.name' is not the name of a numeric column of 'data' and will be ignored.")
+        message("Argument 'response.name' is not a numeric column of 'data' and will be ignored.")
       }
       return(NULL)
     }
 
+  } else {
+
+    if(zero.variance.allowed == FALSE){
+      if(var(round(data[[response.name]], decimal.places)) == 0){
+        if(is.required == TRUE){
+          stop("Argument 'response.name' is the name of a column with near zero variance.")
+        } else {
+          if(verbose == TRUE){
+            message("Argument 'response.name' is the name of a column with near zero variance. This might cause numerical issues.")
+          }
+        }
+      }
+    }
+
   }
+
+  if(na.allowed == FALSE){
+
+    if(sum(is.na(data[[response.name]])) > 0){
+      if(is.required == TRUE){
+        stop("Argument 'response.name' is the name of a column with NA values.")
+      } else {
+        if(verbose == TRUE){
+          message("Argument 'response.name' is the name of a column with NA values. This might cause unintended issues.")
+        }
+      }
+    }
+
+  }
+
+
 
   response.name
 

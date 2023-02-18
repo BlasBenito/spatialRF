@@ -71,7 +71,6 @@ fe_spatial_predictors <- function(
   ##############
   data <- check_data(
     data = data,
-    na.allowed = TRUE,
     verbose = verbose
   )
 

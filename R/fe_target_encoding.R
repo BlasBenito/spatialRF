@@ -161,7 +161,6 @@ fe_target_encoding <- function(
   #CHECK INPUT ARGUMENTS
   data <- check_data(
     data = data,
-    na.allowed = TRUE,
     verbose = verbose
   )
 
