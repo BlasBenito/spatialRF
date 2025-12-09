@@ -1,3 +1,11 @@
+## Version 1.1.5
+
+
+
+## Version 1.1.4 (19/08/2022)
+
+Re-submission, fixes CRAN checks arising from invalid links.
+
 ## Version 1.1.3 (22/9/2021)
 
 Added the function `rf_importance()`. It fits models with and without each predictor, compares them via spatial cross validation with `rf_evaluate()`, and returns the increase/decrease in performance when a given variable is included in the model.
