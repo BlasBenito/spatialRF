@@ -16,7 +16,6 @@ A numeric vector with distance thresholds.
 Generates four distance thresholds, from 0 to max(distance.matrix)/2.
 }
 \examples{
-if(interactive()){
 
  #loading example distance matrix
  data(distance_matrix)
@@ -24,5 +23,4 @@ if(interactive()){
  #computing set of default distance thresholds
  default_distance_thresholds(distance_matrix)
 
- }
 }

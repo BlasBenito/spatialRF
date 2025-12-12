@@ -60,7 +60,6 @@ A convenient wrapper for \link[ranger]{ranger} that completes its output by prov
 Please read the help file of \link[ranger]{ranger} for further details. Notice that the \code{formula} interface of \link[ranger]{ranger} is supported through \code{ranger.arguments}, but variable interactions are not allowed (but check \code{\link[=the_feature_engineer]{the_feature_engineer()}}).
 }
 \examples{
-if(interactive()){
 
  #loading example data
  data("plant_richness_df")
@@ -105,12 +104,12 @@ if(interactive()){
 
  #ranger.arguments can contain ranger arguments and any other rf argument
  my.ranger.arguments <- list(
- data = plant_richness_df,
- dependent.variable.name = "richness_species_vascular",
- predictor.variable.names = colnames(plant_richness_df)[8:21],
- distance.matrix = distance_matrix,
- distance.thresholds = c(0, 1000)
- )
+   data = plant_richness_df,
+   dependent.variable.name = "richness_species_vascular",
+   predictor.variable.names = colnames(plant_richness_df)[8:21],
+   distance.matrix = distance_matrix,
+   distance.thresholds = c(0, 1000)
+   )
 
  #fitting model with these ranger arguments
  out <- rf(
@@ -118,5 +117,4 @@ if(interactive()){
    n.cores = 1
    )
 
-}
 }

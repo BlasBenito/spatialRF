@@ -11,5 +11,14 @@ test_that("`get_moran()` works", {
   )
   x <- get_moran(rf.model)
   expect_s3_class(x, "data.frame")
-  expect_named(x, c("distance.threshold", "moran.i", "moran.i.null", "p.value", "interpretation"))
+  expect_named(
+    x,
+    c(
+      "distance.threshold",
+      "moran.i",
+      "moran.i.null",
+      "p.value",
+      "interpretation"
+    )
+  )
 })

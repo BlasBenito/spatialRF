@@ -113,25 +113,8 @@ rf_compare <- function(
   }
 
   #CLUSTER SETUP
-  if (!inherits(x = cluster, what = "cluster")) {
-    cluster <- parallel::makeCluster(
-      n.cores,
-      type = "PSOCK"
-    )
-
-    on.exit(
-      {
-        foreach::registerDoSEQ()
-        try(
-          parallel::stopCluster(cluster),
-          silent = TRUE
-        )
-      },
-      add = TRUE
-    )
-  }
-
-  doParallel::registerDoParallel(cl = cluster)
+  parallel_config <- setup_parallel_execution(cluster, n.cores)
+  on.exit(parallel_config$cleanup(), add = TRUE)
 
   #list to store evaluation outputs
   evaluation.list <- list()

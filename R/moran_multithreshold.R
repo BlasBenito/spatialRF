@@ -37,18 +37,19 @@ moran_multithreshold <- function(
   distance.matrix = NULL,
   distance.thresholds = NULL,
   verbose = TRUE
-){
-
+) {
   #check x and distance matrix
-  if(is.null(x) | !is.vector(x)){
+  if (is.null(x) | !is.vector(x)) {
     stop("Argument 'x' must be a numeric vector.")
   }
-  if(is.null(distance.matrix)){
+  if (is.null(distance.matrix)) {
     stop("Argument 'distance.matrix' is missing.`")
   }
   #creating distance thresholds
-  if(is.null(distance.thresholds)){
-    distance.thresholds <- default_distance_thresholds(distance.matrix = distance.matrix)
+  if (is.null(distance.thresholds)) {
+    distance.thresholds <- default_distance_thresholds(
+      distance.matrix = distance.matrix
+    )
   }
 
   #create output dataframe
@@ -61,8 +62,7 @@ moran_multithreshold <- function(
   )
 
   #iterating over out.df
-  for(i in seq(1, nrow(out.df))){
-
+  for (i in seq(1, nrow(out.df))) {
     #compute Moran's I
     moran.out <- moran(
       x = x,
@@ -75,11 +75,13 @@ moran_multithreshold <- function(
     out.df[i, "moran.i.null"] <- moran.out$test$moran.i.null
     out.df[i, "p.value"] <- moran.out$test$p.value
     out.df[i, "interpretation"] <- moran.out$test$interpretation
-
   }
 
   #getting scale of max moran
-  distance.threshold.max.moran <- out.df[which.max(out.df$moran.i), "distance.threshold"]
+  distance.threshold.max.moran <- out.df[
+    which.max(out.df$moran.i),
+    "distance.threshold"
+  ]
 
   #preparing output list
   out.list <- list()
@@ -89,8 +91,7 @@ moran_multithreshold <- function(
   out.list$plot <- plot_moran(
     model = out.df,
     verbose = verbose
-    )
+  )
 
   out.list
-
 }

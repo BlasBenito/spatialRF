@@ -3,7 +3,6 @@
 #' @param model A model fitted with [rf()], [rf_repeat()], or [rf_spatial()].
 #' @return A vector with model residuals, or the median of model residuals across repetitions if the model was fitted with [rf_repeat()].
 #' @examples
-#' if(interactive()){
 #'
 #' #load example data
 #' data(plant_richness_df)
@@ -21,11 +20,8 @@
 #' x <- get_residuals(rf.model)
 #' x
 #'
-#' }
 #' @rdname get_residuals
 #' @export
-get_residuals <- function(model){
-
-    model$residuals$values
-
+get_residuals <- function(model) {
+  model$residuals$values
 }

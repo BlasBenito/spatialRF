@@ -20,7 +20,6 @@
 #' @details Inspired in the `Moran.I()` function of the [ape](https://cran.r-project.org/package=ape) package.
 #' @seealso [moran_multithreshold()]
 #' @examples
-#' if(interactive()){
 #'
 #'  #loading example data
 #'  data(distance_matrix)
@@ -33,7 +32,6 @@
 #'    )
 #'  out
 #'
-#' }
 #' @rdname moran
 #' @importFrom stats pnorm sd
 #' @export

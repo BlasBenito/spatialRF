@@ -35,7 +35,6 @@ Computes the spatial correlation coefficient (Moran's I) of a vector given a dis
 Inspired in the \code{Moran.I()} function of the \href{https://cran.r-project.org/package=ape}{ape} package.
 }
 \examples{
-if(interactive()){
 
  #loading example data
  data(distance_matrix)
@@ -48,7 +47,6 @@ if(interactive()){
    )
  out
 
-}
 }
 \seealso{
 \code{\link[=moran_multithreshold]{moran_multithreshold()}}

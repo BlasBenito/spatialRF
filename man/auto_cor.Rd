@@ -35,7 +35,6 @@ Computes the correlation matrix among a set of predictors, orders the correlatio
 Can be chained together with \code{\link[=auto_vif]{auto_vif()}} through pipes, see the examples below.
 }
 \examples{
-if(interactive()){
 
  #load data
  data(plant_richness_df)
@@ -61,7 +60,6 @@ if(interactive()){
  auto_vif() \%>\%
  auto_cor()
 
-}
 }
 \seealso{
 \code{\link[=auto_vif]{auto_vif()}}

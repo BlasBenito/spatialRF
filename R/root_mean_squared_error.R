@@ -13,35 +13,35 @@
 #'   \item "`iq"`: RMSE divided by the interquartile range of the observations (rmse/(quantile(o, 0.75) - quantile(o, 0.25)))
 #' }
 #' @examples
-#' if(interactive()){
 #'
 #'  root_mean_squared_error(
 #'    o = runif(10),
 #'    p = runif(10)
 #'    )
 #'
-#' }
 #' @rdname root_mean_squared_error
 #' @importFrom stats na.omit quantile
 #' @export
-root_mean_squared_error <- function(o, p, normalization = c("rmse", "all", "mean", "sd", "maxmin", "iq")) {
-
+root_mean_squared_error <- function(
+  o,
+  p,
+  normalization = c("rmse", "all", "mean", "sd", "maxmin", "iq")
+) {
   normalization <- match.arg(normalization)
 
   #computes rmse
   squared_sums <- sum((o - p)^2)
-  mse <- squared_sums/length(o)
+  mse <- squared_sums / length(o)
   rmse <- round(sqrt(mse), 4)
   names(rmse) <- "rmse"
 
   #computes nrmse
-  if(normalization != "rmse"){
-
+  if (normalization != "rmse") {
     #computing nrmse
-    nrmse.sd <- rmse/sd(o)
-    nrmse.mean <- rmse/mean(o)
-    nrmse.maxmin <- rmse/ (max(o) - min(o))
-    nrmse.iq <- rmse/ (quantile(o, 0.75) - quantile(o, 0.25))
+    nrmse.sd <- rmse / sd(o)
+    nrmse.mean <- rmse / mean(o)
+    nrmse.maxmin <- rmse / (max(o) - min(o))
+    nrmse.iq <- rmse / (quantile(o, 0.75) - quantile(o, 0.25))
 
     #building vector with nrmse values
     rmse <- c(rmse, nrmse.iq, nrmse.maxmin, nrmse.mean, nrmse.sd)
@@ -52,17 +52,15 @@ root_mean_squared_error <- function(o, p, normalization = c("rmse", "all", "mean
     rmse <- na.omit(rmse)
 
     #if the user selects one particular option
-    if(normalization != "all"){
+    if (normalization != "all") {
       rmse <- rmse[names(rmse) == normalization]
     }
   }
 
   #return NA if no number is returned
-  if(length(rmse) == 0){
+  if (length(rmse) == 0) {
     rmse <- NA
   }
 
   rmse
 }
-
-

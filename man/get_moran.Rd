@@ -16,7 +16,6 @@ A data frame with Moran's I test results produced by \code{\link[=moran_multithr
 Returns the Moran's I test on the residuals of a model produced by \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}.
 }
 \examples{
-if(interactive()){
 
  #loading example data
  data(plant_richness_df)
@@ -35,8 +34,8 @@ if(interactive()){
 
  #getting Moran's I of the residuals
  x <- get_moran(rf.model)
+ x
 
-}
 }
 \seealso{
 \code{\link[=moran]{moran()}}, \code{\link[=moran_multithreshold]{moran_multithreshold()}}, \code{\link[=plot_moran]{plot_moran()}}, \code{\link[=print_moran]{print_moran()}}.

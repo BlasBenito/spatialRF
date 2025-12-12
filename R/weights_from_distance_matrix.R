@@ -9,7 +9,6 @@
 #' @param distance.threshold Numeric, positive, in the range of values of `distance.matrix`. Distances below this value in the distance matrix are set to 0., Default: `0`.
 #' @return A weighted distance matrix.
 #' @examples
-#' if(interactive()){
 #'
 #'  #loading example distance matrix
 #'  data(distance_matrix)
@@ -21,15 +20,13 @@
 #'
 #'  distance.matrix.weights
 #'
-#' }
 #' @rdname weights_from_distance_matrix
 #' @export
 weights_from_distance_matrix <- function(
   distance.matrix = NULL,
   distance.threshold = 0
-  ){
-
-  if(is.null(distance.matrix)){
+) {
+  if (is.null(distance.matrix)) {
     stop("Argument 'distance.matrix' is missing.`")
   }
 
@@ -40,14 +37,14 @@ weights_from_distance_matrix <- function(
   diag(distance.matrix) <- NA
 
   #computing weights
-  x.weights <- 1/distance.matrix
+  x.weights <- 1 / distance.matrix
 
   #normalizing weights
   weight.rowsums <- rowSums(
     x.weights,
     na.rm = TRUE
-    )
-  x.weights <- x.weights/weight.rowsums
+  )
+  x.weights <- x.weights / weight.rowsums
 
   #fixing Inf and diag
   x.weights[x.weights == Inf] <- 0
@@ -55,5 +52,4 @@ weights_from_distance_matrix <- function(
 
   #returning output
   x.weights
-
 }

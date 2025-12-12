@@ -40,7 +40,6 @@ This function has two modes of operation:
 Can be chained together with \code{\link[=auto_cor]{auto_cor()}} through pipes, see the examples below.
 }
 \examples{
-if(interactive()){
 
 #loading data
 data(plant_richness_df)
@@ -66,7 +65,6 @@ out <- plant_richness_df[, 5:21] \%>\%
  auto_cor() \%>\%
  auto_vif()
 
-}
 }
 \seealso{
 \code{\link[=auto_cor]{auto_cor()}}

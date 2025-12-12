@@ -44,16 +44,19 @@ get_response_curves <- function(
   quantiles = c(0.1, 0.5, 0.9),
   grid.resolution = 200,
   verbose = TRUE
-){
-
-  if(is.null(model)){
+) {
+  if (is.null(model)) {
     stop("Argument 'model' must not be empty.")
   }
 
   #preparing grid resolution
   grid.resolution <- floor(grid.resolution)
-  if(grid.resolution > 500){grid.resolution <- 500}
-  if(grid.resolution < 20){grid.resolution <- 20}
+  if (grid.resolution > 500) {
+    grid.resolution <- 500
+  }
+  if (grid.resolution < 20) {
+    grid.resolution <- 20
+  }
 
   #quantile limits
   quantiles <- quantiles[quantiles >= 0]
@@ -65,23 +68,22 @@ get_response_curves <- function(
   #getting the response variable
   response.variable <- model$ranger.arguments$dependent.variable.name
   predictors <- model$ranger.arguments$predictor.variable.names
-  if(inherits(model, "rf_spatial")){
-
+  if (inherits(model, "rf_spatial")) {
     predictors <- predictors[!(predictors %in% model$spatial$names)]
-
   }
 
   #default values for variables
-  if(is.null(variables)){
-
-    variables <- model$importance$per.variable[model$importance$per.variable$variable %in% predictors, "variable"][1:floor(length(predictors) / 2)]
-
+  if (is.null(variables)) {
+    variables <- model$importance$per.variable[
+      model$importance$per.variable$variable %in% predictors,
+      "variable"
+    ][1:floor(length(predictors) / 2)]
   }
 
-  if(sum(variables %in% colnames(data)) != length(variables)){
-
-    stop("Variable names in 'variables' must be column names of model$ranger.arguments$data.")
-
+  if (sum(variables %in% colnames(data)) != length(variables)) {
+    stop(
+      "Variable names in 'variables' must be column names of model$ranger.arguments$data."
+    )
   }
 
   #PREPARING NEWDATA
@@ -90,10 +92,12 @@ get_response_curves <- function(
   variables.list <- list()
 
   #iterating through variables
-  for(variable.i in variables){
-
+  for (variable.i in variables) {
     #names of the other variables
-    other.variables <- setdiff(model$ranger.arguments$predictor.variable.names, variable.i)
+    other.variables <- setdiff(
+      model$ranger.arguments$predictor.variable.names,
+      variable.i
+    )
 
     #generating grid
     variable.i.grid <- data.frame(
@@ -110,16 +114,16 @@ get_response_curves <- function(
     variable.i.quantiles <- list()
 
     #iterating through quantiles
-    for(quantile.i in quantiles){
-
+    for (quantile.i in quantiles) {
       #grid copy
       variable.i.grid.copy <- variable.i.grid
 
       #iterating through variables
-      for(variable.j in other.variables){
-
-        variable.i.grid.copy[, variable.j] <- quantile(data[, variable.j], quantile.i)
-
+      for (variable.j in other.variables) {
+        variable.i.grid.copy[, variable.j] <- quantile(
+          data[, variable.j],
+          quantile.i
+        )
       }
 
       #adding quantile column
@@ -127,7 +131,6 @@ get_response_curves <- function(
 
       #save to list
       variable.i.quantiles[[as.character(quantile.i)]] <- variable.i.grid.copy
-
     }
 
     #plot data frame
@@ -136,7 +139,6 @@ get_response_curves <- function(
 
     #saving into variables.list
     variables.list[[variable.i]] <- quantiles.temp
-
   }
 
   #ITERATING THROUGH VARIABLES AND MODELS TO PREDICT AND PLOT
@@ -145,7 +147,7 @@ get_response_curves <- function(
   variables.df.list <- list()
 
   #models
-  if("models" %in% names(model)){
+  if ("models" %in% names(model)) {
     models.list <- model$models
   } else {
     models.list <- list()
@@ -153,16 +155,14 @@ get_response_curves <- function(
   }
 
   #iterating through variables to predict
-  for(variable.i in variables){
-
+  for (variable.i in variables) {
     #list to store predictions by different models
     variable.i.list <- list()
 
     #predictions by models
-    for(i in seq(1, length(models.list))){
-
+    for (i in seq(1, length(models.list))) {
       #add new data to variable.i.list
-      variable.i.list[[i]] <-  variables.list[[variable.i]]
+      variable.i.list[[i]] <- variables.list[[variable.i]]
 
       #get model.i
       model.i <- models.list[[i]]
@@ -171,11 +171,11 @@ get_response_curves <- function(
       #predict
       variable.i.list[[i]][, response.variable] <- stats::predict(
         object = model.i,
-        data = variable.i.list[[i]])$predictions
+        data = variable.i.list[[i]]
+      )$predictions
 
       #add model index
       variable.i.list[[i]][, "model"] <- i
-
     }
 
     #putting together data frame for plotting
@@ -198,18 +198,14 @@ get_response_curves <- function(
 
     #adding to variables.df list
     variables.df.list[[variable.i]] <- variable.i.df
-
-  }#end of plotting
-
+  } #end of plotting
 
   #turning list into df
   variables.df <- do.call("rbind", variables.df.list)
-
 
   #reseting rownames
   rownames(variables.df) <- NULL
 
   #returning variables.df
   variables.df
-
 }

@@ -52,13 +52,12 @@ plot_tuning <- function(
     option = "F"
   ),
   verbose = TRUE
-  ){
-
+) {
   #declaring variables
   metric <- NULL
   value <- NULL
 
-  if(!("tuning" %in% names(model))){
+  if (!("tuning" %in% names(model))) {
     stop("Object 'x' does not have a 'tuning' slot.")
   }
 
@@ -87,13 +86,15 @@ plot_tuning <- function(
       y = metric,
       x = value,
       fill = metric
-    )) +
+    )
+  ) +
     ggplot2::geom_smooth(
       se = TRUE,
       method = "loess",
       color = "gray20",
       alpha = 0.5,
-      formula = y ~ x) +
+      formula = y ~ x
+    ) +
     ggplot2::geom_point(
       shape = 21,
       alpha = 0.75,
@@ -112,11 +113,9 @@ plot_tuning <- function(
     ggplot2::ggtitle("Model tuning via spatial cross-validation") +
     ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
 
-
-  if(verbose == TRUE){
+  if (verbose == TRUE) {
     suppressWarnings(suppressMessages(print(p)))
   }
 
   return(p)
-
 }

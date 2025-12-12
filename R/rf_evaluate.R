@@ -128,41 +128,19 @@ rf_evaluate <- function(
     )
   }
 
-  #CLUSTER SETUP
-  pass.cluster <- FALSE
-  if (!inherits(x = cluster, what = "cluster")) {
-    if (inherits(x = model$cluster, what = "cluster")) {
-      cluster <- model$cluster
-      pass.cluster <- TRUE
-    } else if (n.cores > 1) {
-      cluster <- parallel::makeCluster(
-        n.cores,
-        type = "PSOCK"
-      )
-      pass.cluster <- FALSE
-      on.exit(
-        {
-          foreach::registerDoSEQ()
-          try(
-            parallel::stopCluster(cluster),
-            silent = TRUE
-          )
-        },
-        add = TRUE
-      )
-    } else {
-      # n.cores == 1, use sequential execution
-      cluster <- NULL
-      pass.cluster <- FALSE
-    }
+  # Handle model$cluster if present
+  cluster.from.model <- FALSE
+  if (
+    !inherits(x = cluster, what = "cluster") &&
+      inherits(x = model$cluster, what = "cluster")
+  ) {
+    cluster <- model$cluster
+    cluster.from.model <- TRUE
   }
 
-  # Register backend
-  if (!is.null(cluster)) {
-    doParallel::registerDoParallel(cl = cluster)
-  } else {
-    foreach::registerDoSEQ()
-  }
+  #CLUSTER SETUP
+  parallel_config <- setup_parallel_execution(cluster, n.cores)
+  on.exit(parallel_config$cleanup(), add = TRUE)
 
   #testing method argument
   metrics <- match.arg(
@@ -498,9 +476,9 @@ rf_evaluate <- function(
     print_evaluation(model = model)
   }
 
-  #passing cluster
-  if (pass.cluster == TRUE) {
-    model$cluster <- cluster
+  # Store cluster in model if it was external (not internally created)
+  if (parallel_config$mode == "external_cluster" || cluster.from.model) {
+    model$cluster <- parallel_config$cluster
   }
 
   model

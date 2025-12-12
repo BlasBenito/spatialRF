@@ -11,8 +11,8 @@
 #' }
 #' @rdname standard_error
 #' @export
-standard_error <- function(x){
+standard_error <- function(x) {
   x <- na.omit(x)
-  x <- round(sqrt(var(x)/length(x)), 3)
+  x <- round(sqrt(var(x) / length(x)), 3)
   x
 }

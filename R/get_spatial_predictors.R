@@ -27,12 +27,10 @@
 #' }
 #' @rdname get_spatial_predictors
 #' @export
-get_spatial_predictors <- function(model){
-
-  if(!inherits(model, "rf_spatial")){
+get_spatial_predictors <- function(model) {
+  if (!inherits(model, "rf_spatial")) {
     stop("This function only works on models fitted with 'rf_spatial'")
   }
 
   model$spatial$spatial.predictors
-
 }

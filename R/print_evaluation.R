@@ -34,50 +34,58 @@
 #' }
 #' @rdname print_evaluation
 #' @export
-print_evaluation <- function(model){
-
+print_evaluation <- function(model) {
   #stop if no evaluation slot
-  if(!inherits(model, "rf_evaluate")){
+  if (!inherits(model, "rf_evaluate")) {
     stop("Object 'x' does not have an 'evaluation' slot.")
   }
 
   metric <- NULL
   median_absolute_deviation <- NULL
 
-    x <- model$evaluation$aggregated %>%
-      dplyr::filter(
-        model == "Testing"
-      ) %>%
-      dplyr::select(
-        metric,
-        median,
-        median_absolute_deviation,
-        min,
-        max
-      ) %>%
-      dplyr::mutate(
-        median = round(median, 3),
-        median_absolute_deviation = round(median_absolute_deviation, 3),
-        min = round(min, 3),
-        max = round(max, 3)
-      ) %>%
-      dplyr::rename(
-        Metric = metric,
-        Median = median,
-        MAD = median_absolute_deviation,
-        Minimum = min,
-        Maximum = max
-      )
+  x <- model$evaluation$aggregated %>%
+    dplyr::filter(
+      model == "Testing"
+    ) %>%
+    dplyr::select(
+      metric,
+      median,
+      median_absolute_deviation,
+      min,
+      max
+    ) %>%
+    dplyr::mutate(
+      median = round(median, 3),
+      median_absolute_deviation = round(median_absolute_deviation, 3),
+      min = round(min, 3),
+      max = round(max, 3)
+    ) %>%
+    dplyr::rename(
+      Metric = metric,
+      Median = median,
+      MAD = median_absolute_deviation,
+      Minimum = min,
+      Maximum = max
+    )
 
-    x <- x[,colSums(is.na(x)) < nrow(x)]
+  x <- x[, colSums(is.na(x)) < nrow(x)]
 
-    x <- na.omit(x)
+  x <- na.omit(x)
 
   #printing output
   cat("\n")
   cat("Spatial evaluation \n")
-  cat("  - Training fraction:             ", model$evaluation$training.fraction, "\n", sep="")
-  cat("  - Spatial folds:                 ", length(model$evaluation$spatial.folds), "\n\n", sep="")
+  cat(
+    "  - Training fraction:             ",
+    model$evaluation$training.fraction,
+    "\n",
+    sep = ""
+  )
+  cat(
+    "  - Spatial folds:                 ",
+    length(model$evaluation$spatial.folds),
+    "\n\n",
+    sep = ""
+  )
   print(x, row.names = FALSE)
-
 }

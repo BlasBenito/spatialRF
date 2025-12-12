@@ -10,6 +10,12 @@
 
 - Fixed parallelization issues with zombi processess across functions.
 
+- Added internal helper function `setup_parallel_execution()` to centralize and improve parallel backend management across all functions. Now properly detects and respects user-configured backends (via `future`, `doParallel`, etc.) while maintaining support for external and internal cluster objects.
+
+- Refactored cluster setup code across all parallelized functions (`rf_spatial()`, `rf_evaluate()`, `rf_tuning()`, `rf_repeat()`, `rf_compare()`, `rf_importance()`, `the_feature_engineer()`, `select_spatial_predictors_sequential()`, `select_spatial_predictors_recursive()`) to use the new helper, improving consistency and reducing code duplication.
+
+- Removed `if(interactive()){}` wrappers from function examples to ensure examples run during R CMD check.
+
 - Function `rf_spatial()` now fits a spatial model even when that's not necessary.
 
 ## Version 1.1.4 (19/08/2022)

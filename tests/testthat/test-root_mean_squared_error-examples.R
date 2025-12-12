@@ -4,19 +4,39 @@ test_that("`root_mean_squared_error()` works", {
   out <- root_mean_squared_error(o = runif(10), p = runif(10))
   expect_named(out, "rmse")
   expect_true(!is.na(out) == TRUE)
-  out <- root_mean_squared_error(o = runif(10), p = runif(10), normalization = "iq")
+  out <- root_mean_squared_error(
+    o = runif(10),
+    p = runif(10),
+    normalization = "iq"
+  )
   expect_named(out, "iq")
   expect_true(!is.na(out) == TRUE)
-  out <- root_mean_squared_error(o = runif(10), p = runif(10), normalization = "mean")
+  out <- root_mean_squared_error(
+    o = runif(10),
+    p = runif(10),
+    normalization = "mean"
+  )
   expect_named(out, "mean")
   expect_true(!is.na(out) == TRUE)
-  out <- root_mean_squared_error(o = runif(10), p = runif(10), normalization = "sd")
+  out <- root_mean_squared_error(
+    o = runif(10),
+    p = runif(10),
+    normalization = "sd"
+  )
   expect_named(out, "sd")
   expect_true(!is.na(out) == TRUE)
-  out <- root_mean_squared_error(o = runif(10), p = runif(10), normalization = "maxmin")
+  out <- root_mean_squared_error(
+    o = runif(10),
+    p = runif(10),
+    normalization = "maxmin"
+  )
   expect_named(out, "maxmin")
   expect_true(!is.na(out) == TRUE)
-  out <- root_mean_squared_error(o = runif(10), p = runif(10), normalization = "all")
+  out <- root_mean_squared_error(
+    o = runif(10),
+    p = runif(10),
+    normalization = "all"
+  )
   expect_named(out, c("rmse", "iq", "maxmin", "mean", "sd"))
   expect_true(sum(!is.na(out)) == 5)
 })

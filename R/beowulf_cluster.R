@@ -37,19 +37,18 @@ beowulf_cluster <- function(
   cluster.user = Sys.info()[["user"]],
   cluster.port = "11000",
   outfile = NULL
-){
-
-  if(is.null(cluster.ips)){
+) {
+  if (is.null(cluster.ips)) {
     stop("Argument ips cannot be empty.")
   }
-  if(is.null(cluster.cores)){
+  if (is.null(cluster.cores)) {
     stop("Argument cores cannot be empty.")
   }
 
   #creating initial list
   spec <- list()
 
-  for(i in seq(1, length(cluster.ips), by = 1)){
+  for (i in seq(1, length(cluster.ips), by = 1)) {
     spec[[i]] <- list()
     spec[[i]]$host <- cluster.ips[i]
     spec[[i]]$user <- cluster.user
@@ -59,14 +58,17 @@ beowulf_cluster <- function(
   #generating nodes from the list of machines
   spec <- lapply(
     spec,
-    function(spec.i) rep(
-      list(
+    function(spec.i) {
+      rep(
         list(
-          host = spec.i$host,
-          user = spec.i$user)
-      ),
-      spec.i$ncore
-    )
+          list(
+            host = spec.i$host,
+            user = spec.i$user
+          )
+        ),
+        spec.i$ncore
+      )
+    }
   )
 
   #formating into a list of lists
@@ -85,5 +87,4 @@ beowulf_cluster <- function(
   )
 
   beowulf.cluster
-
 }

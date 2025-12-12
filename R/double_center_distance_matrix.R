@@ -11,7 +11,6 @@
 #' @param distance.threshold Numeric, positive, in the range of values of `x`. Distances below this value in the distance matrix are set to 0.  Default: `0`.
 #' @return A double-centered matrix of the same dimensions as `x`.
 #' @examples
-#' if(interactive()){
 #'
 #'  #loading the distance matrix
 #'  data(distance_matrix)
@@ -21,16 +20,14 @@
 #'  )
 #'  x
 #'
-#'  }
 #' @seealso [weights_from_distance_matrix()], [mem()], [mem_multithreshold()]
 #' @rdname double_center_distance_matrix
 #' @export
 double_center_distance_matrix <- function(
   distance.matrix = NULL,
   distance.threshold = 0
-){
-
-  if(is.null(distance.matrix)){
+) {
+  if (is.null(distance.matrix)) {
     stop("Argument 'distance.matrix' is missing.`")
   }
 
@@ -42,15 +39,14 @@ double_center_distance_matrix <- function(
 
   #bicenter matrix
   #compute row means
-  x.row.means <- x*0 + rowMeans(x)
+  x.row.means <- x * 0 + rowMeans(x)
 
   #compute col means
-  x.col.means <- t(x*0 + colMeans(x))
+  x.col.means <- t(x * 0 + colMeans(x))
 
   #double centering
   x.double.centered <- (x - x.row.means - x.col.means + mean(x[]))
 
   #return output
   x.double.centered
-
 }

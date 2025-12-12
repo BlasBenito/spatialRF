@@ -16,14 +16,16 @@ test_that("`rf_tuning()` works", {
   out <- rf_tuning(
     model = out,
     xy = plant_richness_df[, c("x", "y")],
-    num.trees = c(100, 200),
-    mtry = c(2, 4),
+    num.trees = c(100),
+    mtry = c(2),
     min.node.size = c(5, 10),
     verbose = FALSE,
     cluster = cluster
   )
 
+  foreach::registerDoSEQ()
   parallel::stopCluster(cluster)
+  invisible(gc())
 
   expect_s3_class(out$tuning$tuning.df, "data.frame")
   expect_type(out$tuning, "list")

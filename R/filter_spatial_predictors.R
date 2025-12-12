@@ -35,11 +35,10 @@ filter_spatial_predictors <- function(
   predictor.variable.names = NULL,
   spatial.predictors.df = NULL,
   cor.threshold = 0.50
-){
-
+) {
   #predictor.variable.names comes from auto_vif or auto_cor
-  if(!is.null(predictor.variable.names)){
-    if(inherits(predictor.variable.names, "variable_selection")){
+  if (!is.null(predictor.variable.names)) {
+    if (inherits(predictor.variable.names, "variable_selection")) {
       predictor.variable.names <- predictor.variable.names$selected.variables
     }
   }
@@ -66,18 +65,22 @@ filter_spatial_predictors <- function(
   cor.predictors <- cor(
     non.spatial.predictors.df,
     spatial.predictors.df
-    )
+  )
 
   #max correlation of the spatial predictors
   max.cor.spatial.predictors <- apply(cor.predictors, 2, FUN = max)
 
   #selected spatial predictors
-  selected.spatial.predictors <- names(max.cor.spatial.predictors[max.cor.spatial.predictors < cor.threshold])
+  selected.spatial.predictors <- names(max.cor.spatial.predictors[
+    max.cor.spatial.predictors < cor.threshold
+  ])
 
   #subsetting spatial.predictors.df
-  spatial.predictors.df <- spatial.predictors.df[, selected.spatial.predictors, drop = FALSE]
+  spatial.predictors.df <- spatial.predictors.df[,
+    selected.spatial.predictors,
+    drop = FALSE
+  ]
 
   #returning result
   spatial.predictors.df
-
 }

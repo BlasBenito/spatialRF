@@ -7,7 +7,6 @@
 #' @details The distance matrix is converted into weights with [weights_from_distance_matrix()] before computing the PCA. This produces more meaningful spatial predictors than using the distance matrix as is.
 #' @seealso [pca()]
 #' @examples
-#' if(interactive()){
 #'
 #'  #loading example distance matrix
 #'  load(distance_matrix)
@@ -19,31 +18,30 @@
 #'    )
 #'  head(x)
 #'
-#' }
 #' @rdname pca_multithreshold
 #' @export
 pca_multithreshold <- function(
   distance.matrix = NULL,
   distance.thresholds = NULL,
   max.spatial.predictors = NULL
-){
-
+) {
   #stopping if no distance matrix
-  if(is.null(distance.matrix)){
+  if (is.null(distance.matrix)) {
     stop("The argument 'distance.matrix' is missing.")
   }
 
   #creating distance thresholds
-  if(is.null(distance.thresholds)){
-    distance.thresholds <- default_distance_thresholds(distance.matrix = distance.matrix)
+  if (is.null(distance.thresholds)) {
+    distance.thresholds <- default_distance_thresholds(
+      distance.matrix = distance.matrix
+    )
   }
 
   #list to store pca factors
   pca.factors.list <- list()
 
   #iterating through distance thresholds
-  for(distance.threshold.i in distance.thresholds){
-
+  for (distance.threshold.i in distance.thresholds) {
     #computing weighted distance matrix
     x.i <- weights_from_distance_matrix(
       distance.matrix = distance.matrix,
@@ -61,7 +59,6 @@ pca_multithreshold <- function(
         )
       )
     )
-
   }
 
   #removing names
@@ -75,16 +72,17 @@ pca_multithreshold <- function(
   pca.factors.filter <- pca.factors.filter[pca.factors.filter != 0]
 
   #removing them
-  pca.factors <- pca.factors[, colnames(pca.factors) %in% names(pca.factors.filter)]
+  pca.factors <- pca.factors[,
+    colnames(pca.factors) %in% names(pca.factors.filter)
+  ]
 
   #applying max.pca.factors
-  if(!is.null(max.spatial.predictors)){
-    if(ncol(pca.factors) > max.spatial.predictors){
+  if (!is.null(max.spatial.predictors)) {
+    if (ncol(pca.factors) > max.spatial.predictors) {
       pca.factors <- pca.factors[, 1:max.spatial.predictors]
     }
   }
 
   #returning output
   pca.factors
-
 }

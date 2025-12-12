@@ -21,7 +21,6 @@ A data frame with four columns:
 Returns the performance slot of an \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}} model computed on the out-of-bag data.
 }
 \examples{
-if(interactive()){
 
  #loading example data
  data(plant_richness_df)
@@ -42,7 +41,6 @@ if(interactive()){
  x <- get_performance(rf.model)
  x
 
-}
 }
 \seealso{
 \code{\link[=print_performance]{print_performance()}}

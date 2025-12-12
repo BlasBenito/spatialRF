@@ -18,7 +18,9 @@ test_that("`rf_repeat()` works", {
     cluster = cluster
   )
 
+  foreach::registerDoSEQ()
   parallel::stopCluster(cluster)
+  invisible(gc())
 
   expect_s3_class(out, "rf_repeat")
   expect_s3_class(out$importance$per.variable, "data.frame")

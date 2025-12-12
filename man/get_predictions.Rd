@@ -16,7 +16,6 @@ A vector with predictions, or median of the predictions across repetitions if th
 Returns model predictions from a model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}.
 }
 \examples{
-if(interactive()){
 
 #loading example data
 data(plant_richness_df)
@@ -34,5 +33,4 @@ rf.model <- rf(
 x <- get_predictions(rf.model)
 x
 
-}
 }

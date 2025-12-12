@@ -387,37 +387,19 @@ rf_spatial <- function(
     }
   }
 
-  #CLUSTER SETUP
-  if (!inherits(x = cluster, what = "cluster")) {
-    if (inherits(x = model$cluster, what = "cluster")) {
-      cluster <- model$cluster
-    } else if (n.cores > 1) {
-      cluster <- parallel::makeCluster(
-        n.cores,
-        type = "PSOCK"
-      )
-      on.exit(
-        {
-          foreach::registerDoSEQ()
-          try(
-            parallel::stopCluster(cluster),
-            silent = TRUE
-          )
-        },
-        add = TRUE
-      )
-    } else {
-      # n.cores == 1, use sequential execution
-      cluster <- NULL
-    }
+  # Handle model$cluster if present
+  cluster.from.model <- FALSE
+  if (
+    !inherits(x = cluster, what = "cluster") &&
+      inherits(x = model$cluster, what = "cluster")
+  ) {
+    cluster <- model$cluster
+    cluster.from.model <- TRUE
   }
 
-  # Register backend
-  if (!is.null(cluster)) {
-    doParallel::registerDoParallel(cl = cluster)
-  } else {
-    foreach::registerDoSEQ()
-  }
+  #CLUSTER SETUP
+  parallel_config <- setup_parallel_execution(cluster, n.cores)
+  on.exit(parallel_config$cleanup(), add = TRUE)
 
   #ranking
   if (!is.null(ranking.method)) {
@@ -432,7 +414,9 @@ rf_spatial <- function(
     #check if any spatial predictors remain after filtering
     if (ncol(spatial.predictors.df) == 0) {
       if (verbose == TRUE) {
-        message("No spatial predictors remain after filtering. Returning non-spatial model.")
+        message(
+          "No spatial predictors remain after filtering. Returning non-spatial model."
+        )
       }
       return(model)
     }
@@ -450,7 +434,7 @@ rf_spatial <- function(
       reference.moran.i = reference.moran.i,
       verbose = FALSE,
       n.cores = n.cores,
-      cluster = cluster
+      cluster = parallel_config$cluster
     )
   }
 
@@ -487,7 +471,7 @@ rf_spatial <- function(
       weight.penalization.n.predictors = weight.penalization.n.predictors,
       verbose = FALSE,
       n.cores = n.cores,
-      cluster = cluster
+      cluster = parallel_config$cluster
     )
 
     #names of the selected spatial predictors
@@ -522,7 +506,7 @@ rf_spatial <- function(
       weight.r.squared = weight.r.squared,
       weight.penalization.n.predictors = weight.penalization.n.predictors,
       n.cores = n.cores,
-      cluster = cluster
+      cluster = parallel_config$cluster
     )
 
     #broadcast spatial.predictors.selected
@@ -567,7 +551,6 @@ rf_spatial <- function(
     ranger.arguments = ranger.arguments,
     seed = seed,
     n.cores = n.cores,
-    cluster = cluster,
     verbose = FALSE
   )
 
@@ -607,6 +590,11 @@ rf_spatial <- function(
     print(model.spatial)
     plot_importance(model.spatial)
     plot_residuals_diagnostics(model.spatial)
+  }
+
+  # Store cluster in model if it was external (not internally created)
+  if (parallel_config$mode == "external_cluster" || cluster.from.model) {
+    model.spatial$cluster <- parallel_config$cluster
   }
 
   #return output

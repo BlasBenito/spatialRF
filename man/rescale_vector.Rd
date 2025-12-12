@@ -27,7 +27,6 @@ A numeric vector of the same length as x, but with its values rescaled between \
 Rescales a numeric vector to a new range.
 }
 \examples{
-if(interactive()){
 
  out <- rescale_vector(
    x = rnorm(100),
@@ -37,5 +36,4 @@ if(interactive()){
    )
    out
 
-}
 }

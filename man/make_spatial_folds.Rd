@@ -42,7 +42,6 @@ A list with as many slots as rows are in \code{xy.selected}. Each slot has two s
 Applies \code{\link[=make_spatial_fold]{make_spatial_fold()}} to every record in a data frame \code{xy.selected} to generate as many spatially independent folds over the dataset \code{xy} as rows are in \code{xy.selected}.
 }
 \examples{
-if(interactive()){
 
  #loading example data
  data(plant_richness_df)
@@ -65,6 +64,8 @@ if(interactive()){
    training.fraction = 0.6,
    n.cores = 1
  )
+
+if(interactive()){
 
  #plotting training and testing folds
  plot(xy[ c("x", "y")], type = "n", xlab = "", ylab = "")

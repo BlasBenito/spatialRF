@@ -12,7 +12,6 @@
 #' @return A data frame with the same columns as xy with a row number close to n.
 #' @seealso [thinning()]
 #' @examples
-#' if(interactive()){
 #'
 #'  #loading example data
 #'  data(plant_richness_df)
@@ -23,9 +22,8 @@
 #'    n = 20
 #'    )
 #'
-#'  plant_richness.thin
+#'  head(plant_richness.thin)
 #'
-#' }
 #' @rdname thinning_til_n
 #' @importFrom stats dist
 #' @export
@@ -33,32 +31,30 @@ thinning_til_n <- function(
   xy = NULL,
   n = 30,
   distance.step = NULL
-  ){
-
+) {
   #coerce to data frame if tibble
-  if(inherits(xy, "tbl_df") | inherits(xy, "tbl")){
+  if (inherits(xy, "tbl_df") | inherits(xy, "tbl")) {
     xy <- as.data.frame(xy)
   }
-  if(!is.data.frame(xy) | is.null(xy)){
+  if (!is.data.frame(xy) | is.null(xy)) {
     stop("xy must be a data frame.")
   }
-  if(!("x" %in% colnames(xy))){
+  if (!("x" %in% colnames(xy))) {
     stop("column x is missing from xy.")
   }
-  if(!("y" %in% colnames(xy))){
+  if (!("y" %in% colnames(xy))) {
     stop("column y is missing from xy.")
   }
-  if(!is.numeric(n)){
+  if (!is.numeric(n)) {
     stop("'n' is not a number.")
   }
   #in case raster::res() is used to get the distance
-  if(length(distance.step) > 1){
+  if (length(distance.step) > 1) {
     distance.step <- distance.step[1]
   }
 
   #initiating distances
-  if(is.null(distance.step)){
-
+  if (is.null(distance.step)) {
     #getting all distances among points
     xy.distances <- sort(as.vector(dist(xy[, c("x", "y")])))
 
@@ -66,28 +62,24 @@ thinning_til_n <- function(
     min.distance <- distance.i <- max(xy.distances) / 1000
 
     rm(xy.distances)
-
   } else {
-
     #in case it comes from raster::res()
-    if(length(distance.step) > 1){
+    if (length(distance.step) > 1) {
       distance.step <- distance.step[1]
     }
 
     #user defined value
     min.distance <- distance.i <- distance.step
-
   }
 
   #initiating xy.thin
   xy.thin <- xy
 
   #apply thinning iteratively
-  while(nrow(xy.thin) > n){
+  while (nrow(xy.thin) > n) {
     distance.i <- distance.i + min.distance
     xy.thin <- thinning(xy, minimum.distance = distance.i)
   }
 
   xy.thin
-
 }

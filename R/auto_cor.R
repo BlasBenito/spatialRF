@@ -12,7 +12,6 @@
 #' }
 #' @details Can be chained together with [auto_vif()] through pipes, see the examples below.
 #' @examples
-#' if(interactive()){
 #'
 #'  #load data
 #'  data(plant_richness_df)
@@ -38,7 +37,6 @@
 #'  auto_vif() %>%
 #'  auto_cor()
 #'
-#' }
 #' @seealso [auto_vif()]
 #' @rdname auto_cor
 #' @export
@@ -47,14 +45,13 @@ auto_cor <- function(
   preference.order = NULL,
   cor.threshold = 0.50,
   verbose = TRUE
-){
-
-  if(inherits(x, "variable_selection")){
+) {
+  if (inherits(x, "variable_selection")) {
     x <- x$selected.variables.df
   }
 
   #coerce to data frame if tibble
-  if(inherits(x, "tbl_df") | inherits(x, "tbl")){
+  if (inherits(x, "tbl_df") | inherits(x, "tbl")) {
     x <- as.data.frame(x)
   }
 
@@ -84,20 +81,20 @@ auto_cor <- function(
 
   #finding and removing non-numeric columns
   non.numeric.columns <- colnames(x)[!sapply(x, is.numeric)]
-  if(length(non.numeric.columns) > 0){
+  if (length(non.numeric.columns) > 0) {
     warning(
       "These columns are non-numeric and will be removed: ",
       paste(
         non.numeric.columns,
         collapse = ", "
-        )
       )
+    )
     x <- x[, !(colnames(x) %in% non.numeric.columns)]
   }
 
   #finding zero variance columns
   zero.variance.columns <- colnames(x)[round(apply(x, 2, var), 4) == 0]
-  if(length(zero.variance.columns) > 0){
+  if (length(zero.variance.columns) > 0) {
     warning(
       "These columns have zero variance and might cause issues: ",
       paste(
@@ -107,7 +104,6 @@ auto_cor <- function(
     )
   }
 
-
   #compute correlation matrix of x
   x.cor <- abs(cor(x))
 
@@ -116,40 +112,34 @@ auto_cor <- function(
 
   #completing preference order
 
-  if(!is.null(preference.order)){
-
+  if (!is.null(preference.order)) {
     #subset preference.order to colnames(x)
     preference.order <- preference.order[preference.order %in% colnames(x)]
 
     #if there are variables not in preference.order, add them in any order
-    if(length(preference.order) < ncol(x)){
-
-      not.in.preference.order <- colnames(x)[!(colnames(x) %in% preference.order)]
+    if (length(preference.order) < ncol(x)) {
+      not.in.preference.order <- colnames(x)[
+        !(colnames(x) %in% preference.order)
+      ]
       preference.order <- c(preference.order, not.in.preference.order)
-
     }
 
     #organize the matrix according to preference.order
     x.cor <- x.cor[preference.order, preference.order]
-
   } else {
-
     preference.order <- colnames(x)
-
   }
 
   #vector to store variables to remove
   removed.vars <- vector()
 
   #iterating through columns
-  for(i in seq(ncol(x.cor), 1)){
-
+  for (i in seq(ncol(x.cor), 1)) {
     #compute max
     x.cor.max <- apply(x.cor, 2, FUN = max)
 
     #remove i column if max > cor.threshold
-    if(x.cor.max[i] > cor.threshold){
-
+    if (x.cor.max[i] > cor.threshold) {
       #identify column name
       variable.to.remove <- names(x.cor.max[i])
 
@@ -161,18 +151,16 @@ auto_cor <- function(
         rownames(x.cor) != variable.to.remove,
         rownames(x.cor) != variable.to.remove
       ]
-
     }
 
-    if(is.null(dim(x.cor))){
+    if (is.null(dim(x.cor))) {
       break
     }
-
   }
 
   #message
-  if(verbose == TRUE){
-    if(length(removed.vars) != 0){
+  if (verbose == TRUE) {
+    if (length(removed.vars) != 0) {
       message(
         paste0(
           "[auto_cor()]: Removed variables: ",
@@ -193,7 +181,7 @@ auto_cor <- function(
 
   #return output
   output.list <- list()
-  if(length(selected.variables) > 1){
+  if (length(selected.variables) > 1) {
     output.list$cor <- round(cor(selected.variables.df), 2)
   }
   output.list$selected.variables <- selected.variables
@@ -202,5 +190,4 @@ auto_cor <- function(
   class(output.list) <- "variable_selection"
 
   output.list
-
 }

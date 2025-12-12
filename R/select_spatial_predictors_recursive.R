@@ -142,37 +142,6 @@ select_spatial_predictors_recursive <- function(
   data.i <- data
   predictor.variable.names.i <- predictor.variable.names
 
-  #CLUSTER SETUP
-  if (!inherits(x = cluster, what = "cluster")) {
-    if (n.cores > 1) {
-      cluster <- parallel::makeCluster(
-        n.cores,
-        type = "PSOCK"
-      )
-
-      on.exit(
-        {
-          foreach::registerDoSEQ()
-          try(
-            parallel::stopCluster(cluster),
-            silent = TRUE
-          )
-        },
-        add = TRUE
-      )
-    } else {
-      # n.cores == 1, use sequential execution
-      cluster <- NULL
-    }
-  }
-
-  # Register backend
-  if (!is.null(cluster)) {
-    doParallel::registerDoParallel(cl = cluster)
-  } else {
-    foreach::registerDoSEQ()
-  }
-
   #putting together the optimization data frame
   optimization.df <- data.frame(
     spatial.predictor.name = rep(

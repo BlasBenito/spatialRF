@@ -42,20 +42,19 @@ plot_training_df_moran <- function(
     100,
     option = "F",
     direction = -1
-    ),
+  ),
   point.color = "gray30"
-){
-
+) {
   #declaring variables to avoid check complaints
   distance.threshold <- NULL
   p.value.binary <- NULL
   moran.i <- NULL
 
-  if(
+  if (
     is.null(data) |
-    is.null(dependent.variable.name) |
-    is.null(predictor.variable.names)
-  ){
+      is.null(dependent.variable.name) |
+      is.null(predictor.variable.names)
+  ) {
     stop("No variables to plot.")
   }
 
@@ -63,31 +62,30 @@ plot_training_df_moran <- function(
   data <- as.data.frame(data)
 
   #predictor.variable.names comes from auto_vif or auto_cor
-  if(!is.null(predictor.variable.names)){
-    if(inherits(predictor.variable.names, "variable_selection")){
+  if (!is.null(predictor.variable.names)) {
+    if (inherits(predictor.variable.names, "variable_selection")) {
       predictor.variable.names <- predictor.variable.names$selected.variables
     }
   }
 
-  if(is.null(distance.matrix)){
+  if (is.null(distance.matrix)) {
     stop("distance.matrix is missing.")
   }
 
   #creating distance thresholds
-  if(is.null(distance.thresholds)){
-    distance.thresholds <- default_distance_thresholds(distance.matrix = distance.matrix)
+  if (is.null(distance.thresholds)) {
+    distance.thresholds <- default_distance_thresholds(
+      distance.matrix = distance.matrix
+    )
   }
-
 
   #iterating through variables in the training data frame
   df.list <- list()
 
-  for(variable in c(
+  for (variable in c(
     dependent.variable.name,
     predictor.variable.names
-  )
-  ){
-
+  )) {
     #computing moran for different distance thresholds
     temp.df <- moran_multithreshold(
       x = as.vector(data[, variable]),
@@ -100,7 +98,6 @@ plot_training_df_moran <- function(
     temp.df$variable <- variable
 
     df.list[[variable]] <- temp.df
-
   }
 
   #to data frame
@@ -113,7 +110,7 @@ plot_training_df_moran <- function(
   plot.df$p.value.binary <- factor(
     plot.df$p.value.binary,
     levels = c("< 0.05", ">= 0.05")
-    )
+  )
 
   #variable as factor
   plot.df$variable <- factor(
@@ -121,7 +118,7 @@ plot_training_df_moran <- function(
     levels = c(
       rev(predictor.variable.names),
       dependent.variable.name
-      )
+    )
   )
 
   #plotting moran's i
@@ -154,8 +151,7 @@ plot_training_df_moran <- function(
     ggplot2::labs(
       fill = "Moran's I",
       size = "p-value"
-      )
+    )
 
   p
-
 }

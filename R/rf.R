@@ -21,7 +21,6 @@
 #' }
 #' @details Please read the help file of \link[ranger]{ranger} for further details. Notice that the `formula` interface of \link[ranger]{ranger} is supported through `ranger.arguments`, but variable interactions are not allowed (but check [the_feature_engineer()]).
 #' @examples
-#' if(interactive()){
 #'
 #'  #loading example data
 #'  data("plant_richness_df")
@@ -66,12 +65,12 @@
 #'
 #'  #ranger.arguments can contain ranger arguments and any other rf argument
 #'  my.ranger.arguments <- list(
-#'  data = plant_richness_df,
-#'  dependent.variable.name = "richness_species_vascular",
-#'  predictor.variable.names = colnames(plant_richness_df)[8:21],
-#'  distance.matrix = distance_matrix,
-#'  distance.thresholds = c(0, 1000)
-#'  )
+#'    data = plant_richness_df,
+#'    dependent.variable.name = "richness_species_vascular",
+#'    predictor.variable.names = colnames(plant_richness_df)[8:21],
+#'    distance.matrix = distance_matrix,
+#'    distance.thresholds = c(0, 1000)
+#'    )
 #'
 #'  #fitting model with these ranger arguments
 #'  out <- rf(
@@ -79,7 +78,6 @@
 #'    n.cores = 1
 #'    )
 #'
-#' }
 #' @rdname rf
 #' @export
 #' @importFrom parallel detectCores

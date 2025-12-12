@@ -36,7 +36,6 @@ A list with two slots named \code{training} and \code{testing} with the former h
 Used internally by \code{\link[=make_spatial_folds]{make_spatial_folds()}} and \code{\link[=rf_evaluate]{rf_evaluate()}}. Uses the coordinates of a point \code{xy.i} to generate two spatially independent data folds from the data frame \code{xy}. It does so by growing a rectangular buffer from \code{xy.i} until a number of records defined by \code{training.fraction} is inside the buffer. The indices of these records are then stored as "training" in the output list. The indices of the remaining records outside of the buffer are stored as "testing". These training and testing records can be then used to evaluate a model on independent data via cross-validation.
 }
 \examples{
-if(interactive()){
 
  #loading example data
  data(plant_richness_df)
@@ -55,6 +54,8 @@ if(interactive()){
  #indices of the training and testing folds
  out$training
  out$testing
+
+if(interactive()){
 
  #plotting the data
  plot(xy[ c("x", "y")], type = "n", xlab = "", ylab = "")

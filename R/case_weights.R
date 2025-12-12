@@ -4,7 +4,6 @@
 #' @param dependent.variable.name Character string with the name of the response variable. Must be in the column names of `data`. Default: `NULL`
 #' @return A vector with a length equal to `nrow(data)` with the respective weights of the cases.
 #' @examples
-#' if(interactive()){
 #'
 #'  data <- data.frame(
 #'    response = c(0, 0, 0, 1, 1)
@@ -15,22 +14,20 @@
 #'    dependent.variable.name = "response"
 #'  )
 #'
-#'  }
 #' @rdname case_weights
 #' @export
 case_weights <- function(
   data = NULL,
   dependent.variable.name = NULL
-){
-
+) {
   #counting number of ones and zeros
   n <- nrow(data)
   n.1 <- sum(data[, dependent.variable.name])
   n.0 <- n - n.1
 
   #computing weights
-  weight.1 <- 1/n.1
-  weight.0 <- 1/n.0
+  weight.1 <- 1 / n.1
+  weight.0 <- 1 / n.0
 
   #vector of weights
   case.weights <- rep(NA, n)
@@ -39,5 +36,4 @@ case_weights <- function(
 
   #return case weights
   case.weights
-
 }

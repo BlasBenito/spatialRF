@@ -42,13 +42,11 @@
 #' }
 #' @rdname get_evaluation
 #' @export
-get_evaluation <- function(model){
-
+get_evaluation <- function(model) {
   #stop if no evaluation slot
-  if(!inherits(model, "rf_evaluate")){
+  if (!inherits(model, "rf_evaluate")) {
     stop("Object 'x' does not have an 'evaluation' slot.")
   }
 
   model$evaluation$aggregated
-
 }

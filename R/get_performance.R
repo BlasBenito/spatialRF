@@ -9,7 +9,6 @@
 #' }
 #' @seealso [print_performance()]
 #' @examples
-#' if(interactive()){
 #'
 #'  #loading example data
 #'  data(plant_richness_df)
@@ -30,21 +29,15 @@
 #'  x <- get_performance(rf.model)
 #'  x
 #'
-#' }
 #' @rdname get_performance
 #' @export
-get_performance <- function(model){
-
-  if(inherits(model, "rf_repeat")){
-
+get_performance <- function(model) {
+  if (inherits(model, "rf_repeat")) {
     x.median <- sapply(model$performance, FUN = median)
     x.mad <- sapply(model$performance, FUN = mad)
-
   } else {
-
     x.median <- unlist(model$performance)
     x.mad <- NA
-
   }
 
   out.df <- data.frame(
@@ -53,16 +46,15 @@ get_performance <- function(model){
     median_absolute_deviation = x.mad
   )
 
-  if(inherits(model , "rf_repeat") == FALSE){
+  if (inherits(model, "rf_repeat") == FALSE) {
     colnames(out.df)[2] <- "value"
   }
 
   rownames(out.df) <- NULL
 
-  out.df <- out.df[,colSums(is.na(out.df)) < nrow(out.df)]
+  out.df <- out.df[, colSums(is.na(out.df)) < nrow(out.df)]
 
   out.df <- na.omit(out.df)
 
   out.df
-
 }

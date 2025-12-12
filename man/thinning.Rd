@@ -21,7 +21,6 @@ Resamples a set of points with x and y coordinates to impose a minimum distance 
 Generally used to remove redundant points that could produce pseudo-replication, and to limit sampling bias by disaggregating clusters of points.
 }
 \examples{
-if(interactive()){
 
  #load example data
  data(plant_richness_df)
@@ -32,9 +31,8 @@ if(interactive()){
    minimum.distance = 5 #points separated by at least 5 degrees
    )
 
- plant_richness.thin
+ head(plant_richness.thin)
 
-}
 }
 \seealso{
 \code{\link[=thinning_til_n]{thinning_til_n()}}

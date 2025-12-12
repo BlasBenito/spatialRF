@@ -100,35 +100,8 @@ rank_spatial_predictors <- function(
   }
 
   #CLUSTER SETUP
-  if (!inherits(x = cluster, what = "cluster")) {
-    if (n.cores > 1) {
-      cluster <- parallel::makeCluster(
-        n.cores,
-        type = "PSOCK"
-      )
-
-      on.exit(
-        {
-          foreach::registerDoSEQ()
-          try(
-            parallel::stopCluster(cluster),
-            silent = TRUE
-          )
-        },
-        add = TRUE
-      )
-    } else {
-      # n.cores == 1, use sequential execution
-      cluster <- NULL
-    }
-  }
-
-  # Register backend
-  if (!is.null(cluster)) {
-    doParallel::registerDoParallel(cl = cluster)
-  } else {
-    foreach::registerDoSEQ()
-  }
+  parallel_config <- setup_parallel_execution(cluster, n.cores)
+  on.exit(parallel_config$cleanup(), add = TRUE)
 
   #parallelized loop
   spatial.predictors.i <- NULL

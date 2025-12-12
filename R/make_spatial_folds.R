@@ -12,7 +12,6 @@
 #' @return A list with as many slots as rows are in `xy.selected`. Each slot has two slots named `training` and `testing`, with the former having the indices of the training records selected from xy, and the latter having the indices of the testing records.
 #' @seealso [make_spatial_fold()], [rf_evaluate()]
 #' @examples
-#' if(interactive()){
 #'
 #'  #loading example data
 #'  data(plant_richness_df)
@@ -35,6 +34,8 @@
 #'    training.fraction = 0.6,
 #'    n.cores = 1
 #'  )
+#'
+#' if(interactive()){
 #'
 #'  #plotting training and testing folds
 #'  plot(xy[ c("x", "y")], type = "n", xlab = "", ylab = "")
@@ -61,35 +62,8 @@ make_spatial_folds <- function(
   cluster = NULL
 ) {
   #CLUSTER SETUP
-  if (!inherits(x = cluster, what = "cluster")) {
-    if (n.cores > 1) {
-      cluster <- parallel::makeCluster(
-        n.cores,
-        type = "PSOCK"
-      )
-
-      on.exit(
-        {
-          foreach::registerDoSEQ()
-          try(
-            parallel::stopCluster(cluster),
-            silent = TRUE
-          )
-        },
-        add = TRUE
-      )
-    } else {
-      # n.cores == 1, use sequential execution
-      cluster <- NULL
-    }
-  }
-
-  # Register backend
-  if (!is.null(cluster)) {
-    doParallel::registerDoParallel(cl = cluster)
-  } else {
-    foreach::registerDoSEQ()
-  }
+  parallel_config <- setup_parallel_execution(cluster, n.cores)
+  on.exit(parallel_config$cleanup(), add = TRUE)
 
   #parallelized loop
   i <- NULL

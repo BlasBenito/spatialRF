@@ -4,7 +4,6 @@
 #' @return A data frame with Moran's I test results produced by [moran_multithreshold()].
 #' @seealso [moran()], [moran_multithreshold()], [plot_moran()], [print_moran()].
 #' @examples
-#' if(interactive()){
 #'
 #'  #loading example data
 #'  data(plant_richness_df)
@@ -23,10 +22,10 @@
 #'
 #'  #getting Moran's I of the residuals
 #'  x <- get_moran(rf.model)
+#'  x
 #'
-#' }
 #' @rdname get_moran
 #' @export
-get_moran <- function(model){
-   model$residuals$autocorrelation$per.distance
+get_moran <- function(model) {
+  model$residuals$autocorrelation$per.distance
 }

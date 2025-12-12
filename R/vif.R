@@ -4,19 +4,16 @@
 #' @return A data frame with two columns having the name of the variables in 'x' and their respective VIF values.
 #' @seealso [auto_vif()], [auto_cor()]
 #' @examples
-#' if(interactive()){
 #'
 #'  data(plant_richness_df)
 #'
 #'  vif(plant_richness_df[, 5:21])
 #'
-#' }
 #' @rdname vif
 #' @importFrom tibble rownames_to_column
 #' @export
-vif <- function(x){
-
-  if(!is.data.frame(x)){
+vif <- function(x) {
+  if (!is.data.frame(x)) {
     stop("x must be a data frame with numeric columns")
   }
 
@@ -25,7 +22,7 @@ vif <- function(x){
 
   #finding and removing non-numeric columns
   non.numeric.columns <- colnames(x)[!sapply(x, is.numeric)]
-  if(length(non.numeric.columns) > 0){
+  if (length(non.numeric.columns) > 0) {
     warning(
       "These columns are non-numeric and will be removed: ",
       paste(
@@ -38,7 +35,7 @@ vif <- function(x){
 
   #finding zero variance columns
   zero.variance.columns <- colnames(x)[round(apply(x, 2, var), 4) == 0]
-  if(length(zero.variance.columns) > 0){
+  if (length(zero.variance.columns) > 0) {
     warning(
       "These columns have zero variance and might cause issues: ",
       paste(
@@ -63,5 +60,4 @@ vif <- function(x){
   out$vif <- round(out$vif, 3)
 
   return(out)
-
 }

@@ -3,7 +3,6 @@
 #' @param n Number of objects to show, Default: `10`
 #' @return A data frame with the row names indicating the object name, the field 'Type' indicating the object type, 'Size' indicating the object size, and the columns 'Length/Rows' and 'Columns' indicating the object dimensions if applicable.
 #' @examples
-#' if(interactive()){
 #'
 #'  #creating dummy objects
 #'  x <- matrix(runif(100), 10, 10)
@@ -12,25 +11,24 @@
 #'  #reading their in-memory size
 #'  objects_size()
 #'
-#' }
 #' @rdname objects_size
 #' @importFrom utils object.size
 #' @export
 objects_size <- function(n = 10) {
-
-  .ls.objects <- function (
+  .ls.objects <- function(
     pos = 1,
     pattern,
     order.by,
-    decreasing=FALSE,
-    head=FALSE,
-    n=5
-  ){
-
-    napply <- function(names, fn) sapply(
-      names,
-      function(x) fn(get(x, pos = pos))
-    )
+    decreasing = FALSE,
+    head = FALSE,
+    n = 5
+  ) {
+    napply <- function(names, fn) {
+      sapply(
+        names,
+        function(x) fn(get(x, pos = pos))
+      )
+    }
 
     names <- ls(
       pos = pos,
@@ -55,7 +53,9 @@ objects_size <- function(n = 10) {
 
     obj.prettysize <- napply(
       names,
-      function(x) {format(utils::object.size(x), units = "auto") }
+      function(x) {
+        format(utils::object.size(x), units = "auto")
+      }
     )
 
     obj.size <- napply(
@@ -66,7 +66,7 @@ objects_size <- function(n = 10) {
     obj.dim <- t(
       napply(
         names,
-        function(x)as.numeric(dim(x))[1:2]
+        function(x) as.numeric(dim(x))[1:2]
       )
     )
 
@@ -80,18 +80,19 @@ objects_size <- function(n = 10) {
       obj.dim
     )
     names(out) <- c("Type", "Size", "Length/Rows", "Columns")
-    if (!missing(order.by))
-      out <- out[order(out[[order.by]], decreasing=decreasing), ]
-    if (head)
+    if (!missing(order.by)) {
+      out <- out[order(out[[order.by]], decreasing = decreasing), ]
+    }
+    if (head) {
       out <- head(out, n)
+    }
     out
   }
 
   .ls.objects(
     order.by = "Size",
-    decreasing=TRUE,
-    head=TRUE,
-    n=n
-    )
-
+    decreasing = TRUE,
+    head = TRUE,
+    n = n
+  )
 }

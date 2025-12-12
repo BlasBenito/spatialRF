@@ -21,8 +21,9 @@
 #'      predictor.variable.names = colnames(plant_richness_df)[5:21]
 #'      )
 #'  }
-#' @importFrom ggplot2 ggplot aes_string geom_point scale_color_viridis_c theme_bw theme geom_smooth
+#' @importFrom ggplot2 ggplot aes geom_point scale_color_gradientn theme_bw theme geom_smooth
 #' @importFrom patchwork wrap_plots
+#' @importFrom rlang sym
 #' @rdname plot_training_df
 #' @export
 plot_training_df <- function(
@@ -57,9 +58,9 @@ plot_training_df <- function(
     plot.list[[variable]] <- ggplot2::ggplot(
       data = data,
       ggplot2::aes(
-        x = ggplot2::.data[[variable]],
-        y = ggplot2::.data[[dependent.variable.name]],
-        color = dependent.variable.name
+        x = !!rlang::sym(variable),
+        y = !!rlang::sym(dependent.variable.name),
+        color = !!rlang::sym(dependent.variable.name)
       )
     ) +
       ggplot2::geom_point() +

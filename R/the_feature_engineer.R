@@ -96,35 +96,8 @@ the_feature_engineer <- function(
   }
 
   #CLUSTER SETUP
-  if (!inherits(x = cluster, what = "cluster")) {
-    if (n.cores > 1) {
-      cluster <- parallel::makeCluster(
-        n.cores,
-        type = "PSOCK"
-      )
-
-      on.exit(
-        {
-          foreach::registerDoSEQ()
-          try(
-            parallel::stopCluster(cluster),
-            silent = TRUE
-          )
-        },
-        add = TRUE
-      )
-    } else {
-      # n.cores == 1, use sequential execution
-      cluster <- NULL
-    }
-  }
-
-  # Register backend
-  if (!is.null(cluster)) {
-    doParallel::registerDoParallel(cl = cluster)
-  } else {
-    foreach::registerDoSEQ()
-  }
+  parallel_config <- setup_parallel_execution(cluster, n.cores)
+  on.exit(parallel_config$cleanup(), add = TRUE)
 
   #finding out if the response is binary
   is.binary <- is_binary(
@@ -166,6 +139,7 @@ the_feature_engineer <- function(
     predictor.variable.names = predictor.variable.names,
     ranger.arguments = ranger.arguments,
     seed = seed,
+    n.cores = n.cores,
     verbose = FALSE
   )
 
@@ -179,7 +153,7 @@ the_feature_engineer <- function(
     seed = seed,
     verbose = FALSE,
     n.cores = n.cores,
-    cluster = cluster
+    cluster = parallel_config$cluster
   )
 
   #metric
@@ -729,7 +703,7 @@ the_feature_engineer <- function(
     seed = seed,
     verbose = FALSE,
     n.cores = n.cores,
-    cluster = cluster
+    cluster = parallel_config$cluster
   )
 
   #adding it to the plot list

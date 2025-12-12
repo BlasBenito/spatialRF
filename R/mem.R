@@ -28,10 +28,9 @@ mem <- function(
   distance.matrix = NULL,
   distance.threshold = 0,
   colnames.prefix = "mem"
-  ){
-
+) {
   #stopping if no distance matrix
-  if(is.null(distance.matrix)){
+  if (is.null(distance.matrix)) {
     stop("The argument 'distance.matrix' is missing.")
   }
 
@@ -39,16 +38,16 @@ mem <- function(
   distance.matrix.double.centered <- double_center_distance_matrix(
     distance.matrix = distance.matrix,
     distance.threshold = distance.threshold
-    )
+  )
 
   #computes eigenvectors
   mem <- eigen(
     distance.matrix.double.centered,
     symmetric = TRUE
-    )
+  )
 
   #normalize eigenvalues
-  mem.values.normalized <- mem$values/max(abs(mem$values))
+  mem.values.normalized <- mem$values / max(abs(mem$values))
 
   #get positive mem
   mem <- as.data.frame(mem$vectors[, which(mem.values.normalized > 0)])
@@ -58,9 +57,8 @@ mem <- function(
     colnames.prefix,
     seq(1, ncol(mem)),
     sep = "_"
-    )
+  )
 
   #returning output
   mem
-
 }

@@ -10,7 +10,6 @@
 #' @return A list with two slots named `training` and `testing` with the former having the indices of the training records selected from `xy`, and the latter having the indices of the testing records.
 #' @seealso [make_spatial_folds()], [rf_evaluate()]
 #' @examples
-#' if(interactive()){
 #'
 #'  #loading example data
 #'  data(plant_richness_df)
@@ -29,6 +28,8 @@
 #'  #indices of the training and testing folds
 #'  out$training
 #'  out$testing
+#'
+#'if(interactive()){
 #'
 #'  #plotting the data
 #'  plot(xy[ c("x", "y")], type = "n", xlab = "", ylab = "")
@@ -50,52 +51,43 @@ make_spatial_fold <- function(
   distance.step.x = NULL,
   distance.step.y = NULL,
   training.fraction = 0.8
-){
-
-  if(sum(c("id", "x", "y") %in% colnames(xy.i)) != 3){
+) {
+  if (sum(c("id", "x", "y") %in% colnames(xy.i)) != 3) {
     stop("xy.i must contain the column names 'id', 'x', and 'y'.")
   }
-  if(sum(c("id", "x", "y") %in% colnames(xy)) != 3){
+  if (sum(c("id", "x", "y") %in% colnames(xy)) != 3) {
     stop("xy must contain the column names 'id', 'x', and 'y'.")
   }
-  if(training.fraction >= 1){
+  if (training.fraction >= 1) {
     stop("training.fraction should be a number between 0.1 and 0.9")
   }
 
   #initiating distance.step.x
-  if(is.null(distance.step.x)){
-
+  if (is.null(distance.step.x)) {
     #range of x coordinates
     x.range <- range(xy$x)
 
     #getting the 1%
     distance.step.x <- (max(x.range) - min(x.range)) / 1000
-
   } else {
-
     #in case it comes from raster::res()
-    if(length(distance.step.x) > 1){
+    if (length(distance.step.x) > 1) {
       distance.step.x <- distance.step.x[1]
     }
-
   }
 
   #initiating distance.step.x
-  if(is.null(distance.step.y)){
-
+  if (is.null(distance.step.y)) {
     #range of x coordinates
     y.range <- range(xy$y)
 
     #getting the 1%
     distance.step.y <- (max(y.range) - min(y.range)) / 1000
-
   } else {
-
     #in case it comes from raster::res()
-    if(length(distance.step.y) > 1){
+    if (length(distance.step.y) > 1) {
       distance.step.y <- distance.step.y[1]
     }
-
   }
 
   #getting details of xy.i
@@ -104,7 +96,7 @@ make_spatial_fold <- function(
 
   #finding out if data is binary
   is.binary <- FALSE
-  if(!is.null(data) & !is.null(dependent.variable.name)){
+  if (!is.null(data) & !is.null(dependent.variable.name)) {
     is.binary <- is_binary(
       data = data,
       dependent.variable.name = dependent.variable.name
@@ -112,8 +104,10 @@ make_spatial_fold <- function(
   }
 
   #number of records to select
-  if(is.binary == TRUE){
-    records.to.select <- floor(training.fraction * sum(data[, dependent.variable.name]))
+  if (is.binary == TRUE) {
+    records.to.select <- floor(
+      training.fraction * sum(data[, dependent.variable.name])
+    )
   } else {
     records.to.select <- floor(training.fraction * nrow(xy))
   }
@@ -127,13 +121,13 @@ make_spatial_fold <- function(
   #select first batch of presences
   records.selected <- xy[
     xy$x >= old.buffer.x.min &
-    xy$x <= old.buffer.x.max &
-    xy$y >= old.buffer.y.min &
-    xy$y <= old.buffer.y.max, ]
+      xy$x <= old.buffer.x.max &
+      xy$y >= old.buffer.y.min &
+      xy$y <= old.buffer.y.max,
+  ]
 
   #growing buffer
-  while(nrow(records.selected) < records.to.select){
-
+  while (nrow(records.selected) < records.to.select) {
     #new buffer
     new.buffer.x.min <- old.buffer.x.min - distance.step.x
     new.buffer.x.max <- old.buffer.x.max + distance.step.x
@@ -143,13 +137,16 @@ make_spatial_fold <- function(
     #number of selected presences
     records.selected <- xy[
       xy$x >= new.buffer.x.min &
-      xy$x <= new.buffer.x.max &
-      xy$y >= new.buffer.y.min &
-      xy$y <= new.buffer.y.max, ]
+        xy$x <= new.buffer.x.max &
+        xy$y >= new.buffer.y.min &
+        xy$y <= new.buffer.y.max,
+    ]
 
     #subset ones if it's binary
-    if(is.binary == TRUE){
-      records.selected <- records.selected[data[data$id %in% records.selected$id, dependent.variable.name] == 1, ]
+    if (is.binary == TRUE) {
+      records.selected <- records.selected[
+        data[data$id %in% records.selected$id, dependent.variable.name] == 1,
+      ]
     }
 
     #resetting old.buffer
@@ -157,17 +154,17 @@ make_spatial_fold <- function(
     old.buffer.x.max <- new.buffer.x.max
     old.buffer.y.min <- new.buffer.y.min
     old.buffer.y.max <- new.buffer.y.max
-
   }
 
   #select from xy.all if response is binary
   #selecting ones if binary
-  if(is.binary == TRUE){
+  if (is.binary == TRUE) {
     records.selected <- xy[
       xy$x >= new.buffer.x.min &
         xy$x <= new.buffer.x.max &
         xy$y >= new.buffer.y.min &
-        xy$y <= new.buffer.y.max, ]
+        xy$y <= new.buffer.y.max,
+    ]
   }
 
   #out list
@@ -176,5 +173,4 @@ make_spatial_fold <- function(
   out.list$testing <- setdiff(xy$id, records.selected$id)
 
   out.list
-
 }

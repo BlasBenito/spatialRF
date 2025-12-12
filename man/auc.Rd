@@ -18,12 +18,10 @@ Numeric, AUC value.
 Computes the area under the ROC curve in models with binary responses.
 }
 \examples{
-if(interactive()){
 
  out <- auc(
    o = c(0, 0, 1, 1),
    p = c(0.1, 0.6, 0.4, 0.8)
    )
 
-}
 }

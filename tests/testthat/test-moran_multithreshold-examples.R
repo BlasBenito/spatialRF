@@ -9,6 +9,15 @@ test_that("`moran_multithreshold()` works", {
   )
   expect_type(moran.out, "list")
   expect_s3_class(moran.out$per.distance, "data.frame")
-  expect_named(moran.out$per.distance, c("distance.threshold", "moran.i", "moran.i.null", "p.value", "interpretation"))
+  expect_named(
+    moran.out$per.distance,
+    c(
+      "distance.threshold",
+      "moran.i",
+      "moran.i.null",
+      "p.value",
+      "interpretation"
+    )
+  )
   expect_length(moran.out, 4)
 })

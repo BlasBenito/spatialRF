@@ -4,7 +4,6 @@
 #' @param dependent.variable.name Character string with the name of the response variable. Must be in the column names of `data`. Default: `NULL`
 #' @return Logical.
 #' @examples
-#' if(interactive()){
 #'
 #'  #dummy data frame
 #'  data <- data.frame(
@@ -17,21 +16,20 @@
 #'    dependent.variable.name = "response"
 #'  )
 #'
-#' }
 #' @rdname is_binary
 #' @export
 is_binary <- function(
   data = NULL,
   dependent.variable.name = NULL
-){
-  if(
+) {
+  if (
     sort(unique(data[, dependent.variable.name]))[1] == 0 &
-    sort(unique(data[, dependent.variable.name]))[2] == 1 &
-    length(unique(data[, dependent.variable.name])) == 2
-    ){
-      binary.data <- TRUE
-    } else {
-      binary.data <- FALSE
-    }
+      sort(unique(data[, dependent.variable.name]))[2] == 1 &
+      length(unique(data[, dependent.variable.name])) == 2
+  ) {
+    binary.data <- TRUE
+  } else {
+    binary.data <- FALSE
+  }
   binary.data
 }

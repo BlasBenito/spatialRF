@@ -28,8 +28,6 @@
 #' }
 #' @rdname get_importance_local
 #' @export
-get_importance_local <- function(model){
-
+get_importance_local <- function(model) {
   model$importance$local
-
 }

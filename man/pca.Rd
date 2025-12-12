@@ -24,7 +24,6 @@ Extracts all factors of a principal component analysis of a matrix or data frame
 Columns in \code{x} with zero variance are removed before computing the PCA.
 }
 \examples{
-if(interactive()){
 
  #load example distance matrix
  data(distance_matrix)
@@ -33,7 +32,6 @@ if(interactive()){
  out <- pca(x = distance_matrix)
  out
 
-}
 }
 \seealso{
 \code{\link[=pca_multithreshold]{pca_multithreshold()}}

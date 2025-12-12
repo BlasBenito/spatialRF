@@ -6,7 +6,7 @@ test_that("`get_performance()` works", {
     dependent.variable.name = "richness_species_vascular",
     predictor.variable.names = colnames(plant_richness_df)[5:21],
     distance.matrix = distance_matrix,
-    distance.thresholds = c(0,1000, 2000),
+    distance.thresholds = c(0, 1000, 2000),
     verbose = FALSE
   )
   x <- get_performance(rf.model)

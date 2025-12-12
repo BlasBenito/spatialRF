@@ -80,5 +80,7 @@ test_that("`rf_spatial()` works", {
     NA # Expect no error
   )
 
+  foreach::registerDoSEQ()
   parallel::stopCluster(cluster)
+  invisible(gc())
 })

@@ -64,13 +64,12 @@ plot_evaluation <- function(
   line.color = "gray30",
   verbose = TRUE,
   notch = TRUE
-  ){
-
+) {
   #declaring variable because of check BS
   value <- NULL
 
   #stop if no evaluation slot
-  if(!inherits(model, "rf_evaluate")){
+  if (!inherits(model, "rf_evaluate")) {
     stop("Object 'model' does not have an 'evaluation' slot.")
   }
 
@@ -89,7 +88,7 @@ plot_evaluation <- function(
   x[x$metric == "auc", "metric"] <- "AUC"
 
   #ordering models
-  x$model <- factor(x$model,levels = c("Testing", "Training", "Full"))
+  x$model <- factor(x$model, levels = c("Testing", "Training", "Full"))
 
   #the plot
   p <- ggplot2::ggplot() +
@@ -125,8 +124,7 @@ plot_evaluation <- function(
     ) +
     ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
 
-  if(verbose == TRUE){
+  if (verbose == TRUE) {
     suppressMessages(print(p))
   }
-
 }

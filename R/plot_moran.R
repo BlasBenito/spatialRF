@@ -104,7 +104,6 @@ plot_moran <- function(
         ggplot2::aes(
           x = distance.threshold,
           y = moran.i,
-          size = p.value.binary,
           fill = moran.i
         )
 
@@ -114,7 +113,10 @@ plot_moran <- function(
       }
 
       p1 <- p1 +
-        ggplot2::geom_point(pch = 21) +
+        ggplot2::geom_point(
+          ggplot2::aes(size = p.value.binary),
+          pch = 21
+        ) +
         ggplot2::scale_fill_gradientn(colors = point.color) +
         ggplot2::geom_hline(
           yintercept = x$moran.i.null[1],
@@ -141,21 +143,22 @@ plot_moran <- function(
           x = distance.threshold,
           y = moran.i,
           group = repetition,
-          size = p.value.binary,
           fill = moran.i
         )
 
       # Only add geom_line if there are multiple distance thresholds per group
       if (length(unique(x$distance.threshold)) > 1) {
-        p1 <- p1 + ggplot2::geom_line(
-          linewidth = 1,
-          color = line.color,
-          alpha = 0.5
-        )
+        p1 <- p1 +
+          ggplot2::geom_line(
+            linewidth = 1,
+            color = line.color,
+            alpha = 0.5
+          )
       }
 
       p1 <- p1 +
         ggplot2::geom_point(
+          ggplot2::aes(size = p.value.binary),
           pch = 21,
           alpha = 0.7
         ) +

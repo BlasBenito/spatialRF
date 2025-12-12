@@ -27,7 +27,9 @@ test_that("`rf_evaluate()` works", {
     cluster = cluster
   )
 
+  foreach::registerDoSEQ()
   parallel::stopCluster(cluster)
+  invisible(gc())
 
   expect_s3_class(rf.model, "rf_evaluate")
   expect_type(rf.model$evaluation, "list")

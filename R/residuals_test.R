@@ -22,8 +22,7 @@
 #' @importFrom stats shapiro.test IQR
 residuals_test <- function(
   residuals
-  ){
-
+) {
   #declaring varialbes
   Predicted <- NULL
   Residuals <- NULL
@@ -46,5 +45,4 @@ residuals_test <- function(
 
   #returning output
   y
-
 }

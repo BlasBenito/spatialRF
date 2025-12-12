@@ -24,31 +24,29 @@ optimization_function <- function(
   weight.r.squared = NULL,
   weight.penalization.n.predictors = NULL,
   optimization.method = "moran.i"
-){
-
+) {
   #using Moran's I and its p-value
-  if(optimization.method == "p.value"){
-
+  if (optimization.method == "p.value") {
     optimization <- rescale_vector(
       pmax(
         rescale_vector(1 - x$moran.i),
         x$p.value.binary
       ) +
         (weight.r.squared * rescale_vector(x$r.squared)) -
-        (weight.penalization.n.predictors * rescale_vector(x$penalization.per.variable))
+        (weight.penalization.n.predictors *
+          rescale_vector(x$penalization.per.variable))
     )
-
   }
 
   #Using only Moran's I
-  if(optimization.method == "moran.i"){
-
-    optimization <- rescale_vector(rescale_vector(1 - x$moran.i) +
+  if (optimization.method == "moran.i") {
+    optimization <- rescale_vector(
+      rescale_vector(1 - x$moran.i) +
         (weight.r.squared * rescale_vector(x$r.squared)) -
-        (weight.penalization.n.predictors * rescale_vector(x$penalization.per.variable)))
-
+        (weight.penalization.n.predictors *
+          rescale_vector(x$penalization.per.variable))
+    )
   }
 
   optimization
-
 }

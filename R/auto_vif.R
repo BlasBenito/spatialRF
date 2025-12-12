@@ -27,7 +27,6 @@
 #'  Can be chained together with [auto_cor()] through pipes, see the examples below.
 #' @seealso [auto_cor()]
 #' @examples
-#' if(interactive()){
 #'
 #'#loading data
 #'data(plant_richness_df)
@@ -53,7 +52,6 @@
 #'  auto_cor() %>%
 #'  auto_vif()
 #'
-#' }
 #' @rdname auto_vif
 #' @importFrom magrittr `%>%`
 #' @importFrom stats cor
@@ -63,15 +61,14 @@ auto_vif <- function(
   preference.order = NULL,
   vif.threshold = 5,
   verbose = TRUE
-){
-
-  if(inherits(x, "variable_selection") == TRUE){
+) {
+  if (inherits(x, "variable_selection") == TRUE) {
     x <- x$selected.variables.df
   }
 
   #coercing to data frame
   #coerce to data frame if tibble
-  if(inherits(x, "tbl_df") | inherits(x, "tbl")){
+  if (inherits(x, "tbl_df") | inherits(x, "tbl")) {
     x <- as.data.frame(x)
   }
 
@@ -79,10 +76,9 @@ auto_vif <- function(
   #removing NA
   x <- na.omit(x)
 
-
   #finding and removing non-numeric columns
   non.numeric.columns <- colnames(x)[!sapply(x, is.numeric)]
-  if(length(non.numeric.columns) > 0){
+  if (length(non.numeric.columns) > 0) {
     warning(
       "These columns are non-numeric and will be removed: ",
       paste(
@@ -95,7 +91,7 @@ auto_vif <- function(
 
   #finding zero variance columns
   zero.variance.columns <- colnames(x)[round(apply(x, 2, var), 4) == 0]
-  if(length(zero.variance.columns) > 0){
+  if (length(zero.variance.columns) > 0) {
     warning(
       "These columns have zero variance and might cause issues: ",
       paste(
@@ -106,17 +102,14 @@ auto_vif <- function(
   }
 
   #AND preference.order IS NOT PROVIDED
-  if(is.null(preference.order)){
-
+  if (is.null(preference.order)) {
     #OPTION 3: SELECT BY MAX VIF
     output.list <- .select_by_max_vif(
       x = x,
       vif.threshold = vif.threshold,
       verbose = verbose
     )
-
   } else {
-
     #OPTION 2: preference.order IS PROVIDED
 
     #getting only preference.order in colnames(x)
@@ -131,8 +124,7 @@ auto_vif <- function(
     )
 
     #if there are variables not in of preference.order
-    if(sum(preference.order %in% colnames(x)) != ncol(x)){
-
+    if (sum(preference.order %in% colnames(x)) != ncol(x)) {
       #selecting by max vif (variables not in preference.order)
       output.list.by.max.vif <- .select_by_max_vif(
         x = x[, !(colnames(x) %in% preference.order)],
@@ -153,15 +145,13 @@ auto_vif <- function(
         vif.threshold = vif.threshold,
         verbose = verbose
       )
-
     }
-
   }
 
   #message
-  if(verbose == TRUE){
+  if (verbose == TRUE) {
     removed.vars <- setdiff(colnames(x), output.list$selected.variables)
-    if(length(removed.vars) != 0){
+    if (length(removed.vars) != 0) {
       message(
         paste0(
           "[auto_vif()]: Removed variables: ",
@@ -181,14 +171,11 @@ auto_vif <- function(
 
   #returning output
   output.list
-
 }
 
 
-
 #' @export
-.vif_to_df <- function(x){
-
+.vif_to_df <- function(x) {
   #defining global variable
   vif <- NULL
 
@@ -207,8 +194,7 @@ auto_vif <- function(
 
 
 #' @export
-.select_by_max_vif <- function(x, vif.threshold, verbose){
-
+.select_by_max_vif <- function(x, vif.threshold, verbose) {
   #global variables
   vif <- variable <- NULL
 
@@ -217,12 +203,10 @@ auto_vif <- function(
 
   #computes vif
   repeat {
-
     #computes vif
     vif.df <- .vif_to_df(x = x[, selected.variables])
 
-    if(max(vif.df$vif) > vif.threshold){
-
+    if (max(vif.df$vif) > vif.threshold) {
       #selects variables with vif lower than 5
       var.to.remove <-
         vif.df %>%
@@ -233,12 +217,12 @@ auto_vif <- function(
         as.character()
 
       #updates select.cols
-      selected.variables <- selected.variables[selected.variables != var.to.remove]
-
+      selected.variables <- selected.variables[
+        selected.variables != var.to.remove
+      ]
     } else {
       break
     }
-
   } #end of repeat
 
   #final vif.df
@@ -251,7 +235,6 @@ auto_vif <- function(
   output.list$selected.variables.df <- x[, selected.variables]
 
   output.list
-
 }
 
 
@@ -261,8 +244,7 @@ auto_vif <- function(
   preference.order,
   vif.threshold,
   verbose
-){
-
+) {
   #subsets to the variables already available in x
   preference.order <- preference.order[preference.order %in% colnames(x)]
 
@@ -270,8 +252,7 @@ auto_vif <- function(
   selected.variables <- preference.order[1]
 
   #iterates through preference order
-  for(i in 2:length(preference.order)){
-
+  for (i in 2:length(preference.order)) {
     #new.var
     new.var <- preference.order[i]
 
@@ -279,16 +260,11 @@ auto_vif <- function(
     vif.df <- .vif_to_df(x = x[, c(selected.variables, new.var)])
 
     #if vif of new.var lower than vif.threshold, keep it
-    if(max(vif.df$vif) <= vif.threshold){
-
+    if (max(vif.df$vif) <= vif.threshold) {
       selected.variables <- c(selected.variables, new.var)
-
     } else {
-
       next
-
     }
-
   }
 
   #final vif.df
@@ -301,6 +277,4 @@ auto_vif <- function(
   output.list$selected.variables.df <- x[, selected.variables]
 
   output.list
-
 }
-

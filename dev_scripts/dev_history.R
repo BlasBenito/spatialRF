@@ -21,7 +21,6 @@ devtools::document()
 devtools::check()
 ########################################
 
-
 #test (takes half an hour)
 tests <- testthat::test_local()
 
@@ -36,7 +35,7 @@ system("cp -avr README_files docs")
 #check in different platforms
 rhub::validate_email()
 platforms <- rhub::platforms()
-a <- rhub::check_for_cran(platforms = "debian-clang-devel")#took too long, stopped it
+a <- rhub::check_for_cran(platforms = "debian-clang-devel") #took too long, stopped it
 b <- rhub::check_for_cran(platforms = "debian-gcc-devel")
 c <- rhub::check_for_cran(platforms = "debian-gcc-release")
 d <- rhub::check_for_cran(platforms = "macos-highsierra-release-cran")
@@ -73,15 +72,12 @@ usethis::use_github_action_check_standard()
 # git push origin gh-pages
 # git checkout main
 
-
-
 #build documentation
 devtools::document()
 devtools::build_manual()
 
 #lintr
 lintr::lint_dir("R")
-
 
 
 #load all functions
@@ -91,9 +87,7 @@ devtools::load_all()
 devtools::install()
 
 
-
-
-1#create package
+1 #create package
 usethis::create_package("/home/blas/Dropbox/GITHUB/R_packages/spatialRF")
 
 #ignore dev_history at build
@@ -261,11 +255,17 @@ exampletestr::make_test_shell_fun("rank_spatial_predictors", open = FALSE)
 
 usethis::use_r("select_spatial_predictors_sequential")
 sinew::makeOxygen(select_spatial_predictors_sequential)
-exampletestr::make_test_shell_fun("select_spatial_predictors_sequential", open = FALSE)
+exampletestr::make_test_shell_fun(
+  "select_spatial_predictors_sequential",
+  open = FALSE
+)
 
 usethis::use_r("select_spatial_predictors_optimized")
 sinew::makeOxygen(select_spatial_predictors_optimized)
-exampletestr::make_test_shell_fun("select_spatial_predictors_optimized", open = FALSE)
+exampletestr::make_test_shell_fun(
+  "select_spatial_predictors_optimized",
+  open = FALSE
+)
 
 
 usethis::use_r("weights_from_distance_matrix")
@@ -331,7 +331,6 @@ exampletestr::make_test_shell_fun("get_residuals", open = FALSE)
 exampletestr::make_test_shell_fun("get_predictions", open = FALSE)
 
 
-
 #TODO
 usethis::use_r("rf_evaluate")
 sinew::makeOxygen(rf_evaluate)
@@ -348,17 +347,14 @@ exampletestr::make_test_shell_fun("rf_tuning", open = FALSE)
 dep <- DependenciesGraphs::funDependencies(
   'package:spatialRF',
   "rf_spatial"
-  )
+)
 plot(dep)
 
 dep <- envirDependencies("package:spatialRF")
-plot(dep,block=TRUE)
+plot(dep, block = TRUE)
 
 #writing functions into the R folder
 
 setwd("R")
 files.sources = list.files()
 sapply(files.sources, source)
-
-
-

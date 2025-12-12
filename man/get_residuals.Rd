@@ -16,7 +16,6 @@ A vector with model residuals, or the median of model residuals across repetitio
 Returns the residuals of models fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}.
 }
 \examples{
-if(interactive()){
 
 #load example data
 data(plant_richness_df)
@@ -34,5 +33,4 @@ rf.model <- rf(
 x <- get_residuals(rf.model)
 x
 
-}
 }

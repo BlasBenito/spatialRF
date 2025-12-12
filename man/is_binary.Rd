@@ -18,7 +18,6 @@ Logical.
 Returns \code{TRUE} if \code{dependent.variable.name} is a binary variable with the values 1 and 0.
 }
 \examples{
-if(interactive()){
 
  #dummy data frame
  data <- data.frame(
@@ -31,5 +30,4 @@ if(interactive()){
    dependent.variable.name = "response"
  )
 
-}
 }

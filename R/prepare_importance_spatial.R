@@ -27,29 +27,32 @@
 #' @rdname prepare_importance_spatial
 #' @importFrom stats median
 #' @export
-prepare_importance_spatial <- function(model){
-
+prepare_importance_spatial <- function(model) {
   importance <- NULL
   variable <- NULL
 
   #getting importance df
-  if(inherits(model, "rf_spatial") == FALSE){
+  if (inherits(model, "rf_spatial") == FALSE) {
     stop("This function requires a model fitted with rf_spatial()")
   }
   importance.df <- model$importance$per.variable
 
   #spatial predictors only
-  spatial.predictors <- importance.df[grepl(
-    "spatial_predictor",
-    importance.df$variable
-  ),]
+  spatial.predictors <- importance.df[
+    grepl(
+      "spatial_predictor",
+      importance.df$variable
+    ),
+  ]
   spatial.predictors$variable <- "spatial_predictors"
 
   #non-spatial predictors
-  non.spatial.predictors <- importance.df[!grepl(
-    "spatial_predictor",
-    importance.df$variable
-  ),]
+  non.spatial.predictors <- importance.df[
+    !grepl(
+      "spatial_predictor",
+      importance.df$variable
+    ),
+  ]
 
   #joining for plot
   importance.plot.df <- rbind(
@@ -91,7 +94,7 @@ prepare_importance_spatial <- function(model){
   out.list$per.variable.plot <- plot_importance(
     model$importance$per.variable,
     verbose = FALSE
-    )
+  )
   out.list$spatial.predictors <- importance.plot.df
   out.list$spatial.predictors.plot <- plot_importance(
     importance.plot.df,
@@ -105,5 +108,4 @@ prepare_importance_spatial <- function(model){
 
   #returning the list
   out.list
-
 }

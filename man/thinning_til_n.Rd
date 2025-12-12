@@ -24,7 +24,6 @@ A data frame with the same columns as xy with a row number close to n.
 Resamples a set of points with x and y coordinates by increasing the distance step by step until a given sample size is obtained.
 }
 \examples{
-if(interactive()){
 
  #loading example data
  data(plant_richness_df)
@@ -35,9 +34,8 @@ if(interactive()){
    n = 20
    )
 
- plant_richness.thin
+ head(plant_richness.thin)
 
-}
 }
 \seealso{
 \code{\link[=thinning]{thinning()}}

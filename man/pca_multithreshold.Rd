@@ -27,7 +27,6 @@ Computes PCA factors of a distance matrix over different distance thresholds to 
 The distance matrix is converted into weights with \code{\link[=weights_from_distance_matrix]{weights_from_distance_matrix()}} before computing the PCA. This produces more meaningful spatial predictors than using the distance matrix as is.
 }
 \examples{
-if(interactive()){
 
  #loading example distance matrix
  load(distance_matrix)
@@ -39,7 +38,6 @@ if(interactive()){
    )
  head(x)
 
-}
 }
 \seealso{
 \code{\link[=pca]{pca()}}

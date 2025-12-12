@@ -16,9 +16,7 @@ Statistical mode of \code{x}.
 Computes the mode of a numeric or character vector
 }
 \examples{
-if(interactive()){
 
  statistical_mode(c(10, 9, 10, 8))
 
-}
 }
