@@ -101,8 +101,7 @@ rf_repeat <- function(
   verbose = TRUE,
   n.cores = parallel::detectCores() - 1,
   cluster = NULL
-){
-
+) {
   #declaring some variables
   variable <- NULL
   importance <- NULL
@@ -110,16 +109,15 @@ rf_repeat <- function(
   moran.i <- NULL
 
   #checking repetitions
-  if(!is.integer(repetitions)){
+  if (!is.integer(repetitions)) {
     repetitions <- floor(repetitions)
   }
-  if(repetitions < 5){
+  if (repetitions < 5) {
     repetitions <- 5
   }
 
   #getting arguments from model rather than ranger.arguments
-  if(!is.null(model)){
-
+  if (!is.null(model)) {
     ranger.arguments <- model$ranger.arguments
     data <- ranger.arguments$data
     dependent.variable.name <- ranger.arguments$dependent.variable.name
@@ -128,67 +126,71 @@ rf_repeat <- function(
     distance.thresholds <- ranger.arguments$distance.thresholds
     scaled.importance <- ranger.arguments$scaled.importance
 
-    #getting cluster from model if "cluster" is not provided
-    if(is.null(cluster) & "cluster" %in% names(model)){
-      cluster <- model$cluster
-    }
-
     #saving tuning and evaluation slots for later
-    if("tuning" %in% names(model)){
+    if ("tuning" %in% names(model)) {
       tuning <- model$tuning
     }
-    if("evaluation" %in% names(model)){
+    if ("evaluation" %in% names(model)) {
       evaluation <- model$evaluation
     }
-
   }
 
   #coerce to data frame if tibble
-  if(inherits(data, "tbl_df") | inherits(data, "tbl")){
+  if (inherits(data, "tbl_df") | inherits(data, "tbl")) {
     data <- as.data.frame(data)
   }
 
   #CLUSTER SETUP
-  #cluster is provided
-  if(!is.null(cluster)){
-
-    #n.cores <- NULL
-    n.cores <- NULL
-
-    #flat to not stop cluster after execution
-    stop.cluster <- FALSE
-
-  } else {
-
-    #creates and registers cluster
-    cluster <- parallel::makeCluster(
-      n.cores,
-      type = "PSOCK"
-    )
-
-    #flag to stop cluster
-    stop.cluster <- TRUE
-
+  pass.cluster <- FALSE
+  if (!inherits(x = cluster, what = "cluster")) {
+    if (!is.null(model) && inherits(x = model$cluster, what = "cluster")) {
+      cluster <- model$cluster
+      pass.cluster <- TRUE
+    } else if (n.cores > 1) {
+      cluster <- parallel::makeCluster(
+        n.cores,
+        type = "PSOCK"
+      )
+      pass.cluster <- FALSE
+      on.exit(
+        {
+          foreach::registerDoSEQ()
+          try(
+            parallel::stopCluster(cluster),
+            silent = TRUE
+          )
+        },
+        add = TRUE
+      )
+    } else {
+      # n.cores == 1, use sequential execution
+      cluster <- NULL
+      pass.cluster <- FALSE
+    }
   }
 
-  #registering cluster
-  doParallel::registerDoParallel(cl = cluster)
+  # Register backend
+  if (!is.null(cluster)) {
+    doParallel::registerDoParallel(cl = cluster)
+  } else {
+    foreach::registerDoSEQ()
+  }
 
   #predictor.variable.names comes from auto_vif or auto_cor
-  if(!is.null(predictor.variable.names)){
-    if(inherits(predictor.variable.names, "variable_selection")){
+  if (!is.null(predictor.variable.names)) {
+    if (inherits(predictor.variable.names, "variable_selection")) {
       predictor.variable.names <- predictor.variable.names$selected.variables
     }
   }
 
-  if(is.null(ranger.arguments)){
+  if (is.null(ranger.arguments)) {
     ranger.arguments <- list()
   }
   ranger.arguments$num.threads <- 1
   ranger.arguments$seed <- NULL
   ranger.arguments$scaled.importance <- scaled.importance
 
-  if(keep.models == TRUE){
+  if (keep.models == TRUE) {
     ranger.arguments$write.forest <- TRUE
   }
 
@@ -197,62 +199,58 @@ rf_repeat <- function(
   repeated.models <- foreach::foreach(
     i = 1:repetitions,
     .verbose = FALSE
-  ) %dopar% {
+  ) %dopar%
+    {
+      #model on raw data
+      m.i <- spatialRF::rf(
+        data = data,
+        dependent.variable.name = dependent.variable.name,
+        predictor.variable.names = predictor.variable.names,
+        distance.matrix = distance.matrix,
+        distance.thresholds = distance.thresholds,
+        xy = xy,
+        ranger.arguments = ranger.arguments,
+        scaled.importance = scaled.importance,
+        seed = ifelse(is.null(seed), i, seed + i),
+        n.cores = 1,
+        verbose = FALSE
+      )
 
-    #model on raw data
-    m.i <- spatialRF::rf(
-      data = data,
-      dependent.variable.name = dependent.variable.name,
-      predictor.variable.names = predictor.variable.names,
-      distance.matrix = distance.matrix,
-      distance.thresholds = distance.thresholds,
-      xy = xy,
-      ranger.arguments = ranger.arguments,
-      scaled.importance = scaled.importance,
-      seed = ifelse(is.null(seed), i, seed + i),
-      verbose = FALSE
-    )
+      #gathering results
+      out <- list()
+      out$predictions <- m.i$predictions
+      out$importance$local <- m.i$variable.importance.local
+      out$importance <- m.i$importance$per.variable
+      out$importance.local <- m.i$importance$local
+      out$prediction.error <- m.i$prediction.error
+      out$r.squared <- m.i$performance$r.squared
+      out$r.squared.oob <- m.i$performance$r.squared.oob
+      out$pseudo.r.squared <- m.i$performance$pseudo.r.squared
+      out$rmse.oob <- m.i$prediction.error
+      out$rmse <- m.i$performance$rmse
+      out$nrmse <- m.i$performance$nrmse
+      out$auc <- m.i$performance$auc
+      out$residuals <- m.i$residuals
 
-    #gathering results
-    out <- list()
-    out$predictions <- m.i$predictions
-    out$importance$local <- m.i$variable.importance.local
-    out$importance <- m.i$importance$per.variable
-    out$importance.local <- m.i$importance$local
-    out$prediction.error <- m.i$prediction.error
-    out$r.squared <- m.i$performance$r.squared
-    out$r.squared.oob <- m.i$performance$r.squared.oob
-    out$pseudo.r.squared <- m.i$performance$pseudo.r.squared
-    out$rmse.oob <- m.i$prediction.error
-    out$rmse <- m.i$performance$rmse
-    out$nrmse <- m.i$performance$nrmse
-    out$auc <- m.i$performance$auc
-    out$residuals <- m.i$residuals
+      #saving model
+      if (keep.models == TRUE) {
+        #removing extra weight from the model
+        m.i$ranger.arguments$distance.matrix <- NULL
+        m.i$ranger.arguments$xy <- NULL
+        m.i$ranger.arguments$data <- NULL
 
-    #saving model
-    if(keep.models == TRUE){
+        #saving it
+        out$model <- m.i
+      }
 
-      #removing extra weight from the model
-      m.i$ranger.arguments$distance.matrix <- NULL
-      m.i$ranger.arguments$xy <- NULL
-      m.i$ranger.arguments$data <- NULL
-
-      #saving it
-      out$model <- m.i
-    }
-
-    return(out)
-
-  }#end of parallelized loop
+      return(out)
+    } #end of parallelized loop
 
   #fitting model if keep.models  == FALSE
-  if(keep.models == FALSE){
-    if(!is.null(model)){
-
+  if (keep.models == FALSE) {
+    if (!is.null(model)) {
       m <- model
-
     } else {
-
       m <- rf(
         data = data,
         dependent.variable.name = dependent.variable.name,
@@ -263,20 +261,15 @@ rf_repeat <- function(
         ranger.arguments = ranger.arguments,
         scaled.importance = scaled.importance,
         seed = seed,
+        n.cores = n.cores,
         verbose = FALSE
       )
-
     }
-
   } else {
-
-    if(!is.null(model)){
+    if (!is.null(model)) {
       m <- model
-
     } else {
-
       m <- repeated.models[[1]]$model
-
     }
   }
 
@@ -288,8 +281,7 @@ rf_repeat <- function(
     "repetition",
     seq(1, repetitions),
     sep = "_"
-    )
-
+  )
 
   #PREPARING predictions
   #------------------------------
@@ -297,14 +289,14 @@ rf_repeat <- function(
     do.call(
       "cbind",
       lapply(
-      lapply(
-        repeated.models,
+        lapply(
+          repeated.models,
+          "[[",
+          "predictions"
+        ),
         "[[",
-        "predictions"
-      ),
-      "[[",
-      1
-    )
+        1
+      )
     )
   )
   colnames(predictions.per.repetition) <- repetition.columns
@@ -312,7 +304,11 @@ rf_repeat <- function(
   #computing medians
   predictions.median <- data.frame(
     median = apply(predictions.per.repetition, 1, FUN = median),
-    median_absolute_deviation = apply(predictions.per.repetition, 1, stats::mad),
+    median_absolute_deviation = apply(
+      predictions.per.repetition,
+      1,
+      stats::mad
+    ),
     row.names = NULL
   )
 
@@ -320,8 +316,6 @@ rf_repeat <- function(
   m$predictions$values <- predictions.median$median
   m$predictions$values.per.repetition <- predictions.per.repetition
   m$predictions$values.median <- predictions.median
-
-
 
   #PREPARING variable.importance
   #-----------------------------
@@ -360,21 +354,24 @@ rf_repeat <- function(
   )
 
   #additional importance data if model is rf_spatial
-  if(!is.null(model)){
-    if(inherits(model, "rf_spatial")){
-
+  if (!is.null(model)) {
+    if (inherits(model, "rf_spatial")) {
       #spatial predictors only
-      spatial.predictors <- importance.per.repetition[grepl(
-        "spatial_predictor",
-        importance.per.repetition$variable
-      ),]
+      spatial.predictors <- importance.per.repetition[
+        grepl(
+          "spatial_predictor",
+          importance.per.repetition$variable
+        ),
+      ]
       spatial.predictors$variable <- "spatial_predictors"
 
       #non-spatial predictors
-      non.spatial.predictors <- importance.per.repetition[!grepl(
-        "spatial_predictor",
-        importance.per.repetition$variable
-      ),]
+      non.spatial.predictors <- importance.per.repetition[
+        !grepl(
+          "spatial_predictor",
+          importance.per.repetition$variable
+        ),
+      ]
 
       #spatial.predictors
       m$importance$spatial.predictors <- rbind(
@@ -423,7 +420,6 @@ rf_repeat <- function(
         m$importance$spatial.predictors.stats,
         verbose = verbose
       )
-
     }
   }
 
@@ -443,21 +439,6 @@ rf_repeat <- function(
     )
   )
 
-  # m$importance$local$mad <- m$variable.importance.local <- as.data.frame(
-  #   apply(
-  #     simplify2array(
-  #       lapply(
-  #         repeated.models,
-  #         "[[",
-  #         "importance.local"
-  #       )
-  #     ),
-  #     1:2,
-  #     mad
-  #   )
-  # )
-
-
   #PREPARING prediction.error SLOT
   #-------------------------------
   m$prediction.error <- unlist(
@@ -468,7 +449,6 @@ rf_repeat <- function(
     )
   ) %>%
     median()
-
 
   #PREPARING THE PERFORMANCE SLOT
   #------------------------------
@@ -539,7 +519,6 @@ rf_repeat <- function(
   )
   names(m$performance$auc) <- NULL
 
-
   #PREPARING THE RESIDUALS SLOT
   #----------------------------
   m$residuals <- list()
@@ -572,8 +551,7 @@ rf_repeat <- function(
   m$residuals$stats <- summary(residuals.median$median)
 
   #gathering autocorrelation
-  if(!is.null(distance.matrix)){
-
+  if (!is.null(distance.matrix)) {
     #getting m$residuals$autocorrelation$per.distance
     moran.repetitions <- do.call(
       "rbind",
@@ -588,7 +566,8 @@ rf_repeat <- function(
           3
         ),
         "[[",
-        1)
+        1
+      )
     ) %>%
       dplyr::arrange(distance.threshold)
     moran.repetitions$repetition <- rep(
@@ -615,21 +594,22 @@ rf_repeat <- function(
     )
 
     m$residuals$autocorrelation$max.moran <- median(
-        unlist(
+      unlist(
+        lapply(
           lapply(
             lapply(
-              lapply(
-                repeated.models,
-                "[[",
-                "residuals"
-              ),
+              repeated.models,
               "[[",
-              3
+              "residuals"
             ),
             "[[",
-            2)
+            3
+          ),
+          "[[",
+          2
         )
       )
+    )
 
     m$residuals$autocorrelation$max.moran.distance.threshold <- statistical_mode(
       unlist(
@@ -644,10 +624,10 @@ rf_repeat <- function(
             3
           ),
           "[[",
-          3)
+          3
+        )
       )
     )
-
   }
 
   #normality of the median residuals
@@ -663,14 +643,12 @@ rf_repeat <- function(
   )
 
   #gathering models
-  if(keep.models == TRUE){
-
+  if (keep.models == TRUE) {
     m$models <- lapply(
       repeated.models,
       "[[",
       "model"
     )
-
   }
 
   #adding repetitions to ranger.arguments
@@ -678,12 +656,12 @@ rf_repeat <- function(
   m$ranger.arguments$keep.models <- keep.models
 
   #adding evaluation and tuning slots if they exist
-  if(!is.null(model)){
+  if (!is.null(model)) {
     #saving tuning and evaluation slots for later
-    if("tuning" %in% names(model)){
+    if ("tuning" %in% names(model)) {
       m$tuning <- tuning
     }
-    if("evaluation" %in% names(model)){
+    if ("evaluation" %in% names(model)) {
       m$evaluation <- evaluation
     }
     class(m) <- c(class(m), "rf_repeat")
@@ -692,18 +670,13 @@ rf_repeat <- function(
   }
 
   #print model
-  if(verbose == TRUE){
+  if (verbose == TRUE) {
     print(m)
   }
 
-  #stopping cluster
-  if(stop.cluster == TRUE){
-    parallel::stopCluster(cl = cluster)
-  } else {
+  if (pass.cluster == TRUE) {
     m$cluster <- cluster
   }
 
-  #return m.curves
   m
-
 }

@@ -5,12 +5,11 @@ test_that("`make_spatial_folds()` works", {
   xy.selected <- thinning_til_n(
     xy = xy,
     n = 20
-    )
+  )
   out <- make_spatial_folds(
     xy.selected = xy.selected,
     xy = xy,
-    training.fraction = 0.6,
-    n.cores = 1
+    training.fraction = 0.6
   )
   expect_type(out, "list")
   expect_length(out, nrow(xy.selected))

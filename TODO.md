@@ -1,3 +1,15 @@
+## Doesn't run
+
+select_spatial_predictors_recursive-examples
+
+## Slow tests
+
+get_spatial_predictors-examples
+rf_spatial-examples
+rf_tuning-examples
+select_spatial_predictors_recursive-examples
+
+
 ## spatialRF::plot_training_df()
 
 Warning :`aes_string()` was deprecated in ggplot2 3.0.0.

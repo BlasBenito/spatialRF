@@ -6,9 +6,8 @@ test_that("`the_feature_engineer()` works", {
     predictor.variable.names = colnames(plant_richness_df)[5:21],
     xy = plant_richness_df[, c("x", "y")],
     verbose = FALSE,
-    seed = 100,
-    n.cores = 7
-    )
+    seed = 100
+  )
   expect_s3_class(interactions$screening, "data.frame")
   expect_s3_class(interactions$selected, "data.frame")
 })

@@ -30,8 +30,7 @@
 residuals_diagnostics <- function(
   residuals,
   predictions
-  ){
-
+) {
   #declaring variables
   Predicted <- NULL
   Residuals <- NULL
@@ -40,17 +39,16 @@ residuals_diagnostics <- function(
   y <- list()
 
   #normality of x
-  if(length(residuals) > 5000){
+  if (length(residuals) > 5000) {
     shapiro.out <- shapiro.test(
       sample(
         x = residuals,
         size = 5000
-        )
       )
+    )
   } else {
     shapiro.out <- shapiro.test(residuals)
   }
-
 
   #writing results to list
   names(shapiro.out$statistic) <- NULL
@@ -78,9 +76,9 @@ residuals_diagnostics <- function(
     ggplot2::stat_qq(alpha = 0.7) +
     ggplot2::stat_qq_line(
       col = "red4",
-      size = 0.7,
+      linewidth = 0.7,
       linetype = "dashed"
-      ) +
+    ) +
     ggplot2::theme_bw() +
     ggplot2::ylab("Residuals") +
     ggplot2::xlab("Theoretical")
@@ -89,9 +87,9 @@ residuals_diagnostics <- function(
   #using the max of the Freedman-Diaconist rule
   #or 1/100th of the data range
   bw <- max(
-    2 * stats::IQR(residuals) / length(residuals)^(1/3),
+    2 * stats::IQR(residuals) / length(residuals)^(1 / 3),
     (range(residuals)[2] - range(residuals)[1]) / 100
-    )
+  )
 
   #histogram
   p2 <- ggplot2::ggplot(data = as.data.frame(residuals)) +
@@ -105,17 +103,18 @@ residuals_diagnostics <- function(
     ggplot2::geom_vline(
       xintercept = median(residuals),
       col = "red4",
-      size = 0.7,
+      linewidth = 0.7,
       linetype = "dashed"
     ) +
     ggplot2::ylab("Count") +
     ggplot2::xlab("Residuals")
 
   #residuals vs predictions
-  p3 <- ggplot2::ggplot(data = data.frame(
-    Residuals = residuals,
-    Predicted = predictions
-  )
+  p3 <- ggplot2::ggplot(
+    data = data.frame(
+      Residuals = residuals,
+      Predicted = predictions
+    )
   ) +
     ggplot2::aes(
       x = Predicted,
@@ -125,7 +124,7 @@ residuals_diagnostics <- function(
       yintercept = 0,
       linetype = "dashed",
       color = "red4",
-      size = 0.7
+      linewidth = 0.7
     ) +
     ggplot2::geom_point(alpha = 0.7) +
     ggplot2::theme_bw() +
@@ -133,12 +132,13 @@ residuals_diagnostics <- function(
     ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
 
   #final plot
-  y$plot <- (p1 + p2) / p3 + patchwork::plot_annotation(
-    title = plot.title,
-    theme = ggplot2::theme(plot.title = element_text(hjust = 0.5))
+  y$plot <- (p1 + p2) /
+    p3 +
+    patchwork::plot_annotation(
+      title = plot.title,
+      theme = ggplot2::theme(plot.title = element_text(hjust = 0.5))
     )
 
   #returning output
   y
-
 }

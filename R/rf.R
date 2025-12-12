@@ -100,10 +100,9 @@ rf <- function(
   verbose = TRUE,
   n.cores = parallel::detectCores() - 1,
   cluster = NULL
-){
-
+) {
   #giving priority to data not from ranger.arguments
-  if(!is.null(data) & !is.null(ranger.arguments)){
+  if (!is.null(data) & !is.null(ranger.arguments)) {
     ranger.arguments$data <- NULL
     ranger.arguments$dependent.variable.name <- NULL
     ranger.arguments$predictor.variable.names <- NULL
@@ -143,29 +142,34 @@ rf <- function(
   classification <- NULL
 
   #putting ranger arguments in the environment
-  if(!is.null(ranger.arguments)){
-    list2env(ranger.arguments, envir=environment())
+  if (!is.null(ranger.arguments)) {
+    list2env(ranger.arguments, envir = environment())
   }
 
   #coerce to data frame if tibble
-  if(inherits(data, "tbl_df") | inherits(data, "tbl")){
+  if (inherits(data, "tbl_df") | inherits(data, "tbl")) {
     data <- as.data.frame(data)
   }
 
-  if(inherits(xy, "tbl_df") | inherits(xy, "tbl")){
+  if (inherits(xy, "tbl_df") | inherits(xy, "tbl")) {
     xy <- as.data.frame(xy)
   }
 
   #predictor.variable.names comes from auto_vif or auto_cor
-  if(inherits(predictor.variable.names, "variable_selection")){
+  if (inherits(predictor.variable.names, "variable_selection")) {
     predictor.variable.names <- predictor.variable.names$selected.variables
   } else {
-    if(sum(predictor.variable.names %in% colnames(data)) < length(predictor.variable.names)){
+    if (
+      sum(predictor.variable.names %in% colnames(data)) <
+        length(predictor.variable.names)
+    ) {
       stop(
         paste0(
           "The predictor.variable.names ",
           paste0(
-            predictor.variable.names[!(predictor.variable.names %in% colnames(data))],
+            predictor.variable.names[
+              !(predictor.variable.names %in% colnames(data))
+            ],
             collapse = ", "
           ),
           " are missing from 'data'"
@@ -175,7 +179,7 @@ rf <- function(
   }
 
   #checking if dependent.variable.name and predictor.variable.names are in colnames(data) and are numeric
-  if(!(dependent.variable.name %in% colnames(data))){
+  if (!(dependent.variable.name %in% colnames(data))) {
     stop(
       paste0(
         "The dependent.variable.name ",
@@ -189,21 +193,24 @@ rf <- function(
   data <- data[, c(dependent.variable.name, predictor.variable.names)]
 
   #setting up seed if available
-  if(!is.null(seed)){
+  if (!is.null(seed)) {
     set.seed(seed)
   }
 
   #scaling the data if required
-  if(scaled.importance == TRUE){
-
-    data.scaled <-  as.data.frame(scale(x = data))
+  if (scaled.importance == TRUE) {
+    data.scaled <- as.data.frame(scale(x = data))
 
     #check if there are NaN
-    if(sum(apply(data.scaled, 2, is.nan)) > 0 | sum(apply(data.scaled, 2, is.infinite)) > 0){
+    if (
+      sum(apply(data.scaled, 2, is.nan)) > 0 |
+        sum(apply(data.scaled, 2, is.infinite)) > 0
+    ) {
       scaled.importance <- FALSE
-      warning("The training data yields NaN or Inf when scaled, setting scaled.importance to FALSE.")
+      warning(
+        "The training data yields NaN or Inf when scaled, setting scaled.importance to FALSE."
+      )
     }
-
   }
 
   #computing case weights if dependent.variable.name is binary
@@ -211,7 +218,7 @@ rf <- function(
     data = data,
     dependent.variable.name = dependent.variable.name
   )
-  if(is.binary == TRUE & is.null(case.weights)){
+  if (is.binary == TRUE & is.null(case.weights)) {
     case.weights <- case_weights(
       data = data,
       dependent.variable.name = dependent.variable.name
@@ -261,8 +268,7 @@ rf <- function(
   variable.importance.local <- m$variable.importance.local
 
   #if scaled.importance is TRUE
-  if(scaled.importance == TRUE){
-
+  if (scaled.importance == TRUE) {
     #ranger model for variable importance
     m.scaled <- ranger::ranger(
       data = data.scaled,
@@ -304,7 +310,6 @@ rf <- function(
     #overwrite variable importance
     variable.importance.global <- m.scaled$variable.importance
     variable.importance.local <- m.scaled$variable.importance.local
-
   }
 
   #adding model arguments
@@ -350,8 +355,7 @@ rf <- function(
   )
 
   #importance slot
-  if(importance == "permutation"){
-
+  if (importance == "permutation") {
     #importance slot
     m$importance <- list()
 
@@ -359,11 +363,11 @@ rf <- function(
     #sign of the importance
     variable.importance.global.sign <- variable.importance.global
     variable.importance.global.sign[variable.importance.global.sign >= 0] <- 1
-    variable.importance.global.sign[variable.importance.global.sign < 0 ] <- -1
+    variable.importance.global.sign[variable.importance.global.sign < 0] <- -1
 
     #applying sqrt
-    variable.importance.global <- sqrt(abs(variable.importance.global)) * variable.importance.global.sign
-
+    variable.importance.global <- sqrt(abs(variable.importance.global)) *
+      variable.importance.global.sign
 
     m$importance$per.variable <- data.frame(
       variable = names(variable.importance.global),
@@ -384,14 +388,14 @@ rf <- function(
     #matrix with sign of the value
     variable.importance.local.sign <- variable.importance.local
     variable.importance.local.sign[variable.importance.local.sign >= 0] <- 1
-    variable.importance.local.sign[variable.importance.local.sign < 0 ] <- -1
+    variable.importance.local.sign[variable.importance.local.sign < 0] <- -1
 
     #applying sqrt
-    variable.importance.local <- sqrt(abs(variable.importance.local)) * variable.importance.local.sign
+    variable.importance.local <- sqrt(abs(variable.importance.local)) *
+      variable.importance.local.sign
 
     #saving to the slot
     m$importance$local <- variable.importance.local
-
   }
 
   #computing predictions
@@ -413,7 +417,7 @@ rf <- function(
 
   m$performance$r.squared.oob <- m$r.squared
 
-  m$performance$r.squared <- cor(observed, predicted) ^ 2
+  m$performance$r.squared <- cor(observed, predicted)^2
 
   m$performance$pseudo.r.squared <- cor(
     observed,
@@ -447,22 +451,20 @@ rf <- function(
   m$residuals$stats <- summary(m$residuals$values)
 
   #compute moran I of residuals if distance.matrix is provided
-  if(!is.null(distance.matrix)){
-
+  if (!is.null(distance.matrix)) {
     m$residuals$autocorrelation <- moran_multithreshold(
       x = m$residuals$values,
       distance.matrix = distance.matrix,
       distance.thresholds = distance.thresholds,
       verbose = verbose
     )
-
   }
 
   #normality of the residuals
   m$residuals$normality <- residuals_diagnostics(
     residuals = m$residuals$values,
     predictions = predicted
-    )
+  )
 
   #plot of the residuals diagnostics
   m$residuals$diagnostics <- plot_residuals_diagnostics(
@@ -471,18 +473,17 @@ rf <- function(
   )
 
   #adding cluster
-  if(!is.null(cluster)){
+  if (inherits(x = cluster, what = "cluster")) {
     m$cluster <- cluster
   }
 
   #adding rf class
   class(m) <- c("rf", "ranger")
 
-  if(verbose == TRUE){
+  if (verbose == TRUE) {
     print(m)
   }
 
   #return model
   m
-
 }

@@ -52,10 +52,15 @@ filter_spatial_predictors <- function(
     verbose = FALSE
   )$selected.variables.df
 
+  #handle edge case: no spatial predictors remain after filtering
+  if (ncol(spatial.predictors.df) == 0) {
+    return(spatial.predictors.df)
+  }
+
   #filtering spatial predictors by correlation with non-spatial ones
 
   #generating df of non-spatial predictors
-  non.spatial.predictors.df <- data[, predictor.variable.names]
+  non.spatial.predictors.df <- data[, predictor.variable.names, drop = FALSE]
 
   #correlation between spatial and non-spatial predictors
   cor.predictors <- cor(
@@ -70,7 +75,7 @@ filter_spatial_predictors <- function(
   selected.spatial.predictors <- names(max.cor.spatial.predictors[max.cor.spatial.predictors < cor.threshold])
 
   #subsetting spatial.predictors.df
-  spatial.predictors.df <- spatial.predictors.df[, selected.spatial.predictors]
+  spatial.predictors.df <- spatial.predictors.df[, selected.spatial.predictors, drop = FALSE]
 
   #returning result
   spatial.predictors.df

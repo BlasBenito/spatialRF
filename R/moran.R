@@ -42,20 +42,19 @@ moran <- function(
   distance.matrix = NULL,
   distance.threshold = NULL,
   verbose = TRUE
-){
-
+) {
   #stopping if no x
-  if(is.null(x)){
+  if (is.null(x)) {
     stop("The argument 'x' is missing.")
   }
 
   #stopping if no distance matrix
-  if(is.null(distance.matrix)){
+  if (is.null(distance.matrix)) {
     stop("The argument 'distance.matrix' is missing.")
   }
 
   #default for distance threshold
-  if(is.null(distance.threshold)){
+  if (is.null(distance.threshold)) {
     distance.threshold <- 0
   }
 
@@ -69,7 +68,7 @@ moran <- function(
   x.length <- length(x)
 
   #computing expected Moran I
-  moran.i.expected <- -1/(x.length - 1)
+  moran.i.expected <- -1 / (x.length - 1)
 
   #sum of weights
   x.distance.weights.sum <- sum(x.distance.weights)
@@ -88,12 +87,15 @@ moran <- function(
   x.centered.variance <- sum(x.centered^2)
 
   #observed Moran's I
-  moran.i.observed <- (x.length / x.distance.weights.sum) * (cross.product.sum/x.centered.variance)
+  moran.i.observed <- (x.length / x.distance.weights.sum) *
+    (cross.product.sum / x.centered.variance)
 
   #components of the expected standard deviation
   s1 <- 0.5 * sum((x.distance.weights + t(x.distance.weights))^2)
 
-  s2 <- sum((apply(x.distance.weights, 1, sum) + apply(x.distance.weights, 2, sum))^2)
+  s2 <- sum(
+    (apply(x.distance.weights, 1, sum) + apply(x.distance.weights, 2, sum))^2
+  )
 
   s3 <- x.distance.weights.sum^2
 
@@ -103,11 +105,12 @@ moran <- function(
   #standard deviation
   expected.standard.deviation <- sqrt(
     (x.length *
-       ((x.length^2 - 3 * x.length + 3) * s1 - x.length * s2 + 3 * s3) -
-       s4 *
-       (x.length * (x.length - 1) * s1 - 2 * x.length*s2 + 6 * s3)) /
-      ((x.length - 1) * (x.length - 2) * (x.length - 3) * s3) - 1 /
-      ((x.length - 1)^2)
+      ((x.length^2 - 3 * x.length + 3) * s1 - x.length * s2 + 3 * s3) -
+      s4 *
+        (x.length * (x.length - 1) * s1 - 2 * x.length * s2 + 6 * s3)) /
+      ((x.length - 1) * (x.length - 2) * (x.length - 3) * s3) -
+      1 /
+        ((x.length - 1)^2)
   )
 
   #p.value
@@ -123,13 +126,13 @@ moran <- function(
   )
 
   #adding interpretation
-  if(moran.i.observed > moran.i.expected & p.value <= 0.05){
+  if (moran.i.observed > moran.i.expected & p.value <= 0.05) {
     interpretation <- "Positive spatial correlation"
   }
-  if(moran.i.observed < moran.i.expected & p.value <= 0.05){
+  if (moran.i.observed < moran.i.expected & p.value <= 0.05) {
     interpretation <- "Negative spatial correlation"
   }
-  if(p.value > 0.05){
+  if (p.value > 0.05) {
     interpretation <- "No spatial correlation"
   }
 
@@ -138,7 +141,9 @@ moran <- function(
   x.lag <- apply(
     X = x.distance.weights,
     MARGIN = 1,
-    FUN = function(y){y %*% x}
+    FUN = function(y) {
+      y %*% x
+    }
   )
 
   #preparing title
@@ -182,7 +187,7 @@ moran <- function(
       se = TRUE,
       alpha = 0.2,
       formula = y ~ x,
-      size = 0.6
+      linewidth = 0.6
     ) +
     ggplot2::coord_fixed(expand = FALSE) +
     ggplot2::xlab("Variable values") +
@@ -190,8 +195,7 @@ moran <- function(
     ggplot2::theme(legend.position = "none") +
     ggplot2::ggtitle(plot.title)
 
-
-  if(verbose == TRUE){
+  if (verbose == TRUE) {
     suppressWarnings(print(moran.plot))
   }
 
@@ -213,5 +217,4 @@ moran <- function(
   class(out.list) <- "moran"
 
   out.list
-
 }

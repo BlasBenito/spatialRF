@@ -34,32 +34,31 @@ plot_training_df <- function(
   point.color = viridis::viridis(
     100,
     option = "F"
-    ),
+  ),
   line.color = "gray30"
-){
-
-  if(
+) {
+  if (
     is.null(data) |
-    is.null(dependent.variable.name) |
-    is.null(predictor.variable.names)
-  ){
+      is.null(dependent.variable.name) |
+      is.null(predictor.variable.names)
+  ) {
     stop("No variables to plot.")
   }
 
   #predictor.variable.names comes from auto_vif or auto_cor
-  if(!is.null(predictor.variable.names)){
-    if(inherits(predictor.variable.names, "variable_selection")){
+  if (!is.null(predictor.variable.names)) {
+    if (inherits(predictor.variable.names, "variable_selection")) {
       predictor.variable.names <- predictor.variable.names$selected.variables
     }
   }
 
   plot.list <- list()
-  for(variable in predictor.variable.names){
+  for (variable in predictor.variable.names) {
     plot.list[[variable]] <- ggplot2::ggplot(
       data = data,
-      ggplot2::aes_string(
-        x = variable,
-        y = dependent.variable.name,
+      ggplot2::aes(
+        x = ggplot2::.data[[variable]],
+        y = ggplot2::.data[[dependent.variable.name]],
         color = dependent.variable.name
       )
     ) +
@@ -79,5 +78,4 @@ plot_training_df <- function(
   p <- patchwork::wrap_plots(plot.list, ncol = ncol)
 
   p
-
 }

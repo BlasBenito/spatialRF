@@ -55,8 +55,7 @@ plot_optimization <- function(
     direction = -1
   ),
   verbose = TRUE
-  ){
-
+) {
   #declaring variables
   moran.i <- NULL
   optimization <- NULL
@@ -64,7 +63,7 @@ plot_optimization <- function(
   spatial.predictor.index <- NULL
 
   #getting optimization df from the model
-  if(inherits(model, "rf_spatial")){
+  if (inherits(model, "rf_spatial")) {
     x <- model$spatial$optimization
   } else {
     x <- model
@@ -75,48 +74,53 @@ plot_optimization <- function(
     ggplot2::aes(
       y = moran.i,
       x = r.squared,
-      color = optimization,
-      size = spatial.predictor.index
+      color = optimization
     ) +
-    ggplot2::geom_point() +
+    ggplot2::geom_point(
+      aes(size = spatial.predictor.index)
+    ) +
     ggplot2::scale_color_gradientn(colors = point.color) +
     ggplot2::geom_point(
       data = x[x$selected, ],
       aes(
         y = moran.i,
-        x = r.squared),
-      colour="black",
+        x = r.squared
+      ),
+      colour = "black",
       size = 5,
       shape = 1,
       alpha = 0.3
     ) +
     ggplot2::scale_x_reverse() +
-    ggplot2::geom_path(data = x[x$selected, ],
-                       aes(
-                         y = moran.i,
-                         x = r.squared
-                       ),
-                       size = 0.5,
-                       color = "black",
-                       alpha = 0.3
+    ggplot2::geom_path(
+      data = x[x$selected, ],
+      aes(
+        y = moran.i,
+        x = r.squared
+      ),
+      linewidth = 0.5,
+      color = "black",
+      alpha = 0.3
     ) +
     ggplot2::geom_hline(
       yintercept = 0,
       col = "gray10",
-      size = 0.7,
-      linetype = "dashed") +
+      linewidth = 0.7,
+      linetype = "dashed"
+    ) +
     ggplot2::labs(
       size = "Number of \nspatial predictors",
       color = "Weighted \noptimization index"
     ) +
     ggplot2::ylab("Maximum Moran's I of the residuals") +
     ggplot2::xlab("Model's R squared (out-of-bag)") +
-    ggplot2::ggtitle("Selection of spatial predictors (selection path shown in gray)") +
+    ggplot2::ggtitle(
+      "Selection of spatial predictors (selection path shown in gray)"
+    ) +
     ggplot2::theme_bw() +
     ggplot2::theme(plot.title = element_text(hjust = 0.5))
 
-  if(verbose == TRUE){
+  if (verbose == TRUE) {
     suppressMessages(print(p))
   }
-
 }

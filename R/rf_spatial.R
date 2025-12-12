@@ -143,8 +143,7 @@ rf_spatial <- function(
   verbose = TRUE,
   n.cores = parallel::detectCores() - 1,
   cluster = NULL
-){
-
+) {
   #declaring variables
   moran.i <- NULL
   variable <- NULL
@@ -173,47 +172,39 @@ rf_spatial <- function(
   #####################################
 
   #if model is not provided
-  if(is.null(model)){
-
+  if (is.null(model)) {
     #stopping if no data
-    if(is.null(data)){
-
+    if (is.null(data)) {
       stop("The argument 'data' is missing.")
-
     } else {
-
       #coerce to data frame if tibble
-      if(inherits(data, "tbl_df") | inherits(data, "tbl")){
+      if (inherits(data, "tbl_df") | inherits(data, "tbl")) {
         data <- as.data.frame(data)
       }
-
     }
 
     #coerce to data frame if tibble
-    if(inherits(xy, "tbl_df") | inherits(xy, "tbl")){
+    if (inherits(xy, "tbl_df") | inherits(xy, "tbl")) {
       xy <- as.data.frame(xy)
     }
 
     #stopping if no distance matrix
-    if(is.null(distance.matrix)){
+    if (is.null(distance.matrix)) {
       stop("The argument 'distance.matrix' is missing.")
     }
     #stopping if no dependent.variable.name
-    if(is.null(dependent.variable.name)){
+    if (is.null(dependent.variable.name)) {
       stop("The argument 'dependent.variable.name' is missing.")
     }
     #stopping if no predictor.variable.names
-    if(is.null(predictor.variable.names)){
+    if (is.null(predictor.variable.names)) {
       stop("The argument 'predictor.variable.names' is missing.")
     } else {
       #predictor.variable.names comes from auto_vif or auto_cor
-      if(inherits(predictor.variable.names, "variable_selection")){
+      if (inherits(predictor.variable.names, "variable_selection")) {
         predictor.variable.names <- predictor.variable.names$selected.variables
       }
     }
-
-    #controlling num.threads
-    ranger.arguments$num.threads <- n.cores
 
     #fitting non-spatial model
     model <- rf(
@@ -226,63 +217,31 @@ rf_spatial <- function(
       ranger.arguments = ranger.arguments,
       scaled.importance = FALSE,
       seed = seed,
+      n.cores = n.cores,
       verbose = FALSE
     )
-
-    } else {
-
-      #getting arguments from model
-      ranger.arguments <- model$ranger.arguments
-      data <- ranger.arguments$data
-      dependent.variable.name <- ranger.arguments$dependent.variable.name
-      predictor.variable.names <- ranger.arguments$predictor.variable.names
-      distance.matrix <- ranger.arguments$distance.matrix
-      if(is.null(distance.matrix)){
-        stop("The argument 'distance.matrix' is missing.")
-      }
-      distance.thresholds <- ranger.arguments$distance.thresholds
-      if(is.null(distance.thresholds)){
-        distance.thresholds <- default_distance_thresholds(distance.matrix = distance.matrix)
-      }
-      scaled.importance <- ranger.arguments$scaled.importance
-      seed <- model$ranger.arguments$seed
-
-      #getting cluster from model if "cluster" is not provided
-      if(is.null(cluster) & "cluster" %in% names(model)){
-          cluster <- model$cluster
-      }
-
-
-    }
-
-  #CLUSTER SETUP
-  #cluster is provided
-  if(!is.null(cluster)){
-
-    #n.cores <- NULL
-    n.cores <- NULL
-
-    #flat to not stop cluster after execution
-    stop.cluster <- FALSE
-
   } else {
-
-    #creates and registers cluster
-    cluster <- parallel::makeCluster(
-      n.cores,
-      type = "PSOCK"
-    )
-
-    #flag to stop cluster
-    stop.cluster <- TRUE
-
+    #getting arguments from model
+    ranger.arguments <- model$ranger.arguments
+    data <- ranger.arguments$data
+    dependent.variable.name <- ranger.arguments$dependent.variable.name
+    predictor.variable.names <- ranger.arguments$predictor.variable.names
+    distance.matrix <- ranger.arguments$distance.matrix
+    if (is.null(distance.matrix)) {
+      stop("The argument 'distance.matrix' is missing.")
+    }
+    distance.thresholds <- ranger.arguments$distance.thresholds
+    if (is.null(distance.thresholds)) {
+      distance.thresholds <- default_distance_thresholds(
+        distance.matrix = distance.matrix
+      )
+    }
+    scaled.importance <- ranger.arguments$scaled.importance
+    seed <- model$ranger.arguments$seed
   }
 
-  #registering cluster
-  doParallel::registerDoParallel(cl = cluster)
-
   #reference moran's I for selection of spatial predictors
-  if(!is.null(model$residuals$autocorrelation$max.moran)){
+  if (!is.null(model$residuals$autocorrelation$max.moran)) {
     reference.moran.i <- model$residuals$autocorrelation$max.moran
   } else {
     reference.moran.i <- 1
@@ -294,21 +253,20 @@ rf_spatial <- function(
     dplyr::filter(interpretation == "Positive spatial correlation")
 
   #if residuals are not autocorrelated, return original model
-  if(nrow(model.moran.i) == 0){
-
-    if(verbose == TRUE){
-      message("The model residuals are not spatially correlated, there is no need to fit a spatial model")
+  if (nrow(model.moran.i) == 0) {
+    if (verbose == TRUE) {
+      message(
+        "The model residuals are not spatially correlated, there is no need to fit a spatial model"
+      )
     }
-
-    return(model)
-
   } else {
     #if residuals are autocorrelated
 
-    if(verbose == TRUE){
-      message("The model residuals are spatially correlated, fitting a spatial model.")
+    if (verbose == TRUE) {
+      message(
+        "The model residuals are spatially correlated, fitting a spatial model."
+      )
     }
-
   }
 
   #getting distance thresholds with positive AC
@@ -319,61 +277,63 @@ rf_spatial <- function(
   #########################################################
 
   #HENGL
-  if(method %in% c(
-    "hengl",
-    "hengl.moran.sequential",
-    "hengl.effect.sequential",
-    "hengl.effect.recursive"
-  )
-  ){
-
+  if (
+    method %in%
+      c(
+        "hengl",
+        "hengl.moran.sequential",
+        "hengl.effect.sequential",
+        "hengl.effect.recursive"
+      )
+  ) {
     #change name of distance matrix
     spatial.predictors.df <- distance.matrix
-    colnames(spatial.predictors.df) <- rownames(spatial.predictors.df) <- paste0(
+    colnames(spatial.predictors.df) <- rownames(
+      spatial.predictors.df
+    ) <- paste0(
       "spatial_predictor_",
       seq(
         1,
         ncol(distance.matrix)
-        )
       )
+    )
     spatial.predictors.selected <- colnames(spatial.predictors.df)
 
-    if(verbose == TRUE){
+    if (verbose == TRUE) {
       message("Using the distance matrix columns as spatial predictors.")
     }
-
-
   }
 
   #PCA
-  if(method %in% c(
-    "pca.moran.sequential",
-    "pca.effect.sequential",
-    "pca.effect.recursive"
-  )
-  ){
-
+  if (
+    method %in%
+      c(
+        "pca.moran.sequential",
+        "pca.effect.sequential",
+        "pca.effect.recursive"
+      )
+  ) {
     #computing pca factors for pca methods
     spatial.predictors.df <- pca_multithreshold(
       distance.matrix = distance.matrix,
-      distance.thresholds =  distance.thresholds.with.ac,
+      distance.thresholds = distance.thresholds.with.ac,
       max.spatial.predictors = max.spatial.predictors
     )
 
-    if(verbose == TRUE){
+    if (verbose == TRUE) {
       message("Using PCA factors of the distance matrix as spatial predictors.")
     }
-
   }
 
   #MEM
-  if(method %in% c(
-    "mem.moran.sequential",
-    "mem.effect.sequential",
-    "mem.effect.recursive"
-  )
-  ){
-
+  if (
+    method %in%
+      c(
+        "mem.moran.sequential",
+        "mem.effect.sequential",
+        "mem.effect.recursive"
+      )
+  ) {
     #computing mem
     spatial.predictors.df <- mem_multithreshold(
       distance.matrix = distance.matrix,
@@ -381,50 +341,86 @@ rf_spatial <- function(
       max.spatial.predictors = max.spatial.predictors
     )
 
-    if(verbose == TRUE){
+    if (verbose == TRUE) {
       message("Using Moran's Eigenvector Maps as spatial predictors.")
     }
-
   }
 
   #RANKING SPATIAL PREDICTORS
   ###########################################################
 
   #SELECTING RANKING METHOD
-  if(method %in% "hengl"){
+  if (method %in% "hengl") {
     ranking.method <- NULL
   }
 
-  if(method %in% c(
-    "hengl.moran.sequential",
-    "pca.moran.sequential",
-    "mem.moran.sequential"
-  )
-  ){
+  if (
+    method %in%
+      c(
+        "hengl.moran.sequential",
+        "pca.moran.sequential",
+        "mem.moran.sequential"
+      )
+  ) {
     ranking.method <- "moran"
-    if(verbose == TRUE){
+    if (verbose == TRUE) {
       message("Ranking spatial predictors by their Moran's I.")
     }
   }
 
-  if(method %in% c(
-    "hengl.effect.sequential",
-    "hengl.effect.recursive",
-    "pca.effect.sequential",
-    "pca.effect.recursive",
-    "mem.effect.sequential",
-    "mem.effect.recursive"
-  )
-  ){
+  if (
+    method %in%
+      c(
+        "hengl.effect.sequential",
+        "hengl.effect.recursive",
+        "pca.effect.sequential",
+        "pca.effect.recursive",
+        "mem.effect.sequential",
+        "mem.effect.recursive"
+      )
+  ) {
     ranking.method <- "effect"
-    if(verbose == TRUE){
-      message("Ranking spatial predictors by how much they reduce Moran's I of the model residuals.")
+    if (verbose == TRUE) {
+      message(
+        "Ranking spatial predictors by how much they reduce Moran's I of the model residuals."
+      )
     }
   }
 
-  #ranking
-  if(!is.null(ranking.method)){
+  #CLUSTER SETUP
+  if (!inherits(x = cluster, what = "cluster")) {
+    if (inherits(x = model$cluster, what = "cluster")) {
+      cluster <- model$cluster
+    } else if (n.cores > 1) {
+      cluster <- parallel::makeCluster(
+        n.cores,
+        type = "PSOCK"
+      )
+      on.exit(
+        {
+          foreach::registerDoSEQ()
+          try(
+            parallel::stopCluster(cluster),
+            silent = TRUE
+          )
+        },
+        add = TRUE
+      )
+    } else {
+      # n.cores == 1, use sequential execution
+      cluster <- NULL
+    }
+  }
 
+  # Register backend
+  if (!is.null(cluster)) {
+    doParallel::registerDoParallel(cl = cluster)
+  } else {
+    foreach::registerDoSEQ()
+  }
+
+  #ranking
+  if (!is.null(ranking.method)) {
     #removes redundant spatial predictors
     spatial.predictors.df <- filter_spatial_predictors(
       data = data,
@@ -432,6 +428,14 @@ rf_spatial <- function(
       spatial.predictors.df = spatial.predictors.df,
       cor.threshold = 0.50
     )
+
+    #check if any spatial predictors remain after filtering
+    if (ncol(spatial.predictors.df) == 0) {
+      if (verbose == TRUE) {
+        message("No spatial predictors remain after filtering. Returning non-spatial model.")
+      }
+      return(model)
+    }
 
     #ranking spatial predictors
     spatial.predictors.ranking <- rank_spatial_predictors(
@@ -448,24 +452,24 @@ rf_spatial <- function(
       n.cores = n.cores,
       cluster = cluster
     )
-
   }
 
   #SELECTING SPATIAL PREDICTORS (if method is not "hengl")
   ######################################################
 
   #SEQUENTIAL SELECTION OF SPATIAL PREDICTORS
-  if(method %in% c(
-    "hengl.moran.sequential",
-    "mem.moran.sequential",
-    "pca.moran.sequential",
-    "hengl.effect.sequential",
-    "mem.effect.sequential",
-    "pca.effect.sequential"
-  )
-  ){
-
-    if(verbose == TRUE){
+  if (
+    method %in%
+      c(
+        "hengl.moran.sequential",
+        "mem.moran.sequential",
+        "pca.moran.sequential",
+        "hengl.effect.sequential",
+        "mem.effect.sequential",
+        "pca.effect.sequential"
+      )
+  ) {
+    if (verbose == TRUE) {
       message("Sequential selection of spatial predictors.")
     }
 
@@ -487,20 +491,21 @@ rf_spatial <- function(
     )
 
     #names of the selected spatial predictors
-    spatial.predictors.selected <- as.character(spatial.predictors.selection$best.spatial.predictors)
-
+    spatial.predictors.selected <- as.character(
+      spatial.predictors.selection$best.spatial.predictors
+    )
   }
 
-
   #recursive SELECTION OF SPATIAL PREDICTORS
-  if(method %in% c(
-    "hengl.effect.recursive",
-    "pca.effect.recursive",
-    "mem.effect.recursive"
-  )
-  ){
-
-    if(verbose == TRUE){
+  if (
+    method %in%
+      c(
+        "hengl.effect.recursive",
+        "pca.effect.recursive",
+        "mem.effect.recursive"
+      )
+  ) {
+    if (verbose == TRUE) {
       message("Recursive selection of spatial predictors.")
     }
 
@@ -518,21 +523,21 @@ rf_spatial <- function(
       weight.penalization.n.predictors = weight.penalization.n.predictors,
       n.cores = n.cores,
       cluster = cluster
-
     )
 
     #broadcast spatial.predictors.selected
     spatial.predictors.selected <- spatial.predictors.selection$best.spatial.predictors
-
   }
-
 
   #FITTING SPATIAL MODEL
   ######################
 
   #subsetting spatial predictors
-  if(method != "hengl"){
-    spatial.predictors.df <- spatial.predictors.df[, spatial.predictors.selected]
+  if (method != "hengl") {
+    spatial.predictors.df <- spatial.predictors.df[,
+      spatial.predictors.selected,
+      drop = FALSE
+    ]
   }
 
   #prepare training data with best spatial predictors
@@ -561,6 +566,8 @@ rf_spatial <- function(
     xy = xy,
     ranger.arguments = ranger.arguments,
     seed = seed,
+    n.cores = n.cores,
+    cluster = cluster,
     verbose = FALSE
   )
 
@@ -584,34 +591,24 @@ rf_spatial <- function(
   model.spatial$spatial$names <- spatial.predictors.selected
   model.spatial$spatial$spatial.predictors <- spatial.predictors.df
 
-  if(exists("spatial.predictors.selection")){
-
+  if (exists("spatial.predictors.selection")) {
     model.spatial$spatial$optimization <- spatial.predictors.selection$optimization
     model.spatial$spatial$plot <- plot_optimization(
       spatial.predictors.selection$optimization,
       verbose = FALSE
     )
-
   }
 
-  if(verbose == TRUE){
+  if (verbose == TRUE) {
     message("Details about the spatial predictors stored in model$spatial.")
   }
 
-  if(verbose == TRUE){
+  if (verbose == TRUE) {
     print(model.spatial)
     plot_importance(model.spatial)
     plot_residuals_diagnostics(model.spatial)
   }
 
-  #stopping cluster
-  if(stop.cluster == TRUE){
-    parallel::stopCluster(cl = cluster)
-  } else {
-    model.spatial$cluster <- cluster
-  }
-
   #return output
   model.spatial
-
 }

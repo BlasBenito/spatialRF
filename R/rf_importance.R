@@ -69,8 +69,7 @@ rf_importance <- function(
   verbose = TRUE,
   n.cores = parallel::detectCores() - 1,
   cluster = NULL
-){
-
+) {
   #declaring variables to avoid check complaints
   fold.id <- NULL
   testing.r.squared <- NULL
@@ -93,33 +92,43 @@ rf_importance <- function(
   )
 
   #CLUSTER SETUP
-  #cluster is provided
-  if(!is.null(cluster)){
-
-    #n.cores <- NULL
-    n.cores <- NULL
-
-    #flat to not stop cluster after execution
-    stop.cluster <- FALSE
-
-  } else {
-
-    #creates and registers cluster
-    cluster <- parallel::makeCluster(
-      n.cores,
-      type = "PSOCK"
-    )
-
-    #flag to stop cluster
-    stop.cluster <- TRUE
-
+  pass.cluster <- FALSE
+  if (!inherits(x = cluster, what = "cluster")) {
+    if (inherits(x = model$cluster, what = "cluster")) {
+      cluster <- model$cluster
+      pass.cluster <- TRUE
+    } else if (n.cores > 1) {
+      cluster <- parallel::makeCluster(
+        n.cores,
+        type = "PSOCK"
+      )
+      pass.cluster <- FALSE
+      on.exit(
+        {
+          foreach::registerDoSEQ()
+          try(
+            parallel::stopCluster(cluster),
+            silent = TRUE
+          )
+        },
+        add = TRUE
+      )
+    } else {
+      # n.cores == 1, use sequential execution
+      cluster <- NULL
+      pass.cluster <- FALSE
+    }
   }
 
-  #registering cluster
-  doParallel::registerDoParallel(cl = cluster)
+  # Register backend
+  if (!is.null(cluster)) {
+    doParallel::registerDoParallel(cl = cluster)
+  } else {
+    foreach::registerDoSEQ()
+  }
 
   #evaluating the full model
-  if(verbose == TRUE){
+  if (verbose == TRUE) {
     message("Evaluating the full model with spatial cross-validation.")
   }
 
@@ -135,7 +144,7 @@ rf_importance <- function(
     metrics = metric,
     seed = seed,
     verbose = FALSE,
-    n.cores = NULL,
+    n.cores = n.cores,
     cluster = cluster
   )
 
@@ -165,38 +174,41 @@ rf_importance <- function(
   ranger.arguments$distance.matrix <- NULL
 
   #getting xy
-  if(is.null(xy)){
-    if(is.null(model$ranger.arguments$xy)){
+  if (is.null(xy)) {
+    if (is.null(model$ranger.arguments$xy)) {
       stop("The argument 'xy' is required for spatial cross-validation.")
     } else {
       xy <- model$ranger.arguments$xy
     }
   }
 
-  if(sum(c("x", "y") %in% colnames(xy)) < 2){
+  if (sum(c("x", "y") %in% colnames(xy)) < 2) {
     stop("The column names of 'xy' must be 'x' and 'y'.")
   }
 
-  if(nrow(xy) != nrow(data)){
-    stop("nrow(xy) and nrow(data) (stored in model$ranger.arguments$data) must be the same.")
+  if (nrow(xy) != nrow(data)) {
+    stop(
+      "nrow(xy) and nrow(data) (stored in model$ranger.arguments$data) must be the same."
+    )
   }
 
   #list to store evaluation dataframes
   evaluation.list <- list()
 
   #evaluating the full model
-  if(verbose == TRUE){
+  if (verbose == TRUE) {
     message("Evaluating models fitted without each predictor.")
   }
 
   #iterating across predictors
-  for(predictor.i in predictor.variable.names){
-
+  for (predictor.i in predictor.variable.names) {
     #copy of data
     data.i <- data
 
     #removing predictor.i
-    predictor.variable.names.i <- predictor.variable.names[predictor.variable.names != predictor.i]
+    predictor.variable.names.i <- predictor.variable.names[
+      predictor.variable.names != predictor.i
+    ]
 
     #fitting model without predictor.i
     model.i <- rf(
@@ -248,7 +260,7 @@ rf_importance <- function(
   importance.per.repetition <- do.call(
     "rbind",
     evaluation.list
-    )
+  )
   rownames(importance.per.repetition) <- NULL
 
   #summary of differences
@@ -256,7 +268,10 @@ rf_importance <- function(
     dplyr::group_by(variable) %>%
     dplyr::mutate(
       importance.mad = stats::mad(with - without) %>% round(3),
-      importance.percent.mad = stats::mad((with * 100 / with[1]) - (without * 100 / with[1])) %>% round(1),
+      importance.percent.mad = stats::mad(
+        (with * 100 / with[1]) - (without * 100 / with[1])
+      ) %>%
+        round(1),
       without = median(without),
       with = median(with),
       importance = with - without,
@@ -278,23 +293,25 @@ rf_importance <- function(
     as.data.frame()
 
   #pretty metric name
-  if(metric == "r.squared"){
+  if (metric == "r.squared") {
     metric.pretty <- "R-squared"
   }
-  if(metric == "pseudo.r.squared"){
+  if (metric == "pseudo.r.squared") {
     metric.pretty <- "pseudo R-squared"
   }
-  if(metric == "rmse"){
+  if (metric == "rmse") {
     metric.pretty <- "RMSE"
   }
-  if(metric == "nrmse"){
+  if (metric == "nrmse") {
     metric.pretty <- "normalized RMSE"
   }
-  if(metric == "auc"){
+  if (metric == "auc") {
     metric.pretty <- "AUC"
   }
 
-  importance.per.variable.plot <- ggplot2::ggplot(data = importance.per.variable) +
+  importance.per.variable.plot <- ggplot2::ggplot(
+    data = importance.per.variable
+  ) +
     ggplot2::aes(
       x = importance,
       y = reorder(
@@ -308,7 +325,7 @@ rf_importance <- function(
       xintercept = 0,
       linetype = "dashed",
       color = "gray50"
-      ) +
+    ) +
     ggplot2::geom_linerange(
       ggplot2::aes(
         xmin = importance - importance.mad,
@@ -323,7 +340,10 @@ rf_importance <- function(
       color = line.color
     ) +
     ggplot2::scale_x_continuous(
-      sec.axis = ggplot2::sec_axis(~ . * 100 / importance.per.variable$with[1], name = "Percentage")
+      sec.axis = ggplot2::sec_axis(
+        ~ . * 100 / importance.per.variable$with[1],
+        name = "Percentage"
+      )
     ) +
     ggplot2::scale_fill_gradientn(colors = fill.color) +
     ggplot2::scale_color_gradientn(colors = fill.color) +
@@ -336,8 +356,8 @@ rf_importance <- function(
         "Median contribution to model transferability\n    across ",
         repetitions,
         " cross-validation repetitions"
-        )
       )
+    )
 
   #adding to the model's importance slot
   model$importance$per.variable <- dplyr::left_join(
@@ -351,7 +371,7 @@ rf_importance <- function(
       importance.cv.mad = importance.mad,
       importance.cv.percent = importance.percent,
       importance.cv.percent.mad = importance.percent.mad
-      ) %>%
+    ) %>%
     dplyr::select(
       -with,
       -without
@@ -362,19 +382,18 @@ rf_importance <- function(
   model$importance$per.variable.plot <- NULL
   model$importance$cv.per.variable.plot <- importance.per.variable.plot
 
-  if(verbose == TRUE){
+  if (verbose == TRUE) {
     message("Importance scores stored in model$importance$per.variable.")
     message("Importance plot stored in model$importance$cv.per.variable.plot.")
   }
 
-  if(verbose == TRUE){
+  if (verbose == TRUE) {
     print(importance.per.variable.plot)
   }
 
+  if (pass.cluster == TRUE) {
+    model$cluster <- cluster
+  }
+
   model
-
 }
-
-
-
-

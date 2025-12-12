@@ -57,39 +57,39 @@ plot_importance <- function(
   ),
   line.color = "white",
   verbose = TRUE
-  ){
-
+) {
   #declaring variables
   importance <- NULL
   variable <- NULL
   importance.oob <- NULL
 
   #if x is not a data frame
-  if(!is.data.frame(model)){
-
+  if (!is.data.frame(model)) {
     #importance from rf
-    if(inherits(model, "rf") & !inherits(model, "rf_spatial") & !inherits(model, "rf_repeat")){
+    if (
+      inherits(model, "rf") &
+        !inherits(model, "rf_spatial") &
+        !inherits(model, "rf_repeat")
+    ) {
       x <- model$importance$per.variable
 
-      if("importance.oob" %in% colnames(x)){
+      if ("importance.oob" %in% colnames(x)) {
         x <- dplyr::rename(
           x,
           importance = importance.oob
         )
       }
-
     }
 
     #importance from rf_repeat
-    if(inherits(model, "rf_repeat") & !inherits(model, "rf_spatial")){
+    if (inherits(model, "rf_repeat") & !inherits(model, "rf_spatial")) {
       x <- model$importance$per.repetition
     }
 
     #importance from rf_spatial and rf
-    if(inherits(model, "rf_spatial")){
+    if (inherits(model, "rf_spatial")) {
       x <- model$importance$spatial.predictors
     }
-
   } else {
     x <- model
   }
@@ -98,8 +98,7 @@ plot_importance <- function(
   variable.duplicated <- duplicated(x$variable)
 
   #no duplicates, rf
-  if(sum(variable.duplicated) == 0){
-
+  if (sum(variable.duplicated) == 0) {
     p <- ggplot2::ggplot(data = x) +
       ggplot2::aes(
         x = importance,
@@ -114,27 +113,26 @@ plot_importance <- function(
         size = 4,
         shape = 21,
         color = line.color
-        ) +
+      ) +
       ggplot2::scale_fill_gradientn(colors = fill.color) +
       ggplot2::ylab("") +
       ggplot2::xlab("Mean error increase when permuted") +
       ggplot2::theme_bw() +
       ggplot2::theme(legend.position = "none") +
-      ggplot2::ggtitle("Permutation importance\ncomputed on the out-of-bag data")
-
+      ggplot2::ggtitle(
+        "Permutation importance\ncomputed on the out-of-bag data"
+      )
   } else {
-
     #no "spatial_predictors" in variable, rf_repeat
-    if(!("spatial_predictors" %in% x$variable)){
-
+    if (!("spatial_predictors" %in% x$variable)) {
       #adapting palette
       n.variables <- length(unique(x$variable))
-      if(length(fill.color) != 1){
-        if(length(fill.color) > length(n.variables)){
+      if (length(fill.color) != 1) {
+        if (length(fill.color) > length(n.variables)) {
           fill.colors.function <- grDevices::colorRampPalette(
             fill.color,
             alpha = TRUE
-            )
+          )
           fill.color <- fill.colors.function(n.variables)
         }
       }
@@ -154,25 +152,26 @@ plot_importance <- function(
           )
         ) +
         ggplot2::geom_violin(
-          draw_quantiles = 0.5,
+          quantiles = 0.5,
           color = line.color,
           scale = "width"
-          ) +
+        ) +
         ggplot2::scale_fill_manual(values = fill.color) +
         ggplot2::ylab("") +
         ggplot2::xlab("Increase in error when permuted") +
         ggplot2::theme_bw() +
         ggplot2::theme(legend.position = "none") +
-        ggplot2::ggtitle("Permutation importance\ncomputed on the out-of-bag data")
-
+        ggplot2::ggtitle(
+          "Permutation importance\ncomputed on the out-of-bag data"
+        )
     }
 
     #spatial_predictors, rf_spatial
-    if("spatial_predictors" %in% x$variable){
-
+    if ("spatial_predictors" %in% x$variable) {
       #if no predictors duplicated, rf_spatial rf
-      if(sum(duplicated(x$variable[x$variable != "spatial_predictors"])) == 0){
-
+      if (
+        sum(duplicated(x$variable[x$variable != "spatial_predictors"])) == 0
+      ) {
         p <- ggplot2::ggplot(data = x) +
           ggplot2::aes(
             x = importance,
@@ -193,19 +192,20 @@ plot_importance <- function(
           ggplot2::xlab("Increase in error when permuted") +
           ggplot2::theme_bw() +
           ggplot2::theme(legend.position = "none") +
-          ggplot2::ggtitle("Permutation importance\ncomputed on the out-of-bag data")
+          ggplot2::ggtitle(
+            "Permutation importance\ncomputed on the out-of-bag data"
+          )
 
         #rf_spatial rf_repeat
       } else {
-
         #adapting palette
         n.variables <- length(unique(x$variable))
-        if(length(fill.color) != 1){
-          if(length(fill.color) > length(n.variables)){
+        if (length(fill.color) != 1) {
+          if (length(fill.color) > length(n.variables)) {
             fill.colors.function <- grDevices::colorRampPalette(
               fill.color,
               alpha = TRUE
-              )
+            )
             fill.color <- fill.colors.function(n.variables)
           }
         }
@@ -228,24 +228,22 @@ plot_importance <- function(
             draw_quantiles = 0.5,
             color = line.color,
             scale = "width"
-            ) +
+          ) +
           ggplot2::scale_fill_manual(values = fill.color) +
           ggplot2::ylab("") +
           ggplot2::xlab("Increase in error when permuted") +
           ggplot2::theme_bw() +
-          ggplot2::theme(legend.position = "none")+
-          ggplot2::ggtitle("Permutation importance\ncomputed on the out-of-bag data")
-
+          ggplot2::theme(legend.position = "none") +
+          ggplot2::ggtitle(
+            "Permutation importance\ncomputed on the out-of-bag data"
+          )
       }
-
     }
-
   }
 
-  if(verbose == TRUE){
+  if (verbose == TRUE) {
     suppressWarnings(print(p))
   }
 
   return(p)
-
 }

@@ -8,7 +8,7 @@
 #' @param distance.step.y Numeric, distance step used during the growth in the y axis of the buffers defining the training folds. Default: `NULL` (1/1000th the range of the y coordinates).
 #' @param training.fraction numeric, fraction of the data to be included in the growing buffer as training data, Default: `0.75`
 #' @param n.cores Integer, number of cores to use for parallel execution. Creates a socket cluster with `parallel::makeCluster()`, runs operations in parallel with `foreach` and `%dopar%`, and stops the cluster with `parallel::clusterStop()` when the job is done. Default: `parallel::detectCores() - 1`
-#' @param cluster A cluster definition generated with `parallel::makeCluster()`. If provided, overrides `n.cores`. When `cluster = NULL` (default value), and `model` is provided, the cluster in `model`, if any, is used instead. If this cluster is `NULL`, then the function uses `n.cores` instead. The function does not stop a provided cluster, so it should be stopped with `parallel::stopCluster()` afterwards. The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the `model` argument, or using the `%>%` pipe. Default: `NULL`
+#' @param cluster A cluster definition generated with `parallel::makeCluster()`. If provided, overrides `n.cores`. When `cluster = NULL` (default value), and `model` is provided, the cluster in `model`, if any, is used instead. If this cluster is `NULL`, then the function uses `n.cores` instead. The function does not stop a provided cluster, so it should be stopped with `parallel::stopCluster()` afterwards. Default: `NULL`
 #' @return A list with as many slots as rows are in `xy.selected`. Each slot has two slots named `training` and `testing`, with the former having the indices of the training records selected from xy, and the latter having the indices of the testing records.
 #' @seealso [make_spatial_fold()], [rf_evaluate()]
 #' @examples
@@ -59,59 +59,56 @@ make_spatial_folds <- function(
   training.fraction = 0.75,
   n.cores = parallel::detectCores() - 1,
   cluster = NULL
-){
-
+) {
   #CLUSTER SETUP
-  #cluster is provided
-  if(!is.null(cluster)){
+  if (!inherits(x = cluster, what = "cluster")) {
+    if (n.cores > 1) {
+      cluster <- parallel::makeCluster(
+        n.cores,
+        type = "PSOCK"
+      )
 
-    #n.cores <- NULL
-    n.cores <- NULL
+      on.exit(
+        {
+          foreach::registerDoSEQ()
+          try(
+            parallel::stopCluster(cluster),
+            silent = TRUE
+          )
+        },
+        add = TRUE
+      )
+    } else {
+      # n.cores == 1, use sequential execution
+      cluster <- NULL
+    }
+  }
 
-    #flat to not stop cluster after execution
-    stop.cluster <- FALSE
-
-  } else {
-
-    #creates and registers cluster
-    cluster <- parallel::makeCluster(
-      n.cores,
-      type = "PSOCK"
-    )
-
-    #registering cluster
+  # Register backend
+  if (!is.null(cluster)) {
     doParallel::registerDoParallel(cl = cluster)
-
-    #flag to stop cluster
-    stop.cluster <- TRUE
-
+  } else {
+    foreach::registerDoSEQ()
   }
 
   #parallelized loop
   i <- NULL
   spatial.folds <- foreach::foreach(
     i = seq(1, nrow(xy.selected), by = 1)
-  ) %dopar% {
+  ) %dopar%
+    {
+      spatial.fold.i <- spatialRF::make_spatial_fold(
+        data = data,
+        dependent.variable.name = dependent.variable.name,
+        xy.i = xy.selected[i, ],
+        xy = xy,
+        distance.step.x = distance.step.x,
+        distance.step.y = distance.step.y,
+        training.fraction = training.fraction
+      )
 
-    spatial.fold.i <- spatialRF::make_spatial_fold(
-      data = data,
-      dependent.variable.name = dependent.variable.name,
-      xy.i = xy.selected[i, ],
-      xy = xy,
-      distance.step.x = distance.step.x,
-      distance.step.y = distance.step.y,
-      training.fraction = training.fraction
-    )
-
-    return(spatial.fold.i)
-
-  }
-
-  #stopping cluster
-  if(stop.cluster == TRUE){
-    parallel::stopCluster(cl = cluster)
-  }
+      return(spatial.fold.i)
+    }
 
   spatial.folds
-
 }

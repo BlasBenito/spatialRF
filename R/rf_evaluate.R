@@ -81,82 +81,88 @@ rf_evaluate <- function(
   verbose = TRUE,
   n.cores = parallel::detectCores() - 1,
   cluster = NULL
-){
-
+) {
   #declaring variables
   i <- NULL
   metric <- NULL
   value <- NULL
 
-  if(is.null(model)){
-
+  if (is.null(model)) {
     stop("The argument 'model' is empty, there is no model to evaluate")
+  }
 
-  } else {
+  #getting data and ranger arguments from the model
+  data <- model$ranger.arguments$data
+  dependent.variable.name <- model$ranger.arguments$dependent.variable.name
+  predictor.variable.names <- model$ranger.arguments$predictor.variable.names
+  ranger.arguments <- model$ranger.arguments
+  ranger.arguments$data <- NULL
+  ranger.arguments$dependent.variable.name <- NULL
+  ranger.arguments$predictor.variable.names <- NULL
+  ranger.arguments$importance <- "none"
+  ranger.arguments$local.importance <- FALSE
+  ranger.arguments$data <- NULL
+  ranger.arguments$scaled.importance <- FALSE
+  ranger.arguments$distance.matrix <- NULL
 
-    #getting data and ranger arguments from the model
-    data <- model$ranger.arguments$data
-    dependent.variable.name <- model$ranger.arguments$dependent.variable.name
-    predictor.variable.names <- model$ranger.arguments$predictor.variable.names
-    ranger.arguments <- model$ranger.arguments
-    ranger.arguments$data <- NULL
-    ranger.arguments$dependent.variable.name <- NULL
-    ranger.arguments$predictor.variable.names <- NULL
-    ranger.arguments$importance <- "none"
-    ranger.arguments$local.importance <- FALSE
-    ranger.arguments$data <- NULL
-    ranger.arguments$scaled.importance <- FALSE
-    ranger.arguments$distance.matrix <- NULL
+  if (repetitions > 1) {
     ranger.arguments$num.threads <- 1
+  }
 
-    #getting cluster from model if "cluster" is not provided
-    if(is.null(cluster) & "cluster" %in% names(model)){
-      cluster <- model$cluster
-    }
-
-    #getting xy
-    if(is.null(xy)){
-      if(is.null(model$ranger.arguments$xy)){
-        stop("The argument 'xy' is required for spatial cross-validation.")
-      } else {
-        xy <- model$ranger.arguments$xy
-      }
+  #getting xy
+  if (is.null(xy)) {
+    if (is.null(model$ranger.arguments$xy)) {
+      stop("The argument 'xy' is required for spatial cross-validation.")
+    } else {
+      xy <- model$ranger.arguments$xy
     }
   }
 
-  if(sum(c("x", "y") %in% colnames(xy)) < 2){
+  if (sum(c("x", "y") %in% colnames(xy)) < 2) {
     stop("The column names of 'xy' must be 'x' and 'y'.")
   }
 
-  if(nrow(xy) != nrow(data)){
-    stop("nrow(xy) and nrow(data) (stored in model$ranger.arguments$data) must be the same.")
+  if (nrow(xy) != nrow(data)) {
+    stop(
+      "nrow(xy) and nrow(data) (stored in model$ranger.arguments$data) must be the same."
+    )
   }
 
   #CLUSTER SETUP
-  #cluster is provided
-  if(!is.null(cluster)){
-
-    #n.cores <- NULL
-    n.cores <- NULL
-
-    #flat to not stop cluster after execution
-    stop.cluster <- FALSE
-
-  } else {
-
-    #creates and registers cluster
-    cluster <- parallel::makeCluster(
-      n.cores,
-      type = "PSOCK"
-    )
-
-    #flag to stop cluster
-    stop.cluster <- TRUE
-
+  pass.cluster <- FALSE
+  if (!inherits(x = cluster, what = "cluster")) {
+    if (inherits(x = model$cluster, what = "cluster")) {
+      cluster <- model$cluster
+      pass.cluster <- TRUE
+    } else if (n.cores > 1) {
+      cluster <- parallel::makeCluster(
+        n.cores,
+        type = "PSOCK"
+      )
+      pass.cluster <- FALSE
+      on.exit(
+        {
+          foreach::registerDoSEQ()
+          try(
+            parallel::stopCluster(cluster),
+            silent = TRUE
+          )
+        },
+        add = TRUE
+      )
+    } else {
+      # n.cores == 1, use sequential execution
+      cluster <- NULL
+      pass.cluster <- FALSE
+    }
   }
 
-  #registering cluster
-  doParallel::registerDoParallel(cl = cluster)
+  # Register backend
+  if (!is.null(cluster)) {
+    doParallel::registerDoParallel(cl = cluster)
+  } else {
+    foreach::registerDoSEQ()
+  }
 
   #testing method argument
   metrics <- match.arg(
@@ -170,22 +176,23 @@ rf_evaluate <- function(
     data = data,
     dependent.variable.name = dependent.variable.name
   )
-  if(is.binary == TRUE & !("auc" %in% metrics)){
+  if (is.binary == TRUE & !("auc" %in% metrics)) {
     metrics <- "auc"
   }
 
   #checking repetitions
   repetitions <- floor(repetitions)
-  if(repetitions < 5){
+  if (repetitions < 5) {
     stop("Argument 'repetitions' must be an integer equal or larger than 5")
   }
-  if(repetitions > nrow(xy)){
-    if(verbose == TRUE){
-      message("Argument 'repetitions' larger than number of cases, setting it to the number of cases.")
+  if (repetitions > nrow(xy)) {
+    if (verbose == TRUE) {
+      message(
+        "Argument 'repetitions' larger than number of cases, setting it to the number of cases."
+      )
     }
     repetitions <- nrow(xy)
   }
-
 
   #capturing user options
   user.options <- options()
@@ -193,17 +200,16 @@ rf_evaluate <- function(
   options(dplyr.summarise.inform = FALSE)
   on.exit(options <- user.options)
 
-
   #training fraction limits
-  if(training.fraction < 0.1){
+  if (training.fraction < 0.1) {
     training.fraction <- 0.1
   }
-  if(training.fraction > 0.9){
+  if (training.fraction > 0.9) {
     training.fraction <- 0.9
   }
 
   #flipping training fraction if grow.testing.folds is TRUE
-  if(grow.testing.folds == TRUE){
+  if (grow.testing.folds == TRUE) {
     training.fraction <- 1 - training.fraction
   }
 
@@ -211,7 +217,7 @@ rf_evaluate <- function(
   data$id <- xy$id <- seq(1, nrow(data))
 
   #thinning coordinates to get a systematic sample of reference points
-  if(verbose == TRUE){
+  if (verbose == TRUE) {
     message("Selecting pairs of coordinates as trainnig fold origins.")
   }
   xy.reference.records <- thinning_til_n(
@@ -222,9 +228,10 @@ rf_evaluate <- function(
 
   #generates spatial folds
   ####################################
-  if(verbose == TRUE){
+  if (verbose == TRUE) {
     message("Generating spatial folds.")
   }
+
   spatial.folds <- make_spatial_folds(
     data = data,
     dependent.variable.name = dependent.variable.name,
@@ -238,8 +245,8 @@ rf_evaluate <- function(
   )
 
   #flipping spatial folds if grow.testing.folds = TRUE
-  if(grow.testing.folds == TRUE){
-    for(i in 1:length(spatial.folds)){
+  if (grow.testing.folds == TRUE) {
+    for (i in 1:length(spatial.folds)) {
       names(spatial.folds[[i]]) <- c("testing", "training")
     }
   }
@@ -253,105 +260,117 @@ rf_evaluate <- function(
     i = seq(1, length(spatial.folds), by = 1),
     .combine = "rbind",
     .verbose = FALSE
-    ) %dopar% {
+  ) %dopar%
+    {
+      #separating training and testing data
+      data.training <- data[data$id %in% spatial.folds[[i]]$training, ]
+      data.testing <- data[data$id %in% spatial.folds[[i]]$testing, ]
 
-    #separating training and testing data
-    data.training <- data[data$id %in% spatial.folds[[i]]$training, ]
-    data.testing <- data[data$id %in% spatial.folds[[i]]$testing, ]
+      #subsetting case.weights if definec
+      if (!is.null(ranger.arguments.training$case.weights)) {
+        ranger.arguments.training$case.weights <- ranger.arguments$case.weights[
+          spatial.folds[[i]]$training
+        ]
+      }
 
-    #subsetting case.weights if definec
-    if(!is.null(ranger.arguments.training$case.weights)){
-      ranger.arguments.training$case.weights <- ranger.arguments$case.weights[spatial.folds[[i]]$training]
-    }
-
-    #training model
-    m.training <- spatialRF::rf(
-      data = data.training,
-      dependent.variable.name = dependent.variable.name,
-      predictor.variable.names = predictor.variable.names,
-      ranger.arguments = ranger.arguments.training,
-      seed = seed,
-      verbose = FALSE
-    )
-
-    #predicting over data.testing
-    predicted <- stats::predict(
-      object = m.training,
-      data = data.testing,
-      type = "response",
-      num.threads = 1
-    )$predictions
-
-    #getting observed data
-    observed <- data.testing[, dependent.variable.name]
-
-    #computing evaluation scores
-    out.df <- data.frame(
-      fold.id = i,
-      fold.center.x = xy.reference.records[i, "x"],
-      fold.center.y = xy.reference.records[i, "y"],
-      training.records = nrow(data.training),
-      testing.records = nrow(data.testing)
+      #training model
+      m.training <- spatialRF::rf(
+        data = data.training,
+        dependent.variable.name = dependent.variable.name,
+        predictor.variable.names = predictor.variable.names,
+        ranger.arguments = ranger.arguments.training,
+        seed = seed,
+        n.cores = 1,
+        cluster = NULL,
+        verbose = FALSE
       )
 
-    if("r.squared" %in% metrics){
-      out.df$training.r.squared = m.training$performance$r.squared
-      out.df$testing.r.squared = round(cor(observed, predicted) ^ 2, 3)
-    }
-    if("pseudo.r.squared" %in% metrics){
-      out.df$training.pseudo.r.squared = m.training$performance$pseudo.r.squared
-      out.df$testing.pseudo.r.squared = round(cor(
-        observed,
-        predicted
-      ), 3)
-    }
-    if("rmse" %in% metrics){
-      out.df$training.rmse = m.training$performance$rmse
-      out.df$testing.rmse = round(spatialRF::root_mean_squared_error(
-        o = observed,
-        p = predicted,
-        normalization = NULL
-      ), 3)
-      if(is.na(out.df$training.rmse)){
-        out.df$testing.rmse <- NA
-      }
-    }
-    if("nrmse" %in% metrics){
-      out.df$training.nrmse = m.training$performance$nrmse
-      out.df$testing.nrmse = round(spatialRF::root_mean_squared_error(
-        o = observed,
-        p = predicted,
-        normalization = "iq"
-      ), 3)
-      if(is.na(out.df$training.nrmse)){
-        out.df$testing.nrmse <- NA
-      }
-    }
-    if("auc" %in% metrics){
-      out.df$training.auc = m.training$performance$auc
-      out.df$testing.auc = round(
-        spatialRF::auc(
-          o = observed,
-          p = predicted
-        ),
-        3
+      #predicting over data.testing
+      predicted <- stats::predict(
+        object = m.training,
+        data = data.testing,
+        type = "response",
+        num.threads = 1
+      )$predictions
+
+      #getting observed data
+      observed <- data.testing[, dependent.variable.name]
+
+      #computing evaluation scores
+      out.df <- data.frame(
+        fold.id = i,
+        fold.center.x = xy.reference.records[i, "x"],
+        fold.center.y = xy.reference.records[i, "y"],
+        training.records = nrow(data.training),
+        testing.records = nrow(data.testing)
       )
-      if(is.na(out.df$training.auc)){
-        out.df$testing.auc <- NA
+
+      if ("r.squared" %in% metrics) {
+        out.df$training.r.squared = m.training$performance$r.squared
+        out.df$testing.r.squared = round(cor(observed, predicted)^2, 3)
       }
-    }
-    rownames(out.df) <- NULL
+      if ("pseudo.r.squared" %in% metrics) {
+        out.df$training.pseudo.r.squared = m.training$performance$pseudo.r.squared
+        out.df$testing.pseudo.r.squared = round(
+          cor(
+            observed,
+            predicted
+          ),
+          3
+        )
+      }
+      if ("rmse" %in% metrics) {
+        out.df$training.rmse = m.training$performance$rmse
+        out.df$testing.rmse = round(
+          spatialRF::root_mean_squared_error(
+            o = observed,
+            p = predicted,
+            normalization = NULL
+          ),
+          3
+        )
+        if (is.na(out.df$training.rmse)) {
+          out.df$testing.rmse <- NA
+        }
+      }
+      if ("nrmse" %in% metrics) {
+        out.df$training.nrmse = m.training$performance$nrmse
+        out.df$testing.nrmse = round(
+          spatialRF::root_mean_squared_error(
+            o = observed,
+            p = predicted,
+            normalization = "iq"
+          ),
+          3
+        )
+        if (is.na(out.df$training.nrmse)) {
+          out.df$testing.nrmse <- NA
+        }
+      }
+      if ("auc" %in% metrics) {
+        out.df$training.auc = m.training$performance$auc
+        out.df$testing.auc = round(
+          spatialRF::auc(
+            o = observed,
+            p = predicted
+          ),
+          3
+        )
+        if (is.na(out.df$training.auc)) {
+          out.df$testing.auc <- NA
+        }
+      }
+      rownames(out.df) <- NULL
 
-    return(out.df)
-
-  }#end of parallelized loop
+      return(out.df)
+    } #end of parallelized loop
 
   #preparing data frames for plotting and printing
   #select columns with "training"
   performance.training <- dplyr::select(
     evaluation.df,
     dplyr::contains("training")
-    )
+  )
   performance.training[, 1] <- NULL
   performance.training$model <- "Training"
 
@@ -359,7 +378,7 @@ rf_evaluate <- function(
   performance.testing <- dplyr::select(
     evaluation.df,
     dplyr::contains("testing")
-    )
+  )
   performance.testing[, 1] <- NULL
   performance.testing$model <- "Testing"
 
@@ -371,22 +390,21 @@ rf_evaluate <- function(
   auc <- model$performance$auc
 
   #check lengths
-  if(length(r.squared) == 0){
+  if (length(r.squared) == 0) {
     r.squared <- NA
   }
-  if(length(pseudo.r.squared) == 0){
+  if (length(pseudo.r.squared) == 0) {
     pseudo.r.squared <- NA
   }
-  if(length(rmse) == 0){
+  if (length(rmse) == 0) {
     rmse <- NA
   }
-  if(length(nrmse) == 0){
+  if (length(nrmse) == 0) {
     nrmse <- NA
   }
-  if(length(auc) == 0){
+  if (length(auc) == 0) {
     auc <- NA
   }
-
 
   #full model
   performance.full <- data.frame(
@@ -400,7 +418,9 @@ rf_evaluate <- function(
   performance.full <- performance.full[, c(metrics, "model")]
 
   #set colnames
-  colnames(performance.training) <- colnames(performance.testing) <- colnames(performance.full) <- c(
+  colnames(performance.training) <- colnames(performance.testing) <- colnames(
+    performance.full
+  ) <- c(
     metrics,
     "model"
   )
@@ -439,12 +459,24 @@ rf_evaluate <- function(
     as.data.frame()
 
   #stats to NA if "Full" only once in performance.df
-  if(sum("Full" %in% performance.df$model) == 1){
-    performande.df.aggregated[performande.df.aggregated$model == "Full", c("median", "median_absolute_deviation", "q1", "q3", "se", "sd", "min", "max")] <- NA
+  if (sum("Full" %in% performance.df$model) == 1) {
+    performande.df.aggregated[
+      performande.df.aggregated$model == "Full",
+      c(
+        "median",
+        "median_absolute_deviation",
+        "q1",
+        "q3",
+        "se",
+        "sd",
+        "min",
+        "max"
+      )
+    ] <- NA
   }
 
   #add spatial folds to the model
-  if("evaluation" %in% names(model)){
+  if ("evaluation" %in% names(model)) {
     model$evaluation <- NULL
   }
   model$evaluation <- list()
@@ -456,23 +488,20 @@ rf_evaluate <- function(
   model$evaluation$per.model <- performance.df
   model$evaluation$aggregated <- performande.df.aggregated
 
-  if(verbose == TRUE){
+  if (verbose == TRUE) {
     message("Evaluation results stored in model$evaluation.")
   }
 
   class(model) <- c(class(model), "rf_evaluate")
 
-  if(verbose == TRUE){
+  if (verbose == TRUE) {
     print_evaluation(model = model)
   }
 
-  #stopping cluster
-  if(stop.cluster == TRUE){
-    parallel::stopCluster(cl = cluster)
-  } else {
+  #passing cluster
+  if (pass.cluster == TRUE) {
     model$cluster <- cluster
   }
 
   model
-
 }

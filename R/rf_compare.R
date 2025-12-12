@@ -69,7 +69,7 @@ rf_compare <- function(
     "rmse",
     "nrmse",
     "auc"
-    ),
+  ),
   distance.step = NULL,
   distance.step.x = NULL,
   distance.step.y = NULL,
@@ -84,8 +84,7 @@ rf_compare <- function(
   verbose = TRUE,
   n.cores = parallel::detectCores() - 1,
   cluster = NULL
-){
-
+) {
   #declaring variables
   model <- NULL
   value <- NULL
@@ -106,46 +105,39 @@ rf_compare <- function(
   )
 
   #missing input
-  if(is.null(models)){
+  if (is.null(models)) {
     stop("There are no models to compare in 'models'.")
   }
-  if(is.null(xy)){
+  if (is.null(xy)) {
     stop("Case coordinates 'xy' is missing.")
   }
 
-
   #CLUSTER SETUP
-  #cluster is provided
-  if(!is.null(cluster)){
-
-    #n.cores <- NULL
-    n.cores <- NULL
-
-    #flat to not stop cluster after execution
-    stop.cluster <- FALSE
-
-  } else {
-
-    #creates and registers cluster
+  if (!inherits(x = cluster, what = "cluster")) {
     cluster <- parallel::makeCluster(
       n.cores,
       type = "PSOCK"
     )
 
-    #flag to stop cluster
-    stop.cluster <- TRUE
-
+    on.exit(
+      {
+        foreach::registerDoSEQ()
+        try(
+          parallel::stopCluster(cluster),
+          silent = TRUE
+        )
+      },
+      add = TRUE
+    )
   }
 
-  #registering cluster
   doParallel::registerDoParallel(cl = cluster)
 
   #list to store evaluation outputs
   evaluation.list <- list()
 
   #iterating through models
-  for(model.i in names(models)){
-
+  for (model.i in names(models)) {
     #evaluating model
     models[[model.i]] <- rf_evaluate(
       model = models[[model.i]],
@@ -168,8 +160,7 @@ rf_compare <- function(
 
     #adding it to the evaluation list
     evaluation.list[[model.i]] <- evaluation.df.i
-
-  }#end of loop
+  } #end of loop
 
   #binding data frames
   evaluation.df <- do.call("rbind", evaluation.list)
@@ -200,8 +191,8 @@ rf_compare <- function(
   x[x$metric == "auc", "metric"] <- "AUC"
 
   n.models <- length(models)
-  if(length(fill.color) != 1){
-    if(length(fill.color) > length(n.models)){
+  if (length(fill.color) != 1) {
+    if (length(fill.color) > length(n.models)) {
       fill.colors.function <- grDevices::colorRampPalette(
         fill.color,
         alpha = TRUE
@@ -260,15 +251,9 @@ rf_compare <- function(
   out.list$spatial.folds <- models[[model.i]]$evaluation$spatial.folds
   out.list$plot <- p
 
-  if(verbose == TRUE){
+  if (verbose == TRUE) {
     suppressMessages(print(p))
   }
 
-  #stopping cluster
-  if(stop.cluster == TRUE){
-    parallel::stopCluster(cl = cluster)
-  }
-
   out.list
-
 }

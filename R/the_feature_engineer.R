@@ -77,82 +77,85 @@ the_feature_engineer <- function(
   verbose = TRUE,
   n.cores = parallel::detectCores() - 1,
   cluster = NULL
-){
-
+) {
   #coerce to data frame if tibble
-  if(is.null(data)){
+  if (is.null(data)) {
     stop("Argument 'data' is missing.")
   } else {
-    if(inherits(data, "tbl_df") | inherits(data, "tbl")){
+    if (inherits(data, "tbl_df") | inherits(data, "tbl")) {
       data <- as.data.frame(data)
     }
   }
 
-  if(is.null(xy)){
+  if (is.null(xy)) {
     stop("Argument 'xy' is missing")
   } else {
-    if(inherits(xy, "tbl_df") | inherits(xy, "tbl")){
+    if (inherits(xy, "tbl_df") | inherits(xy, "tbl")) {
       xy <- as.data.frame(xy)
     }
   }
 
   #CLUSTER SETUP
-  #cluster is provided
-  if(!is.null(cluster)){
+  if (!inherits(x = cluster, what = "cluster")) {
+    if (n.cores > 1) {
+      cluster <- parallel::makeCluster(
+        n.cores,
+        type = "PSOCK"
+      )
 
-    #n.cores <- NULL
-    n.cores <- NULL
-
-    #flat to not stop cluster after execution
-    stop.cluster <- FALSE
-
-  } else {
-
-    #creates and registers cluster
-    cluster <- parallel::makeCluster(
-      n.cores,
-      type = "PSOCK"
-    )
-
-    #flag to stop cluster
-    stop.cluster <- TRUE
-
+      on.exit(
+        {
+          foreach::registerDoSEQ()
+          try(
+            parallel::stopCluster(cluster),
+            silent = TRUE
+          )
+        },
+        add = TRUE
+      )
+    } else {
+      # n.cores == 1, use sequential execution
+      cluster <- NULL
+    }
   }
 
-  #registering cluster
-  doParallel::registerDoParallel(cl = cluster)
+  # Register backend
+  if (!is.null(cluster)) {
+    doParallel::registerDoParallel(cl = cluster)
+  } else {
+    foreach::registerDoSEQ()
+  }
 
   #finding out if the response is binary
   is.binary <- is_binary(
     data = data,
     dependent.variable.name = dependent.variable.name
   )
-  if(is.binary == TRUE){
+  if (is.binary == TRUE) {
     metric <- "auc"
   } else {
     metric <- "r.squared"
   }
-
 
   #declaring variables
   variable <- NULL
   y <- NULL
 
   #predictor.variable.names comes from auto_vif or auto_cor
-  if(!is.null(predictor.variable.names)){
-    if(inherits(predictor.variable.names, "variable_selection")){
+  if (!is.null(predictor.variable.names)) {
+    if (inherits(predictor.variable.names, "variable_selection")) {
       predictor.variable.names <- predictor.variable.names$selected.variables
     }
   }
 
-  if(importance.threshold > 1){
+  if (importance.threshold > 1) {
     importance.threshold <- 0.99
   }
-  if(importance.threshold < 0){
+  if (importance.threshold < 0) {
     importance.threshold <- 0.01
   }
 
-  if(verbose == TRUE){
+  if (verbose == TRUE) {
     message("Fitting and evaluating a model without interactions.")
   }
 
@@ -200,7 +203,8 @@ the_feature_engineer <- function(
 
   #selected variables
   variables.to.test <- model.without.interactions$importance$per.variable[
-    model.without.interactions$importance$per.variable$importance >= importance.threshold,
+    model.without.interactions$importance$per.variable$importance >=
+      importance.threshold,
     "variable"
   ]
 
@@ -215,8 +219,12 @@ the_feature_engineer <- function(
     stringsAsFactors = FALSE
   )
 
-  if(verbose == TRUE){
-    message(paste0("Testing ", nrow(variables.pairs), " candidate interactions."))
+  if (verbose == TRUE) {
+    message(paste0(
+      "Testing ",
+      nrow(variables.pairs),
+      " candidate interactions."
+    ))
   }
 
   #testing interactions
@@ -225,219 +233,229 @@ the_feature_engineer <- function(
     i = seq(1, nrow(variables.pairs)),
     .combine = "rbind",
     .verbose = FALSE
-  ) %dopar% {
-
-    #get pair
-    pair.i <- c(variables.pairs[i, 1], variables.pairs[i, 2])
-    pair.i.name <- paste0(
-      pair.i,
-      collapse = "..x.."
-    )
-
-    #get interaction values
-    pair.i.1 <- spatialRF::rescale_vector(
-      x = data[, pair.i[1]],
-      new.min = 1,
-      new.max = 100
-    )
-    pair.i.2 <- spatialRF::rescale_vector(
-      x = data[, pair.i[2]],
-      new.min = 1,
-      new.max = 100
-    )
-
-    #prepare data.i
-    data.i <- data.frame(
-      data,
-      interaction = pair.i.1 * pair.i.2
-    )
-    colnames(data.i)[ncol(data.i)] <- pair.i.name
-
-    #prepare predictor.variable.names.i
-    predictor.variable.names.i <- c(
-      predictor.variable.names,
-      pair.i.name
-    )
-
-    #computing max correlation with predictors
-    cor.out <- cor(data.i[, predictor.variable.names.i])
-    diag(cor.out) <- NA
-    max.cor <- max(cor.out[pair.i.name, ], na.rm = TRUE)
-
-    #if the maximum correlation is lower than the threshold, fit model
-    if(max.cor <= cor.threshold){
-
-      #without
-      model.i <- spatialRF::rf(
-        data = data.i,
-        dependent.variable.name = dependent.variable.name,
-        predictor.variable.names = predictor.variable.names.i,
-        ranger.arguments = ranger.arguments.i,
-        seed = seed,
-        verbose = FALSE
+  ) %dopar%
+    {
+      #get pair
+      pair.i <- c(variables.pairs[i, 1], variables.pairs[i, 2])
+      pair.i.name <- paste0(
+        pair.i,
+        collapse = "..x.."
       )
 
-      #evaluation
-      model.i <- spatialRF::rf_evaluate(
-        model = model.i,
-        repetitions = repetitions,
-        training.fraction = training.fraction,
-        xy = xy,
-        metrics = metric,
-        seed = seed,
-        verbose = FALSE,
-        n.cores = 1
+      #get interaction values
+      pair.i.1 <- spatialRF::rescale_vector(
+        x = data[, pair.i[1]],
+        new.min = 1,
+        new.max = 100
+      )
+      pair.i.2 <- spatialRF::rescale_vector(
+        x = data[, pair.i[2]],
+        new.min = 1,
+        new.max = 100
       )
 
-      #importance data frame
-      model.i.importance <- model.i$importance$per.variable
+      #prepare data.i
+      data.i <- data.frame(
+        data,
+        interaction = pair.i.1 * pair.i.2
+      )
+      colnames(data.i)[ncol(data.i)] <- pair.i.name
 
-      #metric
-      model.i.evaluation <- model.i$evaluation$aggregated
-      model.i.metric <- model.i.evaluation[
-        model.i.evaluation$model == "Testing",
-        "median"
-      ]
-
-      #gathering results
-      out.df <- data.frame(
-        interaction.name = pair.i.name,
-        interaction.importance = round((model.i.importance[model.i.importance$variable == pair.i.name, "importance"] * 100) / max(model.i.importance$importance), 3),
-        interaction.metric.gain = model.i.metric - model.without.interactions.metric,
-        max.cor.with.predictors = max.cor,
-        variable.a.name = pair.i[1],
-        variable.b.name = pair.i[2]
+      #prepare predictor.variable.names.i
+      predictor.variable.names.i <- c(
+        predictor.variable.names,
+        pair.i.name
       )
 
-    } else {
+      #computing max correlation with predictors
+      cor.out <- cor(data.i[, predictor.variable.names.i])
+      diag(cor.out) <- NA
+      max.cor <- max(cor.out[pair.i.name, ], na.rm = TRUE)
 
-      #gathering results
-      out.df <- data.frame(
-        interaction.name = NA,
-        interaction.importance = NA,
-        interaction.metric.gain = NA,
-        max.cor.with.predictors = NA,
-        variable.a.name = NA,
-        variable.b.name = NA
-      )
+      #if the maximum correlation is lower than the threshold, fit model
+      if (max.cor <= cor.threshold) {
+        #without
+        model.i <- spatialRF::rf(
+          data = data.i,
+          dependent.variable.name = dependent.variable.name,
+          predictor.variable.names = predictor.variable.names.i,
+          ranger.arguments = ranger.arguments.i,
+          seed = seed,
+          n.cores = 1,
+          verbose = FALSE
+        )
 
-    }
+        #evaluation
+        model.i <- spatialRF::rf_evaluate(
+          model = model.i,
+          repetitions = repetitions,
+          training.fraction = training.fraction,
+          xy = xy,
+          metrics = metric,
+          seed = seed,
+          verbose = FALSE,
+          n.cores = 1
+        )
 
-    return(out.df)
+        #importance data frame
+        model.i.importance <- model.i$importance$per.variable
 
-  }#end of parallelized loop
+        #metric
+        model.i.evaluation <- model.i$evaluation$aggregated
+        model.i.metric <- model.i.evaluation[
+          model.i.evaluation$model == "Testing",
+          "median"
+        ]
+
+        #gathering results
+        out.df <- data.frame(
+          interaction.name = pair.i.name,
+          interaction.importance = round(
+            (model.i.importance[
+              model.i.importance$variable == pair.i.name,
+              "importance"
+            ] *
+              100) /
+              max(model.i.importance$importance),
+            3
+          ),
+          interaction.metric.gain = model.i.metric -
+            model.without.interactions.metric,
+          max.cor.with.predictors = max.cor,
+          variable.a.name = pair.i[1],
+          variable.b.name = pair.i[2]
+        )
+      } else {
+        #gathering results
+        out.df <- data.frame(
+          interaction.name = NA,
+          interaction.importance = NA,
+          interaction.metric.gain = NA,
+          max.cor.with.predictors = NA,
+          variable.a.name = NA,
+          variable.b.name = NA
+        )
+      }
+
+      return(out.df)
+    } #end of parallelized loop
 
   interaction.screening.2 <- foreach::foreach(
     i = seq(1, nrow(variables.pairs)),
     .combine = "rbind",
     .verbose = FALSE
-  ) %dopar% {
+  ) %dopar%
+    {
+      #get pair
+      pair.i <- c(variables.pairs[i, 1], variables.pairs[i, 2])
+      pair.i.name <- paste0(
+        pair.i[1],
+        "..pca..",
+        pair.i[2]
+      )
 
-    #get pair
-    pair.i <- c(variables.pairs[i, 1], variables.pairs[i, 2])
-    pair.i.name <- paste0(
-      pair.i[1],
-      "..pca..",
-      pair.i[2]
-    )
+      #get interaction values
+      pair.i.1 <- spatialRF::rescale_vector(
+        x = data[, pair.i[1]],
+        new.min = 1,
+        new.max = 100
+      )
+      pair.i.2 <- spatialRF::rescale_vector(
+        x = data[, pair.i[2]],
+        new.min = 1,
+        new.max = 100
+      )
 
-    #get interaction values
-    pair.i.1 <- spatialRF::rescale_vector(
-      x = data[, pair.i[1]],
-      new.min = 1,
-      new.max = 100
-    )
-    pair.i.2 <- spatialRF::rescale_vector(
-      x = data[, pair.i[2]],
-      new.min = 1,
-      new.max = 100
-    )
+      #prepare data.i
+      data.i <- data.frame(
+        data,
+        interaction = spatialRF::pca(
+          x = data.frame(
+            pair.i.1,
+            pair.i.2
+          )
+        )$pca_factor_1
+      )
+      colnames(data.i)[ncol(data.i)] <- pair.i.name
 
-    #prepare data.i
-    data.i <- data.frame(
-      data,
-      interaction = spatialRF::pca(
-        x = data.frame(
-          pair.i.1,
-          pair.i.2
+      #prepare predictor.variable.names.i
+      predictor.variable.names.i <- c(
+        predictor.variable.names,
+        pair.i.name
+      )
+
+      #computing max correlation with predictors
+      cor.out <- cor(data.i[, predictor.variable.names.i])
+      diag(cor.out) <- NA
+      max.cor <- max(cor.out[pair.i.name, ], na.rm = TRUE)
+
+      #if the maximum correlation is lower than the threshold, fit model
+      if (max.cor <= cor.threshold) {
+        #without
+        model.i <- spatialRF::rf(
+          data = data.i,
+          dependent.variable.name = dependent.variable.name,
+          predictor.variable.names = predictor.variable.names.i,
+          ranger.arguments = ranger.arguments.i,
+          seed = seed,
+          n.cores = 1,
+          verbose = FALSE
         )
-      )$pca_factor_1
-    )
-    colnames(data.i)[ncol(data.i)] <- pair.i.name
 
-    #prepare predictor.variable.names.i
-    predictor.variable.names.i <- c(
-      predictor.variable.names,
-      pair.i.name
-    )
+        #evaluation
+        model.i <- spatialRF::rf_evaluate(
+          model = model.i,
+          repetitions = repetitions,
+          training.fraction = training.fraction,
+          xy = xy,
+          metrics = metric,
+          seed = seed,
+          verbose = FALSE,
+          n.cores = 1
+        )
 
-    #computing max correlation with predictors
-    cor.out <- cor(data.i[, predictor.variable.names.i])
-    diag(cor.out) <- NA
-    max.cor <- max(cor.out[pair.i.name, ], na.rm = TRUE)
+        #importance data frame
+        model.i.importance <- model.i$importance$per.variable
 
-    #if the maximum correlation is lower than the threshold, fit model
-    if(max.cor <= cor.threshold){
+        #metric
+        model.i.evaluation <- model.i$evaluation$aggregated
+        model.i.metric <- model.i.evaluation[
+          model.i.evaluation$model == "Testing",
+          "median"
+        ]
 
-      #without
-      model.i <- spatialRF::rf(
-        data = data.i,
-        dependent.variable.name = dependent.variable.name,
-        predictor.variable.names = predictor.variable.names.i,
-        ranger.arguments = ranger.arguments.i,
-        seed = seed,
-        verbose = FALSE
-      )
+        #gathering results
+        out.df <- data.frame(
+          interaction.name = pair.i.name,
+          interaction.importance = round(
+            (model.i.importance[
+              model.i.importance$variable == pair.i.name,
+              "importance"
+            ] *
+              100) /
+              max(model.i.importance$importance),
+            3
+          ),
+          interaction.metric.gain = model.i.metric -
+            model.without.interactions.metric,
+          max.cor.with.predictors = max.cor,
+          variable.a.name = pair.i[1],
+          variable.b.name = pair.i[2]
+        )
+      } else {
+        #gathering results
+        out.df <- data.frame(
+          interaction.name = NA,
+          interaction.importance = NA,
+          interaction.metric.gain = NA,
+          max.cor.with.predictors = NA,
+          variable.a.name = NA,
+          variable.b.name = NA
+        )
+      }
 
-      #evaluation
-      model.i <- spatialRF::rf_evaluate(
-        model = model.i,
-        repetitions = repetitions,
-        training.fraction = training.fraction,
-        xy = xy,
-        metrics = metric,
-        seed = seed,
-        verbose = FALSE,
-        n.cores = 1
-      )
-
-      #importance data frame
-      model.i.importance <- model.i$importance$per.variable
-
-      #metric
-      model.i.evaluation <- model.i$evaluation$aggregated
-      model.i.metric <- model.i.evaluation[
-        model.i.evaluation$model == "Testing",
-        "median"
-      ]
-
-      #gathering results
-      out.df <- data.frame(
-        interaction.name = pair.i.name,
-        interaction.importance = round((model.i.importance[model.i.importance$variable == pair.i.name, "importance"] * 100) / max(model.i.importance$importance), 3),
-        interaction.metric.gain = model.i.metric - model.without.interactions.metric,
-        max.cor.with.predictors = max.cor,
-        variable.a.name = pair.i[1],
-        variable.b.name = pair.i[2]
-      )
-
-    } else {
-
-      #gathering results
-      out.df <- data.frame(
-        interaction.name = NA,
-        interaction.importance = NA,
-        interaction.metric.gain = NA,
-        max.cor.with.predictors = NA,
-        variable.a.name = NA,
-        variable.b.name = NA
-      )
-
-    }
-
-    return(out.df)
-
-  }#end of parallelized loop
+      return(out.df)
+    } #end of parallelized loop
 
   interaction.screening <- rbind(
     interaction.screening.1,
@@ -445,7 +463,7 @@ the_feature_engineer <- function(
   ) %>%
     na.omit()
 
-  if(nrow(interaction.screening) == 0){
+  if (nrow(interaction.screening) == 0) {
     message("No promising interactions found. \n")
     stop()
   }
@@ -458,7 +476,7 @@ the_feature_engineer <- function(
     FALSE
   )
 
-  if(sum(interaction.screening$selected) == 0){
+  if (sum(interaction.screening$selected) == 0) {
     message("No promising interactions found. \n")
     return(NA)
   }
@@ -479,7 +497,9 @@ the_feature_engineer <- function(
   interaction.screening$order <- NULL
 
   #selected only
-  interaction.screening.selected <- interaction.screening[interaction.screening$selected == TRUE, ]
+  interaction.screening.selected <- interaction.screening[
+    interaction.screening$selected == TRUE,
+  ]
   interaction.screening.selected <- interaction.screening.selected[, c(
     "interaction.name",
     "interaction.importance",
@@ -489,14 +509,12 @@ the_feature_engineer <- function(
     "variable.b.name"
   )]
 
-
   #preparing data frame of interactions
   interaction.df <- data.frame(
     dummy.column = rep(NA, nrow(data))
   )
 
-  for(i in seq(1, nrow(interaction.screening.selected))){
-
+  for (i in seq(1, nrow(interaction.screening.selected))) {
     #get interaction values
     pair.i.1 <- rescale_vector(
       x = data[, interaction.screening.selected[i, "variable.a.name"]],
@@ -511,15 +529,21 @@ the_feature_engineer <- function(
     pair.i.name <- interaction.screening.selected[i, "interaction.name"]
 
     #find what type of interaction
-    if(grepl("..pca..", pair.i.name, fixed = TRUE) == TRUE){
-      interaction.df[, interaction.screening.selected[i, "interaction.name"]] <- spatialRF::pca(
+    if (grepl("..pca..", pair.i.name, fixed = TRUE) == TRUE) {
+      interaction.df[, interaction.screening.selected[
+        i,
+        "interaction.name"
+      ]] <- spatialRF::pca(
         x = data.frame(
           pair.i.1,
           pair.i.2
         )
       )$pca_factor_1
     } else {
-      interaction.df[, interaction.screening.selected[i, "interaction.name"]] <- pair.i.1 * pair.i.2
+      interaction.df[, interaction.screening.selected[
+        i,
+        "interaction.name"
+      ]] <- pair.i.1 * pair.i.2
     }
   }
   interaction.df$dummy.column <- NULL
@@ -529,8 +553,7 @@ the_feature_engineer <- function(
   interaction.screening.selected$variable.b.name <- NULL
 
   #filtering out interactions by correlation among themselves
-  if(nrow(interaction.screening.selected) > 1){
-
+  if (nrow(interaction.screening.selected) > 1) {
     interaction.selection <- auto_cor(
       x = interaction.df,
       preference.order = interaction.screening.selected$interaction.name,
@@ -539,14 +562,17 @@ the_feature_engineer <- function(
     )
 
     interaction.screening.selected <- interaction.screening.selected[
-      interaction.screening.selected$interaction.name %in% interaction.selection$selected.variables,
+      interaction.screening.selected$interaction.name %in%
+        interaction.selection$selected.variables,
     ]
 
-    interaction.df <- interaction.df[, interaction.selection$selected.variables, drop = FALSE]
-
+    interaction.df <- interaction.df[,
+      interaction.selection$selected.variables,
+      drop = FALSE
+    ]
   }
 
-  if(verbose == TRUE){
+  if (verbose == TRUE) {
     message(
       paste0(
         "Interactions identified: ",
@@ -555,17 +581,24 @@ the_feature_engineer <- function(
     )
   }
 
-
   #printing suggested interactions
-  if(verbose == TRUE){
-
+  if (verbose == TRUE) {
     x <- interaction.screening.selected
-    if(metric == "r.squared"){
-      colnames(x) <- c("Interaction", "Importance (% of max)", "R-squared improvement", "Max cor with predictors")
-
+    if (metric == "r.squared") {
+      colnames(x) <- c(
+        "Interaction",
+        "Importance (% of max)",
+        "R-squared improvement",
+        "Max cor with predictors"
+      )
     }
-    if(metric == "auc"){
-      colnames(x) <- c("Interaction", "Importance (% of max)", "AUC improvement", "Max cor with predictors")
+    if (metric == "auc") {
+      colnames(x) <- c(
+        "Interaction",
+        "Importance (% of max)",
+        "AUC improvement",
+        "Max cor with predictors"
+      )
     }
 
     x.hux <- huxtable::hux(x) %>%
@@ -574,18 +607,16 @@ the_feature_engineer <- function(
         col = huxtable::everywhere,
         value = TRUE
       ) %>%
-      huxtable::set_all_borders(TRUE)
+      huxtable::set_all_borders()
     huxtable::number_format(x.hux)[2:nrow(x), 2] <- 1
     huxtable::number_format(x.hux)[2:nrow(x), 3] <- 3
     huxtable::number_format(x.hux)[2:nrow(x), 4] <- 2
     huxtable::print_screen(x.hux, colnames = FALSE)
-
   }
 
   #plot interactions
   plot.list <- list()
-  for(variable in names(interaction.df)){
-
+  for (variable in names(interaction.df)) {
     #create plot data frame
     plot.df <- data.frame(
       y = data[, dependent.variable.name],
@@ -627,7 +658,8 @@ the_feature_engineer <- function(
           round(
             interaction.screening.selected[
               interaction.screening.selected$interaction.name == variable,
-              "max.cor.with.predictors"],
+              "max.cor.with.predictors"
+            ],
             2
           )
         )
@@ -637,7 +669,6 @@ the_feature_engineer <- function(
       ggplot2::theme(
         plot.title = ggplot2::element_text(hjust = 0.5),
       )
-
   }
 
   #generating training df
@@ -658,8 +689,10 @@ the_feature_engineer <- function(
     colnames(interaction.df)
   )
 
-  if(verbose == TRUE){
-    message("Comparing models with and without interactions via spatial cross-validation.")
+  if (verbose == TRUE) {
+    message(
+      "Comparing models with and without interactions via spatial cross-validation."
+    )
   }
 
   #fitting models with and without the selected interactions
@@ -679,8 +712,8 @@ the_feature_engineer <- function(
   #pick colors for comparison from the palette
   n.colors <- length(point.color)
   line.color = point.color[1]
-  color.a <- point.color[floor(n.colors/4)]
-  color.b <- point.color[floor((n.colors/4)*3)]
+  color.a <- point.color[floor(n.colors / 4)]
+  color.b <- point.color[floor((n.colors / 4) * 3)]
 
   #comparison
   comparison <- rf_compare(
@@ -706,16 +739,9 @@ the_feature_engineer <- function(
   out.list$comparison.df <- comparison$comparison.df
   out.list$plot <- plot.list
 
-  if(verbose == TRUE){
+  if (verbose == TRUE) {
     print(patchwork::wrap_plots(out.list$plot))
   }
 
-  #stopping cluster
-  if(stop.cluster == TRUE){
-    parallel::stopCluster(cl = cluster)
-  }
-
-
   out.list
-
 }

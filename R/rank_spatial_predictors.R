@@ -69,11 +69,10 @@ rank_spatial_predictors <- function(
   verbose = FALSE,
   n.cores = parallel::detectCores() - 1,
   cluster = NULL
-){
-
+) {
   #predictor.variable.names comes from auto_vif or auto_cor
-  if(!is.null(predictor.variable.names)){
-    if(inherits(predictor.variable.names, "variable_selection")){
+  if (!is.null(predictor.variable.names)) {
+    if (inherits(predictor.variable.names, "variable_selection")) {
       predictor.variable.names <- predictor.variable.names$selected.variables
     }
   }
@@ -83,10 +82,10 @@ rank_spatial_predictors <- function(
     arg = ranking.method,
     choices = c("moran", "effect"),
     several.ok = FALSE
-    )
+  )
 
   #add write.forest = FALSE to ranger.arguments
-  if(is.null(ranger.arguments)){
+  if (is.null(ranger.arguments)) {
     ranger.arguments <- list()
   }
   ranger.arguments$write.forest <- TRUE
@@ -96,33 +95,39 @@ rank_spatial_predictors <- function(
   ranger.arguments$num.trees <- 500
 
   #reference.moran.i
-  if(is.null(reference.moran.i)){reference.moran.i <- 1}
-
+  if (is.null(reference.moran.i)) {
+    reference.moran.i <- 1
+  }
 
   #CLUSTER SETUP
-  #cluster is provided
-  if(!is.null(cluster)){
+  if (!inherits(x = cluster, what = "cluster")) {
+    if (n.cores > 1) {
+      cluster <- parallel::makeCluster(
+        n.cores,
+        type = "PSOCK"
+      )
 
-    #n.cores <- NULL
-    n.cores <- NULL
+      on.exit(
+        {
+          foreach::registerDoSEQ()
+          try(
+            parallel::stopCluster(cluster),
+            silent = TRUE
+          )
+        },
+        add = TRUE
+      )
+    } else {
+      # n.cores == 1, use sequential execution
+      cluster <- NULL
+    }
+  }
 
-    #flat to not stop cluster after execution
-    stop.cluster <- FALSE
-
-  } else {
-
-    #creates and registers cluster
-    cluster <- parallel::makeCluster(
-      n.cores,
-      type = "PSOCK"
-    )
-
-    #registering cluster
+  # Register backend
+  if (!is.null(cluster)) {
     doParallel::registerDoParallel(cl = cluster)
-
-    #flag to stop cluster
-    stop.cluster <- TRUE
-
+  } else {
+    foreach::registerDoSEQ()
   }
 
   #parallelized loop
@@ -131,81 +136,83 @@ rank_spatial_predictors <- function(
     spatial.predictors.i = seq(1, ncol(spatial.predictors.df)),
     .combine = "rbind",
     .verbose = verbose
-    ) %dopar% {
+  ) %dopar%
+    {
+      #3.2.3.1 preparing data
 
-    #3.2.3.1 preparing data
+      #spatial predictor name
+      spatial.predictors.name.i <- colnames(spatial.predictors.df)[
+        spatial.predictors.i
+      ]
 
-    #spatial predictor name
-    spatial.predictors.name.i <- colnames(spatial.predictors.df)[spatial.predictors.i]
+      #computing reduction in Moran's I
+      if (ranking.method == "effect") {
+        #training data
+        data.i <- data.frame(
+          data,
+          spatial.predictors.df[, spatial.predictors.i]
+        )
+        colnames(data.i)[ncol(data.i)] <- spatial.predictors.name.i
 
-    #computing reduction in Moran's I
-    if(ranking.method == "effect"){
+        #new predictor.variable.names
+        predictor.variable.names.i <- c(
+          predictor.variable.names,
+          spatial.predictors.name.i
+        )
 
-      #training data
-      data.i <- data.frame(
-        data,
-        spatial.predictors.df[, spatial.predictors.i]
-      )
-      colnames(data.i)[ncol(data.i)] <- spatial.predictors.name.i
+        #fitting model I
+        m.i <- spatialRF::rf(
+          data = data.i,
+          dependent.variable.name = dependent.variable.name,
+          predictor.variable.names = predictor.variable.names.i,
+          seed = spatial.predictors.i,
+          distance.matrix = distance.matrix,
+          distance.thresholds = distance.thresholds,
+          scaled.importance = FALSE,
+          ranger.arguments = ranger.arguments,
+          n.cores = 1,
+          verbose = FALSE
+        )
 
-      #new predictor.variable.names
-      predictor.variable.names.i <- c(predictor.variable.names, spatial.predictors.name.i)
+        #out.df
+        out.i <- data.frame(
+          spatial.predictors.name = spatial.predictors.name.i,
+          model.r.squared = m.i$performance$r.squared.oob,
+          moran.i = m.i$residuals$autocorrelation$max.moran,
+          p.value = m.i$residuals$autocorrelation$per.distance$p.value[1],
+          ranking.criteria = reference.moran.i -
+            m.i$residuals$autocorrelation$max.moran
+        )
+      }
 
-      #fitting model I
-      m.i <- spatialRF::rf(
-        data = data.i,
-        dependent.variable.name = dependent.variable.name,
-        predictor.variable.names = predictor.variable.names.i,
-        seed = spatial.predictors.i,
-        distance.matrix = distance.matrix,
-        distance.thresholds = distance.thresholds,
-        scaled.importance = FALSE,
-        ranger.arguments = ranger.arguments,
-        verbose = FALSE
-      )
+      #computing Moran's I of the spatial predictors
+      if (ranking.method == "moran") {
+        #moran's I of spatial predictor
+        m.i <- spatialRF::moran(
+          x = spatial.predictors.df[, spatial.predictors.i],
+          distance.matrix = distance.matrix,
+          distance.threshold = distance.thresholds[1],
+          verbose = FALSE
+        )
 
-      #out.df
-      out.i <- data.frame(
-        spatial.predictors.name = spatial.predictors.name.i,
-        model.r.squared = m.i$performance$r.squared.oob,
-        moran.i = m.i$residuals$autocorrelation$max.moran,
-        p.value = m.i$residuals$autocorrelation$per.distance$p.value[1],
-        ranking.criteria = reference.moran.i - m.i$residuals$autocorrelation$max.moran
-      )
+        #out.df
+        out.i <- data.frame(
+          spatial.predictors.name = spatial.predictors.name.i,
+          ranking.criteria = m.i$test$moran.i,
+          interpretation = m.i$test$interpretation
+        )
+      }
 
-    }
-
-    #computing Moran's I of the spatial predictors
-    if(ranking.method == "moran"){
-
-      #moran's I of spatial predictor
-      m.i <- spatialRF::moran(
-        x = spatial.predictors.df[, spatial.predictors.i],
-        distance.matrix = distance.matrix,
-        distance.threshold = distance.thresholds[1],
-        verbose = FALSE
-      )
-
-      #out.df
-      out.i <- data.frame(
-        spatial.predictors.name = spatial.predictors.name.i,
-        ranking.criteria = m.i$test$moran.i,
-        interpretation = m.i$test$interpretation
-      )
-
-    }
-
-    #returning output
-    return(out.i)
-
-  } #end of parallelized loop
+      #returning output
+      return(out.i)
+    } #end of parallelized loop
 
   #variables to avoid check complaints
   ranking.criteria <- NULL
   interpretation <- NULL
 
   #getting only spatial predictors with positive spatial correlation
-  if(ranking.method == "moran"){
+  if (ranking.method == "moran") {
     spatial.predictors.order <- dplyr::filter(
       spatial.predictors.order,
       interpretation == "Positive spatial correlation"
@@ -216,22 +223,17 @@ rank_spatial_predictors <- function(
   spatial.predictors.order <- dplyr::arrange(
     spatial.predictors.order,
     dplyr::desc(ranking.criteria)
-    )
+  )
 
   #return output
   out.list <- list()
   out.list$method <- ranking.method
   out.list$criteria <- spatial.predictors.order
   out.list$ranking <- spatial.predictors.order$spatial.predictors.name
-  out.list$spatial.predictors.df <- spatial.predictors.df[, spatial.predictors.order$spatial.predictors.name]
-
-  #stopping cluster
-  if(stop.cluster == TRUE){
-    parallel::stopCluster(cl = cluster)
-  }
+  out.list$spatial.predictors.df <- spatial.predictors.df[,
+    spatial.predictors.order$spatial.predictors.name
+  ]
 
   #returning output list
   out.list
-
 }
-

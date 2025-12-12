@@ -9,44 +9,13 @@ dependent.variable.name <- "richness_species_vascular"
 predictor.variable.names <- colnames(plant_richness_df)[5:21]
 distance.matrix <- distance_matrix
 
-m <- rf(
-  data = plant_richness_df,
-  dependent.variable.name = dependent.variable.name,
-  predictor.variable.names = predictor.variable.names,
-  distance.matrix = distance_matrix,
-  xy = xy
-) %>%
-  rf_importance()
-
-plot_importance(m)
-
-m3 <- rf(
-  data = m2$ranger.arguments$data,
-  dependent.variable.name = dependent.variable.name,
-  predictor.variable.names = m2$importance.cv$predictors.with.positive.effect,
-  distance.matrix = distance_matrix,
-  xy = xy
-) %>%
-  rf_importance()
-
-m4 <- rf(
-  data = m3$ranger.arguments$data,
-  dependent.variable.name = dependent.variable.name,
-  predictor.variable.names = m3$importance.cv$predictors.with.positive.effect,
-  distance.matrix = distance_matrix,
-  xy = xy
-) %>%
-  rf_importance()
-
-
-
 
 #rf importance
 
 #cluster without pipes
 ##################################
 my.cluster <- parallel::makeCluster(
-  7,
+  14,
   type = "PSOCK"
 )
 
@@ -66,7 +35,7 @@ m <- rf_spatial(model = m)
 
 m <- rf_tuning(model = m)
 
-m <- rf_evaluate(model = m, grow.testing.folds = FALSE )
+m <- rf_evaluate(model = m, grow.testing.folds = FALSE)
 
 m <- rf_repeat(model = m)
 
@@ -82,14 +51,14 @@ my.cluster <- parallel::makeCluster(
 
 doParallel::registerDoParallel(cl = my.cluster)
 
-  m <- rf(
-    data = plant_richness_df,
-    dependent.variable.name = dependent.variable.name,
-    predictor.variable.names = predictor.variable.names,
-    distance.matrix = distance_matrix,
-    xy = xy,
-    cluster = my.cluster
-  ) %>%
+m <- rf(
+  data = plant_richness_df,
+  dependent.variable.name = dependent.variable.name,
+  predictor.variable.names = predictor.variable.names,
+  distance.matrix = distance_matrix,
+  xy = xy,
+  cluster = my.cluster
+) %>%
   rf_spatial() %>%
   rf_tuning() %>%
   rf_evaluate() %>%
@@ -125,11 +94,6 @@ m <- rf(
   rf_repeat()
 
 parallel::stopCluster(cl = beowulf.cluster)
-
-
-
-
-
 
 
 #without cluster
@@ -185,8 +149,6 @@ parallel::stopCluster(cl = my.cluster)
 #testing n.cores
 ##############################
 
-
-
 #NEW SIMPLIFIED CLUSTER DEFINITION
 #this works
 rf.repeat <- rf_repeat(
@@ -195,7 +157,6 @@ rf.repeat <- rf_repeat(
   predictor.variable.names = colnames(plant_richness_df)[5:21],
   distance.matrix = distance_matrix
 )
-
 
 
 #this works
@@ -245,7 +206,6 @@ rf.spatial <- rf_spatial(
   method = "mem.moran.sequential",
   n.cores = 1
 )
-
 
 
 #this works
@@ -329,7 +289,6 @@ rf.spatial <- rf_spatial(
 parallel::stopCluster(cl = my.cluster)
 
 
-
 #BASIC MODELS TO TEST OTHER THINGIES
 #############################################
 data(plant_richness_df)
@@ -348,12 +307,12 @@ combinations <- rf_interactions(
   data = plant_richness_df,
   dependent.variable.name = dependent.variable.name,
   predictor.variable.names = predictor.variable.names,
-  xy = xy,                     #case coordinates for spatial cross-validation
+  xy = xy, #case coordinates for spatial cross-validation
   importance.threshold = 0.50, #selects predictors with importance above quantile 0.5
-  cor.threshold = 0.60,        #Pearson correlation threshold to remove redundant combinations
-  repetitions = 100,           #number of independent spatial folds to perform spatial cross-validation
-  training.fraction = 0.75,    #fraction of records to train and evaluate models via spatial cross-validation
-  seed = 1,                    #for reproducibility, results might change with different random seeds
+  cor.threshold = 0.60, #Pearson correlation threshold to remove redundant combinations
+  repetitions = 100, #number of independent spatial folds to perform spatial cross-validation
+  training.fraction = 0.75, #fraction of records to train and evaluate models via spatial cross-validation
+  seed = 1, #for reproducibility, results might change with different random seeds
   verbose = TRUE
 )
 
@@ -374,12 +333,6 @@ m <- rf(
 )
 
 
-
-
-
-
-
-
 model <- rf(
   data = data,
   dependent.variable.name = dependent.variable.name,
@@ -393,23 +346,6 @@ model <- rf_evaluate(
   xy = xy,
   n.cores = 1
 )
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 rf.repeat <- rf_repeat(
@@ -440,11 +376,6 @@ rf.spatial <- rf_spatial(
 rf.spatial.repeat <- rf_repeat(
   rf.spatial
 )
-
-
-
-
-
 
 
 #see if rf_repeat respects evaluation and tuning slots
@@ -512,7 +443,7 @@ randomForestExplainer::min_depth_distribution(x.local) %>%
 local.importance <- cbind(
   xy,
   x.local$importance$local
-  ) %>%
+) %>%
   tidyr::pivot_longer(
     cols = colnames(plant_richness_df)[5:21],
     names_to = "variable",
@@ -546,7 +477,6 @@ ggplot2::ggplot() +
   viridis::scale_color_viridis(direction = -1) +
   ggplot2::theme_bw() +
   ggplot2::theme(legend.position = "bottom")
-
 
 
 plot_residuals_diagnostics(x)
@@ -605,7 +535,7 @@ rf_spatial <- rf_spatial(
 x <- rf_repeat(
   model = x,
   verbose = FALSE
-  )
+)
 
 #get plot and print functions
 get_importance(x)
@@ -625,7 +555,7 @@ print(x)
 rf.spatial <- rf_spatial(
   model = x,
   verbose = TRUE
-  )
+)
 
 get_spatial_predictors(rf.spatial)
 plot_optimization(rf.spatial)
@@ -690,7 +620,7 @@ rf.interaction$selected
 #RESPONSE SURFACES
 p <- plot_response_surfaces(
   model = x
-  )
+)
 
 p <- plot_response_curves(
   model = x
@@ -740,16 +670,15 @@ tuning <- rf_tuning(
 
 #rf compare
 comparison <- rf_compare2(
-models <- list(
-  rf.model = rf.model,
-  rf.repeat = rf.repeat,
-  rf.spatial = rf.spatial,
-  rf.spatial.repeat = rf.spatial.repeat
-),
-xy = plant_richness_df[, c("x", "y")],
-metrics = "r.squared"
+  models <- list(
+    rf.model = rf.model,
+    rf.repeat = rf.repeat,
+    rf.spatial = rf.spatial,
+    rf.spatial.repeat = rf.spatial.repeat
+  ),
+  xy = plant_richness_df[, c("x", "y")],
+  metrics = "r.squared"
 )
-
 
 
 #rf_repeat sequential
@@ -799,7 +728,7 @@ rf.repeat <- rf_repeat(
     "10.42.0.104"
   ),
   cluster.cores = c(7, 4, 4)
-  )
+)
 
 
 #testing rf_interactions
@@ -837,7 +766,7 @@ interactions <- rf_interactions(
     "10.42.0.104"
   ),
   cluster.cores = c(7, 4, 4)
-  )
+)
 
 
 #testing rf_evaluate
@@ -873,7 +802,6 @@ evaluation <- rf_evaluate(
   ),
   cluster.cores = c(7, 4, 4)
 )
-
 
 
 spatial.predictors.df <- mem_multithreshold(
@@ -1008,7 +936,7 @@ tuning <- rf_tuning(
   mtry = c(1, 5, 10, 15),
   min.node.size = c(5, 10, 20),
   n.cores = 1
-  )
+)
 
 
 tuning <- rf_tuning(
@@ -1051,7 +979,6 @@ tuning <- rf_tuning(
   ),
   cluster.cores = c(7, 4, 4)
 )
-
 
 
 tuning <- rf_tuning(

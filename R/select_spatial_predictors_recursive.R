@@ -5,7 +5,7 @@
 #'   \item The remaining spatial predictors are introduced again into [rank_spatial_predictors()], and the spatial predictor with the highest ranking is introduced in a new model of the form `y ~  predictors + best_spatial_predictor_1 + best_spatial_predictor_2`.
 #'   \item Steps 1 and 2 are repeated until the Moran's I doesn't improve for a number of repetitions equal to the 20 percent of the total number of spatial predictors introduced in the function.
 #' }
-#' This method allows to select the smallest set of spatial predictors that have the largest joint effect in reducing the spatial correlation of the model residuals, while maintaining the model's R-squared as high as possible. As a consequence of running [rank_spatial_predictors()] on each iteration, this method includes in the final model less spatial predictors than the sequential method implemented in [select_spatial_predictors_sequential()] would do, while minimizing spatial correlation and maximizing the R squared of the model as much as possible.
+#' This method allows to select the smallest set of spatial predictors that have the largest joint effect in reducing the spatial correlation of the model residuals, while maintaining the model's R-squared as high as possible. As a consequence of running [rank_spatial_predictors()] on each iteration, this method includes less spatial predictors in the final model than the sequential method implemented in [select_spatial_predictors_sequential()] would do, while minimizing spatial correlation and maximizing the R squared of the model as much as possible.
 #' @param data Data frame with a response variable and a set of predictors. Default: `NULL`
 #' @param dependent.variable.name Character string with the name of the response variable. Must be in the column names of `data`. Default: `NULL`
 #' @param predictor.variable.names Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Default: `NULL`
@@ -92,17 +92,16 @@ select_spatial_predictors_recursive <- function(
   weight.penalization.n.predictors = 0,
   n.cores = parallel::detectCores() - 1,
   cluster = NULL
-){
-
+) {
   #predictor.variable.names comes from auto_vif or auto_cor
-  if(!is.null(predictor.variable.names)){
-    if(inherits(predictor.variable.names, "variable_selection")){
+  if (!is.null(predictor.variable.names)) {
+    if (inherits(predictor.variable.names, "variable_selection")) {
       predictor.variable.names <- predictor.variable.names$selected.variables
     }
   }
 
   #preparing fast ranger arguments
-  if(is.null(ranger.arguments)){
+  if (is.null(ranger.arguments)) {
     ranger.arguments <- list()
   }
   ranger.arguments$write.forest <- TRUE
@@ -120,26 +119,78 @@ select_spatial_predictors_recursive <- function(
   spatial.predictors.candidates.i <- spatial.predictors.ranking$ranking
 
   #weights limits
-  if(is.null(weight.r.squared)){weight.r.squared <- 0.25}
-  if(weight.r.squared > 1){weight.r.squared <- 1}
-  if(weight.r.squared < 0){weight.r.squared <- 0}
-  if(is.null(weight.penalization.n.predictors)){weight.penalization.n.predictors <- 0}
-  if(weight.penalization.n.predictors > 1){weight.penalization.n.predictors <- 1}
-  if(weight.penalization.n.predictors < 0){weight.penalization.n.predictors <- 0}
+  if (is.null(weight.r.squared)) {
+    weight.r.squared <- 0.25
+  }
+  if (weight.r.squared > 1) {
+    weight.r.squared <- 1
+  }
+  if (weight.r.squared < 0) {
+    weight.r.squared <- 0
+  }
+  if (is.null(weight.penalization.n.predictors)) {
+    weight.penalization.n.predictors <- 0
+  }
+  if (weight.penalization.n.predictors > 1) {
+    weight.penalization.n.predictors <- 1
+  }
+  if (weight.penalization.n.predictors < 0) {
+    weight.penalization.n.predictors <- 0
+  }
 
   #copy of data
   data.i <- data
   predictor.variable.names.i <- predictor.variable.names
 
+  #CLUSTER SETUP
+  if (!inherits(x = cluster, what = "cluster")) {
+    if (n.cores > 1) {
+      cluster <- parallel::makeCluster(
+        n.cores,
+        type = "PSOCK"
+      )
+
+      on.exit(
+        {
+          foreach::registerDoSEQ()
+          try(
+            parallel::stopCluster(cluster),
+            silent = TRUE
+          )
+        },
+        add = TRUE
+      )
+    } else {
+      # n.cores == 1, use sequential execution
+      cluster <- NULL
+    }
+  }
+
+  # Register backend
+  if (!is.null(cluster)) {
+    doParallel::registerDoParallel(cl = cluster)
+  } else {
+    foreach::registerDoSEQ()
+  }
+
   #putting together the optimization data frame
   optimization.df <- data.frame(
-    spatial.predictor.name = rep(NA, length(spatial.predictors.ranking$ranking)),
-    spatial.predictor.index = rep(NA, length(spatial.predictors.ranking$ranking)),
+    spatial.predictor.name = rep(
+      NA,
+      length(spatial.predictors.ranking$ranking)
+    ),
+    spatial.predictor.index = rep(
+      NA,
+      length(spatial.predictors.ranking$ranking)
+    ),
     moran.i = rep(NA, length(spatial.predictors.ranking$ranking)),
     p.value = rep(NA, length(spatial.predictors.ranking$ranking)),
-    p.value.binary  = rep(NA, length(spatial.predictors.ranking$ranking)),
+    p.value.binary = rep(NA, length(spatial.predictors.ranking$ranking)),
     r.squared = rep(NA, length(spatial.predictors.ranking$ranking)),
-    penalization.per.variable = rep(NA, length(spatial.predictors.ranking$ranking)),
+    penalization.per.variable = rep(
+      NA,
+      length(spatial.predictors.ranking$ranking)
+    ),
     optimization = rep(NA, length(spatial.predictors.ranking$ranking))
   )
 
@@ -150,8 +201,7 @@ select_spatial_predictors_recursive <- function(
   recursive.index.tracking <- vector()
 
   #iterating
-  while(length(spatial.predictors.candidates.i) > 1){
-
+  while (length(spatial.predictors.candidates.i) > 1) {
     i <- i + 1
 
     #add the first factor to data
@@ -168,10 +218,19 @@ select_spatial_predictors_recursive <- function(
     )
 
     #reference moran I
-    reference.moran.i <- spatial.predictors.ranking.i$criteria[spatial.predictors.ranking.i$criteria$spatial.predictors.name == spatial.predictors.candidates.i[1], "moran.i"]
+    reference.moran.i <- spatial.predictors.ranking.i$criteria[
+      spatial.predictors.ranking.i$criteria$spatial.predictors.name ==
+        spatial.predictors.candidates.i[1],
+      "moran.i"
+    ]
 
     #subset and order spatial.predictors
-    spatial.predictors.df.i <- spatial.predictors.df[, spatial.predictors.candidates.i[2:length(spatial.predictors.candidates.i)], drop = FALSE]
+    spatial.predictors.df.i <- spatial.predictors.df[,
+      spatial.predictors.candidates.i[
+        2:length(spatial.predictors.candidates.i)
+      ],
+      drop = FALSE
+    ]
 
     #rank pca factors
     spatial.predictors.ranking.i <- rank_spatial_predictors(
@@ -193,28 +252,53 @@ select_spatial_predictors_recursive <- function(
     spatial.predictors.candidates.i <- spatial.predictors.ranking.i$ranking
 
     #gathering data for optimization df.
-    if(length(spatial.predictors.candidates.i) > 0){
-
+    if (length(spatial.predictors.candidates.i) > 0) {
       optimization.df[i, "spatial.predictor.index"] <- i
-      optimization.df[i, "spatial.predictor.name"] <- spatial.predictors.ranking.i$ranking[1]
-      optimization.df[i, "moran.i"] <- spatial.predictors.ranking.i$criteria[1, "moran.i"]
-      optimization.df[i, "p.value"] <- spatial.predictors.ranking.i$criteria[1, "p.value"]
-      optimization.df[i, "r.squared"] <- spatial.predictors.ranking.i$criteria[1, "model.r.squared"]
-      optimization.df[i, "p.value.binary"] <- ifelse(optimization.df[i, "p.value"] >= 0.05, 1, 0)
-      optimization.df[i, "penalization.per.variable"] <- (1/nrow(optimization.df)) * i
-      optimization.df[i, "optimization"] <- (1 - optimization.df[i, "moran.i"]) + (weight.r.squared * optimization.df[i, "r.squared"]) - (weight.penalization.n.predictors * optimization.df[i, "penalization.per.variable"])
-
+      optimization.df[
+        i,
+        "spatial.predictor.name"
+      ] <- spatial.predictors.ranking.i$ranking[1]
+      optimization.df[i, "moran.i"] <- spatial.predictors.ranking.i$criteria[
+        1,
+        "moran.i"
+      ]
+      optimization.df[i, "p.value"] <- spatial.predictors.ranking.i$criteria[
+        1,
+        "p.value"
+      ]
+      optimization.df[i, "r.squared"] <- spatial.predictors.ranking.i$criteria[
+        1,
+        "model.r.squared"
+      ]
+      optimization.df[i, "p.value.binary"] <- ifelse(
+        optimization.df[i, "p.value"] >= 0.05,
+        1,
+        0
+      )
+      optimization.df[i, "penalization.per.variable"] <- (1 /
+        nrow(optimization.df)) *
+        i
+      optimization.df[i, "optimization"] <- (1 -
+        optimization.df[i, "moran.i"]) +
+        (weight.r.squared * optimization.df[i, "r.squared"]) -
+        (weight.penalization.n.predictors *
+          optimization.df[i, "penalization.per.variable"])
     }
 
     #getting the index with the maximum optimization
-    recursive.index.tracking[i] <- optimization.df[which.max(optimization.df$optimization), "spatial.predictor.index"]
+    recursive.index.tracking[i] <- optimization.df[
+      which.max(optimization.df$optimization),
+      "spatial.predictor.index"
+    ]
 
     #finding repetitions in the maximum value of recursive index
-    if(sum(recursive.index.tracking == max(recursive.index.tracking)) > floor(nrow(optimization.df)/5)){
+    if (
+      sum(recursive.index.tracking == max(recursive.index.tracking)) >
+        floor(nrow(optimization.df) / 5)
+    ) {
       break
     }
-
-  }#end of while loop
+  } #end of while loop
 
   #remove empty rows
   optimization.df <- na.omit(optimization.df)
@@ -223,11 +307,16 @@ select_spatial_predictors_recursive <- function(
   recursive.index <- which.max(optimization.df$optimization)
 
   #prepare vector with best factor names
-  best.spatial.predictors <- optimization.df$spatial.predictor.name[1:recursive.index]
+  best.spatial.predictors <- optimization.df$spatial.predictor.name[
+    1:recursive.index
+  ]
 
   #add column selected to optimization.df
   optimization.df$selected <- FALSE
-  optimization.df[optimization.df$spatial.predictor.name %in% best.spatial.predictors, "selected"] <- TRUE
+  optimization.df[
+    optimization.df$spatial.predictor.name %in% best.spatial.predictors,
+    "selected"
+  ] <- TRUE
 
   #output list
   out.list <- list()
@@ -236,5 +325,4 @@ select_spatial_predictors_recursive <- function(
 
   #return output
   out.list
-
 }

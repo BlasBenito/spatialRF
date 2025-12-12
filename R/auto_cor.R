@@ -61,6 +61,27 @@ auto_cor <- function(
   #removing NA
   x <- na.omit(x)
 
+  #handle edge case: no columns
+  if (ncol(x) == 0) {
+    output.list <- list()
+    output.list$selected.variables <- character(0)
+    output.list$selected.variables.df <- x
+    class(output.list) <- "variable_selection"
+    return(output.list)
+  }
+
+  #handle edge case: single column (nothing to correlate)
+  if (ncol(x) == 1) {
+    output.list <- list()
+    output.list$selected.variables <- colnames(x)
+    output.list$selected.variables.df <- x
+    class(output.list) <- "variable_selection"
+    if (verbose == TRUE) {
+      message("[auto_cor()]: Only one variable, nothing to filter.")
+    }
+    return(output.list)
+  }
+
   #finding and removing non-numeric columns
   non.numeric.columns <- colnames(x)[!sapply(x, is.numeric)]
   if(length(non.numeric.columns) > 0){
@@ -168,7 +189,7 @@ auto_cor <- function(
 
   #selected variables
   selected.variables <- setdiff(colnames(x), removed.vars)
-  selected.variables.df <- x[, selected.variables]
+  selected.variables.df <- x[, selected.variables, drop = FALSE]
 
   #return output
   output.list <- list()

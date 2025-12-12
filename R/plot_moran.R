@@ -61,17 +61,17 @@ plot_moran <- function(
   option = 1,
   ncol = 1,
   verbose = TRUE
-  ){
-
+) {
   #checking option
-  if(!(option %in% c(1, 2)) |
-     inherits(model, "data.frame")){
+  if (
+    !(option %in% c(1, 2)) |
+      inherits(model, "data.frame")
+  ) {
     option <- 1
   }
 
   #option 1
-  if(option == 1){
-
+  if (option == 1) {
     #declaring variables
     distance.threshold <- NULL
     moran.i <- NULL
@@ -79,9 +79,9 @@ plot_moran <- function(
     p.value.binary <- NULL
     repetition <- NULL
 
-    if(!inherits(model, "data.frame")){
+    if (!inherits(model, "data.frame")) {
       #importance from rf_repeat
-      if(inherits(model, "rf_repeat")){
+      if (inherits(model, "rf_repeat")) {
         x <- model$residuals$autocorrelation$per.repetition
       } else {
         x <- model$residuals$autocorrelation$per.distance
@@ -93,19 +93,27 @@ plot_moran <- function(
     #adding binary p.value
     x$p.value.binary <- "< 0.05"
     x[x$p.value >= 0.05, "p.value.binary"] <- ">= 0.05"
-    x$p.value.binary <- factor(x$p.value.binary, levels = c("< 0.05", ">= 0.05"))
+    x$p.value.binary <- factor(
+      x$p.value.binary,
+      levels = c("< 0.05", ">= 0.05")
+    )
 
     #plotting rf
-    if(!("repetition" %in% colnames(x))){
-
+    if (!("repetition" %in% colnames(x))) {
       p1 <- ggplot2::ggplot(data = x) +
         ggplot2::aes(
           x = distance.threshold,
           y = moran.i,
           size = p.value.binary,
           fill = moran.i
-        ) +
-        ggplot2::geom_line(size = 1, color = line.color) +
+        )
+
+      # Only add geom_line if there are multiple distance thresholds
+      if (nrow(x) > 1) {
+        p1 <- p1 + ggplot2::geom_line(linewidth = 1, color = line.color)
+      }
+
+      p1 <- p1 +
         ggplot2::geom_point(pch = 21) +
         ggplot2::scale_fill_gradientn(colors = point.color) +
         ggplot2::geom_hline(
@@ -127,9 +135,7 @@ plot_moran <- function(
         ggplot2::labs(size = "Moran's I p-value") +
         ggplot2::theme(plot.title = element_text(hjust = 0.5)) +
         ggplot2::guides(fill = "none")
-
     } else {
-
       p1 <- ggplot2::ggplot(data = x) +
         ggplot2::aes(
           x = distance.threshold,
@@ -137,12 +143,18 @@ plot_moran <- function(
           group = repetition,
           size = p.value.binary,
           fill = moran.i
-        ) +
-        ggplot2::geom_line(
-          size = 1,
+        )
+
+      # Only add geom_line if there are multiple distance thresholds per group
+      if (length(unique(x$distance.threshold)) > 1) {
+        p1 <- p1 + ggplot2::geom_line(
+          linewidth = 1,
           color = line.color,
           alpha = 0.5
-          ) +
+        )
+      }
+
+      p1 <- p1 +
         ggplot2::geom_point(
           pch = 21,
           alpha = 0.7
@@ -167,20 +179,17 @@ plot_moran <- function(
         ggplot2::labs(size = "Moran's I p-value") +
         ggplot2::theme(plot.title = element_text(hjust = 0.5)) +
         ggplot2::guides(fill = "none")
-
     }
 
-    if(verbose == TRUE){
+    if (verbose == TRUE) {
       suppressWarnings(print(p1))
     }
 
     return(p1)
-
-  }#end of option == 1
+  } #end of option == 1
 
   #option 2
-  if(option == 2){
-
+  if (option == 2) {
     residual <- NULL
     residual.lag <- NULL
 
@@ -188,14 +197,14 @@ plot_moran <- function(
     m.residuals <- model$residuals$values
 
     #getting distance matrix
-    if(!is.null(model$ranger.arguments$distance.matrix)){
+    if (!is.null(model$ranger.arguments$distance.matrix)) {
       distance.matrix <- model$ranger.arguments$distance.matrix
     } else {
       stop("distance.matrix not found in model$ranger.arguments")
     }
 
     #getting distance thresholds
-    if(!is.null(model$ranger.arguments$distance.thresholds)){
+    if (!is.null(model$ranger.arguments$distance.thresholds)) {
       distance.thresholds <- model$ranger.arguments$distance.thresholds
     } else {
       stop("distance.matrix not found in x$ranger.arguments")
@@ -205,43 +214,50 @@ plot_moran <- function(
     m.moran <- model$residuals$autocorrelation$per.distance
 
     #iterating through distance thresholds
-    loop.out <- foreach::foreach(distance.threshold = distance.thresholds) %do% {
+    loop.out <- foreach::foreach(distance.threshold = distance.thresholds) %do%
+      {
+        #matrix of weights
+        distance.weights <- weights_from_distance_matrix(
+          distance.matrix = distance.matrix,
+          distance.threshold = distance.threshold
+        )
 
-      #matrix of weights
-      distance.weights <- weights_from_distance_matrix(
-        distance.matrix = distance.matrix,
-        distance.threshold = distance.threshold
-      )
+        #computing weighted mean of the lag
+        residuals.lag <- apply(
+          X = distance.weights,
+          MARGIN = 1,
+          FUN = function(x) {
+            x %*% m.residuals
+          }
+        )
 
-      #computing weighted mean of the lag
-      residuals.lag <- apply(
-        X = distance.weights,
-        MARGIN = 1,
-        FUN = function(x){x %*% m.residuals}
-      )
+        #subset moran i
+        moran.i <- round(
+          m.moran[m.moran$distance.threshold == distance.threshold, "moran.i"],
+          3
+        )
+        p.value <- round(
+          m.moran[m.moran$distance.threshold == distance.threshold, "p.value"],
+          4
+        )
 
-      #subset moran i
-      moran.i <- round(m.moran[m.moran$distance.threshold == distance.threshold, "moran.i"], 3)
-      p.value <- round(m.moran[m.moran$distance.threshold == distance.threshold, "p.value"], 4)
+        #label for facet
+        facet.label <- paste0(
+          "Distance = ",
+          distance.threshold,
+          ", I = ",
+          moran.i,
+          ", p = ",
+          p.value
+        )
 
-      #label for facet
-      facet.label <- paste0(
-        "Distance = ",
-        distance.threshold,
-        ", I = ",
-        moran.i,
-        ", p = ",
-        p.value
-      )
-
-      #out data frame
-      out.df <- data.frame(
-        distance.threshold = rep(facet.label, length(m.residuals)),
-        residual = m.residuals,
-        residual.lag = residuals.lag
-      )
-
-    }
+        #out data frame
+        out.df <- data.frame(
+          distance.threshold = rep(facet.label, length(m.residuals)),
+          residual = m.residuals,
+          residual.lag = residuals.lag
+        )
+      }
 
     #to df
     plot.df <- do.call(
@@ -254,7 +270,8 @@ plot_moran <- function(
       ggplot2::theme_bw() +
       ggplot2::facet_wrap(
         "distance.threshold",
-        ncol = ncol) +
+        ncol = ncol
+      ) +
       ggplot2::aes(
         x = residual,
         y = residual.lag,
@@ -274,7 +291,7 @@ plot_moran <- function(
         se = TRUE,
         alpha = 0.2,
         formula = y ~ x,
-        size = 0.6
+        linewidth = 0.6
       ) +
       ggplot2::coord_fixed(expand = FALSE) +
       ggplot2::xlab("Residuals") +
@@ -283,13 +300,10 @@ plot_moran <- function(
       ggplot2::ggtitle("Moran plots") +
       ggplot2::theme(plot.title = element_text(hjust = 0.5))
 
-
-    if(verbose == TRUE){
+    if (verbose == TRUE) {
       suppressWarnings(print(p2))
     }
 
     return(p2)
-
   }
-
 }

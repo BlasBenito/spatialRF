@@ -17,7 +17,7 @@ _config.yml
 ^docs$
 ^pkgdown$
 ^\.github$
-tests
+tests/*
 README.html
 README.md
 README.Rmd
@@ -29,3 +29,5 @@ reviewing_moran.R
 ^CRAN-SUBMISSION$
 ^TODO.md
 dev_scripts/*
+spatialRF_papers/*
+.claude/*

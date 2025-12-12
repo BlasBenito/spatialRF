@@ -35,7 +35,7 @@
 #' }
 #' @rdname plot_response_surface
 #' @export
-#' @importFrom ggplot2 ggplot geom_tile aes_string theme_bw geom_point scale_size_continuous labs ggtitle
+#' @importFrom ggplot2 ggplot geom_tile aes_string theme_bw geom_point scale_size_continuous labs ggtitle .data
 #' @importFrom viridis scale_fill_viridis
 #' @importFrom patchwork wrap_plots
 plot_response_surface <- function(
@@ -54,15 +54,18 @@ plot_response_surface <- function(
   ),
   point.color = "gray30",
   verbose = TRUE
-  ){
-
-  if(is.null(model)){
+) {
+  if (is.null(model)) {
     stop("Argument 'x' must not be empty.")
   }
 
   grid.resolution <- floor(grid.resolution)
-  if(grid.resolution > 500){grid.resolution <- 500}
-  if(grid.resolution < 20){grid.resolution <- 20}
+  if (grid.resolution > 500) {
+    grid.resolution <- 500
+  }
+  if (grid.resolution < 20) {
+    grid.resolution <- 20
+  }
 
   quantiles <- quantiles[quantiles >= 0]
   quantiles <- quantiles[quantiles <= 1]
@@ -72,27 +75,36 @@ plot_response_surface <- function(
   #response variable and predictors
   response.variable <- model$ranger.arguments$dependent.variable.name
   predictors <- model$ranger.arguments$predictor.variable.names
-  if(inherits(model, "rf_spatial")){
+  if (inherits(model, "rf_spatial")) {
     predictors <- predictors[!(predictors %in% model$spatial$names)]
   }
 
   #default values for a and b
-  if(is.null(a)){
-    a <- model$importance$per.variable[model$importance$per.variable$variable %in% predictors, "variable"][1]
+  if (is.null(a)) {
+    a <- model$importance$per.variable[
+      model$importance$per.variable$variable %in% predictors,
+      "variable"
+    ][1]
   }
-  if(is.null(b)){
-    b <- model$importance$per.variable[model$importance$per.variable$variable %in% predictors, "variable"][2]
+  if (is.null(b)) {
+    b <- model$importance$per.variable[
+      model$importance$per.variable$variable %in% predictors,
+      "variable"
+    ][2]
   }
 
-  if(!(a %in% colnames(data))){
+  if (!(a %in% colnames(data))) {
     stop("Argument 'a' must be a column name of model$ranger.arguments$data.")
   }
-  if(!(b %in% colnames(data))){
+  if (!(b %in% colnames(data))) {
     stop("Argument 'b' must be a column name of model$ranger.arguments$data.")
   }
 
   #names of the other variables
-  other.variables <- setdiff(model$ranger.arguments$predictor.variable.names, c(a, b))
+  other.variables <- setdiff(
+    model$ranger.arguments$predictor.variable.names,
+    c(a, b)
+  )
 
   #generating grid
   ab.grid <- expand.grid(
@@ -104,7 +116,8 @@ plot_response_surface <- function(
     seq(
       min(data[[b]]),
       max(data[[b]]),
-      length.out = grid.resolution)
+      length.out = grid.resolution
+    )
   )
   colnames(ab.grid) <- c(a, b)
 
@@ -112,37 +125,39 @@ plot_response_surface <- function(
   ab.grid.quantiles <- list()
 
   #iterating through quantiles
-  for(quantile.i in quantiles){
-
+  for (quantile.i in quantiles) {
     #ab.grid.copy
     ab.grid.i <- ab.grid
 
     #iterating through variables
-    for(variable in other.variables){
+    for (variable in other.variables) {
       ab.grid.i[, variable] <- quantile(data[, variable], quantile.i)
     }
 
     #predicting the response
     ab.grid.i[, response.variable] <- predict(
       model,
-      ab.grid.i)$predictions
+      ab.grid.i
+    )$predictions
 
     #saving plot
-    ab.grid.quantiles[[as.character(quantile.i)]] <- ggplot2::ggplot(data = ab.grid.i) +
+    ab.grid.quantiles[[as.character(quantile.i)]] <- ggplot2::ggplot(
+      data = ab.grid.i
+    ) +
       ggplot2::geom_tile(
-        ggplot2::aes_string(
-          x = a,
-          y = b,
+        ggplot2::aes(
+          x = ggplot2::.data[[a]],
+          y = ggplot2::.data[[b]],
           fill = response.variable
-          )
-        ) +
+        )
+      ) +
       ggplot2::scale_fill_gradientn(colors = fill.color) +
       ggplot2::theme_bw() +
       ggplot2::geom_point(
         data = data,
-        ggplot2::aes_string(
-          x = a,
-          y = b,
+        ggplot2::aes(
+          x = ggplot2::.data[[a]],
+          y = ggplot2::.data[[b]],
           size = response.variable
         ),
         shape = 21,
@@ -158,19 +173,17 @@ plot_response_surface <- function(
       ggplot2::ggtitle(paste0("Other variables set to quantile ", quantile.i)) +
       ggplot2::guides(size = ggplot2::guide_legend(reverse = TRUE)) +
       ggplot2::theme(plot.title = element_text(hjust = 0.5))
-
   }
 
-  if(length(quantiles) > 1){
+  if (length(quantiles) > 1) {
     ab.grid.quantiles <- patchwork::wrap_plots(ab.grid.quantiles)
   } else {
     ab.grid.quantiles <- ab.grid.quantiles[[1]]
   }
 
-  if(verbose == TRUE){
+  if (verbose == TRUE) {
     ab.grid.quantiles
   }
 
   ab.grid.quantiles
-
 }

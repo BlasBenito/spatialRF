@@ -85,11 +85,10 @@ select_spatial_predictors_sequential <- function(
   verbose = FALSE,
   n.cores = parallel::detectCores() - 1,
   cluster = NULL
-){
-
+) {
   #predictor.variable.names comes from auto_vif or auto_cor
-  if(!is.null(predictor.variable.names)){
-    if(inherits(predictor.variable.names, "variable_selection")){
+  if (!is.null(predictor.variable.names)) {
+    if (inherits(predictor.variable.names, "variable_selection")) {
       predictor.variable.names <- predictor.variable.names$selected.variables
     }
   }
@@ -98,15 +97,27 @@ select_spatial_predictors_sequential <- function(
   spatial.predictors.ranking <- spatial.predictors.ranking$ranking
 
   #weights limits
-  if(is.null(weight.r.squared)){weight.r.squared <- 0.75}
-  if(weight.r.squared > 1){weight.r.squared <- 1}
-  if(weight.r.squared < 0){weight.r.squared <- 0}
-  if(is.null(weight.penalization.n.predictors)){weight.penalization.n.predictors <- 0.25}
-  if(weight.penalization.n.predictors > 1){weight.penalization.n.predictors <- 1}
-  if(weight.penalization.n.predictors < 0){weight.penalization.n.predictors <- 0}
+  if (is.null(weight.r.squared)) {
+    weight.r.squared <- 0.75
+  }
+  if (weight.r.squared > 1) {
+    weight.r.squared <- 1
+  }
+  if (weight.r.squared < 0) {
+    weight.r.squared <- 0
+  }
+  if (is.null(weight.penalization.n.predictors)) {
+    weight.penalization.n.predictors <- 0.25
+  }
+  if (weight.penalization.n.predictors > 1) {
+    weight.penalization.n.predictors <- 1
+  }
+  if (weight.penalization.n.predictors < 0) {
+    weight.penalization.n.predictors <- 0
+  }
 
   #preparing fast ranger arguments
-  if(is.null(ranger.arguments)){
+  if (is.null(ranger.arguments)) {
     ranger.arguments <- list()
   }
   ranger.arguments$write.forest <- TRUE
@@ -121,31 +132,35 @@ select_spatial_predictors_sequential <- function(
   ranger.arguments$num.threads <- 1
 
   #CLUSTER SETUP
-  #cluster is provided
-  if(!is.null(cluster)){
+  if (!inherits(x = cluster, what = "cluster")) {
+    if (n.cores > 1) {
+      cluster <- parallel::makeCluster(
+        n.cores,
+        type = "PSOCK"
+      )
 
-    #n.cores <- NULL
-    n.cores <- NULL
-
-    #flat to not stop cluster after execution
-    stop.cluster <- FALSE
-
-  } else {
-
-    #creates and registers cluster
-    cluster <- parallel::makeCluster(
-      n.cores,
-      type = "PSOCK"
-    )
-
-    #flag to stop cluster
-    stop.cluster <- TRUE
-
+      on.exit(
+        {
+          foreach::registerDoSEQ()
+          try(
+            parallel::stopCluster(cluster),
+            silent = TRUE
+          )
+        },
+        add = TRUE
+      )
+    } else {
+      # n.cores == 1, use sequential execution
+      cluster <- NULL
+    }
   }
 
-
-  #registering cluster
-  doParallel::registerDoParallel(cl = cluster)
+  # Register backend
+  if (!is.null(cluster)) {
+    doParallel::registerDoParallel(cl = cluster)
+  } else {
+    foreach::registerDoSEQ()
+  }
 
   #parallelized loop
   spatial.predictors.i <- NULL
@@ -153,55 +168,54 @@ select_spatial_predictors_sequential <- function(
     spatial.predictors.i = seq(1, length(spatial.predictors.ranking)),
     .combine = "rbind",
     .verbose = verbose
-  ) %dopar% {
+  ) %dopar%
+    {
+      #pca factor names
+      spatial.predictors.selected.names.i <- spatial.predictors.ranking[
+        1:spatial.predictors.i
+      ]
 
-    #pca factor names
-    spatial.predictors.selected.names.i <- spatial.predictors.ranking[1:spatial.predictors.i]
+      #add pca factor to training data
+      data.i <- data.frame(
+        data,
+        spatial.predictors.df[, spatial.predictors.selected.names.i]
+      )
+      colnames(data.i)[
+        (ncol(data) + 1):ncol(data.i)
+      ] <- spatial.predictors.selected.names.i
 
-    #add pca factor to training data
-    data.i <- data.frame(
-      data,
-      spatial.predictors.df[, spatial.predictors.selected.names.i]
-    )
-    colnames(data.i)[(ncol(data)+1):ncol(data.i)] <- spatial.predictors.selected.names.i
+      #new predictor.variable.names
+      predictor.variable.names.i <- c(
+        predictor.variable.names,
+        spatial.predictors.selected.names.i
+      )
 
-    #new predictor.variable.names
-    predictor.variable.names.i <- c(
-      predictor.variable.names,
-      spatial.predictors.selected.names.i
-    )
+      #fitting model i
+      m.i <- spatialRF::rf(
+        data = data.i,
+        dependent.variable.name = dependent.variable.name,
+        predictor.variable.names = predictor.variable.names.i,
+        distance.matrix = distance.matrix,
+        distance.thresholds = distance.thresholds,
+        ranger.arguments = ranger.arguments,
+        seed = spatial.predictors.i,
+        n.cores = 1,
+        verbose = FALSE
+      )
 
-    #fitting model i
-    m.i <- spatialRF::rf(
-      data = data.i,
-      dependent.variable.name = dependent.variable.name,
-      predictor.variable.names = predictor.variable.names.i,
-      distance.matrix = distance.matrix,
-      distance.thresholds = distance.thresholds,
-      ranger.arguments = ranger.arguments,
-      seed = spatial.predictors.i,
-      verbose = FALSE
-    )
-
-    #output.df
-    out.df <- data.frame(
-      spatial.predictor.index = spatial.predictors.i,
-      moran.i = m.i$residuals$autocorrelation$max.moran,
-      p.value = m.i$residuals$autocorrelation$per.distance[
-        which.max(m.i$residuals$autocorrelation$per.distance$moran.i),
-        "p.value"
+      #output.df
+      out.df <- data.frame(
+        spatial.predictor.index = spatial.predictors.i,
+        moran.i = m.i$residuals$autocorrelation$max.moran,
+        p.value = m.i$residuals$autocorrelation$per.distance[
+          which.max(m.i$residuals$autocorrelation$per.distance$moran.i),
+          "p.value"
         ],
-      r.squared = m.i$performance$r.squared.oob
-    )
+        r.squared = m.i$performance$r.squared.oob
+      )
 
-    return(out.df)
-
-  }#end of parallelized loop
-
-  #stopping cluster
-  if(!is.null(n.cores)){
-    parallel::stopCluster(cl = cluster)
-  }
+      return(out.df)
+    } #end of parallelized loop
 
   #preparing optimization df
   optimization.df <- data.frame(
@@ -211,7 +225,8 @@ select_spatial_predictors_sequential <- function(
     p.value = optimization.df$p.value,
     p.value.binary = ifelse(optimization.df$p.value >= 0.05, 1, 0),
     r.squared = optimization.df$r.squared,
-    penalization.per.variable = (1/nrow(optimization.df)) * optimization.df$spatial.predictor.index
+    penalization.per.variable = (1 / nrow(optimization.df)) *
+      optimization.df$spatial.predictor.index
   )
 
   optimization.df$optimization <- optimization_function(
@@ -228,7 +243,10 @@ select_spatial_predictors_sequential <- function(
 
   #add column selected to optimization.df
   optimization.df$selected <- FALSE
-  optimization.df[optimization.df$spatial.predictor.name %in% best.spatial.predictors, "selected"] <- TRUE
+  optimization.df[
+    optimization.df$spatial.predictor.name %in% best.spatial.predictors,
+    "selected"
+  ] <- TRUE
 
   #output list
   out.list <- list()
@@ -237,5 +255,4 @@ select_spatial_predictors_sequential <- function(
 
   #return output
   out.list
-
 }

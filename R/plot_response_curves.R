@@ -41,22 +41,24 @@ plot_response_curves <- function(
     length(quantiles),
     option = "F",
     end = 0.9
-    ),
+  ),
   ncol = 2,
   show.data = FALSE,
   verbose = TRUE
-){
-
-  if(is.null(model)){
-    stop("Argument 'x' must not be empty.")
+) {
+  if (is.null(model)) {
+    stop("Argument 'model' must not be empty.")
   }
 
-  if(length(quantiles) < length(line.color)){
+  if (length(quantiles) < length(line.color)) {
     line.color <- line.color[1:length(quantiles)]
   }
-  if(length(line.color) < length(quantiles)){
-    if(verbose == TRUE){
-      message("Insufficient colors provided in 'line.color', used the default palette insted.")
+
+  if (length(line.color) < length(quantiles)) {
+    if (verbose == TRUE) {
+      message(
+        "Insufficient colors provided in 'line.color', used the default palette insted."
+      )
     }
     line.color = viridis::viridis(
       length(quantiles),
@@ -67,8 +69,12 @@ plot_response_curves <- function(
 
   #preparing grid resolution
   grid.resolution <- floor(grid.resolution)
-  if(grid.resolution > 500){grid.resolution <- 500}
-  if(grid.resolution < 20){grid.resolution <- 20}
+  if (grid.resolution > 500) {
+    grid.resolution <- 500
+  }
+  if (grid.resolution < 20) {
+    grid.resolution <- 20
+  }
 
   #quantile limits
   quantiles <- quantiles[quantiles >= 0]
@@ -84,33 +90,35 @@ plot_response_curves <- function(
   predictors <- model$ranger.arguments$predictor.variable.names
 
   #removing spatial predictors
-  if(inherits(model, "rf_spatial")){
+  if (inherits(model, "rf_spatial")) {
     predictors <- predictors[!(predictors %in% model$spatial$names)]
   }
 
   #default values for variables
-  if(is.null(variables)){
-
-    variables <- model$importance$per.variable[model$importance$per.variable$variable %in% predictors, "variable"][1:floor(length(predictors) / 2)]
-
+  if (is.null(variables)) {
+    variables <- model$importance$per.variable[
+      model$importance$per.variable$variable %in% predictors,
+      "variable"
+    ][1:floor(length(predictors) / 2)]
   }
 
-  if(sum(variables %in% colnames(data)) != length(variables)){
-
-    stop("Variable names in 'variables' must be column names of x$ranger.arguments$data.")
-
+  if (sum(variables %in% colnames(data)) != length(variables)) {
+    stop(
+      "Variable names in 'variables' must be column names of x$ranger.arguments$data."
+    )
   }
 
   #PREPARING NEWDATA
-
   #list to store plots
   variables.list <- list()
 
   #iterating through variables
-  for(variable.i in variables){
-
+  for (variable.i in variables) {
     #names of the other variables
-    other.variables <- setdiff(model$ranger.arguments$predictor.variable.names, variable.i)
+    other.variables <- setdiff(
+      model$ranger.arguments$predictor.variable.names,
+      variable.i
+    )
 
     #generating grid
     variable.i.grid <- data.frame(
@@ -127,16 +135,16 @@ plot_response_curves <- function(
     variable.i.quantiles <- list()
 
     #iterating through quantiles
-    for(quantile.i in quantiles){
-
+    for (quantile.i in quantiles) {
       #grid copy
       variable.i.grid.copy <- variable.i.grid
 
       #iterating through variables
-      for(variable.j in other.variables){
-
-        variable.i.grid.copy[, variable.j] <- quantile(data[, variable.j], quantile.i)
-
+      for (variable.j in other.variables) {
+        variable.i.grid.copy[, variable.j] <- quantile(
+          data[, variable.j],
+          quantile.i
+        )
       }
 
       #adding quantile column
@@ -144,7 +152,6 @@ plot_response_curves <- function(
 
       #save to list
       variable.i.quantiles[[as.character(quantile.i)]] <- variable.i.grid.copy
-
     }
 
     #plot data frame
@@ -153,17 +160,14 @@ plot_response_curves <- function(
 
     #saving into variables.list
     variables.list[[variable.i]] <- quantiles.temp
-
   }
 
-
   #ITERATING THROUGH VARIABLES AND MODELS TO PREDICT AND PLOT
-
   #list to store plots
   variables.plots <- list()
 
   #models
-  if("models" %in% names(model)){
+  if ("models" %in% names(model)) {
     models.list <- model$models
   } else {
     models.list <- list()
@@ -171,16 +175,18 @@ plot_response_curves <- function(
   }
 
   #iterating through variables to predict
-  for(variable.i in variables){
+  for (variable.i in variables) {
+    # Force local evaluation for ggplot aes()
+    local_variable <- variable.i
+    local_response <- response.variable
 
     #list to store predictions by different models
     variable.i.list <- list()
 
     #predictions by models
-    for(i in seq(1, length(models.list))){
-
+    for (i in seq(1, length(models.list))) {
       #add new data to variable.i.list
-      variable.i.list[[i]] <-  variables.list[[variable.i]]
+      variable.i.list[[i]] <- variables.list[[variable.i]]
 
       #get model.i
       model.i <- models.list[[i]]
@@ -189,19 +195,18 @@ plot_response_curves <- function(
       #predict
       variable.i.list[[i]][, response.variable] <- stats::predict(
         object = model.i,
-        data = variable.i.list[[i]])$predictions
+        data = variable.i.list[[i]]
+      )$predictions
 
       #add model index
       variable.i.list[[i]][, "model"] <- i
-
     }
 
     #putting together data frame for plotting
     variable.i.df <- do.call("rbind", variable.i.list)
 
     #are there several models?
-    if(max(variable.i.df$model) > 1){
-
+    if (max(variable.i.df$model) > 1) {
       #variable to trigger change in line size
       several.models <- TRUE
 
@@ -224,111 +229,108 @@ plot_response_curves <- function(
         variable.i.df.copy,
         by = c("id", "quantile")
       )
-
     } else {
       several.models <- FALSE
       variable.i.df.median <- variable.i.df
     }
 
     #plotting with data
-    if(show.data == TRUE){
-
+    if (show.data == TRUE) {
       p.i <- ggplot2::ggplot() +
         ggplot2::geom_point(
           data = data,
-          ggplot2::aes_string(
-            x = variable.i,
-            y = response.variable
+          ggplot2::aes(
+            x = .data[[local_variable]],
+            y = .data[[local_response]]
           ),
           shape = 16,
           alpha = 0.15
         ) +
         ggplot2::geom_path(
           data = variable.i.df,
-          ggplot2::aes_string(
-            x = variable.i,
-            y = response.variable,
-            group = interaction(variable.i.df$model, variable.i.df$quantile),
-            color = "quantile"
+          ggplot2::aes(
+            x = .data[[local_variable]],
+            y = .data[[local_response]],
+            group = paste(
+              .data[["model"]],
+              .data[["quantile"]]
+            ),
+            color = .data[["quantile"]]
           ),
-          size = ifelse(several.models, 0.2, 1),
+          linewidth = ifelse(several.models, 0.2, 1),
           alpha = ifelse(several.models, 0.4, 1)
-        )  +
+        ) +
         ggplot2::geom_path(
           data = variable.i.df.median,
-          ggplot2::aes_string(
-            x = variable.i,
-            y = response.variable,
-            group = "quantile",
-            color = "quantile"
+          ggplot2::aes(
+            x = .data[[local_variable]],
+            y = .data[[local_response]],
+            group = .data[["quantile"]],
+            color = .data[["quantile"]]
           ),
-          size = ifelse(several.models, 0.8, 0),
+          linewidth = ifelse(several.models, 0.8, 0),
           alpha = ifelse(several.models, 1, 0)
-        )  +
+        ) +
         ggplot2::scale_color_manual(values = line.color) +
         ggplot2::theme_bw() +
-        # ggplot2::theme(legend.position = "none") +
         ggplot2::labs(
           color = "   Quantiles of \n other predictors"
         )
 
       #plotting without data
     } else {
-
       p.i <- ggplot2::ggplot() +
         ggplot2::geom_path(
           data = variable.i.df,
-          ggplot2::aes_string(
-            x = variable.i,
-            y = response.variable,
-            group = interaction(variable.i.df$model, variable.i.df$quantile),
-            color = "quantile"
+          ggplot2::aes(
+            x = .data[[local_variable]],
+            y = .data[[local_response]],
+            group = paste(
+              .data[["model"]],
+              .data[["quantile"]]
+            ),
+            color = .data[["quantile"]]
           ),
-          size = ifelse(several.models, 0.2, 1),
+          linewidth = ifelse(several.models, 0.2, 1),
           alpha = ifelse(several.models, 0.4, 1)
-        )  +
+        ) +
         ggplot2::geom_path(
           data = variable.i.df.median,
-          ggplot2::aes_string(
-            x = variable.i,
-            y = response.variable,
-            group = "quantile",
-            color = "quantile"
+          ggplot2::aes(
+            x = .data[[local_variable]],
+            y = .data[[local_response]],
+            group = .data[["quantile"]],
+            color = .data[["quantile"]]
           ),
-          size = ifelse(several.models, 0.8, 0),
+          linewidth = ifelse(several.models, 0.8, 0),
           alpha = ifelse(several.models, 1, 0)
-        )  +
+        ) +
         ggplot2::scale_color_manual(values = line.color) +
         ggplot2::theme_bw() +
-        # ggplot2::theme(legend.position = "none") +
         ggplot2::labs(
           color = "   Quantiles of \n other predictors"
         )
-
     }
 
     variables.plots[[variable.i]] <- p.i
-
-  }#end of plotting
+  } #end of plotting
 
   #computing ncol if NULL
-  if(is.null(ncol)){
+  if (is.null(ncol)) {
     ncol <- floor(sqrt(length(variables.plots)))
   }
 
-  if(length(variables) == 1){
+  if (length(variables) == 1) {
     variables.plots.out <- variables.plots[[1]]
-  }else{
+  } else {
     variables.plots.out <- patchwork::wrap_plots(
       variables.plots,
-      guides = "collect",
-      ncol = ncol
+      ncol = ncol,
+      guides = "collect"
     )
   }
 
-  if(verbose == TRUE){
+  if (verbose == TRUE) {
     variables.plots.out
   }
-
-
 }
