@@ -5,25 +5,24 @@
 #' @return Prints model details to the console.
 #' @seealso [print_evaluation()], [print_importance()], [print_moran()], [print_performance()]
 #' @examples
-#' if(interactive()){
 #'
 #'  #loading example data
-#'  data("plant_richness_df")
-#'  data("distance_matrix")
+#'  data(plants_df)
+#'  data(plants_distance)
 #'
 #'  #fitting random forest model
 #'  rf.model <- rf(
-#'    data = plant_richness_df,
-#'    dependent.variable.name = "richness_species_vascular",
-#'    predictor.variable.names = colnames(plant_richness_df)[5:21],
-#'    distance.matrix = distance_matrix,
+#'    data = plants_df,
+#'    dependent.variable.name = plants_response,
+#'    predictor.variable.names = plants_predictors,
+#'    distance.matrix = plants_distance,
 #'    distance.thresholds = 0,
 #'    n.cores = 1
 #'  )
 #'
 #'  #printing model summary
 #'  print(rf.model)
-#' }
+#'
 #' @rdname print
 #' @export
 #' @importFrom huxtable hux add_colnames set_bold set_all_borders number_format print_screen set_width number_format

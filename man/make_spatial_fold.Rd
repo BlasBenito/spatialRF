@@ -38,10 +38,10 @@ Used internally by \code{\link[=make_spatial_folds]{make_spatial_folds()}} and \
 \examples{
 
  #loading example data
- data(plant_richness_df)
+ data(plants_df)
 
  #getting case coordinates
- xy <- plant_richness_df[, 1:3]
+ xy <- plants_df[, 1:3]
  colnames(xy) <- c("id", "x", "y")
 
  #building a spatial fold centered in the first pair of coordinates

@@ -14,16 +14,15 @@
 #' @details All variables that are not `a` or `b` in a response curve are set to the values of their respective quantiles to plot the response surfaces. The output list can be plotted all at once with `patchwork::wrap_plots(p)` or `cowplot::plot_grid(plotlist = p)`, or one by one by extracting each plot from the list.
 #' @seealso [plot_response_curves()]
 #' @examples
-#' if(interactive()){
 #'
 #'#load example data
-#'data(plant_richness_df)
+#'data(plants_df)
 #'
 #'#fit random forest model
 #'out <- rf(
-#'  data = plant_richness_df,
-#'  dependent.variable.name = "richness_species_vascular",
-#'  predictor.variable.names = colnames(plant_richness_df)[5:21],
+#'  data = plants_df,
+#'  dependent.variable.name = plants_response,
+#'  predictor.variable.names = plants_predictors,
 #'  n.cores = 1,
 #'  verbose = FALSE
 #')
@@ -31,8 +30,6 @@
 #'#plot interactions between most important predictors
 #'plot_response_surfaces(x = out)
 #'
-#'
-#' }
 #' @rdname plot_response_surface
 #' @export
 #' @importFrom ggplot2 ggplot geom_tile aes theme_bw geom_point scale_size_continuous labs ggtitle .data
@@ -146,9 +143,9 @@ plot_response_surface <- function(
     ) +
       ggplot2::geom_tile(
         ggplot2::aes(
-          x = ggplot2::.data[[a]],
-          y = ggplot2::.data[[b]],
-          fill = response.variable
+          x = !!rlang::sym(a),
+          y = !!rlang::sym(b),
+          fill = !!rlang::sym(response.variable)
         )
       ) +
       ggplot2::scale_fill_gradientn(colors = fill.color) +
@@ -156,9 +153,9 @@ plot_response_surface <- function(
       ggplot2::geom_point(
         data = data,
         ggplot2::aes(
-          x = ggplot2::.data[[a]],
-          y = ggplot2::.data[[b]],
-          size = response.variable
+          x = !!rlang::sym(a),
+          y = !!rlang::sym(b),
+          size = !!rlang::sym(response.variable)
         ),
         shape = 21,
         alpha = point.alpha,

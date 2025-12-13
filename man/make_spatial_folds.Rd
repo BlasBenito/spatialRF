@@ -44,10 +44,10 @@ Applies \code{\link[=make_spatial_fold]{make_spatial_fold()}} to every record in
 \examples{
 
  #loading example data
- data(plant_richness_df)
+ data(plants_df)
 
  #getting case coordinates
- xy <- plant_richness_df[, 1:3]
+ xy <- plants_df[, 1:3]
  colnames(xy) <- c("id", "x", "y")
 
  #thining til 20 cases
@@ -60,7 +60,7 @@ Applies \code{\link[=make_spatial_fold]{make_spatial_fold()}} to every record in
  out <- make_spatial_folds(
    xy.selected = xy.selected,
    xy = xy,
-   distance.step = 0.05, #degrees
+   distance.step.x = 0.05, #degrees
    training.fraction = 0.6,
    n.cores = 1
  )

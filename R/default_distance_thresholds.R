@@ -4,11 +4,11 @@
 #' @return A numeric vector with distance thresholds.
 #' @examples
 #'
-#'  #loading example distance matrix
-#'  data(distance_matrix)
+#'  data(plants_distance)
 #'
-#'  #computing set of default distance thresholds
-#'  default_distance_thresholds(distance_matrix)
+#'  default_distance_thresholds(
+#'    distance.matrix = plants_distance
+#'    )
 #'
 #' @rdname default_distance_thresholds
 #' @export

@@ -4,15 +4,15 @@
 #' @param distance.thresholds Numeric vector with distance thresholds defining neighborhood in the distance matrix, Default: `NULL`.
 #' @param max.spatial.predictors Maximum number of spatial predictors to generate. Only useful to save memory when the distance matrix `x` is very large. Default: `NULL`.
 #' @return A data frame with as many rows as the distance matrix `x` containing positive Moran's Eigenvector Maps. The data frame columns are named "spatial_predictor_DISTANCE_COLUMN", where DISTANCE is the given distance threshold, and COLUMN is the column index of the given spatial predictor.
-#' @details The function takes the distance matrix `x`, computes its weights at difference distance thresholds, double-centers the resulting weight matrices with [double_center_distance_matrix()], applies \link[base]{eigen} to each double-centered matrix, and returns eigenvectors with positive normalized eigenvalues for different distance thresholds.
+#' @details The function takes the distance matrix `x`, computes its weights at difference distance thresholds, double-centers the resulting weight matrices with [double_center_plants_distance()], applies \link[base]{eigen} to each double-centered matrix, and returns eigenvectors with positive normalized eigenvalues for different distance thresholds.
 #' @examples
 #'
 #'  #loading example data
-#'  data(distance_matrix)
+#'  data(plants_distance)
 #'
 #'  #computing Moran's eigenvector maps for 0, 1000, and 2000 km
 #'  mem.df <- mem_multithreshold(
-#'    distance.matrix = distance_matrix,
+#'    distance.matrix = plants_distance,
 #'    distance.thresholds = c(0, 1000, 2000)
 #'    )
 #'  head(mem.df)

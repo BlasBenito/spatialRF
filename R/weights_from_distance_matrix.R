@@ -1,7 +1,7 @@
 #' @title Transforms a distance matrix into a matrix of weights
 #' @description Transforms a distance matrix into weights (1/distance.matrix) normalized by the row sums. Used to compute Moran's I values and Moran's Eigenvector Maps. Allows to apply a threshold to the distance matrix before computing the weights.
 #' @usage
-#' weights_from_distance_matrix(
+#' weights_from_plants_distance(
 #'   distance.matrix = NULL,
 #'   distance.threshold = 0
 #' )
@@ -11,18 +11,18 @@
 #' @examples
 #'
 #'  #loading example distance matrix
-#'  data(distance_matrix)
+#'  data(plants_distance)
 #'
 #'  #computing matrix of weights
-#'  distance.matrix.weights <- weights_from_distance_matrix(
-#'    distance.matrix = distance_matrix
+#'  distance.matrix.weights <- weights_from_plants_distance(
+#'    distance.matrix = plants_distance
 #'    )
 #'
 #'  distance.matrix.weights
 #'
-#' @rdname weights_from_distance_matrix
+#' @rdname weights_from_plants_distance
 #' @export
-weights_from_distance_matrix <- function(
+weights_from_plants_distance <- function(
   distance.matrix = NULL,
   distance.threshold = 0
 ) {

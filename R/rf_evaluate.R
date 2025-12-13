@@ -23,18 +23,17 @@
 #' }
 #' @details The evaluation algorithm works as follows: the number of `repetitions` and the input dataset (stored in `model$ranger.arguments$data`) are used as inputs for the function [thinning_til_n()], that applies [thinning()] to the input data until as many cases as `repetitions` are left, and as separated as possible. Each of these remaining records will be used as a "fold center". From that point, the fold grows, until a number of points equal (or close) to `training.fraction` is reached. The indices of the records within the grown spatial fold are stored as "training" in the output list, and the remaining ones as "testing". Then, for each spatial fold, a "training model" is fitted using the cases corresponding with the training indices, and predicted over the cases corresponding with the testing indices. The model predictions on the "unseen" data are compared with the observations, and the performance measures (R squared, pseudo R squared, RMSE and NRMSE) computed.
 #' @examples
-#' if(interactive()){
 #'
 #' #loading example data
-#' data(plant_richness_df)
-#' data(distance_matrix)
+#' data(plants_df)
+#' data(plants_distance)
 #'
 #' #fitting random forest model
 #' rf.model <- rf(
-#'   data = plant_richness_df,
-#'   dependent.variable.name = "richness_species_vascular",
-#'   predictor.variable.names = colnames(plant_richness_df)[5:21],
-#'   distance.matrix = distance_matrix,
+#'   data = plants_df,
+#'   dependent.variable.name = plants_response,
+#'   predictor.variable.names = plants_predictors,
+#'   distance.matrix = plants_distance,
 #'   distance.thresholds = 0,
 #'   n.cores = 1,
 #'   verbose = FALSE
@@ -43,7 +42,7 @@
 #' #evaluation with spatial cross-validation
 #' rf.model <- rf_evaluate(
 #'   model = rf.model,
-#'   xy = plant_richness_df[, c("x", "y")],
+#'   xy = plants_df[, c("x", "y")],
 #'   n.cores = 1
 #' )
 #'
@@ -52,7 +51,6 @@
 #' print_evaluation(rf.model)
 #' x <- get_evaluation(rf.model)
 #'
-#' }
 #' @rdname rf_evaluate
 #' @export
 #' @importFrom parallel detectCores makeCluster stopCluster
@@ -196,7 +194,7 @@ rf_evaluate <- function(
 
   #thinning coordinates to get a systematic sample of reference points
   if (verbose == TRUE) {
-    message("Selecting pairs of coordinates as trainnig fold origins.")
+    message("Selecting pairs of coordinates as training fold origins.")
   }
   xy.reference.records <- thinning_til_n(
     xy = xy,

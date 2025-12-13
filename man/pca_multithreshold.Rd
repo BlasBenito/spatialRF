@@ -24,16 +24,16 @@ A data frame with the PCA factors of the thresholded matrix. The data frame colu
 Computes PCA factors of a distance matrix over different distance thresholds to generate spatial predictors for a model fitted with \code{\link[=rf_spatial]{rf_spatial()}}.
 }
 \details{
-The distance matrix is converted into weights with \code{\link[=weights_from_distance_matrix]{weights_from_distance_matrix()}} before computing the PCA. This produces more meaningful spatial predictors than using the distance matrix as is.
+The distance matrix is converted into weights with \code{\link[=weights_from_plants_distance]{weights_from_plants_distance()}} before computing the PCA. This produces more meaningful spatial predictors than using the distance matrix as is.
 }
 \examples{
 
  #loading example distance matrix
- load(distance_matrix)
+ load(plants_distance)
 
  #PCA factors of the distance matrix for two reference distances
  x <- pca_multithreshold(
-   distance.matrix = distance_matrix,
+   distance.matrix = plants_distance,
    distance.thresholds = c(0, 1000)
    )
  head(x)

@@ -1,9 +1,9 @@
 test_that("`auto_vif()` works", {
-  data(plant_richness_df)
+  data(plants_df)
   out <- auto_vif(
-    x = plant_richness_df[, 5:21],
+    x = plants_df[, 5:21],
     verbose = FALSE,
-    preference.order = colnames(plant_richness_df[5:21])
+    preference.order = colnames(plants_df[5:21])
   )
   expect_type(out, "list")
   expect_length(out, 3)

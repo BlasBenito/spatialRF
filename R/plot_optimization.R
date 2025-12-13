@@ -14,26 +14,30 @@
 #' @param model A model produced by [rf_spatial()], or an optimization data frame produced by [select_spatial_predictors_sequential()] or [select_spatial_predictors_recursive()].
 #' @param point.color Colors of the plotted points. Can be a single color name (e.g. "red4"), a character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. `viridis::viridis(100)`). Default: `viridis::viridis(100, option = "F", direction = -1)`
 #' @param verbose Logical, if `TRUE` the plot is printed. Default: `TRUE`
-#' @details If the method used to fit a model with [rf_spatial()] is "hengl", the function returns nothing, as this method does not require optimization.
-#' @return A ggplot.
+#' @details The function returns `NULL` invisibly (without plotting) when:
+#' \itemize{
+#'   \item The method used to fit a model with [rf_spatial()] is "hengl" (no optimization required)
+#'   \item No spatial predictors were selected during model fitting
+#'   \item The model is non-spatial
+#' }
+#' @return A ggplot, or `NULL` invisibly if no optimization data is available.
 #' @rdname plot_optimization
 #' @examples
-#' if(interactive()){
 #'
 #'  #loading example data
-#'  data(distance_matrix)
-#'  data(plant_richness_df)
+#'  data(plants_distance)
+#'  data(plants_df)
 #'
 #'  #names of the response and predictors
-#'  dependent.variable.name <- "richness_species_vascular"
-#'  predictor.variable.names <- colnames(plant_richness_df)[5:21]
+#'  dependent.variable.name <- plants_response
+#'  predictor.variable.names <- plants_predictors
 #'
 #'  #spatial model
 #'  model <- rf_spatial(
-#'    data = plant_richness_df,
+#'    data = plants_df,
 #'    dependent.variable.name = dependent.variable.name,
 #'    predictor.variable.names = predictor.variable.names,
-#'    distance.matrix = distance_matrix,
+#'    distance.matrix = plants_distance,
 #'    distance.thresholds = 0,
 #'    method = "mem.moran.sequential",
 #'    n.cores = 1,
@@ -43,8 +47,6 @@
 #'  #plotting selection of spatial predictors
 #'  plot_optimization(model = model)
 #'
-#'
-#' }
 #' @importFrom ggplot2 ggplot aes geom_point scale_color_viridis_c geom_path geom_vline labs xlab ylab ggtitle
 #' @export
 plot_optimization <- function(
@@ -67,6 +69,17 @@ plot_optimization <- function(
     x <- model$spatial$optimization
   } else {
     x <- model
+  }
+
+  #check if optimization data exists
+  if (is.null(x) || !is.data.frame(x) || nrow(x) == 0) {
+    if (verbose == TRUE) {
+      message("No optimization data available. This happens when:\n",
+              "  - No spatial predictors were selected\n",
+              "  - The method used was 'hengl' (no optimization required)\n",
+              "  - The model is non-spatial")
+    }
+    return(invisible(NULL))
   }
 
   #plot

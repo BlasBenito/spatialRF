@@ -36,22 +36,20 @@ Applies \code{\link[=moran]{moran()}} to different distance thresholds at the sa
 Using different distance thresholds helps to take into account the uncertainty about what "neighborhood" means in ecological systems (1000km in geological time means little, but 100m might be quite a long distance for a tree to disperse seeds over), and allows to explore spatial autocorrelation of model residuals for several minimum-distance criteria at once.
 }
 \examples{
-if(interactive()){
 
  #loading example data
- data(distance_matrix)
+ data(plants_distance)
  data(plant_richness)
 
  #computing Moran's I for the response variable at several reference distances
  out <- moran_multithreshold(
    x = plant_richness$richness_species_vascular,
-   distance.matrix = distance_matrix,
+   distance.matrix = plants_distance,
    distance.thresholds = c(0, 100, 1000, 10000),
    plot = TRUE
    )
  out
 
-}
 }
 \seealso{
 \code{\link[=moran]{moran()}}

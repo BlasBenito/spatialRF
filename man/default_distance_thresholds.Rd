@@ -17,10 +17,10 @@ Generates four distance thresholds, from 0 to max(distance.matrix)/2.
 }
 \examples{
 
- #loading example distance matrix
- data(distance_matrix)
+ data(plants_distance)
 
- #computing set of default distance thresholds
- default_distance_thresholds(distance_matrix)
+ default_distance_thresholds(
+   distance.matrix = plants_distance
+   )
 
 }

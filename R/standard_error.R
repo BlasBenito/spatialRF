@@ -4,11 +4,9 @@
 #' @return A numeric value.
 #' @details The function removes `NA` values before computing the standard error, and rounds the result to 3 decimal places.
 #' @examples
-#' if(interactive()){
 #'
 #'  standard_error(runif(10))
 #'
-#' }
 #' @rdname standard_error
 #' @export
 standard_error <- function(x) {

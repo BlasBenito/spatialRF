@@ -62,15 +62,15 @@ Please read the help file of \link[ranger]{ranger} for further details. Notice t
 \examples{
 
  #loading example data
- data("plant_richness_df")
- data("distance_matrix")
+ data(plants_df)
+ data(plants_distance)
 
  #fittind random forest model
  out <- rf(
-   data = plant_richness_df,
-   dependent.variable.name = "richness_species_vascular",
-   predictor.variable.names = colnames(plant_richness_df)[5:21],
-   distance.matrix = distance_matrix,
+   data = plants_df,
+   dependent.variable.name = plants_response,
+   predictor.variable.names = plants_predictors,
+   distance.matrix = plants_distance,
    distance.thresholds = 0,
    n.cores = 1
  )
@@ -95,7 +95,7 @@ Please read the help file of \link[ranger]{ranger} for further details. Notice t
  #predictions for new data as done with ranger models:
  predicted <- stats::predict(
    object = out,
-   data = plant_richness_df,
+   data = plants_df,
    type = "response"
  )$predictions
 
@@ -104,10 +104,10 @@ Please read the help file of \link[ranger]{ranger} for further details. Notice t
 
  #ranger.arguments can contain ranger arguments and any other rf argument
  my.ranger.arguments <- list(
-   data = plant_richness_df,
-   dependent.variable.name = "richness_species_vascular",
-   predictor.variable.names = colnames(plant_richness_df)[8:21],
-   distance.matrix = distance_matrix,
+   data = plants_df,
+   dependent.variable.name = plants_response,
+   predictor.variable.names = plants_predictors,
+   distance.matrix = plants_distance,
    distance.thresholds = c(0, 1000)
    )
 

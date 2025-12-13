@@ -48,7 +48,7 @@
 #' \itemize{
 #'   \item `"hengl"`: named after the method RFsp presented in the paper "Random forest as a generic framework for predictive modeling of spatial and spatio-temporal variables", by Hengl et al. (2018), where the authors propose to use the distance matrix among records as predictors in spatial random forest models (RFsp method). In this function, all methods starting with "hengl" use either the complete distance matrix, or select columns of the distance matrix as spatial predictors.
 #'   \item `"mem"`: Generates Moran's Eigenvector Maps, that is, the eigenvectors of the double-centered weights of the distance matrix. The method is described in "Spatial modelling: a comprehensive framework for principal coordinate analysis of neighbour matrices (PCNM)", by Dray et al. (2006), and "Statistical methods for temporal and space–time analysis of community composition data", by Legendre and Gauthier (2014).
-#'   \item `"pca"`: Computes spatial predictors from the principal component analysis of a weighted distance matrix (see [weights_from_distance_matrix()]). This is an experimental method, use with caution.
+#'   \item `"pca"`: Computes spatial predictors from the principal component analysis of a weighted distance matrix (see [weights_from_plants_distance()]). This is an experimental method, use with caution.
 #' }
 #' Methods to rank spatial predictors (see [rank_spatial_predictors()]):
 #' \itemize{
@@ -62,22 +62,21 @@
 #' }
 #' Once ranking procedure is completed, an algorithm is used to select the minimal subset of spatial predictors that reduce the most the Moran's I of the residuals: for each new spatial predictor introduced in the model, the Moran's I of the residuals, it's p-value, a binary version of the p-value (0 if < 0.05 and 1 if >= 0.05), the R-squared of the model, and a penalization linear with the number of spatial predictors introduced (computed as `(1 / total spatial predictors) * introduced spatial predictors`) are rescaled between 0 and 1. Then, the optimization criteria is computed as `max(1 - Moran's I, p-value binary) + (weight.r.squared * R-squared) - (weight.penalization.n.predictors * penalization)`. The predictors from the first one to the one with the highest optimization criteria are then selected as the best ones in reducing the spatial correlation of the model residuals, and used along with `data` to fit the final spatial model.
 #' @examples
-#' if(interactive()){
 #'
 #'  #loading example data
-#'  data(distance_matrix)
-#'  data(plant_richness_df)
+#'  data(plants_distance)
+#'  data(plants_df)
 #'
 #'  #names of the response and predictors
-#'  dependent.variable.name <- "richness_species_vascular"
-#'  predictor.variable.names <- colnames(plant_richness_df)[5:21]
+#'  dependent.variable.name <- plants_response
+#'  predictor.variable.names <- plants_predictors
 #'
 #'  #hengl
 #'  model <- rf_spatial(
-#'    data = plant_richness_df,
+#'    data = plants_df,
 #'    dependent.variable.name = dependent.variable.name,
 #'    predictor.variable.names = predictor.variable.names,
-#'    distance.matrix = distance_matrix,
+#'    distance.matrix = plants_distance,
 #'    distance.thresholds = 0,
 #'    method = "hengl",
 #'    n.cores = 1
@@ -85,10 +84,10 @@
 #'
 #'  #mem.moran.sequential
 #'  model <- rf_spatial(
-#'    data = plant_richness_df,
+#'    data = plants_df,
 #'    dependent.variable.name = dependent.variable.name,
 #'    predictor.variable.names = predictor.variable.names,
-#'    distance.matrix = distance_matrix,
+#'    distance.matrix = plants_distance,
 #'    distance.thresholds = 0,
 #'    method = "mem.moran.sequential",
 #'    n.cores = 1
@@ -96,10 +95,10 @@
 #'
 #'  #fitting an rf_spatial model from an rf model
 #'  rf.model <- rf(
-#'    data = plant_richness_df,
-#'    dependent.variable.name = "richness_species_vascular",
-#'    predictor.variable.names = colnames(plant_richness_df)[5:21],
-#'    distance.matrix = distance_matrix,
+#'    data = plants_df,
+#'    dependent.variable.name = plants_response,
+#'    predictor.variable.names = plants_predictors,
+#'    distance.matrix = plants_distance,
 #'    distance.thresholds = 0,
 #'    n.cores = 1,
 #'    verbose = FALSE
@@ -110,8 +109,6 @@
 #'  rf.spatial <- rf_spatial(model = rf.model)
 #'  rf.spatial$spatial.correlation.residuals$plot
 #'
-#'
-#' }
 #' @rdname rf_spatial
 #' @export
 rf_spatial <- function(

@@ -26,11 +26,11 @@ Resamples a set of points with x and y coordinates by increasing the distance st
 \examples{
 
  #loading example data
- data(plant_richness_df)
+ data(plants_df)
 
  #thinning to ~20 records
  plant_richness.thin <- thinning_til_n(
-   x = plant_richness_df,
+   x = plants_df,
    n = 20
    )
 

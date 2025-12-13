@@ -12,16 +12,15 @@
 #' @details All variables that are not plotted in a particular response curve are set to the values of their respective quantiles, and the response curve for each one of these quantiles is shown in the plot. When the input model was fitted with [rf_repeat()] with `keep.models = TRUE`, then the plot shows the median of all model runs, and each model run separately as a thinner line. The output list can be plotted all at once with `patchwork::wrap_plots(p)` or `cowplot::plot_grid(plotlist = p)`, or one by one by extracting each plot from the list.
 #' @seealso [plot_response_surface()]
 #' @examples
-#' if(interactive()){
 #'
 #'#loading example data
-#'data(plant_richness_df)
+#'data(plants_df)
 #'
 #'#fitting a random forest model
 #'m <- rf(
-#'  data = plant_richness_df,
-#'  dependent.variable.name = "richness_species_vascular",
-#'  predictor.variable.names = colnames(plant_richness_df)[5:21],
+#'  data = plants_df,
+#'  dependent.variable.name = plants_response,
+#'  predictor.variable.names = plants_predictors,
 #'  n.cores = 1,
 #'  verbose = FALSE
 #')
@@ -29,7 +28,6 @@
 #'#response curves of most important predictors
 #'plot_response_curves(model = m)
 #'
-#' }
 #' @rdname plot_response_curves
 #' @export
 plot_response_curves <- function(

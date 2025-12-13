@@ -1,7 +1,7 @@
 #' @title Double centers a distance matrix
-#' @description Generates a double-centered matrix (row and column means are zero) from the weights of a distance matrix (see [weights_from_distance_matrix()]) and a distance threshold. This is a required step before the computation of Moran's Eigenvector Maps.
+#' @description Generates a double-centered matrix (row and column means are zero) from the weights of a distance matrix (see [weights_from_plants_distance()]) and a distance threshold. This is a required step before the computation of Moran's Eigenvector Maps.
 #' @usage
-#' double_center_distance_matrix (
+#' double_center_plants_distance (
 #'   distance.matrix = NULL,
 #'   distance.threshold = 0
 #' )
@@ -13,17 +13,17 @@
 #' @examples
 #'
 #'  #loading the distance matrix
-#'  data(distance_matrix)
+#'  data(plants_distance)
 #'
-#'  x <- double_center_distance_matrix(
-#'    distance.matrix = distance_matrix
+#'  x <- double_center_plants_distance(
+#'    distance.matrix = plants_distance
 #'  )
 #'  x
 #'
-#' @seealso [weights_from_distance_matrix()], [mem()], [mem_multithreshold()]
-#' @rdname double_center_distance_matrix
+#' @seealso [weights_from_plants_distance()], [mem()], [mem_multithreshold()]
+#' @rdname double_center_plants_distance
 #' @export
-double_center_distance_matrix <- function(
+double_center_plants_distance <- function(
   distance.matrix = NULL,
   distance.threshold = 0
 ) {
@@ -32,7 +32,7 @@ double_center_distance_matrix <- function(
   }
 
   #distance matrix weights
-  x <- weights_from_distance_matrix(
+  x <- weights_from_plants_distance(
     distance.matrix = distance.matrix,
     distance.threshold = distance.threshold
   )

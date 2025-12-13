@@ -10,18 +10,17 @@
 #' }
 #' @seealso [rf_evaluate()], [plot_evaluation()], [print_evaluation()]
 #' @examples
-#' if(interactive()){
 #'
 #' #loading data
-#' data(plant_richness_df)
-#' data(distance_matrix)
+#' data(plants_df)
+#' data(plants_distance)
 #'
 #' #fitting a random forest model
 #' rf.model <- rf(
-#'   data = plant_richness_df,
-#'   dependent.variable.name = "richness_species_vascular",
-#'   predictor.variable.names = colnames(plant_richness_df)[5:21],
-#'   distance.matrix = distance_matrix,
+#'   data = plants_df,
+#'   dependent.variable.name = plants_response,
+#'   predictor.variable.names = plants_predictors,
+#'   distance.matrix = plants_distance,
 #'   distance.thresholds = 0,
 #'   n.cores = 1,
 #'   verbose = FALSE
@@ -30,7 +29,7 @@
 #' #evaluating the model with spatial cross-validation
 #' rf.model <- rf_evaluate(
 #'   model = rf.model,
-#'   xy = plant_richness_df[, c("x", "y")],
+#'   xy = plants_df[, c("x", "y")],
 #'   n.cores = 1,
 #'   verbose = FALSE
 #' )
@@ -39,7 +38,6 @@
 #' x <- get_evaluation(rf.model)
 #' x
 #'
-#' }
 #' @rdname get_evaluation
 #' @export
 get_evaluation <- function(model) {

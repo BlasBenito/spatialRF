@@ -22,32 +22,36 @@ plot_optimization(
 \item{verbose}{Logical, if \code{TRUE} the plot is printed. Default: \code{TRUE}}
 }
 \value{
-A ggplot.
+A ggplot, or \code{NULL} invisibly if no optimization data is available.
 }
 \description{
 Plots optimization data frames produced by \code{\link[=select_spatial_predictors_sequential]{select_spatial_predictors_sequential()}}
 and \code{\link[=select_spatial_predictors_recursive]{select_spatial_predictors_recursive()}}.
 }
 \details{
-If the method used to fit a model with \code{\link[=rf_spatial]{rf_spatial()}} is "hengl", the function returns nothing, as this method does not require optimization.
+The function returns \code{NULL} invisibly (without plotting) when:
+\itemize{
+\item The method used to fit a model with \code{\link[=rf_spatial]{rf_spatial()}} is "hengl" (no optimization required)
+\item No spatial predictors were selected during model fitting
+\item The model is non-spatial
+}
 }
 \examples{
-if(interactive()){
 
  #loading example data
- data(distance_matrix)
- data(plant_richness_df)
+ data(plants_distance)
+ data(plants_df)
 
  #names of the response and predictors
- dependent.variable.name <- "richness_species_vascular"
- predictor.variable.names <- colnames(plant_richness_df)[5:21]
+ dependent.variable.name <- plants_response
+ predictor.variable.names <- plants_predictors
 
  #spatial model
  model <- rf_spatial(
-   data = plant_richness_df,
+   data = plants_df,
    dependent.variable.name = dependent.variable.name,
    predictor.variable.names = predictor.variable.names,
-   distance.matrix = distance_matrix,
+   distance.matrix = plants_distance,
    distance.thresholds = 0,
    method = "mem.moran.sequential",
    n.cores = 1,
@@ -57,6 +61,4 @@ if(interactive()){
  #plotting selection of spatial predictors
  plot_optimization(model = model)
 
-
-}
 }

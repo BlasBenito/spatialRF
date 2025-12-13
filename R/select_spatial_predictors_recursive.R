@@ -21,51 +21,50 @@
 #' @return A list with two slots: `optimization`, a data frame with the index of the spatial predictor added on each iteration, the spatial correlation of the model residuals, and the R-squared of the model, and `best.spatial.predictors`, that is a character vector with the names of the spatial predictors that minimize the Moran's I of the residuals and maximize the R-squared of the model.
 #' @details The algorithm works as follows. If the function [rank_spatial_predictors()] returns 10 ranked spatial predictors (sp1 to sp10, being sp7 the best one), [select_spatial_predictors_recursive()] is going to first fit the model `y ~ predictors + sp7`. Then, the spatial predictors sp2 to sp9 are again ranked with [rank_spatial_predictors()] using the model `y ~ predictors + sp7` as reference (at this stage, some of the spatial predictors might be dropped due to lack of effect). When the new ranking of spatial predictors is ready (let's say they are sp5, sp3, and sp4), the best one (sp5) is included in the model `y ~ predictors + sp7 + sp5`, and the remaining ones go again to [rank_spatial_predictors()] to repeat the process until spatial predictors are depleted.
 #' @examples
-#' if(interactive()){
 #'
 #' #loading example data
-#' data(distance_matrix)
-#' data(plant_richness_df)
+#' data(plants_distance)
+#' data(plants_df)
 #'
 #' #response and preditor names
-#' dependent.variable.name = "richness_species_vascular"
-#' predictor.variable.names = colnames(plant_richness_df)[5:21]
+#' dependent.variable.name = plants_response
+#' predictor.variable.names = plants_predictors
 #'
 #' #non-spatial model
 #' model <- rf(
-#'   data = plant_richness_df,
+#'   data = plants_df,
 #'   dependent.variable.name = dependent.variable.name,
 #'   predictor.variable.names = predictor.variable.names,
-#'   distance.matrix = distance_matrix,
+#'   distance.matrix = plants_distance,
 #'   distance.thresholds = 0,
 #'   n.cores = 1
 #' )
 #'
 #' #preparing spatial predictors
 #' spatial.predictors <- mem_multithreshold(
-#'   distance.matrix = distance_matrix,
+#'   distance.matrix = plants_distance,
 #'   distance.thresholds = 0
 #' )
 #'
 #' #ranking spatial predictors
 #' spatial.predictors.ranking <- rank_spatial_predictors(
-#'   data = plant_richness_df,
+#'   data = plants_df,
 #'   dependent.variable.name = dependent.variable.name,
 #'   predictor.variable.names = predictor.variable.names,
 #'   spatial.predictors.df = spatial.predictors,
 #'   ranking.method = "moran",
 #'   reference.moran.i = model$spatial.correlation.residuals$max.moran,
-#'   distance.matrix = distance_matrix,
+#'   distance.matrix = plants_distance,
 #'   distance.thresholds = 0,
 #'   n.cores = 1
 #' )
 #'
 #' #selecting the best subset of predictors
 #' selection <- select_spatial_predictors_recursive(
-#'   data = plant_richness_df,
+#'   data = plants_df,
 #'   dependent.variable.name = dependent.variable.name,
 #'   predictor.variable.names = predictor.variable.names,
-#'   distance.matrix = distance_matrix,
+#'   distance.matrix = plants_distance,
 #'   distance.thresholds = 0,
 #'   spatial.predictors.df = spatial.predictors,
 #'   spatial.predictors.ranking = spatial.predictors.ranking,
@@ -76,7 +75,6 @@
 #' selection$best.spatial.predictors
 #' plot_optimization(selection$optimization)
 #'
-#' }
 #' @rdname select_spatial_predictors_recursive
 #' @export
 select_spatial_predictors_recursive <- function(

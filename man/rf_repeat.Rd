@@ -67,18 +67,17 @@ A ranger model with several new slots:
 Fits several random forest models on the same data in order to capture the effect of the algorithm's stochasticity on the variable importance scores, predictions, residuals, and performance measures. The function relies on the median to aggregate performance and importance values across repetitions. It is recommended to use it after a model is fitted (\code{\link[=rf]{rf()}} or \code{\link[=rf_spatial]{rf_spatial()}}), tuned (\code{\link[=rf_tuning]{rf_tuning()}}), and/or evaluated (\code{\link[=rf_evaluate]{rf_evaluate()}}). This function is designed to be used after fitting a model with \code{\link[=rf]{rf()}} or \code{\link[=rf_spatial]{rf_spatial()}}, tuning it with \code{\link[=rf_tuning]{rf_tuning()}} and evaluating it with \code{\link[=rf_evaluate]{rf_evaluate()}}.
 }
 \examples{
-if(interactive()){
 
  #loading example data
- data(plant_richness_df)
- data(distance_matrix)
+ data(plants_df)
+ data(plants_distance)
 
  #fitting 5 random forest models
  out <- rf_repeat(
-   data = plant_richness_df,
-   dependent.variable.name = "richness_species_vascular",
-   predictor.variable.names = colnames(plant_richness_df)[5:21],
-   distance.matrix = distance_matrix,
+   data = plants_df,
+   dependent.variable.name = plants_response,
+   predictor.variable.names = plants_predictors,
+   distance.matrix = plants_distance,
    distance.thresholds = 0,
    repetitions = 5,
    n.cores = 1
@@ -105,10 +104,10 @@ if(interactive()){
 
  #using a model as an input for rf_repeat()
  rf.model <- rf(
-   data = plant_richness_df,
-   dependent.variable.name = "richness_species_vascular",
-   predictor.variable.names = colnames(plant_richness_df)[8:21],
-   distance.matrix = distance_matrix,
+   data = plants_df,
+   dependent.variable.name = plants_response,
+   predictor.variable.names = plants_predictors,
+   distance.matrix = plants_distance,
    distance.thresholds = 0,
    n.cores = 1
    )
@@ -123,5 +122,4 @@ if(interactive()){
  rf.repeat$performance
  rf.repeat$importance$per.repetition.plot
 
-}
 }

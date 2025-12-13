@@ -1,6 +1,6 @@
 #' @title Multicollinearity reduction via Variance Inflation Factor
 #'
-#' @description Selects predictors that are not linear combinations of other predictors by using computing their variance inflation factors (VIF). Allows the user to define an order of preference for the selection of predictors. \strong{Warning}: variables in `preference.order` not in `colnames(x)`, and non-numeric columns are removed silently from `x` and `preference.order`. The same happens with rows having NA values ([na.omit()] is applied). The function issues a warning if zero-variance columns are found.
+#' @description Filters predictors using sequential evaluation of variance inflation factors. Predictors are ranked by user preference (or column order), and evaluated sequentially. Each candidate is added to the selected pool only if the maximum VIF of all predictors (candidate plus already-selected) does not exceed the threshold. \strong{Warning}: variables in `preference.order` not in `colnames(x)`, and non-numeric columns are removed silently from `x` and `preference.order`. The same happens with rows having NA values ([na.omit()] is applied). The function issues a warning if zero-variance columns are found.
 #' @usage
 #' auto_vif(
 #'   x = NULL,
@@ -18,21 +18,27 @@
 #'   \item `selected.variables`: character vector with the names of the selected variables.
 #'   \item `selected.variables.df`: data frame with the selected variables.
 #'  }
-#' @details
-#'This function has two modes of operation:
-#' \itemize{
-#' \item 1. When the argument `preference.order` is `NULL`, the function removes on each iteration the variable with the highest VIF until all VIF values are lower than `vif.threshold`.
-#' \item 2. When `preference.order` is provided, the variables are selected by giving them priority according to their order in `preference.order`. If there are variables not in `preference.order`, these are selected as in option 1. Once both groups of variables have been processed, all variables are put together and selected by giving priority to the ones in `preference.order`. This method preserves the variables desired by the user as much as possible.
+#' @details The algorithm follows these steps:
+#' \enumerate{
+#'   \item Rank predictors by `preference.order` (or use column order if NULL)
+#'   \item Initialize selection pool with first predictor
+#'   \item For each remaining candidate:
+#'   \itemize{
+#'     \item Compute VIF for candidate plus all selected predictors
+#'     \item If max VIF ≤ `vif.threshold`, add candidate to selected pool
+#'     \item Otherwise, skip candidate
+#'   }
+#'   \item Return selected predictors with their VIF values
 #' }
-#'  Can be chained together with [auto_cor()] through pipes, see the examples below.
+#' Can be chained together with [auto_cor()] through pipes, see the examples below.
 #' @seealso [auto_cor()]
 #' @examples
 #'
 #'#loading data
-#'data(plant_richness_df)
+#'data(plants_df)
 #'
 #'#on a data frame
-#'out <- auto_vif(x = plant_richness_df[, 5:21])
+#'out <- auto_vif(x = plants_df[, 5:21])
 #'
 #'#getting out the vif data frame
 #'out$vif
@@ -44,11 +50,11 @@
 #'out$selected.variables.df
 #'
 #'#on the result of auto_cor
-#'out <- auto_cor(x = plant_richness_df[, 5:21])
+#'out <- auto_cor(x = plants_df[, 5:21])
 #'out <- auto_vif(x = out)
 #'
 #'#with pipes
-#'out <- plant_richness_df[, 5:21] %>%
+#'out <- plants_df[, 5:21] %>%
 #'  auto_cor() %>%
 #'  auto_vif()
 #'
@@ -101,52 +107,39 @@ auto_vif <- function(
     )
   }
 
-  #AND preference.order IS NOT PROVIDED
-  if (is.null(preference.order)) {
-    #OPTION 3: SELECT BY MAX VIF
-    output.list <- .select_by_max_vif(
-      x = x,
-      vif.threshold = vif.threshold,
-      verbose = verbose
-    )
-  } else {
-    #OPTION 2: preference.order IS PROVIDED
-
-    #getting only preference.order in colnames(x)
+  #step 1: establish ranking order
+  if (!is.null(preference.order)) {
     preference.order <- preference.order[preference.order %in% colnames(x)]
+    not.in.preference.order <- setdiff(colnames(x), preference.order)
+    preference.order <- c(preference.order, not.in.preference.order)
+  } else {
+    preference.order <- colnames(x)
+  }
 
-    #selecting by preference
-    output.list <- .select_by_preference(
-      x = x,
-      preference.order = preference.order,
-      vif.threshold = vif.threshold,
-      verbose = verbose
-    )
+  #step 2: initialize with first predictor
+  selected.variables <- preference.order[1]
 
-    #if there are variables not in of preference.order
-    if (sum(preference.order %in% colnames(x)) != ncol(x)) {
-      #selecting by max vif (variables not in preference.order)
-      output.list.by.max.vif <- .select_by_max_vif(
-        x = x[, !(colnames(x) %in% preference.order)],
-        vif.threshold = vif.threshold,
-        verbose = verbose
-      )
+  #step 3: sequential evaluation
+  for (i in 2:length(preference.order)) {
+    candidate <- preference.order[i]
 
-      #merging selected.vars
-      selected.vars <- c(
-        output.list$selected.variables,
-        output.list.by.max.vif$selected.variables
-      )
+    #vif gate: compute VIF for candidate + selected
+    vif.df <- .vif_to_df(x[, c(selected.variables, candidate)])
 
-      #vif by preference again
-      output.list <- .select_by_preference(
-        x = x,
-        preference.order = selected.vars,
-        vif.threshold = vif.threshold,
-        verbose = verbose
-      )
+    if (max(vif.df$vif) <= vif.threshold) {
+      selected.variables <- c(selected.variables, candidate)
     }
   }
+
+  #step 4: build output
+  vif.df <- .vif_to_df(x[, selected.variables])
+  selected.variables.df <- x[, selected.variables, drop = FALSE]
+
+  #prepare output list
+  output.list <- list()
+  output.list$vif <- vif.df
+  output.list$selected.variables <- selected.variables
+  output.list$selected.variables.df <- selected.variables.df
 
   #message
   if (verbose == TRUE) {
@@ -190,91 +183,4 @@ auto_vif <- function(
     dplyr::arrange(dplyr::desc(vif))
 
   df
-}
-
-
-#' @export
-.select_by_max_vif <- function(x, vif.threshold, verbose) {
-  #global variables
-  vif <- variable <- NULL
-
-  #initializing selected vars
-  selected.variables <- colnames(x)
-
-  #computes vif
-  repeat {
-    #computes vif
-    vif.df <- .vif_to_df(x = x[, selected.variables])
-
-    if (max(vif.df$vif) > vif.threshold) {
-      #selects variables with vif lower than 5
-      var.to.remove <-
-        vif.df %>%
-        dplyr::filter(vif > vif.threshold) %>%
-        dplyr::filter(vif == max(vif)) %>%
-        dplyr::slice(1) %>%
-        dplyr::select(variable) %>%
-        as.character()
-
-      #updates select.cols
-      selected.variables <- selected.variables[
-        selected.variables != var.to.remove
-      ]
-    } else {
-      break
-    }
-  } #end of repeat
-
-  #final vif.df
-  vif.df <- .vif_to_df(x = x[, selected.variables])
-
-  #output list
-  output.list <- list()
-  output.list$vif <- vif.df
-  output.list$selected.variables <- selected.variables
-  output.list$selected.variables.df <- x[, selected.variables]
-
-  output.list
-}
-
-
-#' @export
-.select_by_preference <- function(
-  x,
-  preference.order,
-  vif.threshold,
-  verbose
-) {
-  #subsets to the variables already available in x
-  preference.order <- preference.order[preference.order %in% colnames(x)]
-
-  #initiating selected vars
-  selected.variables <- preference.order[1]
-
-  #iterates through preference order
-  for (i in 2:length(preference.order)) {
-    #new.var
-    new.var <- preference.order[i]
-
-    #computes vif
-    vif.df <- .vif_to_df(x = x[, c(selected.variables, new.var)])
-
-    #if vif of new.var lower than vif.threshold, keep it
-    if (max(vif.df$vif) <= vif.threshold) {
-      selected.variables <- c(selected.variables, new.var)
-    } else {
-      next
-    }
-  }
-
-  #final vif.df
-  vif.df <- .vif_to_df(x = x[, selected.variables])
-
-  #output list
-  output.list <- list()
-  output.list$vif <- vif.df[, c("variable", "vif")]
-  output.list$selected.variables <- selected.variables
-  output.list$selected.variables.df <- x[, selected.variables]
-
-  output.list
 }

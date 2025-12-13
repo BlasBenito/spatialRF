@@ -18,13 +18,13 @@ Returns model predictions from a model fitted with \code{\link[=rf]{rf()}}, \cod
 \examples{
 
 #loading example data
-data(plant_richness_df)
+data(plants_df)
 
 #fitting a random forest model
 rf.model <- rf(
-  data = plant_richness_df,
-  dependent.variable.name = "richness_species_vascular",
-  predictor.variable.names = colnames(plant_richness_df)[5:21],
+  data = plants_df,
+  dependent.variable.name = plants_response,
+  predictor.variable.names = plants_predictors,
   n.cores = 1,
   verbose = FALSE
 )

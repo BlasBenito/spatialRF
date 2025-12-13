@@ -28,20 +28,19 @@
 #'  \item `spatial.predictors.df`: data frame with the selected spatial predictors in the order of the ranking.
 #' }
 #' @examples
-#' if(interactive()){
 #'
 #'  #loading distance matrix
-#'  data(distance_matrix)
+#'  data(plants_distance)
 #'
 #'  #computing Moran's Eigenvector Maps
 #'  mem.df <- mem(
-#'   distance.matrix = distance_matrix[1:50, 1:50],
+#'   distance.matrix = plants_distance[1:50, 1:50],
 #'   distance.threshold = 0
 #'  )
 #'
 #'  #ranking by the Moran's I of the spatial predictor
 #'  rank <- rank_spatial_predictors(
-#'   distance.matrix = distance_matrix[1:50, 1:50],
+#'   distance.matrix = plants_distance[1:50, 1:50],
 #'   distance.thresholds = 0,
 #'   spatial.predictors.df = mem.df,
 #'   ranking.method = "moran",
@@ -53,7 +52,6 @@
 #'
 #'  #checking rank of MEMs
 #'  rank$ranking
-#' }
 #' @rdname rank_spatial_predictors
 #' @export
 rank_spatial_predictors <- function(

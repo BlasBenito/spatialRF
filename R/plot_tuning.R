@@ -15,17 +15,16 @@
 #' @return A ggplot.
 #' @seealso [rf_tuning()]
 #' @examples
-#' if(interactive()){
 #'
 #' #load example data
-#' data(plant_richness_df)
+#' data(plants_df)
 #'
 #' #fit random forest model
 #' rf.model <- rf(
-#'   data = plant_richness_df,
-#'   dependent.variable.name = "richness_species_vascular",
-#'   predictor.variable.names = colnames(plant_richness_df)[5:21],
-#'   distance.matrix = distance_matrix,
+#'   data = plants_df,
+#'   dependent.variable.name = plants_response,
+#'   predictor.variable.names = plants_predictors,
+#'   distance.matrix = plants_distance,
 #'   distance.thresholds = 0,
 #'   n.cores = 1,
 #'   verbose = FALSE
@@ -34,7 +33,7 @@
 #' #tune random forest model
 #' rf.model <- rf_tuning(
 #'  model = rf.model,
-#'  xy = plant_richness_df[, c("x", "y")],
+#'  xy = plants_df[, c("x", "y")],
 #'  n.cores = 1,
 #'  verbose = FALSE
 #' )
@@ -42,7 +41,6 @@
 #' #generate tuning plot
 #' plot_tuning(model = rf.model)
 #'
-#' }
 #' @rdname plot_tuning
 #' @export
 plot_tuning <- function(

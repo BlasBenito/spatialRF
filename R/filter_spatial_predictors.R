@@ -6,28 +6,25 @@
 #' @param cor.threshold Numeric between 0 and 1, maximum Pearson correlation between any pair of the selected variables. Default: `0.50`
 #' @return A data frame with non-redundant spatial predictors.
 #' @examples
-#' if(interactive()){
 #'
 #' #loading data
-#' data("distance_matrix")
-#' data("plant_richness_df")
+#' data(plants_distance)
+#' data(plants_df)
 #'
 #' #computing Moran's Eigenvector Maps
 #' spatial.predictors.df <- mem_multithreshold(
-#'   distance_matrix = distance_matrix,
+#'   distance.matrix = plants_distance,
 #'   distance.thresholds = c(0, 1000)
 #'   )
 #'
 #' #filtering spatial predictors
 #' spatial.predictors.df <- filter_spatial_predictors(
-#'   data = plant_richness_df,
-#'   predictor.variable.names = colnames(plant_richness_df)[5:21],
+#'   data = plants_df,
+#'   predictor.variable.names = plants_predictors,
 #'   spatial.predictors.df = spatial.predictors.df,
 #'   cor.threshold = 0.50
 #'  )
 #'
-#'
-#' }
 #' @rdname filter_spatial_predictors
 #' @export
 filter_spatial_predictors <- function(

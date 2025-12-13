@@ -35,18 +35,17 @@ A ggplot.
 Plots the results of an spatial cross-validation performed with \code{\link[=rf_evaluate]{rf_evaluate()}}.
 }
 \examples{
-if(interactive()){
 
 #loading example data
-data(plant_richness_df)
-data(distance_matrix)
+data(plants_df)
+data(plants_distance)
 
 #fitting a random forest model
 rf.model <- rf(
-  data = plant_richness_df,
-  dependent.variable.name = "richness_species_vascular",
-  predictor.variable.names = colnames(plant_richness_df)[5:21],
-  distance.matrix = distance_matrix,
+  data = plants_df,
+  dependent.variable.name = plants_response,
+  predictor.variable.names = plants_predictors,
+  distance.matrix = plants_distance,
   distance.thresholds = 0,
   n.cores = 1,
   verbose = FALSE
@@ -55,14 +54,16 @@ rf.model <- rf(
 #evaluating the model with spatial cross-validation
 rf.model <- rf_evaluate(
   model = rf.model,
-  xy = plant_richness_df[, c("x", "y")],
+  xy = plants_df[, c("x", "y")],
   n.cores = 1
 )
 
+if(interactive()){
 #plotting the evaluation results
 plot_evaluation(rf.model)
-
 }
+
+
 
 }
 \seealso{

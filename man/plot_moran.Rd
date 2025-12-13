@@ -37,18 +37,17 @@ A ggplot.
 Plots the results of spatial autocorrelation tests for a variety of functions within the package. The x axis represents the Moran's I estimate, the y axis contains the values of the distance thresholds, the dot sizes represent the p-values of the Moran's I estimate, and the red dashed line represents the theoretical null value of the Moran's I estimate.
 }
 \examples{
-if(interactive()){
 
  #loading example data
- data(plant_richness_df)
+ data(plants_df)
  data(distance.matrix)
 
  #fitting a random forest model
  rf.model <- rf(
-   data = plant_richness_df,
-   dependent.variable.name = "richness_species_vascular",
-   predictor.variable.names = colnames(plant_richness_df)[5:21],
-   distance.matrix = distance_matrix,
+   data = plants_df,
+   dependent.variable.name = plants_response,
+   predictor.variable.names = plants_predictors,
+   distance.matrix = plants_distance,
    distance.thresholds = c(0, 1000, 2000),
    n.cores = 1,
    verbose = FALSE
@@ -60,7 +59,6 @@ if(interactive()){
  #Moran's scatterplot
  plot_moran(rf.model, option = 2)
 
-}
 }
 \seealso{
 \code{\link[=moran]{moran()}}, \code{\link[=moran_multithreshold]{moran_multithreshold()}}

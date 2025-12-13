@@ -16,22 +16,21 @@
 #' @return A list with two slots: `optimization`, a data frame with the index of the spatial predictor added on each iteration, the spatial correlation of the model residuals, and the R-squared of the model, and `best.spatial.predictors`, that is a character vector with the names of the spatial predictors that minimize the Moran's I of the residuals and maximize the R-squared of the model.
 #' @details The algorithm works as follows: If the function [rank_spatial_predictors] returns 10 spatial predictors (sp1 to sp10, ordered from best to worst), [select_spatial_predictors_sequential] is going to fit the models `y ~ predictors + sp1`, `y ~ predictors + sp1 + sp2`, until all spatial predictors are used in `y ~ predictors + sp1 ... sp10`. The model with lower Moran's I of the residuals and higher R-squared (computed on the out-of-bag data) is selected, and its spatial predictors returned.
 #' @examples
-#' if(interactive()){
 #'
 #' #loading example data
-#' data(distance_matrix)
-#' data(plant_richness_df)
+#' data(plants_distance)
+#' data(plants_df)
 #'
 #' #common arguments
-#' dependent.variable.name = "richness_species_vascular"
-#' predictor.variable.names = colnames(plant_richness_df)[5:21]
+#' dependent.variable.name = plants_response
+#' predictor.variable.names = plants_predictors
 #'
 #' #non-spatial model
 #' model <- rf(
-#'   data = plant_richness_df,
+#'   data = plants_df,
 #'   dependent.variable.name = dependent.variable.name,
 #'   predictor.variable.names = predictor.variable.names,
-#'   distance.matrix = distance_matrix,
+#'   distance.matrix = plants_distance,
 #'   distance.thresholds = 0,
 #'   n.cores = 1
 #' )
@@ -54,10 +53,10 @@
 #'
 #' #selecting the best subset of predictors
 #' selection <- select_spatial_predictors_sequential(
-#'   data = plant_richness_df,
+#'   data = plants_df,
 #'   dependent.variable.name = dependent.variable.name,
 #'   predictor.variable.names = predictor.variable.names,
-#'   distance.matrix = distance_matrix,
+#'   distance.matrix = plants_distance,
 #'   distance.thresholds = 0,
 #'   spatial.predictors.df = spatial.predictors,
 #'   spatial.predictors.ranking = spatial.predictors.ranking,
@@ -68,7 +67,6 @@
 #' selection$best.spatial.predictors
 #' plot_optimization(selection$optimization)
 #'
-#' }
 #' @rdname select_spatial_predictors_sequential
 #' @export
 select_spatial_predictors_sequential <- function(

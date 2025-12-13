@@ -5,9 +5,9 @@
 #' @seealso [auto_vif()], [auto_cor()]
 #' @examples
 #'
-#'  data(plant_richness_df)
+#'  data(plants_df)
 #'
-#'  vif(plant_richness_df[, 5:21])
+#'  vif(plants_df[, 5:21])
 #'
 #' @rdname vif
 #' @importFrom tibble rownames_to_column

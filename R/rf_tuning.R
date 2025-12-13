@@ -14,18 +14,17 @@
 #' @return A model with a new slot named `tuning`, with a data frame with the results of the tuning analysis.
 #' @seealso [rf_evaluate()]
 #' @examples
-#' if(interactive()){
 #'
 #' #loading example data
-#' data(plant_richness_df)
-#' data(distance_matrix)
+#' data(plants_df)
+#' data(plants_distance)
 #'
 #' #fitting model to tune
 #' out <- rf(
-#'   data = plant_richness_df,
-#'   dependent.variable.name = "richness_species_vascular",
-#'   predictor.variable.names = colnames(plant_richness_df)[5:21],
-#'   distance.matrix = distance_matrix,
+#'   data = plants_df,
+#'   dependent.variable.name = plants_response,
+#'   predictor.variable.names = plants_predictors,
+#'   distance.matrix = plants_distance,
 #'   distance.thresholds = 0,
 #'   n.cores = 1
 #' )
@@ -36,11 +35,10 @@
 #'   num.trees = c(100, 500),
 #'   mtry = c(2, 8),
 #'   min.node.size = c(5, 10),
-#'   xy = plant_richness_df[, c("x", "y")],
+#'   xy = plants_df[, c("x", "y")],
 #'   n.cores = 1
 #' )
 #'
-#' }
 #' @importFrom rlang sym
 #' @rdname rf_tuning
 #' @export

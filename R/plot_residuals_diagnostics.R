@@ -9,25 +9,23 @@
 #' @param verbose Logical, if `TRUE`, the resulting plot is printed, Default: `TRUE`
 #' @return A patchwork object.
 #' @examples
-#' if(interactive()){
 #'
 #'  #load example data
-#'  data(plant_richness_df)
-#'  data(distance_matrix)
+#'  data(plants_df)
+#'  data(plants_distance)
 #'
 #'  #fit a random forest model
 #'  x <- rf(
-#'    data = plant_richness_df,
-#'    dependent.variable.name = "richness_species_vascular",
-#'    predictor.variable.names = colnames(plant_richness_df)[5:21],
-#'    distance.matrix = distance_matrix,
+#'    data = plants_df,
+#'    dependent.variable.name = plants_response,
+#'    predictor.variable.names = plants_predictors,
+#'    distance.matrix = plants_distance,
 #'    n.cores = 1
 #'  )
 #'
 #'  #residuals diagnostics
 #'  plot_residuals_diagnostics(x)
 #'
-#' }
 #' @rdname plot_residuals_diagnostics
 #' @importFrom ggplot2 stat_qq stat_qq_line geom_histogram element_text
 #' @importFrom patchwork plot_annotation

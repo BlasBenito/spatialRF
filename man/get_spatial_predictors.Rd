@@ -16,18 +16,17 @@ A data frame with the spatial predictors included in the model.
 Returns spatial predictors from a model fitted with \code{\link[=rf_spatial]{rf_spatial()}} in order of importance.
 }
 \examples{
-if(interactive()){
 
  #loading example data
- data(distance_matrix)
- data(plant_richness_df)
+ data(plants_distance)
+ data(plants_df)
 
  #fittind spatial model
  model <- rf_spatial(
-   data = plant_richness_df,
-   dependent.variable.name = "richness_species_vascular",
-   predictor.variable.names = colnames(plant_richness_df)[5:21],
-   distance.matrix = distance_matrix,
+   data = plants_df,
+   dependent.variable.name = plants_response,
+   predictor.variable.names = plants_predictors,
+   distance.matrix = plants_distance,
    distance.thresholds = c(0, 1000),
    n.cores = 1,
    method = "mem.moran.sequential"
@@ -37,5 +36,4 @@ if(interactive()){
 spatial.predictors <- get_spatial_predictors(model)
 head(spatial.predictors)
 
-}
 }

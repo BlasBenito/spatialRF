@@ -22,13 +22,13 @@
 #' @examples
 #'
 #'  #loading example data
-#'  data(distance_matrix)
-#'  data(plant_richness)
+#'  data(plants_distance)
+#'  data(plants_df)
 #'
 #'  #Moran's I of the response variable
 #'  out <- moran(
-#'    x = plant_richness$richness_species_vascular,
-#'    distance.matrix = distance_matrix
+#'    x = plants_df$richness_species_vascular,
+#'    distance.matrix = plants_distance
 #'    )
 #'  out
 #'
@@ -57,7 +57,7 @@ moran <- function(
   }
 
   #extracting weights from distance matrix
-  x.distance.weights <- weights_from_distance_matrix(
+  x.distance.weights <- weights_from_plants_distance(
     distance.matrix = distance.matrix,
     distance.threshold = distance.threshold
   )

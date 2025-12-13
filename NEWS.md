@@ -18,6 +18,8 @@
 
 - Function `rf_spatial()` now fits a spatial model even when that's not necessary.
 
+- Simplified `auto_cor()` and `auto_vif()` with unified sequential evaluation algorithm that better preserves user preference order.
+
 ## Version 1.1.4 (19/08/2022)
 
 Re-submission, fixes CRAN checks arising from invalid links.

@@ -1,6 +1,6 @@
 test_that("`auto_cor()` works", {
-  data(plant_richness_df)
-  out <- auto_cor(x = plant_richness_df[, 5:21])
+  data(plants_df)
+  out <- auto_cor(x = plants_df[, 5:21])
   expect_type(out, "list")
   expect_length(out, 3)
   expect_equal(ncol(out$cor), length(out$selected.variables))

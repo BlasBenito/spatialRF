@@ -16,19 +16,18 @@
 #' @param cluster A cluster definition generated with `parallel::makeCluster()`. If provided, overrides `n.cores`. When `cluster = NULL` (default value), and `model` is provided, the cluster in `model`, if any, is used instead. If this cluster is `NULL`, then the function uses `n.cores` instead. The function does not stop a provided cluster, so it should be stopped with `parallel::stopCluster()` afterwards. The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the `model` argument, or using the `%>%` pipe. Default: `NULL`
 #' @return The input model with new data in its "importance" slot. The new importance scores are included in the data frame `model$importance$per.variable`, under the column names "importance.cv" (median contribution to transferability over spatial cross-validation repetitions), "importance.cv.mad" (median absolute deviation of the performance scores over spatial cross-validation repetitions), "importance.cv.percent" ("importance.cv" expressed as a percent, taking the full model's performance as baseline), and "importance.cv.mad" (median absolute deviation of "importance.cv"). The plot is stored as "cv.per.variable.plot".
 #' @examples
-#' if(interactive()){
 #'
 #' #loading example data
-#' data(plant_richness_df)
-#' data(distance_matrix)
-#' xy <- plant_richness_df[, c("x", "y")]
+#' data(plants_df)
+#' data(plants_distance)
+#' xy <- plants_df[, c("x", "y")]
 #'
 #' #fitting random forest model
 #' rf.model <- rf(
-#'   data = plant_richness_df,
-#'   dependent.variable.name = "richness_species_vascular",
-#'   predictor.variable.names = colnames(plant_richness_df)[5:21],
-#'   distance.matrix = distance_matrix,
+#'   data = plants_df,
+#'   dependent.variable.name = plants_response,
+#'   predictor.variable.names = plants_predictors,
+#'   distance.matrix = plants_distance,
 #'   distance.thresholds = 0,
 #'   xy = xy,
 #'   n.cores = 1,
@@ -38,7 +37,6 @@
 #' #computing predictor contribution to model transferability
 #' rf.model <- rf_importance(rf.model)
 #'
-#' }
 #'
 #' @rdname rf_importance
 #' @export

@@ -29,23 +29,30 @@ List with three slots:
 }
 }
 \description{
-Selects predictors that are not linear combinations of other predictors by using computing their variance inflation factors (VIF). Allows the user to define an order of preference for the selection of predictors. \strong{Warning}: variables in \code{preference.order} not in \code{colnames(x)}, and non-numeric columns are removed silently from \code{x} and \code{preference.order}. The same happens with rows having NA values (\code{\link[=na.omit]{na.omit()}} is applied). The function issues a warning if zero-variance columns are found.
+Filters predictors using sequential evaluation of variance inflation factors. Predictors are ranked by user preference (or column order), and evaluated sequentially. Each candidate is added to the selected pool only if the maximum VIF of all predictors (candidate plus already-selected) does not exceed the threshold. \strong{Warning}: variables in \code{preference.order} not in \code{colnames(x)}, and non-numeric columns are removed silently from \code{x} and \code{preference.order}. The same happens with rows having NA values (\code{\link[=na.omit]{na.omit()}} is applied). The function issues a warning if zero-variance columns are found.
 }
 \details{
-This function has two modes of operation:
+The algorithm follows these steps:
+\enumerate{
+\item Rank predictors by \code{preference.order} (or use column order if NULL)
+\item Initialize selection pool with first predictor
+\item For each remaining candidate:
 \itemize{
-\item 1. When the argument \code{preference.order} is \code{NULL}, the function removes on each iteration the variable with the highest VIF until all VIF values are lower than \code{vif.threshold}.
-\item 2. When \code{preference.order} is provided, the variables are selected by giving them priority according to their order in \code{preference.order}. If there are variables not in \code{preference.order}, these are selected as in option 1. Once both groups of variables have been processed, all variables are put together and selected by giving priority to the ones in \code{preference.order}. This method preserves the variables desired by the user as much as possible.
+\item Compute VIF for candidate plus all selected predictors
+\item If max VIF ≤ \code{vif.threshold}, add candidate to selected pool
+\item Otherwise, skip candidate
+}
+\item Return selected predictors with their VIF values
 }
 Can be chained together with \code{\link[=auto_cor]{auto_cor()}} through pipes, see the examples below.
 }
 \examples{
 
 #loading data
-data(plant_richness_df)
+data(plants_df)
 
 #on a data frame
-out <- auto_vif(x = plant_richness_df[, 5:21])
+out <- auto_vif(x = plants_df[, 5:21])
 
 #getting out the vif data frame
 out$vif
@@ -57,11 +64,11 @@ out$selected.variables
 out$selected.variables.df
 
 #on the result of auto_cor
-out <- auto_cor(x = plant_richness_df[, 5:21])
+out <- auto_cor(x = plants_df[, 5:21])
 out <- auto_vif(x = out)
 
 #with pipes
-out <- plant_richness_df[, 5:21] \%>\%
+out <- plants_df[, 5:21] \%>\%
  auto_cor() \%>\%
  auto_vif()
 

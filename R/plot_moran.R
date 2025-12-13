@@ -22,18 +22,17 @@
 #' @return A ggplot.
 #' @seealso [moran()], [moran_multithreshold()]
 #' @examples
-#' if(interactive()){
 #'
 #'  #loading example data
-#'  data(plant_richness_df)
+#'  data(plants_df)
 #'  data(distance.matrix)
 #'
 #'  #fitting a random forest model
 #'  rf.model <- rf(
-#'    data = plant_richness_df,
-#'    dependent.variable.name = "richness_species_vascular",
-#'    predictor.variable.names = colnames(plant_richness_df)[5:21],
-#'    distance.matrix = distance_matrix,
+#'    data = plants_df,
+#'    dependent.variable.name = plants_response,
+#'    predictor.variable.names = plants_predictors,
+#'    distance.matrix = plants_distance,
 #'    distance.thresholds = c(0, 1000, 2000),
 #'    n.cores = 1,
 #'    verbose = FALSE
@@ -45,7 +44,6 @@
 #'  #Moran's scatterplot
 #'  plot_moran(rf.model, option = 2)
 #'
-#' }
 #' @rdname plot_moran
 #' @export
 #' @importFrom ggplot2 ggplot aes geom_hline geom_point geom_line xlab ylab ggtitle theme labs scale_colour_manual
@@ -220,7 +218,7 @@ plot_moran <- function(
     loop.out <- foreach::foreach(distance.threshold = distance.thresholds) %do%
       {
         #matrix of weights
-        distance.weights <- weights_from_distance_matrix(
+        distance.weights <- weights_from_plants_distance(
           distance.matrix = distance.matrix,
           distance.threshold = distance.threshold
         )

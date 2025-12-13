@@ -24,18 +24,17 @@ Prints a table in the console using the \link[huxtable]{huxtable} package.
 Prints the results of a Moran's I test on the residuals of a model.
 }
 \examples{
-if(interactive()){
 
  #loading example data
- data(plant_richness_df)
+ data(plants_df)
  data(distance.matrix)
 
  #fitting random forest model
  rf.model <- rf(
-   data = plant_richness_df,
-   dependent.variable.name = "richness_species_vascular",
-   predictor.variable.names = colnames(plant_richness_df)[5:21],
-   distance.matrix = distance_matrix,
+   data = plants_df,
+   dependent.variable.name = plants_response,
+   predictor.variable.names = plants_predictors,
+   distance.matrix = plants_distance,
    distance.thresholds = c(0, 1000, 2000),
    n.cores = 1,
    verbose = FALSE
@@ -44,7 +43,6 @@ if(interactive()){
  #printing Moran's I of model's residuals
  print_moran(rf.model)
 
-}
 }
 \seealso{
 \code{\link[=moran]{moran()}}, \code{\link[=moran_multithreshold]{moran_multithreshold()}}, \code{\link[=get_moran]{get_moran()}}, \code{\link[=plot_moran]{plot_moran()}}

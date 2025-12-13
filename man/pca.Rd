@@ -26,10 +26,10 @@ Columns in \code{x} with zero variance are removed before computing the PCA.
 \examples{
 
  #load example distance matrix
- data(distance_matrix)
+ data(plants_distance)
 
  #PCA of the distance matrix
- out <- pca(x = distance_matrix)
+ out <- pca(x = plants_distance)
  out
 
 }

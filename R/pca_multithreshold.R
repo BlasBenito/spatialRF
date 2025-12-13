@@ -4,16 +4,16 @@
 #' @param distance.thresholds Numeric vector with distance thresholds defining neighborhood in the distance matrix, Default: `0`
 #' @param max.spatial.predictors Integer, maximum number of spatial predictors to generate. Only useful when the distance matrix `x` is very large. Default: `NULL`
 #' @return A data frame with the PCA factors of the thresholded matrix. The data frame columns are named "spatial_predictor_DISTANCE_COLUMN", where DISTANCE is the given distance threshold, and COLUMN is the column index of the given predictor.
-#' @details The distance matrix is converted into weights with [weights_from_distance_matrix()] before computing the PCA. This produces more meaningful spatial predictors than using the distance matrix as is.
+#' @details The distance matrix is converted into weights with [weights_from_plants_distance()] before computing the PCA. This produces more meaningful spatial predictors than using the distance matrix as is.
 #' @seealso [pca()]
 #' @examples
 #'
 #'  #loading example distance matrix
-#'  load(distance_matrix)
+#'  load(plants_distance)
 #'
 #'  #PCA factors of the distance matrix for two reference distances
 #'  x <- pca_multithreshold(
-#'    distance.matrix = distance_matrix,
+#'    distance.matrix = plants_distance,
 #'    distance.thresholds = c(0, 1000)
 #'    )
 #'  head(x)
@@ -43,7 +43,7 @@ pca_multithreshold <- function(
   #iterating through distance thresholds
   for (distance.threshold.i in distance.thresholds) {
     #computing weighted distance matrix
-    x.i <- weights_from_distance_matrix(
+    x.i <- weights_from_plants_distance(
       distance.matrix = distance.matrix,
       distance.threshold = distance.threshold.i
     )

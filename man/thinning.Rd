@@ -23,11 +23,11 @@ Generally used to remove redundant points that could produce pseudo-replication,
 \examples{
 
  #load example data
- data(plant_richness_df)
+ data(plants_df)
 
  #thinning to points separated by 5 degrees
  plant_richness.thin <- thinning(
-   x = plant_richness_df,
+   x = plants_df,
    minimum.distance = 5 #points separated by at least 5 degrees
    )
 

@@ -1,0 +1,15 @@
+title: spatialRF
+home:
+  title: "spatialRF: Easy Spatial Regression with Random Forest"
+url: https://blasbenito.github.io/spatialRF/
+template:
+  bootstrap: 5
+  fonts:
+    heading: Montserrat
+    body: Montserrat
+  includes:
+    in_header: |
+      <link rel="stylesheet" href="extra.css"
+authors:
+  Blas M. Benito:
+    href: https://blasbenito.com

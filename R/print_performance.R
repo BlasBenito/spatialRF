@@ -4,18 +4,17 @@
 #' @return Prints model performance scores to the console.
 #' @seealso [print_performance()], [get_performance()]
 #' @examples
-#' if(interactive()){
 #'
 #'  #loading example data
-#'  data(plant_richness_df)
+#'  data(plants_df)
 #'  data(distance.matrix)
 #'
 #'  #fitting a random forest model
 #'  rf.model <- rf(
-#'    data = plant_richness_df,
-#'    dependent.variable.name = "richness_species_vascular",
-#'    predictor.variable.names = colnames(plant_richness_df)[5:21],
-#'    distance.matrix = distance_matrix,
+#'    data = plants_df,
+#'    dependent.variable.name = plants_response,
+#'    predictor.variable.names = plants_predictors,
+#'    distance.matrix = plants_distance,
 #'    distance.thresholds = 0,
 #'    n.cores = 1,
 #'    verbose = FALSE
@@ -24,7 +23,6 @@
 #'  #printing performance scores
 #'  print_performance(rf.model)
 #'
-#' }
 #' @rdname print_performance
 #' @export
 print_performance <- function(model) {

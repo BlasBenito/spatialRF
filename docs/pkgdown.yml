@@ -2,5 +2,8 @@ pandoc: '3.4'
 pkgdown: 2.0.7
 pkgdown_sha: ~
 articles: {}
-last_built: 2025-12-09T17:24Z
+last_built: 2025-12-13T07:19Z
+urls:
+  reference: https://blasbenito.github.io/spatialRF/reference
+  article: https://blasbenito.github.io/spatialRF/articles
 

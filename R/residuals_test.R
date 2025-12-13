@@ -9,14 +9,9 @@
 #'  /item `plot` A patchwork plot with the qq plot and the histogram of x.
 #' }
 #' @examples
-#' if(interactive()){
 #'
 #'  residuals_test(residuals = runif(100))
 #'
-#' }
-#' @seealso
-#'  \code{\link[ggplot2]{ggplot}},\code{\link[ggplot2]{aes}},\code{\link[ggplot2]{geom_qq_line}},\code{\link[ggplot2]{ggtheme}},\code{\link[ggplot2]{labs}},\code{\link[ggplot2]{geom_freqpoly}},\code{\link[ggplot2]{geom_abline}}
-#'  \code{\link[patchwork]{plot_annotation}}
 #' @rdname normality
 #' @export
 #' @importFrom stats shapiro.test IQR

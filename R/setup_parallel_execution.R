@@ -9,8 +9,7 @@
 #'     \item mode: One of "user_backend", "external_cluster", "internal_cluster", "sequential"
 #'     \item cleanup: A function to call in on.exit() for proper cleanup
 #'   }
-#' @keywords internal
-#' @noRd
+#' @export
 setup_parallel_execution <- function(
   cluster = NULL,
   n.cores = parallel::detectCores() - 1

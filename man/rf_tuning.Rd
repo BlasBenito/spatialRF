@@ -48,18 +48,17 @@ A model with a new slot named \code{tuning}, with a data frame with the results 
 Finds the optimal set of random forest hyperparameters \code{num.trees}, \code{mtry}, and \code{min.node.size} via grid search by maximizing the model's R squared, or AUC, if the response variable is binomial, via spatial cross-validation performed with \code{\link[=rf_evaluate]{rf_evaluate()}}.
 }
 \examples{
-if(interactive()){
 
 #loading example data
-data(plant_richness_df)
-data(distance_matrix)
+data(plants_df)
+data(plants_distance)
 
 #fitting model to tune
 out <- rf(
-  data = plant_richness_df,
-  dependent.variable.name = "richness_species_vascular",
-  predictor.variable.names = colnames(plant_richness_df)[5:21],
-  distance.matrix = distance_matrix,
+  data = plants_df,
+  dependent.variable.name = plants_response,
+  predictor.variable.names = plants_predictors,
+  distance.matrix = plants_distance,
   distance.thresholds = 0,
   n.cores = 1
 )
@@ -70,11 +69,10 @@ tuning <- rf_tuning(
   num.trees = c(100, 500),
   mtry = c(2, 8),
   min.node.size = c(5, 10),
-  xy = plant_richness_df[, c("x", "y")],
+  xy = plants_df[, c("x", "y")],
   n.cores = 1
 )
 
-}
 }
 \seealso{
 \code{\link[=rf_evaluate]{rf_evaluate()}}

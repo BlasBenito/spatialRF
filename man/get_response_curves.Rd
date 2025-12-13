@@ -41,16 +41,15 @@ Generates and returns the data required to plot the response curves of a model f
 All variables that are not plotted in a particular response curve are set to the values of their respective quantiles, and the response curve for each one of these quantiles is shown in the plot.
 }
 \examples{
-if(interactive()){
 
 #loading example data
-data(plant_richness_df)
+data(plants_df)
 
 #fitting random forest model
 out <- rf(
- data = plant_richness_df,
- dependent.variable.name = "richness_species_vascular",
- predictor.variable.names = colnames(plant_richness_df)[5:21],
+ data = plants_df,
+ dependent.variable.name = plants_response,
+ predictor.variable.names = plants_predictors,
  n.cores = 1,
  verbose = FALSE
 )
@@ -59,7 +58,6 @@ out <- rf(
 p <- get_response_curves(out)
 head(p)
 
-}
 }
 \seealso{
 \code{\link[=plot_response_curves]{plot_response_curves()}}

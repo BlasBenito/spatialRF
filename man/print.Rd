@@ -18,25 +18,24 @@ Prints model details to the console.
 Custom print method for models fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, and \code{\link[=rf_spatial]{rf_spatial()}}.
 }
 \examples{
-if(interactive()){
 
  #loading example data
- data("plant_richness_df")
- data("distance_matrix")
+ data(plants_df)
+ data(plants_distance)
 
  #fitting random forest model
  rf.model <- rf(
-   data = plant_richness_df,
-   dependent.variable.name = "richness_species_vascular",
-   predictor.variable.names = colnames(plant_richness_df)[5:21],
-   distance.matrix = distance_matrix,
+   data = plants_df,
+   dependent.variable.name = plants_response,
+   predictor.variable.names = plants_predictors,
+   distance.matrix = plants_distance,
    distance.thresholds = 0,
    n.cores = 1
  )
 
  #printing model summary
  print(rf.model)
-}
+
 }
 \seealso{
 \code{\link[=print_evaluation]{print_evaluation()}}, \code{\link[=print_importance]{print_importance()}}, \code{\link[=print_moran]{print_moran()}}, \code{\link[=print_performance]{print_performance()}}

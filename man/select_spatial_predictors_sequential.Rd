@@ -57,22 +57,21 @@ Selects spatial predictors by adding them sequentially into a model while monito
 The algorithm works as follows: If the function \link{rank_spatial_predictors} returns 10 spatial predictors (sp1 to sp10, ordered from best to worst), \link{select_spatial_predictors_sequential} is going to fit the models \code{y ~ predictors + sp1}, \code{y ~ predictors + sp1 + sp2}, until all spatial predictors are used in \verb{y ~ predictors + sp1 ... sp10}. The model with lower Moran's I of the residuals and higher R-squared (computed on the out-of-bag data) is selected, and its spatial predictors returned.
 }
 \examples{
-if(interactive()){
 
 #loading example data
-data(distance_matrix)
-data(plant_richness_df)
+data(plants_distance)
+data(plants_df)
 
 #common arguments
-dependent.variable.name = "richness_species_vascular"
-predictor.variable.names = colnames(plant_richness_df)[5:21]
+dependent.variable.name = plants_response
+predictor.variable.names = plants_predictors
 
 #non-spatial model
 model <- rf(
-  data = plant_richness_df,
+  data = plants_df,
   dependent.variable.name = dependent.variable.name,
   predictor.variable.names = predictor.variable.names,
-  distance.matrix = distance_matrix,
+  distance.matrix = plants_distance,
   distance.thresholds = 0,
   n.cores = 1
 )
@@ -94,10 +93,10 @@ spatial.predictors.ranking <- rank_spatial_predictors(
 
 #selecting the best subset of predictors
 selection <- select_spatial_predictors_sequential(
-  data = plant_richness_df,
+  data = plants_df,
   dependent.variable.name = dependent.variable.name,
   predictor.variable.names = predictor.variable.names,
-  distance.matrix = distance_matrix,
+  distance.matrix = plants_distance,
   distance.thresholds = 0,
   spatial.predictors.df = spatial.predictors,
   spatial.predictors.ranking = spatial.predictors.ranking,
@@ -108,5 +107,4 @@ selection$optimization
 selection$best.spatial.predictors
 plot_optimization(selection$optimization)
 
-}
 }

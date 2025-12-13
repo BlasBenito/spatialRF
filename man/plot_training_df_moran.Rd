@@ -36,18 +36,17 @@ A ggplot2 object.
 Plots the the Moran's I test of the response and the predictors in a training data frame.
 }
 \examples{
-if(interactive()){
 
    #load example data
-   data(plant_richness_df)
-   data(distance_matrix)
+   data(plants_df)
+   data(plants_distance)
 
    #plot Moran's I of training data
    plot_moran_training_data(
-     data = plant_richness_df,
-     dependent.variable.name = "richness_species_vascular",
-     predictor.variable.names = colnames(plant_richness_df)[5:21],
-     distance.matrix = distance_matrix,
+     data = plants_df,
+     dependent.variable.name = plants_response,
+     predictor.variable.names = plants_predictors,
+     distance.matrix = plants_distance,
      distance.thresholds = c(
        0,
        2000,
@@ -56,5 +55,4 @@ if(interactive()){
        8000
        )
      )
-}
 }

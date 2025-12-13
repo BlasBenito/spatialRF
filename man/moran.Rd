@@ -37,13 +37,13 @@ Inspired in the \code{Moran.I()} function of the \href{https://cran.r-project.or
 \examples{
 
  #loading example data
- data(distance_matrix)
- data(plant_richness)
+ data(plants_distance)
+ data(plants_df)
 
  #Moran's I of the response variable
  out <- moran(
-   x = plant_richness$richness_species_vascular,
-   distance.matrix = distance_matrix
+   x = plants_df$richness_species_vascular,
+   distance.matrix = plants_distance
    )
  out
 

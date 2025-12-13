@@ -1,237 +1,249 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>/404.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/404.html</loc>
   </url>
   <url>
-    <loc>/LICENSE.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/CLAUDE.html</loc>
   </url>
   <url>
-    <loc>/authors.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/LICENSE.html</loc>
   </url>
   <url>
-    <loc>/index.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/TODO.html</loc>
   </url>
   <url>
-    <loc>/news/index.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/authors.html</loc>
   </url>
   <url>
-    <loc>/reference/aggregate_importance.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/index.html</loc>
   </url>
   <url>
-    <loc>/reference/auc.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/news/index.html</loc>
   </url>
   <url>
-    <loc>/reference/auto_cor.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/aggregate_importance.html</loc>
   </url>
   <url>
-    <loc>/reference/auto_vif.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/auc.html</loc>
   </url>
   <url>
-    <loc>/reference/beowulf_cluster.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/auto_cor.html</loc>
   </url>
   <url>
-    <loc>/reference/case_weights.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/auto_vif.html</loc>
   </url>
   <url>
-    <loc>/reference/cluster_specification.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/beowulf_cluster.html</loc>
   </url>
   <url>
-    <loc>/reference/default_distance_thresholds.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/case_weights.html</loc>
   </url>
   <url>
-    <loc>/reference/distance_matrix.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/cluster_specification.html</loc>
   </url>
   <url>
-    <loc>/reference/double_center_distance_matrix.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/default_distance_thresholds.html</loc>
   </url>
   <url>
-    <loc>/reference/filter_spatial_predictors.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/distance_matrix.html</loc>
   </url>
   <url>
-    <loc>/reference/get_evaluation.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/double_center_distance_matrix.html</loc>
   </url>
   <url>
-    <loc>/reference/get_importance.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/filter_spatial_predictors.html</loc>
   </url>
   <url>
-    <loc>/reference/get_importance_local.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/get_evaluation.html</loc>
   </url>
   <url>
-    <loc>/reference/get_moran.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/get_importance.html</loc>
   </url>
   <url>
-    <loc>/reference/get_performance.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/get_importance_local.html</loc>
   </url>
   <url>
-    <loc>/reference/get_predictions.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/get_moran.html</loc>
   </url>
   <url>
-    <loc>/reference/get_residuals.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/get_performance.html</loc>
   </url>
   <url>
-    <loc>/reference/get_response_curves.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/get_predictions.html</loc>
   </url>
   <url>
-    <loc>/reference/get_spatial_predictors.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/get_residuals.html</loc>
   </url>
   <url>
-    <loc>/reference/index.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/get_response_curves.html</loc>
   </url>
   <url>
-    <loc>/reference/is_binary.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/get_spatial_predictors.html</loc>
   </url>
   <url>
-    <loc>/reference/make_spatial_fold.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/index.html</loc>
   </url>
   <url>
-    <loc>/reference/make_spatial_folds.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/is_binary.html</loc>
   </url>
   <url>
-    <loc>/reference/mem.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/make_spatial_fold.html</loc>
   </url>
   <url>
-    <loc>/reference/mem_multithreshold.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/make_spatial_folds.html</loc>
   </url>
   <url>
-    <loc>/reference/moran.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/mem.html</loc>
   </url>
   <url>
-    <loc>/reference/moran_multithreshold.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/mem_multithreshold.html</loc>
   </url>
   <url>
-    <loc>/reference/normality.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/moran.html</loc>
   </url>
   <url>
-    <loc>/reference/objects_size.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/moran_multithreshold.html</loc>
   </url>
   <url>
-    <loc>/reference/optimization_function.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/normality.html</loc>
   </url>
   <url>
-    <loc>/reference/pca.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/objects_size.html</loc>
   </url>
   <url>
-    <loc>/reference/pca_multithreshold.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/optimization_function.html</loc>
   </url>
   <url>
-    <loc>/reference/plant_richness_df.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/pca.html</loc>
   </url>
   <url>
-    <loc>/reference/plot_evaluation.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/pca_multithreshold.html</loc>
   </url>
   <url>
-    <loc>/reference/plot_importance.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/pipe.html</loc>
   </url>
   <url>
-    <loc>/reference/plot_moran.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/plant_richness_df.html</loc>
   </url>
   <url>
-    <loc>/reference/plot_optimization.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/plot_evaluation.html</loc>
   </url>
   <url>
-    <loc>/reference/plot_residuals_diagnostics.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/plot_importance.html</loc>
   </url>
   <url>
-    <loc>/reference/plot_response_curves.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/plot_moran.html</loc>
   </url>
   <url>
-    <loc>/reference/plot_response_surface.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/plot_optimization.html</loc>
   </url>
   <url>
-    <loc>/reference/plot_response_surfaces.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/plot_residuals_diagnostics.html</loc>
   </url>
   <url>
-    <loc>/reference/plot_training_df.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/plot_response_curves.html</loc>
   </url>
   <url>
-    <loc>/reference/plot_training_df_moran.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/plot_response_surface.html</loc>
   </url>
   <url>
-    <loc>/reference/plot_tuning.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/plot_response_surfaces.html</loc>
   </url>
   <url>
-    <loc>/reference/prepare_importance_spatial.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/plot_training_df.html</loc>
   </url>
   <url>
-    <loc>/reference/print.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/plot_training_df_moran.html</loc>
   </url>
   <url>
-    <loc>/reference/print_evaluation.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/plot_tuning.html</loc>
   </url>
   <url>
-    <loc>/reference/print_importance.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/prepare_importance_spatial.html</loc>
   </url>
   <url>
-    <loc>/reference/print_moran.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/print.html</loc>
   </url>
   <url>
-    <loc>/reference/print_performance.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/print_evaluation.html</loc>
   </url>
   <url>
-    <loc>/reference/rank_spatial_predictors.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/print_importance.html</loc>
   </url>
   <url>
-    <loc>/reference/rescale_vector.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/print_moran.html</loc>
   </url>
   <url>
-    <loc>/reference/residuals_diagnostics.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/print_performance.html</loc>
   </url>
   <url>
-    <loc>/reference/rf.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/rank_spatial_predictors.html</loc>
   </url>
   <url>
-    <loc>/reference/rf_compare.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/rescale_vector.html</loc>
   </url>
   <url>
-    <loc>/reference/rf_evaluate.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/residuals_diagnostics.html</loc>
   </url>
   <url>
-    <loc>/reference/rf_importance.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/rf.html</loc>
   </url>
   <url>
-    <loc>/reference/rf_interactions.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/rf_compare.html</loc>
   </url>
   <url>
-    <loc>/reference/rf_repeat.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/rf_evaluate.html</loc>
   </url>
   <url>
-    <loc>/reference/rf_spatial.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/rf_importance.html</loc>
   </url>
   <url>
-    <loc>/reference/rf_tuning.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/rf_interactions.html</loc>
   </url>
   <url>
-    <loc>/reference/root_mean_squared_error.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/rf_repeat.html</loc>
   </url>
   <url>
-    <loc>/reference/scale_robust.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/rf_spatial.html</loc>
   </url>
   <url>
-    <loc>/reference/select_spatial_predictors_recursive.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/rf_tuning.html</loc>
   </url>
   <url>
-    <loc>/reference/select_spatial_predictors_sequential.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/root_mean_squared_error.html</loc>
   </url>
   <url>
-    <loc>/reference/standard_error.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/scale_robust.html</loc>
   </url>
   <url>
-    <loc>/reference/statistical_mode.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/select_spatial_predictors_recursive.html</loc>
   </url>
   <url>
-    <loc>/reference/the_feature_engineer.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/select_spatial_predictors_sequential.html</loc>
   </url>
   <url>
-    <loc>/reference/thinning.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/setup_parallel_execution.html</loc>
   </url>
   <url>
-    <loc>/reference/thinning_til_n.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/standard_error.html</loc>
   </url>
   <url>
-    <loc>/reference/vif.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/statistical_mode.html</loc>
   </url>
   <url>
-    <loc>/reference/weights_from_distance_matrix.html</loc>
+    <loc>https://blasbenito.github.io/spatialRF/reference/the_feature_engineer.html</loc>
+  </url>
+  <url>
+    <loc>https://blasbenito.github.io/spatialRF/reference/thinning.html</loc>
+  </url>
+  <url>
+    <loc>https://blasbenito.github.io/spatialRF/reference/thinning_til_n.html</loc>
+  </url>
+  <url>
+    <loc>https://blasbenito.github.io/spatialRF/reference/vif.html</loc>
+  </url>
+  <url>
+    <loc>https://blasbenito.github.io/spatialRF/reference/weights_from_distance_matrix.html</loc>
   </url>
 </urlset>

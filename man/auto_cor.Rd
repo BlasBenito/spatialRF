@@ -29,18 +29,30 @@ List with three slots:
 }
 }
 \description{
-Computes the correlation matrix among a set of predictors, orders the correlation matrix according to a user-defined preference order, and removes variables one by one, taking into account the preference order, until the remaining ones are below a given Pearson correlation threshold. \strong{Warning}: variables in \code{preference.order} not in \code{colnames(x)}, and non-numeric columns are removed silently from \code{x} and \code{preference.order}. The same happens with rows having NA values (\code{\link[=na.omit]{na.omit()}} is applied). The function issues a warning if zero-variance columns are found.
+Filters predictors using sequential evaluation of pairwise correlations. Predictors are ranked by user preference (or column order), and evaluated sequentially. Each candidate is added to the selected pool only if its maximum absolute correlation with already-selected predictors does not exceed the threshold. \strong{Warning}: variables in \code{preference.order} not in \code{colnames(x)}, and non-numeric columns are removed silently from \code{x} and \code{preference.order}. The same happens with rows having NA values (\code{\link[=na.omit]{na.omit()}} is applied). The function issues a warning if zero-variance columns are found.
 }
 \details{
+The algorithm follows these steps:
+\enumerate{
+\item Rank predictors by \code{preference.order} (or use column order if NULL)
+\item Initialize selection pool with first predictor
+\item For each remaining candidate:
+\itemize{
+\item Compute maximum absolute correlation with selected predictors
+\item If max correlation ≤ \code{cor.threshold}, add to selected pool
+\item Otherwise, skip candidate
+}
+\item Return selected predictors
+}
 Can be chained together with \code{\link[=auto_vif]{auto_vif()}} through pipes, see the examples below.
 }
 \examples{
 
  #load data
- data(plant_richness_df)
+ data(plants_df)
 
  #on a data frame
- out <- auto_cor(x = plant_richness_df[, 5:21])
+ out <- auto_cor(x = plants_df[, 5:21])
 
  #getting the correlation matrix
  out$cor
@@ -52,14 +64,13 @@ Can be chained together with \code{\link[=auto_vif]{auto_vif()}} through pipes, 
  out$selected.variables.df
 
  #on the result of auto_vif
- out <- auto_vif(x = plant_richness_df[, 5:21])
+ out <- auto_vif(x = plants_df[, 5:21])
  out <- auto_cor(x = out)
 
  #with pipes
- out <- plant_richness_df[, 5:21] \%>\%
+ out <- plants_df[, 5:21] \%>\%
  auto_vif() \%>\%
  auto_cor()
-
 }
 \seealso{
 \code{\link[=auto_vif]{auto_vif()}}
