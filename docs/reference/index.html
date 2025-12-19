@@ -20,6 +20,17 @@
       <ul class="navbar-nav me-auto"><li class="active nav-item">
   <a class="nav-link" href="../reference/index.html">Reference</a>
 </li>
+<li class="nav-item dropdown">
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <h6 class="dropdown-header" data-toc-skip>Tutorials</h6>
+    <a class="dropdown-item" href="../articles/non_spatial_models.html">Non-Spatial Random Forest Models</a>
+    <a class="dropdown-item" href="../articles/spatial_models.html">Spatial Random Forest Models</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Development</h6>
+    <a class="dropdown-item" href="../articles/development_roadmap.html">Development Roadmap</a>
+  </div>
+</li>
 <li class="nav-item">
   <a class="nav-link" href="../news/index.html">Changelog</a>
 </li>
@@ -43,9 +54,9 @@
     </div>
 
     <div class="section level2">
-      <h2 id="all-functions">All functions<a class="anchor" aria-label="anchor" href="#all-functions"></a></h2>
+      <h2 id="main-modeling-functions">Main modeling functions<a class="anchor" aria-label="anchor" href="#main-modeling-functions"></a></h2>
       
-      
+      <p class="section-desc"></p><p>Primary entry points for fitting random forest and spatial random forest models.</p>
 
       
     </div><div id="" class="section level2">
@@ -55,10 +66,62 @@
 
       <dl><dt>
           
-          <code><a href="auc.html">auc()</a></code> 
+          <code><a href="rf.html">rf()</a></code> 
         </dt>
-        <dd>Area under the ROC curve</dd>
+        <dd>Random forest models with Moran's I test of the residuals</dd>
       </dl><dl><dt>
+          
+          <code><a href="rf_spatial.html">rf_spatial()</a></code> 
+        </dt>
+        <dd>Fits spatial random forest models</dd>
+      </dl></div><div class="section level2">
+      <h2 id="model-workflow-and-evaluation">Model workflow and evaluation<a class="anchor" aria-label="anchor" href="#model-workflow-and-evaluation"></a></h2>
+      
+      <p class="section-desc"></p><p>Functions for model comparison, evaluation, tuning, and advanced modeling operations.</p>
+
+      
+    </div><div id="" class="section level2">
+      
+      
+      
+
+      <dl><dt>
+          
+          <code><a href="rf_compare.html">rf_compare()</a></code> 
+        </dt>
+        <dd>Compares models via spatial cross-validation</dd>
+      </dl><dl><dt>
+          
+          <code><a href="rf_evaluate.html">rf_evaluate()</a></code> 
+        </dt>
+        <dd>Evaluates random forest models with spatial cross-validation</dd>
+      </dl><dl><dt>
+          
+          <code><a href="rf_importance.html">rf_importance()</a></code> 
+        </dt>
+        <dd>Contribution of each predictor to model transferability</dd>
+      </dl><dl><dt>
+          
+          <code><a href="rf_repeat.html">rf_repeat()</a></code> 
+        </dt>
+        <dd>Fits several random forest models on the same data</dd>
+      </dl><dl><dt>
+          
+          <code><a href="rf_tuning.html">rf_tuning()</a></code> 
+        </dt>
+        <dd>Tuning of random forest hyperparameters via spatial cross-validation</dd>
+      </dl></div><div class="section level2">
+      <h2 id="data-preprocessing">Data preprocessing<a class="anchor" aria-label="anchor" href="#data-preprocessing"></a></h2>
+      
+      <p class="section-desc"></p><p>Functions for variable selection, multicollinearity reduction, distance matrix manipulation, and spatial fold creation.</p>
+
+      
+    </div><div id="" class="section level2">
+      
+      
+      
+
+      <dl><dt>
           
           <code><a href="auto_cor.html">auto_cor()</a></code> 
         </dt>
@@ -70,114 +133,80 @@
         <dd>Multicollinearity reduction via Variance Inflation Factor</dd>
       </dl><dl><dt>
           
-          <code><a href="beowulf_cluster.html">beowulf_cluster()</a></code> 
-        </dt>
-        <dd>Defines a beowulf cluster</dd>
-      </dl><dl><dt>
-          
           <code><a href="case_weights.html">case_weights()</a></code> 
         </dt>
-        <dd>Generates case weights for binary data</dd>
+        <dd>Generate case weights for imbalanced binary data</dd>
       </dl><dl><dt>
           
           <code><a href="default_distance_thresholds.html">default_distance_thresholds()</a></code> 
         </dt>
-        <dd>Default distance thresholds to generate spatial predictors</dd>
-      </dl><dl><dt>
-          
-          <code><a href="distance_matrix.html">distance_matrix</a></code> 
-        </dt>
-        <dd>Matrix of distances among ecoregion edges.</dd>
+        <dd>Default distance thresholds for spatial predictors</dd>
       </dl><dl><dt>
           
           <code><a href="double_center_distance_matrix.html">double_center_distance_matrix()</a></code> 
         </dt>
-        <dd>Double centers a distance matrix</dd>
-      </dl><dl><dt>
-          
-          <code><a href="filter_spatial_predictors.html">filter_spatial_predictors()</a></code> 
-        </dt>
-        <dd>Removes redundant spatial predictors</dd>
-      </dl><dl><dt>
-          
-          <code><a href="get_evaluation.html">get_evaluation()</a></code> 
-        </dt>
-        <dd>Gets performance data frame from a cross-validated model</dd>
-      </dl><dl><dt>
-          
-          <code><a href="get_importance.html">get_importance()</a></code> 
-        </dt>
-        <dd>Gets the global importance data frame from a model</dd>
-      </dl><dl><dt>
-          
-          <code><a href="get_importance_local.html">get_importance_local()</a></code> 
-        </dt>
-        <dd>Gets the local importance data frame from a model</dd>
-      </dl><dl><dt>
-          
-          <code><a href="get_moran.html">get_moran()</a></code> 
-        </dt>
-        <dd>Gets Moran's I test of model residuals</dd>
-      </dl><dl><dt>
-          
-          <code><a href="get_performance.html">get_performance()</a></code> 
-        </dt>
-        <dd>Gets out-of-bag performance scores from a model</dd>
-      </dl><dl><dt>
-          
-          <code><a href="get_predictions.html">get_predictions()</a></code> 
-        </dt>
-        <dd>Gets model predictions</dd>
-      </dl><dl><dt>
-          
-          <code><a href="get_residuals.html">get_residuals()</a></code> 
-        </dt>
-        <dd>Gets model residuals</dd>
-      </dl><dl><dt>
-          
-          <code><a href="get_response_curves.html">get_response_curves()</a></code> 
-        </dt>
-        <dd>Gets data to allow custom plotting of response curves</dd>
-      </dl><dl><dt>
-          
-          <code><a href="get_spatial_predictors.html">get_spatial_predictors()</a></code> 
-        </dt>
-        <dd>Gets the spatial predictors of a spatial model</dd>
+        <dd>Double-center a distance matrix</dd>
       </dl><dl><dt>
           
           <code><a href="is_binary.html">is_binary()</a></code> 
         </dt>
-        <dd>Checks if dependent variable is binary with values 1 and 0</dd>
+        <dd>Check if variable is binary with values 0 and 1</dd>
       </dl><dl><dt>
           
           <code><a href="make_spatial_fold.html">make_spatial_fold()</a></code> 
         </dt>
-        <dd>Makes one training and one testing spatial folds</dd>
+        <dd>Create spatially independent training and testing folds</dd>
       </dl><dl><dt>
           
           <code><a href="make_spatial_folds.html">make_spatial_folds()</a></code> 
         </dt>
-        <dd>Makes training and testing spatial folds</dd>
+        <dd>Create multiple spatially independent training and testing folds</dd>
+      </dl><dl><dt>
+          
+          <code><a href="the_feature_engineer.html">the_feature_engineer()</a></code> 
+        </dt>
+        <dd>Suggest variable interactions and composite features for random forest models</dd>
+      </dl><dl><dt>
+          
+          <code><a href="weights_from_distance_matrix.html">weights_from_distance_matrix()</a></code> 
+        </dt>
+        <dd>Transforms a distance matrix into a matrix of weights</dd>
+      </dl></div><div class="section level2">
+      <h2 id="spatial-analysis-methods">Spatial analysis methods<a class="anchor" aria-label="anchor" href="#spatial-analysis-methods"></a></h2>
+      
+      <p class="section-desc"></p><p>Functions for generating spatial predictors (MEMs, PCA), testing spatial autocorrelation (Moran’s I), and selecting/filtering spatial predictors.</p>
+
+      
+    </div><div id="" class="section level2">
+      
+      
+      
+
+      <dl><dt>
+          
+          <code><a href="filter_spatial_predictors.html">filter_spatial_predictors()</a></code> 
+        </dt>
+        <dd>Remove redundant spatial predictors</dd>
       </dl><dl><dt>
           
           <code><a href="mem.html">mem()</a></code> 
         </dt>
-        <dd>Moran's Eigenvector Maps of a distance matrix</dd>
+        <dd>Compute Moran's Eigenvector Maps from distance matrix</dd>
       </dl><dl><dt>
           
           <code><a href="mem_multithreshold.html">mem_multithreshold()</a></code> 
         </dt>
-        <dd>Moran's Eigenvector Maps for different distance thresholds</dd>
+        <dd>Compute Moran's Eigenvector Maps across multiple distance thresholds</dd>
       </dl><dl><dt>
           
           <code><a href="moran.html">moran()</a></code> 
         </dt>
-        <dd>Moran's I test</dd>
+        <dd>Moran's I test for spatial autocorrelation</dd>
       </dl><dl><dt>
           
           <code><a href="moran_multithreshold.html">moran_multithreshold()</a></code> 
         </dt>
-        <dd>Moran's I test on a numeric vector for different neighborhoods</dd>
+        <dd>Moran's I test across multiple distance thresholds</dd>
       </dl><dl><dt>
           
           <code><a href="normality.html">residuals_test()</a></code> 
@@ -185,39 +214,136 @@
         <dd>Normality test of a numeric vector</dd>
       </dl><dl><dt>
           
-          <code><a href="objects_size.html">objects_size()</a></code> 
-        </dt>
-        <dd>Shows size of objects in the R environment</dd>
-      </dl><dl><dt>
-          
-          <code><a href="optimization_function.html">optimization_function()</a></code> 
-        </dt>
-        <dd>Optimization equation to select spatial predictors</dd>
-      </dl><dl><dt>
-          
           <code><a href="pca.html">pca()</a></code> 
         </dt>
-        <dd>Principal Components Analysis</dd>
+        <dd>Compute Principal Component Analysis</dd>
       </dl><dl><dt>
           
           <code><a href="pca_multithreshold.html">pca_multithreshold()</a></code> 
         </dt>
-        <dd>PCA of a distance matrix over distance thresholds</dd>
+        <dd>Compute Principal Component Analysis at multiple distance thresholds</dd>
       </dl><dl><dt>
           
-          <code><a href="plant_richness_df.html">plant_richness_df</a></code> 
+          <code><a href="rank_spatial_predictors.html">rank_spatial_predictors()</a></code> 
         </dt>
-        <dd>Plant richness and predictors of American ecoregions</dd>
+        <dd>Ranks spatial predictors</dd>
       </dl><dl><dt>
+          
+          <code><a href="residuals_diagnostics.html">residuals_diagnostics()</a></code> 
+        </dt>
+        <dd>Normality test of a numeric vector</dd>
+      </dl><dl><dt>
+          
+          <code><a href="select_spatial_predictors_recursive.html">select_spatial_predictors_recursive()</a></code> 
+        </dt>
+        <dd>Finds optimal combinations of spatial predictors</dd>
+      </dl><dl><dt>
+          
+          <code><a href="select_spatial_predictors_sequential.html">select_spatial_predictors_sequential()</a></code> 
+        </dt>
+        <dd>Sequential introduction of spatial predictors into a model</dd>
+      </dl></div><div class="section level2">
+      <h2 id="model-information-and-output">Model information and output<a class="anchor" aria-label="anchor" href="#model-information-and-output"></a></h2>
+      
+      <p class="section-desc"></p><p>Functions to extract model components and print results.</p>
+
+      
+    </div><div id="" class="section level2">
+      
+      
+      
+
+      <dl><dt>
+          
+          <code><a href="get_evaluation.html">get_evaluation()</a></code> 
+        </dt>
+        <dd>Extract evaluation metrics from cross-validated model</dd>
+      </dl><dl><dt>
+          
+          <code><a href="get_importance.html">get_importance()</a></code> 
+        </dt>
+        <dd>Extract variable importance from model</dd>
+      </dl><dl><dt>
+          
+          <code><a href="get_importance_local.html">get_importance_local()</a></code> 
+        </dt>
+        <dd>Extract local variable importance from model</dd>
+      </dl><dl><dt>
+          
+          <code><a href="get_moran.html">get_moran()</a></code> 
+        </dt>
+        <dd>Extract Moran's I test results for model residuals</dd>
+      </dl><dl><dt>
+          
+          <code><a href="get_performance.html">get_performance()</a></code> 
+        </dt>
+        <dd>Extract out-of-bag performance metrics from model</dd>
+      </dl><dl><dt>
+          
+          <code><a href="get_predictions.html">get_predictions()</a></code> 
+        </dt>
+        <dd>Extract fitted predictions from model</dd>
+      </dl><dl><dt>
+          
+          <code><a href="get_residuals.html">get_residuals()</a></code> 
+        </dt>
+        <dd>Extract model residuals</dd>
+      </dl><dl><dt>
+          
+          <code><a href="get_response_curves.html">get_response_curves()</a></code> 
+        </dt>
+        <dd>Extract response curve data for plotting</dd>
+      </dl><dl><dt>
+          
+          <code><a href="get_spatial_predictors.html">get_spatial_predictors()</a></code> 
+        </dt>
+        <dd>Extract spatial predictors from spatial model</dd>
+      </dl><dl><dt>
+          
+          <code><a href="print.html">print(<i>&lt;rf&gt;</i>)</a></code> 
+        </dt>
+        <dd>Custom print method for random forest models</dd>
+      </dl><dl><dt>
+          
+          <code><a href="print_evaluation.html">print_evaluation()</a></code> 
+        </dt>
+        <dd>Prints cross-validation results</dd>
+      </dl><dl><dt>
+          
+          <code><a href="print_importance.html">print_importance()</a></code> 
+        </dt>
+        <dd>Prints variable importance</dd>
+      </dl><dl><dt>
+          
+          <code><a href="print_moran.html">print_moran()</a></code> 
+        </dt>
+        <dd>Prints results of a Moran's I test</dd>
+      </dl><dl><dt>
+          
+          <code><a href="print_performance.html">print_performance()</a></code> 
+        </dt>
+        <dd>print_performance</dd>
+      </dl></div><div class="section level2">
+      <h2 id="visualization-functions">Visualization functions<a class="anchor" aria-label="anchor" href="#visualization-functions"></a></h2>
+      
+      <p class="section-desc"></p><p>Functions for creating diagnostic, exploratory, and results plots.</p>
+
+      
+    </div><div id="" class="section level2">
+      
+      
+      
+
+      <dl><dt>
           
           <code><a href="plot_evaluation.html">plot_evaluation()</a></code> 
         </dt>
-        <dd>Plots the results of a spatial cross-validation</dd>
+        <dd>Visualize spatial cross-validation results</dd>
       </dl><dl><dt>
           
           <code><a href="plot_importance.html">plot_importance()</a></code> 
         </dt>
-        <dd>Plots the variable importance of a model</dd>
+        <dd>Visualize variable importance scores</dd>
       </dl><dl><dt>
           
           <code><a href="plot_moran.html">plot_moran()</a></code> 
@@ -258,6 +384,42 @@
           <code><a href="plot_tuning.html">plot_tuning()</a></code> 
         </dt>
         <dd>Plots a tuning object produced by <code><a href="../reference/rf_tuning.html">rf_tuning()</a></code></dd>
+      </dl></div><div class="section level2">
+      <h2 id="utility-functions">Utility functions<a class="anchor" aria-label="anchor" href="#utility-functions"></a></h2>
+      
+      <p class="section-desc"></p><p>Low-level helper functions for statistical computations and parallel execution.</p>
+
+      
+    </div><div id="" class="section level2">
+      
+      
+      
+
+      <dl><dt>
+          
+          <code><a href="auc.html">auc()</a></code> 
+        </dt>
+        <dd>Area under the ROC curve</dd>
+      </dl><dl><dt>
+          
+          <code><a href="beowulf_cluster.html">beowulf_cluster()</a></code> 
+        </dt>
+        <dd>Create a Beowulf cluster for parallel computing</dd>
+      </dl><dl><dt>
+          
+          <code><a href="dot-vif_to_df.html">.vif_to_df()</a></code> 
+        </dt>
+        <dd>Convert VIF values to data frame</dd>
+      </dl><dl><dt>
+          
+          <code><a href="objects_size.html">objects_size()</a></code> 
+        </dt>
+        <dd>Display sizes of objects in current R environment</dd>
+      </dl><dl><dt>
+          
+          <code><a href="optimization_function.html">optimization_function()</a></code> 
+        </dt>
+        <dd>Compute optimization scores for spatial predictor selection</dd>
       </dl><dl><dt>
           
           <code><a href="prepare_importance_spatial.html">prepare_importance_spatial()</a></code> 
@@ -265,94 +427,14 @@
         <dd>Prepares variable importance objects for spatial models</dd>
       </dl><dl><dt>
           
-          <code><a href="print.html">print(<i>&lt;rf&gt;</i>)</a></code> 
-        </dt>
-        <dd>Custom print method for random forest models</dd>
-      </dl><dl><dt>
-          
-          <code><a href="print_evaluation.html">print_evaluation()</a></code> 
-        </dt>
-        <dd>Prints cross-validation results</dd>
-      </dl><dl><dt>
-          
-          <code><a href="print_importance.html">print_importance()</a></code> 
-        </dt>
-        <dd>Prints variable importance</dd>
-      </dl><dl><dt>
-          
-          <code><a href="print_moran.html">print_moran()</a></code> 
-        </dt>
-        <dd>Prints results of a Moran's I test</dd>
-      </dl><dl><dt>
-          
-          <code><a href="print_performance.html">print_performance()</a></code> 
-        </dt>
-        <dd>print_performance</dd>
-      </dl><dl><dt>
-          
-          <code><a href="rank_spatial_predictors.html">rank_spatial_predictors()</a></code> 
-        </dt>
-        <dd>Ranks spatial predictors</dd>
-      </dl><dl><dt>
-          
           <code><a href="rescale_vector.html">rescale_vector()</a></code> 
         </dt>
         <dd>Rescales a numeric vector into a new range</dd>
       </dl><dl><dt>
           
-          <code><a href="residuals_diagnostics.html">residuals_diagnostics()</a></code> 
-        </dt>
-        <dd>Normality test of a numeric vector</dd>
-      </dl><dl><dt>
-          
-          <code><a href="rf.html">rf()</a></code> 
-        </dt>
-        <dd>Random forest models with Moran's I test of the residuals</dd>
-      </dl><dl><dt>
-          
-          <code><a href="rf_compare.html">rf_compare()</a></code> 
-        </dt>
-        <dd>Compares models via spatial cross-validation</dd>
-      </dl><dl><dt>
-          
-          <code><a href="rf_evaluate.html">rf_evaluate()</a></code> 
-        </dt>
-        <dd>Evaluates random forest models with spatial cross-validation</dd>
-      </dl><dl><dt>
-          
-          <code><a href="rf_importance.html">rf_importance()</a></code> 
-        </dt>
-        <dd>Contribution of each predictor to model transferability</dd>
-      </dl><dl><dt>
-          
-          <code><a href="rf_repeat.html">rf_repeat()</a></code> 
-        </dt>
-        <dd>Fits several random forest models on the same data</dd>
-      </dl><dl><dt>
-          
-          <code><a href="rf_spatial.html">rf_spatial()</a></code> 
-        </dt>
-        <dd>Fits spatial random forest models</dd>
-      </dl><dl><dt>
-          
-          <code><a href="rf_tuning.html">rf_tuning()</a></code> 
-        </dt>
-        <dd>Tuning of random forest hyperparameters via spatial cross-validation</dd>
-      </dl><dl><dt>
-          
           <code><a href="root_mean_squared_error.html">root_mean_squared_error()</a></code> 
         </dt>
         <dd>RMSE and normalized RMSE</dd>
-      </dl><dl><dt>
-          
-          <code><a href="select_spatial_predictors_recursive.html">select_spatial_predictors_recursive()</a></code> 
-        </dt>
-        <dd>Finds optimal combinations of spatial predictors</dd>
-      </dl><dl><dt>
-          
-          <code><a href="select_spatial_predictors_sequential.html">select_spatial_predictors_sequential()</a></code> 
-        </dt>
-        <dd>Sequential introduction of spatial predictors into a model</dd>
       </dl><dl><dt>
           
           <code><a href="setup_parallel_execution.html">setup_parallel_execution()</a></code> 
@@ -370,11 +452,6 @@
         <dd>Statistical mode of a vector</dd>
       </dl><dl><dt>
           
-          <code><a href="the_feature_engineer.html">the_feature_engineer()</a></code> 
-        </dt>
-        <dd>Suggest variable interactions and composite features for random forest models</dd>
-      </dl><dl><dt>
-          
           <code><a href="thinning.html">thinning()</a></code> 
         </dt>
         <dd>Applies thinning to pairs of coordinates</dd>
@@ -383,18 +460,55 @@
           <code><a href="thinning_til_n.html">thinning_til_n()</a></code> 
         </dt>
         <dd>Applies thinning to pairs of coordinates until reaching a given n</dd>
+      </dl></div><div class="section level2">
+      <h2 id="example-datasets">Example datasets<a class="anchor" aria-label="anchor" href="#example-datasets"></a></h2>
+      
+      <p class="section-desc"></p><p>Datasets for testing and learning spatialRF functionality.</p>
+
+      
+    </div><div id="" class="section level2">
+      
+      
+      
+
+      <dl><dt>
+          
+          <code><a href="plants_df.html">plants_df</a></code> 
+        </dt>
+        <dd>Plant richness and predictors for American ecoregions</dd>
       </dl><dl><dt>
           
-          <code><a href="vif.html">vif()</a></code> 
+          <code><a href="plants_distance.html">plants_distance</a></code> 
         </dt>
-        <dd>Variance Inflation Factor of a data frame</dd>
+        <dd>Distance matrix between ecoregion edges</dd>
       </dl><dl><dt>
           
-          <code><a href="weights_from_distance_matrix.html">weights_from_distance_matrix()</a></code> 
+          <code><a href="plants_predictors.html">plants_predictors</a></code> 
         </dt>
-        <dd>Transforms a distance matrix into a matrix of weights</dd>
+        <dd>Predictor variable names for plant richness examples</dd>
+      </dl><dl><dt>
+          
+          <code><a href="plants_response.html">plants_response</a></code> 
+        </dt>
+        <dd>Response variable name for plant richness examples</dd>
+      </dl><dl><dt>
+          
+          <code><a href="plants_rf.html">plants_rf</a></code> 
+        </dt>
+        <dd>Example fitted random forest model</dd>
+      </dl><dl><dt>
+          
+          <code><a href="plants_rf_spatial.html">plants_rf_spatial</a></code> 
+        </dt>
+        <dd>Example fitted spatial random forest model</dd>
+      </dl><dl><dt>
+          
+          <code><a href="plants_xy.html">plants_xy</a></code> 
+        </dt>
+        <dd>Coordinates for plant richness data</dd>
       </dl></div>
-  </main></div>
+  </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
+    </nav></aside></div>
 
 
     <footer><div class="pkgdown-footer-left">

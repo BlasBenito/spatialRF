@@ -13,3 +13,66 @@ template:
 authors:
   Blas M. Benito:
     href: https://blasbenito.com
+
+articles:
+- title: Tutorials
+  navbar: Tutorials
+  contents:
+  - articles/non_spatial_models
+  - articles/spatial_models
+- title: Development
+  navbar: Development
+  contents:
+  - articles/development_roadmap
+
+reference:
+- title: Main modeling functions
+  desc: Primary entry points for fitting random forest and spatial random forest models.
+  contents:
+  - has_concept("main_models")
+
+- title: Model workflow and evaluation
+  desc: Functions for model comparison, evaluation, tuning, and advanced modeling operations.
+  contents:
+  - has_concept("model_workflow")
+
+- title: Data preprocessing
+  desc: Functions for variable selection, multicollinearity reduction, distance matrix manipulation, and spatial fold creation.
+  contents:
+  - has_concept("preprocessing")
+
+- title: Spatial analysis methods
+  desc: Functions for generating spatial predictors (MEMs, PCA), testing spatial autocorrelation (Moran's I), and selecting/filtering spatial predictors.
+  contents:
+  - has_concept("spatial_analysis")
+
+- title: Model information and output
+  desc: Functions to extract model components and print results.
+  contents:
+  - has_concept("model_info")
+
+- title: Visualization functions
+  desc: Functions for creating diagnostic, exploratory, and results plots.
+  contents:
+  - has_concept("visualization")
+
+- title: Utility functions
+  desc: Low-level helper functions for statistical computations and parallel execution.
+  contents:
+  - has_concept("utilities")
+
+- title: Example datasets
+  desc: Datasets for testing and learning spatialRF functionality.
+  contents:
+  - has_concept("data")
+
+
+build:
+  extra_packages:
+    - patchwork
+    - ggplot2
+    - rstudioapi
+    - dplyr
+    - DT
+    - rnaturalearth
+    - rnaturalearthdata

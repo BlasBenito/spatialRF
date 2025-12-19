@@ -20,6 +20,17 @@
       <ul class="navbar-nav me-auto"><li class="active nav-item">
   <a class="nav-link" href="../reference/index.html">Reference</a>
 </li>
+<li class="nav-item dropdown">
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <h6 class="dropdown-header" data-toc-skip>Tutorials</h6>
+    <a class="dropdown-item" href="../articles/non_spatial_models.html">Non-Spatial Random Forest Models</a>
+    <a class="dropdown-item" href="../articles/spatial_models.html">Spatial Random Forest Models</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Development</h6>
+    <a class="dropdown-item" href="../articles/development_roadmap.html">Development Roadmap</a>
+  </div>
+</li>
 <li class="nav-item">
   <a class="nav-link" href="../news/index.html">Changelog</a>
 </li>
@@ -131,61 +142,75 @@
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>The algorithm works as follows: If the function <a href="rank_spatial_predictors.html">rank_spatial_predictors</a> returns 10 spatial predictors (sp1 to sp10, ordered from best to worst), select_spatial_predictors_sequential is going to fit the models <code>y ~ predictors + sp1</code>, <code>y ~ predictors + sp1 + sp2</code>, until all spatial predictors are used in <code>y ~ predictors + sp1 ... sp10</code>. The model with lower Moran's I of the residuals and higher R-squared (computed on the out-of-bag data) is selected, and its spatial predictors returned.</p>
     </div>
+    <div class="section level2">
+    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
+    <div class="dont-index"><p>Other spatial_analysis: 
+<code><a href="filter_spatial_predictors.html">filter_spatial_predictors</a>()</code>,
+<code><a href="mem.html">mem</a>()</code>,
+<code><a href="mem_multithreshold.html">mem_multithreshold</a>()</code>,
+<code><a href="moran.html">moran</a>()</code>,
+<code><a href="moran_multithreshold.html">moran_multithreshold</a>()</code>,
+<code><a href="pca.html">pca</a>()</code>,
+<code><a href="pca_multithreshold.html">pca_multithreshold</a>()</code>,
+<code><a href="rank_spatial_predictors.html">rank_spatial_predictors</a>()</code>,
+<code><a href="residuals_diagnostics.html">residuals_diagnostics</a>()</code>,
+<code><a href="normality.html">residuals_test</a>()</code>,
+<code><a href="select_spatial_predictors_recursive.html">select_spatial_predictors_recursive</a>()</code></p></div>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">{</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co">#loading example data</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">distance_matrix</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">plant_richness_df</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co">#common arguments</span></span></span>
-<span class="r-in"><span><span class="va">dependent.variable.name</span> <span class="op">=</span> <span class="st">"richness_species_vascular"</span></span></span>
-<span class="r-in"><span><span class="va">predictor.variable.names</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">plant_richness_df</span><span class="op">)</span><span class="op">[</span><span class="fl">5</span><span class="op">:</span><span class="fl">21</span><span class="op">]</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co">#non-spatial model</span></span></span>
-<span class="r-in"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="rf.html">rf</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  data <span class="op">=</span> <span class="va">plant_richness_df</span>,</span></span>
-<span class="r-in"><span>  dependent.variable.name <span class="op">=</span> <span class="va">dependent.variable.name</span>,</span></span>
-<span class="r-in"><span>  predictor.variable.names <span class="op">=</span> <span class="va">predictor.variable.names</span>,</span></span>
-<span class="r-in"><span>  distance.matrix <span class="op">=</span> <span class="va">distance_matrix</span>,</span></span>
-<span class="r-in"><span>  distance.thresholds <span class="op">=</span> <span class="fl">0</span>,</span></span>
-<span class="r-in"><span>  n.cores <span class="op">=</span> <span class="fl">1</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">plants_df</span>,</span></span>
+<span class="r-in"><span>  <span class="va">plants_response</span>,</span></span>
+<span class="r-in"><span>  <span class="va">plants_predictors</span>,</span></span>
+<span class="r-in"><span>  <span class="va">plants_distance</span>,</span></span>
+<span class="r-in"><span>  <span class="va">plants_rf</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co">#preparing spatial predictors</span></span></span>
-<span class="r-in"><span><span class="va">spatial.predictors</span> <span class="op">&lt;-</span> <span class="fu"><a href="mem_multithreshold.html">mem_multithreshold</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  distance.matrix <span class="op">=</span> <span class="va">distance.matrix</span>,</span></span>
-<span class="r-in"><span>  distance.thresholds <span class="op">=</span> <span class="fl">0</span></span></span>
+<span class="r-in"><span><span class="co">#subset to speed up example</span></span></span>
+<span class="r-in"><span><span class="va">idx</span> <span class="op">&lt;-</span> <span class="fl">1</span><span class="op">:</span><span class="fl">20</span></span></span>
+<span class="r-in"><span><span class="va">plants_df</span> <span class="op">&lt;-</span> <span class="va">plants_df</span><span class="op">[</span><span class="va">idx</span>, <span class="op">]</span></span></span>
+<span class="r-in"><span><span class="va">plants_distance</span> <span class="op">&lt;-</span> <span class="va">plants_distance</span><span class="op">[</span><span class="va">idx</span>, <span class="va">idx</span><span class="op">]</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">#generate spatial predictors</span></span></span>
+<span class="r-in"><span><span class="va">mems</span> <span class="op">&lt;-</span> <span class="fu"><a href="mem_multithreshold.html">mem_multithreshold</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  distance.matrix <span class="op">=</span> <span class="va">plants_distance</span>,</span></span>
+<span class="r-in"><span>  distance.thresholds <span class="op">=</span> <span class="fl">100</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="co">#ranking spatial predictors by their Moran's I (faster option)</span></span></span>
-<span class="r-in"><span><span class="va">spatial.predictors.ranking</span> <span class="op">&lt;-</span> <span class="fu"><a href="rank_spatial_predictors.html">rank_spatial_predictors</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">#rank them from higher to lower moran</span></span></span>
+<span class="r-in"><span><span class="va">mems.rank</span> <span class="op">&lt;-</span> <span class="fu"><a href="rank_spatial_predictors.html">rank_spatial_predictors</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  ranking.method <span class="op">=</span> <span class="st">"moran"</span>,</span></span>
-<span class="r-in"><span>  spatial.predictors.df <span class="op">=</span> <span class="va">spatial.predictors</span>,</span></span>
-<span class="r-in"><span>  reference.moran.i <span class="op">=</span> <span class="va">model</span><span class="op">$</span><span class="va">spatial.correlation.residuals</span><span class="op">$</span><span class="va">max.moran</span>,</span></span>
-<span class="r-in"><span>  distance.matrix <span class="op">=</span> <span class="va">distance.matrix</span>,</span></span>
-<span class="r-in"><span>  distance.thresholds <span class="op">=</span> <span class="fl">0</span>,</span></span>
+<span class="r-in"><span>  spatial.predictors.df <span class="op">=</span> <span class="va">mems</span>,</span></span>
+<span class="r-in"><span>  reference.moran.i <span class="op">=</span> <span class="va">plants_rf</span><span class="op">$</span><span class="va">residuals</span><span class="op">$</span><span class="va">autocorrelation</span><span class="op">$</span><span class="va">max.moran</span>,</span></span>
+<span class="r-in"><span>  distance.matrix <span class="op">=</span> <span class="va">plants_distance</span>,</span></span>
+<span class="r-in"><span>  distance.thresholds <span class="op">=</span> <span class="fl">100</span>,</span></span>
 <span class="r-in"><span>  n.cores <span class="op">=</span> <span class="fl">1</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co">#selecting the best subset of predictors</span></span></span>
+<span class="r-in"><span><span class="co">#select best subset via sequential addition</span></span></span>
 <span class="r-in"><span><span class="va">selection</span> <span class="op">&lt;-</span> <span class="fu">select_spatial_predictors_sequential</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  data <span class="op">=</span> <span class="va">plant_richness_df</span>,</span></span>
-<span class="r-in"><span>  dependent.variable.name <span class="op">=</span> <span class="va">dependent.variable.name</span>,</span></span>
-<span class="r-in"><span>  predictor.variable.names <span class="op">=</span> <span class="va">predictor.variable.names</span>,</span></span>
-<span class="r-in"><span>  distance.matrix <span class="op">=</span> <span class="va">distance_matrix</span>,</span></span>
+<span class="r-in"><span>  data <span class="op">=</span> <span class="va">plants_df</span>,</span></span>
+<span class="r-in"><span>  dependent.variable.name <span class="op">=</span> <span class="va">plants_response</span>,</span></span>
+<span class="r-in"><span>  predictor.variable.names <span class="op">=</span> <span class="va">plants_predictors</span>,</span></span>
+<span class="r-in"><span>  distance.matrix <span class="op">=</span> <span class="va">plants_distance</span>,</span></span>
 <span class="r-in"><span>  distance.thresholds <span class="op">=</span> <span class="fl">0</span>,</span></span>
-<span class="r-in"><span>  spatial.predictors.df <span class="op">=</span> <span class="va">spatial.predictors</span>,</span></span>
-<span class="r-in"><span>  spatial.predictors.ranking <span class="op">=</span> <span class="va">spatial.predictors.ranking</span>,</span></span>
+<span class="r-in"><span>  spatial.predictors.df <span class="op">=</span> <span class="va">mems</span>,</span></span>
+<span class="r-in"><span>  spatial.predictors.ranking <span class="op">=</span> <span class="va">mems.rank</span>,</span></span>
+<span class="r-in"><span>  ranger.arguments <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>num.trees <span class="op">=</span> <span class="fl">30</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  n.cores <span class="op">=</span> <span class="fl">1</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">selection</span><span class="op">$</span><span class="va">optimization</span></span></span>
+<span class="r-in"><span><span class="co">#names of selected spatial predictors</span></span></span>
 <span class="r-in"><span><span class="va">selection</span><span class="op">$</span><span class="va">best.spatial.predictors</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="plot_optimization.html">plot_optimization</a></span><span class="op">(</span><span class="va">selection</span><span class="op">$</span><span class="va">optimization</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "spatial_predictor_100_2" "spatial_predictor_100_3"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [3] "spatial_predictor_100_1" "spatial_predictor_100_4"</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-in"><span><span class="co">#optimization plot</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="plot_optimization.html">plot_optimization</a></span><span class="op">(</span><span class="va">selection</span><span class="op">$</span><span class="va">optimization</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="select_spatial_predictors_sequential-1.png" alt="" width="700" height="433"></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

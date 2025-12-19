@@ -28,6 +28,17 @@ The function returns the criteria used to select the interactions, and the data 
       <ul class="navbar-nav me-auto"><li class="active nav-item">
   <a class="nav-link" href="../reference/index.html">Reference</a>
 </li>
+<li class="nav-item dropdown">
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <h6 class="dropdown-header" data-toc-skip>Tutorials</h6>
+    <a class="dropdown-item" href="../articles/non_spatial_models.html">Non-Spatial Random Forest Models</a>
+    <a class="dropdown-item" href="../articles/spatial_models.html">Spatial Random Forest Models</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Development</h6>
+    <a class="dropdown-item" href="../articles/development_roadmap.html">Development Roadmap</a>
+  </div>
+</li>
 <li class="nav-item">
   <a class="nav-link" href="../news/index.html">Changelog</a>
 </li>
@@ -150,27 +161,64 @@ The function returns the criteria used to select the interactions, and the data 
 <li><p><code>dependent.variable.name</code>: Character, name of the response.</p></li>
 <li><p><code>predictor.variable.names</code>: Character vector with the names of the predictors and the selected interactions.</p></li>
 </ul></div>
+    <div class="section level2">
+    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
+    <div class="dont-index"><p>Other preprocessing: 
+<code><a href="auto_cor.html">auto_cor</a>()</code>,
+<code><a href="auto_vif.html">auto_vif</a>()</code>,
+<code><a href="case_weights.html">case_weights</a>()</code>,
+<code><a href="default_distance_thresholds.html">default_distance_thresholds</a>()</code>,
+<code><a href="double_center_distance_matrix.html">double_center_distance_matrix</a>()</code>,
+<code><a href="is_binary.html">is_binary</a>()</code>,
+<code><a href="make_spatial_fold.html">make_spatial_fold</a>()</code>,
+<code><a href="make_spatial_folds.html">make_spatial_folds</a>()</code>,
+<code><a href="weights_from_distance_matrix.html">weights_from_distance_matrix</a>()</code></p></div>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">{</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="va">plants_df</span>,</span></span>
+<span class="r-in"><span>    <span class="va">plants_response</span>,</span></span>
+<span class="r-in"><span>    <span class="va">plants_predictors</span>,</span></span>
+<span class="r-in"><span>    <span class="va">plants_xy</span>,</span></span>
+<span class="r-in"><span>    <span class="va">plants_rf</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span> <span class="co">#load example data</span></span></span>
-<span class="r-in"><span> <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">plant_richness_df</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="co">#get five most important predictors from plants_rf to speed-up example</span></span></span>
+<span class="r-in"><span>  <span class="va">predictors</span> <span class="op">&lt;-</span> <span class="fu"><a href="get_importance.html">get_importance</a></span><span class="op">(</span><span class="va">plants_rf</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="st">"variable"</span><span class="op">]</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span> <span class="va">new.features</span> <span class="op">&lt;-</span> <span class="fu">the_feature_engineer</span><span class="op">(</span></span></span>
-<span class="r-in"><span>   data <span class="op">=</span> <span class="va">plant_richness_df</span>,</span></span>
-<span class="r-in"><span>   dependent.variable.name <span class="op">=</span> <span class="st">"richness_species_vascular"</span>,</span></span>
-<span class="r-in"><span>   predictor.variable.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">plant_richness_df</span><span class="op">)</span><span class="op">[</span><span class="fl">5</span><span class="op">:</span><span class="fl">21</span><span class="op">]</span>,</span></span>
-<span class="r-in"><span>   n.cores <span class="op">=</span> <span class="fl">1</span>,</span></span>
-<span class="r-in"><span>   verbose <span class="op">=</span> <span class="cn">TRUE</span></span></span>
-<span class="r-in"><span> <span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="co">#subset to speed-up example</span></span></span>
+<span class="r-in"><span>  <span class="va">idx</span> <span class="op">&lt;-</span> <span class="fl">1</span><span class="op">:</span><span class="fl">30</span></span></span>
+<span class="r-in"><span>  <span class="va">plants_df</span> <span class="op">&lt;-</span> <span class="va">plants_df</span><span class="op">[</span><span class="va">idx</span>, <span class="op">]</span></span></span>
+<span class="r-in"><span>  <span class="va">plants_xy</span> <span class="op">&lt;-</span> <span class="va">plants_xy</span><span class="op">[</span><span class="va">idx</span>, <span class="op">]</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span> <span class="va">new.features</span><span class="op">$</span><span class="va">screening</span></span></span>
-<span class="r-in"><span> <span class="va">new.features</span><span class="op">$</span><span class="va">selected</span></span></span>
-<span class="r-in"><span> <span class="va">new.features</span><span class="op">$</span><span class="va">columns</span></span></span>
+<span class="r-in"><span>  <span class="co">#data subsetted to speed-up example runtime</span></span></span>
+<span class="r-in"><span>  <span class="va">y</span> <span class="op">&lt;-</span> <span class="fu">the_feature_engineer</span><span class="op">(</span></span></span>
+<span class="r-in"><span>    data <span class="op">=</span> <span class="va">plants_df</span>,</span></span>
+<span class="r-in"><span>    dependent.variable.name <span class="op">=</span> <span class="va">plants_response</span>,</span></span>
+<span class="r-in"><span>    predictor.variable.names <span class="op">=</span> <span class="va">predictors</span>,</span></span>
+<span class="r-in"><span>    xy <span class="op">=</span> <span class="va">plants_xy</span>,</span></span>
+<span class="r-in"><span>    repetitions <span class="op">=</span> <span class="fl">5</span>,</span></span>
+<span class="r-in"><span>    n.cores <span class="op">=</span> <span class="fl">1</span>,</span></span>
+<span class="r-in"><span>    ranger.arguments <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>      num.trees <span class="op">=</span> <span class="fl">30</span></span></span>
+<span class="r-in"><span>    <span class="op">)</span>,</span></span>
+<span class="r-in"><span>    verbose <span class="op">=</span> <span class="cn">TRUE</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co">#all tested interactions</span></span></span>
+<span class="r-in"><span>  <span class="va">y</span><span class="op">$</span><span class="va">screening</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co">#selected interaction (same as above in this case)</span></span></span>
+<span class="r-in"><span>  <span class="va">y</span><span class="op">$</span><span class="va">selected</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co">#new column added to data</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">y</span><span class="op">$</span><span class="va">data</span><span class="op">[</span>, <span class="va">y</span><span class="op">$</span><span class="va">selected</span><span class="op">$</span><span class="va">interaction.name</span><span class="op">]</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

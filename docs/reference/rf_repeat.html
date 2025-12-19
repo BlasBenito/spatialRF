@@ -20,6 +20,17 @@
       <ul class="navbar-nav me-auto"><li class="active nav-item">
   <a class="nav-link" href="../reference/index.html">Reference</a>
 </li>
+<li class="nav-item dropdown">
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <h6 class="dropdown-header" data-toc-skip>Tutorials</h6>
+    <a class="dropdown-item" href="../articles/non_spatial_models.html">Non-Spatial Random Forest Models</a>
+    <a class="dropdown-item" href="../articles/spatial_models.html">Spatial Random Forest Models</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Development</h6>
+    <a class="dropdown-item" href="../articles/development_roadmap.html">Development Roadmap</a>
+  </div>
+</li>
 <li class="nav-item">
   <a class="nav-link" href="../news/index.html">Changelog</a>
 </li>
@@ -141,66 +152,44 @@
 <li><p><code>pseudo.r.squared</code>: computed as the correlation between the observations and the predictions.</p></li>
 <li><p><code>residuals</code>: residuals, normality test of the residuals computed with <code><a href="normality.html">residuals_test()</a></code>, and spatial autocorrelation of the residuals computed with <code><a href="moran_multithreshold.html">moran_multithreshold()</a></code>.</p></li>
 </ul></div>
+    <div class="section level2">
+    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
+    <div class="dont-index"><p>Other model_workflow: 
+<code><a href="rf_compare.html">rf_compare</a>()</code>,
+<code><a href="rf_evaluate.html">rf_evaluate</a>()</code>,
+<code><a href="rf_importance.html">rf_importance</a>()</code>,
+<code><a href="rf_tuning.html">rf_tuning</a>()</code></p></div>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">{</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="kw">if</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">{</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span> <span class="co">#loading example data</span></span></span>
-<span class="r-in"><span> <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">plant_richness_df</span><span class="op">)</span></span></span>
-<span class="r-in"><span> <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">distance_matrix</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">plants_rf</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span> <span class="co">#fitting 5 random forest models</span></span></span>
-<span class="r-in"><span> <span class="va">out</span> <span class="op">&lt;-</span> <span class="fu">rf_repeat</span><span class="op">(</span></span></span>
-<span class="r-in"><span>   data <span class="op">=</span> <span class="va">plant_richness_df</span>,</span></span>
-<span class="r-in"><span>   dependent.variable.name <span class="op">=</span> <span class="st">"richness_species_vascular"</span>,</span></span>
-<span class="r-in"><span>   predictor.variable.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">plant_richness_df</span><span class="op">)</span><span class="op">[</span><span class="fl">5</span><span class="op">:</span><span class="fl">21</span><span class="op">]</span>,</span></span>
-<span class="r-in"><span>   distance.matrix <span class="op">=</span> <span class="va">distance_matrix</span>,</span></span>
-<span class="r-in"><span>   distance.thresholds <span class="op">=</span> <span class="fl">0</span>,</span></span>
-<span class="r-in"><span>   repetitions <span class="op">=</span> <span class="fl">5</span>,</span></span>
-<span class="r-in"><span>   n.cores <span class="op">=</span> <span class="fl">1</span></span></span>
-<span class="r-in"><span> <span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">m_repeat</span> <span class="op">&lt;-</span> <span class="fu">rf_repeat</span><span class="op">(</span></span></span>
+<span class="r-in"><span>    model <span class="op">=</span> <span class="va">plants_rf</span>,</span></span>
+<span class="r-in"><span>    repetitions <span class="op">=</span> <span class="fl">5</span>,</span></span>
+<span class="r-in"><span>    n.cores <span class="op">=</span> <span class="fl">1</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span> <span class="co">#data frame with ordered variable importance</span></span></span>
-<span class="r-in"><span> <span class="va">out</span><span class="op">$</span><span class="va">importance</span><span class="op">$</span><span class="va">per.variable</span></span></span>
+<span class="r-in"><span>  <span class="co">#performance scores across repetitions</span></span></span>
+<span class="r-in"><span>  <span class="va">m_repeat</span><span class="op">$</span><span class="va">performance</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="print_performance.html">print_performance</a></span><span class="op">(</span><span class="va">m_repeat</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span> <span class="co">#per repetition</span></span></span>
-<span class="r-in"><span> <span class="va">out</span><span class="op">$</span><span class="va">importance</span><span class="op">$</span><span class="va">per.repetition</span></span></span>
+<span class="r-in"><span>  <span class="co">#variable importance</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="plot_importance.html">plot_importance</a></span><span class="op">(</span><span class="va">m_repeat</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span> <span class="co">#variable importance plot</span></span></span>
-<span class="r-in"><span> <span class="va">out</span><span class="op">$</span><span class="va">importance</span><span class="op">$</span><span class="va">per.repetition.plot</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span> <span class="co">#performance</span></span></span>
-<span class="r-in"><span> <span class="va">out</span><span class="op">$</span><span class="va">performance</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span> <span class="co">#spatial correlation of the residuals for different distance thresholds</span></span></span>
-<span class="r-in"><span> <span class="va">out</span><span class="op">$</span><span class="va">spatial.correlation.residuals</span><span class="op">$</span><span class="va">per.distance</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span> <span class="co">#plot of the Moran's I of the residuals for different distance thresholds</span></span></span>
-<span class="r-in"><span> <span class="va">out</span><span class="op">$</span><span class="va">spatial.correlation.residuals</span><span class="op">$</span><span class="va">plot</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span> <span class="co">#using a model as an input for rf_repeat()</span></span></span>
-<span class="r-in"><span> <span class="va">rf.model</span> <span class="op">&lt;-</span> <span class="fu"><a href="rf.html">rf</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>   data <span class="op">=</span> <span class="va">plant_richness_df</span>,</span></span>
-<span class="r-in"><span>   dependent.variable.name <span class="op">=</span> <span class="st">"richness_species_vascular"</span>,</span></span>
-<span class="r-in"><span>   predictor.variable.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">plant_richness_df</span><span class="op">)</span><span class="op">[</span><span class="fl">8</span><span class="op">:</span><span class="fl">21</span><span class="op">]</span>,</span></span>
-<span class="r-in"><span>   distance.matrix <span class="op">=</span> <span class="va">distance_matrix</span>,</span></span>
-<span class="r-in"><span>   distance.thresholds <span class="op">=</span> <span class="fl">0</span>,</span></span>
-<span class="r-in"><span>   n.cores <span class="op">=</span> <span class="fl">1</span></span></span>
-<span class="r-in"><span>   <span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span> <span class="co">#repeating the model 5 times</span></span></span>
-<span class="r-in"><span> <span class="va">rf.repeat</span> <span class="op">&lt;-</span> <span class="fu">rf_repeat</span><span class="op">(</span></span></span>
-<span class="r-in"><span>   model <span class="op">=</span> <span class="va">rf.model</span>,</span></span>
-<span class="r-in"><span>   n.cores <span class="op">=</span> <span class="fl">1</span></span></span>
-<span class="r-in"><span>   <span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span> <span class="va">rf.repeat</span><span class="op">$</span><span class="va">performance</span></span></span>
-<span class="r-in"><span> <span class="va">rf.repeat</span><span class="op">$</span><span class="va">importance</span><span class="op">$</span><span class="va">per.repetition.plot</span></span></span>
+<span class="r-in"><span>  <span class="co">#response curves</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="plot_response_curves.html">plot_response_curves</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    model <span class="op">=</span> <span class="va">m_repeat</span>,</span></span>
+<span class="r-in"><span>    variables <span class="op">=</span> <span class="st">"climate_bio1_average"</span>,</span></span>
+<span class="r-in"><span>    quantiles <span class="op">=</span> <span class="fl">0.5</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

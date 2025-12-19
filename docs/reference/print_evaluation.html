@@ -20,6 +20,17 @@
       <ul class="navbar-nav me-auto"><li class="active nav-item">
   <a class="nav-link" href="../reference/index.html">Reference</a>
 </li>
+<li class="nav-item dropdown">
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <h6 class="dropdown-header" data-toc-skip>Tutorials</h6>
+    <a class="dropdown-item" href="../articles/non_spatial_models.html">Non-Spatial Random Forest Models</a>
+    <a class="dropdown-item" href="../articles/spatial_models.html">Spatial Random Forest Models</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Development</h6>
+    <a class="dropdown-item" href="../articles/development_roadmap.html">Development Roadmap</a>
+  </div>
+</li>
 <li class="nav-item">
   <a class="nav-link" href="../news/index.html">Changelog</a>
 </li>
@@ -67,39 +78,117 @@
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="plot_evaluation.html">plot_evaluation()</a></code>, <code><a href="get_evaluation.html">get_evaluation()</a></code></p></div>
+    <div class="dont-index"><p><code><a href="plot_evaluation.html">plot_evaluation()</a></code>, <code><a href="get_evaluation.html">get_evaluation()</a></code></p>
+<p>Other model_info: 
+<code><a href="get_evaluation.html">get_evaluation</a>()</code>,
+<code><a href="get_importance.html">get_importance</a>()</code>,
+<code><a href="get_importance_local.html">get_importance_local</a>()</code>,
+<code><a href="get_moran.html">get_moran</a>()</code>,
+<code><a href="get_performance.html">get_performance</a>()</code>,
+<code><a href="get_predictions.html">get_predictions</a>()</code>,
+<code><a href="get_residuals.html">get_residuals</a>()</code>,
+<code><a href="get_response_curves.html">get_response_curves</a>()</code>,
+<code><a href="get_spatial_predictors.html">get_spatial_predictors</a>()</code>,
+<code><a href="print.html">print.rf</a>()</code>,
+<code><a href="print_importance.html">print_importance</a>()</code>,
+<code><a href="print_moran.html">print_moran</a>()</code>,
+<code><a href="print_performance.html">print_performance</a>()</code></p></div>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">{</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co">#loading example data</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">plant_richness_df</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">distance_matrix</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co">#fitting random forest model</span></span></span>
-<span class="r-in"><span><span class="va">rf.model</span> <span class="op">&lt;-</span> <span class="fu"><a href="rf.html">rf</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  data <span class="op">=</span> <span class="va">plant_richness_df</span>,</span></span>
-<span class="r-in"><span>  dependent.variable.name <span class="op">=</span> <span class="st">"richness_species_vascular"</span>,</span></span>
-<span class="r-in"><span>  predictor.variable.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">plant_richness_df</span><span class="op">)</span><span class="op">[</span><span class="fl">5</span><span class="op">:</span><span class="fl">21</span><span class="op">]</span>,</span></span>
-<span class="r-in"><span>  distance.matrix <span class="op">=</span> <span class="va">distance_matrix</span>,</span></span>
-<span class="r-in"><span>  distance.thresholds <span class="op">=</span> <span class="fl">0</span>,</span></span>
-<span class="r-in"><span>  n.cores <span class="op">=</span> <span class="fl">1</span>,</span></span>
-<span class="r-in"><span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">plants_rf</span>,</span></span>
+<span class="r-in"><span>  <span class="va">plants_xy</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co">#evaluation with spatial cross-validation</span></span></span>
-<span class="r-in"><span><span class="va">rf.model</span> <span class="op">&lt;-</span> <span class="fu"><a href="rf_evaluate.html">rf_evaluate</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  model <span class="op">=</span> <span class="va">rf.model</span>,</span></span>
-<span class="r-in"><span>  xy <span class="op">=</span> <span class="va">plant_richness_df</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x"</span>, <span class="st">"y"</span><span class="op">)</span><span class="op">]</span>,</span></span>
+<span class="r-in"><span><span class="va">m_evaluated</span> <span class="op">&lt;-</span> <span class="fu"><a href="rf_evaluate.html">rf_evaluate</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  model <span class="op">=</span> <span class="va">plants_rf</span>,</span></span>
+<span class="r-in"><span>  xy <span class="op">=</span> <span class="va">plants_xy</span>,</span></span>
+<span class="r-in"><span>  repetitions <span class="op">=</span> <span class="fl">5</span>,</span></span>
 <span class="r-in"><span>  n.cores <span class="op">=</span> <span class="fl">1</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Selecting pairs of coordinates as training fold origins.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Generating spatial folds.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Evaluation results stored in model$evaluation.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Spatial evaluation </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Training fraction:             0.75</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Spatial folds:                 5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            Metric   Median     MAD  Minimum  Maximum</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             nrmse    0.854   0.397    0.586    2.176</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  pseudo.r.squared    0.619   0.243    0.153    0.783</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         r.squared    0.384   0.299    0.023    0.613</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              rmse 3209.847 233.745 2570.556 3890.504</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co">#checking evaluation results</span></span></span>
-<span class="r-in"><span><span class="fu">print_evaluation</span><span class="op">(</span><span class="va">rf.model</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="plot_evaluation.html">plot_evaluation</a></span><span class="op">(</span><span class="va">m_evaluated</span>, notch <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="print_evaluation-1.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="print_evaluation-2.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-in"><span><span class="fu">print_evaluation</span><span class="op">(</span><span class="va">m_evaluated</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Spatial evaluation </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Training fraction:             0.75</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Spatial folds:                 5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            Metric   Median     MAD  Minimum  Maximum</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             nrmse    0.854   0.397    0.586    2.176</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  pseudo.r.squared    0.619   0.243    0.153    0.783</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         r.squared    0.384   0.299    0.023    0.613</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              rmse 3209.847 233.745 2570.556 3890.504</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="get_evaluation.html">get_evaluation</a></span><span class="op">(</span><span class="va">m_evaluated</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       model           metric       median median_absolute_deviation</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1      Full              auc           NA                        NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2      Full            nrmse           NA                        NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3      Full pseudo.r.squared           NA                        NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4      Full        r.squared           NA                        NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5      Full             rmse           NA                        NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6   Testing              auc           NA                        NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7   Testing            nrmse    0.8540000              3.973368e-01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8   Testing pseudo.r.squared    0.6190000              2.431464e-01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9   Testing        r.squared    0.3840000              2.994852e-01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10  Testing             rmse 3209.8470000              2.337452e+02</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11 Training              auc           NA                        NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12 Training            nrmse    0.5179274              6.650721e-02</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13 Training pseudo.r.squared    0.9031076              8.813944e-03</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14 Training        r.squared    0.8156033              1.597228e-02</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15 Training             rmse 1760.1130000              3.261272e+02</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              q1           q3         mean      se           sd          min</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1            NA           NA           NA      NA           NA           NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2            NA           NA    0.4646691      NA           NA           NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3            NA           NA    0.9153539      NA           NA           NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4            NA           NA    0.8378728      NA           NA           NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5            NA           NA 1609.6138000      NA           NA           NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6            NA           NA           NA      NA           NA           NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7     0.7540000    1.6240000    1.1988000   0.302   0.67601272    0.5860000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8     0.4270000    0.6290000    0.5222000   0.108   0.24195289    0.1530000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9     0.1820000    0.3960000    0.3196000   0.101   0.22526274    0.0230000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10 3052.1880000 3221.4480000 3188.9086000 211.517 472.96558935 2570.5560000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11           NA           NA           NA      NA           NA           NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12    0.4286512    0.5380660    0.4898071   0.032   0.07064923    0.4016049</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13    0.9017172    0.9090525    0.9030970   0.005   0.01129303    0.8856013</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14    0.8130939    0.8263764    0.8156863   0.009   0.02033142    0.7842897</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15 1464.8083000 1895.6144000 1691.9499800 120.729 269.95715642 1359.1314000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             max</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1            NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2            NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3            NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4            NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5            NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6            NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7     2.1760000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8     0.7830000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9     0.6130000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10 3890.5040000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11           NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12    0.5627859</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13    0.9160066</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14    0.8390681</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15 1980.0828000</span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

@@ -1,16 +1,16 @@
 test_that("`select_spatial_predictors_sequential()` works", {
-  data("distance_matrix")
-  data("plant_richness_df")
+  data("plants_distance")
+  data("plants_df")
 
   # Use smaller subset for faster testing
   # Sample 70 rows to keep test fast while maintaining validity
   sample_idx <- 1:100
-  data <- plant_richness_df[sample_idx, ]
-  distance.matrix <- distance_matrix[sample_idx, sample_idx]
+  data <- plants_df[sample_idx, ]
+  distance.matrix <- plants_distance[sample_idx, sample_idx]
 
   # Use fewer predictors (7 instead of 17) for faster testing
   dependent.variable.name <- "richness_species_vascular"
-  predictor.variable.names <- colnames(plant_richness_df)[5:11]
+  predictor.variable.names <- colnames(plants_df)[5:11]
 
   # Use single distance threshold for speed
   distance.thresholds <- 0
@@ -65,4 +65,5 @@ test_that("`select_spatial_predictors_sequential()` works", {
     sum(selection$optimization$selected),
     length(selection$best.spatial.predictors)
   )
+  
 })

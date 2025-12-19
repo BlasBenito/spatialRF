@@ -1,6 +1,6 @@
 test_that("`rf_evaluate()` works", {
-  data(plant_richness_df)
-  data(distance_matrix)
+  data(plants_df)
+  data(plants_distance)
 
   cluster <- parallel::makeCluster(
     parallel::detectCores() - 1,
@@ -8,10 +8,10 @@ test_that("`rf_evaluate()` works", {
   )
 
   rf.model <- rf(
-    data = plant_richness_df,
+    data = plants_df,
     dependent.variable.name = "richness_species_vascular",
-    predictor.variable.names = colnames(plant_richness_df)[5:21],
-    distance.matrix = distance_matrix,
+    predictor.variable.names = colnames(plants_df)[5:21],
+    distance.matrix = plants_distance,
     distance.thresholds = c(
       0,
       1000,
@@ -22,7 +22,7 @@ test_that("`rf_evaluate()` works", {
 
   rf.model <- rf_evaluate(
     model = rf.model,
-    xy = plant_richness_df[, c("x", "y")],
+    xy = plants_df[, c("x", "y")],
     verbose = FALSE,
     cluster = cluster
   )
@@ -36,4 +36,5 @@ test_that("`rf_evaluate()` works", {
   expect_s3_class(rf.model$evaluation$per.fold, "data.frame")
   expect_s3_class(rf.model$evaluation$per.model, "data.frame")
   expect_s3_class(rf.model$evaluation$aggregated, "data.frame")
+  
 })

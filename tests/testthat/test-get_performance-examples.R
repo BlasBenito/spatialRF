@@ -1,11 +1,11 @@
 test_that("`get_performance()` works", {
-  data(plant_richness_df)
-  data(distance_matrix)
+  data(plants_df)
+  data(plants_distance)
   rf.model <- rf(
-    data = plant_richness_df,
+    data = plants_df,
     dependent.variable.name = "richness_species_vascular",
-    predictor.variable.names = colnames(plant_richness_df)[5:21],
-    distance.matrix = distance_matrix,
+    predictor.variable.names = colnames(plants_df)[5:21],
+    distance.matrix = plants_distance,
     distance.thresholds = c(0, 1000, 2000),
     verbose = FALSE
   )

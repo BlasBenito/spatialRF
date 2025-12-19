@@ -1,0 +1,270 @@
+---
+title: "Spatial Random Forest Models"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Spatial Random Forest Models}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  eval = TRUE,
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 5,
+  out.width = "100%",
+  warning = FALSE,
+  message = FALSE
+)
+```
+
+# Introduction
+
+This tutorial demonstrates how to address spatial autocorrelation in random forest model residuals using the `spatialRF` package. Spatial autocorrelation occurs when model residuals at nearby locations are more similar than expected by chance, violating the assumption of independence and potentially leading to inflated performance metrics and biased variable importance scores.
+
+The `rf_spatial()` function addresses this issue by incorporating **spatial predictors** (Moran's Eigenvector Maps) that capture spatial structure not explained by environmental predictors alone.
+
+For an introduction to non-spatial random forest modeling with spatialRF, see the [Non-Spatial Random Forest Models](non_spatial_models.html) tutorial.
+
+# Setup
+
+```{r setup}
+library(spatialRF)
+library(ggplot2)
+library(dplyr)
+library(rnaturalearth)
+library(rnaturalearthdata)
+library(parallel)
+library(patchwork)
+library(tidyr)
+
+# Load data and precomputed non-spatial model
+data(
+  plants_df,
+  plants_response,
+  plants_predictors,
+  plants_distance,
+  plants_xy,
+  plants_rf  # precomputed non-spatial model
+)
+
+# Configuration
+distance.thresholds <- c(100, 1000, 2000, 4000)
+colors <- grDevices::hcl.colors(n = 100, palette = "Zissou 1")
+
+# Parallel backend
+cluster <- parallel::makeCluster(
+  parallel::detectCores() - 1,
+  type = "PSOCK"
+)
+
+# Use precomputed model as starting point
+model.non.spatial <- plants_rf
+
+# Load world map for visualizations
+world <- rnaturalearth::ne_countries(
+  scale = "medium",
+  returnclass = "sf"
+)
+```
+
+# Spatial autocorrelation in residuals
+
+The plot below shows the spatial autocorrelation of the non-spatial model residuals.
+
+```{r, fig.width=4, fig.height=3, message=FALSE, warning=FALSE}
+spatialRF::plot_moran(
+  model.non.spatial,
+  verbose = FALSE,
+  point.color = colors
+  )
+```
+
+The spatial autocorrelation of the model residuals is high for neighborhood distances up to 1000km.
+
+To reduce the spatial autocorrelation of the residuals as much as possible, the non-spatial model can be transformed into a *spatial model* with [`rf_spatial()`](https://blasbenito.github.io/spatialRF/reference/rf_spatial.html).
+
+This function is the true core of the package!
+
+```{r}
+model.spatial <- spatialRF::rf_spatial(
+  model = model.non.spatial,
+  cluster = cluster,
+  verbose = FALSE
+  )
+```
+
+The residuals of the spatial model plotted below are not spatially correlated anymore.
+
+```{r, fig.width=4, fig.height=3, message=FALSE, warning=FALSE}
+spatialRF::plot_moran(
+  model.spatial,
+  verbose = FALSE,
+  point.color = colors
+  )
+```
+
+# Understanding spatial predictors
+
+The variable importance plot below shows that the spatial model has **spatial predictors** with varying levels or importance.
+
+```{r, fig.width = 6.5, fig.height=4.5}
+spatialRF::plot_importance(
+  model.spatial,
+  verbose = FALSE,
+  fill.color = colors
+  )
+```
+
+Spatial predictors are named `spatial_predictor_X_Y`, where `X` is the neighborhood distance at which the predictor is generated, and `Y` is the index of the predictor.
+
+```{r, echo = FALSE}
+model.spatial$importance$per.variable %>%
+  dplyr::filter(
+    grepl(pattern = "spatial_predictor", x = variable)
+  ) %>%
+  knitr::kable()
+```
+
+Spatial predictors are smooth surfaces representing neighborhood among records at different spatial scales. They are computed from the distance matrix in different ways.
+
+The ones computed by default in `rf_spatial()` are the eigenvectors of the double-centered distance matrix of weights (a.k.a, Moran's Eigenvector Maps).
+
+They represent the effect of spatial proximity among records, helping to represent biogeographic and spatial processes not considered by the non-spatial predictors.
+
+They can be extracted from the model with the function `get_spatial_predictors()`.
+
+```{r}
+spatial.predictors <- spatialRF::get_spatial_predictors(model.spatial)
+```
+
+The map below shows a couple of them.
+
+```{r, echo=FALSE, fig.width=12, fig.height=7}
+#get two most important predictors
+best_spatial_predictors <- model.spatial$importance$per.variable %>%
+  dplyr::filter(
+    grepl(pattern = "spatial_predictor", x = variable)
+  ) |>
+  dplyr::slice(c(1, 10)) |>
+  dplyr::pull(variable)
+
+best_spatial_predictors_df <- data.frame(
+  spatial.predictors[, best_spatial_predictors],
+  plants_df[, c("x", "y")]
+  ) |>
+  tidyr::pivot_longer(
+    cols = dplyr::all_of(best_spatial_predictors),
+    names_to = "predictor",
+    values_to = "eigenvalue"
+  )
+
+ggplot2::ggplot() +
+  ggplot2::geom_sf(data = world, fill = "white") +
+  ggplot2::geom_point(
+    data = best_spatial_predictors_df,
+    ggplot2::aes(
+      x = x,
+      y = y,
+      color = eigenvalue,
+      group = predictor
+    ),
+    size = 2.5
+  ) +
+  ggplot2::facet_wrap(facets = ~ predictor) +
+  ggplot2::scale_color_gradientn(colors = colors) +
+  ggplot2::theme_bw() +
+  ggplot2::labs(color = "Eigenvalue") +
+  ggplot2::scale_x_continuous(limits = c(-170, -30)) +
+  ggplot2::scale_y_continuous(limits = c(-58, 80))  +
+  ggplot2::ggtitle("Spatial Predictors") +
+  ggplot2::theme(legend.position = "bottom")+
+  ggplot2::xlab("Longitude") +
+  ggplot2::ylab("Latitude")
+```
+
+# Optimization process
+
+The spatial predictors are included in the model sequentially via [`select_spatial_predictors_sequential()`](https://blasbenito.github.io/spatialRF/reference/select_spatial_predictors_sequential.html). This function finds the smallest subset of spatial predictors that maximizes the model's R squared and minimizes the Moran's I of the residuals.
+
+```{r, fig.width=6, fig.height=4}
+spatialRF::plot_optimization(
+  model = model.spatial,
+  point.color = colors
+  )
+```
+
+# Hyperparameter tuning
+
+The function [`rf_tuning()`](https://blasbenito.github.io/spatialRF/reference/rf_tuning.html) optimizes the values for three critical Random Forest hyperparameters via spatial cross-validation:
+
+-   `num.trees`: number of regression trees in the forest.
+-   `mtry`: number of variables to choose from on each tree split.
+-   `min.node.size`: minimum number of cases on a terminal node.
+
+```{r, fig.width=6, fig.height=4.5}
+model.spatial <- rf_tuning(
+  model = model.spatial,
+  xy = plants_xy,
+  repetitions = 30,
+  num.trees = c(100, 200, 300),
+  mtry = c(2, 4, 8),
+  min.node.size = c(5, 10, 20),
+  cluster = cluster,
+  verbose = TRUE
+)
+```
+
+The function returns a tuned model only if the tuning finds a solution better than the original model. The tuning results can be accessed with `plot_tuning()`.
+
+```{r, fig.width = 7, fig.height=5, warning = FALSE}
+spatialRF::plot_tuning(
+  model = model.spatial,
+  point.color = colors
+)
+```
+
+# Model comparison
+
+The function [`rf_compare()`](https://blasbenito.github.io/spatialRF/reference/rf_compare.html) takes named list with models trained with the same data, and applies `rf_evaluate()` to each one of them to compare their predictive performances across spatial folds.
+
+```{r, fig.width=6, fig.height=3}
+comparison <- spatialRF::rf_compare(
+  models = list(
+    `Non-spatial` = model.non.spatial,
+    `Spatial` = model.spatial
+  ),
+  xy = plants_xy,
+  repetitions = 30,
+  training.fraction = 0.8,
+  fill.color = colors,
+  cluster = cluster,
+  metrics = "r.squared"
+  )
+```
+
+# Generating spatial predictors for other modelling methods
+
+You might not love Random Forest, but `spatialRF` loves you, and as such, it gives you tools to generate spatial predictors for other models anyway.
+
+The first step requires generating Moran's Eigenvector Maps (MEMs) from the distance matrix. Here there are two options, computing MEMs for a single neighborhood distance with [`mem()`](https://blasbenito.github.io/spatialRF/reference/mem.html), and computing MEMs for several neighborhood distances at once with [`mem_multithreshold()`](https://blasbenito.github.io/spatialRF/reference/mem_multithreshold.html).
+
+```{r}
+mems <- spatialRF::mem_multithreshold(
+  distance.matrix = plants_distance,
+  distance.thresholds = distance.thresholds
+)
+```
+
+In either case the result is a data frame with Moran's Eigenvector Maps ("just" the positive eigenvectors of the double-centered distance matrix).
+
+```{r, echo=FALSE, warning = FALSE, message=FALSE}
+knitr::kable(round(mems, 4))
+```
+
+```{r cleanup, echo = FALSE}
+# Clean up parallel cluster
+parallel::stopCluster(cluster)
+```

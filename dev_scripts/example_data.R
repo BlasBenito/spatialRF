@@ -15,3 +15,41 @@ usethis::use_data(plants_distance, overwrite = TRUE)
 usethis::use_data(plants_xy, overwrite = TRUE)
 usethis::use_data(plants_response, overwrite = TRUE)
 usethis::use_data(plants_predictors, overwrite = TRUE)
+
+plants_rf <- rf(
+  data = plants_df,
+  dependent.variable.name = plants_response,
+  predictor.variable.names = plants_predictors,
+  distance.matrix = plants_distance,
+  xy = plants_xy,
+  distance.thresholds = c(100, 1000, 2000, 4000),
+  ranger.arguments = list(
+    num.trees = 50,
+    min.node.size = 30
+  ),
+  n.cores = 1,
+  verbose = FALSE
+)
+
+usethis::use_data(plants_rf, overwrite = TRUE, compress = "xz")
+
+plants_rf_spatial <- rf_spatial(
+  data = plants_df,
+  dependent.variable.name = plants_response,
+  predictor.variable.names = plants_predictors,
+  distance.matrix = plants_distance,
+  xy = plants_xy,
+  distance.thresholds = c(100, 1000, 2000, 4000),
+  method = "mem.effect.recursive",
+  ranger.arguments = list(
+    num.trees = 50,
+    min.node.size = 30
+  ),
+  n.cores = 14,
+  verbose = FALSE
+)
+
+usethis::use_data(plants_rf_spatial, overwrite = TRUE, compress = "xz")
+
+#recompress
+tools::resaveRdaFiles("data", compress = "xz")

@@ -1,11 +1,11 @@
 test_that("`get_predictions()` works", {
-  data(plant_richness_df)
+  data(plants_df)
   rf.model <- rf(
-    data = plant_richness_df,
+    data = plants_df,
     dependent.variable.name = "richness_species_vascular",
-    predictor.variable.names = colnames(plant_richness_df)[5:21],
+    predictor.variable.names = colnames(plants_df)[5:21],
     verbose = FALSE
   )
   x <- get_predictions(rf.model)
-  expect_equal(length(x), nrow(plant_richness_df))
+  expect_equal(length(x), nrow(plants_df))
 })

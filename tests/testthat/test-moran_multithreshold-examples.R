@@ -1,9 +1,9 @@
 test_that("`moran_multithreshold()` works", {
-  data(distance_matrix)
-  data(plant_richness_df)
+  data(plants_distance)
+  data(plants_df)
   moran.out <- moran_multithreshold(
-    plant_richness_df$richness_species_vascular,
-    distance.matrix = distance_matrix,
+    plants_df$richness_species_vascular,
+    distance.matrix = plants_distance,
     distance.thresholds = c(0, 100, 1000),
     verbose = FALSE
   )

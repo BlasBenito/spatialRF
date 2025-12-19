@@ -1,0 +1,118 @@
+.vif_to_df              Convert VIF values to data frame
+auc                     Area under the ROC curve
+auto_cor                Multicollinearity reduction via Pearson
+                        correlation
+auto_vif                Multicollinearity reduction via Variance
+                        Inflation Factor
+beowulf_cluster         Create a Beowulf cluster for parallel computing
+case_weights            Generate case weights for imbalanced binary
+                        data
+default_distance_thresholds
+                        Default distance thresholds for spatial
+                        predictors
+double_center_distance_matrix
+                        Double-center a distance matrix
+filter_spatial_predictors
+                        Remove redundant spatial predictors
+get_evaluation          Extract evaluation metrics from cross-validated
+                        model
+get_importance          Extract variable importance from model
+get_importance_local    Extract local variable importance from model
+get_moran               Extract Moran's I test results for model
+                        residuals
+get_performance         Extract out-of-bag performance metrics from
+                        model
+get_predictions         Extract fitted predictions from model
+get_residuals           Extract model residuals
+get_response_curves     Extract response curve data for plotting
+get_spatial_predictors
+                        Extract spatial predictors from spatial model
+is_binary               Check if variable is binary with values 0 and 1
+make_spatial_fold       Create spatially independent training and
+                        testing folds
+make_spatial_folds      Create multiple spatially independent training
+                        and testing folds
+mem                     Compute Moran's Eigenvector Maps from distance
+                        matrix
+mem_multithreshold      Compute Moran's Eigenvector Maps across
+                        multiple distance thresholds
+moran                   Moran's I test for spatial autocorrelation
+moran_multithreshold    Moran's I test across multiple distance
+                        thresholds
+objects_size            Display sizes of objects in current R
+                        environment
+optimization_function   Compute optimization scores for spatial
+                        predictor selection
+pca                     Compute Principal Component Analysis
+pca_multithreshold      Compute Principal Component Analysis at
+                        multiple distance thresholds
+plants_df               Plant richness and predictors for American
+                        ecoregions
+plants_distance         Distance matrix between ecoregion edges
+plants_predictors       Predictor variable names for plant richness
+                        examples
+plants_response         Response variable name for plant richness
+                        examples
+plants_rf               Example fitted random forest model
+plants_rf_spatial       Example fitted spatial random forest model
+plants_xy               Coordinates for plant richness data
+plot_evaluation         Visualize spatial cross-validation results
+plot_importance         Visualize variable importance scores
+plot_moran              Plots a Moran's I test of model residuals
+plot_optimization       Optimization plot of a selection of spatial
+                        predictors
+plot_residuals_diagnostics
+                        Plot residuals diagnostics
+plot_response_curves    Plots the response curves of a model.
+plot_response_surface   Plots the response surfaces of a random forest
+                        model
+plot_training_df        Scatterplots of a training data frame
+plot_training_df_moran
+                        Moran's I plots of a training data frame
+plot_tuning             Plots a tuning object produced by 'rf_tuning()'
+prepare_importance_spatial
+                        Prepares variable importance objects for
+                        spatial models
+print_evaluation        Prints cross-validation results
+print_importance        Prints variable importance
+print_moran             Prints results of a Moran's I test
+print_performance       print_performance
+print.rf                Custom print method for random forest models
+rank_spatial_predictors
+                        Ranks spatial predictors
+rescale_vector          Rescales a numeric vector into a new range
+residuals_diagnostics   Normality test of a numeric vector
+residuals_test          Normality test of a numeric vector
+rf                      Random forest models with Moran's I test of the
+                        residuals
+rf_compare              Compares models via spatial cross-validation
+rf_evaluate             Evaluates random forest models with spatial
+                        cross-validation
+rf_importance           Contribution of each predictor to model
+                        transferability
+rf_repeat               Fits several random forest models on the same
+                        data
+rf_spatial              Fits spatial random forest models
+rf_tuning               Tuning of random forest hyperparameters via
+                        spatial cross-validation
+root_mean_squared_error
+                        RMSE and normalized RMSE
+select_spatial_predictors_recursive
+                        Finds optimal combinations of spatial
+                        predictors
+select_spatial_predictors_sequential
+                        Sequential introduction of spatial predictors
+                        into a model
+setup_parallel_execution
+                        Setup parallel execution with automatic backend
+                        detection
+standard_error          Standard error of the mean of a numeric vector
+statistical_mode        Statistical mode of a vector
+the_feature_engineer    Suggest variable interactions and composite
+                        features for random forest models
+thinning                Applies thinning to pairs of coordinates
+thinning_til_n          Applies thinning to pairs of coordinates until
+                        reaching a given n
+weights_from_distance_matrix
+                        Transforms a distance matrix into a matrix of
+                        weights

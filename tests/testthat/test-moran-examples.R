@@ -1,9 +1,9 @@
 test_that("`moran()` works", {
-  data(distance_matrix)
-  data(plant_richness_df)
+  data(plants_distance)
+  data(plants_df)
   out <- moran(
-    plant_richness_df$richness_species_vascular,
-    distance.matrix = distance_matrix,
+    plants_df$richness_species_vascular,
+    distance.matrix = plants_distance,
     verbose = FALSE
   )
   expect_type(out, "list")

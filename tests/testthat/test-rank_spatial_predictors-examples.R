@@ -1,15 +1,27 @@
 test_that("`rank_spatial_predictors()` works", {
-  data("distance_matrix")
+  data("plants_distance")
   spatial.predictors.df <- pca_multithreshold(
-    distance_matrix[1:50, 1:50],
+    plants_distance[1:50, 1:50],
     distance.thresholds = c(0, 100, 1000)
   )
+
+  cluster <- parallel::makeCluster(
+    parallel::detectCores() - 1,
+    type = "PSOCK"
+  )
+
   rank <- rank_spatial_predictors(
-    distance.matrix = distance_matrix[1:50, 1:50],
+    distance.matrix = plants_distance[1:50, 1:50],
     distance.thresholds = c(0, 100, 1000),
     spatial.predictors.df = spatial.predictors.df,
-    ranking.method = "moran"
+    ranking.method = "moran",
+    cluster = cluster
   )
+
+  foreach::registerDoSEQ()
+  parallel::stopCluster(cluster)
+  invisible(gc())
+
   expect_type(rank, "list")
   expect_named(
     rank,
@@ -17,4 +29,6 @@ test_that("`rank_spatial_predictors()` works", {
   )
   expect_length(rank, 4)
   expect_s3_class(rank$criteria, "data.frame")
+
+  
 })

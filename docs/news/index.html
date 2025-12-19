@@ -20,6 +20,17 @@
       <ul class="navbar-nav me-auto"><li class="nav-item">
   <a class="nav-link" href="../reference/index.html">Reference</a>
 </li>
+<li class="nav-item dropdown">
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <h6 class="dropdown-header" data-toc-skip>Tutorials</h6>
+    <a class="dropdown-item" href="../articles/non_spatial_models.html">Non-Spatial Random Forest Models</a>
+    <a class="dropdown-item" href="../articles/spatial_models.html">Spatial Random Forest Models</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Development</h6>
+    <a class="dropdown-item" href="../articles/development_roadmap.html">Development Roadmap</a>
+  </div>
+</li>
 <li class="active nav-item">
   <a class="nav-link" href="../news/index.html">Changelog</a>
 </li>
@@ -54,6 +65,7 @@
 <li><p>Refactored cluster setup code across all parallelized functions (<code><a href="../reference/rf_spatial.html">rf_spatial()</a></code>, <code><a href="../reference/rf_evaluate.html">rf_evaluate()</a></code>, <code><a href="../reference/rf_tuning.html">rf_tuning()</a></code>, <code><a href="../reference/rf_repeat.html">rf_repeat()</a></code>, <code><a href="../reference/rf_compare.html">rf_compare()</a></code>, <code><a href="../reference/rf_importance.html">rf_importance()</a></code>, <code><a href="../reference/the_feature_engineer.html">the_feature_engineer()</a></code>, <code><a href="../reference/select_spatial_predictors_sequential.html">select_spatial_predictors_sequential()</a></code>, <code><a href="../reference/select_spatial_predictors_recursive.html">select_spatial_predictors_recursive()</a></code>) to use the new helper, improving consistency and reducing code duplication.</p></li>
 <li><p>Removed <code>if(interactive()){}</code> wrappers from function examples to ensure examples run during R CMD check.</p></li>
 <li><p>Function <code><a href="../reference/rf_spatial.html">rf_spatial()</a></code> now fits a spatial model even when that’s not necessary.</p></li>
+<li><p>Simplified <code><a href="../reference/auto_cor.html">auto_cor()</a></code> and <code><a href="../reference/auto_vif.html">auto_vif()</a></code> with unified sequential evaluation algorithm that better preserves user preference order.</p></li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.1.4" id="version-114-19082022">Version 1.1.4 (19/08/2022)<a class="anchor" aria-label="anchor" href="#version-114-19082022"></a></h2><p class="text-muted">CRAN release: 2022-08-19</p>

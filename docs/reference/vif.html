@@ -20,6 +20,12 @@
       <ul class="navbar-nav me-auto"><li class="active nav-item">
   <a class="nav-link" href="../reference/index.html">Reference</a>
 </li>
+<li class="nav-item dropdown">
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <a class="dropdown-item" href="../articles/development_roadmap.html">Development Roadmap</a>
+  </div>
+</li>
 <li class="nav-item">
   <a class="nav-link" href="../news/index.html">Changelog</a>
 </li>
@@ -67,15 +73,28 @@
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="auto_vif.html">auto_vif()</a></code>, <code><a href="auto_cor.html">auto_cor()</a></code></p></div>
+    <div class="dont-index"><p><code><a href="auto_vif.html">auto_vif()</a></code>, <code><a href="auto_cor.html">auto_cor()</a></code></p>
+<p>Other utilities: 
+<code><a href="auc.html">auc</a>()</code>,
+<code><a href="beowulf_cluster.html">beowulf_cluster</a>()</code>,
+<code><a href="objects_size.html">objects_size</a>()</code>,
+<code><a href="optimization_function.html">optimization_function</a>()</code>,
+<code><a href="prepare_importance_spatial.html">prepare_importance_spatial</a>()</code>,
+<code><a href="rescale_vector.html">rescale_vector</a>()</code>,
+<code><a href="root_mean_squared_error.html">root_mean_squared_error</a>()</code>,
+<code><a href="setup_parallel_execution.html">setup_parallel_execution</a>()</code>,
+<code><a href="standard_error.html">standard_error</a>()</code>,
+<code><a href="statistical_mode.html">statistical_mode</a>()</code>,
+<code><a href="thinning.html">thinning</a>()</code>,
+<code><a href="thinning_til_n.html">thinning_til_n</a>()</code></p></div>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
-<span class="r-in"><span> <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">plant_richness_df</span><span class="op">)</span></span></span>
+<span class="r-in"><span> <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">plants_df</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span> <span class="fu">vif</span><span class="op">(</span><span class="va">plant_richness_df</span><span class="op">[</span>, <span class="fl">5</span><span class="op">:</span><span class="fl">21</span><span class="op">]</span><span class="op">)</span></span></span>
+<span class="r-in"><span> <span class="fu">vif</span><span class="op">(</span><span class="va">plants_df</span><span class="op">[</span>, <span class="fl">5</span><span class="op">:</span><span class="fl">21</span><span class="op">]</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                           variable   vif</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1          human_footprint_average 4.701</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2             climate_bio1_average 2.997</span>

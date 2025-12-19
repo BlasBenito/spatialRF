@@ -1,8 +1,8 @@
 test_that("`double_center_distance_matrix()` works", {
-  data(distance_matrix)
-  x <- double_center_distance_matrix(distance_matrix)
-  expect_equal(ncol(distance_matrix), ncol(x))
-  expect_equal(nrow(distance_matrix), nrow(x))
+  data(plants_distance)
+  x <- double_center_distance_matrix(plants_distance)
+  expect_equal(ncol(plants_distance), ncol(x))
+  expect_equal(nrow(plants_distance), nrow(x))
   expect_equal(is.matrix(x), TRUE)
   expect_type(x, "double")
 })

@@ -8,7 +8,6 @@
 ^informal_tests\.R$
 ^optimization_sequential\.R$
 .github
-README.Rmd
 README_files
 checking_optimized_algorithm.R
 cran-comments.md
@@ -33,3 +32,4 @@ spatialRF_papers/*
 .claude/*
 CLAUDE.md
 .Rprofile
+^vignettes/*

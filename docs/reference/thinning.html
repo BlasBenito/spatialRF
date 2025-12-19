@@ -20,6 +20,17 @@
       <ul class="navbar-nav me-auto"><li class="active nav-item">
   <a class="nav-link" href="../reference/index.html">Reference</a>
 </li>
+<li class="nav-item dropdown">
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <h6 class="dropdown-header" data-toc-skip>Tutorials</h6>
+    <a class="dropdown-item" href="../articles/non_spatial_models.html">Non-Spatial Random Forest Models</a>
+    <a class="dropdown-item" href="../articles/spatial_models.html">Spatial Random Forest Models</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Development</h6>
+    <a class="dropdown-item" href="../articles/development_roadmap.html">Development Roadmap</a>
+  </div>
+</li>
 <li class="nav-item">
   <a class="nav-link" href="../news/index.html">Changelog</a>
 </li>
@@ -75,71 +86,45 @@
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="thinning_til_n.html">thinning_til_n()</a></code></p></div>
+    <div class="dont-index"><p><code><a href="thinning_til_n.html">thinning_til_n()</a></code></p>
+<p>Other utilities: 
+<code><a href="dot-vif_to_df.html">.vif_to_df</a>()</code>,
+<code><a href="auc.html">auc</a>()</code>,
+<code><a href="beowulf_cluster.html">beowulf_cluster</a>()</code>,
+<code><a href="objects_size.html">objects_size</a>()</code>,
+<code><a href="optimization_function.html">optimization_function</a>()</code>,
+<code><a href="prepare_importance_spatial.html">prepare_importance_spatial</a>()</code>,
+<code><a href="rescale_vector.html">rescale_vector</a>()</code>,
+<code><a href="root_mean_squared_error.html">root_mean_squared_error</a>()</code>,
+<code><a href="setup_parallel_execution.html">setup_parallel_execution</a>()</code>,
+<code><a href="standard_error.html">standard_error</a>()</code>,
+<code><a href="statistical_mode.html">statistical_mode</a>()</code>,
+<code><a href="thinning_til_n.html">thinning_til_n</a>()</code></p></div>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
-<span class="r-in"><span> <span class="co">#load example data</span></span></span>
-<span class="r-in"><span> <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">plant_richness_df</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">plants_xy</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span> <span class="co">#thinning to points separated by 5 degrees</span></span></span>
-<span class="r-in"><span> <span class="va">plant_richness.thin</span> <span class="op">&lt;-</span> <span class="fu">thinning</span><span class="op">(</span></span></span>
-<span class="r-in"><span>   x <span class="op">=</span> <span class="va">plant_richness_df</span>,</span></span>
-<span class="r-in"><span>   minimum.distance <span class="op">=</span> <span class="fl">5</span> <span class="co">#points separated by at least 5 degrees</span></span></span>
-<span class="r-in"><span>   <span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu">thinning</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  xy <span class="op">=</span> <span class="va">plants_xy</span>,</span></span>
+<span class="r-in"><span>  minimum.distance <span class="op">=</span> <span class="fl">10</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">plant_richness.thin</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ecoregion_id          x          y richness_species_vascular bias_area_km2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1            1  -66.22004 -0.4379482                      4835     268444.41</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2            2  -92.07368 18.6461103                      4360      26658.41</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3            3 -123.99060 54.9272077                      1362     140062.77</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4            4  -75.70215  4.8396643                      7818      31915.27</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5            5  -61.12626 -8.9085918                     10394     716681.87</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6            8  -74.19557 40.8416537                      7372      73432.58</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   bias_species_per_record climate_aridity_index_average climate_hypervolume</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1              0.26999949                   -1.27163039          0.02239650</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2              0.14566151                    0.01279434          0.52194842</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3              0.12185540                    0.05070049          0.03088209</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4              0.16253423                   -0.57904797          0.68598777</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5              0.24753995                   -0.51033378          0.05199463</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6              0.01940485                    0.02578303          0.00118601</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   climate_velocity_lgm_average neighbors_count neighbors_percent_shared_edge</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                    7.6806232              10                     100.00000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2                    7.9545641              13                      56.46095</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3                    6.4202598               8                     100.00000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4                    0.5746547               4                      35.48473</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5                    6.5561073              10                     100.00000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6                   37.9671501               8                      47.89004</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   human_population_density topography_elevation_average</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                7.0675297                    86.807776</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2               42.5908861                     6.921187</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3                0.8711942                  1130.220919</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4              218.8202463                  1872.903223</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5                3.0460006                   166.793692</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6              506.5112161                   112.525613</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   landcover_herbs_percent_average fragmentation_cohesion fragmentation_division</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                        16.22373               99.81169              0.9195281</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2                        53.90207               92.40274              0.9999953</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3                        42.66630               99.68820              0.9690934</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4                        54.36617               99.34487              0.9649031</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5                        28.21572               99.89918              0.8698819</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6                        56.48969               99.40405              0.9848386</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   neighbors_area human_population human_footprint_average climate_bio1_average</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1      2005112.5        1897238.8               0.4305056            251.05816</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2       720242.4        1135405.4               8.3018495            261.08870</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3     15661626.9         122021.9               0.5687886             11.58566</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4       284154.0        6983707.7              11.9806927            173.21428</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5      4646036.6        2183013.4               1.9740117            251.82974</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6      1481083.8       37194423.7              28.2622898            112.20140</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   climate_bio15_minimum</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                    13</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2                    25</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3                    17</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4                    16</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5                    31</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6                     5</span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="va">plants_xy</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x"</span>, <span class="st">"y"</span><span class="op">)</span><span class="op">]</span>,</span></span>
+<span class="r-in"><span>    col <span class="op">=</span> <span class="st">"blue"</span>,</span></span>
+<span class="r-in"><span>    pch <span class="op">=</span> <span class="fl">15</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/graphics/points.html" class="external-link">points</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="va">y</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x"</span>, <span class="st">"y"</span><span class="op">)</span><span class="op">]</span>,</span></span>
+<span class="r-in"><span>    col <span class="op">=</span> <span class="st">"red"</span>,</span></span>
+<span class="r-in"><span>    pch <span class="op">=</span> <span class="fl">15</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

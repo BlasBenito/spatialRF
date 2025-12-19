@@ -7,10 +7,31 @@
     <loc>https://blasbenito.github.io/spatialRF/CLAUDE.html</loc>
   </url>
   <url>
+    <loc>https://blasbenito.github.io/spatialRF/LICENSE-text.html</loc>
+  </url>
+  <url>
     <loc>https://blasbenito.github.io/spatialRF/LICENSE.html</loc>
   </url>
   <url>
+    <loc>https://blasbenito.github.io/spatialRF/README-cran-agent.html</loc>
+  </url>
+  <url>
+    <loc>https://blasbenito.github.io/spatialRF/README-roxy.html</loc>
+  </url>
+  <url>
     <loc>https://blasbenito.github.io/spatialRF/TODO.html</loc>
+  </url>
+  <url>
+    <loc>https://blasbenito.github.io/spatialRF/articles/development_roadmap.html</loc>
+  </url>
+  <url>
+    <loc>https://blasbenito.github.io/spatialRF/articles/index.html</loc>
+  </url>
+  <url>
+    <loc>https://blasbenito.github.io/spatialRF/articles/non_spatial_models.html</loc>
+  </url>
+  <url>
+    <loc>https://blasbenito.github.io/spatialRF/articles/spatial_models.html</loc>
   </url>
   <url>
     <loc>https://blasbenito.github.io/spatialRF/authors.html</loc>
@@ -47,6 +68,9 @@
   </url>
   <url>
     <loc>https://blasbenito.github.io/spatialRF/reference/distance_matrix.html</loc>
+  </url>
+  <url>
+    <loc>https://blasbenito.github.io/spatialRF/reference/dot-vif_to_df.html</loc>
   </url>
   <url>
     <loc>https://blasbenito.github.io/spatialRF/reference/double_center_distance_matrix.html</loc>
@@ -125,6 +149,27 @@
   </url>
   <url>
     <loc>https://blasbenito.github.io/spatialRF/reference/plant_richness_df.html</loc>
+  </url>
+  <url>
+    <loc>https://blasbenito.github.io/spatialRF/reference/plants_df.html</loc>
+  </url>
+  <url>
+    <loc>https://blasbenito.github.io/spatialRF/reference/plants_distance.html</loc>
+  </url>
+  <url>
+    <loc>https://blasbenito.github.io/spatialRF/reference/plants_predictors.html</loc>
+  </url>
+  <url>
+    <loc>https://blasbenito.github.io/spatialRF/reference/plants_response.html</loc>
+  </url>
+  <url>
+    <loc>https://blasbenito.github.io/spatialRF/reference/plants_rf.html</loc>
+  </url>
+  <url>
+    <loc>https://blasbenito.github.io/spatialRF/reference/plants_rf_spatial.html</loc>
+  </url>
+  <url>
+    <loc>https://blasbenito.github.io/spatialRF/reference/plants_xy.html</loc>
   </url>
   <url>
     <loc>https://blasbenito.github.io/spatialRF/reference/plot_evaluation.html</loc>

@@ -1,9 +1,9 @@
 test_that("`mem_multithreshold()` works", {
-  data(distance_matrix)
+  data(plants_distance)
   x <- mem_multithreshold(
-    distance_matrix,
+    plants_distance,
     distance.thresholds = c(0, 1000, 2000)
   )
   expect_s3_class(x, "data.frame")
-  expect_equal(nrow(x), nrow(distance_matrix))
+  expect_equal(nrow(x), nrow(plants_distance))
 })

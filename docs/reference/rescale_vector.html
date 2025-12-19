@@ -20,6 +20,17 @@
       <ul class="navbar-nav me-auto"><li class="active nav-item">
   <a class="nav-link" href="../reference/index.html">Reference</a>
 </li>
+<li class="nav-item dropdown">
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <h6 class="dropdown-header" data-toc-skip>Tutorials</h6>
+    <a class="dropdown-item" href="../articles/non_spatial_models.html">Non-Spatial Random Forest Models</a>
+    <a class="dropdown-item" href="../articles/spatial_models.html">Spatial Random Forest Models</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Development</h6>
+    <a class="dropdown-item" href="../articles/development_roadmap.html">Development Roadmap</a>
+  </div>
+</li>
 <li class="nav-item">
   <a class="nav-link" href="../news/index.html">Changelog</a>
 </li>
@@ -84,23 +95,39 @@
 
 
     </div>
+    <div class="section level2">
+    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
+    <div class="dont-index"><p>Other utilities: 
+<code><a href="dot-vif_to_df.html">.vif_to_df</a>()</code>,
+<code><a href="auc.html">auc</a>()</code>,
+<code><a href="beowulf_cluster.html">beowulf_cluster</a>()</code>,
+<code><a href="objects_size.html">objects_size</a>()</code>,
+<code><a href="optimization_function.html">optimization_function</a>()</code>,
+<code><a href="prepare_importance_spatial.html">prepare_importance_spatial</a>()</code>,
+<code><a href="root_mean_squared_error.html">root_mean_squared_error</a>()</code>,
+<code><a href="setup_parallel_execution.html">setup_parallel_execution</a>()</code>,
+<code><a href="standard_error.html">standard_error</a>()</code>,
+<code><a href="statistical_mode.html">statistical_mode</a>()</code>,
+<code><a href="thinning.html">thinning</a>()</code>,
+<code><a href="thinning_til_n.html">thinning_til_n</a>()</code></p></div>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
-<span class="r-in"><span> <span class="va">out</span> <span class="op">&lt;-</span> <span class="fu">rescale_vector</span><span class="op">(</span></span></span>
-<span class="r-in"><span>   x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>   new.min <span class="op">=</span> <span class="fl">0</span>,</span></span>
-<span class="r-in"><span>   new.max <span class="op">=</span> <span class="fl">100</span>,</span></span>
-<span class="r-in"><span>   integer <span class="op">=</span> <span class="cn">TRUE</span></span></span>
-<span class="r-in"><span>   <span class="op">)</span></span></span>
-<span class="r-in"><span>   <span class="va">out</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   [1]  63   0  42  65  91  83  45  91  12  86  73  48 100  58  58  71  17  35</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [19]  54  65  44  39  48  60  81  64  71  63  43  44  31  71  40  77  62  95</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [37]  66  50  46  57  77  55  51   5  47  56  71  59  81  76  74  67  71  13</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [55]  85  80  89  53  70   7  55  22  83  77  48  72  30  56  80  49  53  51</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [73]  68  33  36  14  62  43  49  19  71  11  63  85  17  34  61  29  91  27</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [91]  81  45  70  63  71   8  31  38  74  44</span>
+<span class="r-in"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu">rescale_vector</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  new.min <span class="op">=</span> <span class="fl">0</span>,</span></span>
+<span class="r-in"><span>  new.max <span class="op">=</span> <span class="fl">100</span>,</span></span>
+<span class="r-in"><span>  integer <span class="op">=</span> <span class="cn">TRUE</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">y</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [1]  60  32  10  50   0  60  38  41  46  21  58  54  32  27  52  67  60  73</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [19]  62  39  45  28  19  13  58  37  35  79  47  61  41  46  25  56  57  54</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [37]  38  75  53  60  65  31  32  65  20  25  37  43  38  36  62  64  55  28</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [55]  44  33  18  48  51  70  66  73  51  51  47  29  26  66  50  48  62  54</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [73]  47  64  40  59  18  53  16  31  45  37  44  75  51  32  57  24  40  54</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [91]  34  33  44  32  37  60  13  29 100  31</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

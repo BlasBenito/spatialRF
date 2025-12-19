@@ -20,6 +20,17 @@
       <ul class="navbar-nav me-auto"><li class="active nav-item">
   <a class="nav-link" href="../reference/index.html">Reference</a>
 </li>
+<li class="nav-item dropdown">
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <h6 class="dropdown-header" data-toc-skip>Tutorials</h6>
+    <a class="dropdown-item" href="../articles/non_spatial_models.html">Non-Spatial Random Forest Models</a>
+    <a class="dropdown-item" href="../articles/spatial_models.html">Spatial Random Forest Models</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Development</h6>
+    <a class="dropdown-item" href="../articles/development_roadmap.html">Development Roadmap</a>
+  </div>
+</li>
 <li class="nav-item">
   <a class="nav-link" href="../news/index.html">Changelog</a>
 </li>
@@ -65,30 +76,125 @@
 
 <p>A list with importance data frames in different formats depending on whether the model was fitted with <code><a href="rf.html">rf()</a></code> or <code><a href="rf_repeat.html">rf_repeat()</a></code>.</p>
     </div>
+    <div class="section level2">
+    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
+    <div class="dont-index"><p>Other utilities: 
+<code><a href="dot-vif_to_df.html">.vif_to_df</a>()</code>,
+<code><a href="auc.html">auc</a>()</code>,
+<code><a href="beowulf_cluster.html">beowulf_cluster</a>()</code>,
+<code><a href="objects_size.html">objects_size</a>()</code>,
+<code><a href="optimization_function.html">optimization_function</a>()</code>,
+<code><a href="rescale_vector.html">rescale_vector</a>()</code>,
+<code><a href="root_mean_squared_error.html">root_mean_squared_error</a>()</code>,
+<code><a href="setup_parallel_execution.html">setup_parallel_execution</a>()</code>,
+<code><a href="standard_error.html">standard_error</a>()</code>,
+<code><a href="statistical_mode.html">statistical_mode</a>()</code>,
+<code><a href="thinning.html">thinning</a>()</code>,
+<code><a href="thinning_til_n.html">thinning_til_n</a>()</code></p></div>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">{</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">plants_rf_spatial</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span> <span class="co">#loading example data</span></span></span>
-<span class="r-in"><span> <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">distance_matrix</span><span class="op">)</span></span></span>
-<span class="r-in"><span> <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">plant_richness_df</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">prepare_importance_spatial</span><span class="op">(</span><span class="va">plants_rf_spatial</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $per.variable</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                           variable importance</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                 human_population   2062.953</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2          spatial_predictor_100_2   1313.871</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3          human_footprint_average   1284.529</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4             climate_bio1_average   1268.570</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5              climate_hypervolume   1138.002</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6                    bias_area_km2    965.209</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7          spatial_predictor_100_5    845.060</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8         human_population_density    753.136</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9                  neighbors_count    731.238</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10        spatial_predictor_100_11    621.663</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11    climate_velocity_lgm_average    595.414</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12         bias_species_per_record    592.786</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13        spatial_predictor_100_16    592.116</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14                  neighbors_area    568.468</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15   neighbors_percent_shared_edge    500.680</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 16    topography_elevation_average    420.887</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17   climate_aridity_index_average    395.820</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18        spatial_predictor_100_14    321.777</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19          fragmentation_cohesion    302.940</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20       spatial_predictor_2000_13    302.758</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 21       spatial_predictor_1000_66    270.484</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 22       spatial_predictor_1000_33    222.343</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 23       spatial_predictor_1000_64    127.906</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 24       spatial_predictor_1000_34     99.112</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 25          fragmentation_division     45.441</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 26 landcover_herbs_percent_average   -196.250</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 27           climate_bio15_minimum   -202.283</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $per.variable.plot</span>
+<span class="r-plt img"><img src="prepare_importance_spatial-1.png" alt="" width="700" height="433"></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $spatial.predictors</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                           variable importance</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2               spatial_predictors   1313.871</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7               spatial_predictors    845.060</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10              spatial_predictors    621.663</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13              spatial_predictors    592.116</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18              spatial_predictors    321.777</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20              spatial_predictors    302.758</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 21              spatial_predictors    270.484</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 22              spatial_predictors    222.343</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 23              spatial_predictors    127.906</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 24              spatial_predictors     99.112</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                 human_population   2062.953</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3          human_footprint_average   1284.529</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4             climate_bio1_average   1268.570</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5              climate_hypervolume   1138.002</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6                    bias_area_km2    965.209</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8         human_population_density    753.136</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9                  neighbors_count    731.238</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11    climate_velocity_lgm_average    595.414</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12         bias_species_per_record    592.786</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14                  neighbors_area    568.468</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15   neighbors_percent_shared_edge    500.680</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 16    topography_elevation_average    420.887</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17   climate_aridity_index_average    395.820</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19          fragmentation_cohesion    302.940</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 25          fragmentation_division     45.441</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 26 landcover_herbs_percent_average   -196.250</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 27           climate_bio15_minimum   -202.283</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $spatial.predictors.plot</span>
+<span class="r-plt img"><img src="prepare_importance_spatial-2.png" alt="" width="700" height="433"></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $spatial.predictors.stats</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                              variable importance</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                    human_population  2062.9530</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13           spatial_predictors (max)  1313.8710</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3             human_footprint_average  1284.5290</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4                climate_bio1_average  1268.5700</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5                 climate_hypervolume  1138.0020</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6                       bias_area_km2   965.2090</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8            human_population_density   753.1360</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9                     neighbors_count   731.2380</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 51 spatial_predictors (quantile 0.75)   614.2763</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11       climate_velocity_lgm_average   595.4140</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12            bias_species_per_record   592.7860</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14                     neighbors_area   568.4680</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15      neighbors_percent_shared_edge   500.6800</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 16       topography_elevation_average   420.8870</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17      climate_aridity_index_average   395.8200</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 31        spatial_predictors (median)   312.2675</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19             fragmentation_cohesion   302.9400</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 41 spatial_predictors (quantile 0.25)   234.3782</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2            spatial_predictors (min)    99.1120</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 25             fragmentation_division    45.4410</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 26    landcover_herbs_percent_average  -196.2500</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 27              climate_bio15_minimum  -202.2830</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $spatial.predictors.stats.plot</span>
+<span class="r-plt img"><img src="prepare_importance_spatial-3.png" alt="" width="700" height="433"></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span> <span class="co">#fittind spatial model</span></span></span>
-<span class="r-in"><span> <span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="rf_spatial.html">rf_spatial</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>   data <span class="op">=</span> <span class="va">plant_richness_df</span>,</span></span>
-<span class="r-in"><span>   dependent.variable.name <span class="op">=</span> <span class="st">"richness_species_vascular"</span>,</span></span>
-<span class="r-in"><span>   predictor.variable.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">plant_richness_df</span><span class="op">)</span><span class="op">[</span><span class="fl">5</span><span class="op">:</span><span class="fl">21</span><span class="op">]</span>,</span></span>
-<span class="r-in"><span>   distance.matrix <span class="op">=</span> <span class="va">distance_matrix</span>,</span></span>
-<span class="r-in"><span>   distance.thresholds <span class="op">=</span>  <span class="fl">0</span>,</span></span>
-<span class="r-in"><span>   n.cores <span class="op">=</span> <span class="fl">1</span></span></span>
-<span class="r-in"><span> <span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span> <span class="co">#preparing the importance data frame</span></span></span>
-<span class="r-in"><span> <span class="va">importance</span> <span class="op">&lt;-</span> <span class="fu">prepare_importance_spatial</span><span class="op">(</span><span class="va">model</span><span class="op">)</span></span></span>
-<span class="r-in"><span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">importance</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

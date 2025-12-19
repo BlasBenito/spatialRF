@@ -1,16 +1,16 @@
 test_that("`rf_spatial()` works", {
-  data(distance_matrix)
-  data(plant_richness_df)
+  data(plants_distance)
+  data(plants_df)
 
   # Use subset of data for faster testing
   # Sample 80 rows to keep test fast while maintaining statistical validity
   set.seed(123)
-  sample_idx <- sample(1:nrow(plant_richness_df), 80)
-  plant_richness_subset <- plant_richness_df[sample_idx, ]
-  distance_matrix_subset <- distance_matrix[sample_idx, sample_idx]
+  sample_idx <- sample(1:nrow(plants_df), 80)
+  plant_richness_subset <- plants_df[sample_idx, ]
+  plants_distance_subset <- plants_distance[sample_idx, sample_idx]
 
   # Use fewer predictors (8 instead of 17) for faster testing
-  predictor.variable.names <- colnames(plant_richness_df)[5:12]
+  predictor.variable.names <- colnames(plants_df)[5:12]
 
   # Test 1: hengl method (fastest, good for comprehensive testing)
   cluster <- parallel::makeCluster(
@@ -22,7 +22,7 @@ test_that("`rf_spatial()` works", {
     data = plant_richness_subset,
     dependent.variable.name = "richness_species_vascular",
     predictor.variable.names = predictor.variable.names,
-    distance.matrix = distance_matrix_subset,
+    distance.matrix = plants_distance_subset,
     distance.thresholds = 0, # Single threshold for speed
     method = "hengl",
     verbose = FALSE,
@@ -45,7 +45,7 @@ test_that("`rf_spatial()` works", {
     data = plant_richness_subset,
     dependent.variable.name = "richness_species_vascular",
     predictor.variable.names = predictor.variable.names,
-    distance.matrix = distance_matrix_subset,
+    distance.matrix = plants_distance_subset,
     distance.thresholds = 0,
     method = "mem.moran.sequential",
     verbose = FALSE,
@@ -60,9 +60,9 @@ test_that("`rf_spatial()` works", {
 
   # Test 3: mem.effect.recursive (slowest, just check it doesn't error)
   # Use even smaller subset for this expensive method
-  sample_idx_small <- sample(1:nrow(plant_richness_df), 50)
-  plant_richness_tiny <- plant_richness_df[sample_idx_small, ]
-  distance_matrix_tiny <- distance_matrix[sample_idx_small, sample_idx_small]
+  sample_idx_small <- sample(1:nrow(plants_df), 50)
+  plant_richness_tiny <- plants_df[sample_idx_small, ]
+  plants_distance_tiny <- plants_distance[sample_idx_small, sample_idx_small]
 
   expect_error(
     {
@@ -70,7 +70,7 @@ test_that("`rf_spatial()` works", {
         data = plant_richness_tiny,
         dependent.variable.name = "richness_species_vascular",
         predictor.variable.names = predictor.variable.names[1:5], # Even fewer predictors
-        distance.matrix = distance_matrix_tiny,
+        distance.matrix = plants_distance_tiny,
         distance.thresholds = 0,
         method = "mem.effect.recursive",
         verbose = FALSE,
@@ -83,4 +83,5 @@ test_that("`rf_spatial()` works", {
   foreach::registerDoSEQ()
   parallel::stopCluster(cluster)
   invisible(gc())
+  
 })

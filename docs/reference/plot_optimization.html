@@ -22,6 +22,17 @@ and select_spatial_predictors_recursive()."><!-- mathjax --><script src="file://
       <ul class="navbar-nav me-auto"><li class="active nav-item">
   <a class="nav-link" href="../reference/index.html">Reference</a>
 </li>
+<li class="nav-item dropdown">
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <h6 class="dropdown-header" data-toc-skip>Tutorials</h6>
+    <a class="dropdown-item" href="../articles/non_spatial_models.html">Non-Spatial Random Forest Models</a>
+    <a class="dropdown-item" href="../articles/spatial_models.html">Spatial Random Forest Models</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Development</h6>
+    <a class="dropdown-item" href="../articles/development_roadmap.html">Development Roadmap</a>
+  </div>
+</li>
 <li class="nav-item">
   <a class="nav-link" href="../news/index.html">Changelog</a>
 </li>
@@ -82,42 +93,36 @@ and <code><a href="select_spatial_predictors_recursive.html">select_spatial_pred
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     
 
-<p>A ggplot.</p>
+<p>A ggplot, or <code>NULL</code> invisibly if no optimization data is available.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>If the method used to fit a model with <code><a href="rf_spatial.html">rf_spatial()</a></code> is "hengl", the function returns nothing, as this method does not require optimization.</p>
+    <p>The function returns <code>NULL</code> invisibly (without plotting) when:</p><ul><li><p>The method used to fit a model with <code><a href="rf_spatial.html">rf_spatial()</a></code> is "hengl" (no optimization required)</p></li>
+<li><p>No spatial predictors were selected during model fitting</p></li>
+<li><p>The model is non-spatial</p></li>
+</ul></div>
+    <div class="section level2">
+    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
+    <div class="dont-index"><p>Other visualization: 
+<code><a href="plot_evaluation.html">plot_evaluation</a>()</code>,
+<code><a href="plot_importance.html">plot_importance</a>()</code>,
+<code><a href="plot_moran.html">plot_moran</a>()</code>,
+<code><a href="plot_residuals_diagnostics.html">plot_residuals_diagnostics</a>()</code>,
+<code><a href="plot_response_curves.html">plot_response_curves</a>()</code>,
+<code><a href="plot_response_surface.html">plot_response_surface</a>()</code>,
+<code><a href="plot_training_df.html">plot_training_df</a>()</code>,
+<code><a href="plot_training_df_moran.html">plot_training_df_moran</a>()</code>,
+<code><a href="plot_tuning.html">plot_tuning</a>()</code></p></div>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">{</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">plants_rf_spatial</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span> <span class="co">#loading example data</span></span></span>
-<span class="r-in"><span> <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">distance_matrix</span><span class="op">)</span></span></span>
-<span class="r-in"><span> <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">plant_richness_df</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">plot_optimization</span><span class="op">(</span><span class="va">plants_rf_spatial</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="plot_optimization-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span> <span class="co">#names of the response and predictors</span></span></span>
-<span class="r-in"><span> <span class="va">dependent.variable.name</span> <span class="op">&lt;-</span> <span class="st">"richness_species_vascular"</span></span></span>
-<span class="r-in"><span> <span class="va">predictor.variable.names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">plant_richness_df</span><span class="op">)</span><span class="op">[</span><span class="fl">5</span><span class="op">:</span><span class="fl">21</span><span class="op">]</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span> <span class="co">#spatial model</span></span></span>
-<span class="r-in"><span> <span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="rf_spatial.html">rf_spatial</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>   data <span class="op">=</span> <span class="va">plant_richness_df</span>,</span></span>
-<span class="r-in"><span>   dependent.variable.name <span class="op">=</span> <span class="va">dependent.variable.name</span>,</span></span>
-<span class="r-in"><span>   predictor.variable.names <span class="op">=</span> <span class="va">predictor.variable.names</span>,</span></span>
-<span class="r-in"><span>   distance.matrix <span class="op">=</span> <span class="va">distance_matrix</span>,</span></span>
-<span class="r-in"><span>   distance.thresholds <span class="op">=</span> <span class="fl">0</span>,</span></span>
-<span class="r-in"><span>   method <span class="op">=</span> <span class="st">"mem.moran.sequential"</span>,</span></span>
-<span class="r-in"><span>   n.cores <span class="op">=</span> <span class="fl">1</span>,</span></span>
-<span class="r-in"><span>   seed <span class="op">=</span> <span class="fl">1</span></span></span>
-<span class="r-in"><span> <span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span> <span class="co">#plotting selection of spatial predictors</span></span></span>
-<span class="r-in"><span> <span class="fu">plot_optimization</span><span class="op">(</span>model <span class="op">=</span> <span class="va">model</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

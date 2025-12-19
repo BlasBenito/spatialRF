@@ -20,6 +20,17 @@
       <ul class="navbar-nav me-auto"><li class="active nav-item">
   <a class="nav-link" href="../reference/index.html">Reference</a>
 </li>
+<li class="nav-item dropdown">
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <h6 class="dropdown-header" data-toc-skip>Tutorials</h6>
+    <a class="dropdown-item" href="../articles/non_spatial_models.html">Non-Spatial Random Forest Models</a>
+    <a class="dropdown-item" href="../articles/spatial_models.html">Spatial Random Forest Models</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Development</h6>
+    <a class="dropdown-item" href="../articles/development_roadmap.html">Development Roadmap</a>
+  </div>
+</li>
 <li class="nav-item">
   <a class="nav-link" href="../news/index.html">Changelog</a>
 </li>
@@ -136,45 +147,38 @@
 </ul></div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="rf_evaluate.html">rf_evaluate()</a></code></p></div>
+    <div class="dont-index"><p><code><a href="rf_evaluate.html">rf_evaluate()</a></code></p>
+<p>Other model_workflow: 
+<code><a href="rf_evaluate.html">rf_evaluate</a>()</code>,
+<code><a href="rf_importance.html">rf_importance</a>()</code>,
+<code><a href="rf_repeat.html">rf_repeat</a>()</code>,
+<code><a href="rf_tuning.html">rf_tuning</a>()</code></p></div>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">{</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="kw">if</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">{</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span> <span class="co">#loading example data</span></span></span>
-<span class="r-in"><span> <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">distance_matrix</span><span class="op">)</span></span></span>
-<span class="r-in"><span> <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">plant_richness_df</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="va">plants_rf</span>,</span></span>
+<span class="r-in"><span>    <span class="va">plants_rf_spatial</span>,</span></span>
+<span class="r-in"><span>    <span class="va">plants_xy</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span> <span class="co">#fitting random forest model</span></span></span>
-<span class="r-in"><span> <span class="va">rf.model</span> <span class="op">&lt;-</span> <span class="fu"><a href="rf.html">rf</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>   data <span class="op">=</span> <span class="va">plant_richness_df</span>,</span></span>
-<span class="r-in"><span>   dependent.variable.name <span class="op">=</span> <span class="st">"richness_species_vascular"</span>,</span></span>
-<span class="r-in"><span>   predictor.variable.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">plant_richness_df</span><span class="op">)</span><span class="op">[</span><span class="fl">5</span><span class="op">:</span><span class="fl">21</span><span class="op">]</span>,</span></span>
-<span class="r-in"><span>   distance.matrix <span class="op">=</span> <span class="va">distance_matrix</span>,</span></span>
-<span class="r-in"><span>   distance.thresholds <span class="op">=</span> <span class="fl">0</span>,</span></span>
-<span class="r-in"><span>   n.cores <span class="op">=</span> <span class="fl">1</span></span></span>
-<span class="r-in"><span> <span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span> <span class="co">#fitting a spatial model with Moran's Eigenvector Maps</span></span></span>
-<span class="r-in"><span> <span class="va">rf.spatial</span> <span class="op">&lt;-</span> <span class="fu"><a href="rf_spatial.html">rf_spatial</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span> model <span class="op">=</span> <span class="va">rf.model</span>,</span></span>
-<span class="r-in"><span> n.cores <span class="op">=</span> <span class="fl">1</span></span></span>
-<span class="r-in"><span> <span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span> <span class="co">#comparing the spatial and non spatial models</span></span></span>
-<span class="r-in"><span> <span class="va">comparison</span> <span class="op">&lt;-</span> <span class="fu">rf_compare</span><span class="op">(</span></span></span>
-<span class="r-in"><span> models <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>   `Non spatial` <span class="op">=</span> <span class="va">rf.model</span>,</span></span>
-<span class="r-in"><span>   Spatial <span class="op">=</span> <span class="va">rf.spatial</span></span></span>
-<span class="r-in"><span> <span class="op">)</span>,</span></span>
-<span class="r-in"><span> xy <span class="op">=</span> <span class="va">plant_richness_df</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x"</span>, <span class="st">"y"</span><span class="op">)</span><span class="op">]</span>,</span></span>
-<span class="r-in"><span> metrics <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"r.squared"</span>, <span class="st">"rmse"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span> n.cores <span class="op">=</span> <span class="fl">1</span></span></span>
-<span class="r-in"><span> <span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">comparison</span> <span class="op">&lt;-</span> <span class="fu">rf_compare</span><span class="op">(</span></span></span>
+<span class="r-in"><span>    models <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>      `Non spatial` <span class="op">=</span> <span class="va">plants_rf</span>,</span></span>
+<span class="r-in"><span>      Spatial <span class="op">=</span> <span class="va">plants_rf_spatial</span></span></span>
+<span class="r-in"><span>    <span class="op">)</span>,</span></span>
+<span class="r-in"><span>    repetitions <span class="op">=</span> <span class="fl">5</span>,</span></span>
+<span class="r-in"><span>    xy <span class="op">=</span> <span class="va">plants_xy</span>,</span></span>
+<span class="r-in"><span>    metrics <span class="op">=</span> <span class="st">"rmse"</span>,</span></span>
+<span class="r-in"><span>    n.cores <span class="op">=</span> <span class="fl">1</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

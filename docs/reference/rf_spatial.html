@@ -20,6 +20,17 @@
       <ul class="navbar-nav me-auto"><li class="active nav-item">
   <a class="nav-link" href="../reference/index.html">Reference</a>
 </li>
+<li class="nav-item dropdown">
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <h6 class="dropdown-header" data-toc-skip>Tutorials</h6>
+    <a class="dropdown-item" href="../articles/non_spatial_models.html">Non-Spatial Random Forest Models</a>
+    <a class="dropdown-item" href="../articles/spatial_models.html">Spatial Random Forest Models</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Development</h6>
+    <a class="dropdown-item" href="../articles/development_roadmap.html">Development Roadmap</a>
+  </div>
+</li>
 <li class="nav-item">
   <a class="nav-link" href="../news/index.html">Changelog</a>
 </li>
@@ -180,59 +191,54 @@ Methods to generate spatial predictors:</p><ul><li><p><code>"hengl"</code>: name
 <li><p><code>"recursive"</code> (see <code><a href="select_spatial_predictors_recursive.html">select_spatial_predictors_recursive()</a></code>): This method tries to find the smallest combination of spatial predictors that reduce the spatial correlation of the model's residuals the most. The algorithm goes as follows: 1. The first ranked spatial predictor is introduced into the model; 2. the remaining predictors are ranked again using the "effect" method, using the model in 1. as reference. The first spatial predictor in the resulting ranking is then introduced into the model, and the steps 1. and 2. are repeated until spatial predictors stop having an effect in reducing the Moran's I of the model residuals. This method takes longer to compute, but generates smaller sets of spatial predictors. This is an experimental method, use with caution.</p></li>
 </ul><p>Once ranking procedure is completed, an algorithm is used to select the minimal subset of spatial predictors that reduce the most the Moran's I of the residuals: for each new spatial predictor introduced in the model, the Moran's I of the residuals, it's p-value, a binary version of the p-value (0 if &lt; 0.05 and 1 if &gt;= 0.05), the R-squared of the model, and a penalization linear with the number of spatial predictors introduced (computed as <code>(1 / total spatial predictors) * introduced spatial predictors</code>) are rescaled between 0 and 1. Then, the optimization criteria is computed as <code>max(1 - Moran's I, p-value binary) + (weight.r.squared * R-squared) - (weight.penalization.n.predictors * penalization)</code>. The predictors from the first one to the one with the highest optimization criteria are then selected as the best ones in reducing the spatial correlation of the model residuals, and used along with <code>data</code> to fit the final spatial model.</p>
     </div>
+    <div class="section level2">
+    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
+    <div class="dont-index"><p>Other main_models: 
+<code><a href="rf.html">rf</a>()</code></p></div>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">{</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="va">plants_df</span>,</span></span>
+<span class="r-in"><span>    <span class="va">plants_response</span>,</span></span>
+<span class="r-in"><span>    <span class="va">plants_predictors</span>,</span></span>
+<span class="r-in"><span>    <span class="va">plants_distance</span>,</span></span>
+<span class="r-in"><span>    <span class="va">plants_rf</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span> <span class="co">#loading example data</span></span></span>
-<span class="r-in"><span> <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">distance_matrix</span><span class="op">)</span></span></span>
-<span class="r-in"><span> <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">plant_richness_df</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="co">#subset to speed up example</span></span></span>
+<span class="r-in"><span>  <span class="va">idx</span> <span class="op">&lt;-</span> <span class="fl">1</span><span class="op">:</span><span class="fl">100</span></span></span>
+<span class="r-in"><span>  <span class="va">plants_df</span> <span class="op">&lt;-</span> <span class="va">plants_df</span><span class="op">[</span><span class="va">idx</span>, <span class="op">]</span></span></span>
+<span class="r-in"><span>  <span class="va">plants_distance</span> <span class="op">&lt;-</span> <span class="va">plants_distance</span><span class="op">[</span><span class="va">idx</span>, <span class="va">idx</span><span class="op">]</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span> <span class="co">#names of the response and predictors</span></span></span>
-<span class="r-in"><span> <span class="va">dependent.variable.name</span> <span class="op">&lt;-</span> <span class="st">"richness_species_vascular"</span></span></span>
-<span class="r-in"><span> <span class="va">predictor.variable.names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">plant_richness_df</span><span class="op">)</span><span class="op">[</span><span class="fl">5</span><span class="op">:</span><span class="fl">21</span><span class="op">]</span></span></span>
+<span class="r-in"><span>  <span class="co">#fit spatial model from scratch</span></span></span>
+<span class="r-in"><span>  <span class="va">m_spatial</span> <span class="op">&lt;-</span> <span class="fu">rf_spatial</span><span class="op">(</span></span></span>
+<span class="r-in"><span>    data <span class="op">=</span> <span class="va">plants_df</span>,</span></span>
+<span class="r-in"><span>    dependent.variable.name <span class="op">=</span> <span class="va">plants_response</span>,</span></span>
+<span class="r-in"><span>    predictor.variable.names <span class="op">=</span> <span class="va">plants_predictors</span>,</span></span>
+<span class="r-in"><span>    distance.matrix <span class="op">=</span> <span class="va">plants_distance</span>,</span></span>
+<span class="r-in"><span>    distance.thresholds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">1000</span>, <span class="fl">2000</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    method <span class="op">=</span> <span class="st">"mem.moran.sequential"</span>,</span></span>
+<span class="r-in"><span>    ranger.arguments <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>num.trees <span class="op">=</span> <span class="fl">30</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    n.cores <span class="op">=</span> <span class="fl">1</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span> <span class="co">#hengl</span></span></span>
-<span class="r-in"><span> <span class="va">model</span> <span class="op">&lt;-</span> <span class="fu">rf_spatial</span><span class="op">(</span></span></span>
-<span class="r-in"><span>   data <span class="op">=</span> <span class="va">plant_richness_df</span>,</span></span>
-<span class="r-in"><span>   dependent.variable.name <span class="op">=</span> <span class="va">dependent.variable.name</span>,</span></span>
-<span class="r-in"><span>   predictor.variable.names <span class="op">=</span> <span class="va">predictor.variable.names</span>,</span></span>
-<span class="r-in"><span>   distance.matrix <span class="op">=</span> <span class="va">distance_matrix</span>,</span></span>
-<span class="r-in"><span>   distance.thresholds <span class="op">=</span> <span class="fl">0</span>,</span></span>
-<span class="r-in"><span>   method <span class="op">=</span> <span class="st">"hengl"</span>,</span></span>
-<span class="r-in"><span>   n.cores <span class="op">=</span> <span class="fl">1</span></span></span>
-<span class="r-in"><span> <span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="plot_residuals_diagnostics.html">plot_residuals_diagnostics</a></span><span class="op">(</span><span class="va">m_spatial</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span> <span class="co">#mem.moran.sequential</span></span></span>
-<span class="r-in"><span> <span class="va">model</span> <span class="op">&lt;-</span> <span class="fu">rf_spatial</span><span class="op">(</span></span></span>
-<span class="r-in"><span>   data <span class="op">=</span> <span class="va">plant_richness_df</span>,</span></span>
-<span class="r-in"><span>   dependent.variable.name <span class="op">=</span> <span class="va">dependent.variable.name</span>,</span></span>
-<span class="r-in"><span>   predictor.variable.names <span class="op">=</span> <span class="va">predictor.variable.names</span>,</span></span>
-<span class="r-in"><span>   distance.matrix <span class="op">=</span> <span class="va">distance_matrix</span>,</span></span>
-<span class="r-in"><span>   distance.thresholds <span class="op">=</span> <span class="fl">0</span>,</span></span>
-<span class="r-in"><span>   method <span class="op">=</span> <span class="st">"mem.moran.sequential"</span>,</span></span>
-<span class="r-in"><span>   n.cores <span class="op">=</span> <span class="fl">1</span></span></span>
-<span class="r-in"><span> <span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="co">#optimization of MEM selection</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="plot_optimization.html">plot_optimization</a></span><span class="op">(</span><span class="va">m_spatial</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span> <span class="co">#fitting an rf_spatial model from an rf model</span></span></span>
-<span class="r-in"><span> <span class="va">rf.model</span> <span class="op">&lt;-</span> <span class="fu"><a href="rf.html">rf</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>   data <span class="op">=</span> <span class="va">plant_richness_df</span>,</span></span>
-<span class="r-in"><span>   dependent.variable.name <span class="op">=</span> <span class="st">"richness_species_vascular"</span>,</span></span>
-<span class="r-in"><span>   predictor.variable.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">plant_richness_df</span><span class="op">)</span><span class="op">[</span><span class="fl">5</span><span class="op">:</span><span class="fl">21</span><span class="op">]</span>,</span></span>
-<span class="r-in"><span>   distance.matrix <span class="op">=</span> <span class="va">distance_matrix</span>,</span></span>
-<span class="r-in"><span>   distance.thresholds <span class="op">=</span> <span class="fl">0</span>,</span></span>
-<span class="r-in"><span>   n.cores <span class="op">=</span> <span class="fl">1</span>,</span></span>
-<span class="r-in"><span>   verbose <span class="op">=</span> <span class="cn">FALSE</span></span></span>
-<span class="r-in"><span> <span class="op">)</span></span></span>
-<span class="r-in"><span> <span class="va">rf.model</span><span class="op">$</span><span class="va">spatial.correlation.residuals</span><span class="op">$</span><span class="va">plot</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span> <span class="co">#spatial version of the rf model</span></span></span>
-<span class="r-in"><span> <span class="va">rf.spatial</span> <span class="op">&lt;-</span> <span class="fu">rf_spatial</span><span class="op">(</span>model <span class="op">=</span> <span class="va">rf.model</span><span class="op">)</span></span></span>
-<span class="r-in"><span> <span class="va">rf.spatial</span><span class="op">$</span><span class="va">spatial.correlation.residuals</span><span class="op">$</span><span class="va">plot</span></span></span>
-<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co">#from non-spatial to spatial model</span></span></span>
+<span class="r-in"><span>  <span class="va">m_spatial</span> <span class="op">&lt;-</span> <span class="fu">rf_spatial</span><span class="op">(</span></span></span>
+<span class="r-in"><span>    model <span class="op">=</span> <span class="va">plants_rf</span></span></span>
+<span class="r-in"><span>    <span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

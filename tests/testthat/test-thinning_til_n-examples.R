@@ -1,7 +1,7 @@
 test_that("`thinning_til_n()` works", {
-  data(plant_richness_df)
+  data(plants_df)
   plant_richness.thin <- thinning_til_n(
-    x = plant_richness_df,
+    x = plants_df,
     n = 100
   )
   expect_s3_class(plant_richness.thin, "data.frame")

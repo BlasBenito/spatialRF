@@ -20,6 +20,17 @@
       <ul class="navbar-nav me-auto"><li class="active nav-item">
   <a class="nav-link" href="../reference/index.html">Reference</a>
 </li>
+<li class="nav-item dropdown">
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <h6 class="dropdown-header" data-toc-skip>Tutorials</h6>
+    <a class="dropdown-item" href="../articles/non_spatial_models.html">Non-Spatial Random Forest Models</a>
+    <a class="dropdown-item" href="../articles/spatial_models.html">Spatial Random Forest Models</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Development</h6>
+    <a class="dropdown-item" href="../articles/development_roadmap.html">Development Roadmap</a>
+  </div>
+</li>
 <li class="nav-item">
   <a class="nav-link" href="../news/index.html">Changelog</a>
 </li>
@@ -74,32 +85,67 @@
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="plot_importance.html">plot_importance()</a></code>, <code><a href="get_importance.html">get_importance()</a></code></p></div>
+    <div class="dont-index"><p><code><a href="plot_importance.html">plot_importance()</a></code>, <code><a href="get_importance.html">get_importance()</a></code></p>
+<p>Other model_info: 
+<code><a href="get_evaluation.html">get_evaluation</a>()</code>,
+<code><a href="get_importance.html">get_importance</a>()</code>,
+<code><a href="get_importance_local.html">get_importance_local</a>()</code>,
+<code><a href="get_moran.html">get_moran</a>()</code>,
+<code><a href="get_performance.html">get_performance</a>()</code>,
+<code><a href="get_predictions.html">get_predictions</a>()</code>,
+<code><a href="get_residuals.html">get_residuals</a>()</code>,
+<code><a href="get_response_curves.html">get_response_curves</a>()</code>,
+<code><a href="get_spatial_predictors.html">get_spatial_predictors</a>()</code>,
+<code><a href="print.html">print.rf</a>()</code>,
+<code><a href="print_evaluation.html">print_evaluation</a>()</code>,
+<code><a href="print_moran.html">print_moran</a>()</code>,
+<code><a href="print_performance.html">print_performance</a>()</code></p></div>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">{</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">plants_rf</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co">#loading example data</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">plant_richness_df</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">distance.matrix</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">print_importance</span><span class="op">(</span><span class="va">plants_rf</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 ┌─────────────────────────────────┬────────────┐</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 │ <span style="font-weight: bold;">Variable                       </span> │ <span style="font-weight: bold;">Importance</span> │</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 ├─────────────────────────────────┼────────────┤</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 │ climate_bio1_average            │   1949.457 │</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 ├─────────────────────────────────┼────────────┤</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 │ human_population                │   1595.806 │</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 ├─────────────────────────────────┼────────────┤</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 │ climate_hypervolume             │   1188.702 │</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 ├─────────────────────────────────┼────────────┤</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 │ bias_area_km2                   │   1177.989 │</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 ├─────────────────────────────────┼────────────┤</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 │ human_population_density        │   1026.905 │</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 ├─────────────────────────────────┼────────────┤</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 │ human_footprint_average         │   1021.417 │</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 ├─────────────────────────────────┼────────────┤</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 │ climate_aridity_index_average   │    844.765 │</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 ├─────────────────────────────────┼────────────┤</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 │ neighbors_count                 │    707.572 │</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 ├─────────────────────────────────┼────────────┤</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 │ neighbors_area                  │    649.625 │</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 ├─────────────────────────────────┼────────────┤</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 │ bias_species_per_record         │    607.005 │</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 ├─────────────────────────────────┼────────────┤</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 │ topography_elevation_average    │    523.113 │</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 ├─────────────────────────────────┼────────────┤</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 │ fragmentation_cohesion          │    484.973 │</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 ├─────────────────────────────────┼────────────┤</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 │ climate_velocity_lgm_average    │    218.293 │</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 ├─────────────────────────────────┼────────────┤</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 │ climate_bio15_minimum           │    215.974 │</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 ├─────────────────────────────────┼────────────┤</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 │ fragmentation_division          │    197.148 │</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 ├─────────────────────────────────┼────────────┤</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 │ neighbors_percent_shared_edge   │     92.874 │</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 ├─────────────────────────────────┼────────────┤</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 │ landcover_herbs_percent_average │    -81.849 │</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 └─────────────────────────────────┴────────────┘</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co">#fitting a random forest model</span></span></span>
-<span class="r-in"><span><span class="va">rf.model</span> <span class="op">&lt;-</span> <span class="fu"><a href="rf.html">rf</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  data <span class="op">=</span> <span class="va">plant_richness_df</span>,</span></span>
-<span class="r-in"><span>  dependent.variable.name <span class="op">=</span> <span class="st">"richness_species_vascular"</span>,</span></span>
-<span class="r-in"><span>  predictor.variable.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">plant_richness_df</span><span class="op">)</span><span class="op">[</span><span class="fl">5</span><span class="op">:</span><span class="fl">21</span><span class="op">]</span>,</span></span>
-<span class="r-in"><span>  distance.matrix <span class="op">=</span> <span class="va">distance_matrix</span>,</span></span>
-<span class="r-in"><span>  distance.thresholds <span class="op">=</span> <span class="fl">0</span>,</span></span>
-<span class="r-in"><span>  n.cores <span class="op">=</span> <span class="fl">1</span>,</span></span>
-<span class="r-in"><span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span></span>
-<span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co">#printing variable importance scores</span></span></span>
-<span class="r-in"><span><span class="fu">print_importance</span><span class="op">(</span>model <span class="op">=</span> <span class="va">rf.model</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

@@ -1,6 +1,6 @@
 test_that("`rf_repeat()` works", {
-  data("plant_richness_df")
-  data("distance_matrix")
+  data("plants_df")
+  data("plants_distance")
 
   cluster <- parallel::makeCluster(
     parallel::detectCores() - 1,
@@ -8,10 +8,10 @@ test_that("`rf_repeat()` works", {
   )
 
   out <- rf_repeat(
-    data = plant_richness_df,
+    data = plants_df,
     dependent.variable.name = "richness_species_vascular",
-    predictor.variable.names = colnames(plant_richness_df)[5:21],
-    distance.matrix = distance_matrix,
+    predictor.variable.names = colnames(plants_df)[5:21],
+    distance.matrix = plants_distance,
     distance.thresholds = c(0, 100, 1000),
     repetitions = 5,
     verbose = FALSE,
@@ -29,4 +29,5 @@ test_that("`rf_repeat()` works", {
     out$residuals$autocorrelation$per.distance,
     c("distance.threshold", "moran.i", "p.value", "interpretation")
   )
+  
 })

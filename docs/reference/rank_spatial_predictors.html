@@ -28,6 +28,17 @@ This function has been designed to be used internally by rf_spatial() rather tha
       <ul class="navbar-nav me-auto"><li class="active nav-item">
   <a class="nav-link" href="../reference/index.html">Reference</a>
 </li>
+<li class="nav-item dropdown">
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <h6 class="dropdown-header" data-toc-skip>Tutorials</h6>
+    <a class="dropdown-item" href="../articles/non_spatial_models.html">Non-Spatial Random Forest Models</a>
+    <a class="dropdown-item" href="../articles/spatial_models.html">Spatial Random Forest Models</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Development</h6>
+    <a class="dropdown-item" href="../articles/development_roadmap.html">Development Roadmap</a>
+  </div>
+</li>
 <li class="nav-item">
   <a class="nav-link" href="../news/index.html">Changelog</a>
 </li>
@@ -137,35 +148,104 @@ This function has been designed to be used internally by rf_spatial() rather tha
 <li><p><code>ranking</code>: Ordered character vector with the names of the spatial predictors selected.</p></li>
 <li><p><code>spatial.predictors.df</code>: data frame with the selected spatial predictors in the order of the ranking.</p></li>
 </ul></div>
+    <div class="section level2">
+    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
+    <div class="dont-index"><p>Other spatial_analysis: 
+<code><a href="filter_spatial_predictors.html">filter_spatial_predictors</a>()</code>,
+<code><a href="mem.html">mem</a>()</code>,
+<code><a href="mem_multithreshold.html">mem_multithreshold</a>()</code>,
+<code><a href="moran.html">moran</a>()</code>,
+<code><a href="moran_multithreshold.html">moran_multithreshold</a>()</code>,
+<code><a href="pca.html">pca</a>()</code>,
+<code><a href="pca_multithreshold.html">pca_multithreshold</a>()</code>,
+<code><a href="residuals_diagnostics.html">residuals_diagnostics</a>()</code>,
+<code><a href="normality.html">residuals_test</a>()</code>,
+<code><a href="select_spatial_predictors_recursive.html">select_spatial_predictors_recursive</a>()</code>,
+<code><a href="select_spatial_predictors_sequential.html">select_spatial_predictors_sequential</a>()</code></p></div>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">{</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">plants_df</span>,</span></span>
+<span class="r-in"><span>  <span class="va">plants_response</span>,</span></span>
+<span class="r-in"><span>  <span class="va">plants_distance</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span> <span class="co">#loading distance matrix</span></span></span>
-<span class="r-in"><span> <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">distance_matrix</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co">#subset to speed up example</span></span></span>
+<span class="r-in"><span><span class="va">idx</span> <span class="op">&lt;-</span> <span class="fl">50</span><span class="op">:</span><span class="fl">90</span></span></span>
+<span class="r-in"><span><span class="va">plants_distance_sub</span> <span class="op">&lt;-</span> <span class="va">plants_distance</span><span class="op">[</span><span class="va">idx</span>, <span class="va">idx</span><span class="op">]</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span> <span class="co">#computing Moran's Eigenvector Maps</span></span></span>
-<span class="r-in"><span> <span class="va">mem.df</span> <span class="op">&lt;-</span> <span class="fu"><a href="mem.html">mem</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  distance.matrix <span class="op">=</span> <span class="va">distance_matrix</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">50</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">50</span><span class="op">]</span>,</span></span>
-<span class="r-in"><span>  distance.threshold <span class="op">=</span> <span class="fl">0</span></span></span>
-<span class="r-in"><span> <span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="mem.html">mem</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  distance.matrix <span class="op">=</span> <span class="va">plants_distance_sub</span>,</span></span>
+<span class="r-in"><span>  distance.threshold <span class="op">=</span> <span class="fl">1000</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span> <span class="co">#ranking by the Moran's I of the spatial predictor</span></span></span>
-<span class="r-in"><span> <span class="va">rank</span> <span class="op">&lt;-</span> <span class="fu">rank_spatial_predictors</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  distance.matrix <span class="op">=</span> <span class="va">distance_matrix</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">50</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">50</span><span class="op">]</span>,</span></span>
-<span class="r-in"><span>  distance.thresholds <span class="op">=</span> <span class="fl">0</span>,</span></span>
-<span class="r-in"><span>  spatial.predictors.df <span class="op">=</span> <span class="va">mem.df</span>,</span></span>
+<span class="r-in"><span><span class="co">#rank spatial predictors by Moran's I</span></span></span>
+<span class="r-in"><span><span class="va">y_rank</span> <span class="op">&lt;-</span> <span class="fu">rank_spatial_predictors</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  distance.matrix <span class="op">=</span> <span class="va">plants_distance_sub</span>,</span></span>
+<span class="r-in"><span>  distance.thresholds <span class="op">=</span> <span class="fl">1000</span>,</span></span>
+<span class="r-in"><span>  spatial.predictors.df <span class="op">=</span> <span class="va">y</span>,</span></span>
 <span class="r-in"><span>  ranking.method <span class="op">=</span> <span class="st">"moran"</span>,</span></span>
 <span class="r-in"><span>  n.cores <span class="op">=</span> <span class="fl">1</span></span></span>
-<span class="r-in"><span> <span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span> <span class="co">#checking Moran's I of MEMs</span></span></span>
-<span class="r-in"><span> <span class="va">rank</span><span class="op">$</span><span class="va">criteria</span></span></span>
+<span class="r-in"><span><span class="va">y_rank</span><span class="op">$</span><span class="va">criteria</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   spatial.predictors.name ranking.criteria               interpretation</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                   mem_2        0.9903511 Positive spatial correlation</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2                   mem_1        0.9833892 Positive spatial correlation</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3                   mem_3        0.9625405 Positive spatial correlation</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4                   mem_4        0.7536902 Positive spatial correlation</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5                   mem_5        0.7421847 Positive spatial correlation</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6                   mem_6        0.7053129 Positive spatial correlation</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7                   mem_7        0.4877096 Positive spatial correlation</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8                   mem_8        0.3269590 Positive spatial correlation</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9                   mem_9        0.2951264 Positive spatial correlation</span>
+<span class="r-in"><span><span class="va">y_rank</span><span class="op">$</span><span class="va">ranking</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "mem_2" "mem_1" "mem_3" "mem_4" "mem_5" "mem_6" "mem_7" "mem_8" "mem_9"</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span> <span class="co">#checking rank of MEMs</span></span></span>
-<span class="r-in"><span> <span class="va">rank</span><span class="op">$</span><span class="va">ranking</span></span></span>
-<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-in"><span><span class="co">#rank spatial predictors by association with response</span></span></span>
+<span class="r-in"><span><span class="va">y_rank</span> <span class="op">&lt;-</span> <span class="fu">rank_spatial_predictors</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  data <span class="op">=</span> <span class="va">plants_df</span><span class="op">[</span><span class="va">idx</span>, <span class="op">]</span>,</span></span>
+<span class="r-in"><span>  dependent.variable.name <span class="op">=</span> <span class="va">plants_response</span>,</span></span>
+<span class="r-in"><span>  distance.matrix <span class="op">=</span> <span class="va">plants_distance_sub</span>,</span></span>
+<span class="r-in"><span>  distance.thresholds <span class="op">=</span> <span class="fl">1000</span>,</span></span>
+<span class="r-in"><span>  spatial.predictors.df <span class="op">=</span> <span class="va">y</span>,</span></span>
+<span class="r-in"><span>  ranking.method <span class="op">=</span> <span class="st">"effect"</span>,</span></span>
+<span class="r-in"><span>  n.cores <span class="op">=</span> <span class="fl">1</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">y_rank</span><span class="op">$</span><span class="va">criteria</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    spatial.predictors.name model.r.squared     moran.i      p.value</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                    mem_6     -0.01881027 -0.17411727 0.1041229331</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2                    mem_1      0.02027856 -0.10327239 0.4052443057</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3                    mem_3      0.05695244  0.03740766 0.5020912945</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4                   mem_12     -0.35142982  0.05404865 0.4063700901</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5                    mem_4     -0.47089184  0.13218466 0.0968547082</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6                    mem_7     -0.04743797  0.13953217 0.0763363830</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7                    mem_9     -0.06396196  0.16269993 0.0460233924</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8                    mem_8      0.06446693  0.16905413 0.0359420399</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9                    mem_5     -0.69888782  0.19842753 0.0183415559</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10                  mem_11     -0.51595923  0.20673748 0.0140130283</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11                   mem_2      0.07610373  0.27026930 0.0016300932</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12                  mem_10     -0.40391312  0.35119836 0.0000632428</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    ranking.criteria</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1         1.1741173</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2         1.1032724</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3         0.9625923</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4         0.9459513</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5         0.8678153</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6         0.8604678</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7         0.8373001</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8         0.8309459</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9         0.8015725</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10        0.7932625</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11        0.7297307</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12        0.6488016</span>
+<span class="r-in"><span><span class="va">y_rank</span><span class="op">$</span><span class="va">ranking</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "mem_6"  "mem_1"  "mem_3"  "mem_12" "mem_4"  "mem_7"  "mem_9"  "mem_8" </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] "mem_5"  "mem_11" "mem_2"  "mem_10"</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

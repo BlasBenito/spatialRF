@@ -1,11 +1,11 @@
 test_that("`rf()` works", {
-  data("plant_richness_df")
-  data("distance_matrix")
+  data("plants_df")
+  data("plants_distance")
   out <- rf(
-    data = plant_richness_df,
+    data = plants_df,
     dependent.variable.name = "richness_species_vascular",
-    predictor.variable.names = colnames(plant_richness_df)[5:21],
-    distance.matrix = distance_matrix,
+    predictor.variable.names = colnames(plants_df)[5:21],
+    distance.matrix = plants_distance,
     distance.thresholds = c(0, 100, 1000, 10000),
     verbose = FALSE
   )
