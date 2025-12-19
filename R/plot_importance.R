@@ -41,6 +41,9 @@
 #' This function does not plot results from [rf_importance()]. For cross-validated importance plots, access `model$importance$cv.per.variable.plot` after running [rf_importance()].
 #' @seealso [print_importance()], [get_importance()], [rf_importance()]
 #' @examples
+#'
+#' if(interactive()){
+#'
 #' data(plants_rf, plants_rf_spatial)
 #'
 #' # Plot importance from Random Forest model
@@ -48,6 +51,8 @@
 #'
 #' # Plot importance from Spatial Random Forest model
 #' plot_importance(plants_rf_spatial)
+#'
+#' }
 #'
 #'
 #' @rdname plot_importance

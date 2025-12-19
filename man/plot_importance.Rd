@@ -62,6 +62,9 @@ Violin plots display kernel density estimates. The median line shown is the medi
 This function does not plot results from \code{\link[=rf_importance]{rf_importance()}}. For cross-validated importance plots, access \code{model$importance$cv.per.variable.plot} after running \code{\link[=rf_importance]{rf_importance()}}.
 }
 \examples{
+
+if(interactive()){
+
 data(plants_rf, plants_rf_spatial)
 
 # Plot importance from Random Forest model
@@ -69,6 +72,8 @@ plot_importance(plants_rf)
 
 # Plot importance from Spatial Random Forest model
 plot_importance(plants_rf_spatial)
+
+}
 
 
 }
