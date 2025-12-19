@@ -1,0 +1,119 @@
+# `spatialRF` Easy Spatial Modeling with Random Forest
+
+# Introduction
+
+The package **spatialRF** trains **explanatory spatial regression
+models** by combining Random Forest with *spatial predictors* that help
+the model reduce the spatial autocorrelation of the residuals and return
+honest variable importance scores.
+
+The package is designed to minimize the code required to fit a spatial
+model from a training dataset, the names of the response and the
+predictors, and a distance matrix, as shown in the mock-up call below.
+
+``` r
+m <- spatialRF::rf_spatial(
+  data = df,
+  dependent.variable.name = "response",
+  predictor.variable.names = c("pred1", "pred2", ..., "predN"),
+  distance.matrix = distance_matrix
+  )
+```
+
+**spatialRF** uses the fast and efficient `ranger` package under the
+hood [(Wright and Ziegler 2017)](https://arxiv.org/abs/1508.04409), so
+please, cite the `ranger` package when using `spatialRF`!
+
+This package also provides tools to identify potentially interesting
+variable interactions, tune random forest hyperparameters, assess model
+performance on spatially independent data folds, and examine the
+resulting models via importance plots, response curves, and response
+surfaces.
+
+However, there are several things this package cannot do:
+
+- Predict model results over raster data.
+
+- Predict a model over a different place with a different spatial
+  structure.
+
+- Work with “big data”, whatever that means.
+
+- Imputation or extrapolation (it can be done, but models based on
+  spatial predictors are hardly transferable).
+
+- Take temporal autocorrelation into account.
+
+# Data requirements
+
+`spatialRF` is designed to work with:
+
+- **Data frames**: tibbles and sf dataframes are not fully supported.
+- **Continuous responses**: binomial responses are partially supported
+  (however, spatial models hardly work with them), but categorical and
+  factor responses are not.
+- **Small data**: spatial modelling operations are RAM-hungry, the
+  maximum number of rows must be somewhere between 5000 and 10000, but
+  in the end it depends on the available RAM.
+- **Must be free of `NA`**.
+- **Columns cannot have near-zero variance**. You don’t want near-zero
+  variance columns in your data anyway.
+
+# Citation
+
+If you find `spatialRF` useful, please cite the `ranger` package as
+well.
+
+*Marvin N. Wright, Andreas Ziegler (2017). ranger: A Fast Implementation
+of Random Forests for High Dimensional Data in C++ and R. Journal of
+Statistical Software, 77(1), 1-17. <doi:10.18637/jss.v077.i01>*
+
+*Blas M. Benito (2025). spatialRF: Easy Spatial Regression with Random
+Forest. R package version 1.1.5. doi: 10.5281/zenodo.17992636. url:
+<https://blasbenito.github.io/spatialRF/>*
+
+# Install
+
+The version 1.1.5 can be installed from CRAN:
+
+``` r
+install.packages("spatialRF")
+```
+
+The package can also be installed from GitHub as follows. There are
+several branches in the repository:
+
+- `main`: latest stable version (1.1.5 currently).
+- `development`: development version, usually very broken.
+- `v.1.0.9` to `v.1.1.4`: archived versions.
+
+``` r
+remotes::install_github(
+  repo = "blasbenito/spatialRF",
+  ref = "main",
+  force = TRUE,
+  quiet = TRUE
+  )
+```
+
+# Getting Started
+
+This README provides a quick introduction to `spatialRF`. For detailed
+tutorials, see:
+
+## Tutorials
+
+- **[Non-Spatial Random Forest
+  Models](https://blasbenito.github.io/spatialRF/articles/non_spatial_models.html)**:
+  Learn how to fit and interpret standard random forest models using
+  [`rf()`](https://blasbenito.github.io/spatialRF/reference/rf.md).
+  Covers data exploration, variable interactions, model evaluation,
+  importance scores, response curves, spatial cross-validation, and
+  prediction. *Start here if you’re new to spatialRF.*
+
+- **[Spatial Random Forest
+  Models](https://blasbenito.github.io/spatialRF/articles/spatial_models.html)**:
+  Discover how to address spatial autocorrelation using
+  [`rf_spatial()`](https://blasbenito.github.io/spatialRF/reference/rf_spatial.md).
+  Demonstrates spatial predictor generation with Moran’s Eigenvector
+  Maps, optimization, hyperparameter tuning, and model comparison.
