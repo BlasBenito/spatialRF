@@ -37,7 +37,7 @@ get_performance <- function(model) {
     median_absolute_deviation = x.mad
   )
 
-  if (inherits(model, "rf_repeat") == FALSE) {
+  if (!inherits(model, "rf_repeat")) {
     colnames(out.df)[2] <- "value"
   }
 

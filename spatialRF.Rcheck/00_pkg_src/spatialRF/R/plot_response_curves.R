@@ -48,16 +48,16 @@ plot_response_curves <- function(
   }
 
   if (length(quantiles) < length(line.color)) {
-    line.color <- line.color[1:length(quantiles)]
+    line.color <- line.color[seq_along(quantiles)]
   }
 
   if (length(line.color) < length(quantiles)) {
-    if (verbose == TRUE) {
+    if (verbose) {
       message(
         "Insufficient colors provided in 'line.color', used the default palette insted."
       )
     }
-    line.color = viridis::viridis(
+    line.color <- viridis::viridis(
       length(quantiles),
       option = "F",
       end = 0.9
@@ -187,10 +187,9 @@ plot_response_curves <- function(
 
       #get model.i
       model.i <- models.list[[i]]
-      class(model.i) <- "ranger"
 
       #predict
-      variable.i.list[[i]][, response.variable] <- stats::predict(
+      variable.i.list[[i]][, response.variable] <- predict(
         object = model.i,
         data = variable.i.list[[i]]
       )$predictions
@@ -232,7 +231,7 @@ plot_response_curves <- function(
     }
 
     #plotting with data
-    if (show.data == TRUE) {
+    if (show.data) {
       p.i <- ggplot2::ggplot() +
         ggplot2::geom_point(
           data = data,
@@ -327,7 +326,5 @@ plot_response_curves <- function(
     )
   }
 
-  if (verbose == TRUE) {
-    variables.plots.out
-  }
+  variables.plots.out
 }

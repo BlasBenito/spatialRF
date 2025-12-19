@@ -84,7 +84,7 @@ rf_compare <- function(
   user.options <- options()
   #avoid dplyr messages
   options(dplyr.summarise.inform = FALSE)
-  on.exit(options <- user.options)
+  on.exit(options(user.options))
 
   #testing method argument
   metrics <- match.arg(
@@ -228,7 +228,7 @@ rf_compare <- function(
   out.list$spatial.folds <- models[[model.i]]$evaluation$spatial.folds
   out.list$plot <- p
 
-  if (verbose == TRUE) {
+  if (verbose) {
     suppressMessages(print(p))
   }
 

@@ -24,23 +24,27 @@
 #' @details The evaluation algorithm works as follows: the number of `repetitions` and the input dataset (stored in `model$ranger.arguments$data`) are used as inputs for the function [thinning_til_n()], that applies [thinning()] to the input data until as many cases as `repetitions` are left, and as separated as possible. Each of these remaining records will be used as a "fold center". From that point, the fold grows, until a number of points equal (or close) to `training.fraction` is reached. The indices of the records within the grown spatial fold are stored as "training" in the output list, and the remaining ones as "testing". Then, for each spatial fold, a "training model" is fitted using the cases corresponding with the training indices, and predicted over the cases corresponding with the testing indices. The model predictions on the "unseen" data are compared with the observations, and the performance measures (R squared, pseudo R squared, RMSE and NRMSE) computed.
 #' @examples
 #'
+#' if(interactive()){
+#'
 #' data(
 #'   plants_rf,
 #'   plants_xy
 #' )
 #'
-#' m_evaluated <- rf_evaluate(
+#' plants_rf <- rf_evaluate(
 #'   model = plants_rf,
 #'   xy = plants_xy,
 #'   repetitions = 5,
 #'   n.cores = 1
 #' )
 #'
-#' plot_evaluation(m_evaluated, notch = FALSE)
+#' plot_evaluation(plants_rf, notch = FALSE)
 #'
-#' print_evaluation(m_evaluated)
+#' print_evaluation(plants_rf)
 #'
-#' get_evaluation(m_evaluated)
+#' get_evaluation(plants_rf)
+#'
+#' }
 #'
 #' @rdname rf_evaluate
 #' @family model_workflow
@@ -144,7 +148,7 @@ rf_evaluate <- function(
     data = data,
     dependent.variable.name = dependent.variable.name
   )
-  if (is.binary == TRUE & !("auc" %in% metrics)) {
+  if (is.binary && !("auc" %in% metrics)) {
     metrics <- "auc"
   }
 
@@ -154,7 +158,7 @@ rf_evaluate <- function(
     stop("Argument 'repetitions' must be an integer equal or larger than 5")
   }
   if (repetitions > nrow(xy)) {
-    if (verbose == TRUE) {
+    if (verbose) {
       message(
         "Argument 'repetitions' larger than number of cases, setting it to the number of cases."
       )
@@ -166,7 +170,7 @@ rf_evaluate <- function(
   user.options <- options()
   #avoid dplyr messages
   options(dplyr.summarise.inform = FALSE)
-  on.exit(options <- user.options)
+  on.exit(options(user.options))
 
   #training fraction limits
   if (training.fraction < 0.1) {
@@ -177,7 +181,7 @@ rf_evaluate <- function(
   }
 
   #flipping training fraction if grow.testing.folds is TRUE
-  if (grow.testing.folds == TRUE) {
+  if (grow.testing.folds) {
     training.fraction <- 1 - training.fraction
   }
 
@@ -185,7 +189,7 @@ rf_evaluate <- function(
   data$id <- xy$id <- seq(1, nrow(data))
 
   #thinning coordinates to get a systematic sample of reference points
-  if (verbose == TRUE) {
+  if (verbose) {
     message("Selecting pairs of coordinates as training fold origins.")
   }
   xy.reference.records <- thinning_til_n(
@@ -196,7 +200,7 @@ rf_evaluate <- function(
 
   #generates spatial folds
   ####################################
-  if (verbose == TRUE) {
+  if (verbose) {
     message("Generating spatial folds.")
   }
 
@@ -213,8 +217,8 @@ rf_evaluate <- function(
   )
 
   #flipping spatial folds if grow.testing.folds = TRUE
-  if (grow.testing.folds == TRUE) {
-    for (i in 1:length(spatial.folds)) {
+  if (grow.testing.folds) {
+    for (i in seq_along(spatial.folds)) {
       names(spatial.folds[[i]]) <- c("testing", "training")
     }
   }
@@ -254,7 +258,7 @@ rf_evaluate <- function(
       )
 
       #predicting over data.testing
-      predicted <- stats::predict(
+      predicted <- predict(
         object = m.training,
         data = data.testing,
         type = "response",
@@ -274,12 +278,12 @@ rf_evaluate <- function(
       )
 
       if ("r.squared" %in% metrics) {
-        out.df$training.r.squared = m.training$performance$r.squared
-        out.df$testing.r.squared = round(cor(observed, predicted)^2, 3)
+        out.df$training.r.squared <- m.training$performance$r.squared
+        out.df$testing.r.squared <- round(cor(observed, predicted)^2, 3)
       }
       if ("pseudo.r.squared" %in% metrics) {
-        out.df$training.pseudo.r.squared = m.training$performance$pseudo.r.squared
-        out.df$testing.pseudo.r.squared = round(
+        out.df$training.pseudo.r.squared <- m.training$performance$pseudo.r.squared
+        out.df$testing.pseudo.r.squared <- round(
           cor(
             observed,
             predicted
@@ -288,8 +292,8 @@ rf_evaluate <- function(
         )
       }
       if ("rmse" %in% metrics) {
-        out.df$training.rmse = m.training$performance$rmse
-        out.df$testing.rmse = round(
+        out.df$training.rmse <- m.training$performance$rmse
+        out.df$testing.rmse <- round(
           spatialRF::root_mean_squared_error(
             o = observed,
             p = predicted,
@@ -302,8 +306,8 @@ rf_evaluate <- function(
         }
       }
       if ("nrmse" %in% metrics) {
-        out.df$training.nrmse = m.training$performance$nrmse
-        out.df$testing.nrmse = round(
+        out.df$training.nrmse <- m.training$performance$nrmse
+        out.df$testing.nrmse <- round(
           spatialRF::root_mean_squared_error(
             o = observed,
             p = predicted,
@@ -316,8 +320,8 @@ rf_evaluate <- function(
         }
       }
       if ("auc" %in% metrics) {
-        out.df$training.auc = m.training$performance$auc
-        out.df$testing.auc = round(
+        out.df$training.auc <- m.training$performance$auc
+        out.df$testing.auc <- round(
           spatialRF::auc(
             o = observed,
             p = predicted
@@ -456,13 +460,13 @@ rf_evaluate <- function(
   model$evaluation$per.model <- performance.df
   model$evaluation$aggregated <- performande.df.aggregated
 
-  if (verbose == TRUE) {
+  if (verbose) {
     message("Evaluation results stored in model$evaluation.")
   }
 
   class(model) <- c(class(model), "rf_evaluate")
 
-  if (verbose == TRUE) {
+  if (verbose) {
     print_evaluation(model = model)
   }
 

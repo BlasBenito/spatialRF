@@ -52,13 +52,13 @@ auto_vif <- function(
   vif.threshold = 5,
   verbose = TRUE
 ) {
-  if (inherits(x, "variable_selection") == TRUE) {
+  if (inherits(x, "variable_selection")) {
     x <- x$selected.variables.df
   }
 
   #coercing to data frame
   #coerce to data frame if tibble
-  if (inherits(x, "tbl_df") | inherits(x, "tbl")) {
+  if (inherits(x, "tbl_df") || inherits(x, "tbl")) {
     x <- as.data.frame(x)
   }
 
@@ -126,7 +126,7 @@ auto_vif <- function(
   output.list$selected.variables.df <- selected.variables.df
 
   #message
-  if (verbose == TRUE) {
+  if (verbose) {
     removed.vars <- setdiff(colnames(x), output.list$selected.variables)
     if (length(removed.vars) != 0) {
       message(

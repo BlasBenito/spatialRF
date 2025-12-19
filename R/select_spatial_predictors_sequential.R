@@ -17,6 +17,7 @@
 #' @details The algorithm works as follows: If the function [rank_spatial_predictors] returns 10 spatial predictors (sp1 to sp10, ordered from best to worst), [select_spatial_predictors_sequential] is going to fit the models `y ~ predictors + sp1`, `y ~ predictors + sp1 + sp2`, until all spatial predictors are used in `y ~ predictors + sp1 ... sp10`. The model with lower Moran's I of the residuals and higher R-squared (computed on the out-of-bag data) is selected, and its spatial predictors returned.
 #' @examples
 #'
+#' if(interactive()){
 #' data(
 #'   plants_df,
 #'   plants_response,
@@ -64,6 +65,7 @@
 #'
 #' #optimization plot
 #' plot_optimization(selection$optimization)
+#' }
 #' @rdname select_spatial_predictors_sequential
 #' @family spatial_analysis
 #' @export

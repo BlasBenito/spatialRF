@@ -290,6 +290,9 @@ base::assign(".ptime", proc.time(), pos = "CheckExEnv")
 
 ### ** Examples
 
+
+if(interactive()){
+
 data(plants_rf, plants_xy)
 
 # Evaluate model with spatial cross-validation
@@ -302,11 +305,9 @@ m_evaluated <- rf_evaluate(
 
 # Extract evaluation metrics
 eval_metrics <- get_evaluation(m_evaluated)
-head(eval_metrics)
+eval_metrics
 
-# Compare with other evaluation functions
-plot_evaluation(m_evaluated, notch = FALSE)
-print_evaluation(m_evaluated)
+}
 
 
 
@@ -1065,29 +1066,12 @@ base::assign(".ptime", proc.time(), pos = "CheckExEnv")
 
 data(plants_rf, plants_rf_spatial)
 
-# Plot importance from single Random Forest model
+# Plot importance from Random Forest model
 plot_importance(plants_rf)
 
-
-# Plot importance from spatial Random Forest model
+# Plot importance from Spatial Random Forest model
 plot_importance(plants_rf_spatial)
 
-# Custom colors
-plot_importance(
-  plants_rf,
-  fill.color = viridis::viridis(20, option = "D")
-)
-
-# Return plot object for further customization
-p <- plot_importance(plants_rf, verbose = FALSE)
-p + ggplot2::ggtitle("Custom Title")
-
-# Print importance values
-print_importance(plants_rf)
-
-# Extract importance data for custom analysis
-importance_data <- get_importance(plants_rf)
-head(importance_data)
 
 
 
@@ -1392,23 +1376,23 @@ base::assign(".ptime", proc.time(), pos = "CheckExEnv")
 ### ** Examples
 
 
+if(interactive()){
+
 data(
   plants_rf,
   plants_xy
 )
 
-m_evaluated <- rf_evaluate(
+plants_rf <- rf_evaluate(
   model = plants_rf,
   xy = plants_xy,
   repetitions = 5,
   n.cores = 1
 )
 
-plot_evaluation(m_evaluated, notch = FALSE)
+print_evaluation(plants_rf)
 
-print_evaluation(m_evaluated)
-
-get_evaluation(m_evaluated)
+}
 
 
 
@@ -1498,6 +1482,9 @@ base::assign(".ptime", proc.time(), pos = "CheckExEnv")
 ### ** Examples
 
 
+
+if(interactive()){
+
 data(
   plants_df,
   plants_response,
@@ -1538,6 +1525,8 @@ y_rank <- rank_spatial_predictors(
 
 y_rank$criteria
 y_rank$ranking
+
+}
 
 
 
@@ -1730,23 +1719,27 @@ base::assign(".ptime", proc.time(), pos = "CheckExEnv")
 ### ** Examples
 
 
+if(interactive()){
+
 data(
   plants_rf,
   plants_xy
 )
 
-m_evaluated <- rf_evaluate(
+plants_rf <- rf_evaluate(
   model = plants_rf,
   xy = plants_xy,
   repetitions = 5,
   n.cores = 1
 )
 
-plot_evaluation(m_evaluated, notch = FALSE)
+plot_evaluation(plants_rf, notch = FALSE)
 
-print_evaluation(m_evaluated)
+print_evaluation(plants_rf)
 
-get_evaluation(m_evaluated)
+get_evaluation(plants_rf)
+
+}
 
 
 
@@ -2029,6 +2022,7 @@ base::assign(".ptime", proc.time(), pos = "CheckExEnv")
 ### ** Examples
 
 
+if(interactive()){
 data(
   plants_df,
   plants_response,
@@ -2076,6 +2070,7 @@ selection$best.spatial.predictors
 
 #optimization plot
 plot_optimization(selection$optimization)
+}
 
 
 

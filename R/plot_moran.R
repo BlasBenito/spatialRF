@@ -47,7 +47,7 @@ plot_moran <- function(
 ) {
   #checking option
   if (
-    !(option %in% c(1, 2)) |
+    !(option %in% c(1, 2)) ||
       inherits(model, "data.frame")
   ) {
     option <- 1
@@ -167,7 +167,7 @@ plot_moran <- function(
         ggplot2::guides(fill = "none")
     }
 
-    if (verbose == TRUE) {
+    if (verbose) {
       suppressWarnings(print(p1))
     }
 
@@ -286,7 +286,7 @@ plot_moran <- function(
       ggplot2::ggtitle("Moran plots") +
       ggplot2::theme(plot.title = element_text(hjust = 0.5))
 
-    if (verbose == TRUE) {
+    if (verbose) {
       suppressWarnings(print(p2))
     }
 

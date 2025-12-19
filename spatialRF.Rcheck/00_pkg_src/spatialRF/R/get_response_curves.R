@@ -175,10 +175,9 @@ get_response_curves <- function(
 
       #get model.i
       model.i <- models.list[[i]]
-      class(model.i) <- "ranger"
 
       #predict
-      variable.i.list[[i]][, response.variable] <- stats::predict(
+      variable.i.list[[i]][, response.variable] <- predict(
         object = model.i,
         data = variable.i.list[[i]]
       )$predictions

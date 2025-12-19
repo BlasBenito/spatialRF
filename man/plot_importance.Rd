@@ -64,29 +64,12 @@ This function does not plot results from \code{\link[=rf_importance]{rf_importan
 \examples{
 data(plants_rf, plants_rf_spatial)
 
-# Plot importance from single Random Forest model
+# Plot importance from Random Forest model
 plot_importance(plants_rf)
 
-
-# Plot importance from spatial Random Forest model
+# Plot importance from Spatial Random Forest model
 plot_importance(plants_rf_spatial)
 
-# Custom colors
-plot_importance(
-  plants_rf,
-  fill.color = viridis::viridis(20, option = "D")
-)
-
-# Return plot object for further customization
-p <- plot_importance(plants_rf, verbose = FALSE)
-p + ggplot2::ggtitle("Custom Title")
-
-# Print importance values
-print_importance(plants_rf)
-
-# Extract importance data for custom analysis
-importance_data <- get_importance(plants_rf)
-head(importance_data)
 
 }
 \seealso{

@@ -169,13 +169,13 @@ rf_spatial <- function(
       stop("The argument 'data' is missing.")
     } else {
       #coerce to data frame if tibble
-      if (inherits(data, "tbl_df") | inherits(data, "tbl")) {
+      if (inherits(data, "tbl_df") || inherits(data, "tbl")) {
         data <- as.data.frame(data)
       }
     }
 
     #coerce to data frame if tibble
-    if (inherits(xy, "tbl_df") | inherits(xy, "tbl")) {
+    if (inherits(xy, "tbl_df") || inherits(xy, "tbl")) {
       xy <- as.data.frame(xy)
     }
 
@@ -245,7 +245,7 @@ rf_spatial <- function(
 
   #if residuals are not autocorrelated, return original model
   if (nrow(model.moran.i) == 0) {
-    if (verbose == TRUE) {
+    if (verbose) {
       message(
         "The model residuals are not spatially correlated, there is no need to fit a spatial model"
       )
@@ -253,7 +253,7 @@ rf_spatial <- function(
   } else {
     #if residuals are autocorrelated
 
-    if (verbose == TRUE) {
+    if (verbose) {
       message(
         "The model residuals are spatially correlated, fitting a spatial model."
       )
@@ -290,7 +290,7 @@ rf_spatial <- function(
     )
     spatial.predictors.selected <- colnames(spatial.predictors.df)
 
-    if (verbose == TRUE) {
+    if (verbose) {
       message("Using the distance matrix columns as spatial predictors.")
     }
   }
@@ -311,7 +311,7 @@ rf_spatial <- function(
       max.spatial.predictors = max.spatial.predictors
     )
 
-    if (verbose == TRUE) {
+    if (verbose) {
       message("Using PCA factors of the distance matrix as spatial predictors.")
     }
   }
@@ -332,7 +332,7 @@ rf_spatial <- function(
       max.spatial.predictors = max.spatial.predictors
     )
 
-    if (verbose == TRUE) {
+    if (verbose) {
       message("Using Moran's Eigenvector Maps as spatial predictors.")
     }
   }
@@ -354,7 +354,7 @@ rf_spatial <- function(
       )
   ) {
     ranking.method <- "moran"
-    if (verbose == TRUE) {
+    if (verbose) {
       message("Ranking spatial predictors by their Moran's I.")
     }
   }
@@ -371,7 +371,7 @@ rf_spatial <- function(
       )
   ) {
     ranking.method <- "effect"
-    if (verbose == TRUE) {
+    if (verbose) {
       message(
         "Ranking spatial predictors by how much they reduce Moran's I of the model residuals."
       )
@@ -404,7 +404,7 @@ rf_spatial <- function(
 
     #check if any spatial predictors remain after filtering
     if (ncol(spatial.predictors.df) == 0) {
-      if (verbose == TRUE) {
+      if (verbose) {
         message(
           "No spatial predictors remain after filtering. Returning non-spatial model."
         )
@@ -444,7 +444,7 @@ rf_spatial <- function(
         "pca.effect.sequential"
       )
   ) {
-    if (verbose == TRUE) {
+    if (verbose) {
       message("Sequential selection of spatial predictors.")
     }
 
@@ -480,7 +480,7 @@ rf_spatial <- function(
         "mem.effect.recursive"
       )
   ) {
-    if (verbose == TRUE) {
+    if (verbose) {
       message("Recursive selection of spatial predictors.")
     }
 
@@ -573,11 +573,11 @@ rf_spatial <- function(
     )
   }
 
-  if (verbose == TRUE) {
+  if (verbose) {
     message("Details about the spatial predictors stored in model$spatial.")
   }
 
-  if (verbose == TRUE) {
+  if (verbose) {
     print(model.spatial)
     plot_importance(model.spatial)
     plot_residuals_diagnostics(model.spatial)

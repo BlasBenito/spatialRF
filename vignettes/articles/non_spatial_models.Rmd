@@ -38,7 +38,6 @@ library(DT)
 library(rnaturalearth)
 library(rnaturalearthdata)
 library(randomForestExplainer)
-library(pdp)
 library(parallel)
 library(patchwork)
 ```
@@ -52,8 +51,7 @@ cluster <- parallel::makeCluster(
 )
 ```
 
-The package includes an example dataset that fulfills the conditions mentioned above, named [`plants_df`](https://blasbenito.github.io/spatialRF/reference/plants_df.html). It is a data frame with plant species richness and predictors for 227 ecoregions in the Americas, and a distance matrix among the ecoregion edges named, well, [`plants_distance`](https://blasbenito.github.io/spatialRF/reference/plants_distance.html).
-
+The package includes the example dataset [`plants_df`](https://blasbenito.github.io/spatialRF/reference/plants_df.html) with plant species richness and predictors for 227 ecoregions in the Americas. The object [`plants_distance`](https://blasbenito.github.io/spatialRF/reference/plants_distance.html) is a matrix of geographical distances between ecoregions.
 
 ```{r}
 data(
@@ -64,9 +62,9 @@ data(
   plants_xy          #case coordinates of plants_df
   )
 
-#distance thresholds (same units as plants_distance)
+#distance thresholds (same units as plants_distance, km)
 #used to assess spatial correlation at different distances
-distance.thresholds <- c(10, 100, 1000, 2000, 4000, 8000)
+distance_thresholds <- c(10, 100, 1000, 2000, 4000, 8000)
 
 #a pretty color palette
 colors <- grDevices::hcl.colors(
@@ -75,7 +73,7 @@ colors <- grDevices::hcl.colors(
     )
 ```
 
-The figure below shows the response variable in space.
+The figure below shows the response variable *richness_species_vascular* in space.
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.width=6, fig.height=5.5}
 world <- rnaturalearth::ne_countries(
@@ -109,9 +107,9 @@ world <- rnaturalearth::ne_countries(
   ggplot2::ylab("Latitude")
 ```
 
-The predictors (columns 5 to 21) represent diverse factors that may influence plant richness such as sampling bias, the area of the ecoregion, climatic variables, human presence and impact, topography, geographical fragmentation, and features of the neighbors of each ecoregion.
+The predictors, stored in [`plants_predictors`](https://blasbenito.github.io/spatialRF/reference/plants_predictors.html) represent diverse factors that may influence plant richness such as sampling bias, the area of the ecoregion, climatic variables, human presence and impact, topography, geographical fragmentation, and features of the neighbors of each ecoregion.
 
-The figure below shows the scatterplots of the response variable (y axis) against each predictor (x axis).
+The figure below shows the scatterplots of the response variable (`y` axis) against each predictor (`x` axis).
 
 ```{r, fig.width=10, fig.height=14, warning = FALSE}
 spatialRF::plot_training_df(
@@ -131,7 +129,7 @@ spatialRF::plot_training_df_moran(
   dependent.variable.name = plants_response,
   predictor.variable.names = plants_predictors,
   distance.matrix = plants_distance,
-  distance.thresholds = distance.thresholds,
+  distance.thresholds = distance_thresholds,
   fill.color = colors
 )
 ```
@@ -146,9 +144,6 @@ interactions <- spatialRF::the_feature_engineer(
   dependent.variable.name = plants_response,
   predictor.variable.names = plants_predictors,
   xy = plants_xy,
-  importance.threshold = 0.50, #selects interactions above 50% importance
-  cor.threshold = 0.60, #max correlation between interactions and predictors
-  repetitions = 30,
   cluster = cluster,
   point.color = colors,
   verbose = TRUE
@@ -161,7 +156,7 @@ The violin-plot shows the cross-validation comparison of the model with and with
 
 The function also returns a data frame with the complete screening results.
 
-```{r, echo = FALSE}
+```{r, echo = FALSE, warning=FALSE}
 interactions$screening %>%
   dplyr::mutate(
     interaction.metric.gain = round(interaction.metric.gain, 3)
@@ -184,70 +179,73 @@ plants_predictors <- interactions$predictor.variable.names
 The function [`rf()`](https://blasbenito.github.io/spatialRF/reference/rf.html) is a convenient wrapper for `ranger::ranger()` used in every modelling function of the *spatialRF* package.
 
 ```{r}
-model.non.spatial <- spatialRF::rf(
+m <- spatialRF::rf(
   data = plants_df,
   dependent.variable.name = plants_response,
   predictor.variable.names = plants_predictors,
   distance.matrix = plants_distance,
-  distance.thresholds = distance.thresholds,
-  xy = plants_xy, #rf does not use it, but passes it along
+  distance.thresholds = distance_thresholds,
   verbose = FALSE
 )
+```
+
+The resulting object has its own `print()` method.
+
+```{r}
+m
 ```
 
 The output is a list with several slots containing the information required to interpret the model.
 
 ```{r}
-names(model.non.spatial)
+names(m)
 ```
 
+The information available in these slots can be plotted (functions named `plot_...()`), printed (`print_...()`), or extracted for further analyses (`get_...()`).
 
-The information available in these slots can be plotted (functions named `plot_...()`), printed to screen (`print_...()`) and captured for further analyses (`get_...()`).
+# Residuals
 
-The resulting object has its own `print()` method.
-
-```{r}
-model.non.spatial
-```
-
-
-## Residuals
-
-The object **residuals** (`model.non.spatial$residuals`) stores the normality and spatial autocorrelation tests.
+The object **residuals** (`m$residuals`) stores the normality and spatial autocorrelation tests.
 
 ```{r, fig.width=6, fig.height=7}
 spatialRF::plot_residuals_diagnostics(
-  model.non.spatial,
+  m,
   verbose = FALSE,
   point.color = colors,
   fill.color = colors[1]
   )
 ```
+The plot show that the residuals are highly correlated up to a point between 1000 and 2000 km between observations, indicating that there is a component of the response not explained by the current predictors.
 
-## Variable importance
+# Variable importance
 
-### Global variable importance
+## Global variable importance
 
-The object **importance**  in `model.non.spatial$importance`) contains the variable importance scores. These can be plotted with [`plot_importance()`](https://blasbenito.github.io/spatialRF/reference/plot_importance.html), printed with [`print_importance()`](https://blasbenito.github.io/spatialRF/reference/print_importance.html), and the dataframe retrieved with [`get_importance()`](https://blasbenito.github.io/spatialRF/reference/get_importance.html)
+The object **importance**  in `m$importance`) contains the variable importance scores. These can be plotted with [`plot_importance()`](https://blasbenito.github.io/spatialRF/reference/plot_importance.html), printed with [`print_importance()`](https://blasbenito.github.io/spatialRF/reference/print_importance.html), and the dataframe retrieved with [`get_importance()`](https://blasbenito.github.io/spatialRF/reference/get_importance.html)
 
 ```{r, fig.width = 6.5, fig.height=4.5}
 spatialRF::plot_importance(
-  model.non.spatial,
+  m,
   verbose = FALSE,
   fill.color = colors
   )
 ```
 
-The output of `rf()` is compatible with `randomForestExplainer::measure_importance()`, which helps deepen our understanding on variable importance scores.
+The output of `rf()` is also compatible with `randomForestExplainer::measure_importance()`, which helps deepen our understanding on variable importance scores.
 
 ```{r}
 importance.df <- randomForestExplainer::measure_importance(
-  model.non.spatial,
-  measures = c("mean_min_depth", "no_of_nodes", "times_a_root", "p_value")
+  m,
+  measures = c(
+    "mean_min_depth", 
+    "no_of_nodes", 
+    "times_a_root", 
+    "p_value"
+    )
   )
 ```
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, warning=FALSE}
 importance.df %>%
   dplyr::mutate(
     mean_min_depth = round(mean_min_depth, 2),
@@ -256,36 +254,38 @@ importance.df %>%
   knitr::kable()
 ```
 
-### Contribution of predictors to model transferability
+## Contribution of predictors to model transferability
 
-The function [`rf_importance()`](https://blasbenito.github.io/spatialRF/reference/rf_importance.html) assesses how each predictor contributes to model transferability by combining leave-one-predictor-out with spatial cross-validation.
+The function [`rf_importance()`](https://blasbenito.github.io/spatialRF/reference/rf_importance.html) assesses how each predictor contributes to model transferability by combining leave-one-predictor-out with spatial cross-validation, and comparing a model trained with the given predictor with a model trained with all other predictors.
 
 ```{r, fig.width = 8, fig.height=4.5, message=FALSE, warning=FALSE}
-model.non.spatial <- spatialRF::rf_importance(
-  model = model.non.spatial,
+m <- spatialRF::rf_importance(
+  model = m,
+  xy = plants_xy, #needs coordinates for cross-validation
   cluster = cluster,
   fill.color = colors
   )
 ```
+The values in the plot are added as new columns with the suffix `.cv` in the dataframe `m$importance$per.variable`.
 
-The plot, stored at `model.non.spatial$importance$cv.per.variable.plot`, shows the predictors with a positive net effect in model transferability. The values in the plot are added as new columns with the suffix `.cv` in the dataframe `model.non.spatial$importance$per.variable`.
-
-```{r, echo = FALSE}
-model.non.spatial$importance$per.variable %>%
+```{r, echo = FALSE, warning=FALSE}
+m$importance$per.variable %>%
   dplyr::mutate(
     importance.cv = round(importance.cv, 4)
   ) %>%
   knitr::kable()
 ```
 
-### Local variable importance
+## Local variable importance
 
-The `rf()` function computes local importance as a case-by-case average increase in error when a predictor is permuted. This dataframe, stored at `model.non.spatial$importance$local`, can be retrieved with [`get_importance_local()`](https://blasbenito.github.io/spatialRF/reference/get_importance_local.html) and used to map local importance.
+The `rf()` function computes local importance as a case-by-case average increase in error when a predictor is permuted. 
+
+The dataframe of local importance, stored at `m$importance$local`, can be retrieved with [`get_importance_local()`](https://blasbenito.github.io/spatialRF/reference/get_importance_local.html) to create a local importance map.
 
 ```{r}
 local.importance <- cbind(
   plants_xy,
-  spatialRF::get_importance_local(model.non.spatial)
+  spatialRF::get_importance_local(m)
   )
 ```
 
@@ -351,26 +351,27 @@ p1 + p2
 
 In these maps, a value lower than 0 indicates that the influence of the predictor on the local prediction is worse than what is expected by chance.
 
-## Response curves and surfaces
+# Response curves and surfaces
 
-The response curve of a predictor is computed by setting the other predictors to a given quantile or quantiles (0.1, 0.5, and 0.9 by default).
+The response curve of a predictor is computed by setting the other predictors to a given quantile (0.1, 0.5, and 0.9 by default).
 
 ```{r, fig.width = 11, fig.height=9}
 spatialRF::plot_response_curves(
-  model.non.spatial,
+  m,
   quantiles = c(0.1, 0.5, 0.9),
   line.color = colors[c(1, 50, 100)],
   ncol = 3,
   show.data = FALSE
   )
 ```
-For example, the blue curve (quantile 0.1) shows the prediction for each predictor when all other predictors have low values, while the red curve (quantile 0.9) shows predictions when all other predictors have high values.
+
+The blue curve (quantile 0.1) shows the point estimate for a predictor when all other predictors are at their lowest values.
 
 Setting the argument `quantiles` to 0.5 and setting `show.data` to `FALSE` (default option) accentuates the shape of the response curves.
 
 ```{r, fig.width = 11, fig.height=9}
 spatialRF::plot_response_curves(
-  model.non.spatial,
+  m,
   quantiles = 0.5,
   line.color = colors[100],
   ncol = 3
@@ -380,39 +381,69 @@ spatialRF::plot_response_curves(
 If you need to do your own plots, the function [`get_response_curves()`](https://blasbenito.github.io/spatialRF/reference/get_response_curves.html) returns a data frame with the required data.
 
 ```{r, eval = FALSE}
-response.curves.df <- spatialRF::get_response_curves(model.non.spatial)
+response.curves.df <- spatialRF::get_response_curves(m)
 ```
 
 Interactions between two predictors can be plotted with [`plot_response_surface()`](https://blasbenito.github.io/spatialRF/reference/plot_response_surface.html).
 
 ```{r, fig.height = 3.2, fig.width=4.5}
 spatialRF::plot_response_surface(
-  model.non.spatial,
+  model = m,
   a = "climate_bio1_average",
   b = "neighbors_count",
   fill.color = colors
   )
 ```
 
-## Model performance
+# Performance
 
-The **performance** slot, stored at `model.non.spatial$performance`, contains the values of several performance measures. It be printed via the function [`print_performance()`](https://blasbenito.github.io/spatialRF/reference/print_performance.html).
+The **performance** slot, stored at `m$performance`, contains the values of several performance measures. It be printed via the function [`print_performance()`](https://blasbenito.github.io/spatialRF/reference/print_performance.html).
 
 ```{r}
-spatialRF::print_performance(model.non.spatial)
+spatialRF::print_performance(m)
 ```
 
    + `R squared (oob)` and `RMSE (oob)` are computed by `ranger::ranger()` on the out-of-bag data (fraction of data not used to train individual trees). From all the values available in the `performance` slot, these are probably the most honest ones. However, out-of-bag data is not fully independent, and therefore will still be inflated, especially if the data is highly aggregated in space.
    + `R squared` and `pseudo R squared` are computed from comparing all observations against predictions. These values will usually be high when spatial autocorrelation is high.
    + The `RMSE` and its normalized version are linear with `R squared` and `pseudo R squared`.
+   
+# Hyperparameter tuning
 
-## Spatial cross-validation
+The function [`rf_tuning()`](https://blasbenito.github.io/spatialRF/reference/rf_tuning.html) optimizes the values for three critical Random Forest hyperparameters via spatial cross-validation:
+
+-   `num.trees`: number of regression trees in the forest.
+-   `mtry`: number of variables to choose from on each tree split.
+-   `min.node.size`: minimum number of cases on a terminal node.
+
+```{r, fig.width=6, fig.height=4.5}
+m <- rf_tuning(
+  model = m,
+  xy = plants_xy,
+  repetitions = 30,
+  num.trees = c(100, 200, 300),
+  mtry = c(2, 4, 8),
+  min.node.size = c(5, 10, 20),
+  cluster = cluster,
+  verbose = TRUE
+)
+```
+
+The function returns a tuned model only if the tuning finds a solution better than the original model. The tuning results can be accessed with `plot_tuning()`.
+
+```{r, fig.width = 7, fig.height=5, warning = FALSE}
+spatialRF::plot_tuning(
+  model = m,
+  point.color = colors
+)
+```
+
+# Spatial cross-validation
 
 The function [rf_evaluate()](https://blasbenito.github.io/spatialRF/reference/rf_evaluate.html) provides honest performance scores based on *spatial cross-validation*. The function separates the data into spatially independent training and testing folds.
 
 ```{r}
-model.non.spatial <- spatialRF::rf_evaluate(
-  model = model.non.spatial,
+m <- spatialRF::rf_evaluate(
+  model = m,
   xy = plants_xy,           #data coordinates
   repetitions = 30,         #number of spatial folds
   training.fraction = 0.75, #training data fraction on each fold
@@ -422,19 +453,19 @@ model.non.spatial <- spatialRF::rf_evaluate(
 )
 ```
 
-The function creates `model.non.spatial$evaluation` with several objects that summarize the spatial cross-validation results.
+The function creates `m$evaluation` with several objects that summarize the spatial cross-validation results.
 
 ```{r}
-names(model.non.spatial$evaluation)
+names(m$evaluation)
 ```
 
 The slot "spatial.folds", produced by [`make_spatial_folds()`](https://blasbenito.github.io/spatialRF/reference/make_spatial_folds.html), contains the indices of the training and testing cases for each cross-validation repetition. The maps below show two sets of training and testing folds.
 
 ```{r, echo=FALSE, fig.width=10, fig.height=5}
-pr <- plants_df[, c("x", "y")]
+pr <- plants_xy
 pr$group.2 <- pr$group.1 <- "Training"
-pr[model.non.spatial$evaluation$spatial.folds[[1]]$testing, "group.1"] <- "Testing"
-pr[model.non.spatial$evaluation$spatial.folds[[25]]$testing, "group.2"] <- "Testing"
+pr[m$evaluation$spatial.folds[[2]]$testing, "group.1"] <- "Testing"
+pr[m$evaluation$spatial.folds[[12]]$testing, "group.2"] <- "Testing"
 
 p1 <- ggplot2::ggplot() +
   ggplot2::geom_sf(data = world, fill = "white") +
@@ -496,8 +527,12 @@ p1 | p2
 
 The information available in this new slot can be accessed with the functions [`print_evaluation()`](https://blasbenito.github.io/spatialRF/reference/print_evaluation.html), [`plot_evaluation()`](https://blasbenito.github.io/spatialRF/reference/plot_evaluation.html), and [`get_evaluation()`](https://blasbenito.github.io/spatialRF/reference/get_evaluation.html).
 
-```{r, fig.height = 3, fig.width=4.5}
-spatialRF::plot_evaluation(model.non.spatial)
+```{r, fig.height = 3, fig.width=4.5, warning=FALSE}
+spatialRF::plot_evaluation(
+  model = m,
+  fill.color = colors,
+  notch = FALSE
+  )
 ```
 
  - `Full` is the performance of the model trained on the full dataset.
@@ -507,19 +542,21 @@ spatialRF::plot_evaluation(model.non.spatial)
  The median, median absolute deviation (MAD), minimum, and maximum R-squared values on the testing folds can be printed with `print_evaluation()`.
 
 ```{r, fig.height = 2, fig.width=4.5}
-spatialRF::print_evaluation(model.non.spatial)
+spatialRF::print_evaluation(m)
 ```
 
-## Model prediction
+# Prediction
 
 Models trained with `rf()` can be predicted as follows.
 
 ```{r}
-predicted <- stats::predict(
-  object = model.non.spatial,
+predicted <- predict(
+  object = m,
   data = plants_df,
   type = "response"
   )$predictions
+
+head(predicted)
 ```
 
 ```{r, echo=FALSE}
@@ -527,6 +564,6 @@ predicted <- stats::predict(
 parallel::stopCluster(cluster)
 ```
 
-# Next Steps
+# Next steps
 
 This tutorial covered non-spatial random forest modeling. To learn how to address spatial autocorrelation in model residuals using spatial predictors, see the [Spatial Random Forest Models](spatial_models.html) tutorial.

@@ -24,14 +24,14 @@ print_importance <- function(model, verbose = TRUE) {
 
   #if x is not a data frame
   if (!is.data.frame(model)) {
-    if (("importance" %in% names(model)) == FALSE) {
+    if (!("importance" %in% names(model))) {
       stop("The model does not have a slot named 'importance'")
     }
 
     #importance from rf
     if (
-      (inherits(model, "rf") & !inherits(model, "rf_spatial")) |
-        (inherits(model, "rf_repeat") & !inherits(model, "rf_spatial"))
+      (inherits(model, "rf") && !inherits(model, "rf_spatial")) ||
+        (inherits(model, "rf_repeat") && !inherits(model, "rf_spatial"))
     ) {
       x <- model$importance$per.variable
     }

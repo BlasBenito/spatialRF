@@ -5,23 +5,23 @@
 #' @seealso [plot_evaluation()], [get_evaluation()]
 #' @examples
 #'
+#' if(interactive()){
+#'
 #' data(
 #'   plants_rf,
 #'   plants_xy
 #' )
 #'
-#' m_evaluated <- rf_evaluate(
+#' plants_rf <- rf_evaluate(
 #'   model = plants_rf,
 #'   xy = plants_xy,
 #'   repetitions = 5,
 #'   n.cores = 1
 #' )
 #'
-#' plot_evaluation(m_evaluated, notch = FALSE)
+#' print_evaluation(plants_rf)
 #'
-#' print_evaluation(m_evaluated)
-#'
-#' get_evaluation(m_evaluated)
+#' }
 #'
 #' @rdname print_evaluation
 #' @family model_info

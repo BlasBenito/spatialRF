@@ -93,7 +93,7 @@ rf_importance <- function(
   on.exit(parallel_config$cleanup(), add = TRUE)
 
   #evaluating the full model
-  if (verbose == TRUE) {
+  if (verbose) {
     message("Evaluating the full model with spatial cross-validation.")
   }
 
@@ -161,7 +161,7 @@ rf_importance <- function(
   evaluation.list <- list()
 
   #evaluating the full model
-  if (verbose == TRUE) {
+  if (verbose) {
     message("Evaluating models fitted without each predictor.")
   }
 
@@ -357,12 +357,12 @@ rf_importance <- function(
   model$importance$per.variable.plot <- NULL
   model$importance$cv.per.variable.plot <- importance.per.variable.plot
 
-  if (verbose == TRUE) {
+  if (verbose) {
     message("Importance scores stored in model$importance$per.variable.")
     message("Importance plot stored in model$importance$cv.per.variable.plot.")
   }
 
-  if (verbose == TRUE) {
+  if (verbose) {
     print(importance.per.variable.plot)
   }
 

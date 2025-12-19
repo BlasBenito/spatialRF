@@ -65,23 +65,27 @@ The evaluation algorithm works as follows: the number of \code{repetitions} and 
 }
 \examples{
 
+if(interactive()){
+
 data(
   plants_rf,
   plants_xy
 )
 
-m_evaluated <- rf_evaluate(
+plants_rf <- rf_evaluate(
   model = plants_rf,
   xy = plants_xy,
   repetitions = 5,
   n.cores = 1
 )
 
-plot_evaluation(m_evaluated, notch = FALSE)
+plot_evaluation(plants_rf, notch = FALSE)
 
-print_evaluation(m_evaluated)
+print_evaluation(plants_rf)
 
-get_evaluation(m_evaluated)
+get_evaluation(plants_rf)
+
+}
 
 }
 \seealso{

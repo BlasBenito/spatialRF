@@ -44,7 +44,7 @@ plot_residuals_diagnostics <- function(
 
   #checking option
   if (
-    !(option %in% c(1, 2)) |
+    !(option %in% c(1, 2)) ||
       inherits(model, "data.frame")
   ) {
     option <- 1
@@ -173,7 +173,7 @@ plot_residuals_diagnostics <- function(
     p1 <- normality.plot
   }
 
-  if (verbose == TRUE) {
+  if (verbose) {
     suppressWarnings(print(p1))
   }
 

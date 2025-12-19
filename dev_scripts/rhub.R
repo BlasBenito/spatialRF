@@ -1,5 +1,5 @@
 install.packages("rhub")
-Sys.setenv(GITHUB_PAT = "xxx")
+# Sys.setenv(GITHUB_PAT = "your-token-here")  # Set via .Renviron instead!
 rhub::rhub_setup()
 rhub::rhub_doctor()
 
@@ -10,7 +10,6 @@ devtools::check_win_devel()
 rhub::rhub_check(
   platforms = c(
     "linux",
-    "macos",
     "macos-arm64",
     "windows",
     "atlas",

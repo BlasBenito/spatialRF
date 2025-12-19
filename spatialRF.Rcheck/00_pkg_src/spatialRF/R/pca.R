@@ -46,7 +46,7 @@ pca <- function(
   x = NULL,
   colnames.prefix = "pca_factor"
 ) {
-  if (inherits(x, "tbl_df") | inherits(x, "tbl")) {
+  if (inherits(x, "tbl_df") || inherits(x, "tbl")) {
     x <- as.data.frame(x)
   }
 

@@ -73,11 +73,11 @@ plot_tuning             Plots a tuning object produced by 'rf_tuning()'
 prepare_importance_spatial
                         Prepares variable importance objects for
                         spatial models
+print.rf                Custom print method for random forest models
 print_evaluation        Prints cross-validation results
 print_importance        Prints variable importance
 print_moran             Prints results of a Moran's I test
 print_performance       print_performance
-print.rf                Custom print method for random forest models
 rank_spatial_predictors
                         Ranks spatial predictors
 rescale_vector          Rescales a numeric vector into a new range

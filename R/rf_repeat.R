@@ -107,7 +107,7 @@ rf_repeat <- function(
   }
 
   #coerce to data frame if tibble
-  if (inherits(data, "tbl_df") | inherits(data, "tbl")) {
+  if (inherits(data, "tbl_df") || inherits(data, "tbl")) {
     data <- as.data.frame(data)
   }
 
@@ -140,7 +140,7 @@ rf_repeat <- function(
   ranger.arguments$seed <- NULL
   ranger.arguments$scaled.importance <- scaled.importance
 
-  if (keep.models == TRUE) {
+  if (keep.models) {
     ranger.arguments$write.forest <- TRUE
   }
 
@@ -183,7 +183,7 @@ rf_repeat <- function(
       out$residuals <- m.i$residuals
 
       #saving model
-      if (keep.models == TRUE) {
+      if (keep.models) {
         #removing extra weight from the model
         m.i$ranger.arguments$distance.matrix <- NULL
         m.i$ranger.arguments$xy <- NULL
@@ -197,7 +197,7 @@ rf_repeat <- function(
     } #end of parallelized loop
 
   #fitting model if keep.models  == FALSE
-  if (keep.models == FALSE) {
+  if (!keep.models) {
     if (!is.null(model)) {
       m <- model
     } else {
@@ -308,19 +308,13 @@ rf_repeat <- function(
     if (inherits(model, "rf_spatial")) {
       #spatial predictors only
       spatial.predictors <- importance.per.repetition[
-        grepl(
-          "spatial_predictor",
-          importance.per.repetition$variable
-        ),
+        grepl("spatial_predictor", importance.per.repetition$variable, fixed = TRUE),
       ]
       spatial.predictors$variable <- "spatial_predictors"
 
       #non-spatial predictors
       non.spatial.predictors <- importance.per.repetition[
-        !grepl(
-          "spatial_predictor",
-          importance.per.repetition$variable
-        ),
+        !grepl("spatial_predictor", importance.per.repetition$variable, fixed = TRUE),
       ]
 
       #spatial.predictors
@@ -593,7 +587,7 @@ rf_repeat <- function(
   )
 
   #gathering models
-  if (keep.models == TRUE) {
+  if (keep.models) {
     m$models <- lapply(
       repeated.models,
       "[[",
@@ -620,7 +614,7 @@ rf_repeat <- function(
   }
 
   #print model
-  if (verbose == TRUE) {
+  if (verbose) {
     print(m)
   }
 

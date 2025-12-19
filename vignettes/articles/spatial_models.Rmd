@@ -50,18 +50,21 @@ data(
   plants_rf  # precomputed non-spatial model
 )
 
-# Configuration
-distance.thresholds <- c(100, 1000, 2000, 4000)
-colors <- grDevices::hcl.colors(n = 100, palette = "Zissou 1")
+#distance thresholds (same units as plants_distance, km)
+#used to assess spatial correlation at different distances
+distance_thresholds <- c(10, 100, 1000, 2000, 4000, 8000)
+
+#a pretty color palette
+colors <- grDevices::hcl.colors(
+    n = 100,
+    palette = "Zissou 1"
+    )
 
 # Parallel backend
 cluster <- parallel::makeCluster(
   parallel::detectCores() - 1,
   type = "PSOCK"
 )
-
-# Use precomputed model as starting point
-model.non.spatial <- plants_rf
 
 # Load world map for visualizations
 world <- rnaturalearth::ne_countries(
@@ -70,49 +73,58 @@ world <- rnaturalearth::ne_countries(
 )
 ```
 
-# Spatial autocorrelation in residuals
+# Non-spatial vs spatial model
 
-The plot below shows the spatial autocorrelation of the non-spatial model residuals.
+The plot below shows the spatial autocorrelation of of the residuals from a non-spatial model.
 
-```{r, fig.width=4, fig.height=3, message=FALSE, warning=FALSE}
+```{r, fig.width=6, fig.height=3}
+m.non_spatial <- spatialRF::rf(
+  data = plants_df,
+  dependent.variable.name = plants_response,
+  predictor.variable.names = plants_predictors,
+  distance.matrix = plants_distance,
+  distance.thresholds = distance_thresholds,
+  verbose = FALSE
+)
+
 spatialRF::plot_moran(
-  model.non.spatial,
+  model = m.non_spatial,
   verbose = FALSE,
   point.color = colors
   )
 ```
 
-The spatial autocorrelation of the model residuals is high for neighborhood distances up to 1000km.
+The spatial autocorrelation of the model residuals is high for neighborhood distances up to ~3000km
 
 To reduce the spatial autocorrelation of the residuals as much as possible, the non-spatial model can be transformed into a *spatial model* with [`rf_spatial()`](https://blasbenito.github.io/spatialRF/reference/rf_spatial.html).
 
 This function is the true core of the package!
 
-```{r}
-model.spatial <- spatialRF::rf_spatial(
-  model = model.non.spatial,
+```{r, fig.width=6, fig.height=3}
+m.spatial <- spatialRF::rf_spatial(
+  model = m.non_spatial,
   cluster = cluster,
   verbose = FALSE
   )
-```
 
-The residuals of the spatial model plotted below are not spatially correlated anymore.
-
-```{r, fig.width=4, fig.height=3, message=FALSE, warning=FALSE}
 spatialRF::plot_moran(
-  model.spatial,
+  model = m.spatial,
   verbose = FALSE,
   point.color = colors
   )
 ```
 
-# Understanding spatial predictors
+The residuals of the spatial model plotted above are not spatially correlated anymore!
+
+This improvement results from adding *spatial predictors* to the model.
+
+# Spatial predictors
 
 The variable importance plot below shows that the spatial model has **spatial predictors** with varying levels or importance.
 
 ```{r, fig.width = 6.5, fig.height=4.5}
 spatialRF::plot_importance(
-  model.spatial,
+  model = m.spatial,
   verbose = FALSE,
   fill.color = colors
   )
@@ -120,8 +132,8 @@ spatialRF::plot_importance(
 
 Spatial predictors are named `spatial_predictor_X_Y`, where `X` is the neighborhood distance at which the predictor is generated, and `Y` is the index of the predictor.
 
-```{r, echo = FALSE}
-model.spatial$importance$per.variable %>%
+```{r, echo = FALSE, warning=FALSE}
+m.spatial$importance$per.variable %>%
   dplyr::filter(
     grepl(pattern = "spatial_predictor", x = variable)
   ) %>%
@@ -137,14 +149,14 @@ They represent the effect of spatial proximity among records, helping to represe
 They can be extracted from the model with the function `get_spatial_predictors()`.
 
 ```{r}
-spatial.predictors <- spatialRF::get_spatial_predictors(model.spatial)
+spatial.predictors <- spatialRF::get_spatial_predictors(m.spatial)
 ```
 
 The map below shows a couple of them.
 
 ```{r, echo=FALSE, fig.width=12, fig.height=7}
 #get two most important predictors
-best_spatial_predictors <- model.spatial$importance$per.variable %>%
+best_spatial_predictors <- m.spatial$importance$per.variable %>%
   dplyr::filter(
     grepl(pattern = "spatial_predictor", x = variable)
   ) |>
@@ -185,46 +197,17 @@ ggplot2::ggplot() +
   ggplot2::ylab("Latitude")
 ```
 
-# Optimization process
+# Selection of spatial predictors
 
 The spatial predictors are included in the model sequentially via [`select_spatial_predictors_sequential()`](https://blasbenito.github.io/spatialRF/reference/select_spatial_predictors_sequential.html). This function finds the smallest subset of spatial predictors that maximizes the model's R squared and minimizes the Moran's I of the residuals.
 
 ```{r, fig.width=6, fig.height=4}
 spatialRF::plot_optimization(
-  model = model.spatial,
+  model = m.spatial,
   point.color = colors
   )
 ```
-
-# Hyperparameter tuning
-
-The function [`rf_tuning()`](https://blasbenito.github.io/spatialRF/reference/rf_tuning.html) optimizes the values for three critical Random Forest hyperparameters via spatial cross-validation:
-
--   `num.trees`: number of regression trees in the forest.
--   `mtry`: number of variables to choose from on each tree split.
--   `min.node.size`: minimum number of cases on a terminal node.
-
-```{r, fig.width=6, fig.height=4.5}
-model.spatial <- rf_tuning(
-  model = model.spatial,
-  xy = plants_xy,
-  repetitions = 30,
-  num.trees = c(100, 200, 300),
-  mtry = c(2, 4, 8),
-  min.node.size = c(5, 10, 20),
-  cluster = cluster,
-  verbose = TRUE
-)
-```
-
-The function returns a tuned model only if the tuning finds a solution better than the original model. The tuning results can be accessed with `plot_tuning()`.
-
-```{r, fig.width = 7, fig.height=5, warning = FALSE}
-spatialRF::plot_tuning(
-  model = model.spatial,
-  point.color = colors
-)
-```
+The path in the plot below shows the iterative selection of spatial predictors, that tries to reduce the spatial autocorrelation of the residuals (*y* axis) without degrading model performance (*x* axis).
 
 # Model comparison
 
@@ -233,8 +216,8 @@ The function [`rf_compare()`](https://blasbenito.github.io/spatialRF/reference/r
 ```{r, fig.width=6, fig.height=3}
 comparison <- spatialRF::rf_compare(
   models = list(
-    `Non-spatial` = model.non.spatial,
-    `Spatial` = model.spatial
+    `Non-spatial` = m.non_spatial,
+    `Spatial` = m.spatial
   ),
   xy = plants_xy,
   repetitions = 30,
@@ -245,24 +228,109 @@ comparison <- spatialRF::rf_compare(
   )
 ```
 
-# Generating spatial predictors for other modelling methods
+The comparison shows that the spatial model has a better performance on when predicting on independent spatial folds. This is an expected behavior: spatial predictors make models less transferable in space! That's why `spatialRF` is focused on explanatory models rather than predictive ones.
 
-You might not love Random Forest, but `spatialRF` loves you, and as such, it gives you tools to generate spatial predictors for other models anyway.
+# Using spatial predictors in other models
 
-The first step requires generating Moran's Eigenvector Maps (MEMs) from the distance matrix. Here there are two options, computing MEMs for a single neighborhood distance with [`mem()`](https://blasbenito.github.io/spatialRF/reference/mem.html), and computing MEMs for several neighborhood distances at once with [`mem_multithreshold()`](https://blasbenito.github.io/spatialRF/reference/mem_multithreshold.html).
+Spatial predictors from `spatialRF` can be used with any modeling method. The workflow: generate MEMs, rank by Moran's I, add sequentially until residual autocorrelation is resolved.
 
 ```{r}
+#generate and rank MEMs
 mems <- spatialRF::mem_multithreshold(
   distance.matrix = plants_distance,
-  distance.thresholds = distance.thresholds
+  distance.thresholds = distance_thresholds
 )
+
+ranked <- spatialRF::rank_spatial_predictors(
+  distance.matrix = plants_distance,
+  spatial.predictors.df = mems,
+  ranking.method = "moran"
+)
+
+mems <- mems[, ranked$ranking]
 ```
 
-In either case the result is a data frame with Moran's Eigenvector Maps ("just" the positive eigenvectors of the double-centered distance matrix).
+
+```{r, fig.width = 5, fig.height=2.5}
+#prepare scaled data
+plants_df.scaled <- plants_df |> 
+  scale() |> 
+  as.data.frame()
+
+#fit non-spatial model
+m1 <- lm(
+  richness_species_vascular ~ human_population + climate_bio1_average +
+    climate_hypervolume + human_footprint_average,
+  data = plants_df.scaled
+)
+
+#check autocorrelation
+m1.moran <- spatialRF::moran(
+  x = residuals(m1),
+  distance.matrix = plants_distance,
+  verbose = FALSE
+)
+
+m1.moran$plot
+```
+
+Residuals show spatial autocorrelation. Let's add MEMs sequentially:
+
+```{r, fig.width=5, fig.height=2.5}
+#combine data with MEMs
+plants_df.mem <- cbind(plants_df.scaled, mems) |> scale() |> as.data.frame()
+
+#add MEMs until autocorrelation resolved
+spatial_predictors <- character(0)
+
+for(i in seq_along(mems)){
+
+  spatial_predictors <- c(spatial_predictors, names(mems)[i])
+
+  formula_i <- reformulate(
+    c(
+      "human_population", 
+      "climate_bio1_average",
+      "climate_hypervolume", 
+      "human_footprint_average",
+      spatial_predictors
+      ),
+    response = plants_response
+  )
+
+  m2 <- lm(
+    formula = formula_i, 
+    data = plants_df.mem
+    )
+
+  m2.moran <- spatialRF::moran(
+    x = residuals(m2),
+    distance.matrix = plants_distance,
+    verbose = FALSE
+  )
+
+  if(m2.moran$test$interpretation == "No spatial correlation") break
+}
+
+m2.moran$plot
+```
+
+Compare models:
 
 ```{r, echo=FALSE, warning = FALSE, message=FALSE}
-knitr::kable(round(mems, 4))
+data.frame(
+  Model = c("Non-spatial", "Spatial"),
+  Predictors = c(4, 4 + length(spatial_predictors)),
+  R2 = round(c(summary(m1)$r.squared, summary(m2)$r.squared), 3),
+  AIC = round(c(AIC(m1), AIC(m2)), 0),
+  Moran_I = round(c(m1.moran$test$moran.i, m2.moran$test$moran.i), 3)
+) |>
+  kableExtra::kbl(format = "html") |>
+  kableExtra::kable_paper("hover", full_width = FALSE)
 ```
+
+Adding the spatial predictors eliminated autocorrelation while improving model fit.
+
 
 ```{r cleanup, echo = FALSE}
 # Clean up parallel cluster

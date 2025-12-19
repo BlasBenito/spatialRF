@@ -23,7 +23,7 @@ Roxygen: list(markdown = TRUE, old_usage = FALSE)
 RoxygenNote: 7.3.3
 Language: en-US
 NeedsCompilation: no
-Packaged: 2025-12-19 12:39:20 UTC; blas
+Packaged: 2025-12-19 20:49:58 UTC; blas
 Author: Blas M. Benito [aut, cre, cph] (ORCID:
     <https://orcid.org/0000-0001-5105-7232>)
 Maintainer: Blas M. Benito <blasbenito@gmail.com>

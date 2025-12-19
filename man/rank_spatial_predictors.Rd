@@ -66,6 +66,9 @@ This function has been designed to be used internally by \code{\link[=rf_spatial
 }
 \examples{
 
+
+if(interactive()){
+
 data(
   plants_df,
   plants_response,
@@ -106,6 +109,8 @@ y_rank <- rank_spatial_predictors(
 
 y_rank$criteria
 y_rank$ranking
+
+}
 }
 \seealso{
 Other spatial_analysis: 

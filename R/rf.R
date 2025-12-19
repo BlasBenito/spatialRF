@@ -85,6 +85,7 @@
 #' @rdname rf
 #' @family main_models
 #' @export
+#' @importFrom ranger ranger
 #' @importFrom parallel detectCores
 #' @importFrom tibble remove_rownames
 #' @importFrom dplyr arrange
@@ -105,7 +106,7 @@ rf <- function(
   cluster = NULL
 ) {
   #giving priority to data not from ranger.arguments
-  if (!is.null(data) & !is.null(ranger.arguments)) {
+  if (!is.null(data) && !is.null(ranger.arguments)) {
     ranger.arguments$data <- NULL
     ranger.arguments$dependent.variable.name <- NULL
     ranger.arguments$predictor.variable.names <- NULL
@@ -150,11 +151,11 @@ rf <- function(
   }
 
   #coerce to data frame if tibble
-  if (inherits(data, "tbl_df") | inherits(data, "tbl")) {
+  if (inherits(data, "tbl_df") || inherits(data, "tbl")) {
     data <- as.data.frame(data)
   }
 
-  if (inherits(xy, "tbl_df") | inherits(xy, "tbl")) {
+  if (inherits(xy, "tbl_df") || inherits(xy, "tbl")) {
     xy <- as.data.frame(xy)
   }
 
@@ -201,12 +202,12 @@ rf <- function(
   }
 
   #scaling the data if required
-  if (scaled.importance == TRUE) {
+  if (scaled.importance) {
     data.scaled <- as.data.frame(scale(x = data))
 
     #check if there are NaN
     if (
-      sum(apply(data.scaled, 2, is.nan)) > 0 |
+      sum(apply(data.scaled, 2, is.nan)) > 0 ||
         sum(apply(data.scaled, 2, is.infinite)) > 0
     ) {
       scaled.importance <- FALSE
@@ -221,7 +222,7 @@ rf <- function(
     data = data,
     dependent.variable.name = dependent.variable.name
   )
-  if (is.binary == TRUE & is.null(case.weights)) {
+  if (is.binary && is.null(case.weights)) {
     case.weights <- case_weights(
       data = data,
       dependent.variable.name = dependent.variable.name
@@ -271,7 +272,7 @@ rf <- function(
   variable.importance.local <- m$variable.importance.local
 
   #if scaled.importance is TRUE
-  if (scaled.importance == TRUE) {
+  if (scaled.importance) {
     #ranger model for variable importance
     m.scaled <- ranger::ranger(
       data = data.scaled,
@@ -402,7 +403,7 @@ rf <- function(
   }
 
   #computing predictions
-  predicted <- stats::predict(
+  predicted <- predict(
     object = m,
     data = data,
     type = "response"
@@ -483,7 +484,7 @@ rf <- function(
   #adding rf class
   class(m) <- c("rf", "ranger")
 
-  if (verbose == TRUE) {
+  if (verbose) {
     print(m)
   }
 

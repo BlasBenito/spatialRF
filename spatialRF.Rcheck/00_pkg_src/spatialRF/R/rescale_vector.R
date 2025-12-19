@@ -31,20 +31,20 @@ rescale_vector <- function(
   new.max = 1,
   integer = FALSE
 ) {
-  if (is.null(x) | !is.vector(x) | !is.numeric(x)) {
+  if (is.null(x) || !is.vector(x) || !is.numeric(x)) {
     stop("x must be a numeric vector.")
   }
 
   #data extremes
-  old.min = min(x)
-  old.max = max(x)
+  old.min <- min(x)
+  old.max <- max(x)
 
   #scaling
-  x = ((x - old.min) / (old.max - old.min)) * (new.max - new.min) + new.min
+  x <- ((x - old.min) / (old.max - old.min)) * (new.max - new.min) + new.min
 
   #to integer
-  if (integer == TRUE) {
-    x = floor(x)
+  if (integer) {
+    x <- floor(x)
   }
 
   x

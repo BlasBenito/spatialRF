@@ -624,60 +624,24 @@ climate_bio15_minimum                            1.00
 > 
 > ### ** Examples
 > 
-> data(plants_rf, plants_xy)
 > 
-> # Evaluate model with spatial cross-validation
-> m_evaluated <- rf_evaluate(
+> if(interactive()){
++ 
++ data(plants_rf, plants_xy)
++ 
++ # Evaluate model with spatial cross-validation
++ m_evaluated <- rf_evaluate(
 +   model = plants_rf,
 +   xy = plants_xy,
 +   repetitions = 5,
 +   n.cores = 1
 + )
-Selecting pairs of coordinates as training fold origins.
-Generating spatial folds.
-Evaluation results stored in model$evaluation.
-
-Spatial evaluation 
-  - Training fraction:             0.75
-  - Spatial folds:                 5
-
-           Metric   Median     MAD  Minimum  Maximum
-            nrmse    0.854   0.397    0.586    2.176
- pseudo.r.squared    0.619   0.243    0.153    0.783
-        r.squared    0.384   0.299    0.023    0.613
-             rmse 3209.847 233.745 2570.556 3890.504
-> 
-> # Extract evaluation metrics
-> eval_metrics <- get_evaluation(m_evaluated)
-> head(eval_metrics)
-    model           metric median median_absolute_deviation q1 q3         mean
-1    Full              auc     NA                        NA NA NA           NA
-2    Full            nrmse     NA                        NA NA NA    0.4646691
-3    Full pseudo.r.squared     NA                        NA NA NA    0.9153539
-4    Full        r.squared     NA                        NA NA NA    0.8378728
-5    Full             rmse     NA                        NA NA NA 1609.6138000
-6 Testing              auc     NA                        NA NA NA           NA
-  se sd min max
-1 NA NA  NA  NA
-2 NA NA  NA  NA
-3 NA NA  NA  NA
-4 NA NA  NA  NA
-5 NA NA  NA  NA
-6 NA NA  NA  NA
-> 
-> # Compare with other evaluation functions
-> plot_evaluation(m_evaluated, notch = FALSE)
-> print_evaluation(m_evaluated)
-
-Spatial evaluation 
-  - Training fraction:             0.75
-  - Spatial folds:                 5
-
-           Metric   Median     MAD  Minimum  Maximum
-            nrmse    0.854   0.397    0.586    2.176
- pseudo.r.squared    0.619   0.243    0.153    0.783
-        r.squared    0.384   0.299    0.023    0.613
-             rmse 3209.847 233.745 2570.556 3890.504
++ 
++ # Extract evaluation metrics
++ eval_metrics <- get_evaluation(m_evaluated)
++ eval_metrics
++ 
++ }
 > 
 > 
 > 
@@ -4470,73 +4434,12 @@ medium_matrix  matrix   78.3 Kb         100     100
 > 
 > data(plants_rf, plants_rf_spatial)
 > 
-> # Plot importance from single Random Forest model
+> # Plot importance from Random Forest model
 > plot_importance(plants_rf)
 > 
-> 
-> # Plot importance from spatial Random Forest model
+> # Plot importance from Spatial Random Forest model
 > plot_importance(plants_rf_spatial)
 > 
-> # Custom colors
-> plot_importance(
-+   plants_rf,
-+   fill.color = viridis::viridis(20, option = "D")
-+ )
-> 
-> # Return plot object for further customization
-> p <- plot_importance(plants_rf, verbose = FALSE)
-> p + ggplot2::ggtitle("Custom Title")
-> 
-> # Print importance values
-> print_importance(plants_rf)
-                ┌─────────────────────────────────┬────────────┐
-                │ Variable                        │ Importance │
-                ├─────────────────────────────────┼────────────┤
-                │ climate_bio1_average            │   1949.457 │
-                ├─────────────────────────────────┼────────────┤
-                │ human_population                │   1595.806 │
-                ├─────────────────────────────────┼────────────┤
-                │ climate_hypervolume             │   1188.702 │
-                ├─────────────────────────────────┼────────────┤
-                │ bias_area_km2                   │   1177.989 │
-                ├─────────────────────────────────┼────────────┤
-                │ human_population_density        │   1026.905 │
-                ├─────────────────────────────────┼────────────┤
-                │ human_footprint_average         │   1021.417 │
-                ├─────────────────────────────────┼────────────┤
-                │ climate_aridity_index_average   │    844.765 │
-                ├─────────────────────────────────┼────────────┤
-                │ neighbors_count                 │    707.572 │
-                ├─────────────────────────────────┼────────────┤
-                │ neighbors_area                  │    649.625 │
-                ├─────────────────────────────────┼────────────┤
-                │ bias_species_per_record         │    607.005 │
-                ├─────────────────────────────────┼────────────┤
-                │ topography_elevation_average    │    523.113 │
-                ├─────────────────────────────────┼────────────┤
-                │ fragmentation_cohesion          │    484.973 │
-                ├─────────────────────────────────┼────────────┤
-                │ climate_velocity_lgm_average    │    218.293 │
-                ├─────────────────────────────────┼────────────┤
-                │ climate_bio15_minimum           │    215.974 │
-                ├─────────────────────────────────┼────────────┤
-                │ fragmentation_division          │    197.148 │
-                ├─────────────────────────────────┼────────────┤
-                │ neighbors_percent_shared_edge   │     92.874 │
-                ├─────────────────────────────────┼────────────┤
-                │ landcover_herbs_percent_average │    -81.849 │
-                └─────────────────────────────────┴────────────┘
-> 
-> # Extract importance data for custom analysis
-> importance_data <- get_importance(plants_rf)
-> head(importance_data)
-                  variable importance
-1     climate_bio1_average   1949.457
-2         human_population   1595.806
-3      climate_hypervolume   1188.702
-4            bias_area_km2   1177.989
-5 human_population_density   1026.905
-6  human_footprint_average   1021.417
 > 
 > 
 > 
@@ -5108,94 +5011,23 @@ Variable importance:
 > ### ** Examples
 > 
 > 
-> data(
+> if(interactive()){
++ 
++ data(
 +   plants_rf,
 +   plants_xy
 + )
-> 
-> m_evaluated <- rf_evaluate(
++ 
++ plants_rf <- rf_evaluate(
 +   model = plants_rf,
 +   xy = plants_xy,
 +   repetitions = 5,
 +   n.cores = 1
 + )
-Selecting pairs of coordinates as training fold origins.
-Generating spatial folds.
-Evaluation results stored in model$evaluation.
-
-Spatial evaluation 
-  - Training fraction:             0.75
-  - Spatial folds:                 5
-
-           Metric   Median     MAD  Minimum  Maximum
-            nrmse    0.854   0.397    0.586    2.176
- pseudo.r.squared    0.619   0.243    0.153    0.783
-        r.squared    0.384   0.299    0.023    0.613
-             rmse 3209.847 233.745 2570.556 3890.504
-> 
-> plot_evaluation(m_evaluated, notch = FALSE)
-> 
-> print_evaluation(m_evaluated)
-
-Spatial evaluation 
-  - Training fraction:             0.75
-  - Spatial folds:                 5
-
-           Metric   Median     MAD  Minimum  Maximum
-            nrmse    0.854   0.397    0.586    2.176
- pseudo.r.squared    0.619   0.243    0.153    0.783
-        r.squared    0.384   0.299    0.023    0.613
-             rmse 3209.847 233.745 2570.556 3890.504
-> 
-> get_evaluation(m_evaluated)
-      model           metric       median median_absolute_deviation
-1      Full              auc           NA                        NA
-2      Full            nrmse           NA                        NA
-3      Full pseudo.r.squared           NA                        NA
-4      Full        r.squared           NA                        NA
-5      Full             rmse           NA                        NA
-6   Testing              auc           NA                        NA
-7   Testing            nrmse    0.8540000              3.973368e-01
-8   Testing pseudo.r.squared    0.6190000              2.431464e-01
-9   Testing        r.squared    0.3840000              2.994852e-01
-10  Testing             rmse 3209.8470000              2.337452e+02
-11 Training              auc           NA                        NA
-12 Training            nrmse    0.5179274              6.650721e-02
-13 Training pseudo.r.squared    0.9031076              8.813944e-03
-14 Training        r.squared    0.8156033              1.597228e-02
-15 Training             rmse 1760.1130000              3.261272e+02
-             q1           q3         mean      se           sd          min
-1            NA           NA           NA      NA           NA           NA
-2            NA           NA    0.4646691      NA           NA           NA
-3            NA           NA    0.9153539      NA           NA           NA
-4            NA           NA    0.8378728      NA           NA           NA
-5            NA           NA 1609.6138000      NA           NA           NA
-6            NA           NA           NA      NA           NA           NA
-7     0.7540000    1.6240000    1.1988000   0.302   0.67601272    0.5860000
-8     0.4270000    0.6290000    0.5222000   0.108   0.24195289    0.1530000
-9     0.1820000    0.3960000    0.3196000   0.101   0.22526274    0.0230000
-10 3052.1880000 3221.4480000 3188.9086000 211.517 472.96558935 2570.5560000
-11           NA           NA           NA      NA           NA           NA
-12    0.4286512    0.5380660    0.4898071   0.032   0.07064923    0.4016049
-13    0.9017172    0.9090525    0.9030970   0.005   0.01129303    0.8856013
-14    0.8130939    0.8263764    0.8156863   0.009   0.02033142    0.7842897
-15 1464.8083000 1895.6144000 1691.9499800 120.729 269.95715642 1359.1314000
-            max
-1            NA
-2            NA
-3            NA
-4            NA
-5            NA
-6            NA
-7     2.1760000
-8     0.7830000
-9     0.6130000
-10 3890.5040000
-11           NA
-12    0.5627859
-13    0.9160066
-14    0.8390681
-15 1980.0828000
++ 
++ print_evaluation(plants_rf)
++ 
++ }
 > 
 > 
 > 
@@ -5345,46 +5177,38 @@ Model performance
 > ### ** Examples
 > 
 > 
-> data(
+> 
+> if(interactive()){
++ 
++ data(
 +   plants_df,
 +   plants_response,
 +   plants_distance
 + )
-> 
-> #subset to speed up example
-> idx <- 50:90
-> plants_distance_sub <- plants_distance[idx, idx]
-> 
-> y <- mem(
++ 
++ #subset to speed up example
++ idx <- 50:90
++ plants_distance_sub <- plants_distance[idx, idx]
++ 
++ y <- mem(
 +   distance.matrix = plants_distance_sub,
 +   distance.threshold = 1000
 + )
-> 
-> #rank spatial predictors by Moran's I
-> y_rank <- rank_spatial_predictors(
++ 
++ #rank spatial predictors by Moran's I
++ y_rank <- rank_spatial_predictors(
 +   distance.matrix = plants_distance_sub,
 +   distance.thresholds = 1000,
 +   spatial.predictors.df = y,
 +   ranking.method = "moran",
 +   n.cores = 1
 + )
-> 
-> y_rank$criteria
-  spatial.predictors.name ranking.criteria               interpretation
-1                   mem_2        0.9903511 Positive spatial correlation
-2                   mem_1        0.9833892 Positive spatial correlation
-3                   mem_3        0.9625405 Positive spatial correlation
-4                   mem_4        0.7536902 Positive spatial correlation
-5                   mem_5        0.7421847 Positive spatial correlation
-6                   mem_6        0.7053129 Positive spatial correlation
-7                   mem_7        0.4877096 Positive spatial correlation
-8                   mem_8        0.3269590 Positive spatial correlation
-9                   mem_9        0.2951264 Positive spatial correlation
-> y_rank$ranking
-[1] "mem_2" "mem_1" "mem_3" "mem_4" "mem_5" "mem_6" "mem_7" "mem_8" "mem_9"
-> 
-> #rank spatial predictors by association with response
-> y_rank <- rank_spatial_predictors(
++ 
++ y_rank$criteria
++ y_rank$ranking
++ 
++ #rank spatial predictors by association with response
++ y_rank <- rank_spatial_predictors(
 +   data = plants_df[idx, ],
 +   dependent.variable.name = plants_response,
 +   distance.matrix = plants_distance_sub,
@@ -5393,37 +5217,11 @@ Model performance
 +   ranking.method = "effect",
 +   n.cores = 1
 + )
-> 
-> y_rank$criteria
-   spatial.predictors.name model.r.squared     moran.i      p.value
-1                    mem_6     -0.01881027 -0.17411727 0.1041229331
-2                    mem_1      0.02027856 -0.10327239 0.4052443057
-3                    mem_3      0.05695244  0.03740766 0.5020912945
-4                   mem_12     -0.35142982  0.05404865 0.4063700901
-5                    mem_4     -0.47089184  0.13218466 0.0968547082
-6                    mem_7     -0.04743797  0.13953217 0.0763363830
-7                    mem_9     -0.06396196  0.16269993 0.0460233924
-8                    mem_8      0.06446693  0.16905413 0.0359420399
-9                    mem_5     -0.69888782  0.19842753 0.0183415559
-10                  mem_11     -0.51595923  0.20673748 0.0140130283
-11                   mem_2      0.07610373  0.27026930 0.0016300932
-12                  mem_10     -0.40391312  0.35119836 0.0000632428
-   ranking.criteria
-1         1.1741173
-2         1.1032724
-3         0.9625923
-4         0.9459513
-5         0.8678153
-6         0.8604678
-7         0.8373001
-8         0.8309459
-9         0.8015725
-10        0.7932625
-11        0.7297307
-12        0.6488016
-> y_rank$ranking
- [1] "mem_6"  "mem_1"  "mem_3"  "mem_12" "mem_4"  "mem_7"  "mem_9"  "mem_8" 
- [9] "mem_5"  "mem_11" "mem_2"  "mem_10"
++ 
++ y_rank$criteria
++ y_rank$ranking
++ 
++ }
 > 
 > 
 > 
@@ -5719,94 +5517,27 @@ $auc
 > ### ** Examples
 > 
 > 
-> data(
+> if(interactive()){
++ 
++ data(
 +   plants_rf,
 +   plants_xy
 + )
-> 
-> m_evaluated <- rf_evaluate(
++ 
++ plants_rf <- rf_evaluate(
 +   model = plants_rf,
 +   xy = plants_xy,
 +   repetitions = 5,
 +   n.cores = 1
 + )
-Selecting pairs of coordinates as training fold origins.
-Generating spatial folds.
-Evaluation results stored in model$evaluation.
-
-Spatial evaluation 
-  - Training fraction:             0.75
-  - Spatial folds:                 5
-
-           Metric   Median     MAD  Minimum  Maximum
-            nrmse    0.854   0.397    0.586    2.176
- pseudo.r.squared    0.619   0.243    0.153    0.783
-        r.squared    0.384   0.299    0.023    0.613
-             rmse 3209.847 233.745 2570.556 3890.504
-> 
-> plot_evaluation(m_evaluated, notch = FALSE)
-> 
-> print_evaluation(m_evaluated)
-
-Spatial evaluation 
-  - Training fraction:             0.75
-  - Spatial folds:                 5
-
-           Metric   Median     MAD  Minimum  Maximum
-            nrmse    0.854   0.397    0.586    2.176
- pseudo.r.squared    0.619   0.243    0.153    0.783
-        r.squared    0.384   0.299    0.023    0.613
-             rmse 3209.847 233.745 2570.556 3890.504
-> 
-> get_evaluation(m_evaluated)
-      model           metric       median median_absolute_deviation
-1      Full              auc           NA                        NA
-2      Full            nrmse           NA                        NA
-3      Full pseudo.r.squared           NA                        NA
-4      Full        r.squared           NA                        NA
-5      Full             rmse           NA                        NA
-6   Testing              auc           NA                        NA
-7   Testing            nrmse    0.8540000              3.973368e-01
-8   Testing pseudo.r.squared    0.6190000              2.431464e-01
-9   Testing        r.squared    0.3840000              2.994852e-01
-10  Testing             rmse 3209.8470000              2.337452e+02
-11 Training              auc           NA                        NA
-12 Training            nrmse    0.5179274              6.650721e-02
-13 Training pseudo.r.squared    0.9031076              8.813944e-03
-14 Training        r.squared    0.8156033              1.597228e-02
-15 Training             rmse 1760.1130000              3.261272e+02
-             q1           q3         mean      se           sd          min
-1            NA           NA           NA      NA           NA           NA
-2            NA           NA    0.4646691      NA           NA           NA
-3            NA           NA    0.9153539      NA           NA           NA
-4            NA           NA    0.8378728      NA           NA           NA
-5            NA           NA 1609.6138000      NA           NA           NA
-6            NA           NA           NA      NA           NA           NA
-7     0.7540000    1.6240000    1.1988000   0.302   0.67601272    0.5860000
-8     0.4270000    0.6290000    0.5222000   0.108   0.24195289    0.1530000
-9     0.1820000    0.3960000    0.3196000   0.101   0.22526274    0.0230000
-10 3052.1880000 3221.4480000 3188.9086000 211.517 472.96558935 2570.5560000
-11           NA           NA           NA      NA           NA           NA
-12    0.4286512    0.5380660    0.4898071   0.032   0.07064923    0.4016049
-13    0.9017172    0.9090525    0.9030970   0.005   0.01129303    0.8856013
-14    0.8130939    0.8263764    0.8156863   0.009   0.02033142    0.7842897
-15 1464.8083000 1895.6144000 1691.9499800 120.729 269.95715642 1359.1314000
-            max
-1            NA
-2            NA
-3            NA
-4            NA
-5            NA
-6            NA
-7     2.1760000
-8     0.7830000
-9     0.6130000
-10 3890.5040000
-11           NA
-12    0.5627859
-13    0.9160066
-14    0.8390681
-15 1980.0828000
++ 
++ plot_evaluation(plants_rf, notch = FALSE)
++ 
++ print_evaluation(plants_rf)
++ 
++ get_evaluation(plants_rf)
++ 
++ }
 > 
 > 
 > 
@@ -6091,27 +5822,28 @@ Spatial evaluation
 > ### ** Examples
 > 
 > 
-> data(
+> if(interactive()){
++ data(
 +   plants_df,
 +   plants_response,
 +   plants_predictors,
 +   plants_distance,
 +   plants_rf
 + )
-> 
-> #subset to speed up example
-> idx <- 1:20
-> plants_df <- plants_df[idx, ]
-> plants_distance <- plants_distance[idx, idx]
-> 
-> #generate spatial predictors
-> mems <- mem_multithreshold(
++ 
++ #subset to speed up example
++ idx <- 1:20
++ plants_df <- plants_df[idx, ]
++ plants_distance <- plants_distance[idx, idx]
++ 
++ #generate spatial predictors
++ mems <- mem_multithreshold(
 +   distance.matrix = plants_distance,
 +   distance.thresholds = 100
 + )
-> 
-> #rank them from higher to lower moran
-> mems.rank <- rank_spatial_predictors(
++ 
++ #rank them from higher to lower moran
++ mems.rank <- rank_spatial_predictors(
 +   ranking.method = "moran",
 +   spatial.predictors.df = mems,
 +   reference.moran.i = plants_rf$residuals$autocorrelation$max.moran,
@@ -6119,9 +5851,9 @@ Spatial evaluation
 +   distance.thresholds = 100,
 +   n.cores = 1
 + )
-> 
-> #select best subset via sequential addition
-> selection <- select_spatial_predictors_sequential(
++ 
++ #select best subset via sequential addition
++ selection <- select_spatial_predictors_sequential(
 +   data = plants_df,
 +   dependent.variable.name = plants_response,
 +   predictor.variable.names = plants_predictors,
@@ -6132,14 +5864,13 @@ Spatial evaluation
 +   ranger.arguments = list(num.trees = 30),
 +   n.cores = 1
 + )
-> 
-> #names of selected spatial predictors
-> selection$best.spatial.predictors
-[1] "spatial_predictor_100_2" "spatial_predictor_100_3"
-[3] "spatial_predictor_100_1" "spatial_predictor_100_4"
-> 
-> #optimization plot
-> plot_optimization(selection$optimization)
++ 
++ #names of selected spatial predictors
++ selection$best.spatial.predictors
++ 
++ #optimization plot
++ plot_optimization(selection$optimization)
++ }
 > 
 > 
 > 
@@ -6371,7 +6102,7 @@ rows            1            2            3            4            5
 > cleanEx()
 > options(digits = 7L)
 > base::cat("Time elapsed: ", proc.time() - base::get("ptime", pos = 'CheckExEnv'),"\n")
-Time elapsed:  62.97 0.593 63.509 0.001 0.001 
+Time elapsed:  43.407 0.694 44.098 0.001 0.001 
 > grDevices::dev.off()
 null device 
           1 

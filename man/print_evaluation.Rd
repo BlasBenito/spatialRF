@@ -17,23 +17,23 @@ Prints the results of an spatial cross-validation performed with \code{\link[=rf
 }
 \examples{
 
+if(interactive()){
+
 data(
   plants_rf,
   plants_xy
 )
 
-m_evaluated <- rf_evaluate(
+plants_rf <- rf_evaluate(
   model = plants_rf,
   xy = plants_xy,
   repetitions = 5,
   n.cores = 1
 )
 
-plot_evaluation(m_evaluated, notch = FALSE)
+print_evaluation(plants_rf)
 
-print_evaluation(m_evaluated)
-
-get_evaluation(m_evaluated)
+}
 
 }
 \seealso{

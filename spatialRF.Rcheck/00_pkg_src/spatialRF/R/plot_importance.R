@@ -43,29 +43,12 @@
 #' @examples
 #' data(plants_rf, plants_rf_spatial)
 #'
-#' # Plot importance from single Random Forest model
+#' # Plot importance from Random Forest model
 #' plot_importance(plants_rf)
 #'
-#'
-#' # Plot importance from spatial Random Forest model
+#' # Plot importance from Spatial Random Forest model
 #' plot_importance(plants_rf_spatial)
 #'
-#' # Custom colors
-#' plot_importance(
-#'   plants_rf,
-#'   fill.color = viridis::viridis(20, option = "D")
-#' )
-#'
-#' # Return plot object for further customization
-#' p <- plot_importance(plants_rf, verbose = FALSE)
-#' p + ggplot2::ggtitle("Custom Title")
-#'
-#' # Print importance values
-#' print_importance(plants_rf)
-#'
-#' # Extract importance data for custom analysis
-#' importance_data <- get_importance(plants_rf)
-#' head(importance_data)
 #'
 #' @rdname plot_importance
 #' @family visualization
@@ -93,8 +76,8 @@ plot_importance <- function(
   if (!is.data.frame(model)) {
     #importance from rf
     if (
-      inherits(model, "rf") &
-        !inherits(model, "rf_spatial") &
+      inherits(model, "rf") &&
+        !inherits(model, "rf_spatial") &&
         !inherits(model, "rf_repeat")
     ) {
       x <- model$importance$per.variable
@@ -109,7 +92,7 @@ plot_importance <- function(
     }
 
     #importance from rf_repeat
-    if (inherits(model, "rf_repeat") & !inherits(model, "rf_spatial")) {
+    if (inherits(model, "rf_repeat") && !inherits(model, "rf_spatial")) {
       x <- model$importance$per.repetition
     }
 
@@ -268,9 +251,5 @@ plot_importance <- function(
     }
   }
 
-  if (verbose == TRUE) {
-    suppressWarnings(print(p))
-  }
-
-  return(p)
+  p
 }

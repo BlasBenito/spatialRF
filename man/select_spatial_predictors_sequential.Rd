@@ -58,6 +58,7 @@ The algorithm works as follows: If the function \link{rank_spatial_predictors} r
 }
 \examples{
 
+if(interactive()){
 data(
   plants_df,
   plants_response,
@@ -105,6 +106,7 @@ selection$best.spatial.predictors
 
 #optimization plot
 plot_optimization(selection$optimization)
+}
 }
 \seealso{
 Other spatial_analysis: 

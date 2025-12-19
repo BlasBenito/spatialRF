@@ -103,7 +103,7 @@ pca_multithreshold <- function(
   pca.factors <- as.data.frame(do.call("cbind", pca.factors.list))
 
   #finding spatial predictors with too many leading zeroes
-  pca.factors.filter <- round(apply(abs(pca.factors), 2, sum), 6)
+  pca.factors.filter <- round(colSums(abs(pca.factors)), 6)
   pca.factors.filter <- pca.factors.filter[pca.factors.filter != 0]
 
   #removing them

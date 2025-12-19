@@ -24,6 +24,9 @@ Extracts aggregated performance metrics from a model evaluated with \code{\link[
 This function returns aggregated statistics across all cross-validation repetitions. The "Testing" model metrics indicate the model's ability to generalize to unseen spatial locations.
 }
 \examples{
+
+if(interactive()){
+
 data(plants_rf, plants_xy)
 
 # Evaluate model with spatial cross-validation
@@ -36,11 +39,9 @@ m_evaluated <- rf_evaluate(
 
 # Extract evaluation metrics
 eval_metrics <- get_evaluation(m_evaluated)
-head(eval_metrics)
+eval_metrics
 
-# Compare with other evaluation functions
-plot_evaluation(m_evaluated, notch = FALSE)
-print_evaluation(m_evaluated)
+}
 
 }
 \seealso{

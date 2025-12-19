@@ -25,8 +25,8 @@
 print_moran <- function(model, caption = NULL, verbose = TRUE) {
   #if model is not a data frame
   if (
-    inherits(model, "rf") |
-      inherits(model, "rf_repeat") |
+    inherits(model, "rf") ||
+      inherits(model, "rf_repeat") ||
       inherits(model, "rf_spatial")
   ) {
     x <- model$residuals$autocorrelation$per.distance
@@ -54,7 +54,7 @@ print_moran <- function(model, caption = NULL, verbose = TRUE) {
   }
 
   #for rf_spatial with rf
-  if ("model" %in% colnames(x) & !("repetition" %in% colnames(x))) {
+  if ("model" %in% colnames(x) && !("repetition" %in% colnames(x))) {
     #adding pretty colnames
     colnames(x) <- c(
       "Distance",

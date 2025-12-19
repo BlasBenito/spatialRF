@@ -103,7 +103,7 @@ make_spatial_fold <- function(
 
   #finding out if data is binary
   is.binary <- FALSE
-  if (!is.null(data) & !is.null(dependent.variable.name)) {
+  if (!is.null(data) && !is.null(dependent.variable.name)) {
     is.binary <- is_binary(
       data = data,
       dependent.variable.name = dependent.variable.name
@@ -111,7 +111,7 @@ make_spatial_fold <- function(
   }
 
   #number of records to select
-  if (is.binary == TRUE) {
+  if (is.binary) {
     records.to.select <- floor(
       training.fraction * sum(data[, dependent.variable.name])
     )
@@ -150,7 +150,7 @@ make_spatial_fold <- function(
     ]
 
     #subset ones if it's binary
-    if (is.binary == TRUE) {
+    if (is.binary) {
       records.selected <- records.selected[
         data[data$id %in% records.selected$id, dependent.variable.name] == 1,
       ]
@@ -165,7 +165,7 @@ make_spatial_fold <- function(
 
   #select from xy.all if response is binary
   #selecting ones if binary
-  if (is.binary == TRUE) {
+  if (is.binary) {
     records.selected <- xy[
       xy$x >= new.buffer.x.min &
         xy$x <= new.buffer.x.max &

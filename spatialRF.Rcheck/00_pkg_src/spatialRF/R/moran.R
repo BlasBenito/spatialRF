@@ -114,7 +114,7 @@ moran <- function(
   s1 <- 0.5 * sum((x.distance.weights + t(x.distance.weights))^2)
 
   s2 <- sum(
-    (apply(x.distance.weights, 1, sum) + apply(x.distance.weights, 2, sum))^2
+    (rowSums(x.distance.weights) + colSums(x.distance.weights))^2
   )
 
   s3 <- x.distance.weights.sum^2
@@ -146,10 +146,10 @@ moran <- function(
   )
 
   #adding interpretation
-  if (moran.i.observed > moran.i.expected & p.value <= 0.05) {
+  if (moran.i.observed > moran.i.expected && p.value <= 0.05) {
     interpretation <- "Positive spatial correlation"
   }
-  if (moran.i.observed < moran.i.expected & p.value <= 0.05) {
+  if (moran.i.observed < moran.i.expected && p.value <= 0.05) {
     interpretation <- "Negative spatial correlation"
   }
   if (p.value > 0.05) {
@@ -215,7 +215,7 @@ moran <- function(
     ggplot2::theme(legend.position = "none") +
     ggplot2::ggtitle(plot.title)
 
-  if (verbose == TRUE) {
+  if (verbose) {
     suppressWarnings(print(moran.plot))
   }
 

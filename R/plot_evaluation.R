@@ -142,9 +142,5 @@ plot_evaluation <- function(
     ) +
     ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
 
-  if (verbose == TRUE) {
-    suppressMessages(print(p))
-  }
-
   p
 }

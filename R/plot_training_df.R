@@ -41,8 +41,8 @@ plot_training_df <- function(
   line.color = "gray30"
 ) {
   if (
-    is.null(data) |
-      is.null(dependent.variable.name) |
+    is.null(data) ||
+      is.null(dependent.variable.name) ||
       is.null(predictor.variable.names)
   ) {
     stop("No variables to plot.")

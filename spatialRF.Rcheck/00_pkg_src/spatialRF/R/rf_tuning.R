@@ -95,7 +95,7 @@ rf_tuning <- function(
     data = data,
     dependent.variable.name = dependent.variable.name
   )
-  if (is.binary == TRUE) {
+  if (is.binary) {
     metric <- "auc"
   } else {
     metric <- "r.squared"
@@ -115,7 +115,7 @@ rf_tuning <- function(
     ))
   } else {
     if (max(mtry) > length(predictor.variable.names)) {
-      if (verbose == TRUE) {
+      if (verbose) {
         message("Maximum 'mtry' set to length(predictor.variable.names)")
       }
       mtry <- mtry[mtry < length(predictor.variable.names)]
@@ -129,7 +129,7 @@ rf_tuning <- function(
   } else {
     if (max(min.node.size) >= floor(nrow(data) / 4)) {
       min.node.size <- min.node.size[min.node.size <= floor(nrow(data) / 4)]
-      if (verbose == TRUE) {
+      if (verbose) {
         message(paste0(
           "'min.node.size' values larger than ",
           floor(nrow(data) / 4),
@@ -153,7 +153,7 @@ rf_tuning <- function(
     min.node.size = min.node.size
   )
 
-  if (verbose == TRUE) {
+  if (verbose) {
     message(
       paste0(
         "Exploring ",
@@ -374,7 +374,7 @@ rf_tuning <- function(
   #if there is r-squared gain
   if (performance.gain > 0) {
     #plot tuning
-    if (verbose == TRUE) {
+    if (verbose) {
       suppressWarnings(plot_tuning(model.tuned))
       message("Best hyperparameters:")
       message(paste0("  - num.trees:     ", tuning[1, "num.trees"]))
@@ -406,7 +406,7 @@ rf_tuning <- function(
     #tuned model worse than original one
   }
 
-  if (verbose == TRUE) {
+  if (verbose) {
     message(
       paste0(
         "The tuned model (",
@@ -439,7 +439,7 @@ rf_tuning <- function(
     model$cluster <- parallel_config$cluster
   }
 
-  if (verbose == TRUE) {
+  if (verbose) {
     message("Tuning results stored in model$tuning.")
   }
 

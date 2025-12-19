@@ -40,8 +40,8 @@ is_binary <- function(
   dependent.variable.name = NULL
 ) {
   if (
-    sort(unique(data[, dependent.variable.name]))[1] == 0 &
-      sort(unique(data[, dependent.variable.name]))[2] == 1 &
+    sort(unique(data[, dependent.variable.name]))[1] == 0 &&
+      sort(unique(data[, dependent.variable.name]))[2] == 1 &&
       length(unique(data[, dependent.variable.name])) == 2
   ) {
     binary.data <- TRUE

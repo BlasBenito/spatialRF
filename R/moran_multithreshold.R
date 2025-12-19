@@ -67,7 +67,7 @@ moran_multithreshold <- function(
   verbose = TRUE
 ) {
   #check x and distance matrix
-  if (is.null(x) | !is.vector(x)) {
+  if (is.null(x) || !is.vector(x)) {
     stop("Argument 'x' must be a numeric vector.")
   }
   if (is.null(distance.matrix)) {

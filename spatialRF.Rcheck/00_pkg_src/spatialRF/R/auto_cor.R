@@ -55,7 +55,7 @@ auto_cor <- function(
   }
 
   #coerce to data frame if tibble
-  if (inherits(x, "tbl_df") | inherits(x, "tbl")) {
+  if (inherits(x, "tbl_df") || inherits(x, "tbl")) {
     x <- as.data.frame(x)
   }
 
@@ -77,7 +77,7 @@ auto_cor <- function(
     output.list$selected.variables <- colnames(x)
     output.list$selected.variables.df <- x
     class(output.list) <- "variable_selection"
-    if (verbose == TRUE) {
+    if (verbose) {
       message("[auto_cor()]: Only one variable, nothing to filter.")
     }
     return(output.list)
@@ -139,7 +139,7 @@ auto_cor <- function(
   removed.vars <- setdiff(colnames(x), selected.variables)
 
   #message
-  if (verbose == TRUE) {
+  if (verbose) {
     if (length(removed.vars) != 0) {
       message(
         paste0(

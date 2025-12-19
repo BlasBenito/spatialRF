@@ -10,7 +10,7 @@
 * checking for file ‘spatialRF/DESCRIPTION’ ... OK
 * this is package ‘spatialRF’ version ‘1.1.5’
 * package encoding: UTF-8
-* checking CRAN incoming feasibility ... [3s/11s] OK
+* checking CRAN incoming feasibility ... [3s/15s] OK
 * checking package namespace information ... OK
 * checking package dependencies ... OK
 * checking if this is a source package ... OK
@@ -20,7 +20,7 @@
 * checking for portable file names ... OK
 * checking for sufficient/correct file permissions ... OK
 * checking serialization versions ... OK
-* checking whether package ‘spatialRF’ can be installed ... [39s/39s] OK
+* checking whether package ‘spatialRF’ can be installed ... [40s/40s] OK
 * checking installed package size ... INFO
   installed size is  8.2Mb
   sub-directories of 1Mb or more:
@@ -60,7 +60,7 @@
 * checking data for non-ASCII characters ... OK
 * checking LazyData ... OK
 * checking data for ASCII and uncompressed saves ... OK
-* checking examples ... [64s/64s] OK
+* checking examples ... [44s/44s] OK
 * checking PDF version of manual ... OK
 * checking HTML version of manual ... OK
 * checking for non-standard things in the check directory ... OK

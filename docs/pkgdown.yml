@@ -1,12 +1,11 @@
 pandoc: '3.4'
-pkgdown: 2.0.7
+pkgdown: 2.2.0
 pkgdown_sha: ~
 articles:
-  development_roadmap: development_roadmap.html
-  non_spatial_models: non_spatial_models.html
-  spatial_models: spatial_models.html
-last_built: 2025-12-18T21:46Z
+  articles/development_roadmap: development_roadmap.html
+  articles/non_spatial_models: non_spatial_models.html
+  articles/spatial_models: spatial_models.html
+last_built: 2025-12-19T20:43Z
 urls:
   reference: https://blasbenito.github.io/spatialRF/reference
   article: https://blasbenito.github.io/spatialRF/articles
-

@@ -47,8 +47,8 @@ plot_training_df_moran <- function(
   moran.i <- NULL
 
   if (
-    is.null(data) |
-      is.null(dependent.variable.name) |
+    is.null(data) ||
+      is.null(dependent.variable.name) ||
       is.null(predictor.variable.names)
   ) {
     stop("No variables to plot.")

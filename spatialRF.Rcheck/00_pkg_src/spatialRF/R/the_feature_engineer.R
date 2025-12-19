@@ -107,7 +107,7 @@ the_feature_engineer <- function(
   if (is.null(data)) {
     stop("Argument 'data' is missing.")
   } else {
-    if (inherits(data, "tbl_df") | inherits(data, "tbl")) {
+    if (inherits(data, "tbl_df") || inherits(data, "tbl")) {
       data <- as.data.frame(data)
     }
   }
@@ -115,7 +115,7 @@ the_feature_engineer <- function(
   if (is.null(xy)) {
     stop("Argument 'xy' is missing")
   } else {
-    if (inherits(xy, "tbl_df") | inherits(xy, "tbl")) {
+    if (inherits(xy, "tbl_df") || inherits(xy, "tbl")) {
       xy <- as.data.frame(xy)
     }
   }
@@ -129,7 +129,7 @@ the_feature_engineer <- function(
     data = data,
     dependent.variable.name = dependent.variable.name
   )
-  if (is.binary == TRUE) {
+  if (is.binary) {
     metric <- "auc"
   } else {
     metric <- "r.squared"
@@ -153,7 +153,7 @@ the_feature_engineer <- function(
     importance.threshold <- 0.01
   }
 
-  if (verbose == TRUE) {
+  if (verbose) {
     message("Training and evaluating a model without interactions.")
   }
 
@@ -236,7 +236,7 @@ the_feature_engineer <- function(
     stringsAsFactors = FALSE
   )
 
-  if (verbose == TRUE) {
+  if (verbose) {
     message(paste0(
       "Testing ",
       nrow(variables.pairs),
@@ -518,7 +518,7 @@ the_feature_engineer <- function(
 
   #selected only
   interaction.screening.selected <- interaction.screening[
-    interaction.screening$selected == TRUE,
+    interaction.screening$selected,
   ]
   interaction.screening.selected <- interaction.screening.selected[, c(
     "interaction.name",
@@ -549,7 +549,7 @@ the_feature_engineer <- function(
     pair.i.name <- interaction.screening.selected[i, "interaction.name"]
 
     #find what type of interaction
-    if (grepl("..pca..", pair.i.name, fixed = TRUE) == TRUE) {
+    if (grepl("..pca..", pair.i.name, fixed = TRUE)) {
       interaction.df[, interaction.screening.selected[
         i,
         "interaction.name"
@@ -592,7 +592,7 @@ the_feature_engineer <- function(
     ]
   }
 
-  if (verbose == TRUE) {
+  if (verbose) {
     message(
       paste0(
         "Interactions identified: ",
@@ -602,7 +602,7 @@ the_feature_engineer <- function(
   }
 
   #printing suggested interactions
-  if (verbose == TRUE) {
+  if (verbose) {
     x <- interaction.screening.selected
     if (metric == "r.squared") {
       colnames(x) <- c(
@@ -711,7 +711,7 @@ the_feature_engineer <- function(
     colnames(interaction.df)
   )
 
-  if (verbose == TRUE) {
+  if (verbose) {
     message(
       "Comparing models with and without interactions via spatial cross-validation."
     )
@@ -733,7 +733,7 @@ the_feature_engineer <- function(
 
   #pick colors for comparison from the palette
   n.colors <- length(point.color)
-  line.color = point.color[1]
+  line.color <- point.color[1]
   color.a <- point.color[floor(n.colors / 4)]
   color.b <- point.color[floor((n.colors / 4) * 3)]
 
@@ -761,7 +761,7 @@ the_feature_engineer <- function(
   out.list$comparison.df <- comparison$comparison.df
   out.list$plot <- plot.list
 
-  if (verbose == TRUE) {
+  if (verbose) {
     print(patchwork::wrap_plots(out.list$plot))
   }
 

@@ -24,8 +24,8 @@ get_importance <- function(model) {
 
   #importance from rf
   if (
-    (inherits(model, "rf") & !inherits(model, "rf_spatial")) |
-      (inherits(model, "rf_repeat") & !inherits(model, "rf_spatial"))
+    (inherits(model, "rf") && !inherits(model, "rf_spatial")) ||
+      (inherits(model, "rf_repeat") && !inherits(model, "rf_spatial"))
   ) {
     x <- model$importance$per.variable
   }

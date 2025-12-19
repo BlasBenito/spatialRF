@@ -55,11 +55,13 @@ plot_optimization <- function(
 
   #check if optimization data exists
   if (is.null(x) || !is.data.frame(x) || nrow(x) == 0) {
-    if (verbose == TRUE) {
-      message("No optimization data available. This happens when:\n",
-              "  - No spatial predictors were selected\n",
-              "  - The method used was 'hengl' (no optimization required)\n",
-              "  - The model is non-spatial")
+    if (verbose) {
+      message(
+        "No optimization data available. This happens when:\n",
+        "  - No spatial predictors were selected\n",
+        "  - The method used was 'hengl' (no optimization required)\n",
+        "  - The model is non-spatial"
+      )
     }
     return(invisible(NULL))
   }
@@ -115,7 +117,5 @@ plot_optimization <- function(
     ggplot2::theme_bw() +
     ggplot2::theme(plot.title = element_text(hjust = 0.5))
 
-  if (verbose == TRUE) {
-    suppressMessages(print(p))
-  }
+  p
 }

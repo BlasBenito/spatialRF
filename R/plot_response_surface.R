@@ -173,7 +173,7 @@ plot_response_surface <- function(
     ab.grid.quantiles <- ab.grid.quantiles[[1]]
   }
 
-  if (verbose == TRUE) {
+  if (verbose) {
     ab.grid.quantiles
   }
 

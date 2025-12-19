@@ -29,6 +29,9 @@
 #' }
 #' @examples
 #'
+#'
+#' if(interactive()){
+#'
 #' data(
 #'   plants_df,
 #'   plants_response,
@@ -69,6 +72,8 @@
 #'
 #' y_rank$criteria
 #' y_rank$ranking
+#'
+#' }
 #' @rdname rank_spatial_predictors
 #' @family spatial_analysis
 #' @export

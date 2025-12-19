@@ -1,0 +1,37 @@
+name: Jarl Lint
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    name: Lint R code with jarl
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install jarl
+        run: |
+          curl --proto '=https' --tlsv1.2 -LsSf \
+            https://github.com/etiennebacher/jarl/releases/latest/download/jarl-installer.sh | sh
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Verify jarl installation
+        run: jarl --version
+
+      - name: Run jarl linter
+        run: |
+          jarl check R/ \
+            --select ALL \
+            --assignment "<-" \
+            --output-format github
+
+      - name: Check for unfixable issues
+        if: failure()
+        run: |
+          echo "::warning::Jarl found linting issues. Run './dev_scripts/jarl_check.sh --fix' locally to auto-fix."
