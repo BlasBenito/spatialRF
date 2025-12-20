@@ -12,8 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Install jarl
         run: |
@@ -21,13 +20,10 @@ jobs:
             https://github.com/etiennebacher/jarl/releases/latest/download/jarl-installer.sh | sh
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
-      - name: Verify jarl installation
-        run: jarl --version
-
       - name: Run jarl linter
         run: |
           jarl check R/ \
-            --select style,complexity,robustness \
+            --select ALL \
             --ignore line-length,object-name,comment-format,todo-comment \
             --assignment "<-" \
             --output-format github
