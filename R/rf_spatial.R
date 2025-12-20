@@ -28,7 +28,7 @@
 #' @param seed Integer, random seed to facilitate reproducibility. Default: `1`.
 #' @param verbose Logical. If TRUE, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
 #' @param n.cores Integer, number of cores to use for parallel execution. Creates a socket cluster with `parallel::makeCluster()`, runs operations in parallel with `foreach` and `%dopar%`, and stops the cluster with `parallel::clusterStop()` when the job is done. Default: `parallel::detectCores() - 1`
-#' @param cluster A cluster definition generated with `parallel::makeCluster()`. If provided, overrides `n.cores`. When `cluster = NULL` (default value), and `model` is provided, the cluster in `model`, if any, is used instead. If this cluster is `NULL`, then the function uses `n.cores` instead. The function does not stop a provided cluster, so it should be stopped with `parallel::stopCluster()` afterwards. The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the `model` argument, or using the `%>%` pipe. Default: `NULL`
+#' @param cluster A cluster definition generated with `parallel::makeCluster()`. If provided, overrides `n.cores`. When `cluster = NULL` (default value), and `model` is provided, the cluster in `model`, if any, is used instead. If this cluster is `NULL`, then the function uses `n.cores` instead. The function does not stop a provided cluster, so it should be stopped with `parallel::stopCluster()` afterwards. The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the `model` argument, or using the `|>` pipe. Default: `NULL`
 #' @return A ranger model with several new slots:
 #' \itemize{
 #'   \item `ranger.arguments`: Values of the arguments used to fit the ranger model.
@@ -239,8 +239,8 @@ rf_spatial <- function(
   }
 
   #extracting autocorrelation of the residuals
-  model.moran.i <- model$residuals$autocorrelation$per.distance %>%
-    dplyr::arrange(dplyr::desc(moran.i)) %>%
+  model.moran.i <- model$residuals$autocorrelation$per.distance |>
+    dplyr::arrange(dplyr::desc(moran.i)) |>
     dplyr::filter(interpretation == "Positive spatial correlation")
 
   #if residuals are not autocorrelated, return original model

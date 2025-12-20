@@ -14,7 +14,7 @@
 #' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same. Default: `1`.
 #' @param verbose Logical, ff `TRUE`, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
 #' @param n.cores Integer, number of cores to use for parallel execution. Creates a socket cluster with `parallel::makeCluster()`, runs operations in parallel with `foreach` and `%dopar%`, and stops the cluster with `parallel::clusterStop()` when the job is done. Default: `parallel::detectCores() - 1`
-#' @param cluster A cluster definition generated with `parallel::makeCluster()`. If provided, overrides `n.cores`. When `cluster = NULL` (default value), and `model` is provided, the cluster in `model`, if any, is used instead. If this cluster is `NULL`, then the function uses `n.cores` instead. The function does not stop a provided cluster, so it should be stopped with `parallel::stopCluster()` afterwards. The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the `model` argument, or using the `%>%` pipe. Default: `NULL`
+#' @param cluster A cluster definition generated with `parallel::makeCluster()`. If provided, overrides `n.cores`. When `cluster = NULL` (default value), and `model` is provided, the cluster in `model`, if any, is used instead. If this cluster is `NULL`, then the function uses `n.cores` instead. The function does not stop a provided cluster, so it should be stopped with `parallel::stopCluster()` afterwards. The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the `model` argument, or using the `|>` pipe. Default: `NULL`
 #' @return A ranger model with several new slots:
 #' \itemize{
 #'   \item `ranger.arguments`: Stores the values of the arguments used to fit the ranger model.
@@ -284,10 +284,10 @@ rf_repeat <- function(
   )
 
   #median variable importance across repetitions
-  importance.per.variable <- importance.per.repetition %>%
-    dplyr::group_by(variable) %>%
-    dplyr::summarise(importance = median(importance)) %>%
-    dplyr::arrange(dplyr::desc(importance)) %>%
+  importance.per.variable <- importance.per.repetition |>
+    dplyr::group_by(variable) |>
+    dplyr::summarise(importance = median(importance)) |>
+    dplyr::arrange(dplyr::desc(importance)) |>
     as.data.frame()
 
   #saving importance info
@@ -348,11 +348,11 @@ rf_repeat <- function(
         )
       )
 
-      non.spatial.predictors.stats <- non.spatial.predictors %>%
-        dplyr::group_by(variable) %>%
+      non.spatial.predictors.stats <- non.spatial.predictors |>
+        dplyr::group_by(variable) |>
         dplyr::summarise(
           importance = median(importance)
-        ) %>%
+        ) |>
         as.data.frame()
 
       m$importance$spatial.predictors.stats <- rbind(
@@ -391,7 +391,7 @@ rf_repeat <- function(
       "[[",
       "prediction.error"
     )
-  ) %>%
+  ) |>
     median()
 
   #PREPARING THE PERFORMANCE SLOT
@@ -430,7 +430,7 @@ rf_repeat <- function(
       "[[",
       "prediction.error"
     )
-  ) %>%
+  ) |>
     sqrt()
 
   #gathering rmse
@@ -479,7 +479,7 @@ rf_repeat <- function(
       "[[",
       1
     )
-  ) %>%
+  ) |>
     as.data.frame()
   colnames(residuals) <- repetition.columns
 
@@ -512,7 +512,7 @@ rf_repeat <- function(
         "[[",
         1
       )
-    ) %>%
+    ) |>
       dplyr::arrange(distance.threshold)
     moran.repetitions$repetition <- rep(
       1:repetitions,
@@ -521,13 +521,13 @@ rf_repeat <- function(
 
     p.value <- NULL
     interpretation <- NULL
-    moran.median <- moran.repetitions %>%
-      dplyr::group_by(distance.threshold) %>%
+    moran.median <- moran.repetitions |>
+      dplyr::group_by(distance.threshold) |>
       dplyr::summarise(
         moran.i = median(moran.i),
         p.value = median(p.value),
         interpretation = statistical_mode(interpretation)
-      ) %>%
+      ) |>
       as.data.frame()
 
     m$residuals$autocorrelation$per.distance <- moran.median

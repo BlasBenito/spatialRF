@@ -88,8 +88,8 @@ plot_importance <- function(
       x <- model$importance$per.variable
 
       if ("importance.oob" %in% colnames(x)) {
-        x <- x %>%
-          dplyr::select(-importance) %>%
+        x <- x |>
+          dplyr::select(-importance) |>
           dplyr::rename(
             importance = importance.oob
           )

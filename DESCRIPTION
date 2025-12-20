@@ -1,6 +1,6 @@
 Package: spatialRF
 Title: Easy Spatial Modeling with Random Forest
-Version: 1.1.5
+Version: 1.2.0
 Authors@R: 
     person(given = "Blas M.",
            family = "Benito",
@@ -12,11 +12,10 @@ BugReports: https://github.com/BlasBenito/spatialRF/issues/
 Description: Automatic generation and selection of spatial predictors for Random Forest models fitted to spatially structured data. Spatial predictors are constructed from a distance matrix among training samples using Moran's Eigenvector Maps (MEMs; Dray, Legendre, and Peres-Neto 2006 <DOI:10.1016/j.ecolmodel.2006.02.015>) or the RFsp approach (Hengl et al. <DOI:10.7717/peerj.5518>). These predictors are used alongside user-supplied explanatory variables in Random Forest models. The package provides functions for model fitting, multicollinearity reduction, interaction identification, hyperparameter tuning, evaluation via spatial cross-validation, and result visualization using partial dependence and interaction plots. Model fitting relies on the 'ranger' package (Wright and Ziegler 2017 <DOI:10.18637/jss.v077.i01>).
 License: MIT + file LICENSE
 Depends: 
-    R (>= 2.10)
+    R (>= 4.1.0)
 Imports: 
     dplyr,
     ggplot2,
-    magrittr,
     stats,
     tibble,
     utils,

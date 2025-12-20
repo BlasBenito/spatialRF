@@ -35,23 +35,23 @@ print_evaluation <- function(model) {
   metric <- NULL
   median_absolute_deviation <- NULL
 
-  x <- model$evaluation$aggregated %>%
+  x <- model$evaluation$aggregated |>
     dplyr::filter(
       model == "Testing"
-    ) %>%
+    ) |>
     dplyr::select(
       metric,
       median,
       median_absolute_deviation,
       min,
       max
-    ) %>%
+    ) |>
     dplyr::mutate(
       median = round(median, 3),
       median_absolute_deviation = round(median_absolute_deviation, 3),
       min = round(min, 3),
       max = round(max, 3)
-    ) %>%
+    ) |>
     dplyr::rename(
       Metric = metric,
       Median = median,

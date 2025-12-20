@@ -376,10 +376,10 @@ rf <- function(
     m$importance$per.variable <- data.frame(
       variable = names(variable.importance.global),
       importance = variable.importance.global
-    ) %>%
-      tibble::remove_rownames() %>%
-      dplyr::arrange(dplyr::desc(importance)) %>%
-      dplyr::mutate(importance = round(importance, 3)) %>%
+    ) |>
+      tibble::remove_rownames() |>
+      dplyr::arrange(dplyr::desc(importance)) |>
+      dplyr::mutate(importance = round(importance, 3)) |>
       as.data.frame()
 
     m$importance$per.variable.plot <- plot_importance(

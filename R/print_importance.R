@@ -63,12 +63,12 @@ print_importance <- function(model, verbose = TRUE) {
   colnames(x) <- c("Variable", "Importance")
 
   #preparing huxtable
-  x.hux <- huxtable::hux(x) %>%
+  x.hux <- huxtable::hux(x) |>
     huxtable::set_bold(
       row = 1,
       col = huxtable::everywhere,
       value = TRUE
-    ) %>%
+    ) |>
     huxtable::set_all_borders()
   huxtable::number_format(x.hux)[, 2] <- 3
   huxtable::print_screen(x.hux, colnames = FALSE)

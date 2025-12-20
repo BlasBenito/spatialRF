@@ -208,8 +208,8 @@ plot_response_curves <- function(
 
       #computing the median of each curve
       id <- NULL
-      variable.i.df.median <- variable.i.df %>%
-        dplyr::group_by(quantile, id) %>%
+      variable.i.df.median <- variable.i.df |>
+        dplyr::group_by(quantile, id) |>
         dplyr::summarise_at(
           .vars = response.variable,
           .funs = median

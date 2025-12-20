@@ -6,7 +6,7 @@
 #'
 #' data(plants_rf_spatial)
 #'
-#' prepare_importance_spatial(plants_rf_spatial) %>%
+#' prepare_importance_spatial(plants_rf_spatial) |>
 #'   head()
 #'
 #' @rdname prepare_importance_spatial
@@ -63,7 +63,7 @@ prepare_importance_spatial <- function(model) {
   importance.df <- rbind(
     non.spatial.predictors,
     spatial.predictors.stats
-  ) %>%
+  ) |>
     dplyr::arrange(dplyr::desc(importance))
 
   #preparing out list

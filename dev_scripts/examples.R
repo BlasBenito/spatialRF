@@ -26,11 +26,11 @@ y$selected.variables
 y$selected.variables.df
 
 #with pipes
-y <- plants_df %>%
+y <- plants_df |>
   dplyr::select(
     dplyr::all_of(plants_predictors)
-  ) %>%
-  auto_vif() %>%
+  ) |>
+  auto_vif() |>
   auto_cor()
 
 # auto_vif ----
@@ -50,11 +50,11 @@ y$selected.variables
 y$selected.variables.df
 
 #with pipes
-y <- plants_df %>%
+y <- plants_df |>
   dplyr::select(
     dplyr::all_of(plants_predictors)
-  ) %>%
-  auto_cor() %>%
+  ) |>
+  auto_cor() |>
   auto_vif()
 
 # beowulf_cluster ----
@@ -98,7 +98,7 @@ data(plants_distance)
 
 double_center_plants_distance(
   distance.matrix = plants_distance
-) %>%
+) |>
   head()
 
 # filter_spatial_predictors ----
@@ -280,7 +280,7 @@ m <- rf(
 )
 
 #getting data frame with response curves
-get_response_curves(m) %>%
+get_response_curves(m) |>
   head()
 
 
@@ -310,7 +310,7 @@ m_spatial <- rf_spatial(
 )
 
 #getting data frame with the selected spatial predictors
-get_spatial_predictors(m_spatial) %>%
+get_spatial_predictors(m_spatial) |>
   head()
 
 # is_binary ----
@@ -710,7 +710,7 @@ m_spatial <- rf_spatial(
 )
 
 #preparing the importance data frame
-prepare_importance_spatial(m_spatial) %>%
+prepare_importance_spatial(m_spatial) |>
   head()
 
 # print_evaluation ----
@@ -946,7 +946,7 @@ m_evaluated <- rf_evaluate(
 #checking evaluation results
 plot_evaluation(m_evaluated)
 print_evaluation(m_evaluated)
-get_evaluation(m_evaluated) %>%
+get_evaluation(m_evaluated) |>
   head()
 
 # rf_importance ----
@@ -1072,7 +1072,7 @@ m_spatial <- rf(
   distance.thresholds = 0,
   n.cores = 1,
   verbose = FALSE
-) %>%
+) |>
   rf_spatial()
 
 m_spatial$spatial.correlation.residuals$plot

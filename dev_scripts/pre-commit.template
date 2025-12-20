@@ -1,0 +1,105 @@
+#!/usr/bin/env bash
+
+# Pre-commit hook for spatialRF
+# Ensures code quality before commits
+#
+# To install: cp dev_scripts/pre-commit.template .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
+
+set -e  # Exit on first error
+
+# Add common binary locations to PATH
+export PATH="$HOME/.local/bin:/usr/local/bin:$PATH"
+
+echo "Running pre-commit checks..."
+
+# Check for merge conflict markers
+if git diff --cached | grep -E '^[+](<<<<<<< |>>>>>>> |=======)' > /dev/null; then
+    echo "❌ Error: Merge conflict markers detected"
+    exit 1
+fi
+
+# Check for debugging statements in staged R files
+if git diff --cached --name-only | grep '\.R$' > /dev/null; then
+    if git diff --cached | grep -E '^\+.*browser\(\)' > /dev/null; then
+        echo "⚠️  Warning: browser() statement detected in staged changes"
+        echo "   Consider removing before committing"
+        # Uncomment to block commits with browser():
+        # exit 1
+    fi
+fi
+
+# 1. Update roxygen documentation
+echo "📝 Updating roxygen documentation..."
+Rscript -e "devtools::document()" > /dev/null 2>&1
+
+# Stage any updated documentation files
+git add man/*.Rd NAMESPACE 2>/dev/null || true
+
+# 2. Run jarl linter
+echo "🔍 Running jarl linter..."
+if command -v jarl &> /dev/null; then
+    jarl check R/ \
+        --select ALL \
+        --assignment "<-" \
+        --output-format concise
+else
+    echo "⚠️  jarl not found, skipping linter"
+fi
+
+# 3. Run spelling check (with timeout)
+echo "📖 Checking spelling..."
+timeout 30s Rscript -e "results <- spelling::spell_check_package(); if(nrow(results) > 0) { cat('Spelling errors found:\n'); print(results); cat('\nAdd legitimate terms to inst/WORDLIST or fix typos\n') }" 2>&1 || {
+    exit_code=$?
+    if [ $exit_code -eq 124 ]; then
+        echo "⚠️  Spelling check timed out (>30s), skipping..."
+    else
+        echo "⚠️  Spelling check completed with warnings (not blocking commit)"
+    fi
+}
+
+# 4. Run critical tests (rf and rf_spatial only)
+echo "🧪 Running critical tests (rf and rf_spatial)..."
+Rscript -e "testthat::test_file('tests/testthat/test-rf-examples.R', reporter = 'minimal')" > /tmp/test_rf.txt 2>&1
+if [ $? -ne 0 ]; then
+    echo "❌ rf tests failed:"
+    cat /tmp/test_rf.txt
+    rm /tmp/test_rf.txt
+    exit 1
+fi
+rm /tmp/test_rf.txt
+
+Rscript -e "testthat::test_file('tests/testthat/test-rf_spatial-examples.R', reporter = 'minimal')" > /tmp/test_rf_spatial.txt 2>&1
+if [ $? -ne 0 ]; then
+    echo "❌ rf_spatial tests failed:"
+    cat /tmp/test_rf_spatial.txt
+    rm /tmp/test_rf_spatial.txt
+    exit 1
+fi
+rm /tmp/test_rf_spatial.txt
+
+# 5. Run R CMD check without tests (quick check)
+echo "✅ Running R CMD check (without tests)..."
+Rscript -e "devtools::check(document = FALSE, args = c('--no-tests', '--no-manual', '--no-build-vignettes'), error_on = 'warning')" > /tmp/check_output.txt 2>&1
+
+# Check if there were errors or warnings
+if grep -E "(ERROR|WARNING)" /tmp/check_output.txt > /dev/null; then
+    echo "❌ R CMD check found issues:"
+    grep -E "(ERROR|WARNING)" /tmp/check_output.txt
+    rm /tmp/check_output.txt
+    exit 1
+fi
+rm /tmp/check_output.txt
+
+# 6. NEWS.md reminder
+if git diff --cached --name-only | grep '^R/.*\.R$' > /dev/null; then
+    if ! git diff --cached --name-only | grep '^NEWS\.md$' > /dev/null; then
+        echo ""
+        echo "📰 Reminder: You're committing changes to R/ files"
+        echo "   Consider updating NEWS.md to document changes"
+        echo "   (This is just a reminder, not blocking commit)"
+        echo ""
+    fi
+fi
+
+echo "✅ All pre-commit checks passed!"
+exit 0

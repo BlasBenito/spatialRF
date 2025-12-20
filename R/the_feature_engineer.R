@@ -22,7 +22,7 @@
 #' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same. Default: `NULL`
 #' @param verbose Logical. If `TRUE`, messages and plots generated during the execution of the function are displayed. Default: `TRUE`
 #' @param n.cores Integer, number of cores to use for parallel execution. Creates a socket cluster with `parallel::makeCluster()`, runs operations in parallel with `foreach` and `%dopar%`, and stops the cluster with `parallel::clusterStop()` when the job is done. Default: `parallel::detectCores() - 1`
-#' @param cluster A cluster definition generated with `parallel::makeCluster()`. If provided, overrides `n.cores`. When `cluster = NULL` (default value), and `model` is provided, the cluster in `model`, if any, is used instead. If this cluster is `NULL`, then the function uses `n.cores` instead. The function does not stop a provided cluster, so it should be stopped with `parallel::stopCluster()` afterwards. The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the `model` argument, or using the `%>%` pipe. Default: `NULL`
+#' @param cluster A cluster definition generated with `parallel::makeCluster()`. If provided, overrides `n.cores`. When `cluster = NULL` (default value), and `model` is provided, the cluster in `model`, if any, is used instead. If this cluster is `NULL`, then the function uses `n.cores` instead. The function does not stop a provided cluster, so it should be stopped with `parallel::stopCluster()` afterwards. The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the `model` argument, or using the `|>` pipe. Default: `NULL`
 #' @return A list with seven slots:
 #' \itemize{
 #'   \item `screening`: Data frame with selection scores of all the interactions considered.
@@ -480,7 +480,7 @@ the_feature_engineer <- function(
   interaction.screening <- rbind(
     interaction.screening.1,
     interaction.screening.2
-  ) %>%
+  ) |>
     na.omit()
 
   if (nrow(interaction.screening) == 0) {
@@ -508,10 +508,10 @@ the_feature_engineer <- function(
     spatialRF::rescale_vector(1 - interaction.screening$max.cor.with.predictors)
 
   #arrange by gain
-  interaction.screening <- interaction.screening %>%
+  interaction.screening <- interaction.screening |>
     dplyr::arrange(
       dplyr::desc(order)
-    ) %>%
+    ) |>
     dplyr::select(
       -order
     )
@@ -621,12 +621,12 @@ the_feature_engineer <- function(
       )
     }
 
-    x.hux <- huxtable::hux(x) %>%
+    x.hux <- huxtable::hux(x) |>
       huxtable::set_bold(
         row = 1,
         col = huxtable::everywhere,
         value = TRUE
-      ) %>%
+      ) |>
       huxtable::set_all_borders()
     huxtable::number_format(x.hux)[2:nrow(x), 2] <- 1
     huxtable::number_format(x.hux)[2:nrow(x), 3] <- 3

@@ -131,7 +131,7 @@ usethis::use_data(plant_richness_sf, overwrite = TRUE)
 # usethis::use_data(plant_richness_sf)
 
 #making the data smaller
-# plant_richness_ <- plant_richness %>% dplyr::filter(x < -25)
+# plant_richness_ <- plant_richness  |>  dplyr::filter(x < -25)
 # plant_richness_$fragmentation_shape_mn <- NULL
 # plant_richness_$fragmentation_para_mn <- NULL
 # plant_richness_$fragmentation_ed <- NULL

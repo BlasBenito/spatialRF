@@ -43,7 +43,6 @@
 #'
 #' @rdname auto_vif
 #' @family preprocessing
-#' @importFrom magrittr `%>%`
 #' @importFrom stats cor
 #' @export
 auto_vif <- function(
@@ -166,9 +165,9 @@ auto_vif <- function(
     data.frame(
       diag(solve(cor(x))),
       stringsAsFactors = FALSE
-    ) %>%
-    dplyr::rename(vif = 1) %>%
-    tibble::rownames_to_column(var = "variable") %>%
+    ) |>
+    dplyr::rename(vif = 1) |>
+    tibble::rownames_to_column(var = "variable") |>
     dplyr::arrange(dplyr::desc(vif))
 
   df

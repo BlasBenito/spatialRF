@@ -1,3 +1,7 @@
+## Version 1.2.0
+
+- Replaced the `magrittr` pipe with the base one.
+
 ## Version 1.1.5
 
 - Fixed Windows-specific error in `get_response_curves()`, `plot_response_curves()`, `rf_evaluate()`, and `rf()` where `predict()` method dispatch failed to find `predict.ranger()`. Added `@importFrom ranger ranger` to ensure ranger's namespace is loaded and S3 methods are properly registered.
