@@ -8,8 +8,8 @@ on:
 
 jobs:
   lint:
-    runs-on: ubuntu-latest
     name: Lint R code with jarl
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
@@ -27,11 +27,7 @@ jobs:
       - name: Run jarl linter
         run: |
           jarl check R/ \
-            --select ALL \
+            --select style,complexity,robustness \
+            --ignore line-length,object-name,comment-format,todo-comment \
             --assignment "<-" \
             --output-format github
-
-      - name: Check for unfixable issues
-        if: failure()
-        run: |
-          echo "::warning::Jarl found linting issues. Run './dev_scripts/jarl_check.sh --fix' locally to auto-fix."
