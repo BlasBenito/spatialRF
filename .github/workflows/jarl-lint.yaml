@@ -24,6 +24,5 @@ jobs:
         run: |
           jarl check R/ \
             --select ALL \
-            --ignore line-length,object-name,comment-format,todo-comment \
             --assignment "<-" \
             --output-format github
