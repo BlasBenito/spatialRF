@@ -2,6 +2,8 @@
 
 ## Version 1.1.5
 
+CRAN release: 2025-12-19
+
 - Fixed Windows-specific error in
   [`get_response_curves()`](https://blasbenito.github.io/spatialRF/reference/get_response_curves.md),
   [`plot_response_curves()`](https://blasbenito.github.io/spatialRF/reference/plot_response_curves.md),
