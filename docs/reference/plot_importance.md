@@ -149,14 +149,16 @@ Other visualization:
 ## Examples
 
 ``` r
+if(interactive()){
+
 data(plants_rf, plants_rf_spatial)
 
 # Plot importance from Random Forest model
 plot_importance(plants_rf)
 
-
 # Plot importance from Spatial Random Forest model
 plot_importance(plants_rf_spatial)
 
+}
 
 ```

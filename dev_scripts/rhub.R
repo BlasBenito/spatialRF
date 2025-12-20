@@ -5,6 +5,7 @@ rhub::rhub_doctor()
 
 #windows
 devtools::check_win_devel()
+devtools::check_mac_release()
 
 #full check
 rhub::rhub_check(

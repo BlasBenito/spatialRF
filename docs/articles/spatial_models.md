@@ -336,10 +336,10 @@ m2.moran$plot
 
 Compare models:
 
-| Model       | Predictors |    R2 | AIC | Moran_I |
-|:------------|-----------:|------:|----:|--------:|
-| Non-spatial |          4 | 0.386 | 544 |   0.174 |
-| Spatial     |         24 | 0.494 | 541 |   0.048 |
+| Model       | Predictors |    R2 | Moran_I |
+|:------------|-----------:|------:|--------:|
+| Non-spatial |          4 | 0.386 |   0.174 |
+| Spatial     |         24 | 0.494 |   0.048 |
 
 Adding the spatial predictors eliminated autocorrelation while improving
 model fit.

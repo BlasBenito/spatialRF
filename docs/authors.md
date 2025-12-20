@@ -15,7 +15,7 @@ of Random Forests for High Dimensional Data in C++ and R. Journal of
 Statistical Software, 77(1), 1-17. doi:10.18637/jss.v077.i01
 
     @Article{,
-      title = {{ranger}: A Fast Implementation of Random Forests for High Dimensional Data in {C++} and {R}},
+      title = {ranger: A Fast Implementation of Random Forests for High Dimensional Data in C++ and R},
       author = {Marvin N. Wright and Andreas Ziegler},
       journal = {Journal of Statistical Software},
       year = {2017},

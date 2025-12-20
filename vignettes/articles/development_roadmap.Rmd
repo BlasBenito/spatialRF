@@ -1,10 +1,10 @@
 ---
 title: "Development Roadmap"
-output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{Development Roadmap}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+output: 
+  rmarkdown::html_document:
+    toc: true
+    toc_title: "Content"
+    source: false
 ---
 
 ```{r, include = FALSE}

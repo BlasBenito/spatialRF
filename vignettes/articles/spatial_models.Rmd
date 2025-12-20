@@ -1,10 +1,10 @@
 ---
 title: "Spatial Random Forest Models"
-output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{Spatial Random Forest Models}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+output: 
+  rmarkdown::html_document:
+    toc: true
+    toc_title: "Content"
+    source: false
 ---
 
 ```{r, include = FALSE}
@@ -322,7 +322,6 @@ data.frame(
   Model = c("Non-spatial", "Spatial"),
   Predictors = c(4, 4 + length(spatial_predictors)),
   R2 = round(c(summary(m1)$r.squared, summary(m2)$r.squared), 3),
-  AIC = round(c(AIC(m1), AIC(m2)), 0),
   Moran_I = round(c(m1.moran$test$moran.i, m2.moran$test$moran.i), 3)
 ) |>
   kableExtra::kbl(format = "html") |>

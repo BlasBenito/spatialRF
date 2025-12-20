@@ -134,15 +134,15 @@ interactions <- spatialRF::the_feature_engineer(
 #>  │ Interaction      │ Importance (% of │        R-squared │     Max cor with │
 #>  │                  │             max) │      improvement │       predictors │
 #>  ├──────────────────┼──────────────────┼──────────────────┼──────────────────┤
-#>  │ human_population │             96.9 │            0.019 │             0.64 │
+#>  │ human_population │            100.0 │            0.039 │             0.64 │
 #>  │ ..x..bias_area_k │                  │                  │                  │
 #>  │ m2               │                  │                  │                  │
 #>  ├──────────────────┼──────────────────┼──────────────────┼──────────────────┤
-#>  │ climate_bio1_ave │            100.0 │            0.050 │             0.28 │
+#>  │ climate_bio1_ave │            100.0 │            0.059 │             0.28 │
 #>  │ rage..pca..human │                  │                  │                  │
 #>  │ _population      │                  │                  │                  │
 #>  ├──────────────────┼──────────────────┼──────────────────┼──────────────────┤
-#>  │ climate_bio1_ave │             63.3 │            0.015 │             0.74 │
+#>  │ climate_bio1_ave │             59.5 │            0.026 │             0.74 │
 #>  │ rage..pca..clima │                  │                  │                  │
 #>  │ te_hypervolume   │                  │                  │                  │
 #>  └──────────────────┴──────────────────┴──────────────────┴──────────────────┘
@@ -162,14 +162,14 @@ results.
 
 | interaction.name | interaction.importance | interaction.metric.gain | max.cor.with.predictors | variable.a.name | variable.b.name | selected |
 |:---|---:|---:|---:|:---|:---|:---|
-| human_population..x..bias_area_km2 | 96.906 | 0.019 | 0.6373850 | human_population | bias_area_km2 | TRUE |
-| climate_bio1_average..pca..human_population | 100.000 | 0.050 | 0.2800000 | climate_bio1_average | human_population | TRUE |
-| climate_bio1_average..pca..climate_hypervolume | 63.320 | 0.015 | 0.7400000 | climate_bio1_average | climate_hypervolume | TRUE |
-| climate_bio1_average..pca..human_population_density | 84.450 | 0.037 | 0.3400000 | climate_bio1_average | human_population_density | TRUE |
-| human_population..pca..climate_hypervolume | 73.240 | -0.020 | 0.7200000 | human_population | climate_hypervolume | FALSE |
-| climate_hypervolume..pca..bias_area_km2 | 58.210 | -0.020 | 0.7100000 | climate_hypervolume | bias_area_km2 | FALSE |
-| climate_hypervolume..pca..human_population_density | 53.230 | -0.025 | 0.7200000 | climate_hypervolume | human_population_density | FALSE |
-| climate_hypervolume..x..human_population_density | 55.701 | -0.030 | 0.5599486 | climate_hypervolume | human_population_density | FALSE |
+| human_population..x..bias_area_km2 | 100.000 | 0.039 | 0.6373850 | human_population | bias_area_km2 | TRUE |
+| climate_bio1_average..pca..human_population | 100.000 | 0.059 | 0.2800000 | climate_bio1_average | human_population | TRUE |
+| climate_bio1_average..pca..human_population_density | 92.210 | 0.053 | 0.3400000 | climate_bio1_average | human_population_density | TRUE |
+| climate_bio1_average..pca..climate_hypervolume | 59.510 | 0.026 | 0.7400000 | climate_bio1_average | climate_hypervolume | TRUE |
+| human_population..pca..climate_hypervolume | 78.170 | -0.017 | 0.7200000 | human_population | climate_hypervolume | FALSE |
+| climate_hypervolume..pca..bias_area_km2 | 61.640 | -0.012 | 0.7100000 | climate_hypervolume | bias_area_km2 | FALSE |
+| climate_hypervolume..x..human_population_density | 60.856 | -0.012 | 0.5599486 | climate_hypervolume | human_population_density | FALSE |
+| climate_hypervolume..pca..human_population_density | 40.980 | -0.014 | 0.7200000 | climate_hypervolume | human_population_density | FALSE |
 
 ``` r
 #adding interaction column to the training data
