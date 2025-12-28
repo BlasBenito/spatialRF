@@ -266,7 +266,7 @@ select_spatial_predictors_recursive <- function(
   } #end of while loop
 
   #remove empty rows
-  optimization.df <- na.omit(optimization.df)
+  optimization.df <- stats::na.omit(optimization.df)
 
   #get index of spatial predictor with recursive r-squared and moran.i
   recursive.index <- which.max(optimization.df$optimization)

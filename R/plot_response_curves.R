@@ -236,8 +236,8 @@ plot_response_curves <- function(
         ggplot2::geom_point(
           data = data,
           ggplot2::aes(
-            x = .data[[local_variable]],
-            y = .data[[local_response]]
+            x = ggplot2::.data[[local_variable]],
+            y = ggplot2::.data[[local_response]]
           ),
           shape = 16,
           alpha = 0.15
@@ -245,13 +245,13 @@ plot_response_curves <- function(
         ggplot2::geom_path(
           data = variable.i.df,
           ggplot2::aes(
-            x = .data[[local_variable]],
-            y = .data[[local_response]],
+            x = ggplot2::.data[[local_variable]],
+            y = ggplot2::.data[[local_response]],
             group = paste(
-              .data[["model"]],
-              .data[["quantile"]]
+              ggplot2::.data[["model"]],
+              ggplot2::.data[["quantile"]]
             ),
-            color = .data[["quantile"]]
+            color = ggplot2::.data[["quantile"]]
           ),
           linewidth = ifelse(several.models, 0.2, 1),
           alpha = ifelse(several.models, 0.4, 1)
@@ -259,10 +259,10 @@ plot_response_curves <- function(
         ggplot2::geom_path(
           data = variable.i.df.median,
           ggplot2::aes(
-            x = .data[[local_variable]],
-            y = .data[[local_response]],
-            group = .data[["quantile"]],
-            color = .data[["quantile"]]
+            x = ggplot2::.data[[local_variable]],
+            y = ggplot2::.data[[local_response]],
+            group = ggplot2::.data[["quantile"]],
+            color = ggplot2::.data[["quantile"]]
           ),
           linewidth = ifelse(several.models, 0.8, 0),
           alpha = ifelse(several.models, 1, 0)
@@ -279,13 +279,13 @@ plot_response_curves <- function(
         ggplot2::geom_path(
           data = variable.i.df,
           ggplot2::aes(
-            x = .data[[local_variable]],
-            y = .data[[local_response]],
+            x = ggplot2::.data[[local_variable]],
+            y = ggplot2::.data[[local_response]],
             group = paste(
-              .data[["model"]],
-              .data[["quantile"]]
+              ggplot2::.data[["model"]],
+              ggplot2::.data[["quantile"]]
             ),
-            color = .data[["quantile"]]
+            color = ggplot2::.data[["quantile"]]
           ),
           linewidth = ifelse(several.models, 0.2, 1),
           alpha = ifelse(several.models, 0.4, 1)
@@ -293,10 +293,10 @@ plot_response_curves <- function(
         ggplot2::geom_path(
           data = variable.i.df.median,
           ggplot2::aes(
-            x = .data[[local_variable]],
-            y = .data[[local_response]],
-            group = .data[["quantile"]],
-            color = .data[["quantile"]]
+            x = ggplot2::.data[[local_variable]],
+            y = ggplot2::.data[[local_response]],
+            group = ggplot2::.data[["quantile"]],
+            color = ggplot2::.data[["quantile"]]
           ),
           linewidth = ifelse(several.models, 0.8, 0),
           alpha = ifelse(several.models, 1, 0)

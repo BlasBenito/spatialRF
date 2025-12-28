@@ -93,7 +93,7 @@ plot_evaluation <- function(
   x <- model$evaluation$per.fold.long
 
   #removing NA
-  x <- na.omit(x)
+  x <- stats::na.omit(x)
 
   #prettier labels
   x[x$metric == "r.squared", "metric"] <- "R squared"

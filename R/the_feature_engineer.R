@@ -476,7 +476,7 @@ the_feature_engineer <- function(
     interaction.screening.1,
     interaction.screening.2
   ) |>
-    na.omit()
+    stats::na.omit()
 
   if (nrow(interaction.screening) == 0) {
     warning("No promising interactions found, returned NULL.")

@@ -18,7 +18,6 @@
 #' @family visualization
 #' @export
 #' @autoglobal
-#' @importFrom patchwork plot_annotation wrap_plots
 plot_residuals_diagnostics <- function(
   model,
   point.color = viridis::viridis(

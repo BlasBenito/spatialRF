@@ -146,7 +146,7 @@ rf_compare <- function(
     dplyr::rename(
       model = model.name
     ) |>
-    na.omit() |>
+    stats::na.omit() |>
     as.data.frame()
 
   #df to plot

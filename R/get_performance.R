@@ -46,7 +46,7 @@ get_performance <- function(model) {
 
   out.df <- out.df[, colSums(is.na(out.df)) < nrow(out.df)]
 
-  out.df <- na.omit(out.df)
+  out.df <- stats::na.omit(out.df)
 
   out.df
 }

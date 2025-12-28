@@ -40,7 +40,6 @@
 #'
 #' @rdname pca
 #' @family spatial_analysis
-#' @importFrom stats prcomp var
 #' @export
 pca <- function(
   x = NULL,

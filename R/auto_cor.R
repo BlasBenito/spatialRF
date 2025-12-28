@@ -61,7 +61,7 @@ auto_cor <- function(
   }
 
   #removing NA
-  x <- na.omit(x)
+  x <- stats::na.omit(x)
 
   #handle edge case: no columns
   if (ncol(x) == 0) {

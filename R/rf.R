@@ -86,7 +86,6 @@
 #' @family main_models
 #' @export
 #' @autoglobal
-#' @importFrom rlang .data
 rf <- function(
   data = NULL,
   dependent.variable.name = NULL,

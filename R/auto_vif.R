@@ -63,7 +63,7 @@ auto_vif <- function(
 
   #removing non-numeric and zero variance columns
   #removing NA
-  x <- na.omit(x)
+  x <- stats::na.omit(x)
 
   #finding and removing non-numeric columns
   non.numeric.columns <- colnames(x)[!sapply(x, is.numeric)]

@@ -60,7 +60,7 @@ print_evaluation <- function(model) {
 
   x <- x[, colSums(is.na(x)) < nrow(x)]
 
-  x <- na.omit(x)
+  x <- stats::na.omit(x)
 
   #printing output
   cat("\n")

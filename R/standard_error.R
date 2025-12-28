@@ -12,7 +12,7 @@
 #' @autoglobal
 #' @export
 standard_error <- function(x) {
-  x <- na.omit(x)
+  x <- stats::na.omit(x)
   x <- round(sqrt(var(x) / length(x)), 3)
   x
 }

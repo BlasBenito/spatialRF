@@ -21,7 +21,6 @@
 #'
 #' @rdname root_mean_squared_error
 #' @family utilities
-#' @importFrom stats na.omit quantile
 #' @autoglobal
 #' @export
 root_mean_squared_error <- function(
@@ -51,7 +50,7 @@ root_mean_squared_error <- function(
 
     #removing infinites
     rmse[!is.finite(rmse)] <- NA
-    rmse <- na.omit(rmse)
+    rmse <- stats::na.omit(rmse)
 
     #if the user selects one particular option
     if (normalization != "all") {
