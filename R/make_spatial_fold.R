@@ -50,6 +50,7 @@
 #' @rdname make_spatial_fold
 #' @family preprocessing
 #' @export
+#' @autoglobal
 make_spatial_fold <- function(
   data = NULL,
   dependent.variable.name = NULL,

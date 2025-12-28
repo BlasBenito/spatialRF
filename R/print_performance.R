@@ -12,6 +12,7 @@
 #' @rdname print_performance
 #' @family model_info
 #' @export
+#' @autoglobal
 print_performance <- function(model) {
   x <- model$performance
 

@@ -77,6 +77,7 @@
 #' @rdname rank_spatial_predictors
 #' @family spatial_analysis
 #' @export
+#' @autoglobal
 rank_spatial_predictors <- function(
   data = NULL,
   dependent.variable.name = NULL,
@@ -125,7 +126,6 @@ rank_spatial_predictors <- function(
   on.exit(parallel_config$cleanup(), add = TRUE)
 
   #parallelized loop
-  spatial.predictors.i <- NULL
   spatial.predictors.order <- foreach::foreach(
     spatial.predictors.i = seq(1, ncol(spatial.predictors.df)),
     .combine = "rbind",
@@ -200,10 +200,6 @@ rank_spatial_predictors <- function(
       #returning output
       return(out.i)
     } #end of parallelized loop
-
-  #variables to avoid check complaints
-  ranking.criteria <- NULL
-  interpretation <- NULL
 
   #getting only spatial predictors with positive spatial correlation
   if (ranking.method == "moran") {

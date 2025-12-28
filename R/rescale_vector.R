@@ -25,6 +25,7 @@
 #' @rdname rescale_vector
 #' @family utilities
 #' @export
+#' @autoglobal
 rescale_vector <- function(
   x = NULL,
   new.min = 0,

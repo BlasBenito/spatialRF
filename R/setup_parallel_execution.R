@@ -10,6 +10,7 @@
 #'     \item cleanup: A function to call in on.exit() for proper cleanup
 #'   }
 #' @family utilities
+#' @autoglobal
 #' @export
 setup_parallel_execution <- function(
   cluster = NULL,

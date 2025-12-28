@@ -47,6 +47,7 @@
 #' @rdname rf_compare
 #' @family model_workflow
 #' @export
+#' @autoglobal
 rf_compare <- function(
   models = NULL,
   xy = NULL,
@@ -74,12 +75,6 @@ rf_compare <- function(
   n.cores = parallel::detectCores() - 1,
   cluster = NULL
 ) {
-  #declaring variables
-  model <- NULL
-  value <- NULL
-  model.name <- NULL
-  metric <- NULL
-
   #capturing user options
   user.options <- options()
   #avoid dplyr messages
@@ -182,13 +177,13 @@ rf_compare <- function(
   p <- ggplot2::ggplot(data = x) +
     ggplot2::aes(
       group = model,
-      y = reorder(
+      y = stats::reorder(
         model,
         value,
         FUN = stats::median
       ),
       x = value,
-      fill = reorder(
+      fill = stats::reorder(
         model,
         value,
         FUN = stats::median
@@ -220,7 +215,7 @@ rf_compare <- function(
         " spatial folds"
       )
     ) +
-    ggplot2::theme(plot.title = element_text(hjust = 0.5))
+    ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
 
   #out list
   out.list <- list()

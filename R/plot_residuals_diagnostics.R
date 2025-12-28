@@ -16,9 +16,9 @@
 #'
 #' @rdname plot_residuals_diagnostics
 #' @family visualization
-#' @importFrom ggplot2 stat_qq stat_qq_line geom_histogram element_text
-#' @importFrom stats qqnorm
 #' @export
+#' @autoglobal
+#' @importFrom patchwork plot_annotation wrap_plots
 plot_residuals_diagnostics <- function(
   model,
   point.color = viridis::viridis(
@@ -35,12 +35,6 @@ plot_residuals_diagnostics <- function(
   ncol = 1,
   verbose = TRUE
 ) {
-  #declaring variables to avoid check complaints
-  x <- NULL
-  y <- NULL
-  Predicted <- NULL
-  Residuals <- NULL
-
   #checking option
   if (
     !(option %in% c(1, 2)) ||
@@ -58,7 +52,7 @@ plot_residuals_diagnostics <- function(
   normality <- model$residuals$normality
 
   #normality scores of the residuals
-  residuals.qq <- qqnorm(residuals, plot.it = FALSE) |>
+  residuals.qq <- stats::qqnorm(residuals, plot.it = FALSE) |>
     as.data.frame()
 
   #plot title
@@ -101,10 +95,10 @@ plot_residuals_diagnostics <- function(
   )
 
   #histogram
-  p2 <- ggplot2::ggplot(data = residuals.df) +
-    ggplot2::aes(
-      x = residuals
-    ) +
+  p2 <- ggplot2::ggplot(
+    data = residuals.df,
+    ggplot2::aes(x = residuals)
+  ) +
     ggplot2::geom_histogram(
       binwidth = bw,
       color = NA,
@@ -125,13 +119,13 @@ plot_residuals_diagnostics <- function(
     data = data.frame(
       Residuals = residuals,
       Predicted = predictions
-    )
-  ) +
+    ),
     ggplot2::aes(
       x = Predicted,
       y = Residuals,
       color = Residuals
-    ) +
+    )
+  ) +
     ggplot2::geom_hline(
       yintercept = 0,
       linetype = "dashed",
@@ -147,11 +141,11 @@ plot_residuals_diagnostics <- function(
     )
 
   #final plot
-  normality.plot <- (p1 + p2) /
-    p3 +
+  normality.plot <- ((p1 + p2) /
+    p3) +
     patchwork::plot_annotation(
       title = plot.title,
-      theme = ggplot2::theme(plot.title = element_text(hjust = 0.5))
+      theme = ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
     )
 
   #getting autocorrelation if available

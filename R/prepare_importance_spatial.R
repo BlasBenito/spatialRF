@@ -11,12 +11,9 @@
 #'
 #' @rdname prepare_importance_spatial
 #' @family utilities
-#' @importFrom stats median
 #' @export
+#' @autoglobal
 prepare_importance_spatial <- function(model) {
-  importance <- NULL
-  variable <- NULL
-
   #getting importance df
   if (!inherits(model, "rf_spatial")) {
     stop("This function requires a model fitted with rf_spatial()")
@@ -53,9 +50,9 @@ prepare_importance_spatial <- function(model) {
     importance = c(
       max(spatial.predictors$importance),
       min(spatial.predictors$importance),
-      median(spatial.predictors$importance),
-      quantile(spatial.predictors$importanc, probs = 0.25),
-      quantile(spatial.predictors$importanc, probs = 0.75)
+      stats::median(spatial.predictors$importance),
+      stats::quantile(spatial.predictors$importanc, probs = 0.25),
+      stats::quantile(spatial.predictors$importanc, probs = 0.75)
     )
   )
 

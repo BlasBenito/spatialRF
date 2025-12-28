@@ -1,6 +1,6 @@
 test_that("`get_spatial_predictors()` works", {
-  data(plants_distance)
-  data(plants_df)
+  data("plants_distance", package = "spatialRF")
+  data("plants_df", package = "spatialRF")
 
   plants_distance <- plants_distance[1:100, 1:100]
   plants_df <- plants_df[1:100, ]

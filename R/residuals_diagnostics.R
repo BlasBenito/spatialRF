@@ -20,35 +20,28 @@
 #' )
 #' y
 #'
-#' @seealso
-#'  \code{\link[ggplot2]{ggplot}},\code{\link[ggplot2]{aes}},\code{\link[ggplot2]{geom_qq_line}},\code{\link[ggplot2]{ggtheme}},\code{\link[ggplot2]{labs}},\code{\link[ggplot2]{geom_freqpoly}},\code{\link[ggplot2]{geom_abline}}
-#'  \code{\link[patchwork]{plot_annotation}}
 #' @rdname residuals_diagnostics
 #' @family spatial_analysis
 #' @export
-#' @importFrom ggplot2 stat_qq stat_qq_line geom_histogram element_text
-#' @importFrom stats shapiro.test IQR
+#' @autoglobal
+#' @importFrom patchwork plot_annotation wrap_plots
 residuals_diagnostics <- function(
   residuals,
   predictions
 ) {
-  #declaring variables
-  Predicted <- NULL
-  Residuals <- NULL
-
   #list to store results
   y <- list()
 
   #normality of x
   if (length(residuals) > 5000) {
-    shapiro.out <- shapiro.test(
+    shapiro.out <- stats::shapiro.test(
       sample(
         x = residuals,
         size = 5000
       )
     )
   } else {
-    shapiro.out <- shapiro.test(residuals)
+    shapiro.out <- stats::shapiro.test(residuals)
   }
 
   #writing results to list
@@ -72,8 +65,10 @@ residuals_diagnostics <- function(
   )
 
   #qqplot
-  p1 <- ggplot2::ggplot(data = as.data.frame(residuals)) +
-    ggplot2::aes(sample = residuals) +
+  p1 <- ggplot2::ggplot(
+    data = as.data.frame(residuals),
+    ggplot2::aes(sample = residuals)
+  ) +
     ggplot2::stat_qq(alpha = 0.7) +
     ggplot2::stat_qq_line(
       col = "red4",
@@ -93,8 +88,10 @@ residuals_diagnostics <- function(
   )
 
   #histogram
-  p2 <- ggplot2::ggplot(data = as.data.frame(residuals)) +
-    ggplot2::aes(x = residuals) +
+  p2 <- ggplot2::ggplot(
+    data = as.data.frame(residuals),
+    ggplot2::aes(x = residuals)
+  ) +
     ggplot2::geom_histogram(
       binwidth = bw,
       fill = "gray95",
@@ -115,12 +112,12 @@ residuals_diagnostics <- function(
     data = data.frame(
       Residuals = residuals,
       Predicted = predictions
-    )
-  ) +
+    ),
     ggplot2::aes(
       x = Predicted,
       y = Residuals
-    ) +
+    )
+  ) +
     ggplot2::geom_hline(
       yintercept = 0,
       linetype = "dashed",
@@ -133,11 +130,11 @@ residuals_diagnostics <- function(
     ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
 
   #final plot
-  y$plot <- (p1 + p2) /
-    p3 +
+  y$plot <- ((p1 + p2) /
+    p3) +
     patchwork::plot_annotation(
       title = plot.title,
-      theme = ggplot2::theme(plot.title = element_text(hjust = 0.5))
+      theme = ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
     )
 
   #returning output

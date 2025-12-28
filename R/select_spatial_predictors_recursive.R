@@ -73,6 +73,7 @@
 #' }
 #' @rdname select_spatial_predictors_recursive
 #' @family spatial_analysis
+#' @autoglobal
 #' @export
 select_spatial_predictors_recursive <- function(
   data = NULL,

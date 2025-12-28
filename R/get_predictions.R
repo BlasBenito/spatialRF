@@ -21,6 +21,7 @@
 #' @rdname get_predictions
 #' @family model_info
 #' @export
+#' @autoglobal
 get_predictions <- function(model) {
   model$predictions$values
 }

@@ -26,14 +26,12 @@
 #' @rdname print_evaluation
 #' @family model_info
 #' @export
+#' @autoglobal
 print_evaluation <- function(model) {
   #stop if no evaluation slot
   if (!inherits(model, "rf_evaluate")) {
     stop("Object 'x' does not have an 'evaluation' slot.")
   }
-
-  metric <- NULL
-  median_absolute_deviation <- NULL
 
   x <- model$evaluation$aggregated |>
     dplyr::filter(

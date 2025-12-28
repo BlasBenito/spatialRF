@@ -44,6 +44,7 @@
 #' @rdname beowulf_cluster
 #' @family utilities
 #' @export
+#' @autoglobal
 beowulf_cluster <- function(
   cluster.ips = NULL,
   cluster.cores = NULL,

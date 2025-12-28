@@ -21,6 +21,7 @@
 #' @rdname get_residuals
 #' @family model_info
 #' @export
+#' @autoglobal
 get_residuals <- function(model) {
   model$residuals$values
 }

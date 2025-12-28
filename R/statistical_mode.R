@@ -8,6 +8,7 @@
 #'
 #' @rdname statistical_mode
 #' @family utilities
+#' @autoglobal
 #' @export
 statistical_mode <- function(x) {
   x.unique <- unique(x)

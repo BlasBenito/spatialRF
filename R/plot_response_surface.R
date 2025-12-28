@@ -27,7 +27,8 @@
 #' @rdname plot_response_surface
 #' @family visualization
 #' @export
-#' @importFrom ggplot2 ggplot geom_tile aes theme_bw geom_point scale_size_continuous labs ggtitle .data
+#' @autoglobal
+#' @importFrom ggplot2 .data
 plot_response_surface <- function(
   model = NULL,
   a = NULL,
@@ -125,7 +126,7 @@ plot_response_surface <- function(
     }
 
     #predicting the response
-    ab.grid.i[, response.variable] <- predict(
+    ab.grid.i[, response.variable] <- stats::predict(
       model,
       ab.grid.i
     )$predictions
@@ -162,7 +163,7 @@ plot_response_surface <- function(
       ) +
       ggplot2::ggtitle(paste0("Other variables set to quantile ", quantile.i)) +
       ggplot2::guides(size = ggplot2::guide_legend(reverse = TRUE)) +
-      ggplot2::theme(plot.title = element_text(hjust = 0.5))
+      ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
   }
 
   if (length(quantiles) > 1) {

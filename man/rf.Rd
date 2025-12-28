@@ -120,7 +120,6 @@ m <- rf(
   ranger.arguments = args,
   verbose = FALSE
 )
-
 }
 \seealso{
 Other main_models: 

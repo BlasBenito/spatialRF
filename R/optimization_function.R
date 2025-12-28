@@ -70,6 +70,7 @@
 #' @rdname optimization_function
 #' @family utilities
 #' @export
+#' @autoglobal
 optimization_function <- function(
   x = NULL,
   weight.r.squared = NULL,

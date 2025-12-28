@@ -42,6 +42,7 @@
 #' @rdname filter_spatial_predictors
 #' @family spatial_analysis
 #' @export
+#' @autoglobal
 filter_spatial_predictors <- function(
   data = NULL,
   predictor.variable.names = NULL,
@@ -74,7 +75,7 @@ filter_spatial_predictors <- function(
   non.spatial.predictors.df <- data[, predictor.variable.names, drop = FALSE]
 
   #correlation between spatial and non-spatial predictors
-  cor.predictors <- cor(
+  cor.predictors <- stats::cor(
     non.spatial.predictors.df,
     spatial.predictors.df
   )

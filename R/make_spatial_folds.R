@@ -67,6 +67,7 @@
 #' @family preprocessing
 #' @importFrom foreach %dopar%
 #' @export
+#' @autoglobal
 make_spatial_folds <- function(
   data = NULL,
   dependent.variable.name = NULL,
@@ -83,7 +84,6 @@ make_spatial_folds <- function(
   on.exit(parallel_config$cleanup(), add = TRUE)
 
   #parallelized loop
-  i <- NULL
   spatial.folds <- foreach::foreach(
     i = seq(1, nrow(xy.selected), by = 1)
   ) %dopar%

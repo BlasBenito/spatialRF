@@ -24,15 +24,17 @@ Imports:
     ranger,
     rlang,
     tidyr,
-    tidyselect,
     patchwork (>= 1.3.2),
     viridis
 Suggests: 
     testthat,
-    spelling
+    spelling,
+    roxyglobals
 Encoding: UTF-8
 LazyData: true
 LazyDataCompression: xz
-Roxygen: list(markdown = TRUE, old_usage = FALSE)
+Roxygen: list(markdown = TRUE, old_usage = FALSE, roclets = c("collate", "namespace", "rd", "roxyglobals::global_roclet"))
 RoxygenNote: 7.3.3
 Language: en-US
+Config/roxyglobals/filename: globals.R
+Config/roxyglobals/unique: FALSE

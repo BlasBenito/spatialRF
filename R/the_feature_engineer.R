@@ -81,6 +81,7 @@
 #' @importFrom foreach %do%
 #' @rdname the_feature_engineer
 #' @family preprocessing
+#' @autoglobal
 #' @export
 the_feature_engineer <- function(
   data = NULL,
@@ -133,10 +134,6 @@ the_feature_engineer <- function(
   } else {
     metric <- "r.squared"
   }
-
-  #declaring variables
-  variable <- NULL
-  y <- NULL
 
   #predictor.variable.names comes from auto_vif or auto_cor
   if (!is.null(predictor.variable.names)) {
@@ -194,7 +191,7 @@ the_feature_engineer <- function(
   ranger.arguments.i$predictor.variable.names <- NULL
 
   #setting quantile of the importance threshold
-  importance.threshold <- quantile(
+  importance.threshold <- stats::quantile(
     x = model.without.interactions$importance$per.variable$importance,
     probs = importance.threshold
   )
@@ -244,7 +241,6 @@ the_feature_engineer <- function(
   }
 
   #testing interactions
-  i <- NULL
   interaction.screening.1 <- foreach::foreach(
     i = seq(1, nrow(variables.pairs)),
     .combine = "rbind",
@@ -284,7 +280,7 @@ the_feature_engineer <- function(
       )
 
       #computing max correlation with predictors
-      cor.out <- cor(data.i[, predictor.variable.names.i])
+      cor.out <- stats::cor(data.i[, predictor.variable.names.i])
       diag(cor.out) <- NA
       max.cor <- max(cor.out[pair.i.name, ], na.rm = TRUE)
 
@@ -401,7 +397,7 @@ the_feature_engineer <- function(
       )
 
       #computing max correlation with predictors
-      cor.out <- cor(data.i[, predictor.variable.names.i])
+      cor.out <- stats::cor(data.i[, predictor.variable.names.i])
       diag(cor.out) <- NA
       max.cor <- max(cor.out[pair.i.name, ], na.rm = TRUE)
 

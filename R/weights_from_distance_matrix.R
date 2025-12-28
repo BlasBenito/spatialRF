@@ -20,6 +20,7 @@
 #'
 #' @rdname weights_from_distance_matrix
 #' @family preprocessing
+#' @autoglobal
 #' @export
 weights_from_distance_matrix <- function(
   distance.matrix = NULL,

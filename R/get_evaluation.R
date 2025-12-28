@@ -33,6 +33,7 @@
 #' @rdname get_evaluation
 #' @family model_info
 #' @export
+#' @autoglobal
 get_evaluation <- function(model) {
   #stop if no evaluation slot
   if (!inherits(model, "rf_evaluate")) {

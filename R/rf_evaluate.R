@@ -49,12 +49,7 @@
 #' @rdname rf_evaluate
 #' @family model_workflow
 #' @export
-#' @importFrom parallel detectCores makeCluster stopCluster
-#' @importFrom doParallel registerDoParallel
-#' @importFrom foreach foreach
-#' @importFrom stats predict mad
-#' @importFrom dplyr select contains group_by summarise
-#' @importFrom tidyr pivot_longer
+#' @autoglobal
 rf_evaluate <- function(
   model = NULL,
   xy = NULL,
@@ -76,11 +71,6 @@ rf_evaluate <- function(
   n.cores = parallel::detectCores() - 1,
   cluster = NULL
 ) {
-  #declaring variables
-  i <- NULL
-  metric <- NULL
-  value <- NULL
-
   if (is.null(model)) {
     stop("The argument 'model' is empty, there is no model to evaluate")
   }
@@ -258,7 +248,7 @@ rf_evaluate <- function(
       )
 
       #predicting over data.testing
-      predicted <- predict(
+      predicted <- stats::predict(
         object = m.training,
         data = data.testing,
         type = "response",
@@ -279,12 +269,12 @@ rf_evaluate <- function(
 
       if ("r.squared" %in% metrics) {
         out.df$training.r.squared <- m.training$performance$r.squared
-        out.df$testing.r.squared <- round(cor(observed, predicted)^2, 3)
+        out.df$testing.r.squared <- round(stats::cor(observed, predicted)^2, 3)
       }
       if ("pseudo.r.squared" %in% metrics) {
         out.df$training.pseudo.r.squared <- m.training$performance$pseudo.r.squared
         out.df$testing.pseudo.r.squared <- round(
-          cor(
+          stats::cor(
             observed,
             predicted
           ),
@@ -419,11 +409,11 @@ rf_evaluate <- function(
     dplyr::summarise(
       median = median(value),
       median_absolute_deviation = stats::mad(value),
-      q1 = quantile(value, 0.25, na.rm = TRUE),
-      q3 = quantile(value, 0.75, na.rm = TRUE),
+      q1 = stats::quantile(value, 0.25, na.rm = TRUE),
+      q3 = stats::quantile(value, 0.75, na.rm = TRUE),
       mean = mean(value),
       se = standard_error(value),
-      sd = sd(value),
+      sd = stats::sd(value),
       min = min(value),
       max = max(value)
     ) |>

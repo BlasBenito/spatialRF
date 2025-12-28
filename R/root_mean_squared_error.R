@@ -22,6 +22,7 @@
 #' @rdname root_mean_squared_error
 #' @family utilities
 #' @importFrom stats na.omit quantile
+#' @autoglobal
 #' @export
 root_mean_squared_error <- function(
   o,
@@ -39,10 +40,10 @@ root_mean_squared_error <- function(
   #computes nrmse
   if (normalization != "rmse") {
     #computing nrmse
-    nrmse.sd <- rmse / sd(o)
+    nrmse.sd <- rmse / stats::sd(o)
     nrmse.mean <- rmse / mean(o)
     nrmse.maxmin <- rmse / (max(o) - min(o))
-    nrmse.iq <- rmse / (quantile(o, 0.75) - quantile(o, 0.25))
+    nrmse.iq <- rmse / (stats::quantile(o, 0.75) - stats::quantile(o, 0.25))
 
     #building vector with nrmse values
     rmse <- c(rmse, nrmse.iq, nrmse.maxmin, nrmse.mean, nrmse.sd)

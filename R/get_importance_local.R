@@ -21,6 +21,7 @@
 #' @rdname get_importance_local
 #' @family model_info
 #' @export
+#' @autoglobal
 get_importance_local <- function(model) {
   model$importance$local
 }

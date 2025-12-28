@@ -26,6 +26,7 @@
 #' @rdname case_weights
 #' @family preprocessing
 #' @export
+#' @autoglobal
 case_weights <- function(
   data = NULL,
   dependent.variable.name = NULL

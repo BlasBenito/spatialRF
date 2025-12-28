@@ -29,6 +29,7 @@
 #' @rdname plot_response_curves
 #' @family visualization
 #' @export
+#' @autoglobal
 plot_response_curves <- function(
   model = NULL,
   variables = NULL,
@@ -138,7 +139,7 @@ plot_response_curves <- function(
 
       #iterating through variables
       for (variable.j in other.variables) {
-        variable.i.grid.copy[, variable.j] <- quantile(
+        variable.i.grid.copy[, variable.j] <- stats::quantile(
           data[, variable.j],
           quantile.i
         )
@@ -189,7 +190,7 @@ plot_response_curves <- function(
       model.i <- models.list[[i]]
 
       #predict
-      variable.i.list[[i]][, response.variable] <- predict(
+      variable.i.list[[i]][, response.variable] <- stats::predict(
         object = model.i,
         data = variable.i.list[[i]]
       )$predictions
@@ -207,7 +208,6 @@ plot_response_curves <- function(
       several.models <- TRUE
 
       #computing the median of each curve
-      id <- NULL
       variable.i.df.median <- variable.i.df |>
         dplyr::group_by(quantile, id) |>
         dplyr::summarise_at(

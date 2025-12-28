@@ -22,11 +22,10 @@
 #'   predictor.variable.names = plants_predictors[1:4]
 #' )
 #'
-#' @importFrom ggplot2 ggplot aes geom_point scale_color_gradientn theme_bw theme geom_smooth
-#' @importFrom rlang sym
 #' @rdname plot_training_df
 #' @family visualization
 #' @export
+#' @autoglobal
 plot_training_df <- function(
   data = NULL,
   dependent.variable.name = NULL,

@@ -70,7 +70,7 @@
 #' @rdname plot_evaluation
 #' @family visualization
 #' @export
-#' @importFrom ggplot2 ggplot facet_wrap theme xlab ylab labs
+#' @autoglobal
 plot_evaluation <- function(
   model,
   fill.color = viridis::viridis(
@@ -83,9 +83,6 @@ plot_evaluation <- function(
   verbose = TRUE,
   notch = TRUE
 ) {
-  #declaring variable because of check BS
-  value <- NULL
-
   #stop if no evaluation slot
   if (!inherits(model, "rf_evaluate")) {
     stop("Object 'model' does not have an 'evaluation' slot.")

@@ -29,6 +29,7 @@
 #' @rdname rf_importance
 #' @family model_workflow
 #' @export
+#' @autoglobal
 rf_importance <- function(
   model = NULL,
   xy = NULL,
@@ -57,20 +58,6 @@ rf_importance <- function(
   n.cores = parallel::detectCores() - 1,
   cluster = NULL
 ) {
-  #declaring variables to avoid check complaints
-  fold.id <- NULL
-  testing.r.squared <- NULL
-  training.r.squared <- NULL
-  variable <- NULL
-  without <- NULL
-  importance <- NULL
-  testing.records <- NULL
-  importance.mad <- NULL
-  importance.percent <- NULL
-  importance.percent.mad <- NULL
-  importance.x <- NULL
-  importance.y <- NULL
-
   #testing method argument
   metric <- match.arg(
     arg = metric,
@@ -279,7 +266,7 @@ rf_importance <- function(
   ) +
     ggplot2::aes(
       x = importance,
-      y = reorder(
+      y = stats::reorder(
         variable,
         importance,
         FUN = max

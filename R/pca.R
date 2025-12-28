@@ -51,10 +51,10 @@ pca <- function(
   }
 
   #removing columns with zero variance
-  x <- x[, which(apply(x, 2, var) != 0)]
+  x <- x[, which(apply(x, 2, stats::var) != 0)]
 
   #computing pca of distance matrix
-  x.pca <- prcomp(x, scale. = TRUE)
+  x.pca <- stats::prcomp(x, scale. = TRUE)
 
   #getting pca factors
   x.pca.factors <- as.data.frame(x.pca$x)

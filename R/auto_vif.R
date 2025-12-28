@@ -43,8 +43,8 @@
 #'
 #' @rdname auto_vif
 #' @family preprocessing
-#' @importFrom stats cor
 #' @export
+#' @autoglobal
 auto_vif <- function(
   x = NULL,
   preference.order = NULL,
@@ -156,14 +156,12 @@ auto_vif <- function(
 #' @return Data frame with two columns: `variable` (character, variable names) and `vif` (numeric, VIF scores), sorted by VIF in descending order.
 #' @family utilities
 #' @export
+#' @autoglobal
 .vif_to_df <- function(x) {
-  #defining global variable
-  vif <- NULL
-
   #turns vif output into tidy df
   df <-
     data.frame(
-      diag(solve(cor(x))),
+      diag(solve(stats::cor(x))),
       stringsAsFactors = FALSE
     ) |>
     dplyr::rename(vif = 1) |>

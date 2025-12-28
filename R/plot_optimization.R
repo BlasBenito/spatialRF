@@ -29,8 +29,8 @@
 #' plot_optimization(plants_rf_spatial)
 #'
 #' @family visualization
-#' @importFrom ggplot2 ggplot aes geom_point scale_color_viridis_c geom_path geom_vline labs xlab ylab ggtitle
 #' @export
+#' @autoglobal
 plot_optimization <- function(
   model,
   point.color = viridis::viridis(
@@ -40,12 +40,6 @@ plot_optimization <- function(
   ),
   verbose = TRUE
 ) {
-  #declaring variables
-  moran.i <- NULL
-  optimization <- NULL
-  r.squared <- NULL
-  spatial.predictor.index <- NULL
-
   #getting optimization df from the model
   if (inherits(model, "rf_spatial")) {
     x <- model$spatial$optimization
@@ -74,12 +68,12 @@ plot_optimization <- function(
       color = optimization
     ) +
     ggplot2::geom_point(
-      aes(size = spatial.predictor.index)
+      ggplot2::aes(size = spatial.predictor.index)
     ) +
     ggplot2::scale_color_gradientn(colors = point.color) +
     ggplot2::geom_point(
       data = x[x$selected, ],
-      aes(
+      ggplot2::aes(
         y = moran.i,
         x = r.squared
       ),
@@ -91,7 +85,7 @@ plot_optimization <- function(
     ggplot2::scale_x_reverse() +
     ggplot2::geom_path(
       data = x[x$selected, ],
-      aes(
+      ggplot2::aes(
         y = moran.i,
         x = r.squared
       ),
@@ -115,7 +109,7 @@ plot_optimization <- function(
       "Selection of spatial predictors (selection path shown in gray)"
     ) +
     ggplot2::theme_bw() +
-    ggplot2::theme(plot.title = element_text(hjust = 0.5))
+    ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
 
   p
 }

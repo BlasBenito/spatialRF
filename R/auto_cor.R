@@ -44,6 +44,7 @@
 #' @rdname auto_cor
 #' @family preprocessing
 #' @export
+#' @autoglobal
 auto_cor <- function(
   x = NULL,
   preference.order = NULL,
@@ -118,7 +119,7 @@ auto_cor <- function(
   }
 
   #step 2: compute full correlation matrix
-  x.cor <- cor(x)
+  x.cor <- stats::cor(x)
 
   #step 3: initialize with first predictor
   selected.variables <- preference.order[1]
@@ -161,7 +162,7 @@ auto_cor <- function(
   #return output
   output.list <- list()
   if (length(selected.variables) > 1) {
-    output.list$cor <- round(cor(selected.variables.df), 2)
+    output.list$cor <- round(stats::cor(selected.variables.df), 2)
   }
   output.list$selected.variables <- selected.variables
   output.list$selected.variables.df <- selected.variables.df

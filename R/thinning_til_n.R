@@ -37,7 +37,7 @@
 #'
 #' @rdname thinning_til_n
 #' @family utilities
-#' @importFrom stats dist
+#' @autoglobal
 #' @export
 thinning_til_n <- function(
   xy = NULL,
@@ -68,7 +68,7 @@ thinning_til_n <- function(
   #initiating distances
   if (is.null(distance.step)) {
     #getting all distances among points
-    xy.distances <- sort(as.vector(dist(xy[, c("x", "y")])))
+    xy.distances <- sort(as.vector(stats::dist(xy[, c("x", "y")])))
 
     #getting the 1%
     min.distance <- distance.i <- max(xy.distances) / 1000

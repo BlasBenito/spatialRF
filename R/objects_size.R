@@ -33,6 +33,7 @@
 #' @rdname objects_size
 #' @family utilities
 #' @export
+#' @autoglobal
 objects_size <- function(n = 10) {
   .ls.objects <- function(
     pos = 1,
@@ -76,11 +77,6 @@ objects_size <- function(n = 10) {
         format(utils::object.size(x), units = "auto")
       }
     )
-
-    # obj.size <- napply(
-    #   names,
-    #   utils::object.size
-    # )
 
     obj.dim <- t(
       napply(

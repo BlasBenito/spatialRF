@@ -30,6 +30,7 @@
 #'
 #' @rdname thinning
 #' @family utilities
+#' @autoglobal
 #' @export
 thinning <- function(
   xy,

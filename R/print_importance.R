@@ -18,10 +18,8 @@
 #' @rdname print_importance
 #' @family model_info
 #' @export
+#' @autoglobal
 print_importance <- function(model, verbose = TRUE) {
-  #declaring variables
-  importance <- NULL
-
   #if x is not a data frame
   if (!is.data.frame(model)) {
     if (!("importance" %in% names(model))) {
@@ -69,7 +67,7 @@ print_importance <- function(model, verbose = TRUE) {
 
   #print to screen
   # Capture output
-  output <- capture.output(print(
+  output <- utils::capture.output(print(
     x,
     row.names = FALSE,
     right = FALSE

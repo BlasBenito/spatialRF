@@ -68,6 +68,7 @@
 #' }
 #' @rdname select_spatial_predictors_sequential
 #' @family spatial_analysis
+#' @autoglobal
 #' @export
 select_spatial_predictors_sequential <- function(
   data = NULL,

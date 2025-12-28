@@ -60,6 +60,7 @@
 #' @rdname moran_multithreshold
 #' @family spatial_analysis
 #' @export
+#' @autoglobal
 moran_multithreshold <- function(
   x = NULL,
   distance.matrix = NULL,

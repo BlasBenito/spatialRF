@@ -19,6 +19,7 @@
 #' @rdname get_moran
 #' @family model_info
 #' @export
+#' @autoglobal
 get_moran <- function(model) {
   model$residuals$autocorrelation$per.distance
 }

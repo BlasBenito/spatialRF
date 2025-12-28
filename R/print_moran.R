@@ -16,6 +16,7 @@
 #' @rdname print_moran
 #' @family model_info
 #' @export
+#' @autoglobal
 print_moran <- function(model) {
   #if model is not a data frame
   if (
@@ -62,7 +63,7 @@ print_moran <- function(model) {
 
   #print to screen
   # Capture output
-  output <- capture.output(print(x, row.names = FALSE, right = FALSE))
+  output <- utils::capture.output(print(x, row.names = FALSE, right = FALSE))
 
   # Add indentation (e.g., 2 spaces) to each line
   cat(paste0("   ", output, collapse = "\n"), "\n")

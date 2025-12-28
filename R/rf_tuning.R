@@ -34,10 +34,10 @@
 #'   plot_tuning(plants_rf_tuned)
 #' }
 #'
-#' @importFrom rlang sym
 #' @rdname rf_tuning
 #' @family model_workflow
 #' @export
+#' @autoglobal
 rf_tuning <- function(
   model = NULL,
   num.trees = NULL,
@@ -51,12 +51,6 @@ rf_tuning <- function(
   n.cores = parallel::detectCores() - 1,
   cluster = NULL
 ) {
-  #declaring variables
-  metric <- NULL
-  num.trees.i <- NULL
-  mtry.i <- NULL
-  min.node.size.i <- NULL
-
   if (is.null(model)) {
     stop("The argument 'model' is empty, there is no model to tune.")
   }

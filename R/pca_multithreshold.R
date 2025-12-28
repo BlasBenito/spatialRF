@@ -55,6 +55,7 @@
 #' @rdname pca_multithreshold
 #' @family spatial_analysis
 #' @export
+#' @autoglobal
 pca_multithreshold <- function(
   distance.matrix = NULL,
   distance.thresholds = NULL,

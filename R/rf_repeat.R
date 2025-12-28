@@ -52,9 +52,9 @@
 #'
 #' }
 #'
-#' @importFrom tidyselect all_of
 #' @rdname rf_repeat
 #' @family model_workflow
+#' @autoglobal
 #' @export
 rf_repeat <- function(
   model = NULL,
@@ -73,12 +73,6 @@ rf_repeat <- function(
   n.cores = parallel::detectCores() - 1,
   cluster = NULL
 ) {
-  #declaring some variables
-  variable <- NULL
-  importance <- NULL
-  distance.threshold <- NULL
-  moran.i <- NULL
-
   #checking repetitions
   if (!is.integer(repetitions)) {
     repetitions <- floor(repetitions)
@@ -145,7 +139,6 @@ rf_repeat <- function(
   }
 
   #parallelized loop
-  i <- NULL
   repeated.models <- foreach::foreach(
     i = 1:repetitions,
     .verbose = FALSE
@@ -308,13 +301,21 @@ rf_repeat <- function(
     if (inherits(model, "rf_spatial")) {
       #spatial predictors only
       spatial.predictors <- importance.per.repetition[
-        grepl("spatial_predictor", importance.per.repetition$variable, fixed = TRUE),
+        grepl(
+          "spatial_predictor",
+          importance.per.repetition$variable,
+          fixed = TRUE
+        ),
       ]
       spatial.predictors$variable <- "spatial_predictors"
 
       #non-spatial predictors
       non.spatial.predictors <- importance.per.repetition[
-        !grepl("spatial_predictor", importance.per.repetition$variable, fixed = TRUE),
+        !grepl(
+          "spatial_predictor",
+          importance.per.repetition$variable,
+          fixed = TRUE
+        ),
       ]
 
       #spatial.predictors
@@ -343,8 +344,8 @@ rf_repeat <- function(
           max(spatial.predictors$importance),
           min(spatial.predictors$importance),
           median(spatial.predictors$importance),
-          quantile(spatial.predictors$importance, probs = 0.25),
-          quantile(spatial.predictors$importance, probs = 0.75)
+          stats::quantile(spatial.predictors$importance, probs = 0.25),
+          stats::quantile(spatial.predictors$importance, probs = 0.75)
         )
       )
 

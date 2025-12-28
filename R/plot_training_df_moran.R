@@ -28,6 +28,7 @@
 #' @rdname plot_training_df_moran
 #' @family visualization
 #' @export
+#' @autoglobal
 plot_training_df_moran <- function(
   data = NULL,
   dependent.variable.name = NULL,
@@ -41,11 +42,6 @@ plot_training_df_moran <- function(
   ),
   point.color = "gray30"
 ) {
-  #declaring variables to avoid check complaints
-  distance.threshold <- NULL
-  p.value.binary <- NULL
-  moran.i <- NULL
-
   if (
     is.null(data) ||
       is.null(dependent.variable.name) ||

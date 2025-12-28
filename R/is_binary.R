@@ -35,6 +35,7 @@
 #' @rdname is_binary
 #' @family preprocessing
 #' @export
+#' @autoglobal
 is_binary <- function(
   data = NULL,
   dependent.variable.name = NULL

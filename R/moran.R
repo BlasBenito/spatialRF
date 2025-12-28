@@ -55,8 +55,8 @@
 #'
 #' @rdname moran
 #' @family spatial_analysis
-#' @importFrom stats pnorm sd
 #' @export
+#' @autoglobal
 moran <- function(
   x = NULL,
   distance.matrix = NULL,
@@ -134,7 +134,7 @@ moran <- function(
   )
 
   #p.value
-  p.value <- pnorm(
+  p.value <- stats::pnorm(
     moran.i.observed,
     mean = moran.i.expected,
     sd = expected.standard.deviation

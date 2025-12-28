@@ -38,6 +38,7 @@
 #' @rdname plot_tuning
 #' @family visualization
 #' @export
+#' @autoglobal
 plot_tuning <- function(
   model,
   point.color = viridis::viridis(
@@ -46,10 +47,6 @@ plot_tuning <- function(
   ),
   verbose = TRUE
 ) {
-  #declaring variables
-  metric <- NULL
-  value <- NULL
-
   if (!("tuning" %in% names(model))) {
     stop("Object 'x' does not have a 'tuning' slot.")
   }

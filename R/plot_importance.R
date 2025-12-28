@@ -58,7 +58,7 @@
 #' @rdname plot_importance
 #' @family visualization
 #' @export
-#' @importFrom ggplot2 ggplot aes geom_point scale_fill_viridis_c ylab xlab theme geom_boxplot scale_fill_viridis_d
+#' @autoglobal
 plot_importance <- function(
   model,
   fill.color = viridis::viridis(
@@ -71,11 +71,6 @@ plot_importance <- function(
   line.color = "white",
   verbose = TRUE
 ) {
-  #declaring variables
-  importance <- NULL
-  variable <- NULL
-  importance.oob <- NULL
-
   #if x is not a data frame
   if (!is.data.frame(model)) {
     #importance from rf
@@ -116,7 +111,7 @@ plot_importance <- function(
     p <- ggplot2::ggplot(data = x) +
       ggplot2::aes(
         x = importance,
-        y = reorder(
+        y = stats::reorder(
           variable,
           importance,
           FUN = max
@@ -154,12 +149,12 @@ plot_importance <- function(
       p <- ggplot2::ggplot(data = x) +
         ggplot2::aes(
           x = importance,
-          y = reorder(
+          y = stats::reorder(
             variable,
             importance,
             FUN = stats::median
           ),
-          fill = reorder(
+          fill = stats::reorder(
             variable,
             importance,
             FUN = stats::median
@@ -189,7 +184,7 @@ plot_importance <- function(
         p <- ggplot2::ggplot(data = x) +
           ggplot2::aes(
             x = importance,
-            y = reorder(
+            y = stats::reorder(
               variable,
               importance,
               FUN = max
@@ -227,12 +222,12 @@ plot_importance <- function(
         p <- ggplot2::ggplot(data = x) +
           ggplot2::aes(
             x = importance,
-            y = reorder(
+            y = stats::reorder(
               variable,
               importance,
               FUN = stats::median
             ),
-            fill = reorder(
+            fill = stats::reorder(
               variable,
               importance,
               FUN = stats::median

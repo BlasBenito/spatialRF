@@ -9,6 +9,7 @@
 #'
 #' @rdname standard_error
 #' @family utilities
+#' @autoglobal
 #' @export
 standard_error <- function(x) {
   x <- na.omit(x)

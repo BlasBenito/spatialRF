@@ -32,7 +32,7 @@
 #' @rdname plot_moran
 #' @family visualization
 #' @export
-#' @importFrom ggplot2 ggplot aes geom_hline geom_point geom_line xlab ylab ggtitle theme labs scale_colour_manual
+#' @autoglobal
 plot_moran <- function(
   model = NULL,
   point.color = viridis::viridis(
@@ -55,13 +55,6 @@ plot_moran <- function(
 
   #option 1
   if (option == 1) {
-    #declaring variables
-    distance.threshold <- NULL
-    moran.i <- NULL
-    moran.i.null <- NULL
-    p.value.binary <- NULL
-    repetition <- NULL
-
     if (!inherits(model, "data.frame")) {
       #importance from rf_repeat
       if (inherits(model, "rf_repeat")) {
@@ -118,7 +111,7 @@ plot_moran <- function(
         ggplot2::theme_bw() +
         ggplot2::theme(legend.position = "bottom") +
         ggplot2::labs(size = "Moran's I p-value") +
-        ggplot2::theme(plot.title = element_text(hjust = 0.5)) +
+        ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) +
         ggplot2::guides(fill = "none")
     } else {
       p1 <- ggplot2::ggplot(data = x) +
@@ -163,7 +156,7 @@ plot_moran <- function(
         ggplot2::theme_bw() +
         ggplot2::theme(legend.position = "bottom") +
         ggplot2::labs(size = "Moran's I p-value") +
-        ggplot2::theme(plot.title = element_text(hjust = 0.5)) +
+        ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) +
         ggplot2::guides(fill = "none")
     }
 
@@ -284,7 +277,7 @@ plot_moran <- function(
       ggplot2::ylab("Lagged residuals") +
       ggplot2::theme(legend.position = "none") +
       ggplot2::ggtitle("Moran plots") +
-      ggplot2::theme(plot.title = element_text(hjust = 0.5))
+      ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
 
     if (verbose) {
       suppressWarnings(print(p2))

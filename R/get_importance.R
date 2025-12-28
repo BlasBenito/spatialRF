@@ -18,10 +18,8 @@
 #' @rdname get_importance
 #' @family model_info
 #' @export
+#' @autoglobal
 get_importance <- function(model) {
-  #declaring variables
-  importance <- NULL
-
   #importance from rf
   if (
     (inherits(model, "rf") && !inherits(model, "rf_spatial")) ||

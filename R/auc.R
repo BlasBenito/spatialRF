@@ -13,6 +13,7 @@
 #' @rdname auc
 #' @family utilities
 #' @export
+#' @autoglobal
 auc <- function(o, p) {
   #predicted values of the ones and the zeroes
   ones <- stats::na.omit(p[o == 1])

@@ -28,6 +28,7 @@
 #' @rdname double_center_distance_matrix
 #' @family preprocessing
 #' @export
+#' @autoglobal
 double_center_distance_matrix <- function(
   distance.matrix = NULL,
   distance.threshold = 0

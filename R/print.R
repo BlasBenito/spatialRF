@@ -16,6 +16,7 @@
 #' @rdname print
 #' @family model_info
 #' @export
+#' @autoglobal
 print.rf <- function(x, ...) {
   #getting model features
 

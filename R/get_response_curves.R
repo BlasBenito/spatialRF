@@ -47,6 +47,7 @@
 #' @rdname get_response_curves
 #' @family model_info
 #' @export
+#' @autoglobal
 get_response_curves <- function(
   model = NULL,
   variables = NULL,
@@ -129,7 +130,7 @@ get_response_curves <- function(
 
       #iterating through variables
       for (variable.j in other.variables) {
-        variable.i.grid.copy[, variable.j] <- quantile(
+        variable.i.grid.copy[, variable.j] <- stats::quantile(
           data[, variable.j],
           quantile.i
         )
@@ -177,7 +178,7 @@ get_response_curves <- function(
       model.i <- models.list[[i]]
 
       #predict
-      variable.i.list[[i]][, response.variable] <- predict(
+      variable.i.list[[i]][, response.variable] <- stats::predict(
         object = model.i,
         data = variable.i.list[[i]]
       )$predictions

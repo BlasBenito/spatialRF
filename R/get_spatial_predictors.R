@@ -21,6 +21,7 @@
 #' @rdname get_spatial_predictors
 #' @family model_info
 #' @export
+#' @autoglobal
 get_spatial_predictors <- function(model) {
   if (!inherits(model, "rf_spatial")) {
     stop("This function only works on models fitted with 'rf_spatial'")

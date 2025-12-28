@@ -5,17 +5,11 @@
 \title{Prints results of a Moran's I test}
 \usage{
 print_moran(
-  model,
-  caption = NULL,
-  verbose = TRUE
+  model
 )
 }
 \arguments{
 \item{model}{A model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}.}
-
-\item{caption}{Character, caption of the output table, Default: \code{NULL}}
-
-\item{verbose}{Logical, if \code{TRUE}, the resulting table is printed into the console, Default: \code{TRUE}}
 }
 \value{
 Prints a table to the console.

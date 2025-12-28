@@ -38,9 +38,6 @@ y
 
 }
 \seealso{
-\code{\link[ggplot2]{ggplot}},\code{\link[ggplot2]{aes}},\code{\link[ggplot2]{geom_qq_line}},\code{\link[ggplot2]{ggtheme}},\code{\link[ggplot2]{labs}},\code{\link[ggplot2]{geom_freqpoly}},\code{\link[ggplot2]{geom_abline}}
-\code{\link[patchwork]{plot_annotation}}
-
 Other spatial_analysis: 
 \code{\link{filter_spatial_predictors}()},
 \code{\link{mem}()},

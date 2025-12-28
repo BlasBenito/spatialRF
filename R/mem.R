@@ -35,6 +35,7 @@
 #' @rdname mem
 #' @family spatial_analysis
 #' @export
+#' @autoglobal
 mem <- function(
   distance.matrix = NULL,
   distance.threshold = 0,

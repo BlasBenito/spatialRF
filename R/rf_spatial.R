@@ -104,6 +104,7 @@
 #'
 #' @rdname rf_spatial
 #' @family main_models
+#' @autoglobal
 #' @export
 rf_spatial <- function(
   model = NULL,
@@ -135,11 +136,6 @@ rf_spatial <- function(
   n.cores = parallel::detectCores() - 1,
   cluster = NULL
 ) {
-  #declaring variables
-  moran.i <- NULL
-  variable <- NULL
-  interpretation <- NULL
-
   #testing method argument
   method <- match.arg(
     arg = method,

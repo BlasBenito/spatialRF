@@ -22,6 +22,7 @@
 #' @rdname get_performance
 #' @family model_info
 #' @export
+#' @autoglobal
 get_performance <- function(model) {
   if (inherits(model, "rf_repeat")) {
     x.median <- sapply(model$performance, FUN = median)

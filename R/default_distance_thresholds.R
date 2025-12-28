@@ -18,6 +18,7 @@
 #' @rdname default_distance_thresholds
 #' @family preprocessing
 #' @export
+#' @autoglobal
 default_distance_thresholds <- function(
   distance.matrix = NULL
 ) {

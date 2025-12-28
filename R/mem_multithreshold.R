@@ -48,6 +48,7 @@
 #' @rdname mem_multithreshold
 #' @family spatial_analysis
 #' @export
+#' @autoglobal
 mem_multithreshold <- function(
   distance.matrix = NULL,
   distance.thresholds = NULL,

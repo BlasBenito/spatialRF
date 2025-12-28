@@ -15,19 +15,15 @@
 #' @rdname normality
 #' @family spatial_analysis
 #' @export
-#' @importFrom stats shapiro.test IQR
+#' @autoglobal
 residuals_test <- function(
   residuals
 ) {
-  #declaring varialbes
-  Predicted <- NULL
-  Residuals <- NULL
-
   #list to store results
   y <- list()
 
   #normality of x
-  shapiro.out <- shapiro.test(residuals)
+  shapiro.out <- stats::shapiro.test(residuals)
 
   #writing results to list
   names(shapiro.out$statistic) <- NULL

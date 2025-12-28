@@ -81,15 +81,11 @@
 #'   ranger.arguments = args,
 #'   verbose = FALSE
 #' )
-#'
+#' @importFrom ranger ranger
 #' @rdname rf
 #' @family main_models
 #' @export
-#' @importFrom ranger ranger
-#' @importFrom parallel detectCores
-#' @importFrom tibble remove_rownames
-#' @importFrom dplyr arrange
-#' @importFrom stats formula reorder
+#' @autoglobal
 #' @importFrom rlang .data
 rf <- function(
   data = NULL,
@@ -403,7 +399,7 @@ rf <- function(
   }
 
   #computing predictions
-  predicted <- predict(
+  predicted <- stats::predict(
     object = m,
     data = data,
     type = "response"
@@ -421,9 +417,9 @@ rf <- function(
 
   m$performance$r.squared.oob <- m$r.squared
 
-  m$performance$r.squared <- cor(observed, predicted)^2
+  m$performance$r.squared <- stats::cor(observed, predicted)^2
 
-  m$performance$pseudo.r.squared <- cor(
+  m$performance$pseudo.r.squared <- stats::cor(
     observed,
     predicted
   )
