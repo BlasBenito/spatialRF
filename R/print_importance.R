@@ -55,7 +55,7 @@ print_importance <- function(model, verbose = TRUE) {
   }
 
   #arranging
-  x <- dplyr::arrange(x, dplyr::desc(importance))
+  x <- x[order(x$importance, decreasing = TRUE), ]
 
   #pretty colnames
   colnames(x) <- c("Predictor", "Importance")

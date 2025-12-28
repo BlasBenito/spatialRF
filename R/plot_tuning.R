@@ -61,13 +61,20 @@ plot_tuning <- function(
   colnames(tuning)[colnames(tuning) == metric.name] <- "metric"
 
   #to long format
-  tuning.long <- tidyr::pivot_longer(
+  param_cols <- colnames(tuning)[1:3]
+  tuning.long <- stats::reshape(
     tuning,
-    cols = 1:3,
-    names_to = "parameter",
-    values_to = "value"
-  ) |>
-    as.data.frame()
+    varying = param_cols,
+    v.names = "value",
+    timevar = "parameter",
+    times = param_cols,
+    direction = "long",
+    idvar = "row_id",
+    ids = seq_len(nrow(tuning))
+  )
+  tuning.long$id <- NULL
+  tuning.long$row_id <- NULL
+  rownames(tuning.long) <- NULL
 
   #choose smoothing method based on grid size
   #loess needs sufficient data points; use lm for small grids

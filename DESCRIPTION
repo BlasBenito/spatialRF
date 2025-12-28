@@ -14,16 +14,12 @@ License: MIT + file LICENSE
 Depends: 
     R (>= 4.1.0)
 Imports:
-    dplyr,
     ggplot2,
     stats,
-    tibble,
     utils,
     foreach,
     doParallel,
     ranger,
-    rlang,
-    tidyr,
     patchwork (>= 1.3.2),
     viridis
 Suggests: 

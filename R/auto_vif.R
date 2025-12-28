@@ -159,14 +159,16 @@ auto_vif <- function(
 #' @autoglobal
 .vif_to_df <- function(x) {
   #turns vif output into tidy df
-  df <-
-    data.frame(
-      diag(solve(stats::cor(x))),
-      stringsAsFactors = FALSE
-    ) |>
-    dplyr::rename(vif = 1) |>
-    tibble::rownames_to_column(var = "variable") |>
-    dplyr::arrange(dplyr::desc(vif))
+  vif_values <- diag(solve(stats::cor(x)))
+
+  df <- data.frame(
+    variable = names(vif_values),
+    vif = vif_values,
+    stringsAsFactors = FALSE
+  )
+  rownames(df) <- NULL
+
+  df <- df[order(df$vif, decreasing = TRUE), ]
 
   df
 }

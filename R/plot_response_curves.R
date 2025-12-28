@@ -208,22 +208,24 @@ plot_response_curves <- function(
       several.models <- TRUE
 
       #computing the median of each curve
-      variable.i.df.median <- variable.i.df |>
-        dplyr::group_by(quantile, id) |>
-        dplyr::summarise_at(
-          .vars = response.variable,
-          .funs = median
-        )
+      agg_formula <- stats::as.formula(paste(response.variable, "~ quantile + id"))
+      variable.i.df.median <- stats::aggregate(
+        agg_formula,
+        data = variable.i.df,
+        FUN = median
+      )
 
       #remove response variable from variable.i.df
       variable.i.df.copy <- variable.i.df
       variable.i.df.copy[, response.variable] <- NULL
+      variable.i.df.copy <- unique(variable.i.df.copy)
 
       #join median with distinct by id
-      variable.i.df.median <- dplyr::left_join(
+      variable.i.df.median <- merge(
         variable.i.df.median,
         variable.i.df.copy,
-        by = c("id", "quantile")
+        by = c("id", "quantile"),
+        all.x = TRUE
       )
     } else {
       several.models <- FALSE
@@ -236,8 +238,8 @@ plot_response_curves <- function(
         ggplot2::geom_point(
           data = data,
           ggplot2::aes(
-            x = !!rlang::sym(local_variable),
-            y = !!rlang::sym(local_response)
+            x = .data[[local_variable]],
+            y = .data[[local_response]]
           ),
           shape = 16,
           alpha = 0.15
@@ -245,8 +247,8 @@ plot_response_curves <- function(
         ggplot2::geom_path(
           data = variable.i.df,
           ggplot2::aes(
-            x = !!rlang::sym(local_variable),
-            y = !!rlang::sym(local_response),
+            x = .data[[local_variable]],
+            y = .data[[local_response]],
             group = interaction(model, quantile),
             color = quantile
           ),
@@ -256,8 +258,8 @@ plot_response_curves <- function(
         ggplot2::geom_path(
           data = variable.i.df.median,
           ggplot2::aes(
-            x = !!rlang::sym(local_variable),
-            y = !!rlang::sym(local_response),
+            x = .data[[local_variable]],
+            y = .data[[local_response]],
             group = quantile,
             color = quantile
           ),
@@ -276,8 +278,8 @@ plot_response_curves <- function(
         ggplot2::geom_path(
           data = variable.i.df,
           ggplot2::aes(
-            x = !!rlang::sym(local_variable),
-            y = !!rlang::sym(local_response),
+            x = .data[[local_variable]],
+            y = .data[[local_response]],
             group = interaction(model, quantile),
             color = quantile
           ),
@@ -287,8 +289,8 @@ plot_response_curves <- function(
         ggplot2::geom_path(
           data = variable.i.df.median,
           ggplot2::aes(
-            x = !!rlang::sym(local_variable),
-            y = !!rlang::sym(local_response),
+            x = .data[[local_variable]],
+            y = .data[[local_response]],
             group = quantile,
             color = quantile
           ),

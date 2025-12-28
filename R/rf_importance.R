@@ -101,14 +101,9 @@ rf_importance <- function(
   )
 
   #getting the evaluation.df
-  evaluation.df <- model$evaluation$per.fold |>
-    dplyr::select(
-      fold.id,
-      dplyr::contains("testing.")
-    ) |>
-    dplyr::select(
-      -testing.records
-    )
+  testing_cols <- grep("testing.", colnames(model$evaluation$per.fold), fixed = TRUE, value = TRUE)
+  evaluation.df <- model$evaluation$per.fold[, c("fold.id", testing_cols), drop = FALSE]
+  evaluation.df <- evaluation.df[, colnames(evaluation.df) != "testing.records", drop = FALSE]
   colnames(evaluation.df)[2] <- "with"
 
   #getting training data
@@ -187,25 +182,30 @@ rf_importance <- function(
       )
 
     #getting evaluation data frame
-    evaluation.list[[predictor.i]] <- model.i$evaluation$per.fold |>
-      dplyr::select(
-        -testing.records
-      ) |>
-      dplyr::rename(
-        `without` = dplyr::contains("testing.")
-      ) |>
-      dplyr::left_join(
-        y = evaluation.df,
-        by = "fold.id"
-      ) |>
-      dplyr::mutate(
-        variable = predictor.i,
-        .before = fold.id
-      ) |>
-      dplyr::select(
-        -dplyr::contains("training.")
-      ) |>
-      as.data.frame()
+    eval_df_i <- model.i$evaluation$per.fold[
+      , colnames(model.i$evaluation$per.fold) != "testing.records", drop = FALSE
+    ]
+
+    testing_col <- grep("testing.", colnames(eval_df_i), fixed = TRUE, value = TRUE)
+    colnames(eval_df_i)[colnames(eval_df_i) == testing_col] <- "without"
+
+    eval_df_i <- merge(
+      eval_df_i,
+      evaluation.df,
+      by = "fold.id",
+      all.x = TRUE
+    )
+
+    eval_df_i <- cbind(
+      variable = predictor.i,
+      eval_df_i,
+      stringsAsFactors = FALSE
+    )
+
+    training_cols <- grep("training.", colnames(eval_df_i), fixed = TRUE, value = TRUE)
+    eval_df_i <- eval_df_i[, !colnames(eval_df_i) %in% training_cols, drop = FALSE]
+
+    evaluation.list[[predictor.i]] <- eval_df_i
   }
 
   #putting together the evaluation data frames
@@ -216,33 +216,37 @@ rf_importance <- function(
   rownames(importance.per.repetition) <- NULL
 
   #summary of differences
-  importance.per.variable <- importance.per.repetition |>
-    dplyr::group_by(variable) |>
-    dplyr::mutate(
-      importance.mad = stats::mad(with - without) |> round(3),
-      importance.percent.mad = stats::mad(
-        (with * 100 / with[1]) - (without * 100 / with[1])
-      ) |>
-        round(1),
-      without = median(without),
-      with = median(with),
-      importance = with - without,
-      importance.percent = (importance * 100 / with[1]) |> round(1)
-    ) |>
-    dplyr::slice(1) |>
-    dplyr::arrange(
-      dplyr::desc(importance)
-    ) |>
-    dplyr::transmute(
-      variable,
-      with,
-      without,
-      importance,
-      importance.mad,
-      importance.percent,
-      importance.percent.mad
-    ) |>
-    as.data.frame()
+  importance.per.variable <- do.call(rbind, lapply(
+    split(importance.per.repetition, importance.per.repetition$variable),
+    function(grp) {
+      with_median <- median(grp$with)
+      without_median <- median(grp$without)
+      importance_val <- with_median - without_median
+
+      data.frame(
+        variable = grp$variable[1],
+        with = with_median,
+        without = without_median,
+        importance = importance_val,
+        importance.mad = round(stats::mad(grp$with - grp$without), 3),
+        importance.percent = round(importance_val * 100 / with_median, 1),
+        importance.percent.mad = round(stats::mad(
+          (grp$with * 100 / grp$with[1]) - (grp$without * 100 / grp$with[1])
+        ), 1),
+        stringsAsFactors = FALSE
+      )
+    }
+  ))
+  rownames(importance.per.variable) <- NULL
+
+  importance.per.variable <- importance.per.variable[
+    order(importance.per.variable$importance, decreasing = TRUE),
+  ]
+
+  importance.per.variable <- importance.per.variable[, c(
+    "variable", "with", "without", "importance",
+    "importance.mad", "importance.percent", "importance.percent.mad"
+  )]
 
   #pretty metric name
   if (metric == "r.squared") {
@@ -322,22 +326,22 @@ rf_importance <- function(
     model$importance$per.variable$importance.oob <- NULL
   }
 
-  model$importance$per.variable <- dplyr::left_join(
-    x = model$importance$per.variable,
-    y = importance.per.variable,
-    by = "variable"
-  ) |>
-    dplyr::rename(
-      importance.oob = importance.x,
-      importance.cv = importance.y,
-      importance.cv.mad = importance.mad,
-      importance.cv.percent = importance.percent,
-      importance.cv.percent.mad = importance.percent.mad
-    ) |>
-    dplyr::select(
-      -with,
-      -without
-    )
+  model$importance$per.variable <- merge(
+    model$importance$per.variable,
+    importance.per.variable,
+    by = "variable",
+    all.x = TRUE
+  )
+
+  colnames(model$importance$per.variable)[colnames(model$importance$per.variable) == "importance.x"] <- "importance.oob"
+  colnames(model$importance$per.variable)[colnames(model$importance$per.variable) == "importance.y"] <- "importance.cv"
+  colnames(model$importance$per.variable)[colnames(model$importance$per.variable) == "importance.mad"] <- "importance.cv.mad"
+  colnames(model$importance$per.variable)[colnames(model$importance$per.variable) == "importance.percent"] <- "importance.cv.percent"
+  colnames(model$importance$per.variable)[colnames(model$importance$per.variable) == "importance.percent.mad"] <- "importance.cv.percent.mad"
+
+  model$importance$per.variable <- model$importance$per.variable[
+    , !colnames(model$importance$per.variable) %in% c("with", "without"), drop = FALSE
+  ]
 
   #changing names
   model$importance$oob.per.variable.plot <- model$importance$per.variable.plot

@@ -137,9 +137,9 @@ plot_response_surface <- function(
     ) +
       ggplot2::geom_tile(
         ggplot2::aes(
-          x = !!rlang::sym(a),
-          y = !!rlang::sym(b),
-          fill = !!rlang::sym(response.variable)
+          x = .data[[a]],
+          y = .data[[b]],
+          fill = .data[[response.variable]]
         )
       ) +
       ggplot2::scale_fill_gradientn(colors = fill.color) +
@@ -147,9 +147,9 @@ plot_response_surface <- function(
       ggplot2::geom_point(
         data = data,
         ggplot2::aes(
-          x = !!rlang::sym(a),
-          y = !!rlang::sym(b),
-          size = !!rlang::sym(response.variable)
+          x = .data[[a]],
+          y = .data[[b]],
+          size = .data[[response.variable]]
         ),
         shape = 21,
         alpha = point.alpha,

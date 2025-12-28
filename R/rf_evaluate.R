@@ -329,18 +329,14 @@ rf_evaluate <- function(
 
   #preparing data frames for plotting and printing
   #select columns with "training"
-  performance.training <- dplyr::select(
-    evaluation.df,
-    dplyr::contains("training")
-  )
+  training_cols <- grep("training", colnames(evaluation.df), fixed = TRUE, value = TRUE)
+  performance.training <- evaluation.df[, training_cols, drop = FALSE]
   performance.training[, 1] <- NULL
   performance.training$model <- "Training"
 
   #select columns with "testing"
-  performance.testing <- dplyr::select(
-    evaluation.df,
-    dplyr::contains("testing")
-  )
+  testing_cols <- grep("testing", colnames(evaluation.df), fixed = TRUE, value = TRUE)
+  performance.testing <- evaluation.df[, testing_cols, drop = FALSE]
   performance.testing[, 1] <- NULL
   performance.testing$model <- "Testing"
 
@@ -395,30 +391,42 @@ rf_evaluate <- function(
   )
 
   #to long format
-  performance.df.long <- performance.df |>
-    tidyr::pivot_longer(
-      cols = seq(1, length(metrics)),
-      names_to = "metric",
-      values_to = "value"
-    ) |>
-    as.data.frame()
+  metric_cols <- colnames(performance.df)[1:length(metrics)]
+  performance.df.long <- stats::reshape(
+    performance.df,
+    varying = metric_cols,
+    v.names = "value",
+    timevar = "metric",
+    times = metric_cols,
+    direction = "long",
+    idvar = "row_id",
+    ids = seq_len(nrow(performance.df))
+  )
+  performance.df.long$id <- NULL
+  performance.df.long$row_id <- NULL
+  rownames(performance.df.long) <- NULL
 
   #aggregating
-  performande.df.aggregated <- performance.df.long |>
-    dplyr::group_by(model, metric) |>
-    dplyr::summarise(
-      median = median(value),
-      median_absolute_deviation = stats::mad(value),
-      q1 = stats::quantile(value, 0.25, na.rm = TRUE),
-      q3 = stats::quantile(value, 0.75, na.rm = TRUE),
-      mean = mean(value),
-      se = standard_error(value),
-      sd = stats::sd(value),
-      min = min(value),
-      max = max(value)
-    ) |>
-    dplyr::ungroup() |>
-    as.data.frame()
+  performande.df.aggregated <- do.call(rbind, lapply(
+    split(performance.df.long, list(performance.df.long$model, performance.df.long$metric)),
+    function(grp) {
+      data.frame(
+        model = grp$model[1],
+        metric = grp$metric[1],
+        median = median(grp$value),
+        median_absolute_deviation = stats::mad(grp$value),
+        q1 = stats::quantile(grp$value, 0.25, na.rm = TRUE),
+        q3 = stats::quantile(grp$value, 0.75, na.rm = TRUE),
+        mean = mean(grp$value),
+        se = standard_error(grp$value),
+        sd = stats::sd(grp$value),
+        min = min(grp$value),
+        max = max(grp$value),
+        stringsAsFactors = FALSE
+      )
+    }
+  ))
+  rownames(performande.df.aggregated) <- NULL
 
   #stats to NA if "Full" only once in performance.df
   if (sum("Full" %in% performance.df$model) == 1) {

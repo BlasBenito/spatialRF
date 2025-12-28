@@ -60,7 +60,7 @@ get_importance <- function(model) {
   }
 
   #arranging
-  x <- dplyr::arrange(x, dplyr::desc(importance))
+  x <- x[order(x$importance, decreasing = TRUE), ]
 
   #return importance
   x

@@ -257,8 +257,8 @@ rf_tuning <- function(
   tuning <- cbind(
     combinations,
     tuning
-  ) |>
-    dplyr::arrange(dplyr::desc(!!rlang::sym(metric)))
+  )
+  tuning <- tuning[order(tuning[[metric]], decreasing = TRUE), ]
 
   #getting metric name
   metric.name <- colnames(tuning)[
@@ -274,10 +274,9 @@ rf_tuning <- function(
   #subset if rf_spatial
   if (inherits(model, "rf_spatial")) {
     #remove results yielding
-    tuning <- dplyr::filter(
-      tuning,
-      moran.i.interpretation == "No spatial correlation"
-    )
+    tuning <- tuning[
+      tuning$moran.i.interpretation == "No spatial correlation",
+    ]
 
     #stop if all results increase spatial autocorrelation of the residuals
     if (nrow(tuning) == 0) {

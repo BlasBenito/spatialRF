@@ -235,9 +235,13 @@ rf_spatial <- function(
   }
 
   #extracting autocorrelation of the residuals
-  model.moran.i <- model$residuals$autocorrelation$per.distance |>
-    dplyr::arrange(dplyr::desc(moran.i)) |>
-    dplyr::filter(interpretation == "Positive spatial correlation")
+  model.moran.i <- model$residuals$autocorrelation$per.distance
+  model.moran.i <- model.moran.i[
+    order(model.moran.i$moran.i, decreasing = TRUE),
+  ]
+  model.moran.i <- model.moran.i[
+    model.moran.i$interpretation == "Positive spatial correlation",
+  ]
 
   #if residuals are not autocorrelated, return original model
   if (nrow(model.moran.i) == 0) {

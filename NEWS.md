@@ -2,6 +2,14 @@
 
 - Replaced the `magrittr` pipe with the base one.
 
+- Removed `dplyr`, `tidyr`, `tibble`, and `rlang` dependencies, replacing all tidyverse operations with base R equivalents. Replaced `!!rlang::sym()` with ggplot2's native `.data[[]]` pronoun in plotting functions.
+
+- Removed `huxtable` from print functions to reduce dependency footprint.
+
+- Replaced `@importFrom package function` with `package::function()` calls throughout the package. Right now the only @importFrom are `foreach %dopar%` (to be removed when `future` comes), `ggplot2 .data`, `patchwork plot_annotation wrap_plots` (required to make patchwork's `|` and `/` work), `ranger ranger` (required for `stats::predict()`), and `foreach %do%`
+
+Add package `roxyglobals` and its `@autoglobal` tag across all functions, and remove declarations of global variables (example: `x <- NULL`).
+
 ## Version 1.1.5
 
 - Fixed Windows-specific error in `get_response_curves()`, `plot_response_curves()`, `rf_evaluate()`, and `rf()` where `predict()` method dispatch failed to find `predict.ranger()`. Added `@importFrom ranger ranger` to ensure ranger's namespace is loaded and S3 methods are properly registered.

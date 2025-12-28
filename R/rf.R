@@ -370,12 +370,18 @@ rf <- function(
 
     m$importance$per.variable <- data.frame(
       variable = names(variable.importance.global),
-      importance = variable.importance.global
-    ) |>
-      tibble::remove_rownames() |>
-      dplyr::arrange(dplyr::desc(importance)) |>
-      dplyr::mutate(importance = round(importance, 3)) |>
-      as.data.frame()
+      importance = variable.importance.global,
+      stringsAsFactors = FALSE
+    )
+    rownames(m$importance$per.variable) <- NULL
+
+    m$importance$per.variable <- m$importance$per.variable[
+      order(m$importance$per.variable$importance, decreasing = TRUE),
+    ]
+
+    m$importance$per.variable$importance <- round(
+      m$importance$per.variable$importance, 3
+    )
 
     m$importance$per.variable.plot <- plot_importance(
       m$importance$per.variable,

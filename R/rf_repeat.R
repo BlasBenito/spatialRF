@@ -277,11 +277,14 @@ rf_repeat <- function(
   )
 
   #median variable importance across repetitions
-  importance.per.variable <- importance.per.repetition |>
-    dplyr::group_by(variable) |>
-    dplyr::summarise(importance = median(importance)) |>
-    dplyr::arrange(dplyr::desc(importance)) |>
-    as.data.frame()
+  importance.per.variable <- stats::aggregate(
+    importance ~ variable,
+    data = importance.per.repetition,
+    FUN = median
+  )
+  importance.per.variable <- importance.per.variable[
+    order(importance.per.variable$importance, decreasing = TRUE),
+  ]
 
   #saving importance info
   m$importance <- list()
@@ -349,12 +352,11 @@ rf_repeat <- function(
         )
       )
 
-      non.spatial.predictors.stats <- non.spatial.predictors |>
-        dplyr::group_by(variable) |>
-        dplyr::summarise(
-          importance = median(importance)
-        ) |>
-        as.data.frame()
+      non.spatial.predictors.stats <- stats::aggregate(
+        importance ~ variable,
+        data = non.spatial.predictors,
+        FUN = median
+      )
 
       m$importance$spatial.predictors.stats <- rbind(
         spatial.predictors.stats,
@@ -513,8 +515,10 @@ rf_repeat <- function(
         "[[",
         1
       )
-    ) |>
-      dplyr::arrange(distance.threshold)
+    )
+    moran.repetitions <- moran.repetitions[
+      order(moran.repetitions$distance.threshold),
+    ]
     moran.repetitions$repetition <- rep(
       1:repetitions,
       length(unique(moran.repetitions$distance.threshold))
@@ -522,14 +526,19 @@ rf_repeat <- function(
 
     p.value <- NULL
     interpretation <- NULL
-    moran.median <- moran.repetitions |>
-      dplyr::group_by(distance.threshold) |>
-      dplyr::summarise(
-        moran.i = median(moran.i),
-        p.value = median(p.value),
-        interpretation = statistical_mode(interpretation)
-      ) |>
-      as.data.frame()
+    moran.median <- do.call(rbind, lapply(
+      split(moran.repetitions, moran.repetitions$distance.threshold),
+      function(grp) {
+        data.frame(
+          distance.threshold = grp$distance.threshold[1],
+          moran.i = median(grp$moran.i),
+          p.value = median(grp$p.value),
+          interpretation = statistical_mode(grp$interpretation),
+          stringsAsFactors = FALSE
+        )
+      }
+    ))
+    rownames(moran.median) <- NULL
 
     m$residuals$autocorrelation$per.distance <- moran.median
     m$residuals$autocorrelation$per.repetition <- moran.repetitions

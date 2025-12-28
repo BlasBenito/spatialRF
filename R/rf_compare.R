@@ -134,19 +134,13 @@ rf_compare <- function(
   rownames(evaluation.df) <- NULL
 
   #remove non testing models
-  evaluation.df <- dplyr::filter(
-    evaluation.df,
-    model == "Testing"
-  ) |>
-    dplyr::select(
-      metric,
-      value,
-      model.name
-    ) |>
-    dplyr::rename(
-      model = model.name
-    ) |>
-    stats::na.omit() |>
+  evaluation.df <- evaluation.df[
+    evaluation.df$model == "Testing",
+    c("metric", "value", "model.name")
+  ]
+  colnames(evaluation.df)[colnames(evaluation.df) == "model.name"] <- "model"
+
+  evaluation.df <- stats::na.omit(evaluation.df) |>
     as.data.frame()
 
   #df to plot

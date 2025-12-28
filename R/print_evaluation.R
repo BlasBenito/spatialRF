@@ -33,30 +33,21 @@ print_evaluation <- function(model) {
     stop("Object 'x' does not have an 'evaluation' slot.")
   }
 
-  x <- model$evaluation$aggregated |>
-    dplyr::filter(
-      model == "Testing"
-    ) |>
-    dplyr::select(
-      metric,
-      median,
-      median_absolute_deviation,
-      min,
-      max
-    ) |>
-    dplyr::mutate(
-      median = round(median, 3),
-      median_absolute_deviation = round(median_absolute_deviation, 3),
-      min = round(min, 3),
-      max = round(max, 3)
-    ) |>
-    dplyr::rename(
-      Metric = metric,
-      Median = median,
-      MAD = median_absolute_deviation,
-      Minimum = min,
-      Maximum = max
-    )
+  x <- model$evaluation$aggregated[
+    model$evaluation$aggregated$model == "Testing",
+    c("metric", "median", "median_absolute_deviation", "min", "max")
+  ]
+
+  x$median <- round(x$median, 3)
+  x$median_absolute_deviation <- round(x$median_absolute_deviation, 3)
+  x$min <- round(x$min, 3)
+  x$max <- round(x$max, 3)
+
+  colnames(x)[colnames(x) == "metric"] <- "Metric"
+  colnames(x)[colnames(x) == "median"] <- "Median"
+  colnames(x)[colnames(x) == "median_absolute_deviation"] <- "MAD"
+  colnames(x)[colnames(x) == "min"] <- "Minimum"
+  colnames(x)[colnames(x) == "max"] <- "Maximum"
 
   x <- x[, colSums(is.na(x)) < nrow(x)]
 

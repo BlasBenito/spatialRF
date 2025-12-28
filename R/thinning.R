@@ -94,7 +94,7 @@ thinning <- function(
   }
 
   #removing duplicates
-  xy <- dplyr::distinct(xy)
+  xy <- unique(xy)
 
   xy
 }

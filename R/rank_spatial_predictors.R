@@ -203,17 +203,15 @@ rank_spatial_predictors <- function(
 
   #getting only spatial predictors with positive spatial correlation
   if (ranking.method == "moran") {
-    spatial.predictors.order <- dplyr::filter(
-      spatial.predictors.order,
-      interpretation == "Positive spatial correlation"
-    )
+    spatial.predictors.order <- spatial.predictors.order[
+      spatial.predictors.order$interpretation == "Positive spatial correlation",
+    ]
   }
 
   #arranging by Moran's I
-  spatial.predictors.order <- dplyr::arrange(
-    spatial.predictors.order,
-    dplyr::desc(ranking.criteria)
-  )
+  spatial.predictors.order <- spatial.predictors.order[
+    order(spatial.predictors.order$ranking.criteria, decreasing = TRUE),
+  ]
 
   #return output
   out.list <- list()

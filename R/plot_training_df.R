@@ -58,9 +58,9 @@ plot_training_df <- function(
     plot.list[[variable]] <- ggplot2::ggplot(
       data = data,
       ggplot2::aes(
-        x = !!rlang::sym(variable),
-        y = !!rlang::sym(dependent.variable.name),
-        color = !!rlang::sym(dependent.variable.name)
+        x = .data[[variable]],
+        y = .data[[dependent.variable.name]],
+        color = .data[[dependent.variable.name]]
       )
     ) +
       ggplot2::geom_point() +

@@ -502,13 +502,12 @@ the_feature_engineer <- function(
     spatialRF::rescale_vector(1 - interaction.screening$max.cor.with.predictors)
 
   #arrange by gain
-  interaction.screening <- interaction.screening |>
-    dplyr::arrange(
-      dplyr::desc(order)
-    ) |>
-    dplyr::select(
-      -order
-    )
+  interaction.screening <- interaction.screening[
+    order(interaction.screening$order, decreasing = TRUE),
+  ]
+  interaction.screening <- interaction.screening[
+    , colnames(interaction.screening) != "order", drop = FALSE
+  ]
 
   #selected only
   interaction.screening.selected <- interaction.screening[

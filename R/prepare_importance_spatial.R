@@ -60,8 +60,8 @@ prepare_importance_spatial <- function(model) {
   importance.df <- rbind(
     non.spatial.predictors,
     spatial.predictors.stats
-  ) |>
-    dplyr::arrange(dplyr::desc(importance))
+  )
+  importance.df <- importance.df[order(importance.df$importance, decreasing = TRUE), ]
 
   #preparing out list
   out.list <- list()
