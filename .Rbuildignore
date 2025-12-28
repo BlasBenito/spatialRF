@@ -33,3 +33,4 @@ spatialRF_papers/*
 CLAUDE.md
 .Rprofile
 ^vignettes/*
+Rplots.pdf
