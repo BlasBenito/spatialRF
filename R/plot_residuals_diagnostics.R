@@ -17,7 +17,6 @@
 #' @rdname plot_residuals_diagnostics
 #' @family visualization
 #' @importFrom ggplot2 stat_qq stat_qq_line geom_histogram element_text
-#' @importFrom patchwork plot_annotation
 #' @importFrom stats qqnorm
 #' @export
 plot_residuals_diagnostics <- function(

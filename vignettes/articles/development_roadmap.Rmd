@@ -37,12 +37,15 @@ This document outlines the planned modernization of `spatialRF`, organized into 
 - Remove `dplyr` and `tidyr` dependencies
   - Use base R equivalents to reduce dependency footprint
   - Improve installation reliability
-  - Faster package load times
 
-- Replace `magrittr` pipe (`|>`) with base pipe (`|>`)
+- DONE (v1.2.0) Replace `magrittr` pipe (`%>%`) with base pipe (`|>`)
   - Native R syntax
 
-- Remove `huxtable` from print functions to reduce dependency footprint.
+- DONE (v1.2.0) Remove `huxtable` from print functions to reduce dependency footprint.
+
+- IN PROGRESS (v1.2.0) Replace `@importFrom package function` with `package::function()` calls throughout the package.
+
+- Add package `roxyglobals` and its `@autoglobal` tag across all functions, and remove declarations of global variables (example: `x <- NULL`).
 
 ### 1.2 Function Delegation
 

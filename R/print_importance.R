@@ -60,16 +60,23 @@ print_importance <- function(model, verbose = TRUE) {
   x <- dplyr::arrange(x, dplyr::desc(importance))
 
   #pretty colnames
-  colnames(x) <- c("Variable", "Importance")
+  colnames(x) <- c("Predictor", "Importance")
 
-  #preparing huxtable
-  x.hux <- huxtable::hux(x) |>
-    huxtable::set_bold(
-      row = 1,
-      col = huxtable::everywhere,
-      value = TRUE
-    ) |>
-    huxtable::set_all_borders()
-  huxtable::number_format(x.hux)[, 2] <- 3
-  huxtable::print_screen(x.hux, colnames = FALSE)
+  #format numeric column
+  x[, 2] <- sprintf("%.3f", x[, 2])
+
+  #print
+
+  #print to screen
+  # Capture output
+  output <- capture.output(print(
+    x,
+    row.names = FALSE,
+    right = FALSE
+  ))
+
+  # Add indentation (e.g., 2 spaces) to each line
+  cat(paste0("   ", output, collapse = "\n"), "\n")
+
+  # print(x, row.names = FALSE, right = FALSE)
 }

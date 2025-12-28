@@ -18,7 +18,7 @@ print_moran(
 \item{verbose}{Logical, if \code{TRUE}, the resulting table is printed into the console, Default: \code{TRUE}}
 }
 \value{
-Prints a table in the console using the \link[huxtable]{huxtable} package.
+Prints a table to the console.
 }
 \description{
 Prints the results of a Moran's I test on the residuals of a model.

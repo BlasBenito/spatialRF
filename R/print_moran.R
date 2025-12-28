@@ -2,14 +2,10 @@
 #' @description Prints the results of a Moran's I test on the residuals of a model.
 #' @usage
 #' print_moran(
-#'   model,
-#'   caption = NULL,
-#'   verbose = TRUE
+#'   model
 #' )
 #' @param model A model fitted with [rf()], [rf_repeat()], or [rf_spatial()].
-#' @param caption Character, caption of the output table, Default: `NULL`
-#' @param verbose Logical, if `TRUE`, the resulting table is printed into the console, Default: `TRUE`
-#' @return Prints a table in the console using the \link[huxtable]{huxtable} package.
+#' @return Prints a table to the console.
 #' @seealso [moran()], [moran_multithreshold()], [get_moran()], [plot_moran()]
 #' @examples
 #'
@@ -20,9 +16,7 @@
 #' @rdname print_moran
 #' @family model_info
 #' @export
-#' @importFrom huxtable hux set_bold everywhere set_all_borders number_format caption print_screen
-#' @importFrom dplyr group_by summarise arrange
-print_moran <- function(model, caption = NULL, verbose = TRUE) {
+print_moran <- function(model) {
   #if model is not a data frame
   if (
     inherits(model, "rf") ||
@@ -40,17 +34,10 @@ print_moran <- function(model, caption = NULL, verbose = TRUE) {
     #adding pretty colnames
     colnames(x) <- c("Distance", "Moran's I", "P value", "Interpretation")
 
-    #preparing the huxtable
-    x.hux <-
-      huxtable::hux(x) |>
-      huxtable::set_bold(
-        row = 1,
-        col = huxtable::everywhere,
-        value = TRUE
-      ) |>
-      huxtable::set_all_borders()
-    huxtable::number_format(x.hux)[2:nrow(x.hux), 2:3] <- 3
-    huxtable::number_format(x.hux)[2:nrow(x.hux), 1] <- 1
+    #format numeric columns
+    x[, 1] <- sprintf("%.1f", x[, 1])
+    x[, 2] <- sprintf("%.3f", x[, 2])
+    x[, 3] <- sprintf("%.3f", x[, 3])
   }
 
   #for rf_spatial with rf
@@ -67,29 +54,18 @@ print_moran <- function(model, caption = NULL, verbose = TRUE) {
     #reordering x
     x <- x[, c("Model", "Distance", "Moran's I", "P value", "Interpretation")]
 
-    #preparing the huxtable
-    x.hux <-
-      huxtable::hux(x) |>
-      huxtable::set_bold(
-        row = 1,
-        col = huxtable::everywhere,
-        value = TRUE
-      ) |>
-      huxtable::set_bold(
-        col = 1,
-        row = huxtable::everywhere,
-        value = TRUE
-      ) |>
-      huxtable::set_all_borders()
-    huxtable::number_format(x.hux)[2:nrow(x.hux), 3:4] <- 3
-    huxtable::number_format(x.hux)[2:nrow(x.hux), 2] <- 1
-  }
-
-  #add caption
-  if (!is.null(caption)) {
-    huxtable::caption(x.hux) <- caption
+    #format numeric columns
+    x[, 2] <- sprintf("%.1f", x[, 2])
+    x[, 3] <- sprintf("%.3f", x[, 3])
+    x[, 4] <- sprintf("%.3f", x[, 4])
   }
 
   #print to screen
-  huxtable::print_screen(x.hux, colnames = FALSE)
+  # Capture output
+  output <- capture.output(print(x, row.names = FALSE, right = FALSE))
+
+  # Add indentation (e.g., 2 spaces) to each line
+  cat(paste0("   ", output, collapse = "\n"), "\n")
+
+  # print(x, row.names = FALSE, right = FALSE)
 }

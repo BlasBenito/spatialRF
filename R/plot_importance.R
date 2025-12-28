@@ -59,7 +59,6 @@
 #' @family visualization
 #' @export
 #' @importFrom ggplot2 ggplot aes geom_point scale_fill_viridis_c ylab xlab theme geom_boxplot scale_fill_viridis_d
-#' @importFrom grDevices colorRampPalette
 plot_importance <- function(
   model,
   fill.color = viridis::viridis(

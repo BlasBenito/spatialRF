@@ -134,7 +134,7 @@ m <- rf(
   dependent.variable.name = plants_response,
   predictor.variable.names = plants_predictors,
   distance.matrix = plants_distance,
-  distance.thresholds = 0,
+  distance.thresholds = c(100, 1000),
   n.cores = 1,
   verbose = FALSE
 )

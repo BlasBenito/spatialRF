@@ -13,7 +13,7 @@ Description: Automatic generation and selection of spatial predictors for Random
 License: MIT + file LICENSE
 Depends: 
     R (>= 4.1.0)
-Imports: 
+Imports:
     dplyr,
     ggplot2,
     stats,
@@ -25,7 +25,6 @@ Imports:
     rlang,
     tidyr,
     tidyselect,
-    huxtable (>= 5.8.0),
     patchwork (>= 1.3.2),
     viridis
 Suggests: 

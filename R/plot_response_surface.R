@@ -28,8 +28,6 @@
 #' @family visualization
 #' @export
 #' @importFrom ggplot2 ggplot geom_tile aes theme_bw geom_point scale_size_continuous labs ggtitle .data
-#' @importFrom viridis scale_fill_viridis
-#' @importFrom patchwork wrap_plots
 plot_response_surface <- function(
   model = NULL,
   a = NULL,

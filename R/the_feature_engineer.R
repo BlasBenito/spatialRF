@@ -78,7 +78,6 @@
 #'   head(y$data[, y$selected$interaction.name])
 #' }
 #'
-#' @importFrom utils combn
 #' @importFrom foreach %do%
 #' @rdname the_feature_engineer
 #' @family preprocessing
@@ -621,17 +620,13 @@ the_feature_engineer <- function(
       )
     }
 
-    x.hux <- huxtable::hux(x) |>
-      huxtable::set_bold(
-        row = 1,
-        col = huxtable::everywhere,
-        value = TRUE
-      ) |>
-      huxtable::set_all_borders()
-    huxtable::number_format(x.hux)[2:nrow(x), 2] <- 1
-    huxtable::number_format(x.hux)[2:nrow(x), 3] <- 3
-    huxtable::number_format(x.hux)[2:nrow(x), 4] <- 2
-    huxtable::print_screen(x.hux, colnames = FALSE)
+    #format numeric columns
+    x[, 2] <- sprintf("%.1f", x[, 2])
+    x[, 3] <- sprintf("%.3f", x[, 3])
+    x[, 4] <- sprintf("%.2f", x[, 4])
+
+    #print
+    print(x, row.names = FALSE)
   }
 
   #plot interactions

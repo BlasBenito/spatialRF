@@ -32,7 +32,6 @@
 #'
 #' @rdname objects_size
 #' @family utilities
-#' @importFrom utils object.size
 #' @export
 objects_size <- function(n = 10) {
   .ls.objects <- function(
@@ -78,10 +77,10 @@ objects_size <- function(n = 10) {
       }
     )
 
-    obj.size <- napply(
-      names,
-      object.size
-    )
+    # obj.size <- napply(
+    #   names,
+    #   utils::object.size
+    # )
 
     obj.dim <- t(
       napply(

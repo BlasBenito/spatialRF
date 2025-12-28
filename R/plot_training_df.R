@@ -23,7 +23,6 @@
 #' )
 #'
 #' @importFrom ggplot2 ggplot aes geom_point scale_color_gradientn theme_bw theme geom_smooth
-#' @importFrom patchwork wrap_plots
 #' @importFrom rlang sym
 #' @rdname plot_training_df
 #' @family visualization
