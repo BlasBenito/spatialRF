@@ -78,7 +78,6 @@
 #'   head(y$data[, y$selected$interaction.name])
 #' }
 #'
-#' @importFrom foreach %do%
 #' @rdname the_feature_engineer
 #' @family preprocessing
 #' @autoglobal

@@ -43,7 +43,7 @@ This document outlines the planned modernization of `spatialRF`, organized into 
 
 - DONE (v1.2.0) Remove `huxtable` from print functions to reduce dependency footprint.
 
-- DONE (v1.2.0) Replace `@importFrom package function` with `package::function()` calls throughout the package. 
+- DONE (v1.2.0) Replace `@importFrom package function` with `package::function()` calls throughout the package. Right now the only @importFrom are `foreach %dopar% %do%` (to be removed when `future` comes), `ggplot2 .data`, `patchwork plot_annotation wrap_plots` (required to make patchwork's `|` and `/` work), `ranger ranger` (required for `stats::predict()`), and 
 
 - DONE (v1.2.0) Add package `roxyglobals` and its `@autoglobal` tag across all functions, and remove declarations of global variables (example: `x <- NULL`).
 

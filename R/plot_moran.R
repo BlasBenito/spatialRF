@@ -30,6 +30,7 @@
 #' plot_moran(plants_rf, option = 2)
 #'
 #' @rdname plot_moran
+#' @importFrom foreach %do%
 #' @family visualization
 #' @export
 #' @autoglobal
