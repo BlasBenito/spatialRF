@@ -18,8 +18,7 @@
 #' @param spatial.predictors.df Data frame of spatial predictors.
 #' @param ranking.method Character, method used by to rank spatial predictors. The method "effect" ranks spatial predictors according how much each predictor reduces Moran's I of the model residuals, while the method "moran" ranks them by their own Moran's I. Default: `"moran"`.
 #' @param verbose Logical, ff `TRUE`, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
-#' @param n.cores Integer, number of cores to use for parallel execution. Creates a socket cluster with `parallel::makeCluster()`, runs operations in parallel with `foreach` and `%dopar%`, and stops the cluster with `parallel::clusterStop()` when the job is done. Default: `parallel::detectCores() - 1`
-#' @param cluster A cluster definition generated with `parallel::makeCluster()`. If provided, overrides `n.cores`. When `cluster = NULL` (default value), and `model` is provided, the cluster in `model`, if any, is used instead. If this cluster is `NULL`, then the function uses `n.cores` instead. The function does not stop a provided cluster, so it should be stopped with `parallel::stopCluster()` afterwards. The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the `model` argument, or using the `|>` pipe. Default: `NULL`
+#' @param n.cores Integer. Number of threads for ranger's internal parallelization. Default: `NULL` (auto-detected: when a parallel plan is active via `future::plan()`, n.cores is set to 1; otherwise defaults to `future::availableCores(omit = 1)`). When a parallel plan is active, n.cores is always set to 1 to prevent oversubscription, regardless of user input.
 #' @return A list with four slots:
 #' \itemize{
 #' \item `method`: Character, name of the method used to rank the spatial predictors.
@@ -89,8 +88,7 @@ rank_spatial_predictors <- function(
   ranking.method = c("moran", "effect"),
   reference.moran.i = 1,
   verbose = FALSE,
-  n.cores = parallel::detectCores() - 1,
-  cluster = NULL
+  n.cores = NULL
 ) {
   #predictor.variable.names comes from auto_vif or auto_cor
   if (!is.null(predictor.variable.names)) {
@@ -106,6 +104,16 @@ rank_spatial_predictors <- function(
     several.ok = FALSE
   )
 
+  # Auto-detect: if parallel plan is active, use single-threaded ranger
+  if (!inherits(x = future::plan(), what = "sequential")) {
+    n.cores <- 1
+  }
+
+  # Set default for sequential plans
+  if (is.null(n.cores)) {
+    n.cores <- future::availableCores(omit = 1)
+  }
+
   #add write.forest = FALSE to ranger.arguments
   if (is.null(ranger.arguments)) {
     ranger.arguments <- list()
@@ -115,23 +123,20 @@ rank_spatial_predictors <- function(
   ranger.arguments$local.importance <- FALSE
   ranger.arguments$keep.inbag <- FALSE
   ranger.arguments$num.trees <- 500
+  ranger.arguments$num.threads <- n.cores
 
   #reference.moran.i
   if (is.null(reference.moran.i)) {
     reference.moran.i <- 1
   }
 
-  #CLUSTER SETUP
-  parallel_config <- setup_parallel_execution(cluster, n.cores)
-  on.exit(parallel_config$cleanup(), add = TRUE)
+  # Create progressor outside
+  p <- progressr::progressor(along = seq_len(ncol(spatial.predictors.df)))
 
-  #parallelized loop
-  spatial.predictors.order <- foreach::foreach(
-    spatial.predictors.i = seq(1, ncol(spatial.predictors.df)),
-    .combine = "rbind",
-    .verbose = verbose
-  ) %dopar%
-    {
+  # Parallel execution with progress
+  spatial.predictors.order_list <- future.apply::future_lapply(
+    X = seq_len(ncol(spatial.predictors.df)),
+    FUN = function(spatial.predictors.i) {
       #3.2.3.1 preparing data
 
       #spatial predictor name
@@ -164,7 +169,6 @@ rank_spatial_predictors <- function(
           distance.thresholds = distance.thresholds,
           scaled.importance = FALSE,
           ranger.arguments = ranger.arguments,
-          n.cores = 1,
           verbose = FALSE
         )
 
@@ -197,9 +201,17 @@ rank_spatial_predictors <- function(
         )
       }
 
+      # Signal progress
+      p()
+
       #returning output
       return(out.i)
-    } #end of parallelized loop
+    },
+    future.seed = TRUE
+  )
+
+  # Combine results
+  spatial.predictors.order <- do.call(rbind, spatial.predictors.order_list)
 
   #getting only spatial predictors with positive spatial correlation
   if (ranking.method == "moran") {

@@ -9,8 +9,7 @@
 #' @param training.fraction Proportion between 0.2 and 0.9 indicating the number of records to be used in model training. Default: `0.75`
 #' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same. Default: `1`.
 #' @param verbose Logical. If TRUE, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
-#' @param n.cores Integer, number of cores to use for parallel execution. Creates a socket cluster with `parallel::makeCluster()`, runs operations in parallel with `foreach` and `%dopar%`, and stops the cluster with `parallel::clusterStop()` when the job is done. Default: `parallel::detectCores() - 1`
-#' @param cluster A cluster definition generated with `parallel::makeCluster()`. If provided, overrides `n.cores`. When `cluster = NULL` (default value), and `model` is provided, the cluster in `model`, if any, is used instead. If this cluster is `NULL`, then the function uses `n.cores` instead. The function does not stop a provided cluster, so it should be stopped with `parallel::stopCluster()` afterwards. The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the `model` argument, or using the `|>` pipe. Default: `NULL`
+#' @param n.cores Integer. Number of threads for ranger's internal parallelization. Default: `NULL` (auto-detected: when a parallel plan is active via `future::plan()`, n.cores is set to 1; otherwise defaults to `future::availableCores(omit = 1)`). When a parallel plan is active, n.cores is always set to 1 to prevent oversubscription, regardless of user input.
 #' @return A model with a new slot named `tuning`, with a data frame with the results of the tuning analysis.
 #' @seealso [rf_evaluate()]
 #' @examples
@@ -48,8 +47,7 @@ rf_tuning <- function(
   training.fraction = 0.75,
   seed = 1,
   verbose = TRUE,
-  n.cores = parallel::detectCores() - 1,
-  cluster = NULL
+  n.cores = NULL
 ) {
   if (is.null(model)) {
     stop("The argument 'model' is empty, there is no model to tune.")
@@ -157,29 +155,26 @@ rf_tuning <- function(
     )
   }
 
-  # Handle model$cluster if present
-  cluster.from.model <- FALSE
-  if (
-    !inherits(x = cluster, what = "cluster") &&
-      inherits(x = model$cluster, what = "cluster")
-  ) {
-    cluster <- model$cluster
-    cluster.from.model <- TRUE
+  # Auto-detect: if parallel plan is active, use single-threaded ranger
+  if (!inherits(x = future::plan(), what = "sequential")) {
+    n.cores <- 1
   }
 
-  #CLUSTER SETUP
-  parallel_config <- setup_parallel_execution(cluster, n.cores)
-  on.exit(parallel_config$cleanup(), add = TRUE)
+  # Set default for sequential plans
+  if (is.null(n.cores)) {
+    n.cores <- future::availableCores(omit = 1)
+  }
 
-  #looping through combinations
-  tuning <- foreach::foreach(
-    num.trees.i = combinations$num.trees,
-    mtry.i = combinations$mtry,
-    min.node.size.i = combinations$min.node.size,
-    .combine = "rbind",
-    .verbose = FALSE
-  ) %dopar%
-    {
+  # Create progressor outside
+  p <- progressr::progressor(along = seq_len(nrow(combinations)))
+
+  # Parallel execution with progress
+  tuning_list <- future.apply::future_lapply(
+    X = seq_len(nrow(combinations)),
+    FUN = function(i) {
+      num.trees.i <- combinations$num.trees[i]
+      mtry.i <- combinations$mtry[i]
+      min.node.size.i <- combinations$min.node.size[i]
       #filling ranger arguments
       if (!is.null(ranger.arguments)) {
         ranger.arguments.i <- ranger.arguments
@@ -190,7 +185,7 @@ rf_tuning <- function(
       ranger.arguments.i$mtry <- mtry.i
       ranger.arguments.i$min.node.size <- min.node.size.i
       ranger.arguments.i$importance <- "none"
-      ranger.arguments.i$num.threads <- 1
+      ranger.arguments.i$num.threads <- n.cores
       ranger.arguments.i$save.memory <- TRUE
 
       #fit model with new hyperparameters
@@ -203,7 +198,6 @@ rf_tuning <- function(
         ranger.arguments = ranger.arguments.i,
         scaled.importance = FALSE,
         seed = seed,
-        n.cores = 1,
         verbose = FALSE
       )
 
@@ -215,9 +209,7 @@ rf_tuning <- function(
         training.fraction = training.fraction,
         metrics = metric,
         seed = seed,
-        verbose = FALSE,
-        cluster = NULL,
-        n.cores = 1,
+        verbose = FALSE
       )
 
       #getting performance measures
@@ -250,8 +242,16 @@ rf_tuning <- function(
       }
       colnames(m.i.performance)[1] <- metric
 
+      # Signal progress
+      p()
+
       return(m.i.performance)
-    } #end of parallelized loop
+    },
+    future.seed = TRUE
+  )
+
+  # Combine results
+  tuning <- do.call(rbind, tuning_list)
 
   #binding with combinations
   tuning <- cbind(
@@ -326,9 +326,7 @@ rf_tuning <- function(
     repetitions = repetitions,
     training.fraction = training.fraction,
     seed = seed,
-    verbose = FALSE,
-    n.cores = n.cores,
-    cluster = parallel_config$cluster
+    verbose = FALSE
   )
 
   #evaluate model tuned
@@ -338,9 +336,7 @@ rf_tuning <- function(
     repetitions = repetitions,
     training.fraction = training.fraction,
     seed = seed,
-    verbose = FALSE,
-    n.cores = n.cores,
-    cluster = parallel_config$cluster
+    verbose = FALSE
   )
 
   #extract r.squared values
@@ -389,11 +385,6 @@ rf_tuning <- function(
       model.tuned$spatial <- spatial
     }
 
-    # Store cluster in model if it was external (not internally created)
-    if (parallel_config$mode == "external_cluster" || cluster.from.model) {
-      model.tuned$cluster <- parallel_config$cluster
-    }
-
     return(model.tuned)
 
     #tuned model worse than original one
@@ -426,11 +417,6 @@ rf_tuning <- function(
 
   #adding r squared gain
   model$tuning$performance.gain <- performance.gain
-
-  # Store cluster in model if it was external (not internally created)
-  if (parallel_config$mode == "external_cluster" || cluster.from.model) {
-    model$cluster <- parallel_config$cluster
-  }
 
   if (verbose) {
     message("Tuning results stored in model$tuning.")

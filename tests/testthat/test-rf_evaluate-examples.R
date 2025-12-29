@@ -2,10 +2,8 @@ test_that("`rf_evaluate()` works", {
   data(plants_df)
   data(plants_distance)
 
-  cluster <- parallel::makeCluster(
-    parallel::detectCores() - 1,
-    type = "PSOCK"
-  )
+  # Use sequential plan for testing
+  future::plan(future::sequential)
 
   rf.model <- rf(
     data = plants_df,
@@ -23,12 +21,9 @@ test_that("`rf_evaluate()` works", {
   rf.model <- rf_evaluate(
     model = rf.model,
     xy = plants_df[, c("x", "y")],
-    verbose = FALSE,
-    cluster = cluster
+    verbose = FALSE
   )
 
-  foreach::registerDoSEQ()
-  parallel::stopCluster(cluster)
   invisible(gc())
 
   expect_s3_class(rf.model, "rf_evaluate")
@@ -36,5 +31,5 @@ test_that("`rf_evaluate()` works", {
   expect_s3_class(rf.model$evaluation$per.fold, "data.frame")
   expect_s3_class(rf.model$evaluation$per.model, "data.frame")
   expect_s3_class(rf.model$evaluation$aggregated, "data.frame")
-  
+
 })

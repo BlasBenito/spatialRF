@@ -5,11 +5,11 @@ utils::globalVariables(c(
   "var", # <auto_vif>
   "median", # <get_performance>
   "mad", # <get_performance>
-  "i", # <make_spatial_folds>
   "value", # <plot_evaluation>
   "importance", # <plot_importance>
   "variable", # <plot_importance>
   "distance.threshold", # <plot_moran>
+  "moran.i", # <plot_moran>
   "p.value.binary", # <plot_moran>
   "repetition", # <plot_moran>
   "moran.i", # <plot_optimization>
@@ -27,7 +27,6 @@ utils::globalVariables(c(
   "p.value.binary", # <plot_training_df_moran>
   "metric", # <plot_tuning>
   "value", # <plot_tuning>
-  "spatial.predictors.i", # <rank_spatial_predictors>
   "Predicted", # <residuals_diagnostics>
   "Residuals", # <residuals_diagnostics>
   "model", # <rf_compare>
@@ -35,11 +34,7 @@ utils::globalVariables(c(
   "importance", # <rf_importance>
   "variable", # <rf_importance>
   "importance.mad", # <rf_importance>
-  "i", # <rf_repeat>
   "median", # <rf_repeat>
-  "num.trees.i", # <rf_tuning>
-  "mtry.i", # <rf_tuning>
-  "min.node.size.i", # <rf_tuning>
   "y", # <the_feature_engineer>
   NULL
 ))

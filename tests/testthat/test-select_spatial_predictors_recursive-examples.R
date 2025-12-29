@@ -42,7 +42,7 @@ test_that("`select_spatial_predictors_recursive()` works", {
     spatial.predictors.df = spatial.predictors,
     ranking.method = "effect",
     reference.moran.i = model$spatial.correlation.residuals$max.moran,
-    cluster = cluster
+    
   )
 
   selection <- select_spatial_predictors_recursive(
@@ -53,7 +53,7 @@ test_that("`select_spatial_predictors_recursive()` works", {
     distance.thresholds = distance.thresholds,
     spatial.predictors.df = spatial.predictors,
     spatial.predictors.ranking = spatial.predictors.ranking,
-    cluster = cluster
+    
   )
 
   foreach::registerDoSEQ()

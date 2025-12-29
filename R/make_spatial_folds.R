@@ -7,8 +7,6 @@
 #' @param distance.step.x Numeric value specifying the buffer growth increment along the x-axis. Default: `NULL` (automatically set to 1/1000th of the x-coordinate range).
 #' @param distance.step.y Numeric value specifying the buffer growth increment along the y-axis. Default: `NULL` (automatically set to 1/1000th of the y-coordinate range).
 #' @param training.fraction Numeric value between 0.1 and 0.9 specifying the fraction of records to include in the training fold. Default: `0.75`.
-#' @param n.cores Integer specifying the number of CPU cores for parallel execution. Default: `parallel::detectCores() - 1`.
-#' @param cluster Optional cluster object created with [parallel::makeCluster()]. If provided, overrides `n.cores`. User is responsible for stopping the cluster with [parallel::stopCluster()]. Default: `NULL`.
 #' @return List where each element corresponds to a row in `xy.selected` and contains:
 #' \itemize{
 #'   \item `training`: Integer vector of record IDs (from `xy$id`) in the training fold.
@@ -19,11 +17,26 @@
 #'
 #' **Parallel execution:**
 #'
-#' The function uses parallel processing to speed up fold creation. You can control parallelization with `n.cores` or provide a pre-configured cluster object.
+#' The function uses the future ecosystem for parallelization. Control the parallel strategy externally via `future::plan()`:
+#' \itemize{
+#'   \item `future::plan(future::sequential)` - No parallelization (default)
+#'   \item `future::plan(future::multisession, workers = 4)` - Parallel execution with 4 workers
+#'   \item `future::plan(future::multicore, workers = 4)` - Fork-based (Unix/Mac only)
+#' }
+#'
+#' **Progress reporting:**
+#'
+#' This function supports progress bars via the progressr package. To enable progress reporting, set handlers before calling the function:
+#' \itemize{
+#'   \item `progressr::handlers(global = TRUE)` - Enable progress bars for all functions
+#'   \item `progressr::handlers("progress")` - Use a specific handler type
+#' }
 #'
 #' **Typical workflow:**
 #' \enumerate{
 #'   \item Thin spatial points with [thinning()] or [thinning_til_n()] to create `xy.selected`
+#'   \item Optionally configure parallel plan with `future::plan()`
+#'   \item Optionally enable progress bars with `progressr::handlers(global = TRUE)`
 #'   \item Create spatial folds with this function
 #'   \item Use the folds for spatial cross-validation in [rf_evaluate()]
 #' }
@@ -37,18 +50,40 @@
 #'   n = 10
 #' )
 #'
-#' # Create spatial folds centered on the 10 thinned points
+#' # Basic usage - sequential execution
 #' folds <- make_spatial_folds(
 #'   xy.selected = xy.thin,
 #'   xy = plants_xy,
 #'   distance.step.x = 0.05,
-#'   training.fraction = 0.6,
-#'   n.cores = 1
+#'   training.fraction = 0.6
 #' )
 #'
 #' # Each element is a fold with training and testing indices
 #' length(folds)  # 10 folds
 #' names(folds[[1]])  # "training" and "testing"
+#'
+#' \donttest{
+#' # With progress bars and parallel execution
+#' library(future)
+#' library(progressr)
+#'
+#' # Enable progress reporting
+#' progressr::handlers(global = TRUE)
+#'
+#' # Set parallel strategy
+#' future::plan(future::multisession, workers = 2)
+#'
+#' # Create folds with progress bars
+#' folds_parallel <- make_spatial_folds(
+#'   xy.selected = xy.thin,
+#'   xy = plants_xy,
+#'   distance.step.x = 0.05,
+#'   training.fraction = 0.6
+#' )
+#'
+#' # Reset to sequential
+#' future::plan(future::sequential)
+#' }
 #'
 #' # Visualize first fold (training = red, testing = blue, center = black)
 #' if (interactive()) {
@@ -65,7 +100,6 @@
 #'
 #' @rdname make_spatial_folds
 #' @family preprocessing
-#' @importFrom foreach %dopar%
 #' @export
 #' @autoglobal
 make_spatial_folds <- function(
@@ -75,19 +109,18 @@ make_spatial_folds <- function(
   xy = NULL,
   distance.step.x = NULL,
   distance.step.y = NULL,
-  training.fraction = 0.75,
-  n.cores = parallel::detectCores() - 1,
-  cluster = NULL
+  training.fraction = 0.75
 ) {
-  #CLUSTER SETUP
-  parallel_config <- setup_parallel_execution(cluster, n.cores)
-  on.exit(parallel_config$cleanup(), add = TRUE)
+  # Detect user's plan
+  plan_workers <- future::nbrOfWorkers()
 
-  #parallelized loop
-  spatial.folds <- foreach::foreach(
-    i = seq(1, nrow(xy.selected), by = 1)
-  ) %dopar%
-    {
+  # Create progressor outside
+  p <- progressr::progressor(along = seq_len(nrow(xy.selected)))
+
+  # Parallel execution with progress
+  spatial.folds <- future.apply::future_lapply(
+    X = seq_len(nrow(xy.selected)),
+    FUN = function(i) {
       spatial.fold.i <- spatialRF::make_spatial_fold(
         data = data,
         dependent.variable.name = dependent.variable.name,
@@ -98,8 +131,13 @@ make_spatial_folds <- function(
         training.fraction = training.fraction
       )
 
+      # Signal progress
+      p()
+
       return(spatial.fold.i)
-    }
+    },
+    future.packages = "spatialRF"
+  )
 
   spatial.folds
 }

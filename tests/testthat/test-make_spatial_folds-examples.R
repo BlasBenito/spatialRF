@@ -16,7 +16,7 @@ test_that("`make_spatial_folds()` works", {
     xy.selected = xy.selected,
     xy = xy,
     training.fraction = 0.6,
-    cluster = cluster
+    
   )
 
   foreach::registerDoSEQ()

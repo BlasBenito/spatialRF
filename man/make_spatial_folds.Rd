@@ -11,9 +11,7 @@ make_spatial_folds(
   xy = NULL,
   distance.step.x = NULL,
   distance.step.y = NULL,
-  training.fraction = 0.75,
-  n.cores = parallel::detectCores() - 1,
-  cluster = NULL
+  training.fraction = 0.75
 )
 }
 \arguments{
@@ -30,10 +28,6 @@ make_spatial_folds(
 \item{distance.step.y}{Numeric value specifying the buffer growth increment along the y-axis. Default: \code{NULL} (automatically set to 1/1000th of the y-coordinate range).}
 
 \item{training.fraction}{Numeric value between 0.1 and 0.9 specifying the fraction of records to include in the training fold. Default: \code{0.75}.}
-
-\item{n.cores}{Integer specifying the number of CPU cores for parallel execution. Default: \code{parallel::detectCores() - 1}.}
-
-\item{cluster}{Optional cluster object created with \code{\link[parallel:makeCluster]{parallel::makeCluster()}}. If provided, overrides \code{n.cores}. User is responsible for stopping the cluster with \code{\link[parallel:makeCluster]{parallel::stopCluster()}}. Default: \code{NULL}.}
 }
 \value{
 List where each element corresponds to a row in \code{xy.selected} and contains:
@@ -50,11 +44,26 @@ This function creates multiple spatially independent folds for spatial cross-val
 
 \strong{Parallel execution:}
 
-The function uses parallel processing to speed up fold creation. You can control parallelization with \code{n.cores} or provide a pre-configured cluster object.
+The function uses the future ecosystem for parallelization. Control the parallel strategy externally via \code{future::plan()}:
+\itemize{
+\item \code{future::plan(future::sequential)} - No parallelization (default)
+\item \code{future::plan(future::multisession, workers = 4)} - Parallel execution with 4 workers
+\item \code{future::plan(future::multicore, workers = 4)} - Fork-based (Unix/Mac only)
+}
+
+\strong{Progress reporting:}
+
+This function supports progress bars via the progressr package. To enable progress reporting, set handlers before calling the function:
+\itemize{
+\item \code{progressr::handlers(global = TRUE)} - Enable progress bars for all functions
+\item \code{progressr::handlers("progress")} - Use a specific handler type
+}
 
 \strong{Typical workflow:}
 \enumerate{
 \item Thin spatial points with \code{\link[=thinning]{thinning()}} or \code{\link[=thinning_til_n]{thinning_til_n()}} to create \code{xy.selected}
+\item Optionally configure parallel plan with \code{future::plan()}
+\item Optionally enable progress bars with \code{progressr::handlers(global = TRUE)}
 \item Create spatial folds with this function
 \item Use the folds for spatial cross-validation in \code{\link[=rf_evaluate]{rf_evaluate()}}
 }
@@ -68,18 +77,40 @@ xy.thin <- thinning_til_n(
   n = 10
 )
 
-# Create spatial folds centered on the 10 thinned points
+# Basic usage - sequential execution
 folds <- make_spatial_folds(
   xy.selected = xy.thin,
   xy = plants_xy,
   distance.step.x = 0.05,
-  training.fraction = 0.6,
-  n.cores = 1
+  training.fraction = 0.6
 )
 
 # Each element is a fold with training and testing indices
 length(folds)  # 10 folds
 names(folds[[1]])  # "training" and "testing"
+
+\donttest{
+# With progress bars and parallel execution
+library(future)
+library(progressr)
+
+# Enable progress reporting
+progressr::handlers(global = TRUE)
+
+# Set parallel strategy
+future::plan(future::multisession, workers = 2)
+
+# Create folds with progress bars
+folds_parallel <- make_spatial_folds(
+  xy.selected = xy.thin,
+  xy = plants_xy,
+  distance.step.x = 0.05,
+  training.fraction = 0.6
+)
+
+# Reset to sequential
+future::plan(future::sequential)
+}
 
 # Visualize first fold (training = red, testing = blue, center = black)
 if (interactive()) {

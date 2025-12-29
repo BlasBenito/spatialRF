@@ -12,8 +12,7 @@
 #' @param line.color Character string, color of the line produced by `ggplot2::geom_smooth()`. Default: `"gray30"`
 #' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same. Default: `1`.
 #' @param verbose Logical. If `TRUE`, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
-#' @param n.cores Integer, number of cores to use for parallel execution. Creates a socket cluster with `parallel::makeCluster()`, runs operations in parallel with `foreach` and `%dopar%`, and stops the cluster with `parallel::clusterStop()` when the job is done. Default: `parallel::detectCores() - 1`
-#' @param cluster A cluster definition generated with `parallel::makeCluster()`. If provided, overrides `n.cores`. When `cluster = NULL` (default value), and `model` is provided, the cluster in `model`, if any, is used instead. If this cluster is `NULL`, then the function uses `n.cores` instead. The function does not stop a provided cluster, so it should be stopped with `parallel::stopCluster()` afterwards. The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the `model` argument, or using the `|>` pipe. Default: `NULL`
+#' @param n.cores Integer. Number of threads for ranger's internal parallelization. Default: `NULL` (auto-detected: if user has set a parallel plan via `future::plan()`, defaults to 1; otherwise defaults to `future::availableCores(omit = 1)`). Set to 1 for debugging. Note: When using a parallel plan (multiple workers), setting n.cores > 1 may cause oversubscription. The function will warn if this occurs.
 #' @return A list with three slots:
 #' \itemize{
 #' \item `comparison.df`: Data frame with one performance value per spatial fold, metric, and model.
@@ -72,8 +71,7 @@ rf_compare <- function(
   line.color = "gray30",
   seed = 1,
   verbose = TRUE,
-  n.cores = parallel::detectCores() - 1,
-  cluster = NULL
+  n.cores = NULL
 ) {
   #capturing user options
   user.options <- options()
@@ -96,10 +94,6 @@ rf_compare <- function(
     stop("Case coordinates 'xy' is missing.")
   }
 
-  #CLUSTER SETUP
-  parallel_config <- setup_parallel_execution(cluster, n.cores)
-  on.exit(parallel_config$cleanup(), add = TRUE)
-
   #list to store evaluation outputs
   evaluation.list <- list()
 
@@ -117,8 +111,7 @@ rf_compare <- function(
       metrics = metrics,
       seed = seed,
       verbose = FALSE,
-      n.cores = n.cores,
-      cluster = cluster
+      n.cores = n.cores
     )
 
     #getting evaluation data frame

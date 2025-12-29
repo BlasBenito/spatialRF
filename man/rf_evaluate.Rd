@@ -16,8 +16,7 @@ rf_evaluate(
   grow.testing.folds = FALSE,
   seed = 1,
   verbose = TRUE,
-  n.cores = parallel::detectCores() - 1,
-  cluster = NULL
+  n.cores = NULL
 )
 }
 \arguments{
@@ -43,9 +42,7 @@ rf_evaluate(
 
 \item{verbose}{Logical. If \code{TRUE}, messages and plots generated during the execution of the function are displayed, Default: \code{TRUE}}
 
-\item{n.cores}{Integer, number of cores to use for parallel execution. Creates a socket cluster with \code{parallel::makeCluster()}, runs operations in parallel with \code{foreach} and \verb{\%dopar\%}, and stops the cluster with \code{parallel::clusterStop()} when the job is done. Default: \code{parallel::detectCores() - 1}}
-
-\item{cluster}{A cluster definition generated with \code{parallel::makeCluster()}. If provided, overrides \code{n.cores}. When \code{cluster = NULL} (default value), and \code{model} is provided, the cluster in \code{model}, if any, is used instead. If this cluster is \code{NULL}, then the function uses \code{n.cores} instead. The function does not stop a provided cluster, so it should be stopped with \code{parallel::stopCluster()} afterwards. The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the \code{model} argument, or using the \verb{|>} pipe. Default: \code{NULL}}
+\item{n.cores}{Integer. Number of threads for ranger's internal parallelization. Default: \code{NULL} (auto-detected: when a parallel plan is active via \code{future::plan()}, n.cores is set to 1; otherwise defaults to \code{future::availableCores(omit = 1)}). When a parallel plan is active, n.cores is always set to 1 to prevent oversubscription, regardless of user input.}
 }
 \value{
 A model of the class "rf_evaluate" with a new slot named "evaluation", that is a list with the following slots:
@@ -62,6 +59,24 @@ Evaluates the performance of random forest on unseen data over independent spati
 }
 \details{
 The evaluation algorithm works as follows: the number of \code{repetitions} and the input dataset (stored in \code{model$ranger.arguments$data}) are used as inputs for the function \code{\link[=thinning_til_n]{thinning_til_n()}}, that applies \code{\link[=thinning]{thinning()}} to the input data until as many cases as \code{repetitions} are left, and as separated as possible. Each of these remaining records will be used as a "fold center". From that point, the fold grows, until a number of points equal (or close) to \code{training.fraction} is reached. The indices of the records within the grown spatial fold are stored as "training" in the output list, and the remaining ones as "testing". Then, for each spatial fold, a "training model" is fitted using the cases corresponding with the training indices, and predicted over the cases corresponding with the testing indices. The model predictions on the "unseen" data are compared with the observations, and the performance measures (R squared, pseudo R squared, RMSE and NRMSE) computed.
+
+\strong{Parallelization:}
+
+This function uses the future ecosystem for parallel processing. Control the parallel strategy externally via \code{future::plan()}:
+\itemize{
+\item \code{future::plan(future::sequential)} - No parallelization (default)
+\item \code{future::plan(future::multisession, workers = 4)} - Parallel execution with 4 workers
+\item \code{future::plan(future::multicore, workers = 4)} - Fork-based (Unix/Mac only)
+}
+
+\strong{Progress reporting:}
+
+This function supports progress bars via the progressr package. To enable progress reporting:
+\itemize{
+\item \code{progressr::handlers(global = TRUE)} - Enable global progress reporting
+\item Progress tracks both fold creation and model evaluation across folds
+\item Especially useful for long-running evaluations with many repetitions
+}
 }
 \examples{
 
@@ -72,6 +87,7 @@ data(
   plants_xy
 )
 
+# Basic evaluation
 plants_rf <- rf_evaluate(
   model = plants_rf,
   xy = plants_xy,
@@ -84,6 +100,26 @@ plot_evaluation(plants_rf, notch = FALSE)
 print_evaluation(plants_rf)
 
 get_evaluation(plants_rf)
+
+# With progress bars and parallel execution
+library(future)
+library(progressr)
+
+# Enable progress reporting
+progressr::handlers(global = TRUE)
+
+# Set parallel strategy
+future::plan(future::multisession, workers = 4)
+
+# Run evaluation with progress tracking
+plants_rf <- rf_evaluate(
+  model = plants_rf,
+  xy = plants_xy,
+  repetitions = 30
+)
+
+# Reset to sequential
+future::plan(future::sequential)
 
 }
 

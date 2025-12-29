@@ -10,8 +10,7 @@
 #' @param scaled.importance If `TRUE`, variable importance is computed on scaled data using \link[base]{scale}, making importance scores comparable across models with different predictor units. Default: `FALSE`
 #' @param seed Random seed for reproducibility. Default: `1`
 #' @param verbose If `TRUE`, display messages and plots during execution. Default: `TRUE`
-#' @param n.cores Number of cores for parallel execution. Default: `parallel::detectCores() - 1`
-#' @param cluster Cluster object from `parallel::makeCluster()`. Not used by this function but stored in the model for use in downstream functions. Default: `NULL`
+#' @param n.cores Integer. Number of threads for ranger's internal parallelization. Default: `NULL` (auto-detected as `future::availableCores(omit = 1)`). Set to 1 for debugging or when using a parallel plan for R-level parallelization
 #' @return A ranger model object with additional slots:
 #' \itemize{
 #'   \item `ranger.arguments`: Arguments used to fit the model.
@@ -81,7 +80,6 @@
 #'   ranger.arguments = args,
 #'   verbose = FALSE
 #' )
-#' @importFrom ranger ranger
 #' @rdname rf
 #' @family main_models
 #' @export
@@ -97,8 +95,7 @@ rf <- function(
   scaled.importance = FALSE,
   seed = 1,
   verbose = TRUE,
-  n.cores = parallel::detectCores() - 1,
-  cluster = NULL
+  n.cores = NULL
 ) {
   #giving priority to data not from ranger.arguments
   if (!is.null(data) && !is.null(ranger.arguments)) {
@@ -136,6 +133,9 @@ rf <- function(
   holdout <- FALSE
   quantreg <- FALSE
   oob.error <- TRUE
+  if (is.null(n.cores)) {
+    n.cores <- future::availableCores(omit = 1)
+  }
   num.threads <- n.cores
   save.memory <- FALSE
   classification <- NULL
@@ -347,7 +347,6 @@ rf <- function(
     holdout = holdout,
     quantreg = quantreg,
     oob.error = oob.error,
-    num.threads = num.threads,
     save.memory = save.memory,
     seed = seed,
     classification = classification
@@ -380,7 +379,8 @@ rf <- function(
     ]
 
     m$importance$per.variable$importance <- round(
-      m$importance$per.variable$importance, 3
+      m$importance$per.variable$importance,
+      3
     )
 
     m$importance$per.variable.plot <- plot_importance(
@@ -476,11 +476,6 @@ rf <- function(
     m,
     verbose = verbose
   )
-
-  #adding cluster
-  if (inherits(x = cluster, what = "cluster")) {
-    m$cluster <- cluster
-  }
 
   #adding rf class
   class(m) <- c("rf", "ranger")

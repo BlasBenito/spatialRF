@@ -20,7 +20,7 @@ test_that("`rf_tuning()` works", {
     mtry = c(2),
     min.node.size = c(5, 10),
     verbose = FALSE,
-    cluster = cluster
+    
   )
 
   foreach::registerDoSEQ()

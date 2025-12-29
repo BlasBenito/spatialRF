@@ -34,3 +34,4 @@ CLAUDE.md
 .Rprofile
 ^vignettes/*
 Rplots.pdf
+FUTURE_MIGRATION_GUIDE.md

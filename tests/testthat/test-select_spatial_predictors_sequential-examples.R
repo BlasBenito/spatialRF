@@ -40,7 +40,7 @@ test_that("`select_spatial_predictors_sequential()` works", {
     spatial.predictors.df = spatial.predictors,
     ranking.method = "moran",
     reference.moran.i = model$spatial.correlation.residuals$max.moran,
-    cluster = cluster
+    
   )
 
   selection <- select_spatial_predictors_sequential(
@@ -51,7 +51,7 @@ test_that("`select_spatial_predictors_sequential()` works", {
     distance.thresholds = distance.thresholds,
     spatial.predictors.df = spatial.predictors,
     spatial.predictors.ranking = spatial.predictors.ranked,
-    cluster = cluster
+    
   )
 
   foreach::registerDoSEQ()

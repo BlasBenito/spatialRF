@@ -11,8 +11,7 @@
 #' @param grow.testing.folds Logic. By default, this function grows contiguous training folds to keep the spatial structure of the data as intact as possible. However, when setting `grow.testing.folds = TRUE`, the argument `training.fraction` is set to `1 - training.fraction`, and the training and testing folds are switched. This option might be useful when the training data has a spatial structure that does not match well with the default behavior of the function. Default: `FALSE`
 #' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same. Default: `1`.
 #' @param verbose Logical. If `TRUE`, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
-#' @param n.cores Integer, number of cores to use for parallel execution. Creates a socket cluster with `parallel::makeCluster()`, runs operations in parallel with `foreach` and `%dopar%`, and stops the cluster with `parallel::clusterStop()` when the job is done. Default: `parallel::detectCores() - 1`
-#' @param cluster A cluster definition generated with `parallel::makeCluster()`. If provided, overrides `n.cores`. When `cluster = NULL` (default value), and `model` is provided, the cluster in `model`, if any, is used instead. If this cluster is `NULL`, then the function uses `n.cores` instead. The function does not stop a provided cluster, so it should be stopped with `parallel::stopCluster()` afterwards. The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the `model` argument, or using the `|>` pipe. Default: `NULL`
+#' @param n.cores Integer. Number of threads for ranger's internal parallelization. Default: `NULL` (auto-detected: when a parallel plan is active via `future::plan()`, n.cores is set to 1; otherwise defaults to `future::availableCores(omit = 1)`). When a parallel plan is active, n.cores is always set to 1 to prevent oversubscription, regardless of user input.
 #' @return A model of the class "rf_evaluate" with a new slot named "evaluation", that is a list with the following slots:
 #' \itemize{
 #'   \item `training.fraction`: Value of the argument `training.fraction`.
@@ -22,6 +21,24 @@
 #'   \item `aggregated`: Same data, but aggregated by model and performance measure.
 #' }
 #' @details The evaluation algorithm works as follows: the number of `repetitions` and the input dataset (stored in `model$ranger.arguments$data`) are used as inputs for the function [thinning_til_n()], that applies [thinning()] to the input data until as many cases as `repetitions` are left, and as separated as possible. Each of these remaining records will be used as a "fold center". From that point, the fold grows, until a number of points equal (or close) to `training.fraction` is reached. The indices of the records within the grown spatial fold are stored as "training" in the output list, and the remaining ones as "testing". Then, for each spatial fold, a "training model" is fitted using the cases corresponding with the training indices, and predicted over the cases corresponding with the testing indices. The model predictions on the "unseen" data are compared with the observations, and the performance measures (R squared, pseudo R squared, RMSE and NRMSE) computed.
+#'
+#' **Parallelization:**
+#'
+#' This function uses the future ecosystem for parallel processing. Control the parallel strategy externally via `future::plan()`:
+#' \itemize{
+#'   \item `future::plan(future::sequential)` - No parallelization (default)
+#'   \item `future::plan(future::multisession, workers = 4)` - Parallel execution with 4 workers
+#'   \item `future::plan(future::multicore, workers = 4)` - Fork-based (Unix/Mac only)
+#' }
+#'
+#' **Progress reporting:**
+#'
+#' This function supports progress bars via the progressr package. To enable progress reporting:
+#' \itemize{
+#'   \item `progressr::handlers(global = TRUE)` - Enable global progress reporting
+#'   \item Progress tracks both fold creation and model evaluation across folds
+#'   \item Especially useful for long-running evaluations with many repetitions
+#' }
 #' @examples
 #'
 #' if(interactive()){
@@ -31,6 +48,7 @@
 #'   plants_xy
 #' )
 #'
+#' # Basic evaluation
 #' plants_rf <- rf_evaluate(
 #'   model = plants_rf,
 #'   xy = plants_xy,
@@ -43,6 +61,26 @@
 #' print_evaluation(plants_rf)
 #'
 #' get_evaluation(plants_rf)
+#'
+#' # With progress bars and parallel execution
+#' library(future)
+#' library(progressr)
+#'
+#' # Enable progress reporting
+#' progressr::handlers(global = TRUE)
+#'
+#' # Set parallel strategy
+#' future::plan(future::multisession, workers = 4)
+#'
+#' # Run evaluation with progress tracking
+#' plants_rf <- rf_evaluate(
+#'   model = plants_rf,
+#'   xy = plants_xy,
+#'   repetitions = 30
+#' )
+#'
+#' # Reset to sequential
+#' future::plan(future::sequential)
 #'
 #' }
 #'
@@ -68,8 +106,7 @@ rf_evaluate <- function(
   grow.testing.folds = FALSE,
   seed = 1,
   verbose = TRUE,
-  n.cores = parallel::detectCores() - 1,
-  cluster = NULL
+  n.cores = NULL
 ) {
   if (is.null(model)) {
     stop("The argument 'model' is empty, there is no model to evaluate")
@@ -88,10 +125,6 @@ rf_evaluate <- function(
   ranger.arguments$data <- NULL
   ranger.arguments$scaled.importance <- FALSE
   ranger.arguments$distance.matrix <- NULL
-
-  if (repetitions > 1) {
-    ranger.arguments$num.threads <- 1
-  }
 
   #getting xy
   if (is.null(xy)) {
@@ -112,19 +145,18 @@ rf_evaluate <- function(
     )
   }
 
-  # Handle model$cluster if present
-  cluster.from.model <- FALSE
-  if (
-    !inherits(x = cluster, what = "cluster") &&
-      inherits(x = model$cluster, what = "cluster")
-  ) {
-    cluster <- model$cluster
-    cluster.from.model <- TRUE
+  # Auto-detect: if parallel plan is active, use single-threaded ranger
+  if (!inherits(x = future::plan(), what = "sequential")) {
+    n.cores <- 1
   }
 
-  #CLUSTER SETUP
-  parallel_config <- setup_parallel_execution(cluster, n.cores)
-  on.exit(parallel_config$cleanup(), add = TRUE)
+  # Set default for sequential plans
+  if (is.null(n.cores)) {
+    n.cores <- future::availableCores(omit = 1)
+  }
+
+  # Set ranger threading
+  ranger.arguments$num.threads <- n.cores
 
   #testing method argument
   metrics <- match.arg(
@@ -201,9 +233,7 @@ rf_evaluate <- function(
     xy = xy,
     distance.step.x = distance.step.x,
     distance.step.y = distance.step.y,
-    training.fraction = training.fraction,
-    n.cores = n.cores,
-    cluster = cluster
+    training.fraction = training.fraction
   )
 
   #flipping spatial folds if grow.testing.folds = TRUE
@@ -218,17 +248,17 @@ rf_evaluate <- function(
 
   #loop to evaluate models
   #####################################
-  evaluation.df <- foreach::foreach(
-    i = seq(1, length(spatial.folds), by = 1),
-    .combine = "rbind",
-    .verbose = FALSE
-  ) %dopar%
-    {
+  # Parallel execution with progress
+  p <- progressr::progressor(along = spatial.folds)
+
+  evaluation.list <- future.apply::future_lapply(
+    X = seq_along(spatial.folds),
+    FUN = function(i) {
       #separating training and testing data
       data.training <- data[data$id %in% spatial.folds[[i]]$training, ]
       data.testing <- data[data$id %in% spatial.folds[[i]]$testing, ]
 
-      #subsetting case.weights if definec
+      #subsetting case.weights if defined
       if (!is.null(ranger.arguments.training$case.weights)) {
         ranger.arguments.training$case.weights <- ranger.arguments$case.weights[
           spatial.folds[[i]]$training
@@ -242,8 +272,6 @@ rf_evaluate <- function(
         predictor.variable.names = predictor.variable.names,
         ranger.arguments = ranger.arguments.training,
         seed = seed,
-        n.cores = 1,
-        cluster = NULL,
         verbose = FALSE
       )
 
@@ -324,18 +352,36 @@ rf_evaluate <- function(
       }
       rownames(out.df) <- NULL
 
+      # Signal progress
+      p(sprintf("Fold %d/%d", i, length(spatial.folds)))
+
       return(out.df)
-    } #end of parallelized loop
+    },
+    future.seed = TRUE
+  )
+
+  # Combine results
+  evaluation.df <- do.call(rbind, evaluation.list)
 
   #preparing data frames for plotting and printing
   #select columns with "training"
-  training_cols <- grep("training", colnames(evaluation.df), fixed = TRUE, value = TRUE)
+  training_cols <- grep(
+    "training",
+    colnames(evaluation.df),
+    fixed = TRUE,
+    value = TRUE
+  )
   performance.training <- evaluation.df[, training_cols, drop = FALSE]
   performance.training[, 1] <- NULL
   performance.training$model <- "Training"
 
   #select columns with "testing"
-  testing_cols <- grep("testing", colnames(evaluation.df), fixed = TRUE, value = TRUE)
+  testing_cols <- grep(
+    "testing",
+    colnames(evaluation.df),
+    fixed = TRUE,
+    value = TRUE
+  )
   performance.testing <- evaluation.df[, testing_cols, drop = FALSE]
   performance.testing[, 1] <- NULL
   performance.testing$model <- "Testing"
@@ -407,25 +453,31 @@ rf_evaluate <- function(
   rownames(performance.df.long) <- NULL
 
   #aggregating
-  performande.df.aggregated <- do.call(rbind, lapply(
-    split(performance.df.long, list(performance.df.long$model, performance.df.long$metric)),
-    function(grp) {
-      data.frame(
-        model = grp$model[1],
-        metric = grp$metric[1],
-        median = median(grp$value),
-        median_absolute_deviation = stats::mad(grp$value),
-        q1 = stats::quantile(grp$value, 0.25, na.rm = TRUE),
-        q3 = stats::quantile(grp$value, 0.75, na.rm = TRUE),
-        mean = mean(grp$value),
-        se = standard_error(grp$value),
-        sd = stats::sd(grp$value),
-        min = min(grp$value),
-        max = max(grp$value),
-        stringsAsFactors = FALSE
-      )
-    }
-  ))
+  performande.df.aggregated <- do.call(
+    rbind,
+    lapply(
+      split(
+        performance.df.long,
+        list(performance.df.long$model, performance.df.long$metric)
+      ),
+      function(grp) {
+        data.frame(
+          model = grp$model[1],
+          metric = grp$metric[1],
+          median = median(grp$value),
+          median_absolute_deviation = stats::mad(grp$value),
+          q1 = stats::quantile(grp$value, 0.25, na.rm = TRUE),
+          q3 = stats::quantile(grp$value, 0.75, na.rm = TRUE),
+          mean = mean(grp$value),
+          se = standard_error(grp$value),
+          sd = stats::sd(grp$value),
+          min = min(grp$value),
+          max = max(grp$value),
+          stringsAsFactors = FALSE
+        )
+      }
+    )
+  )
   rownames(performande.df.aggregated) <- NULL
 
   #stats to NA if "Full" only once in performance.df
@@ -466,11 +518,6 @@ rf_evaluate <- function(
 
   if (verbose) {
     print_evaluation(model = model)
-  }
-
-  # Store cluster in model if it was external (not internally created)
-  if (parallel_config$mode == "external_cluster" || cluster.from.model) {
-    model$cluster <- parallel_config$cluster
   }
 
   model

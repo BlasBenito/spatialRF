@@ -27,8 +27,7 @@
 #' @param weight.penalization.n.predictors Numeric between 0 and 1, weight of the penalization for adding an increasing number of spatial predictors during selection. Default: `NULL`
 #' @param seed Integer, random seed to facilitate reproducibility. Default: `1`.
 #' @param verbose Logical. If TRUE, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
-#' @param n.cores Integer, number of cores to use for parallel execution. Creates a socket cluster with `parallel::makeCluster()`, runs operations in parallel with `foreach` and `%dopar%`, and stops the cluster with `parallel::clusterStop()` when the job is done. Default: `parallel::detectCores() - 1`
-#' @param cluster A cluster definition generated with `parallel::makeCluster()`. If provided, overrides `n.cores`. When `cluster = NULL` (default value), and `model` is provided, the cluster in `model`, if any, is used instead. If this cluster is `NULL`, then the function uses `n.cores` instead. The function does not stop a provided cluster, so it should be stopped with `parallel::stopCluster()` afterwards. The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the `model` argument, or using the `|>` pipe. Default: `NULL`
+#' @param n.cores Integer. Number of threads for ranger's internal parallelization. Default: `NULL` (auto-detected: if user has set a parallel plan via `future::plan()`, defaults to 1; otherwise defaults to `future::availableCores(omit = 1)`). Set to 1 for debugging. Note: When using a parallel plan (multiple workers), setting n.cores > 1 may cause oversubscription. The function will warn if this occurs.
 #' @return A ranger model with several new slots:
 #' \itemize{
 #'   \item `ranger.arguments`: Values of the arguments used to fit the ranger model.
@@ -133,8 +132,7 @@ rf_spatial <- function(
   weight.penalization.n.predictors = NULL,
   seed = 1,
   verbose = TRUE,
-  n.cores = parallel::detectCores() - 1,
-  cluster = NULL
+  n.cores = NULL
 ) {
   #testing method argument
   method <- match.arg(
@@ -378,20 +376,6 @@ rf_spatial <- function(
     }
   }
 
-  # Handle model$cluster if present
-  cluster.from.model <- FALSE
-  if (
-    !inherits(x = cluster, what = "cluster") &&
-      inherits(x = model$cluster, what = "cluster")
-  ) {
-    cluster <- model$cluster
-    cluster.from.model <- TRUE
-  }
-
-  #CLUSTER SETUP
-  parallel_config <- setup_parallel_execution(cluster, n.cores)
-  on.exit(parallel_config$cleanup(), add = TRUE)
-
   #ranking
   if (!is.null(ranking.method)) {
     #removes redundant spatial predictors
@@ -424,8 +408,7 @@ rf_spatial <- function(
       ranking.method = ranking.method,
       reference.moran.i = reference.moran.i,
       verbose = FALSE,
-      n.cores = n.cores,
-      cluster = parallel_config$cluster
+      n.cores = n.cores
     )
   }
 
@@ -461,8 +444,7 @@ rf_spatial <- function(
       weight.r.squared = weight.r.squared,
       weight.penalization.n.predictors = weight.penalization.n.predictors,
       verbose = FALSE,
-      n.cores = n.cores,
-      cluster = parallel_config$cluster
+      n.cores = n.cores
     )
 
     #names of the selected spatial predictors
@@ -496,8 +478,7 @@ rf_spatial <- function(
       spatial.predictors.ranking = spatial.predictors.ranking,
       weight.r.squared = weight.r.squared,
       weight.penalization.n.predictors = weight.penalization.n.predictors,
-      n.cores = n.cores,
-      cluster = parallel_config$cluster
+      n.cores = n.cores
     )
 
     #broadcast spatial.predictors.selected
@@ -581,11 +562,6 @@ rf_spatial <- function(
     print(model.spatial)
     plot_importance(model.spatial)
     plot_residuals_diagnostics(model.spatial)
-  }
-
-  # Store cluster in model if it was external (not internally created)
-  if (parallel_config$mode == "external_cluster" || cluster.from.model) {
-    model.spatial$cluster <- parallel_config$cluster
   }
 
   #return output

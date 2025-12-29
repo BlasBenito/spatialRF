@@ -15,8 +15,7 @@ rf(
   scaled.importance = FALSE,
   seed = 1,
   verbose = TRUE,
-  n.cores = parallel::detectCores() - 1,
-  cluster = NULL
+  n.cores = NULL
 )
 }
 \arguments{
@@ -40,9 +39,7 @@ rf(
 
 \item{verbose}{If \code{TRUE}, display messages and plots during execution. Default: \code{TRUE}}
 
-\item{n.cores}{Number of cores for parallel execution. Default: \code{parallel::detectCores() - 1}}
-
-\item{cluster}{Cluster object from \code{parallel::makeCluster()}. Not used by this function but stored in the model for use in downstream functions. Default: \code{NULL}}
+\item{n.cores}{Integer. Number of threads for ranger's internal parallelization. Default: \code{NULL} (auto-detected as \code{future::availableCores(omit = 1)}). Set to 1 for debugging or when using a parallel plan for R-level parallelization}
 }
 \value{
 A ranger model object with additional slots:

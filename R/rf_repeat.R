@@ -13,8 +13,7 @@
 #' @param keep.models Logical, if `TRUE`, the fitted models are returned in the `models` slot. Set to `FALSE` if the accumulation of models is creating issues with the RAM memory available. Default: `TRUE`.
 #' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same. Default: `1`.
 #' @param verbose Logical, ff `TRUE`, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
-#' @param n.cores Integer, number of cores to use for parallel execution. Creates a socket cluster with `parallel::makeCluster()`, runs operations in parallel with `foreach` and `%dopar%`, and stops the cluster with `parallel::clusterStop()` when the job is done. Default: `parallel::detectCores() - 1`
-#' @param cluster A cluster definition generated with `parallel::makeCluster()`. If provided, overrides `n.cores`. When `cluster = NULL` (default value), and `model` is provided, the cluster in `model`, if any, is used instead. If this cluster is `NULL`, then the function uses `n.cores` instead. The function does not stop a provided cluster, so it should be stopped with `parallel::stopCluster()` afterwards. The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the `model` argument, or using the `|>` pipe. Default: `NULL`
+#' @param n.cores Integer. Number of threads for ranger's internal parallelization. Default: `NULL` (auto-detected: when a parallel plan is active via `future::plan()`, n.cores is set to 1; otherwise defaults to `future::availableCores(omit = 1)`). When a parallel plan is active, n.cores is always set to 1 to prevent oversubscription, regardless of user input.
 #' @return A ranger model with several new slots:
 #' \itemize{
 #'   \item `ranger.arguments`: Stores the values of the arguments used to fit the ranger model.
@@ -70,8 +69,7 @@ rf_repeat <- function(
   keep.models = TRUE,
   seed = 1,
   verbose = TRUE,
-  n.cores = parallel::detectCores() - 1,
-  cluster = NULL
+  n.cores = NULL
 ) {
   #checking repetitions
   if (!is.integer(repetitions)) {
@@ -105,20 +103,15 @@ rf_repeat <- function(
     data <- as.data.frame(data)
   }
 
-  # Handle model$cluster if present
-  cluster.from.model <- FALSE
-  if (
-    !inherits(x = cluster, what = "cluster") &&
-      !is.null(model) &&
-      inherits(x = model$cluster, what = "cluster")
-  ) {
-    cluster <- model$cluster
-    cluster.from.model <- TRUE
+  # Auto-detect: if parallel plan is active, use single-threaded ranger
+  if (!inherits(x = future::plan(), what = "sequential")) {
+    n.cores <- 1
   }
 
-  #CLUSTER SETUP
-  parallel_config <- setup_parallel_execution(cluster, n.cores)
-  on.exit(parallel_config$cleanup(), add = TRUE)
+  # Set default for sequential plans
+  if (is.null(n.cores)) {
+    n.cores <- future::availableCores(omit = 1)
+  }
 
   #predictor.variable.names comes from auto_vif or auto_cor
   if (!is.null(predictor.variable.names)) {
@@ -130,7 +123,8 @@ rf_repeat <- function(
   if (is.null(ranger.arguments)) {
     ranger.arguments <- list()
   }
-  ranger.arguments$num.threads <- 1
+  # Set ranger threading
+  ranger.arguments$num.threads <- n.cores
   ranger.arguments$seed <- NULL
   ranger.arguments$scaled.importance <- scaled.importance
 
@@ -139,11 +133,12 @@ rf_repeat <- function(
   }
 
   #parallelized loop
-  repeated.models <- foreach::foreach(
-    i = 1:repetitions,
-    .verbose = FALSE
-  ) %dopar%
-    {
+  # Parallel execution with progress
+  p <- progressr::progressor(steps = repetitions)
+
+  repeated.models <- future.apply::future_lapply(
+    X = seq_len(repetitions),
+    FUN = function(i) {
       #model on raw data
       m.i <- spatialRF::rf(
         data = data,
@@ -155,7 +150,6 @@ rf_repeat <- function(
         ranger.arguments = ranger.arguments,
         scaled.importance = scaled.importance,
         seed = ifelse(is.null(seed), i, seed + i),
-        n.cores = 1,
         verbose = FALSE
       )
 
@@ -186,8 +180,13 @@ rf_repeat <- function(
         out$model <- m.i
       }
 
+      # Signal progress
+      p()
+
       return(out)
-    } #end of parallelized loop
+    },
+    future.seed = TRUE
+  )
 
   #fitting model if keep.models  == FALSE
   if (!keep.models) {
@@ -526,18 +525,21 @@ rf_repeat <- function(
 
     p.value <- NULL
     interpretation <- NULL
-    moran.median <- do.call(rbind, lapply(
-      split(moran.repetitions, moran.repetitions$distance.threshold),
-      function(grp) {
-        data.frame(
-          distance.threshold = grp$distance.threshold[1],
-          moran.i = median(grp$moran.i),
-          p.value = median(grp$p.value),
-          interpretation = statistical_mode(grp$interpretation),
-          stringsAsFactors = FALSE
-        )
-      }
-    ))
+    moran.median <- do.call(
+      rbind,
+      lapply(
+        split(moran.repetitions, moran.repetitions$distance.threshold),
+        function(grp) {
+          data.frame(
+            distance.threshold = grp$distance.threshold[1],
+            moran.i = median(grp$moran.i),
+            p.value = median(grp$p.value),
+            interpretation = statistical_mode(grp$interpretation),
+            stringsAsFactors = FALSE
+          )
+        }
+      )
+    )
     rownames(moran.median) <- NULL
 
     m$residuals$autocorrelation$per.distance <- moran.median
@@ -626,11 +628,6 @@ rf_repeat <- function(
   #print model
   if (verbose) {
     print(m)
-  }
-
-  # Store cluster in model if it was external (not internally created)
-  if (parallel_config$mode == "external_cluster" || cluster.from.model) {
-    m$cluster <- parallel_config$cluster
   }
 
   m

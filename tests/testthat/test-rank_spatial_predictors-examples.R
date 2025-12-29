@@ -15,7 +15,7 @@ test_that("`rank_spatial_predictors()` works", {
     distance.thresholds = c(0, 100, 1000),
     spatial.predictors.df = spatial.predictors.df,
     ranking.method = "moran",
-    cluster = cluster
+    
   )
 
   foreach::registerDoSEQ()

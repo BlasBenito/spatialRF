@@ -17,8 +17,9 @@ Imports:
     ggplot2,
     stats,
     utils,
-    foreach,
-    doParallel,
+    future (>= 1.33.0),
+    future.apply (>= 1.11.0),
+    progressr (>= 0.13.0),
     ranger,
     patchwork (>= 1.3.2),
     viridis

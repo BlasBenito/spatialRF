@@ -2,10 +2,8 @@ test_that("`rf_repeat()` works", {
   data("plants_df")
   data("plants_distance")
 
-  cluster <- parallel::makeCluster(
-    parallel::detectCores() - 1,
-    type = "PSOCK"
-  )
+  # Use sequential plan for testing
+  future::plan(future::sequential)
 
   out <- rf_repeat(
     data = plants_df,
@@ -14,12 +12,9 @@ test_that("`rf_repeat()` works", {
     distance.matrix = plants_distance,
     distance.thresholds = c(0, 100, 1000),
     repetitions = 5,
-    verbose = FALSE,
-    cluster = cluster
+    verbose = FALSE
   )
 
-  foreach::registerDoSEQ()
-  parallel::stopCluster(cluster)
   invisible(gc())
 
   expect_s3_class(out, "rf_repeat")
@@ -29,5 +24,5 @@ test_that("`rf_repeat()` works", {
     out$residuals$autocorrelation$per.distance,
     c("distance.threshold", "moran.i", "p.value", "interpretation")
   )
-  
+
 })

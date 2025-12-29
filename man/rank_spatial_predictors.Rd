@@ -15,8 +15,7 @@ rank_spatial_predictors(
   ranking.method = c("moran", "effect"),
   reference.moran.i = 1,
   verbose = FALSE,
-  n.cores = parallel::detectCores() - 1,
-  cluster = NULL
+  n.cores = NULL
 )
 }
 \arguments{
@@ -40,9 +39,7 @@ rank_spatial_predictors(
 
 \item{verbose}{Logical, ff \code{TRUE}, messages and plots generated during the execution of the function are displayed, Default: \code{TRUE}}
 
-\item{n.cores}{Integer, number of cores to use for parallel execution. Creates a socket cluster with \code{parallel::makeCluster()}, runs operations in parallel with \code{foreach} and \verb{\%dopar\%}, and stops the cluster with \code{parallel::clusterStop()} when the job is done. Default: \code{parallel::detectCores() - 1}}
-
-\item{cluster}{A cluster definition generated with \code{parallel::makeCluster()}. If provided, overrides \code{n.cores}. When \code{cluster = NULL} (default value), and \code{model} is provided, the cluster in \code{model}, if any, is used instead. If this cluster is \code{NULL}, then the function uses \code{n.cores} instead. The function does not stop a provided cluster, so it should be stopped with \code{parallel::stopCluster()} afterwards. The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the \code{model} argument, or using the \verb{|>} pipe. Default: \code{NULL}}
+\item{n.cores}{Integer. Number of threads for ranger's internal parallelization. Default: \code{NULL} (auto-detected: when a parallel plan is active via \code{future::plan()}, n.cores is set to 1; otherwise defaults to \code{future::availableCores(omit = 1)}). When a parallel plan is active, n.cores is always set to 1 to prevent oversubscription, regardless of user input.}
 }
 \value{
 A list with four slots:

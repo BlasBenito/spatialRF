@@ -41,12 +41,10 @@ y
 Other utilities: 
 \code{\link{.vif_to_df}()},
 \code{\link{auc}()},
-\code{\link{beowulf_cluster}()},
 \code{\link{objects_size}()},
 \code{\link{optimization_function}()},
 \code{\link{prepare_importance_spatial}()},
 \code{\link{root_mean_squared_error}()},
-\code{\link{setup_parallel_execution}()},
 \code{\link{standard_error}()},
 \code{\link{statistical_mode}()},
 \code{\link{thinning}()},

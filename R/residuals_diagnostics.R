@@ -24,7 +24,6 @@
 #' @family spatial_analysis
 #' @export
 #' @autoglobal
-#' @importFrom patchwork plot_annotation wrap_plots
 residuals_diagnostics <- function(
   residuals,
   predictions

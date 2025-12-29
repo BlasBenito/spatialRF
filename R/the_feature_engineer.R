@@ -21,8 +21,7 @@
 #' @param point.color Colors of the plotted points. Can be a single color name (e.g. "red4"), a character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. `viridis::viridis(100)`). Default: `viridis::viridis(100, option = "F", alpha = 0.8)`
 #' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same. Default: `NULL`
 #' @param verbose Logical. If `TRUE`, messages and plots generated during the execution of the function are displayed. Default: `TRUE`
-#' @param n.cores Integer, number of cores to use for parallel execution. Creates a socket cluster with `parallel::makeCluster()`, runs operations in parallel with `foreach` and `%dopar%`, and stops the cluster with `parallel::clusterStop()` when the job is done. Default: `parallel::detectCores() - 1`
-#' @param cluster A cluster definition generated with `parallel::makeCluster()`. If provided, overrides `n.cores`. When `cluster = NULL` (default value), and `model` is provided, the cluster in `model`, if any, is used instead. If this cluster is `NULL`, then the function uses `n.cores` instead. The function does not stop a provided cluster, so it should be stopped with `parallel::stopCluster()` afterwards. The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the `model` argument, or using the `|>` pipe. Default: `NULL`
+#' @param n.cores Integer. Number of threads for ranger's internal parallelization. Default: `NULL` (auto-detected: when a parallel plan is active via `future::plan()`, n.cores is set to 1; otherwise defaults to `future::availableCores(omit = 1)`). When a parallel plan is active, n.cores is always set to 1 to prevent oversubscription, regardless of user input.
 #' @return A list with seven slots:
 #' \itemize{
 #'   \item `screening`: Data frame with selection scores of all the interactions considered.
@@ -99,8 +98,7 @@ the_feature_engineer <- function(
   ),
   seed = NULL,
   verbose = TRUE,
-  n.cores = parallel::detectCores() - 1,
-  cluster = NULL
+  n.cores = NULL
 ) {
   #coerce to data frame if tibble
   if (is.null(data)) {
@@ -119,9 +117,15 @@ the_feature_engineer <- function(
     }
   }
 
-  #CLUSTER SETUP
-  parallel_config <- setup_parallel_execution(cluster, n.cores)
-  on.exit(parallel_config$cleanup(), add = TRUE)
+  # Auto-detect: if parallel plan is active, use single-threaded ranger
+  if (!inherits(x = future::plan(), what = "sequential")) {
+    n.cores <- 1
+  }
+
+  # Set default for sequential plans
+  if (is.null(n.cores)) {
+    n.cores <- future::availableCores(omit = 1)
+  }
 
   #finding out if the response is binary
   is.binary <- is_binary(
@@ -171,9 +175,7 @@ the_feature_engineer <- function(
     xy = xy,
     metrics = metric,
     seed = seed,
-    verbose = FALSE,
-    n.cores = n.cores,
-    cluster = parallel_config$cluster
+    verbose = FALSE
   )
 
   #metric
@@ -239,13 +241,13 @@ the_feature_engineer <- function(
     ))
   }
 
-  #testing interactions
-  interaction.screening.1 <- foreach::foreach(
-    i = seq(1, nrow(variables.pairs)),
-    .combine = "rbind",
-    .verbose = FALSE
-  ) %dopar%
-    {
+  # Create progressor for first loop
+  p1 <- progressr::progressor(along = seq_len(nrow(variables.pairs)))
+
+  # Testing interactions - loop 1
+  interaction.screening.1_list <- future.apply::future_lapply(
+    X = seq_len(nrow(variables.pairs)),
+    FUN = function(i) {
       #get pair
       pair.i <- c(variables.pairs[i, 1], variables.pairs[i, 2])
       pair.i.name <- paste0(
@@ -304,8 +306,7 @@ the_feature_engineer <- function(
           xy = xy,
           metrics = metric,
           seed = seed,
-          verbose = FALSE,
-          n.cores = 1
+          verbose = FALSE
         )
 
         #importance data frame
@@ -348,15 +349,24 @@ the_feature_engineer <- function(
         )
       }
 
-      return(out.df)
-    } #end of parallelized loop
+      # Signal progress
+      p1()
 
-  interaction.screening.2 <- foreach::foreach(
-    i = seq(1, nrow(variables.pairs)),
-    .combine = "rbind",
-    .verbose = FALSE
-  ) %dopar%
-    {
+      return(out.df)
+    },
+    future.seed = TRUE
+  )
+
+  # Combine results from loop 1
+  interaction.screening.1 <- do.call(rbind, interaction.screening.1_list)
+
+  # Create progressor for second loop
+  p2 <- progressr::progressor(along = seq_len(nrow(variables.pairs)))
+
+  # Testing interactions - loop 2
+  interaction.screening.2_list <- future.apply::future_lapply(
+    X = seq_len(nrow(variables.pairs)),
+    FUN = function(i) {
       #get pair
       pair.i <- c(variables.pairs[i, 1], variables.pairs[i, 2])
       pair.i.name <- paste0(
@@ -421,8 +431,7 @@ the_feature_engineer <- function(
           xy = xy,
           metrics = metric,
           seed = seed,
-          verbose = FALSE,
-          n.cores = 1
+          verbose = FALSE
         )
 
         #importance data frame
@@ -468,8 +477,16 @@ the_feature_engineer <- function(
         )
       }
 
+      # Signal progress
+      p2()
+
       return(out.df)
-    } #end of parallelized loop
+    },
+    future.seed = TRUE
+  )
+
+  # Combine results from loop 2
+  interaction.screening.2 <- do.call(rbind, interaction.screening.2_list)
 
   interaction.screening <- rbind(
     interaction.screening.1,
@@ -505,8 +522,9 @@ the_feature_engineer <- function(
   interaction.screening <- interaction.screening[
     order(interaction.screening$order, decreasing = TRUE),
   ]
-  interaction.screening <- interaction.screening[
-    , colnames(interaction.screening) != "order", drop = FALSE
+  interaction.screening <- interaction.screening[,
+    colnames(interaction.screening) != "order",
+    drop = FALSE
   ]
 
   #selected only
@@ -738,9 +756,7 @@ the_feature_engineer <- function(
     fill.color = c(color.a, color.b),
     line.color = line.color,
     seed = seed,
-    verbose = FALSE,
-    n.cores = n.cores,
-    cluster = parallel_config$cluster
+    verbose = FALSE
   )
 
   #adding it to the plot list

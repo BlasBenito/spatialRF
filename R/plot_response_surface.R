@@ -29,6 +29,7 @@
 #' @export
 #' @autoglobal
 #' @importFrom ggplot2 .data
+#' @importFrom ranger ranger
 plot_response_surface <- function(
   model = NULL,
   a = NULL,

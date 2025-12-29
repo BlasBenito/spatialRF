@@ -30,7 +30,6 @@
 #' plot_moran(plants_rf, option = 2)
 #'
 #' @rdname plot_moran
-#' @importFrom foreach %do%
 #' @family visualization
 #' @export
 #' @autoglobal
@@ -194,8 +193,7 @@ plot_moran <- function(
     m.moran <- model$residuals$autocorrelation$per.distance
 
     #iterating through distance thresholds
-    loop.out <- foreach::foreach(distance.threshold = distance.thresholds) %do%
-      {
+    loop.out <- lapply(distance.thresholds, function(distance.threshold) {
         #matrix of weights
         distance.weights <- weights_from_distance_matrix(
           distance.matrix = distance.matrix,
@@ -231,13 +229,15 @@ plot_moran <- function(
           p.value
         )
 
-        #out data frame
-        out.df <- data.frame(
-          distance.threshold = rep(facet.label, length(m.residuals)),
-          residual = m.residuals,
-          residual.lag = residuals.lag
-        )
-      }
+      #out data frame
+      out.df <- data.frame(
+        distance.threshold = rep(facet.label, length(m.residuals)),
+        residual = m.residuals,
+        residual.lag = residuals.lag
+      )
+
+      return(out.df)
+    })
 
     #to df
     plot.df <- do.call(

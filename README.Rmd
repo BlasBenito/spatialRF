@@ -105,6 +105,46 @@ remotes::install_github(
   )
 ```
 
+# Parallelization
+
+`spatialRF` uses the `future` ecosystem for parallelization, giving you full control over how and where parallel execution happens.
+
+## Basic Usage
+
+Control parallelization strategy externally with `future::plan()`:
+
+```{r, eval = FALSE}
+library(future)
+
+# For single large models - use ranger threading
+plan(sequential)
+model <- rf_spatial(plant_richness_df, n.cores = 8)
+
+# For cross-validation/repetitions - use R-level parallelization
+plan(multisession, workers = 8)
+cv_results <- rf_evaluate(model)  # n.cores defaults to 1 automatically
+
+# Disable all parallelization (debugging)
+plan(sequential)
+model <- rf(data, n.cores = 1)
+```
+
+The `n.cores` parameter controls ranger's internal threading. When you set a parallel plan (e.g., `plan(multisession, workers = 8)`), `n.cores` automatically defaults to 1 to prevent oversubscription.
+
+## Progress Reporting
+
+Enable progress bars with `progressr`:
+
+```{r, eval = FALSE}
+library(progressr)
+
+# Enable progress handlers globally
+handlers(global = TRUE)
+
+# Now progress will be shown for rf_evaluate() and rf_repeat()
+results <- rf_evaluate(model)
+```
+
 # Getting Started
 
 This README provides a quick introduction to `spatialRF`. For detailed tutorials, see:

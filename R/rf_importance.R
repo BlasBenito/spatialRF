@@ -12,8 +12,7 @@
 #' @param line.color Character string, color of the line produced by `ggplot2::geom_smooth()`. Default: `"white"`
 #' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same. Default: `1`.
 #' @param verbose Logical. If `TRUE`, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
-#' @param n.cores Integer, number of cores to use for parallel execution. Creates a socket cluster with `parallel::makeCluster()`, runs operations in parallel with `foreach` and `%dopar%`, and stops the cluster with `parallel::clusterStop()` when the job is done. Default: `parallel::detectCores() - 1`
-#' @param cluster A cluster definition generated with `parallel::makeCluster()`. If provided, overrides `n.cores`. When `cluster = NULL` (default value), and `model` is provided, the cluster in `model`, if any, is used instead. If this cluster is `NULL`, then the function uses `n.cores` instead. The function does not stop a provided cluster, so it should be stopped with `parallel::stopCluster()` afterwards. The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the `model` argument, or using the `|>` pipe. Default: `NULL`
+#' @param n.cores Integer. Number of threads for ranger's internal parallelization. Default: `NULL` (auto-detected: if user has set a parallel plan via `future::plan()`, defaults to 1; otherwise defaults to `future::availableCores(omit = 1)`). Set to 1 for debugging. Note: When using a parallel plan (multiple workers), setting n.cores > 1 may cause oversubscription. The function will warn if this occurs.
 #' @return The input model with new data in its "importance" slot. The new importance scores are included in the data frame `model$importance$per.variable`, under the column names "importance.cv" (median contribution to transferability over spatial cross-validation repetitions), "importance.cv.mad" (median absolute deviation of the performance scores over spatial cross-validation repetitions), "importance.cv.percent" ("importance.cv" expressed as a percent, taking the full model's performance as baseline), and "importance.cv.mad" (median absolute deviation of "importance.cv"). The plot is stored as "cv.per.variable.plot".
 #' @examples
 #'
@@ -55,8 +54,7 @@ rf_importance <- function(
   line.color = "white",
   seed = 1,
   verbose = TRUE,
-  n.cores = parallel::detectCores() - 1,
-  cluster = NULL
+  n.cores = NULL
 ) {
   #testing method argument
   metric <- match.arg(
@@ -64,20 +62,6 @@ rf_importance <- function(
     choices = c("r.squared", "pseudo.r.squared", "rmse", "nrmse", "auc"),
     several.ok = FALSE
   )
-
-  # Handle model$cluster if present
-  cluster.from.model <- FALSE
-  if (
-    !inherits(x = cluster, what = "cluster") &&
-      inherits(x = model$cluster, what = "cluster")
-  ) {
-    cluster <- model$cluster
-    cluster.from.model <- TRUE
-  }
-
-  #CLUSTER SETUP
-  parallel_config <- setup_parallel_execution(cluster, n.cores)
-  on.exit(parallel_config$cleanup(), add = TRUE)
 
   #evaluating the full model
   if (verbose) {
@@ -96,8 +80,7 @@ rf_importance <- function(
     metrics = metric,
     seed = seed,
     verbose = FALSE,
-    n.cores = n.cores,
-    cluster = cluster
+    n.cores = n.cores
   )
 
   #getting the evaluation.df
@@ -166,8 +149,7 @@ rf_importance <- function(
       ranger.arguments = ranger.arguments,
       seed = seed,
       verbose = FALSE,
-      n.cores = n.cores,
-      cluster = cluster
+      n.cores = n.cores
     ) |>
       rf_evaluate(
         repetitions = repetitions,
@@ -355,11 +337,6 @@ rf_importance <- function(
 
   if (verbose) {
     print(importance.per.variable.plot)
-  }
-
-  # Store cluster in model if it was external (not internally created)
-  if (parallel_config$mode == "external_cluster" || cluster.from.model) {
-    model$cluster <- parallel_config$cluster
   }
 
   model

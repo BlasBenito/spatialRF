@@ -26,7 +26,7 @@ test_that("`rf_spatial()` works", {
     distance.thresholds = 0, # Single threshold for speed
     method = "hengl",
     verbose = FALSE,
-    cluster = cluster
+    
   )
 
   # Comprehensive assertions for primary method
@@ -49,7 +49,7 @@ test_that("`rf_spatial()` works", {
     distance.thresholds = 0,
     method = "mem.moran.sequential",
     verbose = FALSE,
-    cluster = cluster
+    
   )
 
   # Basic checks to ensure method works
@@ -74,7 +74,7 @@ test_that("`rf_spatial()` works", {
         distance.thresholds = 0,
         method = "mem.effect.recursive",
         verbose = FALSE,
-        cluster = cluster
+        
       )
     },
     NA # Expect no error

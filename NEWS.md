@@ -1,3 +1,60 @@
+## Version 2.0.0
+
+### Breaking Changes
+
+**Complete parallelization migration to `future` ecosystem**
+
+All parallelized functions now use the `future` ecosystem instead of `foreach`+`doParallel`:
+
+**Affected functions:** `rf_evaluate()`, `rf_repeat()`, `rf_tuning()`, `rf_spatial()`, `rank_spatial_predictors()`, `select_spatial_predictors_sequential()`, `select_spatial_predictors_recursive()`, `the_feature_engineer()`, `make_spatial_folds()`
+
+1. **`cluster` parameter removed from all functions:**
+   - OLD: `rf_evaluate(model, cluster = cl, n.cores = 8)`
+   - NEW: Set plan first: `library(future); plan(multisession, workers = 8); rf_evaluate(model)`
+
+2. **`n.cores` now controls ranger threading only, not R-level parallelization:**
+   - When a parallel plan is active via `plan()`, `n.cores` is automatically set to 1 (silent override)
+   - When using `plan(sequential)` (default), `n.cores` defaults to `availableCores(omit = 1)`
+   - Explicit `n.cores` values are overridden when parallel plan is active to prevent oversubscription
+
+**Migration example:**
+
+```r
+# OLD CODE
+cl <- parallel::makeCluster(8)
+results <- rf_evaluate(model, cluster = cl, n.cores = 8)
+parallel::stopCluster(cl)
+
+# NEW CODE
+library(future)
+plan(multisession, workers = 8)
+results <- rf_evaluate(model)  # n.cores automatically set to 1
+plan(sequential)  # Reset when done (optional)
+```
+
+### New Features
+
+- **Progress bars:** All parallelized functions now support progress reporting via the `progressr` package:
+  ```r
+  library(progressr)
+  handlers(global = TRUE)  # Enable globally
+
+  # Now progress will be shown
+  results <- rf_evaluate(model)
+  ```
+
+- **Better resource detection:** Uses `future::availableCores()` instead of `parallel::detectCores()`, which better respects container limits, HPC schedulers, and cgroups.
+
+- **Proper parallel RNG:** All parallel operations now use `future.seed = TRUE` to ensure statistically sound random number generation in parallel contexts.
+
+- **Automatic oversubscription prevention:** When a parallel plan is active, `n.cores` is silently set to 1 to prevent creating excessive threads (no warnings needed).
+
+### Code Quality Improvements
+
+- **Reduced namespace pollution:** Removed single-use `@importFrom` statements (`ranger::ranger`, `patchwork::plot_annotation`, `patchwork::wrap_plots`). Now only imports extensively-used functions (`future::availableCores`, `future.apply::future_lapply`, `progressr::progressor`, `ggplot2::.data`).
+
+- **Explicit package calls:** Adopting `package::function()` syntax throughout codebase to make dependencies explicit and reduce `@importFrom` clutter.
+
 ## Version 1.2.0
 
 - Replaced the `magrittr` pipe with the base one.
@@ -6,7 +63,7 @@
 
 - Removed `huxtable` from print functions to reduce dependency footprint.
 
-- Replaced `@importFrom package function` with `package::function()` calls throughout the package. Right now the only @importFrom are `foreach %dopar%` (to be removed when `future` comes), `ggplot2 .data`, `patchwork plot_annotation wrap_plots` (required to make patchwork's `|` and `/` work), `ranger ranger` (required for `stats::predict()`), and `foreach %do%`
+- Replaced `@importFrom package function` with `package::function()` calls throughout the package to reduce namespace dependencies.
 
 Add package `roxyglobals` and its `@autoglobal` tag across all functions, and remove declarations of global variables (example: `x <- NULL`).
 
