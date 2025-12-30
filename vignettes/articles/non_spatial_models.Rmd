@@ -157,10 +157,10 @@ The violin-plot shows the cross-validation comparison of the model with and with
 The function also returns a data frame with the complete screening results.
 
 ```{r, echo = FALSE, warning=FALSE}
-interactions$screening %>%
+interactions$screening |>
   dplyr::mutate(
     interaction.metric.gain = round(interaction.metric.gain, 3)
-  ) %>%
+  ) |>
   knitr::kable()
 ```
 
@@ -246,11 +246,11 @@ importance.df <- randomForestExplainer::measure_importance(
 ```
 
 ```{r, echo=FALSE, warning=FALSE}
-importance.df %>%
+importance.df |>
   dplyr::mutate(
     mean_min_depth = round(mean_min_depth, 2),
     p_value = round(p_value, 2)
-  ) %>%
+  ) |>
   knitr::kable()
 ```
 
@@ -269,10 +269,10 @@ m <- spatialRF::rf_importance(
 The values in the plot are added as new columns with the suffix `.cv` in the dataframe `m$importance$per.variable`.
 
 ```{r, echo = FALSE, warning=FALSE}
-m$importance$per.variable %>%
+m$importance$per.variable |>
   dplyr::mutate(
     importance.cv = round(importance.cv, 4)
-  ) %>%
+  ) |>
   knitr::kable()
 ```
 

@@ -85,9 +85,9 @@ print.rf <- function(x, ...) {
   )
 
   residuals.stats <-
-    huxtable::hux(residuals.stats) %>%
-    huxtable::add_colnames() %>%
-    huxtable::set_bold(row = 1, col = huxtable::everywhere, value = TRUE) %>%
+    huxtable::hux(residuals.stats) |>
+    huxtable::add_colnames() |>
+    huxtable::set_bold(row = 1, col = huxtable::everywhere, value = TRUE) |>
     huxtable::set_all_borders()
   huxtable::number_format(residuals.stats)[2, ] <- 2
   huxtable::print_screen(residuals.stats, colnames = FALSE)

@@ -28,7 +28,7 @@ m <- rf(
   distance.matrix = distance_matrix,
   xy = xy,
   cluster = my.cluster
-) %>%
+) |>
   rf_importance()
 
 m <- rf_spatial(model = m)
@@ -58,10 +58,10 @@ m <- rf(
   distance.matrix = distance_matrix,
   xy = xy,
   cluster = my.cluster
-) %>%
-  rf_spatial() %>%
-  rf_tuning() %>%
-  rf_evaluate() %>%
+) |>
+  rf_spatial() |>
+  rf_tuning() |>
+  rf_evaluate() |>
   rf_repeat()
 
 parallel::stopCluster(cl = my.cluster)
@@ -87,10 +87,10 @@ m <- rf(
   distance.matrix = distance_matrix,
   xy = xy,
   cluster = my.cluster
-) %>%
-  rf_spatial() %>%
-  rf_tuning() %>%
-  rf_evaluate() %>%
+) |>
+  rf_spatial() |>
+  rf_tuning() |>
+  rf_evaluate() |>
   rf_repeat()
 
 parallel::stopCluster(cl = beowulf.cluster)
@@ -103,10 +103,10 @@ m <- rf(
   predictor.variable.names = predictor.variable.names,
   distance.matrix = distance_matrix,
   xy = xy
-) %>%
-  rf_spatial() %>%
-  # rf_tuning() %>%
-  rf_evaluate() %>%
+) |>
+  rf_spatial() |>
+  # rf_tuning() |>
+  rf_evaluate() |>
   rf_repeat()
 
 m <- rf(
@@ -116,10 +116,10 @@ m <- rf(
   distance.matrix = distance_matrix,
   xy = xy,
   n.cores = 1
-) %>%
-  rf_spatial(n.cores = 1) %>%
-  # rf_tuning() %>%
-  rf_evaluate(n.cores = 1) %>%
+) |>
+  rf_spatial(n.cores = 1) |>
+  # rf_tuning() |>
+  rf_evaluate(n.cores = 1) |>
   rf_repeat(n.cores = 1)
 
 
@@ -386,13 +386,13 @@ x <- rf_spatial(
   distance.matrix = distance_matrix,
   xy = xy,
   verbose = FALSE
-) %>%
+) |>
   rf_tuning(
     verbose = FALSE
-  ) %>%
+  ) |>
   rf_evaluate(
     verbose = FALSE
-  ) %>%
+  ) |>
   rf_repeat(
     repetitions = 30
   )
@@ -437,18 +437,18 @@ x.local <- rf(
 )
 
 randomForestExplainer::measure_importance(x.local)
-randomForestExplainer::min_depth_distribution(x.local) %>%
+randomForestExplainer::min_depth_distribution(x.local) |>
   randomForestExplainer::plot_min_depth_distribution()
 
 local.importance <- cbind(
   xy,
   x.local$importance$local
-) %>%
+) |>
   tidyr::pivot_longer(
     cols = colnames(plant_richness_df)[5:21],
     names_to = "variable",
     values_to = "importance"
-  ) %>%
+  ) |>
   dplyr::mutate(
     importance = importance + abs(min(importance))
   )

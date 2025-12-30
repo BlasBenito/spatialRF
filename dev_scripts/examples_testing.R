@@ -88,7 +88,7 @@ head(y$selected.variables.df)
 #'
 #' double_center_distance_matrix(
 #'   distance.matrix = plants_distance
-#' ) %>%
+#' ) |>
 #'   head()
 
 
@@ -139,7 +139,7 @@ head(y$selected.variables.df)
 
 #' data(plants_rf)
 #'
-#' get_importance_local(plants_rf) %>%
+#' get_importance_local(plants_rf) |>
 #'   head()
 
 
@@ -168,7 +168,7 @@ head(y$selected.variables.df)
 
 #' data(plants_rf)
 #'
-#' get_predictions(plants_rf) %>%
+#' get_predictions(plants_rf) |>
 #'   head()
 
 
@@ -176,7 +176,7 @@ head(y$selected.variables.df)
 
 #' data(plants_rf)
 #'
-#' get_residuals(plants_rf) %>%
+#' get_residuals(plants_rf) |>
 #'   head()
 
 
@@ -184,7 +184,7 @@ head(y$selected.variables.df)
 
 #' data(plants_rf)
 #'
-#' get_response_curves(plants_rf) %>%
+#' get_response_curves(plants_rf) |>
 #'   head()
 
 
@@ -192,7 +192,7 @@ head(y$selected.variables.df)
 
 #' data(plants_rf_spatial)
 #'
-#' get_spatial_predictors(plants_rf_spatial) %>%
+#' get_spatial_predictors(plants_rf_spatial) |>
 #'   head()
 
 
@@ -489,7 +489,7 @@ head(y$selected.variables.df)
 
 #' data(plants_rf_spatial)
 #'
-#' prepare_importance_spatial(plants_rf_spatial) %>%
+#' prepare_importance_spatial(plants_rf_spatial) |>
 #'   head()
 
 

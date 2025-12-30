@@ -69,10 +69,10 @@ doParallel::registerDoParallel(cl = cluster)
     distance.matrix = distance_matrix,
     xy = xy,
     cluster = my.cluster
-  ) %>%
-  rf_spatial() %>%
-  rf_tuning() %>%
-  rf_evaluate() %>%
+  ) |>
+  rf_spatial() |>
+  rf_tuning() |>
+  rf_evaluate() |>
   rf_repeat()
 
 #stopping cluster

@@ -129,29 +129,29 @@ library(tidymodels)
 library(spatialML)
 
 # Define spatial preprocessing with recipes
-spatial_recipe <- recipe(y ~ ., data = df) %>%
+spatial_recipe <- recipe(y ~ ., data = df) |>
   step_spatial_predictors(
     distance_matrix = dm,
     method = "mem",
     distance_thresholds = c(0, 1000, 2000)
-  ) %>%
+  ) |>
   step_spatial_filter(moran_threshold = 0.05)
 
 # Use any parsnip engine
-rf_spec <- rand_forest(trees = 1000, mtry = 3) %>%
-  set_engine("ranger") %>%
+rf_spec <- rand_forest(trees = 1000, mtry = 3) |>
+  set_engine("ranger") |>
   set_mode("regression")
 
-xgb_spec <- boost_tree(trees = 1000) %>%
-  set_engine("xgboost") %>%
+xgb_spec <- boost_tree(trees = 1000) |>
+  set_engine("xgboost") |>
   set_mode("regression")
 
-lm_spec <- linear_reg() %>%
+lm_spec <- linear_reg() |>
   set_engine("lm")
 
 # Fit with spatial workflow
-spatial_wf <- workflow() %>%
-  add_recipe(spatial_recipe) %>%
+spatial_wf <- workflow() |>
+  add_recipe(spatial_recipe) |>
   add_model(rf_spec)
 
 model <- fit(spatial_wf, data = df)
@@ -236,12 +236,12 @@ model <- spatial_fit(
 
 # ADVANCED: tidymodels integration (opt-in)
 library(tidymodels)
-spatial_recipe <- recipe(y ~ ., data = df) %>%
+spatial_recipe <- recipe(y ~ ., data = df) |>
   add_spatial_predictors(distance_matrix = dm)
 
-workflow() %>%
-  add_recipe(spatial_recipe) %>%
-  add_model(rand_forest() %>% set_engine("ranger")) %>%
+workflow() |>
+  add_recipe(spatial_recipe) |>
+  add_model(rand_forest() |> set_engine("ranger")) |>
   fit(data = df)
 ```
 
@@ -1268,30 +1268,30 @@ library(tidymodels)
 library(spatialML)
 
 # Recipe with spatial predictors
-spatial_rec <- recipe(richness ~ ., data = plant_richness_df) %>%
+spatial_rec <- recipe(richness ~ ., data = plant_richness_df) |>
   step_spatial_predictors(
     distance_matrix = distance_matrix,
     method = "mem",
     max_predictors = 20
-  ) %>%
+  ) |>
   step_normalize(all_numeric_predictors())
 
 # Model specifications
-rf_spec <- rand_forest(trees = 1000, mtry = tune()) %>%
-  set_engine("ranger", importance = "permutation") %>%
+rf_spec <- rand_forest(trees = 1000, mtry = tune()) |>
+  set_engine("ranger", importance = "permutation") |>
   set_mode("regression")
 
-xgb_spec <- boost_tree(trees = 1000, tree_depth = tune()) %>%
-  set_engine("xgboost") %>%
+xgb_spec <- boost_tree(trees = 1000, tree_depth = tune()) |>
+  set_engine("xgboost") |>
   set_mode("regression")
 
 # Workflows
-rf_wf <- workflow() %>%
-  add_recipe(spatial_rec) %>%
+rf_wf <- workflow() |>
+  add_recipe(spatial_rec) |>
   add_model(rf_spec)
 
-xgb_wf <- workflow() %>%
-  add_recipe(spatial_rec) %>%
+xgb_wf <- workflow() |>
+  add_recipe(spatial_rec) |>
   add_model(xgb_spec)
 
 # Spatial CV

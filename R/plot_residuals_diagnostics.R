@@ -59,7 +59,7 @@ plot_residuals_diagnostics <- function(
   normality <- model$residuals$normality
 
   #normality scores of the residuals
-  residuals.qq <- qqnorm(residuals, plot.it = FALSE) %>%
+  residuals.qq <- qqnorm(residuals, plot.it = FALSE) |>
     as.data.frame()
 
   #plot title

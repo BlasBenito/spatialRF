@@ -13,7 +13,7 @@
 #' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same. Default: `1`.
 #' @param verbose Logical. If `TRUE`, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
 #' @param n.cores Integer, number of cores to use for parallel execution. Creates a socket cluster with `parallel::makeCluster()`, runs operations in parallel with `foreach` and `%dopar%`, and stops the cluster with `parallel::clusterStop()` when the job is done. Default: `parallel::detectCores() - 1`
-#' @param cluster A cluster definition generated with `parallel::makeCluster()`. If provided, overrides `n.cores`. When `cluster = NULL` (default value), and `model` is provided, the cluster in `model`, if any, is used instead. If this cluster is `NULL`, then the function uses `n.cores` instead. The function does not stop a provided cluster, so it should be stopped with `parallel::stopCluster()` afterwards. The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the `model` argument, or using the `%>%` pipe. Default: `NULL`
+#' @param cluster A cluster definition generated with `parallel::makeCluster()`. If provided, overrides `n.cores`. When `cluster = NULL` (default value), and `model` is provided, the cluster in `model`, if any, is used instead. If this cluster is `NULL`, then the function uses `n.cores` instead. The function does not stop a provided cluster, so it should be stopped with `parallel::stopCluster()` afterwards. The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the `model` argument, or using the `|>` pipe. Default: `NULL`
 #' @return The input model with new data in its "importance" slot. The new importance scores are included in the data frame `model$importance$per.variable`, under the column names "importance.cv" (median contribution to transferability over spatial cross-validation repetitions), "importance.cv.mad" (median absolute deviation of the performance scores over spatial cross-validation repetitions), "importance.cv.percent" ("importance.cv" expressed as a percent, taking the full model's performance as baseline), and "importance.cv.mad" (median absolute deviation of "importance.cv"). The plot is stored as "cv.per.variable.plot".
 #' @examples
 #'
@@ -114,11 +114,11 @@ rf_importance <- function(
   )
 
   #getting the evaluation.df
-  evaluation.df <- model$evaluation$per.fold %>%
+  evaluation.df <- model$evaluation$per.fold |>
     dplyr::select(
       fold.id,
       dplyr::contains("testing.")
-    ) %>%
+    ) |>
     dplyr::select(
       -testing.records
     )
@@ -186,7 +186,7 @@ rf_importance <- function(
       verbose = FALSE,
       n.cores = n.cores,
       cluster = cluster
-    ) %>%
+    ) |>
       rf_evaluate(
         repetitions = repetitions,
         xy = xy,
@@ -200,24 +200,24 @@ rf_importance <- function(
       )
 
     #getting evaluation data frame
-    evaluation.list[[predictor.i]] <- model.i$evaluation$per.fold %>%
+    evaluation.list[[predictor.i]] <- model.i$evaluation$per.fold |>
       dplyr::select(
         -testing.records
-      ) %>%
+      ) |>
       dplyr::rename(
         `without` = dplyr::contains("testing.")
-      ) %>%
+      ) |>
       dplyr::left_join(
         y = evaluation.df,
         by = "fold.id"
-      ) %>%
+      ) |>
       dplyr::mutate(
         variable = predictor.i,
         .before = fold.id
-      ) %>%
+      ) |>
       dplyr::select(
         -dplyr::contains("training.")
-      ) %>%
+      ) |>
       as.data.frame()
   }
 
@@ -229,23 +229,23 @@ rf_importance <- function(
   rownames(importance.per.repetition) <- NULL
 
   #summary of differences
-  importance.per.variable <- importance.per.repetition %>%
-    dplyr::group_by(variable) %>%
+  importance.per.variable <- importance.per.repetition |>
+    dplyr::group_by(variable) |>
     dplyr::mutate(
-      importance.mad = stats::mad(with - without) %>% round(3),
+      importance.mad = stats::mad(with - without) |> round(3),
       importance.percent.mad = stats::mad(
         (with * 100 / with[1]) - (without * 100 / with[1])
-      ) %>%
+      ) |>
         round(1),
       without = median(without),
       with = median(with),
       importance = with - without,
-      importance.percent = (importance * 100 / with[1]) %>% round(1)
-    ) %>%
-    dplyr::slice(1) %>%
+      importance.percent = (importance * 100 / with[1]) |> round(1)
+    ) |>
+    dplyr::slice(1) |>
     dplyr::arrange(
       dplyr::desc(importance)
-    ) %>%
+    ) |>
     dplyr::transmute(
       variable,
       with,
@@ -254,7 +254,7 @@ rf_importance <- function(
       importance.mad,
       importance.percent,
       importance.percent.mad
-    ) %>%
+    ) |>
     as.data.frame()
 
   #pretty metric name
@@ -339,14 +339,14 @@ rf_importance <- function(
     x = model$importance$per.variable,
     y = importance.per.variable,
     by = "variable"
-  ) %>%
+  ) |>
     dplyr::rename(
       importance.oob = importance.x,
       importance.cv = importance.y,
       importance.cv.mad = importance.mad,
       importance.cv.percent = importance.percent,
       importance.cv.percent.mad = importance.percent.mad
-    ) %>%
+    ) |>
     dplyr::select(
       -with,
       -without

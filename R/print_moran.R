@@ -42,12 +42,12 @@ print_moran <- function(model, caption = NULL, verbose = TRUE) {
 
     #preparing the huxtable
     x.hux <-
-      huxtable::hux(x) %>%
+      huxtable::hux(x) |>
       huxtable::set_bold(
         row = 1,
         col = huxtable::everywhere,
         value = TRUE
-      ) %>%
+      ) |>
       huxtable::set_all_borders()
     huxtable::number_format(x.hux)[2:nrow(x.hux), 2:3] <- 3
     huxtable::number_format(x.hux)[2:nrow(x.hux), 1] <- 1
@@ -69,17 +69,17 @@ print_moran <- function(model, caption = NULL, verbose = TRUE) {
 
     #preparing the huxtable
     x.hux <-
-      huxtable::hux(x) %>%
+      huxtable::hux(x) |>
       huxtable::set_bold(
         row = 1,
         col = huxtable::everywhere,
         value = TRUE
-      ) %>%
+      ) |>
       huxtable::set_bold(
         col = 1,
         row = huxtable::everywhere,
         value = TRUE
-      ) %>%
+      ) |>
       huxtable::set_all_borders()
     huxtable::number_format(x.hux)[2:nrow(x.hux), 3:4] <- 3
     huxtable::number_format(x.hux)[2:nrow(x.hux), 2] <- 1

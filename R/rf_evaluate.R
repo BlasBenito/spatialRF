@@ -12,7 +12,7 @@
 #' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same. Default: `1`.
 #' @param verbose Logical. If `TRUE`, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
 #' @param n.cores Integer, number of cores to use for parallel execution. Creates a socket cluster with `parallel::makeCluster()`, runs operations in parallel with `foreach` and `%dopar%`, and stops the cluster with `parallel::clusterStop()` when the job is done. Default: `parallel::detectCores() - 1`
-#' @param cluster A cluster definition generated with `parallel::makeCluster()`. If provided, overrides `n.cores`. When `cluster = NULL` (default value), and `model` is provided, the cluster in `model`, if any, is used instead. If this cluster is `NULL`, then the function uses `n.cores` instead. The function does not stop a provided cluster, so it should be stopped with `parallel::stopCluster()` afterwards. The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the `model` argument, or using the `%>%` pipe. Default: `NULL`
+#' @param cluster A cluster definition generated with `parallel::makeCluster()`. If provided, overrides `n.cores`. When `cluster = NULL` (default value), and `model` is provided, the cluster in `model`, if any, is used instead. If this cluster is `NULL`, then the function uses `n.cores` instead. The function does not stop a provided cluster, so it should be stopped with `parallel::stopCluster()` afterwards. The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the `model` argument, or using the `|>` pipe. Default: `NULL`
 #' @return A model of the class "rf_evaluate" with a new slot named "evaluation", that is a list with the following slots:
 #' \itemize{
 #'   \item `training.fraction`: Value of the argument `training.fraction`.
@@ -405,17 +405,17 @@ rf_evaluate <- function(
   )
 
   #to long format
-  performance.df.long <- performance.df %>%
+  performance.df.long <- performance.df |>
     tidyr::pivot_longer(
       cols = seq(1, length(metrics)),
       names_to = "metric",
       values_to = "value"
-    ) %>%
+    ) |>
     as.data.frame()
 
   #aggregating
-  performande.df.aggregated <- performance.df.long %>%
-    dplyr::group_by(model, metric) %>%
+  performande.df.aggregated <- performance.df.long |>
+    dplyr::group_by(model, metric) |>
     dplyr::summarise(
       median = median(value),
       median_absolute_deviation = stats::mad(value),
@@ -426,8 +426,8 @@ rf_evaluate <- function(
       sd = sd(value),
       min = min(value),
       max = max(value)
-    ) %>%
-    dplyr::ungroup() %>%
+    ) |>
+    dplyr::ungroup() |>
     as.data.frame()
 
   #stats to NA if "Full" only once in performance.df

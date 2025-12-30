@@ -133,10 +133,10 @@ spatialRF::plot_importance(
 Spatial predictors are named `spatial_predictor_X_Y`, where `X` is the neighborhood distance at which the predictor is generated, and `Y` is the index of the predictor.
 
 ```{r, echo = FALSE, warning=FALSE}
-m.spatial$importance$per.variable %>%
+m.spatial$importance$per.variable |>
   dplyr::filter(
     grepl(pattern = "spatial_predictor", x = variable)
-  ) %>%
+  ) |>
   knitr::kable()
 ```
 
@@ -156,7 +156,7 @@ The map below shows a couple of them.
 
 ```{r, echo=FALSE, fig.width=12, fig.height=7}
 #get two most important predictors
-best_spatial_predictors <- m.spatial$importance$per.variable %>%
+best_spatial_predictors <- m.spatial$importance$per.variable |>
   dplyr::filter(
     grepl(pattern = "spatial_predictor", x = variable)
   ) |>
