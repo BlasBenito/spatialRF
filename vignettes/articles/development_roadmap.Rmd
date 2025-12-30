@@ -39,9 +39,6 @@ This document outlines the planned modernization of `spatialRF`, organized into 
   - Improve installation reliability
   - Faster package load times
 
-- Replace `magrittr` pipe (`%>%`) with base pipe (`|>`)
-  - Native R syntax
-
 - Remove `huxtable` from print functions to reduce dependency footprint.
 
 ### 1.2 Function Delegation
