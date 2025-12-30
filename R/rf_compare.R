@@ -176,7 +176,9 @@ rf_compare <- function(
         FUN = stats::median
       )
     ) +
-    ggplot2::geom_violin(color = line.color) +
+    ggplot2::geom_violin(
+      color = line.color
+    ) +
     ggplot2::geom_boxplot(
       notch = use.notch,
       fill = "white",

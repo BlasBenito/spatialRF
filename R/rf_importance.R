@@ -305,7 +305,7 @@ rf_importance <- function(
         xmax = importance + importance.mad,
         color = importance
       ),
-      size = 1
+      linewidth = 1
     ) +
     ggplot2::geom_point(
       size = 4,

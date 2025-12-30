@@ -126,35 +126,29 @@ make_spatial_fold <- function(
   old.buffer.y.min <- xy.i.y - distance.step.y
   old.buffer.y.max <- xy.i.y + distance.step.y
 
-  #select first batch of presences
-  records.selected <- xy[
-    xy$x >= old.buffer.x.min &
-      xy$x <= old.buffer.x.max &
-      xy$y >= old.buffer.y.min &
-      xy$y <= old.buffer.y.max,
-  ]
+  #track count without materializing dataframe (memory optimization)
+  records_count <- 0
 
   #growing buffer
-  while (nrow(records.selected) < records.to.select) {
+  while (records_count < records.to.select) {
     #new buffer
     new.buffer.x.min <- old.buffer.x.min - distance.step.x
     new.buffer.x.max <- old.buffer.x.max + distance.step.x
     new.buffer.y.min <- old.buffer.y.min - distance.step.y
     new.buffer.y.max <- old.buffer.y.max + distance.step.y
 
-    #number of selected presences
-    records.selected <- xy[
-      xy$x >= new.buffer.x.min &
-        xy$x <= new.buffer.x.max &
-        xy$y >= new.buffer.y.min &
-        xy$y <= new.buffer.y.max,
-    ]
+    #find indices in buffer (single pass)
+    buffer_idx <- which(
+      xy$x >= new.buffer.x.min & xy$x <= new.buffer.x.max &
+      xy$y >= new.buffer.y.min & xy$y <= new.buffer.y.max
+    )
 
-    #subset ones if it's binary
+    #if binary, count presences only
     if (is.binary) {
-      records.selected <- records.selected[
-        data[data$id %in% records.selected$id, dependent.variable.name] == 1,
-      ]
+      #data and xy are row-aligned, use indices directly
+      records_count <- sum(data[buffer_idx, dependent.variable.name] == 1)
+    } else {
+      records_count <- length(buffer_idx)
     }
 
     #resetting old.buffer
@@ -163,6 +157,9 @@ make_spatial_fold <- function(
     old.buffer.y.min <- new.buffer.y.min
     old.buffer.y.max <- new.buffer.y.max
   }
+
+  #materialize dataframe only once after loop (memory optimization)
+  records.selected <- xy[buffer_idx, ]
 
   #select from xy.all if response is binary
   #selecting ones if binary

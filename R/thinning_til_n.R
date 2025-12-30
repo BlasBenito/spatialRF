@@ -61,13 +61,18 @@ thinning_til_n <- function(
 
   #initiating distances
   if (is.null(distance.step)) {
-    #getting all distances among points
-    xy.distances <- sort(as.vector(stats::dist(xy[, c("x", "y")])))
+    #estimate maximum distance from bounding box diagonal
+    #this is always >= actual max pairwise distance
+    #avoids O(n^2) distance matrix computation
+    x.range <- range(xy$x)
+    y.range <- range(xy$y)
+    max.distance <- sqrt(
+      (x.range[2] - x.range[1])^2 +
+      (y.range[2] - y.range[1])^2
+    )
 
-    #getting the 1%
-    min.distance <- distance.i <- max(xy.distances) / 1000
-
-    rm(xy.distances)
+    #getting the 0.1% (using 1000 divisor as before)
+    min.distance <- distance.i <- max.distance / 1000
   } else {
     #in case it comes from raster::res()
     if (length(distance.step) > 1) {
