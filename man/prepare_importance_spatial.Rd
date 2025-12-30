@@ -19,7 +19,7 @@ Prepares variable importance data frames and plots for models fitted with \code{
 
 data(plants_rf_spatial)
 
-prepare_importance_spatial(plants_rf_spatial) \%>\%
+prepare_importance_spatial(plants_rf_spatial) |>
   head()
 
 }

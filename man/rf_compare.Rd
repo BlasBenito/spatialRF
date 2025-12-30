@@ -48,7 +48,7 @@ rf_compare(
 
 \item{n.cores}{Integer, number of cores to use for parallel execution. Creates a socket cluster with \code{parallel::makeCluster()}, runs operations in parallel with \code{foreach} and \verb{\%dopar\%}, and stops the cluster with \code{parallel::clusterStop()} when the job is done. Default: \code{parallel::detectCores() - 1}}
 
-\item{cluster}{A cluster definition generated with \code{parallel::makeCluster()}. If provided, overrides \code{n.cores}. When \code{cluster = NULL} (default value), and \code{model} is provided, the cluster in \code{model}, if any, is used instead. If this cluster is \code{NULL}, then the function uses \code{n.cores} instead. The function does not stop a provided cluster, so it should be stopped with \code{parallel::stopCluster()} afterwards. The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the \code{model} argument, or using the \verb{\%>\%} pipe. Default: \code{NULL}}
+\item{cluster}{A cluster definition generated with \code{parallel::makeCluster()}. If provided, overrides \code{n.cores}. When \code{cluster = NULL} (default value), and \code{model} is provided, the cluster in \code{model}, if any, is used instead. If this cluster is \code{NULL}, then the function uses \code{n.cores} instead. The function does not stop a provided cluster, so it should be stopped with \code{parallel::stopCluster()} afterwards. The cluster definition is stored in the output list under the name "cluster" so it can be passed to other functions via the \code{model} argument, or using the \verb{|>} pipe. Default: \code{NULL}}
 }
 \value{
 A list with three slots:
