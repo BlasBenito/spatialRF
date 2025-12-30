@@ -64,16 +64,15 @@ test_that("make_spatial_fold() works with basic inputs", {
     training.fraction = 0.6
   )
 
-  expect_type(result, "list")
-  expect_named(result, c("training", "testing"))
-  expect_type(result$training, "integer")
-  expect_type(result$testing, "integer")
+  expect_type(result, "logical")
+  expect_length(result, nrow(plants_xy))
 
-  # Check that training and testing are disjoint
-  expect_length(intersect(result$training, result$testing), 0)
+  # Check that we have both training and testing records
+  expect_true(sum(result) > 0)  # Has training records
+  expect_true(sum(!result) > 0)  # Has testing records
 
-  # Check that all IDs are accounted for
-  expect_setequal(c(result$training, result$testing), plants_xy$id)
+  # Check that training and testing together cover all records
+  expect_equal(sum(result) + sum(!result), nrow(plants_xy))
 })
 
 test_that("make_spatial_fold() handles distance.step.x vector", {
@@ -87,8 +86,8 @@ test_that("make_spatial_fold() handles distance.step.x vector", {
     training.fraction = 0.6
   )
 
-  expect_type(result, "list")
-  expect_named(result, c("training", "testing"))
+  expect_type(result, "logical")
+  expect_length(result, nrow(plants_xy))
 })
 
 test_that("make_spatial_fold() handles distance.step.y vector", {
@@ -102,8 +101,8 @@ test_that("make_spatial_fold() handles distance.step.y vector", {
     training.fraction = 0.6
   )
 
-  expect_type(result, "list")
-  expect_named(result, c("training", "testing"))
+  expect_type(result, "logical")
+  expect_length(result, nrow(plants_xy))
 })
 
 test_that("make_spatial_fold() works with custom distance steps", {
@@ -118,9 +117,9 @@ test_that("make_spatial_fold() works with custom distance steps", {
     training.fraction = 0.6
   )
 
-  expect_type(result, "list")
-  expect_true(length(result$training) > 0)
-  expect_true(length(result$testing) > 0)
+  expect_type(result, "logical")
+  expect_true(sum(result) > 0)  # Has training records
+  expect_true(sum(!result) > 0)  # Has testing records
 })
 
 test_that("make_spatial_fold() works with different training.fraction values", {
@@ -139,8 +138,8 @@ test_that("make_spatial_fold() works with different training.fraction values", {
   )
 
   # Larger training.fraction should have more training records
-  expect_true(length(result_large$training) > length(result_small$training))
-  expect_true(length(result_large$testing) < length(result_small$testing))
+  expect_true(sum(result_large) > sum(result_small))
+  expect_true(sum(!result_large) < sum(!result_small))
 })
 
 test_that("make_spatial_fold() works with binary response variable", {
@@ -160,13 +159,13 @@ test_that("make_spatial_fold() works with binary response variable", {
     training.fraction = 0.6
   )
 
-  expect_type(result, "list")
-  expect_named(result, c("training", "testing"))
-  expect_true(length(result$training) > 0)
-  expect_true(length(result$testing) > 0)
+  expect_type(result, "logical")
+  expect_length(result, 100)
+  expect_true(sum(result) > 0)  # Has training records
+  expect_true(sum(!result) > 0)  # Has testing records
 
-  # Verify disjoint sets
-  expect_length(intersect(result$training, result$testing), 0)
+  # Verify complete coverage
+  expect_equal(sum(result) + sum(!result), 100)
 })
 
 test_that("make_spatial_fold() respects training.fraction for binary response", {
@@ -188,7 +187,7 @@ test_that("make_spatial_fold() respects training.fraction for binary response", 
 
   # For binary, training.fraction applies to presences (1s)
   total_presences <- sum(plants_df$binary_response[1:100])
-  training_presences <- sum(plants_df$binary_response[result$training])
+  training_presences <- sum(plants_df$binary_response[1:100][result])
 
   # Should be approximately half of the presences in training
   expect_true(training_presences <= total_presences)
@@ -205,8 +204,8 @@ test_that("make_spatial_fold() works without data for non-binary case", {
     training.fraction = 0.7
   )
 
-  expect_type(result, "list")
-  expect_true(length(result$training) > 0)
+  expect_type(result, "logical")
+  expect_true(sum(result) > 0)
 })
 
 test_that("make_spatial_fold() preserves spatial structure", {
@@ -219,8 +218,8 @@ test_that("make_spatial_fold() preserves spatial structure", {
   )
 
   # Training records should be spatially clustered around xy.i
-  training_coords <- plants_xy[plants_xy$id %in% result$training, ]
-  testing_coords <- plants_xy[plants_xy$id %in% result$testing, ]
+  training_coords <- plants_xy[result, ]
+  testing_coords <- plants_xy[!result, ]
 
   # Mean distance of training from focal point should be smaller than testing
   focal_x <- plants_xy$x[1]

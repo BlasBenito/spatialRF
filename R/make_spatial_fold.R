@@ -7,11 +7,7 @@
 #' @param distance.step.x Numeric value specifying the buffer growth increment along the x-axis. Default: `NULL` (automatically set to 1/1000th of the x-coordinate range).
 #' @param distance.step.y Numeric value specifying the buffer growth increment along the y-axis. Default: `NULL` (automatically set to 1/1000th of the y-coordinate range).
 #' @param training.fraction Numeric value between 0.1 and 0.9 specifying the fraction of records to include in the training fold. Default: `0.8`.
-#' @return List with two elements:
-#' \itemize{
-#'   \item `training`: Integer vector of record IDs (from `xy$id`) in the training fold.
-#'   \item `testing`: Integer vector of record IDs (from `xy$id`) in the testing fold.
-#' }
+#' @return Logical vector with length equal to `nrow(xy)`, where `TRUE` indicates a record is in the training fold and `FALSE` indicates it is in the testing fold. The vector is ordered by row position in `xy`.
 #' @details
 #' This function creates spatially independent training and testing folds for spatial cross-validation. The algorithm works as follows:
 #' \enumerate{
@@ -35,15 +31,15 @@
 #'   training.fraction = 0.6
 #' )
 #'
-#' # View training and testing record IDs
-#' fold$training
-#' fold$testing
+#' # View fold (TRUE = training, FALSE = testing)
+#' head(fold)
+#' sum(fold)  # Number of training records
 #'
 #' # Visualize the spatial split (training = red, testing = blue, center = black)
 #' if (interactive()) {
 #'   plot(plants_xy[c("x", "y")], type = "n", xlab = "", ylab = "")
-#'   points(plants_xy[fold$training, c("x", "y")], col = "red4", pch = 15)
-#'   points(plants_xy[fold$testing, c("x", "y")], col = "blue4", pch = 15)
+#'   points(plants_xy[fold, c("x", "y")], col = "red4", pch = 15)
+#'   points(plants_xy[!fold, c("x", "y")], col = "blue4", pch = 15)
 #'   points(plants_xy[1, c("x", "y")], col = "black", pch = 15, cex = 2)
 #' }
 #'
@@ -172,10 +168,9 @@ make_spatial_fold <- function(
     ]
   }
 
-  #out list
-  out.list <- list()
-  out.list$training <- records.selected$id
-  out.list$testing <- setdiff(xy$id, records.selected$id)
+  #create logical vector (TRUE = training, FALSE = testing)
+  fold_logical <- rep(FALSE, nrow(xy))
+  fold_logical[buffer_idx] <- TRUE
 
-  out.list
+  fold_logical
 }

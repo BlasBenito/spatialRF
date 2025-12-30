@@ -30,11 +30,7 @@ make_spatial_fold(
 \item{training.fraction}{Numeric value between 0.1 and 0.9 specifying the fraction of records to include in the training fold. Default: \code{0.8}.}
 }
 \value{
-List with two elements:
-\itemize{
-\item \code{training}: Integer vector of record IDs (from \code{xy$id}) in the training fold.
-\item \code{testing}: Integer vector of record IDs (from \code{xy$id}) in the testing fold.
-}
+Logical vector with length equal to \code{nrow(xy)}, where \code{TRUE} indicates a record is in the training fold and \code{FALSE} indicates it is in the testing fold. The vector is ordered by row position in \code{xy}.
 }
 \description{
 Generates two spatially independent data folds by growing a rectangular buffer from a focal point until a specified fraction of records falls inside. Used internally by \code{\link[=make_spatial_folds]{make_spatial_folds()}} and \code{\link[=rf_evaluate]{rf_evaluate()}} for spatial cross-validation.
@@ -62,15 +58,15 @@ fold <- make_spatial_fold(
   training.fraction = 0.6
 )
 
-# View training and testing record IDs
-fold$training
-fold$testing
+# View fold (TRUE = training, FALSE = testing)
+head(fold)
+sum(fold)  # Number of training records
 
 # Visualize the spatial split (training = red, testing = blue, center = black)
 if (interactive()) {
   plot(plants_xy[c("x", "y")], type = "n", xlab = "", ylab = "")
-  points(plants_xy[fold$training, c("x", "y")], col = "red4", pch = 15)
-  points(plants_xy[fold$testing, c("x", "y")], col = "blue4", pch = 15)
+  points(plants_xy[fold, c("x", "y")], col = "red4", pch = 15)
+  points(plants_xy[!fold, c("x", "y")], col = "blue4", pch = 15)
   points(plants_xy[1, c("x", "y")], col = "black", pch = 15, cex = 2)
 }
 

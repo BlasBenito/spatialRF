@@ -52,7 +52,7 @@ rf_compare(
 A list with three slots:
 \itemize{
 \item \code{comparison.df}: Data frame with one performance value per spatial fold, metric, and model.
-\item \code{spatial.folds}: List with the indices of the training and testing records for each evaluation repetition.
+\item \code{spatial.folds}: Data frame with \code{nrow(data)} rows and \code{repetitions} columns. Each column is a logical vector indicating which records are in the training set (\code{TRUE}) vs testing set (\code{FALSE}) for that fold.
 \item \code{plot}: Violin-plot of \code{comparison.df}.
 }
 }

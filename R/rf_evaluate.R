@@ -15,7 +15,7 @@
 #' @return A model of the class "rf_evaluate" with a new slot named "evaluation", that is a list with the following slots:
 #' \itemize{
 #'   \item `training.fraction`: Value of the argument `training.fraction`.
-#'   \item `spatial.folds`: Result of applying [make_spatial_folds()] on the data coordinates. It is a list with as many slots as `repetitions` are indicated by the user. Each slot has two slots named "training" and "testing", each one having the indices of the cases used on the training and testing models.
+#'   \item `spatial.folds`: Result of applying [make_spatial_folds()] on the data coordinates. It is a data frame with `nrow(data)` rows and `repetitions` columns. Each column is a logical vector where `TRUE` indicates a record is in the training set and `FALSE` indicates it is in the testing set for that fold.
 #'   \item `per.fold`: Data frame with the evaluation results per spatial fold (or repetition). It contains the ID of each fold, it's central coordinates, the number of training and testing cases, and the training and testing performance measures: R squared, pseudo R squared (cor(observed, predicted)), rmse, and normalized rmse.
 #'   \item `per.model`: Same data as above, but organized per fold and model ("Training", "Testing", and "Full").
 #'   \item `aggregated`: Same data, but aggregated by model and performance measure.
@@ -238,9 +238,7 @@ rf_evaluate <- function(
 
   #flipping spatial folds if grow.testing.folds = TRUE
   if (grow.testing.folds) {
-    for (i in seq_along(spatial.folds)) {
-      names(spatial.folds[[i]]) <- c("testing", "training")
-    }
+    spatial.folds <- !spatial.folds
   }
 
   #copy of ranger arguments for training mdoels
@@ -249,19 +247,23 @@ rf_evaluate <- function(
   #loop to evaluate models
   #####################################
   # Parallel execution with progress
-  p <- progressr::progressor(along = spatial.folds)
+  if (verbose) {
+    message("Evaluating random forest models.")
+  }
+
+  p <- progressr::progressor(along = seq_len(ncol(spatial.folds)))
 
   evaluation.list <- future.apply::future_lapply(
-    X = seq_along(spatial.folds),
+    X = seq_len(ncol(spatial.folds)),
     FUN = function(i) {
-      #separating training and testing data
-      data.training <- data[data$id %in% spatial.folds[[i]]$training, ]
-      data.testing <- data[data$id %in% spatial.folds[[i]]$testing, ]
+      #separating training and testing data using logical indexing
+      data.training <- data[spatial.folds[, i], ]
+      data.testing <- data[!spatial.folds[, i], ]
 
       #subsetting case.weights if defined
       if (!is.null(ranger.arguments.training$case.weights)) {
         ranger.arguments.training$case.weights <- ranger.arguments$case.weights[
-          spatial.folds[[i]]$training
+          spatial.folds[, i]
         ]
       }
 
@@ -361,7 +363,7 @@ rf_evaluate <- function(
       rownames(out.df) <- NULL
 
       # Signal progress
-      p(sprintf("Fold %d/%d", i, length(spatial.folds)))
+      p(sprintf("Fold %d/%d", i, ncol(spatial.folds)))
 
       return(out.df)
     },

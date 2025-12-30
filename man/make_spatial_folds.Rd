@@ -30,11 +30,7 @@ make_spatial_folds(
 \item{training.fraction}{Numeric value between 0.1 and 0.9 specifying the fraction of records to include in the training fold. Default: \code{0.75}.}
 }
 \value{
-List where each element corresponds to a row in \code{xy.selected} and contains:
-\itemize{
-\item \code{training}: Integer vector of record IDs (from \code{xy$id}) in the training fold.
-\item \code{testing}: Integer vector of record IDs (from \code{xy$id}) in the testing fold.
-}
+Data frame with \code{nrow(xy)} rows and \code{nrow(xy.selected)} columns. Each column is a logical vector representing one fold, where \code{TRUE} indicates a record is in the training set and \code{FALSE} indicates it is in the testing set for that fold. Column names are \code{fold_1}, \code{fold_2}, etc.
 }
 \description{
 Applies \code{\link[=make_spatial_fold]{make_spatial_fold()}} to every row in \code{xy.selected}, generating one spatially independent fold centered on each focal point. Used for spatial cross-validation in \code{\link[=rf_evaluate]{rf_evaluate()}}.
@@ -85,9 +81,10 @@ folds <- make_spatial_folds(
   training.fraction = 0.6
 )
 
-# Each element is a fold with training and testing indices
-length(folds)  # 10 folds
-names(folds[[1]])  # "training" and "testing"
+# Each column is a fold with logical values (TRUE = training)
+dim(folds)  # 800 rows × 10 columns (10 folds)
+colnames(folds)  # "fold_1", "fold_2", ..., "fold_10"
+sum(folds[, 1])  # Number of training records in first fold
 
 \donttest{
 # With progress bars and parallel execution
@@ -115,10 +112,10 @@ future::plan(future::sequential)
 # Visualize first fold (training = red, testing = blue, center = black)
 if (interactive()) {
   plot(plants_xy[c("x", "y")], type = "n", xlab = "", ylab = "")
-  points(plants_xy[folds[[1]]$training, c("x", "y")], col = "red4", pch = 15)
-  points(plants_xy[folds[[1]]$testing, c("x", "y")], col = "blue4", pch = 15)
+  points(plants_xy[folds[, 1], c("x", "y")], col = "red4", pch = 15)
+  points(plants_xy[!folds[, 1], c("x", "y")], col = "blue4", pch = 15)
   points(
-    plants_xy[folds[[1]]$training[1], c("x", "y")],
+    plants_xy[which(folds[, 1])[1], c("x", "y")],
     col = "black",
     pch = 15,
     cex = 2

@@ -16,7 +16,7 @@
 #' @return A list with three slots:
 #' \itemize{
 #' \item `comparison.df`: Data frame with one performance value per spatial fold, metric, and model.
-#' \item `spatial.folds`: List with the indices of the training and testing records for each evaluation repetition.
+#' \item `spatial.folds`: Data frame with `nrow(data)` rows and `repetitions` columns. Each column is a logical vector indicating which records are in the training set (`TRUE`) vs testing set (`FALSE`) for that fold.
 #' \item `plot`: Violin-plot of `comparison.df`.
 #' }
 #' @examples

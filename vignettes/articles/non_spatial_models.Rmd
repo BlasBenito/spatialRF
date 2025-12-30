@@ -459,13 +459,13 @@ The function creates `m$evaluation` with several objects that summarize the spat
 names(m$evaluation)
 ```
 
-The slot "spatial.folds", produced by [`make_spatial_folds()`](https://blasbenito.github.io/spatialRF/reference/make_spatial_folds.html), contains the indices of the training and testing cases for each cross-validation repetition. The maps below show two sets of training and testing folds.
+The slot "spatial.folds", produced by [`make_spatial_folds()`](https://blasbenito.github.io/spatialRF/reference/make_spatial_folds.html), is a data frame where each column is a logical vector indicating training (`TRUE`) vs testing (`FALSE`) cases for each cross-validation fold. The maps below show two sets of training and testing folds.
 
 ```{r, echo=FALSE, fig.width=10, fig.height=5}
 pr <- plants_xy
 pr$group.2 <- pr$group.1 <- "Training"
-pr[m$evaluation$spatial.folds[[2]]$testing, "group.1"] <- "Testing"
-pr[m$evaluation$spatial.folds[[12]]$testing, "group.2"] <- "Testing"
+pr[!m$evaluation$spatial.folds[, 2], "group.1"] <- "Testing"
+pr[!m$evaluation$spatial.folds[, 12], "group.2"] <- "Testing"
 
 p1 <- ggplot2::ggplot() +
   ggplot2::geom_sf(data = world, fill = "white") +

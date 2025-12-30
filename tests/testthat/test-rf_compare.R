@@ -232,15 +232,14 @@ test_that("rf_compare() spatial.folds has correct structure", {
     seed = 1
   )
 
-  expect_type(comparison$spatial.folds, "list")
-  expect_equal(length(comparison$spatial.folds), 5)
+  expect_s3_class(comparison$spatial.folds, "data.frame")
+  expect_equal(ncol(comparison$spatial.folds), 5)
+  expect_equal(nrow(comparison$spatial.folds), nrow(plants_df))
 
-  # Each fold should have training and testing indices
-  for (fold in comparison$spatial.folds) {
-    expect_named(fold, c("training", "testing"))
-    expect_type(fold$training, "integer")
-    expect_type(fold$testing, "integer")
-    expect_true(length(fold$training) > 0)
-    expect_true(length(fold$testing) > 0)
+  # Each fold should be a logical vector with training and testing records
+  for (i in seq_len(ncol(comparison$spatial.folds))) {
+    expect_type(comparison$spatial.folds[[i]], "logical")
+    expect_true(sum(comparison$spatial.folds[[i]]) > 0)  # Has training records
+    expect_true(sum(!comparison$spatial.folds[[i]]) > 0)  # Has testing records
   }
 })

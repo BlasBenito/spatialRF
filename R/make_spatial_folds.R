@@ -7,11 +7,7 @@
 #' @param distance.step.x Numeric value specifying the buffer growth increment along the x-axis. Default: `NULL` (automatically set to 1/1000th of the x-coordinate range).
 #' @param distance.step.y Numeric value specifying the buffer growth increment along the y-axis. Default: `NULL` (automatically set to 1/1000th of the y-coordinate range).
 #' @param training.fraction Numeric value between 0.1 and 0.9 specifying the fraction of records to include in the training fold. Default: `0.75`.
-#' @return List where each element corresponds to a row in `xy.selected` and contains:
-#' \itemize{
-#'   \item `training`: Integer vector of record IDs (from `xy$id`) in the training fold.
-#'   \item `testing`: Integer vector of record IDs (from `xy$id`) in the testing fold.
-#' }
+#' @return Data frame with `nrow(xy)` rows and `nrow(xy.selected)` columns. Each column is a logical vector representing one fold, where `TRUE` indicates a record is in the training set and `FALSE` indicates it is in the testing set for that fold. Column names are `fold_1`, `fold_2`, etc.
 #' @details
 #' This function creates multiple spatially independent folds for spatial cross-validation by calling [make_spatial_fold()] once for each row in `xy.selected`. Each fold is created by growing a rectangular buffer from the corresponding focal point until the desired `training.fraction` is achieved.
 #'
@@ -58,9 +54,10 @@
 #'   training.fraction = 0.6
 #' )
 #'
-#' # Each element is a fold with training and testing indices
-#' length(folds)  # 10 folds
-#' names(folds[[1]])  # "training" and "testing"
+#' # Each column is a fold with logical values (TRUE = training)
+#' dim(folds)  # 800 rows × 10 columns (10 folds)
+#' colnames(folds)  # "fold_1", "fold_2", ..., "fold_10"
+#' sum(folds[, 1])  # Number of training records in first fold
 #'
 #' \donttest{
 #' # With progress bars and parallel execution
@@ -88,10 +85,10 @@
 #' # Visualize first fold (training = red, testing = blue, center = black)
 #' if (interactive()) {
 #'   plot(plants_xy[c("x", "y")], type = "n", xlab = "", ylab = "")
-#'   points(plants_xy[folds[[1]]$training, c("x", "y")], col = "red4", pch = 15)
-#'   points(plants_xy[folds[[1]]$testing, c("x", "y")], col = "blue4", pch = 15)
+#'   points(plants_xy[folds[, 1], c("x", "y")], col = "red4", pch = 15)
+#'   points(plants_xy[!folds[, 1], c("x", "y")], col = "blue4", pch = 15)
 #'   points(
-#'     plants_xy[folds[[1]]$training[1], c("x", "y")],
+#'     plants_xy[which(folds[, 1])[1], c("x", "y")],
 #'     col = "black",
 #'     pch = 15,
 #'     cex = 2
@@ -111,14 +108,11 @@ make_spatial_folds <- function(
   distance.step.y = NULL,
   training.fraction = 0.75
 ) {
-  # Detect user's plan
-  plan_workers <- future::nbrOfWorkers()
-
   # Create progressor outside
   p <- progressr::progressor(along = seq_len(nrow(xy.selected)))
 
   # Parallel execution with progress
-  spatial.folds <- future.apply::future_lapply(
+  spatial.folds.list <- future.apply::future_lapply(
     X = seq_len(nrow(xy.selected)),
     FUN = function(i) {
       spatial.fold.i <- spatialRF::make_spatial_fold(
@@ -138,6 +132,10 @@ make_spatial_folds <- function(
     },
     future.packages = "spatialRF"
   )
+
+  # Convert list of logical vectors to data frame
+  spatial.folds <- as.data.frame(spatial.folds.list)
+  colnames(spatial.folds) <- paste0("fold_", seq_len(ncol(spatial.folds)))
 
   spatial.folds
 }
