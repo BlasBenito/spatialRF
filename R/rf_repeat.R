@@ -2,7 +2,7 @@
 #' @description Fits several random forest models on the same data in order to capture the effect of the algorithm's stochasticity on the variable importance scores, predictions, residuals, and performance measures. The function relies on the median to aggregate performance and importance values across repetitions. It is recommended to use it after a model is fitted ([rf()] or [rf_spatial()]), tuned ([rf_tuning()]), and/or evaluated ([rf_evaluate()]). This function is designed to be used after fitting a model with [rf()] or [rf_spatial()], tuning it with [rf_tuning()] and evaluating it with [rf_evaluate()].
 #' @param model A model fitted with [rf()]. If provided, the data and ranger arguments are taken directly from the model definition (stored in `model$ranger.arguments`). Default: `NULL`
 #' @param data Data frame with a response variable and a set of predictors. Default: `NULL`
-#' @param dependent.variable.name Character string with the name of the response variable. Must be in the column names of `data`. If the dependent variable is binary with values 1 and 0, the argument `case.weights` of `ranger` is populated by the function [case_weights()]. Default: `NULL`
+#' @param dependent.variable.name Character string with the name of the response variable. Must be in the column names of `data`. If the dependent variable is binary with values 1 and 0, the argument `case.weights` of `ranger` is populated by the function [collinear::case_weights()]. Default: `NULL`
 #' @param predictor.variable.names Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Default: `NULL`
 #' @param distance.matrix Squared matrix with the distances among the records in `data`. The number of rows of `distance.matrix` and `data` must be the same. If not provided, the computation of the Moran's I of the residuals is omitted. Default: `NULL`
 #' @param distance.thresholds Numeric vector with neighborhood distances. All distances in the distance matrix below each value in `dustance.thresholds` are set to 0 for the computation of Moran's I. If `NULL`, it defaults to seq(0, max(distance.matrix), length.out = 4). Default: `NULL`
@@ -111,13 +111,6 @@ rf_repeat <- function(
   # Set default for sequential plans
   if (is.null(n.cores)) {
     n.cores <- future::availableCores(omit = 1)
-  }
-
-  #predictor.variable.names comes from auto_vif or auto_cor
-  if (!is.null(predictor.variable.names)) {
-    if (inherits(predictor.variable.names, "variable_selection")) {
-      predictor.variable.names <- predictor.variable.names$selected.variables
-    }
   }
 
   if (is.null(ranger.arguments)) {

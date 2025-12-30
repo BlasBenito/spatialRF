@@ -44,9 +44,6 @@ head(colMeans(centered))
 \code{\link[=weights_from_distance_matrix]{weights_from_distance_matrix()}}, \code{\link[=mem]{mem()}}, \code{\link[=mem_multithreshold]{mem_multithreshold()}}
 
 Other preprocessing: 
-\code{\link{auto_cor}()},
-\code{\link{auto_vif}()},
-\code{\link{case_weights}()},
 \code{\link{default_distance_thresholds}()},
 \code{\link{is_binary}()},
 \code{\link{make_spatial_fold}()},

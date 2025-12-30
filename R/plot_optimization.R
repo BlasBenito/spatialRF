@@ -1,18 +1,8 @@
 #' @title Optimization plot of a selection of spatial predictors
 #' @description Plots optimization data frames produced by [select_spatial_predictors_sequential()]
 #' and [select_spatial_predictors_recursive()].
-#' @usage
-#' plot_optimization(
-#'   model,
-#'   point.color = viridis::viridis(
-#'     100,
-#'     option = "F",
-#'     direction = -1
-#'   ),
-#'   verbose = TRUE
-#' )
 #' @param model A model produced by [rf_spatial()], or an optimization data frame produced by [select_spatial_predictors_sequential()] or [select_spatial_predictors_recursive()].
-#' @param point.color Colors of the plotted points. Can be a single color name (e.g. "red4"), a character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. `viridis::viridis(100)`). Default: `viridis::viridis(100, option = "F", direction = -1)`
+#' @param point.color Colors of the plotted points. Can be a single color name (e.g. "red4"), a character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. `grDevices::hcl.colors(100)`). Default: `grDevices::hcl.colors(100, palette = "Zissou 1", rev = FALSE)`
 #' @param verbose Logical, if `TRUE` the plot is printed. Default: `TRUE`
 #' @details The function returns `NULL` invisibly (without plotting) when:
 #' \itemize{
@@ -33,10 +23,10 @@
 #' @autoglobal
 plot_optimization <- function(
   model,
-  point.color = viridis::viridis(
+  point.color = grDevices::hcl.colors(
     100,
-    option = "F",
-    direction = -1
+    palette = "Zissou 1",
+    rev = FALSE
   ),
   verbose = TRUE
 ) {

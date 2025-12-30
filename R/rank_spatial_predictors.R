@@ -90,13 +90,6 @@ rank_spatial_predictors <- function(
   verbose = FALSE,
   n.cores = NULL
 ) {
-  #predictor.variable.names comes from auto_vif or auto_cor
-  if (!is.null(predictor.variable.names)) {
-    if (inherits(predictor.variable.names, "variable_selection")) {
-      predictor.variable.names <- predictor.variable.names$selected.variables
-    }
-  }
-
   #testing method argument
   ranking.method <- match.arg(
     arg = ranking.method,

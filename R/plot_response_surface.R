@@ -7,7 +7,7 @@
 #' @param grid.resolution Integer between 20 and 500. Resolution of the plotted surface Default: `100`
 #' @param point.size.range Numeric vector of length 2 with the range of point sizes used by \link[ggplot2]{geom_point}. Using `c(-1, -1)` removes the points. Default: `c(0.5, 2.5)`
 #' @param point.alpha Numeric between 0 and 1, transparency of the points. Setting it to `0` removes all points. Default: `1`.
-#' @param fill.color Character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. `viridis::viridis(100)`). Default: `viridis::viridis(100, option = "F", direction = -1, alpha = 0.9)`
+#' @param fill.color Character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. `grDevices::hcl.colors(100)`). Default: `grDevices::hcl.colors(100, palette = "Zissou 1", rev = FALSE, alpha = 0.9)`
 #' @param point.color Character vector with a color name (e.g. "red4"). Default: `gray30`
 #' @param verbose Logical, if TRUE the plot is printed. Default: `TRUE`
 #' @return A list with slots named after the selected `quantiles`, each one with a ggplot.
@@ -38,10 +38,10 @@ plot_response_surface <- function(
   grid.resolution = 100,
   point.size.range = c(0.5, 2.5),
   point.alpha = 1,
-  fill.color = viridis::viridis(
-    100,
-    option = "F",
-    direction = -1,
+  fill.color = grDevices::hcl.colors(
+    n = 100,
+    palette = "Zissou 1",
+    rev = FALSE,
     alpha = 0.9
   ),
   point.color = "gray30",

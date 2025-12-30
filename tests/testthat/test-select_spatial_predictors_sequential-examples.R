@@ -29,18 +29,12 @@ test_that("`select_spatial_predictors_sequential()` works", {
     distance.thresholds = distance.thresholds
   )
 
-  cluster <- parallel::makeCluster(
-    parallel::detectCores() - 1,
-    type = "PSOCK"
-  )
-
   spatial.predictors.ranked <- rank_spatial_predictors(
     distance.matrix = distance.matrix,
     distance.thresholds = distance.thresholds,
     spatial.predictors.df = spatial.predictors,
     ranking.method = "moran",
-    reference.moran.i = model$spatial.correlation.residuals$max.moran,
-    
+    reference.moran.i = model$spatial.correlation.residuals$max.moran
   )
 
   selection <- select_spatial_predictors_sequential(
@@ -50,13 +44,8 @@ test_that("`select_spatial_predictors_sequential()` works", {
     distance.matrix = distance.matrix,
     distance.thresholds = distance.thresholds,
     spatial.predictors.df = spatial.predictors,
-    spatial.predictors.ranking = spatial.predictors.ranked,
-    
+    spatial.predictors.ranking = spatial.predictors.ranked
   )
-
-  foreach::registerDoSEQ()
-  parallel::stopCluster(cluster)
-  invisible(gc())
 
   expect_type(selection, "list")
   expect_length(selection, 2)
@@ -65,5 +54,4 @@ test_that("`select_spatial_predictors_sequential()` works", {
     sum(selection$optimization$selected),
     length(selection$best.spatial.predictors)
   )
-  
 })

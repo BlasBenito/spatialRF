@@ -6,7 +6,8 @@
 \usage{
 plot_evaluation(
   model,
-  fill.color = viridis::viridis(3, option = "F", alpha = 0.8, direction = -1),
+  fill.color = grDevices::hcl.colors(n = 3, palette = "Zissou 1", alpha = 0.8, rev =
+    FALSE),
   line.color = "gray30",
   verbose = TRUE,
   notch = TRUE
@@ -15,7 +16,7 @@ plot_evaluation(
 \arguments{
 \item{model}{Model fitted with \code{\link[=rf_evaluate]{rf_evaluate()}}. Must be of class "rf_evaluate".}
 
-\item{fill.color}{Character vector with three colors (one for each model type: Testing, Training, Full) or a function that generates a color palette. Accepts hexadecimal codes (e.g., \code{c("#440154FF", "#21908CFF", "#FDE725FF")}) or palette functions (e.g., \code{viridis::viridis(3)}). Default: \code{viridis::viridis(3, option = "F", alpha = 0.8, direction = -1)}.}
+\item{fill.color}{Character vector with three colors (one for each model type: Testing, Training, Full) or a function that generates a color palette. Accepts hexadecimal codes (e.g., \code{c("#440154FF", "#21908CFF", "#FDE725FF")}) or palette functions (e.g., \code{grDevices::hcl.colors(3)}). Default: \code{grDevices::hcl.colors(3, palette = "Zissou 1", alpha = 0.8, rev = FALSE)}.}
 
 \item{line.color}{Character string specifying the color of boxplot borders. Default: \code{"gray30"}.}
 

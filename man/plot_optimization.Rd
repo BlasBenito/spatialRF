@@ -6,18 +6,14 @@
 \usage{
 plot_optimization(
   model,
-  point.color = viridis::viridis(
-    100,
-    option = "F",
-    direction = -1
-  ),
+  point.color = grDevices::hcl.colors(100, palette = "Zissou 1", rev = FALSE),
   verbose = TRUE
 )
 }
 \arguments{
 \item{model}{A model produced by \code{\link[=rf_spatial]{rf_spatial()}}, or an optimization data frame produced by \code{\link[=select_spatial_predictors_sequential]{select_spatial_predictors_sequential()}} or \code{\link[=select_spatial_predictors_recursive]{select_spatial_predictors_recursive()}}.}
 
-\item{point.color}{Colors of the plotted points. Can be a single color name (e.g. "red4"), a character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. \code{viridis::viridis(100)}). Default: \code{viridis::viridis(100, option = "F", direction = -1)}}
+\item{point.color}{Colors of the plotted points. Can be a single color name (e.g. "red4"), a character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. \code{grDevices::hcl.colors(100)}). Default: \code{grDevices::hcl.colors(100, palette = "Zissou 1", rev = FALSE)}}
 
 \item{verbose}{Logical, if \code{TRUE} the plot is printed. Default: \code{TRUE}}
 }

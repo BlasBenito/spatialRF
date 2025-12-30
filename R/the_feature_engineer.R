@@ -10,15 +10,15 @@
 #'The function returns the criteria used to select the interactions, and the data required to use these interactions a model.
 #'
 #' @param data Data frame with a response variable and a set of predictors. Default: `NULL`
-#' @param dependent.variable.name Character string with the name of the response variable. Must be in the column names of `data`. If the dependent variable is binary with values 1 and 0, the argument `case.weights` of `ranger` is populated by the function [case_weights()]. Default: `NULL`
-#' @param predictor.variable.names Character vector with the names of the predictive variables, or object of class `"variable_selection"` produced by [auto_vif()] and/or [auto_cor()]. Every element of this vector must be in the column names of `data`. Default: `NULL`
+#' @param dependent.variable.name Character string with the name of the response variable. Must be in the column names of `data`. If the dependent variable is binary with values 1 and 0, the argument `case.weights` of `ranger` is populated by the function [collinear::case_weights()]. Default: `NULL`
+#' @param predictor.variable.names Character vector with the names of the predictive variables. Default: `NULL`
 #' @param xy Data frame or matrix with two columns containing coordinates and named "x" and "y". If not provided, the comparison between models with and without variable interactions is not done.
 #' @param ranger.arguments Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.
 #' @param repetitions Integer, number of spatial folds to use during cross-validation. Must be lower than the total number of rows available in the model's data. Default: `30`
 #' @param training.fraction Proportion between 0.5 and 0.9 indicating the proportion of records to be used as training set during spatial cross-validation. Default: `0.75`
 #' @param importance.threshold Numeric between 0 and 1, quantile of variable importance scores over which to select individual predictors to explore interactions among them. Larger values reduce the number of potential interactions explored. Default: `0.75`
 #' @param cor.threshold Numeric, maximum Pearson correlation between any pair of the selected interactions, and between any interaction and the predictors in `predictor.variable.names`. Default: `0.75`
-#' @param point.color Colors of the plotted points. Can be a single color name (e.g. "red4"), a character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. `viridis::viridis(100)`). Default: `viridis::viridis(100, option = "F", alpha = 0.8)`
+#' @param point.color Colors of the plotted points. Can be a single color name (e.g. "red4"), a character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. `grDevices::hcl.colors(100)`). Default: `grDevices::hcl.colors(100, palette = "Zissou 1", alpha = 0.8)`
 #' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same. Default: `NULL`
 #' @param verbose Logical. If `TRUE`, messages and plots generated during the execution of the function are displayed. Default: `TRUE`
 #' @param n.cores Integer. Number of threads for ranger's internal parallelization. Default: `NULL` (auto-detected: when a parallel plan is active via `future::plan()`, n.cores is set to 1; otherwise defaults to `future::availableCores(omit = 1)`). When a parallel plan is active, n.cores is always set to 1 to prevent oversubscription, regardless of user input.
@@ -91,9 +91,9 @@ the_feature_engineer <- function(
   training.fraction = 0.75,
   importance.threshold = 0.75,
   cor.threshold = 0.75,
-  point.color = viridis::viridis(
-    100,
-    option = "F",
+  point.color = grDevices::hcl.colors(
+    n = 100,
+    palette = "Zissou 1",
     alpha = 0.8
   ),
   seed = NULL,
@@ -136,13 +136,6 @@ the_feature_engineer <- function(
     metric <- "auc"
   } else {
     metric <- "r.squared"
-  }
-
-  #predictor.variable.names comes from auto_vif or auto_cor
-  if (!is.null(predictor.variable.names)) {
-    if (inherits(predictor.variable.names, "variable_selection")) {
-      predictor.variable.names <- predictor.variable.names$selected.variables
-    }
   }
 
   if (importance.threshold > 1) {
@@ -585,20 +578,21 @@ the_feature_engineer <- function(
 
   #filtering out interactions by correlation among themselves
   if (nrow(interaction.screening.selected) > 1) {
-    interaction.selection <- auto_cor(
-      x = interaction.df,
-      preference.order = interaction.screening.selected$interaction.name,
-      cor.threshold = cor.threshold,
-      verbose = FALSE
+    interaction.selection <- collinear::cor_select(
+      df = interaction.df,
+      predictors = interaction.screening.selected$interaction.name,
+      preference_order = interaction.screening.selected$interaction.name,
+      max_cor = cor.threshold,
+      quiet = TRUE
     )
 
     interaction.screening.selected <- interaction.screening.selected[
       interaction.screening.selected$interaction.name %in%
-        interaction.selection$selected.variables,
+        interaction.selection,
     ]
 
     interaction.df <- interaction.df[,
-      interaction.selection$selected.variables,
+      interaction.selection,
       drop = FALSE
     ]
   }

@@ -4,7 +4,7 @@
 #' @param dependent.variable.name Character string with the name of the variable to test. Must be a column name in `data`.
 #' @return Logical. `TRUE` if the variable contains exactly two unique values (0 and 1), `FALSE` otherwise.
 #' @details
-#' This function is used internally by spatialRF to determine whether to apply classification-specific methods (e.g., case weighting with [case_weights()]). The function returns `FALSE` if:
+#' This function is used internally by spatialRF to determine whether to apply classification-specific methods. The function returns `FALSE` if:
 #' \itemize{
 #'   \item The variable has more than two unique values
 #'   \item The variable has only one unique value (constant)
@@ -12,7 +12,6 @@
 #' }
 #'
 #' Missing values (NA) are ignored when determining unique values.
-#' @seealso [case_weights()]
 #' @examples
 #' # Binary variable (returns TRUE)
 #' is_binary(

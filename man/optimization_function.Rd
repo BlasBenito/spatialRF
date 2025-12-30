@@ -94,8 +94,6 @@ which.max(scores_pvalue)
 \code{\link[=select_spatial_predictors_recursive]{select_spatial_predictors_recursive()}}, \code{\link[=select_spatial_predictors_sequential]{select_spatial_predictors_sequential()}}, \code{\link[=moran]{moran()}}
 
 Other utilities: 
-\code{\link{.vif_to_df}()},
-\code{\link{auc}()},
 \code{\link{objects_size}()},
 \code{\link{prepare_importance_spatial}()},
 \code{\link{rescale_vector}()},

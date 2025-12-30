@@ -29,51 +29,8 @@ y$selected.variables.df
 y <- plants_df |>
   dplyr::select(
     dplyr::all_of(plants_predictors)
-  ) |>
-  auto_vif() |>
-  auto_cor()
+  )
 
-# auto_vif ----
-#loading data
-data(plants_df)
-
-#on a data frame
-y <- auto_vif(x = plants_df[, plants_predictors])
-
-#getting the vif data frame
-y$vif
-
-#getting the names of the selected variables
-y$selected.variables
-
-#getting the data frame of selected variables
-y$selected.variables.df
-
-#with pipes
-y <- plants_df |>
-  dplyr::select(
-    dplyr::all_of(plants_predictors)
-  ) |>
-  auto_cor() |>
-  auto_vif()
-
-# beowulf_cluster ----
-# beowulf.cluster <- beowulf_cluster(
-#  cluster.ips = c(
-#    "x.x.x.x",
-#    "x.x.x.x",
-#    "x.x.x.x"
-#    ),
-# cluster.cores = c(7, 4, 4),
-# cluster.user = "blas",
-# cluster.port = "11000"
-#)
-
-# doParallel::registerDoParallel(cl = beowulf.cluster)
-
-#PARALLELIZED foreach LOOP HERE
-
-# parallel::stopCluster(cl = beowulf.cluster)
 
 # case_weights ----
 data <- data.frame(
@@ -1332,8 +1289,6 @@ head(y)
 
 # vif ----
 data(plants_df, plants_predictors)
-
-vif(plants_df[, plants_predictors])
 
 # weights_from_plants_distance ----
 #loading example distance matrix

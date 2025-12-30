@@ -1,12 +1,5 @@
 #' @title Rescales a numeric vector into a new range
 #' @description Rescales a numeric vector to a new range.
-#' @usage
-#' rescale_vector(
-#'   x = NULL,
-#'   new.min = 0,
-#'   new.max = 1,
-#'   integer = FALSE
-#' )
 #' @param x Numeric vector. Default: `NULL`
 #' @param new.min New minimum value. Default: `0`
 #' @param new.max New maximum value. Default: `1`

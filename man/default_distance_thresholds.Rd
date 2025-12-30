@@ -32,9 +32,6 @@ thresholds
 }
 \seealso{
 Other preprocessing: 
-\code{\link{auto_cor}()},
-\code{\link{auto_vif}()},
-\code{\link{case_weights}()},
 \code{\link{double_center_distance_matrix}()},
 \code{\link{is_binary}()},
 \code{\link{make_spatial_fold}()},

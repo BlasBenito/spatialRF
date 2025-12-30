@@ -2,7 +2,7 @@
 #' @description Fits spatial random forest models using different methods to generate, rank, and select spatial predictors acting as proxies of spatial processes not considered by the non-spatial predictors. The end goal is providing the model with information about the spatial structure of the data to minimize the spatial correlation (Moran's I) of the model residuals and generate honest variable importance scores.
 #' @param model A model fitted with [rf()]. If used, the arguments `data`, `dependent.variable.name`, `predictor.variable.names`, `distance.matrix`, `distance.thresholds`, `ranger.arguments`, and `scaled.importance` are taken directly from the model definition. Default: NULL
 #' @param data Data frame with a response variable and a set of predictors. Default: `NULL`
-#' @param dependent.variable.name Character string with the name of the response variable. Must be in the column names of `data`. If the dependent variable is binary with values 1 and 0, the argument `case.weights` of `ranger` is populated by the function [case_weights()]. Default: `NULL`
+#' @param dependent.variable.name Character string with the name of the response variable. Must be in the column names of `data`. If the dependent variable is binary with values 1 and 0, the argument `case.weights` of `ranger` is populated by the function [collinear::case_weights()]. Default: `NULL`
 #' @param predictor.variable.names Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Default: `NULL`
 #' @param distance.matrix Squared matrix with the distances among the records in `data`. The number of rows of `distance.matrix` and `data` must be the same. If not provided, the computation of the Moran's I of the residuals is omitted. Default: `NULL`
 #' @param distance.thresholds Numeric vector with distances in the same units as `distance.matrix` Distances below each distance threshold are set to 0 on separated copies of the distance matrix to compute Moran's I at different neighborhood distances. If `NULL`, it defaults to `seq(0, max(distance.matrix)/2, length.out = 4)` (defined by [default_distance_thresholds()]). Default: `NULL`
@@ -184,11 +184,6 @@ rf_spatial <- function(
     #stopping if no predictor.variable.names
     if (is.null(predictor.variable.names)) {
       stop("The argument 'predictor.variable.names' is missing.")
-    } else {
-      #predictor.variable.names comes from auto_vif or auto_cor
-      if (inherits(predictor.variable.names, "variable_selection")) {
-        predictor.variable.names <- predictor.variable.names$selected.variables
-      }
     }
 
     #fitting non-spatial model

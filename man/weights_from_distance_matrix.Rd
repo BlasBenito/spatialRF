@@ -4,10 +4,7 @@
 \alias{weights_from_distance_matrix}
 \title{Transforms a distance matrix into a matrix of weights}
 \usage{
-weights_from_distance_matrix(
-  distance.matrix = NULL,
-  distance.threshold = 0
-)
+weights_from_distance_matrix(distance.matrix = NULL, distance.threshold = 0)
 }
 \arguments{
 \item{distance.matrix}{Distance matrix. Default: \code{NULL}.}
@@ -33,9 +30,6 @@ y[1:5, 1:5]
 }
 \seealso{
 Other preprocessing: 
-\code{\link{auto_cor}()},
-\code{\link{auto_vif}()},
-\code{\link{case_weights}()},
 \code{\link{default_distance_thresholds}()},
 \code{\link{double_center_distance_matrix}()},
 \code{\link{is_binary}()},

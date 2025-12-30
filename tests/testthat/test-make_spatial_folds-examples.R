@@ -7,21 +7,11 @@ test_that("`make_spatial_folds()` works", {
     n = 20
   )
 
-  cluster <- parallel::makeCluster(
-    parallel::detectCores() - 1,
-    type = "PSOCK"
-  )
-
   out <- make_spatial_folds(
     xy.selected = xy.selected,
     xy = xy,
-    training.fraction = 0.6,
-    
+    training.fraction = 0.6
   )
-
-  foreach::registerDoSEQ()
-  parallel::stopCluster(cluster)
-  invisible(gc())
 
   expect_type(out, "list")
   expect_length(out, nrow(xy.selected))
@@ -30,5 +20,4 @@ test_that("`make_spatial_folds()` works", {
   expect_type(out[[1]]$testing, "integer")
 
   # Verify no connections left open
-  
 })

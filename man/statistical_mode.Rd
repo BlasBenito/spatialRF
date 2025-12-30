@@ -22,8 +22,6 @@ statistical_mode(x = c(10, 9, 10, 8))
 }
 \seealso{
 Other utilities: 
-\code{\link{.vif_to_df}()},
-\code{\link{auc}()},
 \code{\link{objects_size}()},
 \code{\link{optimization_function}()},
 \code{\link{prepare_importance_spatial}()},

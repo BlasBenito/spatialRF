@@ -8,7 +8,7 @@
 #' @details
 #' Filtering is performed in two steps:
 #' \enumerate{
-#'   \item Remove spatial predictors correlated with each other (using [auto_cor()])
+#'   \item Remove spatial predictors correlated with each other (using [collinear::cor_select()])
 #'   \item Remove spatial predictors correlated with non-spatial predictors
 #' }
 #' This two-step process ensures the retained spatial predictors are independent of both each other and the environmental predictors, improving model interpretability and reducing multicollinearity.
@@ -49,39 +49,46 @@ filter_spatial_predictors <- function(
   spatial.predictors.df = NULL,
   cor.threshold = 0.50
 ) {
-  #predictor.variable.names comes from auto_vif or auto_cor
-  if (!is.null(predictor.variable.names)) {
-    if (inherits(predictor.variable.names, "variable_selection")) {
-      predictor.variable.names <- predictor.variable.names$selected.variables
-    }
-  }
-
   #filtering spatial predictors by pair-wise correlation
-  spatial.predictors.df <- auto_cor(
-    x = spatial.predictors.df,
-    preference.order = colnames(spatial.predictors.df),
-    cor.threshold = cor.threshold,
-    verbose = FALSE
-  )$selected.variables.df
+  selected.spatial.predictors <- collinear::cor_select(
+    df = spatial.predictors.df,
+    predictors = colnames(spatial.predictors.df),
+    preference_order = colnames(spatial.predictors.df),
+    max_cor = cor.threshold,
+    quiet = TRUE
+  )
 
-  #handle edge case: no spatial predictors remain after filtering
-  if (ncol(spatial.predictors.df) == 0) {
-    return(spatial.predictors.df)
-  }
+  spatial.predictors.df <- spatial.predictors.df[,
+    selected.spatial.predictors,
+    drop = FALSE
+  ]
 
   #filtering spatial predictors by correlation with non-spatial ones
-
-  #generating df of non-spatial predictors
   non.spatial.predictors.df <- data[, predictor.variable.names, drop = FALSE]
+
+  #identifying numeric predictors
+  #generating df of non-spatial predictors
+  non.spatial.numeric.predictors <- collinear::identify_numeric_variables(
+    df = data,
+    predictors = predictor.variable.names,
+    quiet = TRUE
+  )$valid
 
   #correlation between spatial and non-spatial predictors
   cor.predictors <- stats::cor(
-    non.spatial.predictors.df,
-    spatial.predictors.df
-  )
+    x = non.spatial.predictors.df[, non.spatial.numeric.predictors],
+    y = spatial.predictors.df,
+    use = "pairwise.complete.obs",
+    method = "pearson"
+  ) |>
+    abs()
 
   #max correlation of the spatial predictors
-  max.cor.spatial.predictors <- apply(cor.predictors, 2, FUN = max)
+  max.cor.spatial.predictors <- apply(
+    X = cor.predictors,
+    MARGIN = 2,
+    FUN = max
+  )
 
   #selected spatial predictors
   selected.spatial.predictors <- names(max.cor.spatial.predictors[

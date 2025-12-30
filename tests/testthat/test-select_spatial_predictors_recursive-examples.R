@@ -2,12 +2,6 @@ test_that("`select_spatial_predictors_recursive()` works", {
   data("plants_distance")
   data("plants_df")
 
-  #external cluster
-  cluster <- parallel::makeCluster(
-    parallel::detectCores() - 1,
-    type = "PSOCK"
-  )
-
   # Use smaller subset for faster testing of this expensive recursive
   sample_idx <- 1:50
   data <- plants_df[sample_idx, ]
@@ -41,8 +35,7 @@ test_that("`select_spatial_predictors_recursive()` works", {
     distance.thresholds = distance.thresholds,
     spatial.predictors.df = spatial.predictors,
     ranking.method = "effect",
-    reference.moran.i = model$spatial.correlation.residuals$max.moran,
-    
+    reference.moran.i = model$spatial.correlation.residuals$max.moran
   )
 
   selection <- select_spatial_predictors_recursive(
@@ -52,13 +45,8 @@ test_that("`select_spatial_predictors_recursive()` works", {
     distance.matrix = distance.matrix,
     distance.thresholds = distance.thresholds,
     spatial.predictors.df = spatial.predictors,
-    spatial.predictors.ranking = spatial.predictors.ranking,
-    
+    spatial.predictors.ranking = spatial.predictors.ranking
   )
-
-  foreach::registerDoSEQ()
-  parallel::stopCluster(cluster)
-  invisible(gc())
 
   expect_type(selection, "list")
   expect_s3_class(selection$optimization, "data.frame")
@@ -79,6 +67,4 @@ test_that("`select_spatial_predictors_recursive()` works", {
       "selected"
     )
   )
-
-  
 })

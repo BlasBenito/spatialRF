@@ -29,7 +29,7 @@ Removes spatial predictors that are highly correlated with other spatial predict
 \details{
 Filtering is performed in two steps:
 \enumerate{
-\item Remove spatial predictors correlated with each other (using \code{\link[=auto_cor]{auto_cor()}})
+\item Remove spatial predictors correlated with each other (using \code{\link[collinear:cor_select]{collinear::cor_select()}})
 \item Remove spatial predictors correlated with non-spatial predictors
 }
 This two-step process ensures the retained spatial predictors are independent of both each other and the environmental predictors, improving model interpretability and reducing multicollinearity.

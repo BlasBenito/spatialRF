@@ -8,7 +8,7 @@
 #' @param distance.step Numeric, argument `distance.step` of [thinning_til_n()]. distance step used during the selection of the centers of the training folds. These fold centers are selected by thinning the data until a number of folds equal or lower than `repetitions` is reached. Its default value is 1/1000th the maximum distance within records in `xy`. Reduce it if the number of training folds is lower than expected.
 #' @param distance.step.x Numeric, argument `distance.step.x` of [make_spatial_folds()]. Distance step used during the growth in the x axis of the buffers defining the training folds. Default: `NULL` (1/1000th the range of the x coordinates).
 #' @param distance.step.y Numeric, argument `distance.step.x` of [make_spatial_folds()]. Distance step used during the growth in the y axis of the buffers defining the training folds. Default: `NULL` (1/1000th the range of the y coordinates).
-#' @param fill.color Character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. `viridis::viridis(100)`). Default: `viridis::viridis(100, option = "F", direction = -1, alpha = 0.8, end = 0.9)`
+#' @param fill.color Character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. `grDevices::hcl.colors(100)`). Default: `grDevices::hcl.colors(100, palette = "Zissou 1", rev = FALSE, alpha = 0.8)`
 #' @param line.color Character string, color of the line produced by `ggplot2::geom_smooth()`. Default: `"white"`
 #' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same. Default: `1`.
 #' @param verbose Logical. If `TRUE`, messages and plots generated during the execution of the function are displayed, Default: `TRUE`
@@ -44,12 +44,11 @@ rf_importance <- function(
   distance.step = NULL,
   distance.step.x = NULL,
   distance.step.y = NULL,
-  fill.color = viridis::viridis(
-    100,
-    option = "F",
-    direction = -1,
-    alpha = 1,
-    end = 0.9
+  fill.color = grDevices::hcl.colors(
+    n = 100,
+    palette = "Zissou 1",
+    rev = FALSE,
+    alpha = 1
   ),
   line.color = "white",
   seed = 1,
@@ -84,9 +83,20 @@ rf_importance <- function(
   )
 
   #getting the evaluation.df
-  testing_cols <- grep("testing.", colnames(model$evaluation$per.fold), fixed = TRUE, value = TRUE)
-  evaluation.df <- model$evaluation$per.fold[, c("fold.id", testing_cols), drop = FALSE]
-  evaluation.df <- evaluation.df[, colnames(evaluation.df) != "testing.records", drop = FALSE]
+  testing_cols <- grep(
+    "testing.",
+    colnames(model$evaluation$per.fold),
+    fixed = TRUE,
+    value = TRUE
+  )
+  evaluation.df <- model$evaluation$per.fold[,
+    c("fold.id", testing_cols),
+    drop = FALSE
+  ]
+  evaluation.df <- evaluation.df[,
+    colnames(evaluation.df) != "testing.records",
+    drop = FALSE
+  ]
   colnames(evaluation.df)[2] <- "with"
 
   #getting training data
@@ -164,11 +174,17 @@ rf_importance <- function(
       )
 
     #getting evaluation data frame
-    eval_df_i <- model.i$evaluation$per.fold[
-      , colnames(model.i$evaluation$per.fold) != "testing.records", drop = FALSE
+    eval_df_i <- model.i$evaluation$per.fold[,
+      colnames(model.i$evaluation$per.fold) != "testing.records",
+      drop = FALSE
     ]
 
-    testing_col <- grep("testing.", colnames(eval_df_i), fixed = TRUE, value = TRUE)
+    testing_col <- grep(
+      "testing.",
+      colnames(eval_df_i),
+      fixed = TRUE,
+      value = TRUE
+    )
     colnames(eval_df_i)[colnames(eval_df_i) == testing_col] <- "without"
 
     eval_df_i <- merge(
@@ -184,8 +200,16 @@ rf_importance <- function(
       stringsAsFactors = FALSE
     )
 
-    training_cols <- grep("training.", colnames(eval_df_i), fixed = TRUE, value = TRUE)
-    eval_df_i <- eval_df_i[, !colnames(eval_df_i) %in% training_cols, drop = FALSE]
+    training_cols <- grep(
+      "training.",
+      colnames(eval_df_i),
+      fixed = TRUE,
+      value = TRUE
+    )
+    eval_df_i <- eval_df_i[,
+      !colnames(eval_df_i) %in% training_cols,
+      drop = FALSE
+    ]
 
     evaluation.list[[predictor.i]] <- eval_df_i
   }
@@ -198,27 +222,33 @@ rf_importance <- function(
   rownames(importance.per.repetition) <- NULL
 
   #summary of differences
-  importance.per.variable <- do.call(rbind, lapply(
-    split(importance.per.repetition, importance.per.repetition$variable),
-    function(grp) {
-      with_median <- median(grp$with)
-      without_median <- median(grp$without)
-      importance_val <- with_median - without_median
+  importance.per.variable <- do.call(
+    rbind,
+    lapply(
+      split(importance.per.repetition, importance.per.repetition$variable),
+      function(grp) {
+        with_median <- median(grp$with)
+        without_median <- median(grp$without)
+        importance_val <- with_median - without_median
 
-      data.frame(
-        variable = grp$variable[1],
-        with = with_median,
-        without = without_median,
-        importance = importance_val,
-        importance.mad = round(stats::mad(grp$with - grp$without), 3),
-        importance.percent = round(importance_val * 100 / with_median, 1),
-        importance.percent.mad = round(stats::mad(
-          (grp$with * 100 / grp$with[1]) - (grp$without * 100 / grp$with[1])
-        ), 1),
-        stringsAsFactors = FALSE
-      )
-    }
-  ))
+        data.frame(
+          variable = grp$variable[1],
+          with = with_median,
+          without = without_median,
+          importance = importance_val,
+          importance.mad = round(stats::mad(grp$with - grp$without), 3),
+          importance.percent = round(importance_val * 100 / with_median, 1),
+          importance.percent.mad = round(
+            stats::mad(
+              (grp$with * 100 / grp$with[1]) - (grp$without * 100 / grp$with[1])
+            ),
+            1
+          ),
+          stringsAsFactors = FALSE
+        )
+      }
+    )
+  )
   rownames(importance.per.variable) <- NULL
 
   importance.per.variable <- importance.per.variable[
@@ -226,8 +256,13 @@ rf_importance <- function(
   ]
 
   importance.per.variable <- importance.per.variable[, c(
-    "variable", "with", "without", "importance",
-    "importance.mad", "importance.percent", "importance.percent.mad"
+    "variable",
+    "with",
+    "without",
+    "importance",
+    "importance.mad",
+    "importance.percent",
+    "importance.percent.mad"
   )]
 
   #pretty metric name
@@ -315,14 +350,25 @@ rf_importance <- function(
     all.x = TRUE
   )
 
-  colnames(model$importance$per.variable)[colnames(model$importance$per.variable) == "importance.x"] <- "importance.oob"
-  colnames(model$importance$per.variable)[colnames(model$importance$per.variable) == "importance.y"] <- "importance.cv"
-  colnames(model$importance$per.variable)[colnames(model$importance$per.variable) == "importance.mad"] <- "importance.cv.mad"
-  colnames(model$importance$per.variable)[colnames(model$importance$per.variable) == "importance.percent"] <- "importance.cv.percent"
-  colnames(model$importance$per.variable)[colnames(model$importance$per.variable) == "importance.percent.mad"] <- "importance.cv.percent.mad"
+  colnames(model$importance$per.variable)[
+    colnames(model$importance$per.variable) == "importance.x"
+  ] <- "importance.oob"
+  colnames(model$importance$per.variable)[
+    colnames(model$importance$per.variable) == "importance.y"
+  ] <- "importance.cv"
+  colnames(model$importance$per.variable)[
+    colnames(model$importance$per.variable) == "importance.mad"
+  ] <- "importance.cv.mad"
+  colnames(model$importance$per.variable)[
+    colnames(model$importance$per.variable) == "importance.percent"
+  ] <- "importance.cv.percent"
+  colnames(model$importance$per.variable)[
+    colnames(model$importance$per.variable) == "importance.percent.mad"
+  ] <- "importance.cv.percent.mad"
 
-  model$importance$per.variable <- model$importance$per.variable[
-    , !colnames(model$importance$per.variable) %in% c("with", "without"), drop = FALSE
+  model$importance$per.variable <- model$importance$per.variable[,
+    !colnames(model$importance$per.variable) %in% c("with", "without"),
+    drop = FALSE
   ]
 
   #changing names

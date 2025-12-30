@@ -1,7 +1,7 @@
 #' @title Visualize variable importance scores
 #' @description Creates a visualization of variable importance scores from models fitted with [rf()], [rf_repeat()], or [rf_spatial()]. For single-run models ([rf()], [rf_spatial()]), displays points ordered by importance. For repeated models ([rf_repeat()]), displays violin plots showing the distribution of importance scores across model repetitions.
 #' @param model Model fitted with [rf()], [rf_repeat()], or [rf_spatial()]. Alternatively, a data frame with variable importance scores (for internal use only).
-#' @param fill.color Character vector of colors or a function generating a color palette. Accepts hexadecimal codes (e.g., `c("#440154FF", "#21908CFF", "#FDE725FF")`) or palette functions (e.g., `viridis::viridis(100)`). For single-run models, creates a continuous gradient. For repeated models, assigns discrete colors to variables. Default: `viridis::viridis(100, option = "F", direction = -1, alpha = 1, end = 0.9)`.
+#' @param fill.color Character vector of colors or a function generating a color palette. Accepts hexadecimal codes (e.g., `c("#440154FF", "#21908CFF", "#FDE725FF")`) or palette functions (e.g., `grDevices::hcl.colors(100)`). For single-run models, creates a continuous gradient. For repeated models, assigns discrete colors to variables. Default: `grDevices::hcl.colors(100, palette = "Zissou 1", rev = FALSE, alpha = 1)`.
 #' @param line.color Character string specifying the color of point borders (single-run models) or violin plot outlines (repeated models). Default: `"white"`.
 #' @param verbose Logical. If `TRUE`, prints the plot to the graphics device. Default: `TRUE`.
 #' @return ggplot object that can be further customized or saved. The plot displays variable importance on the x-axis and variable names on the y-axis, ordered by importance (highest at top).
@@ -61,12 +61,11 @@
 #' @autoglobal
 plot_importance <- function(
   model,
-  fill.color = viridis::viridis(
+  fill.color = grDevices::hcl.colors(
     100,
-    option = "F",
-    direction = -1,
-    alpha = 1,
-    end = 0.9
+    palette = "Zissou 1",
+    rev = FALSE,
+    alpha = 1
   ),
   line.color = "white",
   verbose = TRUE

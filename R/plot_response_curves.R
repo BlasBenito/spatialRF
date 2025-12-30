@@ -4,7 +4,7 @@
 #' @param variables Character vector, names of predictors to plot. If `NULL`, the most important variables (importance higher than the median) in `x` are selected. Default: `NULL`.
 #' @param quantiles Numeric vector with values between 0 and 1, argument `probs` of \link[stats]{quantile}. Quantiles to set the other variables to. Default: `c(0.1, 0.5, 0.9)`
 #' @param grid.resolution Integer between 20 and 500. Resolution of the plotted curve Default: `100`
-#' @param line.color Character vector with colors, or function to generate colors for the lines representing `quantiles`. Must have the same number of colors as `quantiles` are defined. Default: `viridis::viridis(length(quantiles), option = "F", end = 0.9)`
+#' @param line.color Character vector with colors, or function to generate colors for the lines representing `quantiles`. Must have the same number of colors as `quantiles` are defined. Default: `grDevices::hcl.colors(length(quantiles), palette = "Zissou 1")`
 #' @param ncol Integer, argument of \link[patchwork]{wrap_plots}. Defaults to the rounded squared root of the number of plots. Default: `2`
 #' @param show.data Logical, if `TRUE`, the observed data is plotted along with the response curves. Default: `FALSE`
 #' @param verbose Logical, if TRUE the plot is printed. Default: `TRUE`
@@ -35,10 +35,9 @@ plot_response_curves <- function(
   variables = NULL,
   quantiles = c(0.1, 0.5, 0.9),
   grid.resolution = 200,
-  line.color = viridis::viridis(
-    length(quantiles),
-    option = "F",
-    end = 0.9
+  line.color = grDevices::hcl.colors(
+    n = length(quantiles),
+    palette = "Zissou 1"
   ),
   ncol = 2,
   show.data = FALSE,
@@ -58,10 +57,9 @@ plot_response_curves <- function(
         "Insufficient colors provided in 'line.color', used the default palette insted."
       )
     }
-    line.color <- viridis::viridis(
-      length(quantiles),
-      option = "F",
-      end = 0.9
+    line.color <- grDevices::hcl.colors(
+      n = length(quantiles),
+      palette = "Zissou 1"
     )
   }
 
@@ -208,7 +206,10 @@ plot_response_curves <- function(
       several.models <- TRUE
 
       #computing the median of each curve
-      agg_formula <- stats::as.formula(paste(response.variable, "~ quantile + id"))
+      agg_formula <- stats::as.formula(paste(
+        response.variable,
+        "~ quantile + id"
+      ))
       variable.i.df.median <- stats::aggregate(
         agg_formula,
         data = variable.i.df,

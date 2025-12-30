@@ -4,11 +4,7 @@
 \alias{thinning_til_n}
 \title{Applies thinning to pairs of coordinates until reaching a given n}
 \usage{
-thinning_til_n(
-  xy,
-  n = 30,
-  distance.step = NULL
-)
+thinning_til_n(xy = NULL, n = 30, distance.step = NULL)
 }
 \arguments{
 \item{xy}{A data frame with columns named "x" and "y" representing geographic coordinates. Default: \code{NULL}}
@@ -52,8 +48,6 @@ if (interactive()) {
 \code{\link[=thinning]{thinning()}}
 
 Other utilities: 
-\code{\link{.vif_to_df}()},
-\code{\link{auc}()},
 \code{\link{objects_size}()},
 \code{\link{optimization_function}()},
 \code{\link{prepare_importance_spatial}()},

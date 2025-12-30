@@ -55,9 +55,15 @@ plan(sequential)  # Reset when done (optional)
 
 - **Explicit package calls:** Adopting `package::function()` syntax throughout codebase to make dependencies explicit and reduce `@importFrom` clutter.
 
-## Version 1.2.0
+- Removed function `auc()` and replaced it with `collinear::score_auc()`.
+
+- Removed function `case_weights()` and replaced it with `collinear::case_weights()`.
 
 - Replaced the `magrittr` pipe with the base one.
+
+- Replaced dependency `viridis::virids()` with `grDevices::hcl.colors()`, and set the default color scale to "Zissou 1".
+
+- Removed functions `auto_cor()`, `auto_vif()`, and `vif()`, and replaced their internal calls with functions of the package `collinear`.
 
 - Removed `dplyr`, `tidyr`, `tibble`, and `rlang` dependencies, replacing all tidyverse operations with base R equivalents. Replaced `!!rlang::sym()` with ggplot2's native `.data[[]]` pronoun in plotting functions.
 

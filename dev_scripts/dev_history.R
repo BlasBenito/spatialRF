@@ -189,17 +189,6 @@ usethis::use_r("scale_robust")
 sinew::makeOxygen(scale_robust)
 exampletestr::make_test_shell_fun("scale_robust", open = FALSE)
 
-usethis::use_r("auto_vif")
-sinew::makeOxygen(auto_vif)
-exampletestr::make_test_shell_fun("auto_vif", open = FALSE)
-
-usethis::use_r("vif")
-sinew::makeOxygen(vif)
-exampletestr::make_test_shell_fun("vif", open = FALSE)
-
-usethis::use_r("auto_cor")
-sinew::makeOxygen(auto_cor)
-exampletestr::make_test_shell_fun("auto_cor", open = FALSE)
 
 usethis::use_r("statistical_mode")
 sinew::makeOxygen(statistical_mode)

@@ -1,16 +1,7 @@
 #' @title Plots a tuning object produced by [rf_tuning()]
 #' @description Plots the tuning of the hyperparameters `num.trees`, `mtry`, and `min.node.size` performed by [rf_tuning()].
-#' @usage
-#' plot_tuning(
-#'   model,
-#'   point.color = viridis::viridis(
-#'     100,
-#'     option = "F"
-#'   ),
-#'   verbose = TRUE
-#' )
 #' @param model A model fitted with [rf_tuning()]. Default: `NULL`
-#' @param point.color Colors of the plotted points. Can be a single color name (e.g. "red4"), a character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. `viridis::viridis(100)`). Default: `viridis::viridis(100, option = "F")`
+#' @param point.color Colors of the plotted points. Can be a single color name (e.g. "red4"), a character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. `grDevices::hcl.colors(100)`). Default: `grDevices::hcl.colors(100, palette = "Zissou 1")`
 #' @param verbose Logical, if `TRUE`, the plot is printed. Default: `TRUE`
 #' @return A ggplot.
 #' @seealso [rf_tuning()]
@@ -41,9 +32,9 @@
 #' @autoglobal
 plot_tuning <- function(
   model,
-  point.color = viridis::viridis(
-    100,
-    option = "F"
+  point.color = grDevices::hcl.colors(
+    n = 100,
+    palette = "Zissou 1"
   ),
   verbose = TRUE
 ) {

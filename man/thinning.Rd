@@ -48,8 +48,6 @@ if (interactive()) {
 \code{\link[=thinning_til_n]{thinning_til_n()}}
 
 Other utilities: 
-\code{\link{.vif_to_df}()},
-\code{\link{auc}()},
 \code{\link{objects_size}()},
 \code{\link{optimization_function}()},
 \code{\link{prepare_importance_spatial}()},

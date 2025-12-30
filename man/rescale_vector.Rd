@@ -4,12 +4,7 @@
 \alias{rescale_vector}
 \title{Rescales a numeric vector into a new range}
 \usage{
-rescale_vector(
-  x = NULL,
-  new.min = 0,
-  new.max = 1,
-  integer = FALSE
-)
+rescale_vector(x = NULL, new.min = 0, new.max = 1, integer = FALSE)
 }
 \arguments{
 \item{x}{Numeric vector. Default: \code{NULL}}
@@ -39,8 +34,6 @@ y
 }
 \seealso{
 Other utilities: 
-\code{\link{.vif_to_df}()},
-\code{\link{auc}()},
 \code{\link{objects_size}()},
 \code{\link{optimization_function}()},
 \code{\link{prepare_importance_spatial}()},

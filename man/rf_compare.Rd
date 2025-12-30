@@ -13,7 +13,8 @@ rf_compare(
   distance.step = NULL,
   distance.step.x = NULL,
   distance.step.y = NULL,
-  fill.color = viridis::viridis(100, option = "F", direction = -1, alpha = 0.8),
+  fill.color = grDevices::hcl.colors(n = 100, palette = "Zissou 1", rev = FALSE, alpha =
+    0.8),
   line.color = "gray30",
   seed = 1,
   verbose = TRUE,
@@ -37,7 +38,7 @@ rf_compare(
 
 \item{distance.step.y}{Numeric, argument \code{distance.step.x} of \code{\link[=make_spatial_folds]{make_spatial_folds()}}. Distance step used during the growth in the y axis of the buffers defining the training folds. Default: \code{NULL} (1/1000th the range of the y coordinates).}
 
-\item{fill.color}{Character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. \code{viridis::viridis(100)}). Default: \code{viridis::viridis(100, option = "F", direction = -1)}}
+\item{fill.color}{Character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. \code{grDevices::hcl.colors(100)}). Default: \code{grDevices::hcl.colors(100, palette = "Zissou 1", rev = FALSE)}}
 
 \item{line.color}{Character string, color of the line produced by \code{ggplot2::geom_smooth()}. Default: \code{"gray30"}}
 

@@ -130,9 +130,6 @@ if (interactive()) {
 \code{\link[=make_spatial_fold]{make_spatial_fold()}}, \code{\link[=rf_evaluate]{rf_evaluate()}}, \code{\link[=thinning]{thinning()}}, \code{\link[=thinning_til_n]{thinning_til_n()}}
 
 Other preprocessing: 
-\code{\link{auto_cor}()},
-\code{\link{auto_vif}()},
-\code{\link{case_weights}()},
 \code{\link{default_distance_thresholds}()},
 \code{\link{double_center_distance_matrix}()},
 \code{\link{is_binary}()},

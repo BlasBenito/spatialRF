@@ -87,13 +87,6 @@ select_spatial_predictors_recursive <- function(
   weight.penalization.n.predictors = 0,
   n.cores = NULL
 ) {
-  #predictor.variable.names comes from auto_vif or auto_cor
-  if (!is.null(predictor.variable.names)) {
-    if (inherits(predictor.variable.names, "variable_selection")) {
-      predictor.variable.names <- predictor.variable.names$selected.variables
-    }
-  }
-
   #preparing fast ranger arguments
   if (is.null(ranger.arguments)) {
     ranger.arguments <- list()

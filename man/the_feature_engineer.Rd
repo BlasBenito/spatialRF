@@ -14,7 +14,7 @@ the_feature_engineer(
   training.fraction = 0.75,
   importance.threshold = 0.75,
   cor.threshold = 0.75,
-  point.color = viridis::viridis(100, option = "F", alpha = 0.8),
+  point.color = grDevices::hcl.colors(n = 100, palette = "Zissou 1", alpha = 0.8),
   seed = NULL,
   verbose = TRUE,
   n.cores = NULL
@@ -23,9 +23,9 @@ the_feature_engineer(
 \arguments{
 \item{data}{Data frame with a response variable and a set of predictors. Default: \code{NULL}}
 
-\item{dependent.variable.name}{Character string with the name of the response variable. Must be in the column names of \code{data}. If the dependent variable is binary with values 1 and 0, the argument \code{case.weights} of \code{ranger} is populated by the function \code{\link[=case_weights]{case_weights()}}. Default: \code{NULL}}
+\item{dependent.variable.name}{Character string with the name of the response variable. Must be in the column names of \code{data}. If the dependent variable is binary with values 1 and 0, the argument \code{case.weights} of \code{ranger} is populated by the function \code{\link[collinear:case_weights]{collinear::case_weights()}}. Default: \code{NULL}}
 
-\item{predictor.variable.names}{Character vector with the names of the predictive variables, or object of class \code{"variable_selection"} produced by \code{\link[=auto_vif]{auto_vif()}} and/or \code{\link[=auto_cor]{auto_cor()}}. Every element of this vector must be in the column names of \code{data}. Default: \code{NULL}}
+\item{predictor.variable.names}{Character vector with the names of the predictive variables. Default: \code{NULL}}
 
 \item{xy}{Data frame or matrix with two columns containing coordinates and named "x" and "y". If not provided, the comparison between models with and without variable interactions is not done.}
 
@@ -39,7 +39,7 @@ the_feature_engineer(
 
 \item{cor.threshold}{Numeric, maximum Pearson correlation between any pair of the selected interactions, and between any interaction and the predictors in \code{predictor.variable.names}. Default: \code{0.75}}
 
-\item{point.color}{Colors of the plotted points. Can be a single color name (e.g. "red4"), a character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. \code{viridis::viridis(100)}). Default: \code{viridis::viridis(100, option = "F", alpha = 0.8)}}
+\item{point.color}{Colors of the plotted points. Can be a single color name (e.g. "red4"), a character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. \code{grDevices::hcl.colors(100)}). Default: \code{grDevices::hcl.colors(100, palette = "Zissou 1", alpha = 0.8)}}
 
 \item{seed}{Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same. Default: \code{NULL}}
 
@@ -116,9 +116,6 @@ if (interactive()) {
 }
 \seealso{
 Other preprocessing: 
-\code{\link{auto_cor}()},
-\code{\link{auto_vif}()},
-\code{\link{case_weights}()},
 \code{\link{default_distance_thresholds}()},
 \code{\link{double_center_distance_matrix}()},
 \code{\link{is_binary}()},

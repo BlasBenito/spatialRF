@@ -79,9 +79,6 @@ if (interactive()) {
 \code{\link[=make_spatial_folds]{make_spatial_folds()}}, \code{\link[=rf_evaluate]{rf_evaluate()}}, \code{\link[=is_binary]{is_binary()}}
 
 Other preprocessing: 
-\code{\link{auto_cor}()},
-\code{\link{auto_vif}()},
-\code{\link{case_weights}()},
 \code{\link{default_distance_thresholds}()},
 \code{\link{double_center_distance_matrix}()},
 \code{\link{is_binary}()},

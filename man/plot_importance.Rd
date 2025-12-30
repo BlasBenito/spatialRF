@@ -6,7 +6,7 @@
 \usage{
 plot_importance(
   model,
-  fill.color = viridis::viridis(100, option = "F", direction = -1, alpha = 1, end = 0.9),
+  fill.color = grDevices::hcl.colors(100, palette = "Zissou 1", rev = FALSE, alpha = 1),
   line.color = "white",
   verbose = TRUE
 )
@@ -14,7 +14,7 @@ plot_importance(
 \arguments{
 \item{model}{Model fitted with \code{\link[=rf]{rf()}}, \code{\link[=rf_repeat]{rf_repeat()}}, or \code{\link[=rf_spatial]{rf_spatial()}}. Alternatively, a data frame with variable importance scores (for internal use only).}
 
-\item{fill.color}{Character vector of colors or a function generating a color palette. Accepts hexadecimal codes (e.g., \code{c("#440154FF", "#21908CFF", "#FDE725FF")}) or palette functions (e.g., \code{viridis::viridis(100)}). For single-run models, creates a continuous gradient. For repeated models, assigns discrete colors to variables. Default: \code{viridis::viridis(100, option = "F", direction = -1, alpha = 1, end = 0.9)}.}
+\item{fill.color}{Character vector of colors or a function generating a color palette. Accepts hexadecimal codes (e.g., \code{c("#440154FF", "#21908CFF", "#FDE725FF")}) or palette functions (e.g., \code{grDevices::hcl.colors(100)}). For single-run models, creates a continuous gradient. For repeated models, assigns discrete colors to variables. Default: \code{grDevices::hcl.colors(100, palette = "Zissou 1", rev = FALSE, alpha = 1)}.}
 
 \item{line.color}{Character string specifying the color of point borders (single-run models) or violin plot outlines (repeated models). Default: \code{"white"}.}
 

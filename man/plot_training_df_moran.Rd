@@ -10,22 +10,22 @@ plot_training_df_moran(
   predictor.variable.names = NULL,
   distance.matrix = NULL,
   distance.thresholds = NULL,
-  fill.color = viridis::viridis(100, option = "F", direction = -1),
+  fill.color = grDevices::hcl.colors(n = 100, palette = "Zissou 1", rev = FALSE),
   point.color = "gray30"
 )
 }
 \arguments{
 \item{data}{Data frame with a response variable and a set of predictors. Default: \code{NULL}}
 
-\item{dependent.variable.name}{Character string with the name of the response variable. Must be in the column names of \code{data}. If the dependent variable is binary with values 1 and 0, the argument \code{case.weights} of \code{ranger} is populated by the function \code{\link[=case_weights]{case_weights()}}. Default: \code{NULL}}
+\item{dependent.variable.name}{Character string with the name of the response variable. Must be in the column names of \code{data}. If the dependent variable is binary with values 1 and 0, the argument \code{case.weights} of \code{ranger} is populated by the function \code{\link[collinear:case_weights]{collinear::case_weights()}}. Default: \code{NULL}}
 
-\item{predictor.variable.names}{Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. Optionally, the result of \code{\link[=auto_cor]{auto_cor()}} or \code{\link[=auto_vif]{auto_vif()}} Default: \code{NULL}}
+\item{predictor.variable.names}{Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. Default: \code{NULL}}
 
 \item{distance.matrix}{Squared matrix with the distances among the records in \code{data}. The number of rows of \code{distance.matrix} and \code{data} must be the same. If not provided, the computation of the Moran's I of the residuals is omitted. Default: \code{NULL}}
 
 \item{distance.thresholds}{Numeric vector, distances below each value are set to 0 on separated copies of the distance matrix for the computation of Moran's I at different neighborhood distances. If \code{NULL}, it defaults to \code{seq(0, max(distance.matrix)/4, length.out = 2)}. Default: \code{NULL}}
 
-\item{fill.color}{Character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. \code{viridis::viridis(100)}). Default: \code{viridis::viridis(100, option = "F", direction = -1)}}
+\item{fill.color}{Character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. \code{grDevices::hcl.colors(100)}). Default: \code{grDevices::hcl.colors(100, palette = "Zissou 1", rev = FALSE)}}
 
 \item{point.color}{Character vector with a color name (e.g. "red4"). Default: \code{gray30}}
 }

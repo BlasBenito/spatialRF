@@ -21,9 +21,9 @@ rf(
 \arguments{
 \item{data}{Data frame with a response variable and a set of predictors. Default: \code{NULL}}
 
-\item{dependent.variable.name}{Character string with the name of the response variable. Must be a column name in \code{data}. For binary response variables (0/1), case weights are automatically computed using \code{\link[=case_weights]{case_weights()}} to balance classes. Default: \code{NULL}}
+\item{dependent.variable.name}{Character string with the name of the response variable. Must be a column name in \code{data}. For binary response variables (0/1), case weights are automatically computed using \code{\link[collinear:case_weights]{collinear::case_weights()}} to balance classes. Default: \code{NULL}}
 
-\item{predictor.variable.names}{Character vector with predictor variable names. All names must be columns in \code{data}. Alternatively, accepts the output of \code{\link[=auto_cor]{auto_cor()}} or \code{\link[=auto_vif]{auto_vif()}} for automated variable selection. Default: \code{NULL}}
+\item{predictor.variable.names}{Character vector with predictor variable names. All names must be columns in \code{data}. Default: \code{NULL}}
 
 \item{distance.matrix}{Square matrix with pairwise distances between observations in \code{data}. Must have the same number of rows as \code{data}. If \code{NULL}, spatial autocorrelation of residuals is not computed. Default: \code{NULL}}
 

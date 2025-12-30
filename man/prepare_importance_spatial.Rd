@@ -25,8 +25,6 @@ prepare_importance_spatial(plants_rf_spatial) |>
 }
 \seealso{
 Other utilities: 
-\code{\link{.vif_to_df}()},
-\code{\link{auc}()},
 \code{\link{objects_size}()},
 \code{\link{optimization_function}()},
 \code{\link{rescale_vector}()},

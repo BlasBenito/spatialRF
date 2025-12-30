@@ -13,6 +13,6 @@
 #' @export
 standard_error <- function(x) {
   x <- stats::na.omit(x)
-  x <- round(sqrt(var(x) / length(x)), 3)
-  x
+  y <- round(sqrt(stats::var(x) / length(x)), 3)
+  y
 }

@@ -1,11 +1,6 @@
 #' @title Prints variable importance
 #' @description Prints variable importance scores from [rf], [rf_repeat], and [rf_spatial] models.
 #' @param model A model fitted with [rf], [rf_repeat], or [rf_spatial].
-#' @usage
-#' print_importance(
-#'   model,
-#'   verbose = TRUE
-#' )
 #' @param verbose Logical, if `TRUE`, variable importance is returned. Default: `TRUE`
 #' @return A table printed to the standard output.
 #' @seealso [plot_importance()], [get_importance()]

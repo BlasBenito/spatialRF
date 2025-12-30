@@ -1,9 +1,5 @@
 #' @title Prints results of a Moran's I test
 #' @description Prints the results of a Moran's I test on the residuals of a model.
-#' @usage
-#' print_moran(
-#'   model
-#' )
 #' @param model A model fitted with [rf()], [rf_repeat()], or [rf_spatial()].
 #' @return Prints a table to the console.
 #' @seealso [moran()], [moran_multithreshold()], [get_moran()], [plot_moran()]

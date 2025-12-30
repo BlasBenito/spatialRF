@@ -1,8 +1,8 @@
 #' @title Random forest models with Moran's I test of the residuals
 #' @description Fits a random forest model using \link[ranger]{ranger} and extends it with spatial diagnostics: residual autocorrelation (Moran's I) at multiple distance thresholds, performance metrics (RMSE, NRMSE via [root_mean_squared_error()]), and variable importance scores computed on scaled data (via \link[base]{scale}).
 #' @param data Data frame with a response variable and a set of predictors. Default: `NULL`
-#' @param dependent.variable.name Character string with the name of the response variable. Must be a column name in `data`. For binary response variables (0/1), case weights are automatically computed using [case_weights()] to balance classes. Default: `NULL`
-#' @param predictor.variable.names Character vector with predictor variable names. All names must be columns in `data`. Alternatively, accepts the output of [auto_cor()] or [auto_vif()] for automated variable selection. Default: `NULL`
+#' @param dependent.variable.name Character string with the name of the response variable. Must be a column name in `data`. For binary response variables (0/1), case weights are automatically computed using [collinear::case_weights()] to balance classes. Default: `NULL`
+#' @param predictor.variable.names Character vector with predictor variable names. All names must be columns in `data`. Default: `NULL`
 #' @param distance.matrix Square matrix with pairwise distances between observations in `data`. Must have the same number of rows as `data`. If `NULL`, spatial autocorrelation of residuals is not computed. Default: `NULL`
 #' @param distance.thresholds Numeric vector of distance thresholds for spatial autocorrelation analysis. For each threshold, distances below that value are set to zero when computing Moran's I. If `NULL`, defaults to `seq(0, max(distance.matrix), length.out = 4)`. Default: `NULL`
 #' @param xy Data frame or matrix with two columns containing coordinates, named "x" and "y". Not used by this function but stored in the model for use by [rf_evaluate()] and [rf_tuning()]. Default: `NULL`
@@ -154,27 +154,22 @@ rf <- function(
     xy <- as.data.frame(xy)
   }
 
-  #predictor.variable.names comes from auto_vif or auto_cor
-  if (inherits(predictor.variable.names, "variable_selection")) {
-    predictor.variable.names <- predictor.variable.names$selected.variables
-  } else {
-    if (
-      sum(predictor.variable.names %in% colnames(data)) <
-        length(predictor.variable.names)
-    ) {
-      stop(
+  if (
+    sum(predictor.variable.names %in% colnames(data)) <
+      length(predictor.variable.names)
+  ) {
+    stop(
+      paste0(
+        "The predictor.variable.names ",
         paste0(
-          "The predictor.variable.names ",
-          paste0(
-            predictor.variable.names[
-              !(predictor.variable.names %in% colnames(data))
-            ],
-            collapse = ", "
-          ),
-          " are missing from 'data'"
-        )
+          predictor.variable.names[
+            !(predictor.variable.names %in% colnames(data))
+          ],
+          collapse = ", "
+        ),
+        " are missing from 'data'"
       )
-    }
+    )
   }
 
   #checking if dependent.variable.name and predictor.variable.names are in colnames(data) and are numeric
@@ -218,9 +213,8 @@ rf <- function(
     dependent.variable.name = dependent.variable.name
   )
   if (is.binary && is.null(case.weights)) {
-    case.weights <- case_weights(
-      data = data,
-      dependent.variable.name = dependent.variable.name
+    case.weights <- collinear::case_weights(
+      x = data[[dependent.variable.name]]
     )
   }
 
@@ -422,12 +416,18 @@ rf <- function(
 
   m$performance$r.squared.oob <- m$r.squared
 
-  m$performance$r.squared <- stats::cor(observed, predicted)^2
+  m$performance$r.squared <- collinear::score_r2(
+    o = observed,
+    p = predicted
+  )
 
   m$performance$pseudo.r.squared <- stats::cor(
-    observed,
-    predicted
-  )
+    x = observed,
+    y = predicted,
+    use = "complete.obs",
+    method = "pearson"
+  ) |>
+    abs()
 
   m$performance$rmse.oob <- sqrt(m$prediction.error)
 
@@ -446,10 +446,13 @@ rf <- function(
   m$performance$auc <- NA
 
   #compute AUC
-  m$performance$auc <- auc(
-    o = observed,
-    p = predicted
-  )
+  m$performance$auc <- NA
+  if (is.binary) {
+    m$performance$auc <- collinear::score_auc(
+      o = observed,
+      p = predicted
+    )
+  }
 
   #residuals
   m$residuals$values <- observed - predicted

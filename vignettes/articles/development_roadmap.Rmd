@@ -24,28 +24,28 @@ This document outlines the planned modernization of `spatialRF`, organized into 
 
 **Rationale:** Modernize core dependencies before API changes.
 
-### 1.1 Dependency Modernization
+### 1.1 Dependency Modernization (version 1.2.0)
 
-- Replace `foreach` + `doParallel` with `future` + `future.apply`
+- DONE Replace `foreach` + `doParallel` with `future` + `future.apply`
   - More flexible execution strategies
   - Better control over parallel backends
 
-- Add `progressr` for progress reporting
+- DONE Add `progressr` for progress reporting
   - Works seamlessly with `future`
   - User-configurable progress handlers
 
-- DONE (v1.2.0) Remove `dplyr` and `tidyr` dependencies
+- DONE Remove `dplyr` and `tidyr` dependencies
   - Use base R equivalents to reduce dependency footprint
   - Improve installation reliability
 
-- DONE (v1.2.0) Replace `magrittr` pipe (`%>%`) with base pipe (`|>`)
+- DONE Replace `magrittr` pipe (`%>%`) with base pipe (`|>`)
   - Native R syntax
 
-- DONE (v1.2.0) Remove `huxtable` from print functions to reduce dependency footprint.
+- DONE Remove `huxtable` from print functions to reduce dependency footprint.
 
-- DONE (v1.2.0) Replace `@importFrom package function` with `package::function()` calls throughout the package. Right now the only @importFrom are `foreach %dopar%` (to be removed when `future` comes), `ggplot2 .data`, `patchwork plot_annotation wrap_plots` (required to make patchwork's `|` and `/` work), `ranger ranger` (required for `stats::predict()`), and `foreach %do%`
+- DONE Replace `@importFrom package function` with `package::function()` calls throughout the package. Right now the only @importFrom are `foreach %dopar%` (to be removed when `future` comes), `ggplot2 .data`, `patchwork plot_annotation wrap_plots` (required to make patchwork's `|` and `/` work), `ranger ranger` (required for `stats::predict()`), and `foreach %do%`
 
-- DONE (v1.2.0) Add package `roxyglobals` and its `@autoglobal` tag across all functions, and remove declarations of global variables (example: `x <- NULL`).
+- DONE Add package `roxyglobals` and its `@autoglobal` tag across all functions, and remove declarations of global variables (example: `x <- NULL`).
 
 ### 1.2 Function Delegation
 

@@ -197,8 +197,13 @@ moran <- function(
       color = "black",
       linetype = "dotted"
     ) +
-    ggplot2::scale_color_viridis_c(
-      end = 0.9
+    ggplot2::scale_color_gradientn(
+      colors = grDevices::hcl.colors(
+        n = 100,
+        palette = "Zissou 1",
+        rev = FALSE,
+        alpha = 1
+      )
     ) +
     ggplot2::geom_smooth(
       method = "lm",

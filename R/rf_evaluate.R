@@ -297,7 +297,13 @@ rf_evaluate <- function(
 
       if ("r.squared" %in% metrics) {
         out.df$training.r.squared <- m.training$performance$r.squared
-        out.df$testing.r.squared <- round(stats::cor(observed, predicted)^2, 3)
+        out.df$testing.r.squared <- round(
+          collinear::score_r2(
+            o = observed,
+            p = predicted
+          ),
+          3
+        )
       }
       if ("pseudo.r.squared" %in% metrics) {
         out.df$training.pseudo.r.squared <- m.training$performance$pseudo.r.squared
@@ -338,15 +344,17 @@ rf_evaluate <- function(
         }
       }
       if ("auc" %in% metrics) {
-        out.df$training.auc <- m.training$performance$auc
-        out.df$testing.auc <- round(
-          spatialRF::auc(
-            o = observed,
-            p = predicted
-          ),
-          3
-        )
-        if (is.na(out.df$training.auc)) {
+        if (is.binary) {
+          out.df$training.auc <- m.training$performance$auc
+          out.df$testing.auc <- round(
+            collinear::score_auc(
+              o = observed,
+              p = predicted
+            ),
+            3
+          )
+        } else {
+          out.df$training.auc <- NA
           out.df$testing.auc <- NA
         }
       }

@@ -4,10 +4,7 @@
 \alias{print_importance}
 \title{Prints variable importance}
 \usage{
-print_importance(
-  model,
-  verbose = TRUE
-)
+print_importance(model, verbose = TRUE)
 }
 \arguments{
 \item{model}{A model fitted with \link{rf}, \link{rf_repeat}, or \link{rf_spatial}.}

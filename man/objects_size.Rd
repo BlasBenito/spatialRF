@@ -48,8 +48,6 @@ objects_size()
 \code{\link[utils:object.size]{utils::object.size()}}, \code{\link[base:ls]{base::ls()}}, \code{\link[base:rm]{base::rm()}}
 
 Other utilities: 
-\code{\link{.vif_to_df}()},
-\code{\link{auc}()},
 \code{\link{optimization_function}()},
 \code{\link{prepare_importance_spatial}()},
 \code{\link{rescale_vector}()},

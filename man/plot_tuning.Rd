@@ -6,17 +6,14 @@
 \usage{
 plot_tuning(
   model,
-  point.color = viridis::viridis(
-    100,
-    option = "F"
-  ),
+  point.color = grDevices::hcl.colors(n = 100, palette = "Zissou 1"),
   verbose = TRUE
 )
 }
 \arguments{
 \item{model}{A model fitted with \code{\link[=rf_tuning]{rf_tuning()}}. Default: \code{NULL}}
 
-\item{point.color}{Colors of the plotted points. Can be a single color name (e.g. "red4"), a character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. \code{viridis::viridis(100)}). Default: \code{viridis::viridis(100, option = "F")}}
+\item{point.color}{Colors of the plotted points. Can be a single color name (e.g. "red4"), a character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. \code{grDevices::hcl.colors(100)}). Default: \code{grDevices::hcl.colors(100, palette = "Zissou 1")}}
 
 \item{verbose}{Logical, if \code{TRUE}, the plot is printed. Default: \code{TRUE}}
 }

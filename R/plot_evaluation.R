@@ -1,7 +1,7 @@
 #' @title Visualize spatial cross-validation results
 #' @description Creates boxplots comparing model performance metrics across training, testing, and full datasets from spatial cross-validation performed by [rf_evaluate()]. Displays distributions of R-squared, RMSE, and other metrics across all spatial folds.
 #' @param model Model fitted with [rf_evaluate()]. Must be of class "rf_evaluate".
-#' @param fill.color Character vector with three colors (one for each model type: Testing, Training, Full) or a function that generates a color palette. Accepts hexadecimal codes (e.g., `c("#440154FF", "#21908CFF", "#FDE725FF")`) or palette functions (e.g., `viridis::viridis(3)`). Default: `viridis::viridis(3, option = "F", alpha = 0.8, direction = -1)`.
+#' @param fill.color Character vector with three colors (one for each model type: Testing, Training, Full) or a function that generates a color palette. Accepts hexadecimal codes (e.g., `c("#440154FF", "#21908CFF", "#FDE725FF")`) or palette functions (e.g., `grDevices::hcl.colors(3)`). Default: `grDevices::hcl.colors(3, palette = "Zissou 1", alpha = 0.8, rev = FALSE)`.
 #' @param line.color Character string specifying the color of boxplot borders. Default: `"gray30"`.
 #' @param verbose Logical. If `TRUE`, prints the plot to the graphics device. Default: `TRUE`.
 #' @param notch Logical. If `TRUE`, displays notched boxplots where notches represent approximate 95% confidence intervals around the median. Non-overlapping notches suggest significant differences between medians. Default: `TRUE`.
@@ -73,11 +73,11 @@
 #' @autoglobal
 plot_evaluation <- function(
   model,
-  fill.color = viridis::viridis(
-    3,
-    option = "F",
+  fill.color = grDevices::hcl.colors(
+    n = 3,
+    palette = "Zissou 1",
     alpha = 0.8,
-    direction = -1
+    rev = FALSE
   ),
   line.color = "gray30",
   verbose = TRUE,

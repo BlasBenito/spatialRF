@@ -10,22 +10,22 @@ plot_training_df(
   predictor.variable.names = NULL,
   ncol = 4,
   method = "loess",
-  point.color = viridis::viridis(100, option = "F"),
+  point.color = grDevices::hcl.colors(100, palette = "Zissou 1"),
   line.color = "gray30"
 )
 }
 \arguments{
 \item{data}{Data frame with a response variable and a set of predictors. Default: \code{NULL}}
 
-\item{dependent.variable.name}{Character string with the name of the response variable. Must be in the column names of \code{data}. If the dependent variable is binary with values 1 and 0, the argument \code{case.weights} of \code{ranger} is populated by the function \code{\link[=case_weights]{case_weights()}}. Default: \code{NULL}}
+\item{dependent.variable.name}{Character string with the name of the response variable. Must be in the column names of \code{data}. If the dependent variable is binary with values 1 and 0, the argument \code{case.weights} of \code{ranger} is populated by the function \code{\link[collinear:case_weights]{collinear::case_weights()}}. Default: \code{NULL}}
 
-\item{predictor.variable.names}{Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. Optionally, the result of \code{\link[=auto_cor]{auto_cor()}} or \code{\link[=auto_vif]{auto_vif()}} Default: \code{NULL}}
+\item{predictor.variable.names}{Character vector with the names of the predictive variables. Every element of this vector must be in the column names of \code{data}. Default: \code{NULL}}
 
 \item{ncol}{Number of columns of the plot. Argument \code{ncol} of \link[patchwork]{wrap_plots}.}
 
 \item{method}{Method for \link[ggplot2]{geom_smooth}, one of: "lm", "glm", "gam", "loess", or a function, for example \code{mgcv::gam} Default: 'loess'}
 
-\item{point.color}{Colors of the plotted points. Can be a single color name (e.g. "red4"), a character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. \code{viridis::viridis(100)}). Default: \code{viridis::viridis(100, option = "F")}}
+\item{point.color}{Colors of the plotted points. Can be a single color name (e.g. "red4"), a character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. \code{grDevices::hcl.colors(100)}). Default: \code{grDevices::hcl.colors(100, palette = "Zissou 1")}}
 
 \item{line.color}{Character string, color of the line produced by \code{ggplot2::geom_smooth()}. Default: \code{"gray30"}}
 }

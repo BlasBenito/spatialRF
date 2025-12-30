@@ -83,13 +83,6 @@ select_spatial_predictors_sequential <- function(
   verbose = FALSE,
   n.cores = NULL
 ) {
-  #predictor.variable.names comes from auto_vif or auto_cor
-  if (!is.null(predictor.variable.names)) {
-    if (inherits(predictor.variable.names, "variable_selection")) {
-      predictor.variable.names <- predictor.variable.names$selected.variables
-    }
-  }
-
   #getting spatial.predictors.rank
   spatial.predictors.ranking <- spatial.predictors.ranking$ranking
 

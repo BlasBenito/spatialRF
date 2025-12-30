@@ -18,7 +18,7 @@ Logical. \code{TRUE} if the variable contains exactly two unique values (0 and 1
 Tests whether a variable contains only the values 0 and 1.
 }
 \details{
-This function is used internally by spatialRF to determine whether to apply classification-specific methods (e.g., case weighting with \code{\link[=case_weights]{case_weights()}}). The function returns \code{FALSE} if:
+This function is used internally by spatialRF to determine whether to apply classification-specific methods. The function returns \code{FALSE} if:
 \itemize{
 \item The variable has more than two unique values
 \item The variable has only one unique value (constant)
@@ -48,12 +48,7 @@ is_binary(
 
 }
 \seealso{
-\code{\link[=case_weights]{case_weights()}}
-
 Other preprocessing: 
-\code{\link{auto_cor}()},
-\code{\link{auto_vif}()},
-\code{\link{case_weights}()},
 \code{\link{default_distance_thresholds}()},
 \code{\link{double_center_distance_matrix}()},
 \code{\link{make_spatial_fold}()},
