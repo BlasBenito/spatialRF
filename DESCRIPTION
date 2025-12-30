@@ -13,10 +13,9 @@ Description: Automatic generation and selection of spatial predictors for Random
 License: MIT + file LICENSE
 Depends: 
     R (>= 2.10)
-Imports: 
+Imports:
     dplyr,
     ggplot2,
-    magrittr,
     stats,
     tibble,
     utils,
