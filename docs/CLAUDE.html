@@ -22,6 +22,7 @@
     <li><h6 class="dropdown-header" data-toc-skip>Tutorials</h6></li>
     <li><a class="dropdown-item" href="articles/non_spatial_models.html">Non-Spatial Random Forest Models</a></li>
     <li><a class="dropdown-item" href="articles/spatial_models.html">Spatial Random Forest Models</a></li>
+    <li><a class="dropdown-item" href="articles/download_history.html">Download history</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Development</h6></li>
     <li><a class="dropdown-item" href="articles/development_roadmap.html">Development Roadmap</a></li>
@@ -69,6 +70,7 @@
 <h2 id="development-status--roadmap">Development Status &amp; Roadmap<a class="anchor" aria-label="anchor" href="#development-status--roadmap"></a></h2>
 <p><strong>Current phase:</strong> Maintenance (addressing breaking changes in dependencies)</p>
 <p><strong>Next phase (non-breaking):</strong> Backend modernization - Migrate <code>foreach</code>+<code>doParallel</code> → <code>future</code>+<code>future.apply</code> - Remove tidyverse dependencies (<code>dplyr</code>, <code>tidyr</code>, <code>magrittr</code>) → use base R - Replace <code>%&gt;%</code> → <code>|&gt;</code> (base pipe) - Delegate variable selection to <code>collinear</code> package - Replace <code>@importFrom</code> with explicit <code>package::function()</code></p>
+<p><strong>Migration documentation:</strong> See <code>FUTURE_MIGRATION_GUIDE.md</code> for comprehensive guide on: - future/future.apply patterns and best practices - spatialRF’s two parallelization patterns (ranger threading vs R-level) - Critical principles: never call <code>plan()</code> in functions, use <code><a href="https://parallelly.futureverse.org/reference/availableCores.html" class="external-link">future::availableCores()</a></code> - Migration strategy with code examples - Integration with progressr for progress reporting</p>
 <p><strong>Future (v2.0.0, breaking):</strong> API modernization - see <code>vignettes/articles/development_roadmap.Rmd</code></p>
 <p><strong>Guidance for now:</strong> Prioritize stability and minimal changes. Avoid suggesting new tidyverse patterns or <code>foreach</code> loops (being phased out).</p>
 </div>
@@ -169,8 +171,9 @@
 <code>n.cores</code>, <code>cluster</code>, <code>seed</code>, <code>verbose</code>
 </li>
 </ul></li>
-<li><p><strong>Delegate parallelization to doParallel</strong> — Use <code>foreach</code> + <code>%dopar%</code> with socket clusters created via <code><a href="https://rdrr.io/r/parallel/makeCluster.html" class="external-link">parallel::makeCluster()</a></code>. The <code>cluster</code> parameter is passed through the model object to downstream functions. Stop clusters with <code><a href="https://rdrr.io/r/parallel/makeCluster.html" class="external-link">parallel::stopCluster()</a></code> only when user-provided (not when created internally).</p></li>
+<li><p><strong>Delegate parallelization to doParallel</strong> — <em>Current:</em> Use <code>foreach</code> + <code>%dopar%</code> with socket clusters via <code><a href="https://rdrr.io/r/parallel/makeCluster.html" class="external-link">parallel::makeCluster()</a></code>. <em>Future:</em> Migrate to <code>future</code> + <code>future.apply</code> where users control parallelization via <code>plan()</code> and functions adapt based on <code>nbrOfWorkers()</code>. See <code>FUTURE_MIGRATION_GUIDE.md</code> for migration strategy.</p></li>
 <li><p><strong>Use standard R data structures for input and output</strong> — Accept data frames (not tibbles), return ranger objects extended with lists. No custom S4/R6 classes.</p></li>
+<li><p><strong>Prefer explicit <code>package::function()</code> syntax over <code>@importFrom</code></strong> — Minimize <code>@importFrom</code> statements to reduce namespace clutter and make dependencies explicit in code. Use <code>package::function()</code> syntax directly in function bodies. Only use <code>@importFrom</code> for functions used extensively throughout the package (e.g., <code><a href="https://parallelly.futureverse.org/reference/availableCores.html" class="external-link">future::availableCores</a></code>, <code><a href="https://future.apply.futureverse.org/reference/future_lapply.html" class="external-link">future.apply::future_lapply</a></code>, <code><a href="https://progressr.futureverse.org/reference/progressor.html" class="external-link">progressr::progressor</a></code>) or when required by R CMD check (e.g., pipe operators, data.table syntax).</p></li>
 </ol></div>
 <div class="section level2">
 <h2 id="data-requirements--common-validations">Data Requirements &amp; Common Validations<a class="anchor" aria-label="anchor" href="#data-requirements--common-validations"></a></h2>

@@ -46,7 +46,7 @@ Many functions in the package also support a parallelization backend to speed-up
 
 ```{r}
 cluster <- parallel::makeCluster(
-  parallel::detectCores() - 1,
+  2, #parallel::detectCores() - 1,
   type = "PSOCK"
 )
 ```

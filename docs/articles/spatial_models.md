@@ -54,7 +54,7 @@ colors <- grDevices::hcl.colors(
 
 # Parallel backend
 cluster <- parallel::makeCluster(
-  parallel::detectCores() - 1,
+  2, #parallel::detectCores() - 1,
   type = "PSOCK"
 )
 

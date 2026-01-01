@@ -38,6 +38,7 @@
     <li><h6 class="dropdown-header" data-toc-skip>Tutorials</h6></li>
     <li><a class="dropdown-item" href="../articles/non_spatial_models.html">Non-Spatial Random Forest Models</a></li>
     <li><a class="dropdown-item" href="../articles/spatial_models.html">Spatial Random Forest Models</a></li>
+    <li><a class="dropdown-item" href="../articles/download_history.html">Download history</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Development</h6></li>
     <li><a class="dropdown-item" href="../articles/development_roadmap.html">Development Roadmap</a></li>
@@ -102,7 +103,7 @@ Forest Models</a> tutorial.</p>
 to speed-up execution.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cluster</span> <span class="op">&lt;-</span> <span class="fu">parallel</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/parallel/makeCluster.html" class="external-link">makeCluster</a></span><span class="op">(</span></span>
-<span>  <span class="fu">parallel</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/parallel/detectCores.html" class="external-link">detectCores</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span>,</span>
+<span>  <span class="fl">2</span>, <span class="co">#parallel::detectCores() - 1,</span></span>
 <span>  type <span class="op">=</span> <span class="st">"PSOCK"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>The package includes the example dataset <a href="https://blasbenito.github.io/spatialRF/reference/plants_df.html"><code>plants_df</code></a>
@@ -129,7 +130,7 @@ is a matrix of geographical distances between ecoregions.</p>
 <span>    <span class="op">)</span></span></code></pre></div>
 <p>The figure below shows the response variable
 <em>richness_species_vascular</em> in space.</p>
-<p><img src="non_spatial_models_files/figure-html/unnamed-chunk-5-1.png" class="r-plt" width="100%"></p>
+<p><img src="non_spatial_models_files/figure-html/unnamed-chunk-5-1.png" class="r-plt" alt="" width="100%"></p>
 <p>The predictors, stored in <a href="https://blasbenito.github.io/spatialRF/reference/plants_predictors.html"><code>plants_predictors</code></a>
 represent diverse factors that may influence plant richness such as
 sampling bias, the area of the ecoregion, climatic variables, human
@@ -145,7 +146,7 @@ features of the neighbors of each ecoregion.</p>
 <span>  point.color <span class="op">=</span> <span class="va">colors</span>,</span>
 <span>  ncol <span class="op">=</span> <span class="fl">3</span></span>
 <span>  <span class="op">)</span></span></code></pre></div>
-<p><img src="non_spatial_models_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" width="100%"></p>
+<p><img src="non_spatial_models_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" alt="" width="100%"></p>
 <p>The function <a href="https://blasbenito.github.io/spatialRF/reference/plot_training_df_moran.html"><code>plot_training_df_moran()</code></a>
 shows the spatial autocorrelation of the response and the predictors
 across different distance thresholds. Low Moran’s I and p-values equal
@@ -160,7 +161,7 @@ for the given variable and distance threshold.</p>
 <span>  distance.thresholds <span class="op">=</span> <span class="va">distance_thresholds</span>,</span>
 <span>  fill.color <span class="op">=</span> <span class="va">colors</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p><img src="non_spatial_models_files/figure-html/unnamed-chunk-7-1.png" class="r-plt" width="100%"></p>
+<p><img src="non_spatial_models_files/figure-html/unnamed-chunk-7-1.png" class="r-plt" alt="" width="100%"></p>
 </div>
 <div class="section level2">
 <h2 id="finding-promising-variable-interactions">Finding promising variable interactions<a class="anchor" aria-label="anchor" href="#finding-promising-variable-interactions"></a>
@@ -182,19 +183,19 @@ and selects the most promising ones via spatial cross-validation (see <a href="h
 <span><span class="co">#&gt;  │ <span style="font-weight: bold;">Interaction     </span> │ <span style="font-weight: bold;">Importance (% of</span> │ <span style="font-weight: bold;">       R-squared</span> │ <span style="font-weight: bold;">    Max cor with</span> │</span></span>
 <span><span class="co">#&gt;  │                  │ <span style="font-weight: bold;">            max)</span> │ <span style="font-weight: bold;">     improvement</span> │ <span style="font-weight: bold;">      predictors</span> │</span></span>
 <span><span class="co">#&gt;  ├──────────────────┼──────────────────┼──────────────────┼──────────────────┤</span></span>
-<span><span class="co">#&gt;  │ human_population │            100.0 │            0.039 │             0.64 │</span></span>
+<span><span class="co">#&gt;  │ human_population │             96.1 │            0.020 │             0.64 │</span></span>
 <span><span class="co">#&gt;  │ ..x..bias_area_k │                  │                  │                  │</span></span>
 <span><span class="co">#&gt;  │ m2               │                  │                  │                  │</span></span>
 <span><span class="co">#&gt;  ├──────────────────┼──────────────────┼──────────────────┼──────────────────┤</span></span>
-<span><span class="co">#&gt;  │ climate_bio1_ave │            100.0 │            0.059 │             0.28 │</span></span>
+<span><span class="co">#&gt;  │ climate_bio1_ave │            100.0 │            0.050 │             0.28 │</span></span>
 <span><span class="co">#&gt;  │ rage..pca..human │                  │                  │                  │</span></span>
 <span><span class="co">#&gt;  │ _population      │                  │                  │                  │</span></span>
 <span><span class="co">#&gt;  ├──────────────────┼──────────────────┼──────────────────┼──────────────────┤</span></span>
-<span><span class="co">#&gt;  │ climate_bio1_ave │             59.5 │            0.026 │             0.74 │</span></span>
+<span><span class="co">#&gt;  │ climate_bio1_ave │             52.5 │            0.026 │             0.74 │</span></span>
 <span><span class="co">#&gt;  │ rage..pca..clima │                  │                  │                  │</span></span>
 <span><span class="co">#&gt;  │ te_hypervolume   │                  │                  │                  │</span></span>
 <span><span class="co">#&gt;  └──────────────────┴──────────────────┴──────────────────┴──────────────────┘</span></span></code></pre></div>
-<p><img src="non_spatial_models_files/figure-html/unnamed-chunk-8-1.png" class="r-plt" width="100%"></p>
+<p><img src="non_spatial_models_files/figure-html/unnamed-chunk-8-1.png" class="r-plt" alt="" width="100%"></p>
 <p>The resulting plot shows the selected interactions against the
 response, the model improvement they produce, their importance relative
 to the other predictors, and maximum correlation with the other
@@ -225,8 +226,8 @@ results.</p>
 <tbody>
 <tr class="odd">
 <td align="left">human_population..x..bias_area_km2</td>
-<td align="right">100.000</td>
-<td align="right">0.039</td>
+<td align="right">96.108</td>
+<td align="right">0.020</td>
 <td align="right">0.6373850</td>
 <td align="left">human_population</td>
 <td align="left">bias_area_km2</td>
@@ -235,7 +236,7 @@ results.</p>
 <tr class="even">
 <td align="left">climate_bio1_average..pca..human_population</td>
 <td align="right">100.000</td>
-<td align="right">0.059</td>
+<td align="right">0.050</td>
 <td align="right">0.2800000</td>
 <td align="left">climate_bio1_average</td>
 <td align="left">human_population</td>
@@ -243,8 +244,8 @@ results.</p>
 </tr>
 <tr class="odd">
 <td align="left">climate_bio1_average..pca..human_population_density</td>
-<td align="right">92.210</td>
-<td align="right">0.053</td>
+<td align="right">93.270</td>
+<td align="right">0.044</td>
 <td align="right">0.3400000</td>
 <td align="left">climate_bio1_average</td>
 <td align="left">human_population_density</td>
@@ -252,7 +253,7 @@ results.</p>
 </tr>
 <tr class="even">
 <td align="left">climate_bio1_average..pca..climate_hypervolume</td>
-<td align="right">59.510</td>
+<td align="right">52.500</td>
 <td align="right">0.026</td>
 <td align="right">0.7400000</td>
 <td align="left">climate_bio1_average</td>
@@ -260,37 +261,37 @@ results.</p>
 <td align="left">TRUE</td>
 </tr>
 <tr class="odd">
-<td align="left">human_population..pca..climate_hypervolume</td>
-<td align="right">78.170</td>
-<td align="right">-0.017</td>
-<td align="right">0.7200000</td>
-<td align="left">human_population</td>
-<td align="left">climate_hypervolume</td>
-<td align="left">FALSE</td>
-</tr>
-<tr class="even">
 <td align="left">climate_hypervolume..pca..bias_area_km2</td>
-<td align="right">61.640</td>
-<td align="right">-0.012</td>
+<td align="right">61.290</td>
+<td align="right">0.003</td>
 <td align="right">0.7100000</td>
 <td align="left">climate_hypervolume</td>
 <td align="left">bias_area_km2</td>
 <td align="left">FALSE</td>
 </tr>
+<tr class="even">
+<td align="left">human_population..pca..climate_hypervolume</td>
+<td align="right">74.550</td>
+<td align="right">-0.018</td>
+<td align="right">0.7200000</td>
+<td align="left">human_population</td>
+<td align="left">climate_hypervolume</td>
+<td align="left">FALSE</td>
+</tr>
 <tr class="odd">
-<td align="left">climate_hypervolume..x..human_population_density</td>
-<td align="right">60.856</td>
-<td align="right">-0.012</td>
-<td align="right">0.5599486</td>
+<td align="left">climate_hypervolume..pca..human_population_density</td>
+<td align="right">43.280</td>
+<td align="right">-0.019</td>
+<td align="right">0.7200000</td>
 <td align="left">climate_hypervolume</td>
 <td align="left">human_population_density</td>
 <td align="left">FALSE</td>
 </tr>
 <tr class="even">
-<td align="left">climate_hypervolume..pca..human_population_density</td>
-<td align="right">40.980</td>
-<td align="right">-0.014</td>
-<td align="right">0.7200000</td>
+<td align="left">climate_hypervolume..x..human_population_density</td>
+<td align="right">53.027</td>
+<td align="right">-0.019</td>
+<td align="right">0.5599486</td>
 <td align="left">climate_hypervolume</td>
 <td align="left">human_population_density</td>
 <td align="left">FALSE</td>
@@ -456,7 +457,7 @@ stores the normality and spatial autocorrelation tests.</p>
 <span>  point.color <span class="op">=</span> <span class="va">colors</span>,</span>
 <span>  fill.color <span class="op">=</span> <span class="va">colors</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span></span>
 <span>  <span class="op">)</span></span></code></pre></div>
-<p><img src="non_spatial_models_files/figure-html/unnamed-chunk-14-1.png" class="r-plt" width="100%">
+<p><img src="non_spatial_models_files/figure-html/unnamed-chunk-14-1.png" class="r-plt" alt="" width="100%">
 The plot show that the residuals are highly correlated up to a point
 between 1000 and 2000 km between observations, indicating that there is
 a component of the response not explained by the current predictors.</p>
@@ -477,7 +478,7 @@ and the dataframe retrieved with <a href="https://blasbenito.github.io/spatialRF
 <span>  verbose <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  fill.color <span class="op">=</span> <span class="va">colors</span></span>
 <span>  <span class="op">)</span></span></code></pre></div>
-<p><img src="non_spatial_models_files/figure-html/unnamed-chunk-15-1.png" class="r-plt" width="100%"></p>
+<p><img src="non_spatial_models_files/figure-html/unnamed-chunk-15-1.png" class="r-plt" alt="" width="100%"></p>
 <p>The output of <code><a href="../reference/rf.html">rf()</a></code> is also compatible with
 <code><a href="https://rdrr.io/pkg/randomForestExplainer/man/measure_importance.html" class="external-link">randomForestExplainer::measure_importance()</a></code>, which helps
 deepen our understanding on variable importance scores.</p>
@@ -665,7 +666,7 @@ with all other predictors.</p>
 <span>  cluster <span class="op">=</span> <span class="va">cluster</span>,</span>
 <span>  fill.color <span class="op">=</span> <span class="va">colors</span></span>
 <span>  <span class="op">)</span></span></code></pre></div>
-<p><img src="non_spatial_models_files/figure-html/unnamed-chunk-18-1.png" class="r-plt" width="100%">
+<p><img src="non_spatial_models_files/figure-html/unnamed-chunk-18-1.png" class="r-plt" alt="" width="100%">
 The values in the plot are added as new columns with the suffix
 <code>.cv</code> in the dataframe
 <code>m$importance$per.variable</code>.</p>
@@ -863,7 +864,7 @@ to create a local importance map.</p>
 <span>  <span class="va">plants_xy</span>,</span>
 <span>  <span class="fu">spatialRF</span><span class="fu">::</span><span class="fu"><a href="../reference/get_importance_local.html">get_importance_local</a></span><span class="op">(</span><span class="va">m</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span></code></pre></div>
-<p><img src="non_spatial_models_files/figure-html/unnamed-chunk-21-1.png" class="r-plt" width="100%"></p>
+<p><img src="non_spatial_models_files/figure-html/unnamed-chunk-21-1.png" class="r-plt" alt="" width="100%"></p>
 <p>In these maps, a value lower than 0 indicates that the influence of
 the predictor on the local prediction is worse than what is expected by
 chance.</p>
@@ -882,7 +883,7 @@ predictors to a given quantile (0.1, 0.5, and 0.9 by default).</p>
 <span>  ncol <span class="op">=</span> <span class="fl">3</span>,</span>
 <span>  show.data <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span>  <span class="op">)</span></span></code></pre></div>
-<p><img src="non_spatial_models_files/figure-html/unnamed-chunk-22-1.png" class="r-plt" width="100%"></p>
+<p><img src="non_spatial_models_files/figure-html/unnamed-chunk-22-1.png" class="r-plt" alt="" width="100%"></p>
 <p>The blue curve (quantile 0.1) shows the point estimate for a
 predictor when all other predictors are at their lowest values.</p>
 <p>Setting the argument <code>quantiles</code> to 0.5 and setting
@@ -895,7 +896,7 @@ accentuates the shape of the response curves.</p>
 <span>  line.color <span class="op">=</span> <span class="va">colors</span><span class="op">[</span><span class="fl">100</span><span class="op">]</span>,</span>
 <span>  ncol <span class="op">=</span> <span class="fl">3</span></span>
 <span>  <span class="op">)</span></span></code></pre></div>
-<p><img src="non_spatial_models_files/figure-html/unnamed-chunk-23-1.png" class="r-plt" width="100%"></p>
+<p><img src="non_spatial_models_files/figure-html/unnamed-chunk-23-1.png" class="r-plt" alt="" width="100%"></p>
 <p>If you need to do your own plots, the function <a href="https://blasbenito.github.io/spatialRF/reference/get_response_curves.html"><code>get_response_curves()</code></a>
 returns a data frame with the required data.</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
@@ -908,7 +909,7 @@ returns a data frame with the required data.</p>
 <span>  b <span class="op">=</span> <span class="st">"neighbors_count"</span>,</span>
 <span>  fill.color <span class="op">=</span> <span class="va">colors</span></span>
 <span>  <span class="op">)</span></span></code></pre></div>
-<p><img src="non_spatial_models_files/figure-html/unnamed-chunk-25-1.png" class="r-plt" width="100%"></p>
+<p><img src="non_spatial_models_files/figure-html/unnamed-chunk-25-1.png" class="r-plt" alt="" width="100%"></p>
 </div>
 <div class="section level2">
 <h2 id="performance">Performance<a class="anchor" aria-label="anchor" href="#performance"></a>
@@ -979,7 +980,7 @@ accessed with <code><a href="../reference/plot_tuning.html">plot_tuning()</a></c
 <span>  model <span class="op">=</span> <span class="va">m</span>,</span>
 <span>  point.color <span class="op">=</span> <span class="va">colors</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p><img src="non_spatial_models_files/figure-html/unnamed-chunk-28-1.png" class="r-plt" width="100%"></p>
+<p><img src="non_spatial_models_files/figure-html/unnamed-chunk-28-1.png" class="r-plt" alt="" width="100%"></p>
 </div>
 <div class="section level2">
 <h2 id="spatial-cross-validation">Spatial cross-validation<a class="anchor" aria-label="anchor" href="#spatial-cross-validation"></a>
@@ -1009,7 +1010,7 @@ that summarize the spatial cross-validation results.</p>
 contains the indices of the training and testing cases for each
 cross-validation repetition. The maps below show two sets of training
 and testing folds.</p>
-<p><img src="non_spatial_models_files/figure-html/unnamed-chunk-31-1.png" class="r-plt" width="100%"></p>
+<p><img src="non_spatial_models_files/figure-html/unnamed-chunk-31-1.png" class="r-plt" alt="" width="100%"></p>
 <p>The information available in this new slot can be accessed with the
 functions <a href="https://blasbenito.github.io/spatialRF/reference/print_evaluation.html"><code>print_evaluation()</code></a>,
 <a href="https://blasbenito.github.io/spatialRF/reference/plot_evaluation.html"><code>plot_evaluation()</code></a>,
@@ -1020,7 +1021,7 @@ and <a href="https://blasbenito.github.io/spatialRF/reference/get_evaluation.htm
 <span>  fill.color <span class="op">=</span> <span class="va">colors</span>,</span>
 <span>  notch <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span>  <span class="op">)</span></span></code></pre></div>
-<p><img src="non_spatial_models_files/figure-html/unnamed-chunk-32-1.png" class="r-plt" width="100%"></p>
+<p><img src="non_spatial_models_files/figure-html/unnamed-chunk-32-1.png" class="r-plt" alt="" width="100%"></p>
 <ul>
 <li>
 <code>Full</code> is the performance of the model trained on the

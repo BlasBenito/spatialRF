@@ -33,7 +33,7 @@ speed-up execution.
 
 ``` r
 cluster <- parallel::makeCluster(
-  parallel::detectCores() - 1,
+  2, #parallel::detectCores() - 1,
   type = "PSOCK"
 )
 ```
@@ -134,15 +134,15 @@ interactions <- spatialRF::the_feature_engineer(
 #>  │ Interaction      │ Importance (% of │        R-squared │     Max cor with │
 #>  │                  │             max) │      improvement │       predictors │
 #>  ├──────────────────┼──────────────────┼──────────────────┼──────────────────┤
-#>  │ human_population │            100.0 │            0.039 │             0.64 │
+#>  │ human_population │             96.1 │            0.020 │             0.64 │
 #>  │ ..x..bias_area_k │                  │                  │                  │
 #>  │ m2               │                  │                  │                  │
 #>  ├──────────────────┼──────────────────┼──────────────────┼──────────────────┤
-#>  │ climate_bio1_ave │            100.0 │            0.059 │             0.28 │
+#>  │ climate_bio1_ave │            100.0 │            0.050 │             0.28 │
 #>  │ rage..pca..human │                  │                  │                  │
 #>  │ _population      │                  │                  │                  │
 #>  ├──────────────────┼──────────────────┼──────────────────┼──────────────────┤
-#>  │ climate_bio1_ave │             59.5 │            0.026 │             0.74 │
+#>  │ climate_bio1_ave │             52.5 │            0.026 │             0.74 │
 #>  │ rage..pca..clima │                  │                  │                  │
 #>  │ te_hypervolume   │                  │                  │                  │
 #>  └──────────────────┴──────────────────┴──────────────────┴──────────────────┘
@@ -162,14 +162,14 @@ results.
 
 | interaction.name | interaction.importance | interaction.metric.gain | max.cor.with.predictors | variable.a.name | variable.b.name | selected |
 |:---|---:|---:|---:|:---|:---|:---|
-| human_population..x..bias_area_km2 | 100.000 | 0.039 | 0.6373850 | human_population | bias_area_km2 | TRUE |
-| climate_bio1_average..pca..human_population | 100.000 | 0.059 | 0.2800000 | climate_bio1_average | human_population | TRUE |
-| climate_bio1_average..pca..human_population_density | 92.210 | 0.053 | 0.3400000 | climate_bio1_average | human_population_density | TRUE |
-| climate_bio1_average..pca..climate_hypervolume | 59.510 | 0.026 | 0.7400000 | climate_bio1_average | climate_hypervolume | TRUE |
-| human_population..pca..climate_hypervolume | 78.170 | -0.017 | 0.7200000 | human_population | climate_hypervolume | FALSE |
-| climate_hypervolume..pca..bias_area_km2 | 61.640 | -0.012 | 0.7100000 | climate_hypervolume | bias_area_km2 | FALSE |
-| climate_hypervolume..x..human_population_density | 60.856 | -0.012 | 0.5599486 | climate_hypervolume | human_population_density | FALSE |
-| climate_hypervolume..pca..human_population_density | 40.980 | -0.014 | 0.7200000 | climate_hypervolume | human_population_density | FALSE |
+| human_population..x..bias_area_km2 | 96.108 | 0.020 | 0.6373850 | human_population | bias_area_km2 | TRUE |
+| climate_bio1_average..pca..human_population | 100.000 | 0.050 | 0.2800000 | climate_bio1_average | human_population | TRUE |
+| climate_bio1_average..pca..human_population_density | 93.270 | 0.044 | 0.3400000 | climate_bio1_average | human_population_density | TRUE |
+| climate_bio1_average..pca..climate_hypervolume | 52.500 | 0.026 | 0.7400000 | climate_bio1_average | climate_hypervolume | TRUE |
+| climate_hypervolume..pca..bias_area_km2 | 61.290 | 0.003 | 0.7100000 | climate_hypervolume | bias_area_km2 | FALSE |
+| human_population..pca..climate_hypervolume | 74.550 | -0.018 | 0.7200000 | human_population | climate_hypervolume | FALSE |
+| climate_hypervolume..pca..human_population_density | 43.280 | -0.019 | 0.7200000 | climate_hypervolume | human_population_density | FALSE |
+| climate_hypervolume..x..human_population_density | 53.027 | -0.019 | 0.5599486 | climate_hypervolume | human_population_density | FALSE |
 
 ``` r
 #adding interaction column to the training data
