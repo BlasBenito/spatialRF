@@ -7,9 +7,8 @@ test_that("`make_spatial_fold()` works", {
     xy = xy,
     training.fraction = 0.6
   )
-  expect_type(out, "list")
-  expect_length(out, 2)
-  expect_named(out, c("training", "testing"))
-  expect_type(out$training, "integer")
-  expect_type(out$testing, "integer")
+  expect_type(out, "logical")
+  expect_length(out, nrow(xy))
+  expect_true(sum(out) > 0)
+  expect_true(sum(!out) > 0)
 })

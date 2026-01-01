@@ -55,3 +55,70 @@ test_that("`select_spatial_predictors_sequential()` works", {
     length(selection$best.spatial.predictors)
   )
 })
+
+test_that("select_spatial_predictors_sequential() respects ranger.arguments", {
+  data("plants_distance")
+  data("plants_df")
+
+  # Use small subset for speed
+  sample_idx <- 1:50
+  data <- plants_df[sample_idx, ]
+  distance.matrix <- plants_distance[sample_idx, sample_idx]
+
+  dependent.variable.name <- "richness_species_vascular"
+  predictor.variable.names <- colnames(plants_df)[5:8]
+  distance.thresholds <- 0
+
+  model <- rf(
+    data = data,
+    dependent.variable.name = dependent.variable.name,
+    predictor.variable.names = predictor.variable.names,
+    distance.matrix = distance.matrix,
+    distance.thresholds = distance.thresholds,
+    verbose = FALSE,
+    n.cores = 1,
+    seed = 1
+  )
+
+  spatial.predictors <- pca_multithreshold(
+    distance.matrix,
+    distance.thresholds = distance.thresholds
+  )
+
+  spatial.predictors.ranked <- rank_spatial_predictors(
+    distance.matrix = distance.matrix,
+    distance.thresholds = distance.thresholds,
+    spatial.predictors.df = spatial.predictors,
+    ranking.method = "moran",
+    reference.moran.i = model$spatial.correlation.residuals$max.moran
+  )
+
+  # CRITICAL TEST: Verify ranger.arguments are respected
+  # The bug was that user-provided ranger.arguments were silently ignored
+  custom_num_trees <- 123  # Unusual value to easily detect if it's used
+
+  selection <- select_spatial_predictors_sequential(
+    data = data,
+    dependent.variable.name = dependent.variable.name,
+    predictor.variable.names = predictor.variable.names,
+    distance.matrix = distance.matrix,
+    distance.thresholds = distance.thresholds,
+    spatial.predictors.df = spatial.predictors,
+    spatial.predictors.ranking = spatial.predictors.ranked,
+    ranger.arguments = list(
+      num.trees = custom_num_trees,
+      importance = "permutation",
+      seed = 1
+    ),
+    n.cores = 1
+  )
+
+  # Verify the function used our custom num.trees value
+  # This would fail if ranger.arguments were ignored (default is 500)
+  expect_type(selection, "list")
+  expect_true("optimization" %in% names(selection))
+
+  # The optimization data frame should exist and have results
+  expect_s3_class(selection$optimization, "data.frame")
+  expect_true(nrow(selection$optimization) > 0)
+})

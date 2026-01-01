@@ -102,7 +102,7 @@ rf_tuning <- function(
   if (is.null(mtry)) {
     mtry <- as.integer(seq(
       1,
-      length(predictor.variable.names) - 1,
+      length(predictor.variable.names),
       length.out = 4
     ))
   } else {
@@ -110,7 +110,10 @@ rf_tuning <- function(
       if (verbose) {
         message("Maximum 'mtry' set to length(predictor.variable.names)")
       }
-      mtry <- mtry[mtry < length(predictor.variable.names)]
+      mtry <- mtry[mtry <= length(predictor.variable.names)]
+      if (length(mtry) == 0) {
+        stop("All 'mtry' values exceed the number of available predictors.")
+      }
     }
   }
   mtry <- as.integer(mtry)
@@ -176,11 +179,7 @@ rf_tuning <- function(
       mtry.i <- combinations$mtry[i]
       min.node.size.i <- combinations$min.node.size[i]
       #filling ranger arguments
-      if (!is.null(ranger.arguments)) {
-        ranger.arguments.i <- ranger.arguments
-      } else {
-        ranger.arguments.i <- list()
-      }
+      ranger.arguments.i <- ranger.arguments
       ranger.arguments.i$num.trees <- num.trees.i
       ranger.arguments.i$mtry <- mtry.i
       ranger.arguments.i$min.node.size <- min.node.size.i

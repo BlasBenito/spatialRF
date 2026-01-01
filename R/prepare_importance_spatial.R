@@ -18,17 +18,17 @@ prepare_importance_spatial <- function(model) {
   if (!inherits(model, "rf_spatial")) {
     stop("This function requires a model fitted with rf_spatial()")
   }
-  importance.df <- model$importance$per.variable
+  full.importance.df <- model$importance$per.variable
 
   #spatial predictors only
-  spatial.predictors <- importance.df[
-    grepl("spatial_predictor", importance.df$variable, fixed = TRUE),
+  spatial.predictors <- full.importance.df[
+    grepl("spatial_predictor", full.importance.df$variable, fixed = TRUE),
   ]
   spatial.predictors$variable <- "spatial_predictors"
 
   #non-spatial predictors
-  non.spatial.predictors <- importance.df[
-    !grepl("spatial_predictor", importance.df$variable, fixed = TRUE),
+  non.spatial.predictors <- full.importance.df[
+    !grepl("spatial_predictor", full.importance.df$variable, fixed = TRUE),
   ]
 
   #joining for plot
@@ -51,8 +51,8 @@ prepare_importance_spatial <- function(model) {
       max(spatial.predictors$importance),
       min(spatial.predictors$importance),
       stats::median(spatial.predictors$importance),
-      stats::quantile(spatial.predictors$importanc, probs = 0.25),
-      stats::quantile(spatial.predictors$importanc, probs = 0.75)
+      stats::quantile(spatial.predictors$importance, probs = 0.25),
+      stats::quantile(spatial.predictors$importance, probs = 0.75)
     )
   )
 

@@ -104,8 +104,8 @@ pca_multithreshold <- function(
   pca.factors <- as.data.frame(do.call("cbind", pca.factors.list))
 
   #finding spatial predictors with too many leading zeroes
-  pca.factors.filter <- round(colSums(abs(pca.factors)), 6)
-  pca.factors.filter <- pca.factors.filter[pca.factors.filter != 0]
+  pca.factors.filter <- colSums(abs(pca.factors))
+  pca.factors.filter <- pca.factors.filter[pca.factors.filter > 1e-10]
 
   #removing them
   pca.factors <- pca.factors[,
@@ -114,8 +114,10 @@ pca_multithreshold <- function(
 
   #applying max.pca.factors
   if (!is.null(max.spatial.predictors)) {
-    if (ncol(pca.factors) > max.spatial.predictors) {
+    if (max.spatial.predictors > 0 && ncol(pca.factors) > max.spatial.predictors) {
       pca.factors <- pca.factors[, 1:max.spatial.predictors]
+    } else if (max.spatial.predictors <= 0) {
+      pca.factors <- pca.factors[, integer(0)]
     }
   }
 

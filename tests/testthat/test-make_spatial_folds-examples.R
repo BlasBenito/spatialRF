@@ -13,11 +13,28 @@ test_that("`make_spatial_folds()` works", {
     training.fraction = 0.6
   )
 
-  expect_type(out, "list")
-  expect_length(out, nrow(xy.selected))
-  expect_named(out[[1]], c("training", "testing"))
-  expect_type(out[[1]]$training, "integer")
-  expect_type(out[[1]]$testing, "integer")
+  # Output should be a data frame
+  expect_type(out, "list")  # data.frame is a list in R
+  expect_s3_class(out, "data.frame")
+
+  # Should have one column per fold
+  expect_equal(ncol(out), nrow(xy.selected))
+  expect_equal(nrow(out), nrow(xy))
+
+  # Column names should be fold_1, fold_2, etc.
+  expect_equal(
+    colnames(out),
+    paste0("fold_", seq_len(nrow(xy.selected)))
+  )
+
+  # Each column should be logical (TRUE = training, FALSE = testing)
+  for (i in seq_len(ncol(out))) {
+    expect_type(out[[i]], "logical")
+    expect_length(out[[i]], nrow(xy))
+    # Should have both training and testing records
+    expect_true(sum(out[[i]]) > 0)
+    expect_true(sum(!out[[i]]) > 0)
+  }
 
   # Verify no connections left open
 })

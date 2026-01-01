@@ -154,17 +154,10 @@ make_spatial_fold <- function(
     old.buffer.y.max <- new.buffer.y.max
   }
 
-  #materialize dataframe only once after loop (memory optimization)
-  records.selected <- xy[buffer_idx, ]
-
-  #select from xy.all if response is binary
-  #selecting ones if binary
+  #for binary, filter buffer_idx to only include presences (1s)
   if (is.binary) {
-    records.selected <- xy[
-      xy$x >= new.buffer.x.min &
-        xy$x <= new.buffer.x.max &
-        xy$y >= new.buffer.y.min &
-        xy$y <= new.buffer.y.max,
+    buffer_idx <- buffer_idx[
+      data[buffer_idx, dependent.variable.name] == 1
     ]
   }
 

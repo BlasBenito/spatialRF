@@ -217,7 +217,7 @@ rf_spatial <- function(
       )
     }
     scaled.importance <- ranger.arguments$scaled.importance
-    seed <- model$ranger.arguments$seed
+    seed <- ranger.arguments$seed
   }
 
   #reference moran's I for selection of spatial predictors
@@ -334,8 +334,10 @@ rf_spatial <- function(
   ###########################################################
 
   #SELECTING RANKING METHOD
+  ranking.method <- NULL
+
   if (method %in% "hengl") {
-    ranking.method <- NULL
+    # hengl method uses distance matrix columns directly, no ranking needed
   }
 
   if (
@@ -409,6 +411,9 @@ rf_spatial <- function(
 
   #SELECTING SPATIAL PREDICTORS (if method is not "hengl")
   ######################################################
+
+  #initialize variable to track whether optimization was performed
+  spatial.predictors.selection <- NULL
 
   #SEQUENTIAL SELECTION OF SPATIAL PREDICTORS
   if (
@@ -541,7 +546,7 @@ rf_spatial <- function(
   model.spatial$spatial$names <- spatial.predictors.selected
   model.spatial$spatial$spatial.predictors <- spatial.predictors.df
 
-  if (exists("spatial.predictors.selection")) {
+  if (!is.null(spatial.predictors.selection)) {
     model.spatial$spatial$optimization <- spatial.predictors.selection$optimization
     model.spatial$spatial$plot <- plot_optimization(
       spatial.predictors.selection$optimization,

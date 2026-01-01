@@ -127,11 +127,11 @@ if (interactive()) {
 \code{\link[=make_spatial_fold]{make_spatial_fold()}}, \code{\link[=rf_evaluate]{rf_evaluate()}}, \code{\link[=thinning]{thinning()}}, \code{\link[=thinning_til_n]{thinning_til_n()}}
 
 Other preprocessing: 
+\code{\link{.test_single_interaction}()},
 \code{\link{default_distance_thresholds}()},
 \code{\link{double_center_distance_matrix}()},
 \code{\link{is_binary}()},
 \code{\link{make_spatial_fold}()},
-\code{\link{the_feature_engineer}()},
 \code{\link{weights_from_distance_matrix}()}
 }
 \concept{preprocessing}

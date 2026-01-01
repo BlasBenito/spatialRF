@@ -30,11 +30,11 @@ y[1:5, 1:5]
 }
 \seealso{
 Other preprocessing: 
+\code{\link{.test_single_interaction}()},
 \code{\link{default_distance_thresholds}()},
 \code{\link{double_center_distance_matrix}()},
 \code{\link{is_binary}()},
 \code{\link{make_spatial_fold}()},
-\code{\link{make_spatial_folds}()},
-\code{\link{the_feature_engineer}()}
+\code{\link{make_spatial_folds}()}
 }
 \concept{preprocessing}

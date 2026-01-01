@@ -90,10 +90,12 @@ mem_multithreshold <- function(
   #to data frame
   mem.df <- as.data.frame(do.call("cbind", mem.list))
 
-  #applying max.pca.factors
+  #applying max.spatial.predictors
   if (!is.null(max.spatial.predictors)) {
-    if (ncol(mem.df) > max.spatial.predictors) {
+    if (max.spatial.predictors > 0 && ncol(mem.df) > max.spatial.predictors) {
       mem.df <- mem.df[, 1:max.spatial.predictors]
+    } else if (max.spatial.predictors <= 0) {
+      mem.df <- mem.df[, integer(0)]
     }
   }
 

@@ -50,7 +50,7 @@ filter_spatial_predictors <- function(
   cor.threshold = 0.50
 ) {
   #filtering spatial predictors by pair-wise correlation
-  selected.spatial.predictors <- collinear::cor_select(
+  selected_internal <- collinear::cor_select(
     df = spatial.predictors.df,
     predictors = colnames(spatial.predictors.df),
     preference_order = colnames(spatial.predictors.df),
@@ -59,15 +59,12 @@ filter_spatial_predictors <- function(
   )
 
   spatial.predictors.df <- spatial.predictors.df[,
-    selected.spatial.predictors,
+    selected_internal,
     drop = FALSE
   ]
 
   #filtering spatial predictors by correlation with non-spatial ones
-  non.spatial.predictors.df <- data[, predictor.variable.names, drop = FALSE]
-
   #identifying numeric predictors
-  #generating df of non-spatial predictors
   non.spatial.numeric.predictors <- collinear::identify_numeric_variables(
     df = data,
     predictors = predictor.variable.names,
@@ -76,7 +73,7 @@ filter_spatial_predictors <- function(
 
   #correlation between spatial and non-spatial predictors
   cor.predictors <- stats::cor(
-    x = non.spatial.predictors.df[, non.spatial.numeric.predictors],
+    x = data[, non.spatial.numeric.predictors, drop = FALSE],
     y = spatial.predictors.df,
     use = "pairwise.complete.obs",
     method = "pearson"
@@ -91,13 +88,13 @@ filter_spatial_predictors <- function(
   )
 
   #selected spatial predictors
-  selected.spatial.predictors <- names(max.cor.spatial.predictors[
+  selected_external <- names(max.cor.spatial.predictors[
     max.cor.spatial.predictors < cor.threshold
   ])
 
   #subsetting spatial.predictors.df
   spatial.predictors.df <- spatial.predictors.df[,
-    selected.spatial.predictors,
+    selected_external,
     drop = FALSE
   ]
 

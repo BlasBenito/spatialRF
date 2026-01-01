@@ -107,7 +107,6 @@ rf <- function(
   #default ranger arguments
   num.trees <- 500
   mtry <- NULL
-  mtry <- NULL
   importance <- "permutation"
   write.forest <- TRUE
   probability <- FALSE
@@ -443,7 +442,6 @@ rf <- function(
     normalization = "iq"
   )
   names(m$performance$nrmse) <- NULL
-  m$performance$auc <- NA
 
   #compute AUC
   m$performance$auc <- NA
