@@ -20,6 +20,7 @@ articles:
   contents:
   - articles/non_spatial_models
   - articles/spatial_models
+  - articles/download_history
 - title: Development
   navbar: Development
   contents:

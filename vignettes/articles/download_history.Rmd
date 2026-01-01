@@ -1,0 +1,114 @@
+---
+title: "Download history"
+output: 
+  rmarkdown::html_document:
+    toc: true
+    toc_title: "Content"
+    source: false
+---
+
+```{r, include=FALSE, echo = FALSE}
+install.packages("cranlogs")
+```
+
+
+```{r, echo = FALSE}
+# Install packages if needed
+# install.packages(c("cranlogs", "ggplot2"))
+library(cranlogs)
+library(ggplot2)
+
+
+# Get download data from the beginning
+download_history <- cranlogs::cran_downloads(
+  packages = "spatialRF",
+  from = "2021-01-01",  # Earliest available data
+  to = Sys.Date()
+)
+
+# Optional: Monthly aggregation for cleaner visualization
+download_history$year_month <- format(download_history$date, "%Y-%m")
+monthly_downloads <- aggregate(
+  count ~ year_month,
+  data = download_history,
+  FUN = sum
+)
+monthly_downloads$date <- as.Date(paste0(monthly_downloads$year_month, "-01"))
+
+# Calculate average monthly downloads
+avg_monthly <- mean(monthly_downloads$count)
+
+# Version 2.0.0 release date
+# release_date_2.0 <- as.Date("2025-01-01")
+# release_date_3.0 <- as.Date("2025-12-06")
+
+# Plot monthly downloads
+ggplot(monthly_downloads, aes(x = date, y = count)) +
+  geom_col(fill = "#F5191C", alpha = 0.8) +
+  geom_hline(
+    yintercept = avg_monthly,
+    linetype = "dashed",
+    color = "#3B99B1",
+    linewidth = 0.8
+  ) +
+  # geom_vline(
+  #   xintercept = release_date_2.0,
+  #   linetype = "solid",
+  #   color = "gray20",
+  #   linewidth = 0.8
+  # ) +
+  #   geom_vline(
+  #   xintercept = release_date_3.0,
+  #   linetype = "solid",
+  #   color = "gray20",
+  #   linewidth = 0.8
+  # ) +
+  annotate(
+    "text",
+    x = min(monthly_downloads$date),
+    y = avg_monthly,
+    label = paste0("Avg: ", round(avg_monthly)),
+    vjust = -0.5,
+    hjust = 0.1,
+    color = "#3B99B1",
+    size = 3.5
+  ) +
+  # annotate(
+  #   "text",
+  #   x = release_date_2.0,
+  #   y = max(monthly_downloads$count),
+  #   label = "v2.0",
+  #   vjust = -0.5,
+  #   hjust = -0.1,
+  #   color = "gray20",
+  #   size = 3.5,
+  #   fontface = "bold"
+  # ) +
+  #   annotate(
+  #   "text",
+  #   x = release_date_3.0,
+  #   y = max(monthly_downloads$count),
+  #   label = "v3.0",
+  #   vjust = -0.5,
+  #   hjust = -0.1,
+  #   color = "gray20",
+  #   size = 3.5,
+  #   fontface = "bold"
+  # ) +
+  theme_minimal() +
+  labs(
+    title = "Monthly Downloads",
+    subtitle = paste0("Total downloads (", Sys.Date(), "): ", format(sum(monthly_downloads$count), big.mark = ",")),
+    x = "Month",
+    y = "Monthly Downloads",
+    caption = "Data source: RStudio CRAN mirror via cranlogs"
+  ) +
+  theme(
+    plot.title = element_text(face = "bold", size = 14),
+    plot.subtitle = element_text(size = 11, color = "gray40"),
+    panel.grid.minor = element_blank()
+  )
+
+```
+
+
