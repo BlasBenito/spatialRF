@@ -6,7 +6,7 @@ articles:
   articles/download_history: download_history.html
   articles/non_spatial_models: non_spatial_models.html
   articles/spatial_models: spatial_models.html
-last_built: 2026-01-01T11:52Z
+last_built: 2026-01-01T12:48Z
 urls:
   reference: https://blasbenito.github.io/spatialRF/reference
   article: https://blasbenito.github.io/spatialRF/articles

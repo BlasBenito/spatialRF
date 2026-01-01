@@ -125,7 +125,7 @@ Forest Models</a> tutorial.</p>
 <span></span>
 <span><span class="co"># Parallel backend</span></span>
 <span><span class="va">cluster</span> <span class="op">&lt;-</span> <span class="fu">parallel</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/parallel/makeCluster.html" class="external-link">makeCluster</a></span><span class="op">(</span></span>
-<span>  <span class="fu">parallel</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/parallel/detectCores.html" class="external-link">detectCores</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span>,</span>
+<span>  <span class="fl">2</span>, <span class="co">#parallel::detectCores() - 1,</span></span>
 <span>  type <span class="op">=</span> <span class="st">"PSOCK"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -204,107 +204,103 @@ is generated, and <code>Y</code> is the index of the predictor.</p>
 <tbody>
 <tr class="odd">
 <td align="left">spatial_predictor_10_3</td>
-<td align="right">1075.062</td>
+<td align="right">1068.818</td>
 </tr>
 <tr class="even">
-<td align="left">spatial_predictor_10_2</td>
-<td align="right">877.549</td>
-</tr>
-<tr class="odd">
-<td align="left">spatial_predictor_10_5</td>
-<td align="right">831.983</td>
-</tr>
-<tr class="even">
-<td align="left">spatial_predictor_10_4</td>
-<td align="right">757.292</td>
-</tr>
-<tr class="odd">
 <td align="left">spatial_predictor_10_1</td>
-<td align="right">743.527</td>
-</tr>
-<tr class="even">
-<td align="left">spatial_predictor_10_6</td>
-<td align="right">742.421</td>
+<td align="right">824.806</td>
 </tr>
 <tr class="odd">
+<td align="left">spatial_predictor_10_2</td>
+<td align="right">751.127</td>
+</tr>
+<tr class="even">
+<td align="left">spatial_predictor_10_5</td>
+<td align="right">737.917</td>
+</tr>
+<tr class="odd">
+<td align="left">spatial_predictor_10_4</td>
+<td align="right">708.623</td>
+</tr>
+<tr class="even">
 <td align="left">spatial_predictor_10_13</td>
-<td align="right">589.322</td>
+<td align="right">570.652</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">spatial_predictor_1000_11</td>
-<td align="right">509.290</td>
+<td align="right">480.690</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">spatial_predictor_10_8</td>
-<td align="right">485.921</td>
-</tr>
-<tr class="even">
-<td align="left">spatial_predictor_10_15</td>
-<td align="right">469.144</td>
-</tr>
-<tr class="odd">
-<td align="left">spatial_predictor_10_10</td>
-<td align="right">468.329</td>
-</tr>
-<tr class="even">
-<td align="left">spatial_predictor_2000_3</td>
-<td align="right">455.492</td>
+<td align="right">473.708</td>
 </tr>
 <tr class="odd">
 <td align="left">spatial_predictor_10_16</td>
-<td align="right">455.075</td>
+<td align="right">457.056</td>
 </tr>
 <tr class="even">
+<td align="left">spatial_predictor_10_10</td>
+<td align="right">453.995</td>
+</tr>
+<tr class="odd">
 <td align="left">spatial_predictor_10_9</td>
-<td align="right">406.292</td>
+<td align="right">452.719</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">spatial_predictor_10_12</td>
-<td align="right">405.411</td>
-</tr>
-<tr class="even">
-<td align="left">spatial_predictor_10_17</td>
-<td align="right">372.799</td>
+<td align="right">420.716</td>
 </tr>
 <tr class="odd">
-<td align="left">spatial_predictor_2000_6</td>
-<td align="right">362.206</td>
-</tr>
-<tr class="even">
 <td align="left">spatial_predictor_1000_9</td>
-<td align="right">356.643</td>
-</tr>
-<tr class="odd">
-<td align="left">spatial_predictor_1000_10</td>
-<td align="right">345.893</td>
+<td align="right">409.647</td>
 </tr>
 <tr class="even">
-<td align="left">spatial_predictor_10_7</td>
-<td align="right">343.952</td>
+<td align="left">spatial_predictor_10_15</td>
+<td align="right">397.895</td>
 </tr>
 <tr class="odd">
-<td align="left">spatial_predictor_10_22</td>
-<td align="right">339.658</td>
+<td align="left">spatial_predictor_2000_3</td>
+<td align="right">375.859</td>
+</tr>
+<tr class="even">
+<td align="left">spatial_predictor_2000_6</td>
+<td align="right">370.543</td>
+</tr>
+<tr class="odd">
+<td align="left">spatial_predictor_10_17</td>
+<td align="right">363.371</td>
 </tr>
 <tr class="even">
 <td align="left">spatial_predictor_10_14</td>
-<td align="right">313.344</td>
+<td align="right">287.073</td>
 </tr>
 <tr class="odd">
-<td align="left">spatial_predictor_10_11</td>
-<td align="right">282.106</td>
+<td align="left">spatial_predictor_10_7</td>
+<td align="right">285.621</td>
+</tr>
+<tr class="even">
+<td align="left">spatial_predictor_10_22</td>
+<td align="right">237.709</td>
+</tr>
+<tr class="odd">
+<td align="left">spatial_predictor_1000_10</td>
+<td align="right">233.072</td>
+</tr>
+<tr class="even">
+<td align="left">spatial_predictor_10_19</td>
+<td align="right">196.421</td>
+</tr>
+<tr class="odd">
+<td align="left">spatial_predictor_10_21</td>
+<td align="right">174.868</td>
 </tr>
 <tr class="even">
 <td align="left">spatial_predictor_10_18</td>
-<td align="right">222.278</td>
+<td align="right">167.810</td>
 </tr>
 <tr class="odd">
-<td align="left">spatial_predictor_10_19</td>
-<td align="right">188.148</td>
-</tr>
-<tr class="even">
-<td align="left">spatial_predictor_10_21</td>
-<td align="right">139.684</td>
+<td align="left">spatial_predictor_10_11</td>
+<td align="right">125.160</td>
 </tr>
 </tbody>
 </table>

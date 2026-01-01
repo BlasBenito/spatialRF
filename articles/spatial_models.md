@@ -54,7 +54,7 @@ colors <- grDevices::hcl.colors(
 
 # Parallel backend
 cluster <- parallel::makeCluster(
-  parallel::detectCores() - 1,
+  2, #parallel::detectCores() - 1,
   type = "PSOCK"
 )
 
@@ -141,32 +141,31 @@ the index of the predictor.
 
 | variable                  | importance |
 |:--------------------------|-----------:|
-| spatial_predictor_10_3    |   1075.062 |
-| spatial_predictor_10_2    |    877.549 |
-| spatial_predictor_10_5    |    831.983 |
-| spatial_predictor_10_4    |    757.292 |
-| spatial_predictor_10_1    |    743.527 |
-| spatial_predictor_10_6    |    742.421 |
-| spatial_predictor_10_13   |    589.322 |
-| spatial_predictor_1000_11 |    509.290 |
-| spatial_predictor_10_8    |    485.921 |
-| spatial_predictor_10_15   |    469.144 |
-| spatial_predictor_10_10   |    468.329 |
-| spatial_predictor_2000_3  |    455.492 |
-| spatial_predictor_10_16   |    455.075 |
-| spatial_predictor_10_9    |    406.292 |
-| spatial_predictor_10_12   |    405.411 |
-| spatial_predictor_10_17   |    372.799 |
-| spatial_predictor_2000_6  |    362.206 |
-| spatial_predictor_1000_9  |    356.643 |
-| spatial_predictor_1000_10 |    345.893 |
-| spatial_predictor_10_7    |    343.952 |
-| spatial_predictor_10_22   |    339.658 |
-| spatial_predictor_10_14   |    313.344 |
-| spatial_predictor_10_11   |    282.106 |
-| spatial_predictor_10_18   |    222.278 |
-| spatial_predictor_10_19   |    188.148 |
-| spatial_predictor_10_21   |    139.684 |
+| spatial_predictor_10_3    |   1068.818 |
+| spatial_predictor_10_1    |    824.806 |
+| spatial_predictor_10_2    |    751.127 |
+| spatial_predictor_10_5    |    737.917 |
+| spatial_predictor_10_4    |    708.623 |
+| spatial_predictor_10_13   |    570.652 |
+| spatial_predictor_1000_11 |    480.690 |
+| spatial_predictor_10_8    |    473.708 |
+| spatial_predictor_10_16   |    457.056 |
+| spatial_predictor_10_10   |    453.995 |
+| spatial_predictor_10_9    |    452.719 |
+| spatial_predictor_10_12   |    420.716 |
+| spatial_predictor_1000_9  |    409.647 |
+| spatial_predictor_10_15   |    397.895 |
+| spatial_predictor_2000_3  |    375.859 |
+| spatial_predictor_2000_6  |    370.543 |
+| spatial_predictor_10_17   |    363.371 |
+| spatial_predictor_10_14   |    287.073 |
+| spatial_predictor_10_7    |    285.621 |
+| spatial_predictor_10_22   |    237.709 |
+| spatial_predictor_1000_10 |    233.072 |
+| spatial_predictor_10_19   |    196.421 |
+| spatial_predictor_10_21   |    174.868 |
+| spatial_predictor_10_18   |    167.810 |
+| spatial_predictor_10_11   |    125.160 |
 
 Spatial predictors are smooth surfaces representing neighborhood among
 records at different spatial scales. They are computed from the distance

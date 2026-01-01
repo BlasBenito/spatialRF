@@ -33,7 +33,7 @@ speed-up execution.
 
 ``` r
 cluster <- parallel::makeCluster(
-  parallel::detectCores() - 1,
+  2, #parallel::detectCores() - 1,
   type = "PSOCK"
 )
 ```
@@ -134,17 +134,25 @@ interactions <- spatialRF::the_feature_engineer(
 #>  │ Interaction      │ Importance (% of │        R-squared │     Max cor with │
 #>  │                  │             max) │      improvement │       predictors │
 #>  ├──────────────────┼──────────────────┼──────────────────┼──────────────────┤
-#>  │ human_population │             93.4 │            0.031 │             0.64 │
+#>  │ human_population │             91.4 │            0.048 │             0.64 │
 #>  │ ..x..bias_area_k │                  │                  │                  │
 #>  │ m2               │                  │                  │                  │
 #>  ├──────────────────┼──────────────────┼──────────────────┼──────────────────┤
-#>  │ climate_bio1_ave │             55.6 │            0.025 │             0.74 │
+#>  │ climate_bio1_ave │            100.0 │            0.070 │             0.28 │
+#>  │ rage..pca..human │                  │                  │                  │
+#>  │ _population      │                  │                  │                  │
+#>  ├──────────────────┼──────────────────┼──────────────────┼──────────────────┤
+#>  │ climate_bio1_ave │             61.4 │            0.032 │             0.74 │
 #>  │ rage..pca..clima │                  │                  │                  │
 #>  │ te_hypervolume   │                  │                  │                  │
 #>  ├──────────────────┼──────────────────┼──────────────────┼──────────────────┤
-#>  │ climate_bio1_ave │            100   │            0.04  │             0.28 │
-#>  │ rage..pca..human │                  │                  │                  │
-#>  │ _population      │                  │                  │                  │
+#>  │ climate_hypervol │             71.9 │            0.011 │             0.71 │
+#>  │ ume..pca..bias_a │                  │                  │                  │
+#>  │ rea_km2          │                  │                  │                  │
+#>  ├──────────────────┼──────────────────┼──────────────────┼──────────────────┤
+#>  │ climate_hypervol │             55   │            0.01  │             0.56 │
+#>  │ ume..x..human_po │                  │                  │                  │
+#>  │ pulation_density │                  │                  │                  │
 #>  └──────────────────┴──────────────────┴──────────────────┴──────────────────┘
 ```
 
@@ -162,14 +170,14 @@ results.
 
 | interaction.name                                    | interaction.importance | interaction.metric.gain | max.cor.with.predictors | variable.a.name      | variable.b.name          | selected |
 |:----------------------------------------------------|-----------------------:|------------------------:|------------------------:|:---------------------|:-------------------------|:---------|
-| human_population..x..bias_area_km2                  |                 93.371 |                   0.031 |               0.6373850 | human_population     | bias_area_km2            | TRUE     |
-| climate_bio1_average..pca..climate_hypervolume      |                 55.620 |                   0.025 |               0.7400000 | climate_bio1_average | climate_hypervolume      | TRUE     |
-| climate_bio1_average..pca..human_population         |                100.000 |                   0.040 |               0.2800000 | climate_bio1_average | human_population         | TRUE     |
-| climate_bio1_average..pca..human_population_density |                 90.890 |                   0.039 |               0.3400000 | climate_bio1_average | human_population_density | TRUE     |
-| human_population..pca..climate_hypervolume          |                 78.440 |                  -0.026 |               0.7200000 | human_population     | climate_hypervolume      | FALSE    |
-| climate_hypervolume..pca..bias_area_km2             |                 62.520 |                  -0.021 |               0.7100000 | climate_hypervolume  | bias_area_km2            | FALSE    |
-| climate_hypervolume..pca..human_population_density  |                 37.110 |                  -0.022 |               0.7200000 | climate_hypervolume  | human_population_density | FALSE    |
-| climate_hypervolume..x..human_population_density    |                 53.928 |                  -0.020 |               0.5599486 | climate_hypervolume  | human_population_density | FALSE    |
+| human_population..x..bias_area_km2                  |                 91.366 |                   0.048 |               0.6373850 | human_population     | bias_area_km2            | TRUE     |
+| climate_bio1_average..pca..human_population         |                100.000 |                   0.070 |               0.2800000 | climate_bio1_average | human_population         | TRUE     |
+| climate_bio1_average..pca..climate_hypervolume      |                 61.400 |                   0.032 |               0.7400000 | climate_bio1_average | climate_hypervolume      | TRUE     |
+| climate_bio1_average..pca..human_population_density |                 93.180 |                   0.052 |               0.3400000 | climate_bio1_average | human_population_density | TRUE     |
+| climate_hypervolume..pca..bias_area_km2             |                 71.880 |                   0.011 |               0.7100000 | climate_hypervolume  | bias_area_km2            | TRUE     |
+| human_population..pca..climate_hypervolume          |                 84.870 |                  -0.019 |               0.7200000 | human_population     | climate_hypervolume      | FALSE    |
+| climate_hypervolume..x..human_population_density    |                 54.987 |                   0.010 |               0.5599486 | climate_hypervolume  | human_population_density | TRUE     |
+| climate_hypervolume..pca..human_population_density  |                 43.560 |                  -0.010 |               0.7200000 | climate_hypervolume  | human_population_density | FALSE    |
 
 ``` r
 #adding interaction column to the training data
@@ -211,28 +219,28 @@ m
 #>   - Type:                            Regression
 #>   - Number of trees:                 500
 #>   - Sample size:                     227
-#>   - Number of predictors:            20
+#>   - Number of predictors:            22
 #>   - Mtry:                            4
 #>   - Minimum node size:               5
 #> 
 #> 
 #> Model performance 
-#>   - R squared (oob):                  0.5900091
-#>   - R squared (cor(obs, pred)^2):     0.951718
-#>   - Pseudo R squared (cor(obs, pred)):0.9755603
-#>   - RMSE (oob):                       2157.856
-#>   - RMSE:                             932.9344
-#>   - Normalized RMSE:                  0.2693229
+#>   - R squared (oob):                  0.5703074
+#>   - R squared (cor(obs, pred)^2):     0.9495211
+#>   - Pseudo R squared (cor(obs, pred)):0.9744337
+#>   - RMSE (oob):                       2209.095
+#>   - RMSE:                             944.4662
+#>   - Normalized RMSE:                  0.2726519
 #> 
 #> Model residuals 
 #>   - Stats: 
 #>           ┌──────────┬─────────┬─────────┬────────┬────────┬─────────┐
 #>           │ Min.     │ 1st Q.  │ Median  │ Mean   │ 3rd Q. │ Max.    │
 #>           ├──────────┼─────────┼─────────┼────────┼────────┼─────────┤
-#>           │ -1929.83 │ -469.56 │ -133.64 │ -18.08 │ 136.31 │ 7928.74 │
+#>           │ -2194.56 │ -439.96 │ -148.65 │ -23.13 │ 129.13 │ 7723.71 │
 #>           └──────────┴─────────┴─────────┴────────┴────────┴─────────┘
 #>   - Normality: 
-#>       - Shapiro-Wilks W: 0.746 
+#>       - Shapiro-Wilks W: 0.748 
 #>       - p-value        : 0 
 #>       - Interpretation : Residuals are not normal 
 #> 
@@ -240,22 +248,22 @@ m
 #>              ┌──────────┬───────────┬─────────┬──────────────────┐
 #>              │ Distance │ Moran's I │ P value │ Interpretation   │
 #>              ├──────────┼───────────┼─────────┼──────────────────┤
-#>              │     10.0 │     0.125 │   0.000 │ Positive spatial │
+#>              │     10.0 │     0.136 │   0.000 │ Positive spatial │
 #>              │          │           │         │ correlation      │
 #>              ├──────────┼───────────┼─────────┼──────────────────┤
-#>              │    100.0 │     0.096 │   0.001 │ Positive spatial │
+#>              │    100.0 │     0.106 │   0.000 │ Positive spatial │
 #>              │          │           │         │ correlation      │
 #>              ├──────────┼───────────┼─────────┼──────────────────┤
-#>              │   1000.0 │     0.054 │   0.000 │ Positive spatial │
+#>              │   1000.0 │     0.059 │   0.000 │ Positive spatial │
 #>              │          │           │         │ correlation      │
 #>              ├──────────┼───────────┼─────────┼──────────────────┤
-#>              │   2000.0 │     0.012 │   0.089 │ No spatial       │
+#>              │   2000.0 │     0.015 │   0.051 │ No spatial       │
 #>              │          │           │         │ correlation      │
 #>              ├──────────┼───────────┼─────────┼──────────────────┤
-#>              │   4000.0 │    -0.002 │   0.644 │ No spatial       │
+#>              │   4000.0 │    -0.002 │   0.620 │ No spatial       │
 #>              │          │           │         │ correlation      │
 #>              ├──────────┼───────────┼─────────┼──────────────────┤
-#>              │   8000.0 │    -0.005 │   0.703 │ No spatial       │
+#>              │   8000.0 │    -0.006 │   0.455 │ No spatial       │
 #>              │          │           │         │ correlation      │
 #>              └──────────┴───────────┴─────────┴──────────────────┘
 #> 
@@ -263,47 +271,53 @@ m
 #>              ┌──────────────────────────────────────┬────────────┐
 #>              │ Variable                             │ Importance │
 #>              ├──────────────────────────────────────┼────────────┤
-#>              │ human_population                     │   1622.704 │
-#>              ├──────────────────────────────────────┼────────────┤
-#>              │ human_population..x..bias_area_km2   │   1591.715 │
-#>              ├──────────────────────────────────────┼────────────┤
-#>              │ climate_bio1_average..pca..human_pop │   1515.258 │
+#>              │ climate_bio1_average..pca..human_pop │   1571.771 │
 #>              │ ulation                              │            │
 #>              ├──────────────────────────────────────┼────────────┤
-#>              │ climate_bio1_average                 │   1443.005 │
+#>              │ climate_bio1_average                 │   1419.292 │
 #>              ├──────────────────────────────────────┼────────────┤
-#>              │ climate_hypervolume                  │   1323.159 │
+#>              │ human_population                     │   1386.009 │
 #>              ├──────────────────────────────────────┼────────────┤
-#>              │ human_population_density             │   1094.310 │
+#>              │ human_population..x..bias_area_km2   │   1297.871 │
 #>              ├──────────────────────────────────────┼────────────┤
-#>              │ bias_area_km2                        │   1004.841 │
+#>              │ climate_hypervolume..pca..bias_area_ │   1175.894 │
+#>              │ km2                                  │            │
 #>              ├──────────────────────────────────────┼────────────┤
-#>              │ climate_bio1_average..pca..climate_h │    946.592 │
+#>              │ climate_hypervolume                  │   1169.169 │
+#>              ├──────────────────────────────────────┼────────────┤
+#>              │ human_population_density             │   1033.778 │
+#>              ├──────────────────────────────────────┼────────────┤
+#>              │ bias_area_km2                        │    930.109 │
+#>              ├──────────────────────────────────────┼────────────┤
+#>              │ climate_bio1_average..pca..climate_h │    844.135 │
 #>              │ ypervolume                           │            │
 #>              ├──────────────────────────────────────┼────────────┤
-#>              │ human_footprint_average              │    939.085 │
+#>              │ climate_hypervolume..x..human_popula │    800.062 │
+#>              │ tion_density                         │            │
 #>              ├──────────────────────────────────────┼────────────┤
-#>              │ bias_species_per_record              │    884.114 │
+#>              │ bias_species_per_record              │    774.139 │
 #>              ├──────────────────────────────────────┼────────────┤
-#>              │ climate_velocity_lgm_average         │    671.836 │
+#>              │ neighbors_count                      │    739.603 │
 #>              ├──────────────────────────────────────┼────────────┤
-#>              │ neighbors_count                      │    664.184 │
+#>              │ climate_velocity_lgm_average         │    637.439 │
 #>              ├──────────────────────────────────────┼────────────┤
-#>              │ climate_aridity_index_average        │    639.642 │
+#>              │ human_footprint_average              │    635.566 │
 #>              ├──────────────────────────────────────┼────────────┤
-#>              │ topography_elevation_average         │    636.321 │
+#>              │ neighbors_percent_shared_edge        │    622.809 │
 #>              ├──────────────────────────────────────┼────────────┤
-#>              │ neighbors_percent_shared_edge        │    630.936 │
+#>              │ topography_elevation_average         │    555.377 │
 #>              ├──────────────────────────────────────┼────────────┤
-#>              │ neighbors_area                       │    629.581 │
+#>              │ neighbors_area                       │    525.109 │
 #>              ├──────────────────────────────────────┼────────────┤
-#>              │ fragmentation_cohesion               │    450.136 │
+#>              │ fragmentation_cohesion               │    495.335 │
 #>              ├──────────────────────────────────────┼────────────┤
-#>              │ fragmentation_division               │    386.272 │
+#>              │ climate_aridity_index_average        │    426.488 │
 #>              ├──────────────────────────────────────┼────────────┤
-#>              │ landcover_herbs_percent_average      │    324.556 │
+#>              │ climate_bio15_minimum                │    381.369 │
 #>              ├──────────────────────────────────────┼────────────┤
-#>              │ climate_bio15_minimum                │    262.868 │
+#>              │ landcover_herbs_percent_average      │    305.188 │
+#>              ├──────────────────────────────────────┼────────────┤
+#>              │ fragmentation_division               │    295.799 │
 #>              └──────────────────────────────────────┴────────────┘
 ```
 
@@ -388,28 +402,30 @@ importance.df <- randomForestExplainer::measure_importance(
   )
 ```
 
-| variable                                       | mean_min_depth | no_of_nodes | times_a_root | p_value |
-|:-----------------------------------------------|---------------:|------------:|-------------:|--------:|
-| bias_area_km2                                  |           3.82 |        1860 |           16 |    0.55 |
-| bias_species_per_record                        |           3.50 |        2398 |            6 |    0.00 |
-| climate_aridity_index_average                  |           4.28 |        1864 |            5 |    0.52 |
-| climate_bio1_average                           |           2.88 |        2070 |           61 |    0.00 |
-| climate_bio1_average..pca..climate_hypervolume |           3.78 |        1779 |           16 |    0.98 |
-| climate_bio1_average..pca..human_population    |           2.73 |        2073 |           77 |    0.00 |
-| climate_bio15_minimum                          |           4.61 |        1688 |            0 |    1.00 |
-| climate_hypervolume                            |           2.96 |        2064 |           44 |    0.00 |
-| climate_velocity_lgm_average                   |           4.24 |        1847 |            9 |    0.67 |
-| fragmentation_cohesion                         |           4.57 |        1567 |           15 |    1.00 |
-| fragmentation_division                         |           5.18 |        1574 |            1 |    1.00 |
-| human_footprint_average                        |           4.59 |        1602 |            7 |    1.00 |
-| human_population                               |           2.77 |        2103 |           68 |    0.00 |
-| human_population_density                       |           3.35 |        1929 |           38 |    0.07 |
-| human_population..x..bias_area_km2             |           2.94 |        1968 |           91 |    0.01 |
-| landcover_herbs_percent_average                |           4.74 |        1777 |            0 |    0.98 |
-| neighbors_area                                 |           4.31 |        1724 |            1 |    1.00 |
-| neighbors_count                                |           3.54 |        1561 |           38 |    1.00 |
-| neighbors_percent_shared_edge                  |           3.83 |        1903 |            7 |    0.19 |
-| topography_elevation_average                   |           3.94 |        1955 |            0 |    0.02 |
+| variable                                         | mean_min_depth | no_of_nodes | times_a_root | p_value |
+|:-------------------------------------------------|---------------:|------------:|-------------:|--------:|
+| bias_area_km2                                    |           4.23 |        1653 |           15 |    0.88 |
+| bias_species_per_record                          |           3.79 |        2206 |            4 |    0.00 |
+| climate_aridity_index_average                    |           4.47 |        1641 |            3 |    0.93 |
+| climate_bio1_average                             |           3.21 |        1927 |           49 |    0.00 |
+| climate_bio1_average..pca..climate_hypervolume   |           4.06 |        1616 |           14 |    0.98 |
+| climate_bio1_average..pca..human_population      |           2.74 |        1969 |           83 |    0.00 |
+| climate_bio15_minimum                            |           5.01 |        1581 |            0 |    1.00 |
+| climate_hypervolume                              |           3.35 |        1874 |           39 |    0.00 |
+| climate_hypervolume..pca..bias_area_km2          |           3.72 |        1807 |           22 |    0.00 |
+| climate_hypervolume..x..human_population_density |           4.23 |        1613 |           24 |    0.99 |
+| climate_velocity_lgm_average                     |           4.41 |        1657 |            5 |    0.86 |
+| fragmentation_cohesion                           |           4.75 |        1466 |            7 |    1.00 |
+| fragmentation_division                           |           5.25 |        1422 |            0 |    1.00 |
+| human_footprint_average                          |           4.78 |        1452 |            6 |    1.00 |
+| human_population                                 |           3.16 |        1805 |           67 |    0.00 |
+| human_population_density                         |           3.52 |        1765 |           25 |    0.05 |
+| human_population..x..bias_area_km2               |           3.09 |        1833 |           78 |    0.00 |
+| landcover_herbs_percent_average                  |           4.82 |        1648 |            0 |    0.90 |
+| neighbors_area                                   |           4.53 |        1580 |            0 |    1.00 |
+| neighbors_count                                  |           3.62 |        1497 |           47 |    1.00 |
+| neighbors_percent_shared_edge                    |           4.15 |        1699 |            9 |    0.51 |
+| topography_elevation_average                     |           4.35 |        1678 |            3 |    0.71 |
 
 ### Contribution of predictors to model transferability
 
@@ -433,28 +449,30 @@ m <- spatialRF::rf_importance(
 values in the plot are added as new columns with the suffix `.cv` in the
 dataframe `m$importance$per.variable`.
 
-| variable                                       | importance.oob | importance.cv | importance.cv.mad | importance.cv.percent | importance.cv.percent.mad |
-|:-----------------------------------------------|---------------:|--------------:|------------------:|----------------------:|--------------------------:|
-| human_population                               |       1622.704 |        -0.003 |             0.021 |                  -0.7 |                       7.6 |
-| human_population..x..bias_area_km2             |       1591.715 |         0.030 |             0.033 |                   6.7 |                      11.9 |
-| climate_bio1_average..pca..human_population    |       1515.258 |         0.031 |             0.021 |                   6.9 |                       7.6 |
-| climate_bio1_average                           |       1443.005 |         0.043 |             0.019 |                   9.6 |                       7.0 |
-| climate_hypervolume                            |       1323.159 |         0.002 |             0.030 |                   0.4 |                      10.8 |
-| human_population_density                       |       1094.310 |        -0.012 |             0.025 |                  -2.7 |                       9.2 |
-| bias_area_km2                                  |       1004.841 |         0.015 |             0.015 |                   3.3 |                       5.4 |
-| climate_bio1_average..pca..climate_hypervolume |        946.592 |         0.014 |             0.022 |                   3.1 |                       8.1 |
-| human_footprint_average                        |        939.085 |        -0.004 |             0.019 |                  -0.9 |                       7.0 |
-| bias_species_per_record                        |        884.114 |        -0.004 |             0.027 |                  -0.9 |                       9.7 |
-| climate_velocity_lgm_average                   |        671.836 |         0.002 |             0.022 |                   0.4 |                       8.1 |
-| neighbors_count                                |        664.184 |         0.007 |             0.024 |                   1.6 |                       8.7 |
-| climate_aridity_index_average                  |        639.642 |         0.001 |             0.028 |                   0.2 |                      10.3 |
-| topography_elevation_average                   |        636.321 |        -0.008 |             0.010 |                  -1.8 |                       3.8 |
-| neighbors_percent_shared_edge                  |        630.936 |         0.009 |             0.025 |                   2.0 |                       9.2 |
-| neighbors_area                                 |        629.581 |         0.024 |             0.056 |                   5.4 |                      20.6 |
-| fragmentation_cohesion                         |        450.136 |        -0.022 |             0.021 |                  -4.9 |                       7.6 |
-| fragmentation_division                         |        386.272 |        -0.003 |             0.015 |                  -0.7 |                       5.4 |
-| landcover_herbs_percent_average                |        324.556 |        -0.016 |             0.015 |                  -3.6 |                       5.4 |
-| climate_bio15_minimum                          |        262.868 |        -0.001 |             0.018 |                  -0.2 |                       6.5 |
+| variable                                         | importance.oob | importance.cv | importance.cv.mad | importance.cv.percent | importance.cv.percent.mad |
+|:-------------------------------------------------|---------------:|--------------:|------------------:|----------------------:|--------------------------:|
+| climate_bio1_average..pca..human_population      |       1571.771 |         0.047 |             0.022 |                  11.0 |                       8.2 |
+| climate_bio1_average                             |       1419.292 |         0.054 |             0.007 |                  12.6 |                       2.7 |
+| human_population                                 |       1386.009 |         0.021 |             0.024 |                   4.9 |                       8.8 |
+| human_population..x..bias_area_km2               |       1297.871 |         0.032 |             0.030 |                   7.5 |                      11.0 |
+| climate_hypervolume..pca..bias_area_km2          |       1175.894 |        -0.007 |             0.034 |                  -1.6 |                      12.6 |
+| climate_hypervolume                              |       1169.169 |         0.008 |             0.010 |                   1.9 |                       3.8 |
+| human_population_density                         |       1033.778 |         0.000 |             0.028 |                   0.0 |                      10.4 |
+| bias_area_km2                                    |        930.109 |         0.007 |             0.027 |                   1.6 |                       9.9 |
+| climate_bio1_average..pca..climate_hypervolume   |        844.135 |         0.013 |             0.024 |                   3.0 |                       8.8 |
+| climate_hypervolume..x..human_population_density |        800.062 |        -0.019 |             0.015 |                  -4.4 |                       5.5 |
+| bias_species_per_record                          |        774.139 |         0.014 |             0.018 |                   3.3 |                       6.6 |
+| neighbors_count                                  |        739.603 |         0.015 |             0.033 |                   3.5 |                      12.1 |
+| climate_velocity_lgm_average                     |        637.439 |         0.005 |             0.016 |                   1.2 |                       6.0 |
+| human_footprint_average                          |        635.566 |         0.011 |             0.007 |                   2.6 |                       2.7 |
+| neighbors_percent_shared_edge                    |        622.809 |         0.027 |             0.019 |                   6.3 |                       7.1 |
+| topography_elevation_average                     |        555.377 |         0.001 |             0.025 |                   0.2 |                       9.3 |
+| neighbors_area                                   |        525.109 |         0.024 |             0.030 |                   5.6 |                      11.0 |
+| fragmentation_cohesion                           |        495.335 |        -0.007 |             0.019 |                  -1.6 |                       7.1 |
+| climate_aridity_index_average                    |        426.488 |        -0.001 |             0.016 |                  -0.2 |                       6.0 |
+| climate_bio15_minimum                            |        381.369 |         0.013 |             0.013 |                   3.0 |                       4.9 |
+| landcover_herbs_percent_average                  |        305.188 |         0.007 |             0.015 |                   1.6 |                       5.5 |
+| fragmentation_division                           |        295.799 |         0.015 |             0.015 |                   3.5 |                       5.5 |
 
 ### Local variable importance
 
@@ -546,12 +564,12 @@ of several performance measures. It be printed via the function
 spatialRF::print_performance(m)
 #> 
 #> Model performance 
-#>   - R squared (oob):                  0.5900091
-#>   - R squared (cor(obs, pred)^2):     0.951718
-#>   - Pseudo R squared (cor(obs, pred)):0.9755603
-#>   - RMSE (oob):                       2157.856
-#>   - RMSE:                             932.9344
-#>   - Normalized RMSE:                  0.2693229
+#>   - R squared (oob):                  0.5703074
+#>   - R squared (cor(obs, pred)^2):     0.9495211
+#>   - Pseudo R squared (cor(obs, pred)):0.9744337
+#>   - RMSE (oob):                       2209.095
+#>   - RMSE:                             944.4662
+#>   - Normalized RMSE:                  0.2726519
 ```
 
 - `R squared (oob)` and `RMSE (oob)` are computed by
@@ -676,7 +694,7 @@ spatialRF::print_evaluation(m)
 #>   - Spatial folds:                 29
 #> 
 #>     Metric Median   MAD Minimum Maximum
-#>  r.squared   0.45 0.173   0.154   0.724
+#>  r.squared  0.429 0.151   0.144   0.655
 ```
 
 ## Prediction
@@ -693,7 +711,7 @@ predicted <- predict(
   )$predictions
 
 head(predicted)
-#> [1]  4647.384  4153.188  1442.865  7102.369 12064.541  2866.975
+#> [1]  5015.487  4515.856  1439.082  7080.536 11423.504  2776.438
 ```
 
 ## Next steps
