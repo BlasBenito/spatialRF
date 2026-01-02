@@ -2,9 +2,6 @@ test_that("`rf_evaluate()` works", {
   data(plants_df)
   data(plants_distance)
 
-  # Use sequential plan for testing
-  future::plan(future::sequential)
-
   rf.model <- rf(
     data = plants_df,
     dependent.variable.name = "richness_species_vascular",
@@ -31,5 +28,4 @@ test_that("`rf_evaluate()` works", {
   expect_s3_class(rf.model$evaluation$per.fold, "data.frame")
   expect_s3_class(rf.model$evaluation$per.model, "data.frame")
   expect_s3_class(rf.model$evaluation$aggregated, "data.frame")
-
 })

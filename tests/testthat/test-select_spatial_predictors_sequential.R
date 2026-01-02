@@ -75,9 +75,7 @@ test_that("select_spatial_predictors_sequential() respects ranger.arguments", {
     predictor.variable.names = predictor.variable.names,
     distance.matrix = distance.matrix,
     distance.thresholds = distance.thresholds,
-    verbose = FALSE,
-    n.cores = 1,
-    seed = 1
+    verbose = FALSE
   )
 
   spatial.predictors <- pca_multithreshold(
@@ -95,7 +93,7 @@ test_that("select_spatial_predictors_sequential() respects ranger.arguments", {
 
   # CRITICAL TEST: Verify ranger.arguments are respected
   # The bug was that user-provided ranger.arguments were silently ignored
-  custom_num_trees <- 123  # Unusual value to easily detect if it's used
+  custom_num_trees <- 123 # Unusual value to easily detect if it's used
 
   selection <- select_spatial_predictors_sequential(
     data = data,
@@ -107,10 +105,8 @@ test_that("select_spatial_predictors_sequential() respects ranger.arguments", {
     spatial.predictors.ranking = spatial.predictors.ranked,
     ranger.arguments = list(
       num.trees = custom_num_trees,
-      importance = "permutation",
-      seed = 1
-    ),
-    n.cores = 1
+      importance = "permutation"
+    )
   )
 
   # Verify the function used our custom num.trees value

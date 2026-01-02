@@ -5,11 +5,9 @@ test_that("rf_importance() works with basic inputs", {
   model <- rf(
     data = plants_df[1:100, ],
     dependent.variable.name = "richness_species_vascular",
-    predictor.variable.names = colnames(plants_df)[5:9],  # Only 5 predictors
+    predictor.variable.names = colnames(plants_df)[5:9], # Only 5 predictors
     distance.matrix = plants_distance[1:100, 1:100],
-    verbose = FALSE,
-    seed = 1,
-    n.cores = 1
+    verbose = FALSE
   )
 
   model_with_importance <- rf_importance(
@@ -17,17 +15,26 @@ test_that("rf_importance() works with basic inputs", {
     xy = plants_xy[1:100, ],
     repetitions = 5,
     metric = "rmse",
-    verbose = FALSE,
-    seed = 1,
-    n.cores = 1
+    verbose = FALSE
   )
 
   expect_s3_class(model_with_importance, "rf")
   expect_s3_class(model_with_importance$importance$per.variable, "data.frame")
-  expect_true("importance.cv" %in% colnames(model_with_importance$importance$per.variable))
-  expect_true("importance.cv.mad" %in% colnames(model_with_importance$importance$per.variable))
-  expect_true("importance.cv.percent" %in% colnames(model_with_importance$importance$per.variable))
-  expect_true("importance.cv.percent.mad" %in% colnames(model_with_importance$importance$per.variable))
+  expect_true(
+    "importance.cv" %in% colnames(model_with_importance$importance$per.variable)
+  )
+  expect_true(
+    "importance.cv.mad" %in%
+      colnames(model_with_importance$importance$per.variable)
+  )
+  expect_true(
+    "importance.cv.percent" %in%
+      colnames(model_with_importance$importance$per.variable)
+  )
+  expect_true(
+    "importance.cv.percent.mad" %in%
+      colnames(model_with_importance$importance$per.variable)
+  )
 })
 
 test_that("rf_importance() creates correct plot objects", {
@@ -38,9 +45,7 @@ test_that("rf_importance() creates correct plot objects", {
     dependent.variable.name = "richness_species_vascular",
     predictor.variable.names = colnames(plants_df)[5:9],
     distance.matrix = plants_distance[1:100, 1:100],
-    verbose = FALSE,
-    seed = 1,
-    n.cores = 1
+    verbose = FALSE
   )
 
   model_with_importance <- rf_importance(
@@ -48,13 +53,17 @@ test_that("rf_importance() creates correct plot objects", {
     xy = plants_xy[1:100, ],
     repetitions = 5,
     metric = "rmse",
-    verbose = FALSE,
-    seed = 1,
-    n.cores = 1
+    verbose = FALSE
   )
 
-  expect_s3_class(model_with_importance$importance$cv.per.variable.plot, "ggplot")
-  expect_s3_class(model_with_importance$importance$oob.per.variable.plot, "ggplot")
+  expect_s3_class(
+    model_with_importance$importance$cv.per.variable.plot,
+    "ggplot"
+  )
+  expect_s3_class(
+    model_with_importance$importance$oob.per.variable.plot,
+    "ggplot"
+  )
 })
 
 test_that("rf_importance() works with different metrics", {
@@ -65,9 +74,7 @@ test_that("rf_importance() works with different metrics", {
     dependent.variable.name = "richness_species_vascular",
     predictor.variable.names = colnames(plants_df)[5:8],
     distance.matrix = plants_distance[1:100, 1:100],
-    verbose = FALSE,
-    seed = 1,
-    n.cores = 1
+    verbose = FALSE
   )
 
   model_r2 <- rf_importance(
@@ -75,9 +82,7 @@ test_that("rf_importance() works with different metrics", {
     xy = plants_xy[1:100, ],
     repetitions = 5,
     metric = "r.squared",
-    verbose = FALSE,
-    seed = 1,
-    n.cores = 1
+    verbose = FALSE
   )
 
   expect_true("importance.cv" %in% colnames(model_r2$importance$per.variable))
@@ -92,9 +97,7 @@ test_that("rf_importance() respects seed parameter", {
     dependent.variable.name = "richness_species_vascular",
     predictor.variable.names = colnames(plants_df)[5:7],
     distance.matrix = plants_distance[1:100, 1:100],
-    verbose = FALSE,
-    seed = 1,
-    n.cores = 1
+    verbose = FALSE
   )
 
   model1 <- rf_importance(
@@ -102,9 +105,7 @@ test_that("rf_importance() respects seed parameter", {
     xy = plants_xy[1:100, ],
     repetitions = 5,
     metric = "rmse",
-    verbose = FALSE,
-    seed = 123,
-    n.cores = 1
+    verbose = FALSE
   )
 
   # Create fresh model for second run
@@ -113,9 +114,7 @@ test_that("rf_importance() respects seed parameter", {
     dependent.variable.name = "richness_species_vascular",
     predictor.variable.names = colnames(plants_df)[5:7],
     distance.matrix = plants_distance[1:100, 1:100],
-    verbose = FALSE,
-    seed = 1,
-    n.cores = 1
+    verbose = FALSE
   )
 
   model2 <- rf_importance(
@@ -123,9 +122,7 @@ test_that("rf_importance() respects seed parameter", {
     xy = plants_xy[1:100, ],
     repetitions = 5,
     metric = "rmse",
-    verbose = FALSE,
-    seed = 123,
-    n.cores = 1
+    verbose = FALSE
   )
 
   expect_equal(
@@ -142,9 +139,7 @@ test_that("rf_importance() validates xy input", {
     dependent.variable.name = "richness_species_vascular",
     predictor.variable.names = colnames(plants_df)[5:7],
     distance.matrix = plants_distance[1:100, 1:100],
-    verbose = FALSE,
-    seed = 1,
-    n.cores = 1
+    verbose = FALSE
   )
 
   expect_error(
@@ -165,9 +160,7 @@ test_that("rf_importance() validates xy column names", {
     dependent.variable.name = "richness_species_vascular",
     predictor.variable.names = colnames(plants_df)[5:7],
     distance.matrix = plants_distance[1:100, 1:100],
-    verbose = FALSE,
-    seed = 1,
-    n.cores = 1
+    verbose = FALSE
   )
 
   xy_bad <- data.frame(a = 1:100, b = 1:100)
@@ -191,9 +184,7 @@ test_that("rf_importance() validates xy and data dimensions", {
     dependent.variable.name = "richness_species_vascular",
     predictor.variable.names = colnames(plants_df)[5:7],
     distance.matrix = plants_distance[1:100, 1:100],
-    verbose = FALSE,
-    seed = 1,
-    n.cores = 1
+    verbose = FALSE
   )
 
   xy_wrong_size <- plants_xy[1:50, ]
@@ -217,9 +208,7 @@ test_that("rf_importance() computes all importance columns", {
     dependent.variable.name = "richness_species_vascular",
     predictor.variable.names = colnames(plants_df)[5:7],
     distance.matrix = plants_distance[1:100, 1:100],
-    verbose = FALSE,
-    seed = 1,
-    n.cores = 1
+    verbose = FALSE
   )
 
   model_with_importance <- rf_importance(
@@ -227,9 +216,7 @@ test_that("rf_importance() computes all importance columns", {
     xy = plants_xy[1:100, ],
     repetitions = 5,
     metric = "r.squared",
-    verbose = FALSE,
-    seed = 1,
-    n.cores = 1
+    verbose = FALSE
   )
 
   imp_df <- model_with_importance$importance$per.variable
@@ -252,9 +239,7 @@ test_that("rf_importance() preserves original model structure", {
     dependent.variable.name = "richness_species_vascular",
     predictor.variable.names = colnames(plants_df)[5:7],
     distance.matrix = plants_distance[1:100, 1:100],
-    verbose = FALSE,
-    seed = 1,
-    n.cores = 1
+    verbose = FALSE
   )
 
   num_trees_before <- model$num.trees
@@ -265,9 +250,7 @@ test_that("rf_importance() preserves original model structure", {
     xy = plants_xy[1:100, ],
     repetitions = 5,
     metric = "rmse",
-    verbose = FALSE,
-    seed = 1,
-    n.cores = 1
+    verbose = FALSE
   )
 
   expect_equal(model_with_importance$num.trees, num_trees_before)
@@ -285,9 +268,7 @@ test_that("rf_importance() validates metric parameter", {
     dependent.variable.name = "richness_species_vascular",
     predictor.variable.names = colnames(plants_df)[5:7],
     distance.matrix = plants_distance[1:100, 1:100],
-    verbose = FALSE,
-    seed = 1,
-    n.cores = 1
+    verbose = FALSE
   )
 
   expect_error(
@@ -311,9 +292,7 @@ test_that("rf_importance() uses stored xy when not provided", {
     dependent.variable.name = "richness_species_vascular",
     predictor.variable.names = colnames(plants_df)[5:7],
     distance.matrix = plants_distance[1:100, 1:100],
-    verbose = FALSE,
-    seed = 1,
-    n.cores = 1
+    verbose = FALSE
   )
 
   # Store xy in model
@@ -324,11 +303,11 @@ test_that("rf_importance() uses stored xy when not provided", {
     model = model,
     repetitions = 5,
     metric = "rmse",
-    verbose = FALSE,
-    seed = 1,
-    n.cores = 1
+    verbose = FALSE
   )
 
   expect_s3_class(model_with_importance, "rf")
-  expect_true("importance.cv" %in% colnames(model_with_importance$importance$per.variable))
+  expect_true(
+    "importance.cv" %in% colnames(model_with_importance$importance$per.variable)
+  )
 })

@@ -81,130 +81,6 @@
 #' @family preprocessing
 #' @autoglobal
 #' @export
-
-# Helper function to test a single interaction
-# Reduces code duplication between multiplicative and PCA-based interactions
-.test_single_interaction <- function(
-  i,
-  variables.pairs,
-  data,
-  dependent.variable.name,
-  predictor.variable.names,
-  ranger.arguments.i,
-  seed,
-  repetitions,
-  training.fraction,
-  xy,
-  metric,
-  cor.threshold,
-  model.without.interactions.metric,
-  interaction_namer,
-  interaction_builder
-) {
-  # Get pair
-  pair.i <- c(variables.pairs[i, 1], variables.pairs[i, 2])
-  pair.i.name <- interaction_namer(pair.i)
-
-  # Rescale values
-  pair.i.1 <- rescale_vector(
-    x = data[, pair.i[1]],
-    new.min = 1,
-    new.max = 100
-  )
-  pair.i.2 <- rescale_vector(
-    x = data[, pair.i[2]],
-    new.min = 1,
-    new.max = 100
-  )
-
-  # Create interaction using builder function
-  interaction_value <- interaction_builder(pair.i.1, pair.i.2)
-
-  # Prepare data.i
-  data.i <- data.frame(
-    data,
-    interaction = interaction_value
-  )
-  colnames(data.i)[ncol(data.i)] <- pair.i.name
-
-  # Prepare predictor.variable.names.i
-  predictor.variable.names.i <- c(
-    predictor.variable.names,
-    pair.i.name
-  )
-
-  # Computing max correlation with predictors
-  cor.out <- stats::cor(data.i[, predictor.variable.names.i])
-  diag(cor.out) <- NA
-  max.cor <- max(cor.out[pair.i.name, ], na.rm = TRUE)
-
-  # If the maximum correlation is lower than the threshold, fit model
-  if (max.cor <= cor.threshold) {
-    # Without
-    model.i <- rf(
-      data = data.i,
-      dependent.variable.name = dependent.variable.name,
-      predictor.variable.names = predictor.variable.names.i,
-      ranger.arguments = ranger.arguments.i,
-      seed = seed,
-      n.cores = 1,
-      verbose = FALSE
-    )
-
-    # Evaluation
-    model.i <- rf_evaluate(
-      model = model.i,
-      repetitions = repetitions,
-      training.fraction = training.fraction,
-      xy = xy,
-      metrics = metric,
-      seed = seed,
-      verbose = FALSE
-    )
-
-    # Importance data frame
-    model.i.importance <- model.i$importance$per.variable
-
-    # Metric
-    model.i.evaluation <- model.i$evaluation$aggregated
-    model.i.metric <- model.i.evaluation[
-      model.i.evaluation$model == "Testing",
-      "median"
-    ]
-
-    # Gathering results
-    out.df <- data.frame(
-      interaction.name = pair.i.name,
-      interaction.importance = round(
-        (model.i.importance[
-          model.i.importance$variable == pair.i.name,
-          "importance"
-        ] *
-          100) /
-          max(model.i.importance$importance),
-        3
-      ),
-      interaction.metric.gain = model.i.metric -
-        model.without.interactions.metric,
-      max.cor.with.predictors = max.cor,
-      variable.a.name = pair.i[1],
-      variable.b.name = pair.i[2]
-    )
-  } else {
-    # Gathering results
-    out.df <- data.frame(
-      interaction.name = NA,
-      interaction.importance = NA,
-      interaction.metric.gain = NA,
-      max.cor.with.predictors = NA,
-      variable.a.name = NA,
-      variable.b.name = NA
-    )
-  }
-
-  return(out.df)
-}
-
 the_feature_engineer <- function(
   data = NULL,
   dependent.variable.name = NULL,
@@ -446,7 +322,11 @@ the_feature_engineer <- function(
   #adding column of selected interactions
   interaction.screening$selected <- ifelse(
     interaction.screening$interaction.metric.gain > 0.01 &
-      interaction.screening$interaction.importance >= stats::median(interaction.screening$interaction.importance, na.rm = TRUE),
+      interaction.screening$interaction.importance >=
+        stats::median(
+          interaction.screening$interaction.importance,
+          na.rm = TRUE
+        ),
     TRUE,
     FALSE
   )
@@ -716,4 +596,127 @@ the_feature_engineer <- function(
   }
 
   out.list
+}
+
+# Helper function to test a single interaction
+# Reduces code duplication between multiplicative and PCA-based interactions
+.test_single_interaction <- function(
+  i,
+  variables.pairs,
+  data,
+  dependent.variable.name,
+  predictor.variable.names,
+  ranger.arguments.i,
+  seed,
+  repetitions,
+  training.fraction,
+  xy,
+  metric,
+  cor.threshold,
+  model.without.interactions.metric,
+  interaction_namer,
+  interaction_builder
+) {
+  # Get pair
+  pair.i <- c(variables.pairs[i, 1], variables.pairs[i, 2])
+  pair.i.name <- interaction_namer(pair.i)
+
+  # Rescale values
+  pair.i.1 <- rescale_vector(
+    x = data[, pair.i[1]],
+    new.min = 1,
+    new.max = 100
+  )
+  pair.i.2 <- rescale_vector(
+    x = data[, pair.i[2]],
+    new.min = 1,
+    new.max = 100
+  )
+
+  # Create interaction using builder function
+  interaction_value <- interaction_builder(pair.i.1, pair.i.2)
+
+  # Prepare data.i
+  data.i <- data.frame(
+    data,
+    interaction = interaction_value
+  )
+  colnames(data.i)[ncol(data.i)] <- pair.i.name
+
+  # Prepare predictor.variable.names.i
+  predictor.variable.names.i <- c(
+    predictor.variable.names,
+    pair.i.name
+  )
+
+  # Computing max correlation with predictors
+  cor.out <- stats::cor(data.i[, predictor.variable.names.i])
+  diag(cor.out) <- NA
+  max.cor <- max(cor.out[pair.i.name, ], na.rm = TRUE)
+
+  # If the maximum correlation is lower than the threshold, fit model
+  if (max.cor <= cor.threshold) {
+    # Without
+    model.i <- rf(
+      data = data.i,
+      dependent.variable.name = dependent.variable.name,
+      predictor.variable.names = predictor.variable.names.i,
+      ranger.arguments = ranger.arguments.i,
+      seed = seed,
+      n.cores = 1,
+      verbose = FALSE
+    )
+
+    # Evaluation
+    model.i <- rf_evaluate(
+      model = model.i,
+      repetitions = repetitions,
+      training.fraction = training.fraction,
+      xy = xy,
+      metrics = metric,
+      seed = seed,
+      verbose = FALSE
+    )
+
+    # Importance data frame
+    model.i.importance <- model.i$importance$per.variable
+
+    # Metric
+    model.i.evaluation <- model.i$evaluation$aggregated
+    model.i.metric <- model.i.evaluation[
+      model.i.evaluation$model == "Testing",
+      "median"
+    ]
+
+    # Gathering results
+    out.df <- data.frame(
+      interaction.name = pair.i.name,
+      interaction.importance = round(
+        (model.i.importance[
+          model.i.importance$variable == pair.i.name,
+          "importance"
+        ] *
+          100) /
+          max(model.i.importance$importance),
+        3
+      ),
+      interaction.metric.gain = model.i.metric -
+        model.without.interactions.metric,
+      max.cor.with.predictors = max.cor,
+      variable.a.name = pair.i[1],
+      variable.b.name = pair.i[2]
+    )
+  } else {
+    # Gathering results
+    out.df <- data.frame(
+      interaction.name = NA,
+      interaction.importance = NA,
+      interaction.metric.gain = NA,
+      max.cor.with.predictors = NA,
+      variable.a.name = NA,
+      variable.b.name = NA
+    )
+  }
+
+  return(out.df)
 }

@@ -2,9 +2,6 @@ test_that("`rf_repeat()` works", {
   data("plants_df")
   data("plants_distance")
 
-  # Use sequential plan for testing
-  future::plan(future::sequential)
-
   out <- rf_repeat(
     data = plants_df,
     dependent.variable.name = "richness_species_vascular",
@@ -24,5 +21,4 @@ test_that("`rf_repeat()` works", {
     out$residuals$autocorrelation$per.distance,
     c("distance.threshold", "moran.i", "p.value", "interpretation")
   )
-
 })

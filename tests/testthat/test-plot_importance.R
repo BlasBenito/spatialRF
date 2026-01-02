@@ -1,3 +1,11 @@
+test_that("`plot_importance()` works", {
+  data(plants_rf)
+
+  p <- plot_importance(plants_rf, verbose = FALSE)
+  expect_equal(inherits(p, "ggplot"), TRUE)
+})
+
+
 test_that("plot_importance() works with rf models", {
   data(plants_rf)
 
@@ -130,9 +138,7 @@ test_that("plot_importance() handles models with few variables", {
     dependent.variable.name = "richness_species_vascular",
     predictor.variable.names = colnames(plants_df)[5:7],
     distance.matrix = plants_distance[1:100, 1:100],
-    verbose = FALSE,
-    seed = 1,
-    n.cores = 1
+    verbose = FALSE
   )
 
   p <- plot_importance(model_small, verbose = FALSE)
@@ -188,9 +194,7 @@ test_that("plot_importance() works with rf_repeat models", {
     predictor.variable.names = colnames(plants_df)[5:11],
     distance.matrix = plants_distance[1:100, 1:100],
     repetitions = 5,
-    verbose = FALSE,
-    n.cores = 1,
-    seed = 1
+    verbose = FALSE
   )
 
   p <- plot_importance(model_repeat, verbose = FALSE)
@@ -210,9 +214,7 @@ test_that("plot_importance() works with rf_repeat spatial models", {
   model_spatial_repeat <- rf_repeat(
     model = plants_rf_spatial,
     repetitions = 5,
-    verbose = FALSE,
-    n.cores = 1,
-    seed = 1
+    verbose = FALSE
   )
 
   p <- plot_importance(model_spatial_repeat, verbose = FALSE)
@@ -234,9 +236,7 @@ test_that("plot_importance() handles rf_repeat with custom colors", {
     predictor.variable.names = colnames(plants_df)[5:9],
     distance.matrix = plants_distance[1:80, 1:80],
     repetitions = 5,
-    verbose = FALSE,
-    n.cores = 1,
-    seed = 1
+    verbose = FALSE
   )
 
   # Test with custom fill colors
@@ -259,9 +259,7 @@ test_that("plot_importance() rf_repeat respects line.color parameter", {
     predictor.variable.names = colnames(plants_df)[5:8],
     distance.matrix = plants_distance[1:80, 1:80],
     repetitions = 5,
-    verbose = FALSE,
-    n.cores = 1,
-    seed = 1
+    verbose = FALSE
   )
 
   p <- plot_importance(

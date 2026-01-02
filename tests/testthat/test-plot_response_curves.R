@@ -1,3 +1,12 @@
+test_that("`plot_response_surfaces()` works", {
+  data(plants_rf)
+  p <- plot_response_curves(plants_rf)
+  testthat::expect_true(
+    inherits(p, "patchwork")
+  )
+})
+
+
 test_that("plot_response_curves() works with rf models", {
   data(plants_rf)
 
@@ -13,7 +22,7 @@ test_that("plot_response_curves() works with specific variables", {
   p <- plot_response_curves(
     plants_rf,
     variables = "climate_bio1_average",
-  # Returns ggplot for single variable
+    # Returns ggplot for single variable
     verbose = FALSE
   )
 
@@ -40,7 +49,7 @@ test_that("plot_response_curves() works with show.data = TRUE", {
   p <- plot_response_curves(
     plants_rf,
     variables = "climate_bio1_average",
-  # Returns ggplot for single variable
+    # Returns ggplot for single variable
     show.data = TRUE,
     verbose = FALSE
   )
@@ -55,7 +64,7 @@ test_that("plot_response_curves() works with custom quantiles", {
   p <- plot_response_curves(
     plants_rf,
     variables = "climate_bio1_average",
-  # Returns ggplot for single variable
+    # Returns ggplot for single variable
     quantiles = c(0.25, 0.75),
     verbose = FALSE
   )
@@ -70,7 +79,7 @@ test_that("plot_response_curves() works with custom grid.resolution", {
   p <- plot_response_curves(
     plants_rf,
     variables = "climate_bio1_average",
-  # Returns ggplot for single variable
+    # Returns ggplot for single variable
     grid.resolution = 50,
     verbose = FALSE
   )
@@ -85,7 +94,7 @@ test_that("plot_response_curves() works with custom line.color", {
   p <- plot_response_curves(
     plants_rf,
     variables = "climate_bio1_average",
-  # Returns ggplot for single variable
+    # Returns ggplot for single variable
     line.color = c("blue", "green", "red"),
     verbose = FALSE
   )
@@ -128,7 +137,7 @@ test_that("plot_response_curves() handles insufficient line colors", {
     p <- plot_response_curves(
       plants_rf,
       variables = "climate_bio1_average",
-  # Returns ggplot for single variable
+      # Returns ggplot for single variable
       quantiles = c(0.1, 0.5, 0.9),
       line.color = c("blue"),
       verbose = TRUE
@@ -146,7 +155,7 @@ test_that("plot_response_curves() handles excess line colors", {
   p <- plot_response_curves(
     plants_rf,
     variables = "climate_bio1_average",
-  # Returns ggplot for single variable
+    # Returns ggplot for single variable
     quantiles = c(0.5),
     line.color = c("blue", "green", "red", "yellow"),
     verbose = FALSE
@@ -162,7 +171,7 @@ test_that("plot_response_curves() works with single quantile", {
   p <- plot_response_curves(
     plants_rf,
     variables = "climate_bio1_average",
-  # Returns ggplot for single variable
+    # Returns ggplot for single variable
     quantiles = 0.5,
     verbose = FALSE
   )
@@ -179,7 +188,7 @@ test_that("plot_response_curves() verbose parameter controls printing", {
     p <- plot_response_curves(
       plants_rf,
       variables = "climate_bio1_average",
-  # Returns ggplot for single variable
+      # Returns ggplot for single variable
       verbose = FALSE
     )
   )
@@ -194,7 +203,7 @@ test_that("plot_response_curves() works with different color palettes", {
   p <- plot_response_curves(
     plants_rf,
     variables = "climate_bio1_average",
-  # Returns ggplot for single variable
+    # Returns ggplot for single variable
     line.color = grDevices::hcl.colors(3, palette = "Blues"),
     verbose = FALSE
   )
@@ -224,7 +233,7 @@ test_that("plot_response_curves() works with varying grid resolutions", {
   p1 <- plot_response_curves(
     plants_rf,
     variables = "climate_bio1_average",
-  # Returns ggplot for single variable
+    # Returns ggplot for single variable
     grid.resolution = 20,
     verbose = FALSE
   )
@@ -233,7 +242,7 @@ test_that("plot_response_curves() works with varying grid resolutions", {
   p2 <- plot_response_curves(
     plants_rf,
     variables = "climate_bio1_average",
-  # Returns ggplot for single variable
+    # Returns ggplot for single variable
     grid.resolution = 500,
     verbose = FALSE
   )
@@ -248,7 +257,7 @@ test_that("plot_response_curves() combines show.data with custom parameters", {
   p <- plot_response_curves(
     plants_rf,
     variables = "climate_bio1_average",
-  # Returns ggplot for single variable
+    # Returns ggplot for single variable
     quantiles = c(0.25, 0.75),
     show.data = TRUE,
     line.color = c("red", "blue"),

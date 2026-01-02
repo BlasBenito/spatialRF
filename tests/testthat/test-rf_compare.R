@@ -9,9 +9,7 @@ test_that("rf_compare() works with basic inputs", {
     xy = plants_xy,
     repetitions = 5,
     metrics = "rmse",
-    verbose = FALSE,
-    n.cores = 1,
-    seed = 1
+    verbose = FALSE
   )
 
   expect_type(comparison, "list")
@@ -33,12 +31,12 @@ test_that("rf_compare() handles multiple metrics", {
     xy = plants_xy,
     repetitions = 5,
     metrics = c("rmse", "r.squared"),
-    verbose = FALSE,
-    n.cores = 1,
-    seed = 1
+    verbose = FALSE
   )
 
-  expect_true(all(c("rmse", "r.squared") %in% unique(comparison$comparison.df$metric)))
+  expect_true(all(
+    c("rmse", "r.squared") %in% unique(comparison$comparison.df$metric)
+  ))
   expect_equal(length(unique(comparison$comparison.df$metric)), 2)
 })
 
@@ -58,13 +56,13 @@ test_that("rf_compare() works with more than two models", {
     xy = plants_xy,
     repetitions = 5,
     metrics = "rmse",
-    verbose = FALSE,
-    n.cores = 1,
-    seed = 1
+    verbose = FALSE
   )
 
   expect_equal(length(unique(comparison$comparison.df$model)), 3)
-  expect_true(all(c("model1", "model2", "model3") %in% unique(comparison$comparison.df$model)))
+  expect_true(all(
+    c("model1", "model2", "model3") %in% unique(comparison$comparison.df$model)
+  ))
 })
 
 test_that("rf_compare() comparison.df has correct structure", {
@@ -78,9 +76,7 @@ test_that("rf_compare() comparison.df has correct structure", {
     xy = plants_xy,
     repetitions = 5,
     metrics = "rmse",
-    verbose = FALSE,
-    n.cores = 1,
-    seed = 1
+    verbose = FALSE
   )
 
   expect_named(comparison$comparison.df, c("metric", "value", "model"))
@@ -98,9 +94,7 @@ test_that("rf_compare() respects seed parameter", {
     xy = plants_xy,
     repetitions = 5,
     metrics = "rmse",
-    verbose = FALSE,
-    n.cores = 1,
-    seed = 123
+    verbose = FALSE
   )
 
   comparison2 <- rf_compare(
@@ -108,9 +102,7 @@ test_that("rf_compare() respects seed parameter", {
     xy = plants_xy,
     repetitions = 5,
     metrics = "rmse",
-    verbose = FALSE,
-    n.cores = 1,
-    seed = 123
+    verbose = FALSE
   )
 
   expect_equal(
@@ -127,9 +119,7 @@ test_that("rf_compare() respects repetitions parameter", {
     xy = plants_xy,
     repetitions = 5,
     metrics = "rmse",
-    verbose = FALSE,
-    n.cores = 1,
-    seed = 1
+    verbose = FALSE
   )
 
   # Each model gets evaluated on 'repetitions' folds
@@ -186,9 +176,7 @@ test_that("rf_compare() plot uses correct metric labels", {
     xy = plants_xy,
     repetitions = 5,
     metrics = c("r.squared", "rmse"),
-    verbose = FALSE,
-    n.cores = 1,
-    seed = 1
+    verbose = FALSE
   )
 
   # Plot data should have pretty labels
@@ -204,9 +192,7 @@ test_that("rf_compare() works with all metrics", {
     xy = plants_xy,
     repetitions = 5,
     metrics = c("r.squared", "pseudo.r.squared", "rmse", "nrmse"),
-    verbose = FALSE,
-    n.cores = 1,
-    seed = 1
+    verbose = FALSE
   )
 
   expect_equal(
@@ -214,8 +200,10 @@ test_that("rf_compare() works with all metrics", {
     4
   )
   expect_true(
-    all(c("r.squared", "pseudo.r.squared", "rmse", "nrmse") %in%
-      unique(comparison$comparison.df$metric))
+    all(
+      c("r.squared", "pseudo.r.squared", "rmse", "nrmse") %in%
+        unique(comparison$comparison.df$metric)
+    )
   )
 })
 
@@ -227,9 +215,7 @@ test_that("rf_compare() spatial.folds has correct structure", {
     xy = plants_xy,
     repetitions = 5,
     metrics = "rmse",
-    verbose = FALSE,
-    n.cores = 1,
-    seed = 1
+    verbose = FALSE
   )
 
   expect_s3_class(comparison$spatial.folds, "data.frame")
@@ -239,7 +225,7 @@ test_that("rf_compare() spatial.folds has correct structure", {
   # Each fold should be a logical vector with training and testing records
   for (i in seq_len(ncol(comparison$spatial.folds))) {
     expect_type(comparison$spatial.folds[[i]], "logical")
-    expect_true(sum(comparison$spatial.folds[[i]]) > 0)  # Has training records
-    expect_true(sum(!comparison$spatial.folds[[i]]) > 0)  # Has testing records
+    expect_true(sum(comparison$spatial.folds[[i]]) > 0) # Has training records
+    expect_true(sum(!comparison$spatial.folds[[i]]) > 0) # Has testing records
   }
 })

@@ -16,6 +16,7 @@
 #'
 #' @rdname plot_residuals_diagnostics
 #' @family visualization
+#' @importFrom patchwork plot_annotation wrap_plots
 #' @export
 #' @autoglobal
 plot_residuals_diagnostics <- function(

@@ -1,3 +1,27 @@
+test_that("`rank_spatial_predictors()` works", {
+  data("plants_distance")
+  spatial.predictors.df <- pca_multithreshold(
+    plants_distance[1:50, 1:50],
+    distance.thresholds = c(0, 100, 1000)
+  )
+
+  rank <- rank_spatial_predictors(
+    distance.matrix = plants_distance[1:50, 1:50],
+    distance.thresholds = c(0, 100, 1000),
+    spatial.predictors.df = spatial.predictors.df,
+    ranking.method = "moran"
+  )
+
+  expect_type(rank, "list")
+  expect_named(
+    rank,
+    c("method", "criteria", "ranking", "spatial.predictors.df")
+  )
+  expect_length(rank, 4)
+  expect_s3_class(rank$criteria, "data.frame")
+})
+
+
 test_that("rank_spatial_predictors() works with method = 'moran'", {
   data(plants_df, plants_distance)
 
@@ -12,12 +36,14 @@ test_that("rank_spatial_predictors() works with method = 'moran'", {
     distance.thresholds = 1000,
     spatial.predictors.df = spatial_preds,
     ranking.method = "moran",
-    verbose = FALSE,
-    n.cores = 1
+    verbose = FALSE
   )
 
   expect_type(result, "list")
-  expect_named(result, c("method", "criteria", "ranking", "spatial.predictors.df"))
+  expect_named(
+    result,
+    c("method", "criteria", "ranking", "spatial.predictors.df")
+  )
   expect_equal(result$method, "moran")
   expect_s3_class(result$criteria, "data.frame")
   expect_true(is.character(result$ranking))
@@ -40,12 +66,14 @@ test_that("rank_spatial_predictors() works with method = 'effect'", {
     distance.thresholds = 1000,
     spatial.predictors.df = spatial_preds,
     ranking.method = "effect",
-    verbose = FALSE,
-    n.cores = 1
+    verbose = FALSE
   )
 
   expect_type(result, "list")
-  expect_named(result, c("method", "criteria", "ranking", "spatial.predictors.df"))
+  expect_named(
+    result,
+    c("method", "criteria", "ranking", "spatial.predictors.df")
+  )
   expect_equal(result$method, "effect")
   expect_s3_class(result$criteria, "data.frame")
 
@@ -68,8 +96,7 @@ test_that("rank_spatial_predictors() output structure is correct", {
     distance.thresholds = 1000,
     spatial.predictors.df = spatial_preds,
     ranking.method = "moran",
-    verbose = FALSE,
-    n.cores = 1
+    verbose = FALSE
   )
 
   # Check all required components
@@ -98,8 +125,7 @@ test_that("rank_spatial_predictors() filters redundant predictors", {
     distance.thresholds = c(0, 500, 1000),
     spatial.predictors.df = spatial_preds,
     ranking.method = "moran",
-    verbose = FALSE,
-    n.cores = 1
+    verbose = FALSE
   )
 
   # Should filter out some redundant predictors
@@ -122,8 +148,7 @@ test_that("rank_spatial_predictors() verbose parameter works", {
       distance.thresholds = 1000,
       spatial.predictors.df = spatial_preds,
       ranking.method = "moran",
-      verbose = FALSE,
-      n.cores = 1
+      verbose = FALSE
     )
   )
 
@@ -143,8 +168,7 @@ test_that("rank_spatial_predictors() handles multiple distance thresholds", {
     distance.thresholds = c(0, 1000, 2000),
     spatial.predictors.df = spatial_preds,
     ranking.method = "moran",
-    verbose = FALSE,
-    n.cores = 1
+    verbose = FALSE
   )
 
   expect_type(result, "list")

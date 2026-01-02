@@ -1,4 +1,4 @@
-test_that("`get_importance()` works", {
+test_that("`get_importance_local()` works", {
   data(plants_df)
   data(plants_distance)
   rf.model <- rf(
@@ -9,34 +9,32 @@ test_that("`get_importance()` works", {
     distance.thresholds = c(0, 1000, 2000),
     verbose = FALSE
   )
-  x <- get_importance(rf.model)
+  x <- get_importance_local(rf.model)
   expect_s3_class(x, "data.frame")
-  expect_named(x, c("variable", "importance"))
+  expect_true(all(colnames(plants_df)[5:21] %in% colnames(x)))
 })
 
-test_that("get_importance() works with rf models", {
+test_that("get_importance_local() works with rf models", {
   data(plants_rf)
+  data(plants_df)
 
-  x <- get_importance(plants_rf)
+  x <- get_importance_local(plants_rf)
 
   expect_s3_class(x, "data.frame")
-  expect_named(x, c("variable", "importance"))
-  expect_true(nrow(x) > 0)
-  expect_true(is.character(x$variable))
-  expect_true(is.numeric(x$importance))
+  expect_true(all(colnames(plants_df)[5:21] %in% colnames(x)))
 })
 
-test_that("get_importance() works with rf_spatial models", {
+test_that("get_importance_local() works with rf_spatial models", {
   data(plants_rf_spatial)
+  data(plants_df)
 
-  x <- get_importance(plants_rf_spatial)
+  x <- get_importance_local(plants_rf_spatial)
 
   expect_s3_class(x, "data.frame")
-  expect_named(x, c("variable", "importance"))
-  expect_true(nrow(x) > 0)
+  expect_true(all(colnames(plants_df)[5:21] %in% colnames(x)))
 })
 
-test_that("get_importance() works with rf_repeat models", {
+test_that("get_importance_local() works with rf_repeat models", {
   data(plants_df, plants_distance)
 
   # Create rf_repeat model
@@ -49,14 +47,13 @@ test_that("get_importance() works with rf_repeat models", {
     verbose = FALSE
   )
 
-  x <- get_importance(model_repeat)
+  x <- get_importance_local(model_repeat)
 
   expect_s3_class(x, "data.frame")
-  expect_named(x, c("variable", "importance"))
-  expect_true(nrow(x) > 0)
+  expect_true(all(colnames(plants_df)[5:21] %in% colnames(x)))
 })
 
-test_that("get_importance() works with rf_spatial rf_repeat models", {
+test_that("get_importance_local() works with rf_spatial rf_repeat models", {
   data(plants_rf_spatial)
 
   # Create rf_repeat from spatial model
@@ -66,26 +63,26 @@ test_that("get_importance() works with rf_spatial rf_repeat models", {
     verbose = FALSE
   )
 
-  x <- get_importance(model_spatial_repeat)
+  x <- get_importance_local(model_spatial_repeat)
 
   expect_s3_class(x, "data.frame")
   expect_named(x, c("variable", "importance"))
   expect_true(nrow(x) > 0)
 })
 
-test_that("get_importance() sorts by decreasing importance", {
+test_that("get_importance_local() sorts by decreasing importance", {
   data(plants_rf)
 
-  x <- get_importance(plants_rf)
+  x <- get_importance_local(plants_rf)
 
   # Check that importance is sorted in decreasing order
   expect_true(all(diff(x$importance) <= 0))
 })
 
-test_that("get_importance() returns correct structure", {
+test_that("get_importance_local() returns correct structure", {
   data(plants_rf)
 
-  x <- get_importance(plants_rf)
+  x <- get_importance_local(plants_rf)
 
   # Should have two columns
   expect_equal(ncol(x), 2)
@@ -97,10 +94,10 @@ test_that("get_importance() returns correct structure", {
   expect_true(all(is.numeric(x$importance)))
 })
 
-test_that("get_importance() handles spatial models with many spatial predictors", {
+test_that("get_importance_local() handles spatial models with many spatial predictors", {
   data(plants_rf_spatial)
 
-  x <- get_importance(plants_rf_spatial)
+  x <- get_importance_local(plants_rf_spatial)
 
   expect_s3_class(x, "data.frame")
   expect_named(x, c("variable", "importance"))
@@ -111,10 +108,10 @@ test_that("get_importance() handles spatial models with many spatial predictors"
   expect_true(any(spatial_vars) | !any(spatial_vars)) # Either has or doesn't have spatial vars
 })
 
-test_that("get_importance() extracts correct variable names", {
+test_that("get_importance_local() extracts correct variable names", {
   data(plants_rf)
 
-  x <- get_importance(plants_rf)
+  x <- get_importance_local(plants_rf)
 
   expect_s3_class(x, "data.frame")
   expect_named(x, c("variable", "importance"))
@@ -123,16 +120,16 @@ test_that("get_importance() extracts correct variable names", {
   expect_true(all(nchar(x$variable) > 0))
 })
 
-test_that("get_importance() all variables have unique importance", {
+test_that("get_importance_local() all variables have unique importance", {
   data(plants_rf)
 
-  x <- get_importance(plants_rf)
+  x <- get_importance_local(plants_rf)
 
   # All variables should be unique
   expect_equal(length(unique(x$variable)), nrow(x))
 })
 
-test_that("get_importance() works with models with few predictors", {
+test_that("get_importance_local() works with models with few predictors", {
   data(plants_df, plants_distance)
 
   # Fit model with only 3 predictors
@@ -144,35 +141,35 @@ test_that("get_importance() works with models with few predictors", {
     verbose = FALSE
   )
 
-  x <- get_importance(model_small)
+  x <- get_importance_local(model_small)
 
   expect_s3_class(x, "data.frame")
   expect_equal(nrow(x), 3)
 })
 
-test_that("get_importance() works with models with many predictors", {
+test_that("get_importance_local() works with models with many predictors", {
   data(plants_rf)
 
-  x <- get_importance(plants_rf)
+  x <- get_importance_local(plants_rf)
 
   expect_s3_class(x, "data.frame")
   expect_true(nrow(x) > 10)
 })
 
-test_that("get_importance() preserves all predictor names", {
+test_that("get_importance_local() preserves all predictor names", {
   data(plants_rf)
 
-  x <- get_importance(plants_rf)
+  x <- get_importance_local(plants_rf)
 
   # All variables should be character strings
   expect_true(all(nchar(x$variable) > 0))
   expect_true(all(!is.na(x$variable)))
 })
 
-test_that("get_importance() importance values are valid", {
+test_that("get_importance_local() importance values are valid", {
   data(plants_rf)
 
-  x <- get_importance(plants_rf)
+  x <- get_importance_local(plants_rf)
 
   # All importance values should be numeric and not NA
   expect_true(all(is.numeric(x$importance)))
@@ -181,11 +178,11 @@ test_that("get_importance() importance values are valid", {
   expect_true(all(is.finite(x$importance)))
 })
 
-test_that("get_importance() works with different model types", {
+test_that("get_importance_local() works with different model types", {
   data(plants_rf, plants_rf_spatial)
 
-  x1 <- get_importance(plants_rf)
-  x2 <- get_importance(plants_rf_spatial)
+  x1 <- get_importance_local(plants_rf)
+  x2 <- get_importance_local(plants_rf_spatial)
 
   # Both should produce valid data frames
   expect_s3_class(x1, "data.frame")

@@ -1,3 +1,19 @@
+test_that("`make_spatial_fold()` works", {
+  data(plants_df)
+  xy <- plants_df[, 1:3]
+  colnames(xy) <- c("id", "x", "y")
+  out <- make_spatial_fold(
+    xy.i = xy[1, ],
+    xy = xy,
+    training.fraction = 0.6
+  )
+  expect_type(out, "logical")
+  expect_length(out, nrow(xy))
+  expect_true(sum(out) > 0)
+  expect_true(sum(!out) > 0)
+})
+
+
 test_that("make_spatial_fold() validates xy.i column names", {
   data(plants_xy)
 
@@ -68,8 +84,8 @@ test_that("make_spatial_fold() works with basic inputs", {
   expect_length(result, nrow(plants_xy))
 
   # Check that we have both training and testing records
-  expect_true(sum(result) > 0)  # Has training records
-  expect_true(sum(!result) > 0)  # Has testing records
+  expect_true(sum(result) > 0) # Has training records
+  expect_true(sum(!result) > 0) # Has testing records
 
   # Check that training and testing together cover all records
   expect_equal(sum(result) + sum(!result), nrow(plants_xy))
@@ -118,8 +134,8 @@ test_that("make_spatial_fold() works with custom distance steps", {
   )
 
   expect_type(result, "logical")
-  expect_true(sum(result) > 0)  # Has training records
-  expect_true(sum(!result) > 0)  # Has testing records
+  expect_true(sum(result) > 0) # Has training records
+  expect_true(sum(!result) > 0) # Has testing records
 })
 
 test_that("make_spatial_fold() works with different training.fraction values", {
@@ -147,8 +163,10 @@ test_that("make_spatial_fold() works with binary response variable", {
 
   # Create binary response
   plants_df$binary_response <- ifelse(
-    plants_df$richness_species_vascular > median(plants_df$richness_species_vascular),
-    1, 0
+    plants_df$richness_species_vascular >
+      median(plants_df$richness_species_vascular),
+    1,
+    0
   )
 
   result <- make_spatial_fold(
@@ -161,8 +179,8 @@ test_that("make_spatial_fold() works with binary response variable", {
 
   expect_type(result, "logical")
   expect_length(result, 100)
-  expect_true(sum(result) > 0)  # Has training records
-  expect_true(sum(!result) > 0)  # Has testing records
+  expect_true(sum(result) > 0) # Has training records
+  expect_true(sum(!result) > 0) # Has testing records
 
   # Verify complete coverage
   expect_equal(sum(result) + sum(!result), 100)
@@ -173,8 +191,10 @@ test_that("make_spatial_fold() respects training.fraction for binary response", 
 
   # Create binary response with known distribution
   plants_df$binary_response <- ifelse(
-    plants_df$richness_species_vascular > median(plants_df$richness_species_vascular),
-    1, 0
+    plants_df$richness_species_vascular >
+      median(plants_df$richness_species_vascular),
+    1,
+    0
   )
 
   result <- make_spatial_fold(
@@ -225,10 +245,14 @@ test_that("make_spatial_fold() preserves spatial structure", {
   focal_x <- plants_xy$x[1]
   focal_y <- plants_xy$y[1]
 
-  mean_dist_training <- mean(sqrt((training_coords$x - focal_x)^2 +
-                                   (training_coords$y - focal_y)^2))
-  mean_dist_testing <- mean(sqrt((testing_coords$x - focal_x)^2 +
-                                  (testing_coords$y - focal_y)^2))
+  mean_dist_training <- mean(sqrt(
+    (training_coords$x - focal_x)^2 +
+      (training_coords$y - focal_y)^2
+  ))
+  mean_dist_testing <- mean(sqrt(
+    (testing_coords$x - focal_x)^2 +
+      (testing_coords$y - focal_y)^2
+  ))
 
   expect_true(mean_dist_training < mean_dist_testing)
 })

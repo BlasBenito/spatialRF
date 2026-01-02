@@ -1,3 +1,10 @@
+test_that("`plot_moran()` works", {
+  data(plants_rf)
+
+  p <- plot_moran(plants_rf, verbose = FALSE)
+  expect_equal(inherits(p, "ggplot"), TRUE)
+})
+
 test_that("plot_moran() works with rf models - option 1", {
   data(plants_rf)
 
@@ -46,9 +53,7 @@ test_that("plot_moran() works with rf_repeat models - option 1", {
     predictor.variable.names = colnames(plants_df)[5:11],
     distance.matrix = plants_distance[1:100, 1:100],
     repetitions = 5,
-    verbose = FALSE,
-    n.cores = 1,
-    seed = 1
+    verbose = FALSE
   )
 
   p <- plot_moran(model_repeat, verbose = FALSE)
@@ -70,9 +75,7 @@ test_that("plot_moran() works with data frame input from moran()", {
     dependent.variable.name = "richness_species_vascular",
     predictor.variable.names = colnames(plants_df)[5:11],
     distance.matrix = plants_distance[1:100, 1:100],
-    verbose = FALSE,
-    n.cores = 1,
-    seed = 1
+    verbose = FALSE
   )
 
   residuals <- get_residuals(model)
@@ -155,9 +158,7 @@ test_that("plot_moran() data frame input forces option 1", {
     dependent.variable.name = "richness_species_vascular",
     predictor.variable.names = colnames(plants_df)[5:11],
     distance.matrix = plants_distance[1:100, 1:100],
-    verbose = FALSE,
-    n.cores = 1,
-    seed = 1
+    verbose = FALSE
   )
 
   residuals <- get_residuals(model)
@@ -236,10 +237,8 @@ test_that("plot_moran() handles models with single distance threshold", {
     dependent.variable.name = "richness_species_vascular",
     predictor.variable.names = colnames(plants_df)[5:11],
     distance.matrix = plants_distance[1:100, 1:100],
-    distance.thresholds = 1000,  # Single threshold
-    verbose = FALSE,
-    n.cores = 1,
-    seed = 1
+    distance.thresholds = 1000, # Single threshold
+    verbose = FALSE
   )
 
   # Option 1 should work
