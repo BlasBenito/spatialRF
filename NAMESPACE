@@ -2,6 +2,7 @@
 
 S3method(print,rf)
 export(default_distance_thresholds)
+export(distance_matrix)
 export(double_center_distance_matrix)
 export(filter_spatial_predictors)
 export(get_evaluation)

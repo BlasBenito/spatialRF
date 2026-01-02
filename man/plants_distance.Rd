@@ -14,6 +14,8 @@ data(plants_distance)
 Distance matrix (in km) between the edges of American ecoregions in \link{plants_df}.
 }
 \seealso{
+\code{\link[=distance_matrix]{distance_matrix()}} for creating custom distance matrices from coordinates.
+
 Other data: 
 \code{\link{plants_df}},
 \code{\link{plants_predictors}},

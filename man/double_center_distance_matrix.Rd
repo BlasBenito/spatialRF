@@ -45,6 +45,7 @@ head(colMeans(centered))
 
 Other preprocessing: 
 \code{\link{default_distance_thresholds}()},
+\code{\link{distance_matrix}()},
 \code{\link{is_binary}()},
 \code{\link{make_spatial_fold}()},
 \code{\link{make_spatial_folds}()},

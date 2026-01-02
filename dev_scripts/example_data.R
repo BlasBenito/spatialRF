@@ -9,6 +9,15 @@ plants_xy <- plant_richness_df[, c("x", "y")]
 plants_response <- "richness_species_vascular"
 plants_predictors <- colnames(plant_richness_df)[5:21]
 
+# Note: Distance matrix can also be created using distance_matrix() function:
+# plants_distance_alt <- distance_matrix(
+#   x = plant_richness_df,
+#   units = "km",
+#   verbose = TRUE
+# )
+# This would auto-detect that the data frame has longitude/latitude columns
+# and compute great circle distances in kilometers.
+
 
 usethis::use_data(plants_df, overwrite = TRUE)
 usethis::use_data(plants_distance, overwrite = TRUE)

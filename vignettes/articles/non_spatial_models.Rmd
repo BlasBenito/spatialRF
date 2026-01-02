@@ -73,6 +73,61 @@ colors <- grDevices::hcl.colors(
     )
 ```
 
+## Computing distance matrices
+
+::: {.alert .alert-info}
+**New function to compute distance matrices**
+
+You can now create your own distance matrices from spatial coordinates using the [`distance_matrix()`](https://blasbenito.github.io/spatialRF/reference/distance_matrix.html) function. This is useful when working with your own datasets or when you need to recompute distances using different methods.
+:::
+
+The package includes the pre-computed distance matrix `plants_distance`, but you can compute a similar matrix from the coordinates in `plants_df`:
+
+```{r}
+# Compute distance matrix from plants_df coordinates
+# The columns 'x' and 'y' in plants_df contain longitude and latitude
+# We need to rename them for proper geographic distance detection
+plants_coords <- plants_df
+names(plants_coords)[names(plants_coords) == "x"] <- "longitude"
+names(plants_coords)[names(plants_coords) == "y"] <- "latitude"
+
+# Compute distance matrix in kilometers
+my_distance_matrix <- distance_matrix(
+  x = plants_coords,
+  units = "km",
+  verbose = FALSE
+)
+
+# Check dimensions
+dim(my_distance_matrix)
+
+# View a subset
+my_distance_matrix[1:5, 1:5]
+```
+
+The `distance_matrix()` function:
+
+- Auto-detects coordinate types: geographic (lon/lat) uses geodesic distances, projected (x/y) uses Euclidean distances
+- Supports data frames, numeric vectors, and sf objects
+- Uses `sf::st_distance()` internally for accurate distance calculations
+- Returns a matrix compatible with all spatialRF functions
+
+```{r, eval=FALSE}
+# Other input formats:
+
+# From separate coordinate vectors
+dm <- distance_matrix(
+  x = c(-122.4, -73.9, -87.6),  # longitudes
+  y = c(37.8, 40.7, 41.9),      # latitudes
+  units = "km"
+)
+
+# From sf objects (requires sf package)
+library(sf)
+pts <- st_as_sf(plants_coords, coords = c("longitude", "latitude"), crs = 4326)
+dm <- distance_matrix(pts, units = "km")
+```
+
 The figure below shows the response variable *richness_species_vascular* in space.
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.width=6, fig.height=5.5}

@@ -33,6 +33,7 @@
 #' @description Distance matrix (in km) between the edges of American ecoregions in [plants_df].
 #' @usage data(plants_distance)
 #' @format Numeric matrix with 227 rows and 227 columns.
+#' @seealso [distance_matrix()] for creating custom distance matrices from coordinates.
 #' @family data
 "plants_distance"
 

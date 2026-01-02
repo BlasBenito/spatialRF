@@ -10,13 +10,15 @@ default_distance_thresholds(distance.matrix = NULL)
 \item{distance.matrix}{Numeric distance matrix (typically square and symmetric). Default: \code{NULL}.}
 }
 \value{
-Numeric vector of length 4 with distance thresholds (floored to integers).
+Numeric vector with unique positive distance thresholds (floored to integers).
 }
 \description{
-Generates four evenly-spaced distance thresholds for spatial predictor generation, ranging from 0 to half the maximum distance in the matrix.
+Generates evenly-spaced distance thresholds for spatial predictor generation, ranging up to half the maximum distance in the matrix.
 }
 \details{
-The maximum threshold is set to half the maximum distance to avoid spatial predictors based on distances that are too large to capture meaningful spatial autocorrelation. The four thresholds are evenly spaced using \code{\link[=seq]{seq()}} with \code{length.out = 4}.
+The maximum threshold is set to half the maximum distance to avoid spatial predictors based on distances that are too large to capture meaningful spatial autocorrelation. Thresholds are evenly spaced using \code{\link[=seq]{seq()}} with \code{length.out = 4}.
+
+Zero is excluded from the output since a threshold of 0 would include no neighbors. If flooring creates duplicate values (which can happen with small distance matrices), the function ensures all returned thresholds are unique. This may result in fewer than 4 thresholds for very small distance matrices.
 }
 \examples{
 data(plants_distance)
@@ -26,12 +28,13 @@ thresholds <- default_distance_thresholds(
 )
 
 thresholds
-# Example output: c(0, 3333, 6666, 10000)
-# Four evenly-spaced thresholds from 0 to max(plants_distance)/2
+# Example output: c(2399, 4798, 7198)
+# Three evenly-spaced thresholds up to max(plants_distance)/2
 
 }
 \seealso{
 Other preprocessing: 
+\code{\link{distance_matrix}()},
 \code{\link{double_center_distance_matrix}()},
 \code{\link{is_binary}()},
 \code{\link{make_spatial_fold}()},

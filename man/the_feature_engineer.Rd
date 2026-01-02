@@ -117,6 +117,7 @@ if (interactive()) {
 \seealso{
 Other preprocessing: 
 \code{\link{default_distance_thresholds}()},
+\code{\link{distance_matrix}()},
 \code{\link{double_center_distance_matrix}()},
 \code{\link{is_binary}()},
 \code{\link{make_spatial_fold}()},
