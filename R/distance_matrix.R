@@ -86,7 +86,6 @@ distance_matrix <- function(
   units = "km",
   verbose = TRUE
 ) {
-
   # Validation: x not NULL
   if (is.null(x)) {
     stop("Argument 'x' is required.")
@@ -114,7 +113,6 @@ distance_matrix <- function(
 
   # Case 1: Already an sf object
   if (inherits(x, "sf")) {
-
     sf_object <- x
     n <- nrow(sf_object)
 
@@ -136,12 +134,8 @@ distance_matrix <- function(
     } else {
       geometry_type <- paste(geom_types, collapse = ", ")
     }
-
-  }
-
-  # Case 2: Data frame with coordinate columns
-  else if (is.data.frame(x)) {
-
+  } else if (is.data.frame(x)) {
+    # Case 2: Data frame with coordinate columns
     n <- nrow(x)
 
     # Check for minimum observations
@@ -169,7 +163,6 @@ distance_matrix <- function(
         crs = 4326
       )
       is_geographic <- TRUE
-
     } else if (has_xy) {
       # Projected coordinates - assume meters, no CRS
       sf_object <- sf::st_as_sf(
@@ -178,18 +171,15 @@ distance_matrix <- function(
         crs = NA
       )
       is_geographic <- FALSE
-
     } else {
-      stop("Data frame must contain columns: (x, y) OR (lon/long/longitude, lat/latitude).")
+      stop(
+        "Data frame must contain columns: (x, y) OR (lon/long/longitude, lat/latitude)."
+      )
     }
 
     geometry_type <- "point"
-
-  }
-
-  # Case 3: Separate x, y vectors
-  else if (is.numeric(x)) {
-
+  } else if (is.numeric(x)) {
+    # Case 3: Separate x, y vectors
     # Check y is provided
     if (is.null(y)) {
       stop("Argument 'y' is required when 'x' is a numeric vector.")
@@ -209,10 +199,25 @@ distance_matrix <- function(
 
     # Check for NAs
     if (any(is.na(x)) || any(is.na(y))) {
-      stop("Coordinate vectors contain missing values (NA). Remove or impute NAs before computing distance matrix.")
+      stop(
+        "Coordinate vectors contain missing values (NA). Remove or impute NAs before computing distance matrix."
+      )
     }
 
     # Detect if geographic based on value ranges
+    distance_matrix_is_geographic <- function(coords) {
+      # Check if values fall within lat/lon ranges
+      # lon: -180 to 180, lat: -90 to 90
+      x_range <- range(coords[, 1], na.rm = TRUE)
+      y_range <- range(coords[, 2], na.rm = TRUE)
+
+      # Geographic if both within valid lat/lon ranges
+      x_in_range <- x_range[1] >= -180 && x_range[2] <= 180
+      y_in_range <- y_range[1] >= -90 && y_range[2] <= 90
+
+      return(x_in_range && y_in_range)
+    }
+
     is_geographic <- distance_matrix_is_geographic(cbind(x, y))
 
     # Create sf object
@@ -234,12 +239,11 @@ distance_matrix <- function(
     }
 
     geometry_type <- "point"
-
-  }
-
-  # Case 4: Invalid input
-  else {
-    stop("Argument 'x' must be: numeric vector (with y), data frame with coordinates, or sf object.")
+  } else {
+    # Case 4: Invalid input
+    stop(
+      "Argument 'x' must be: numeric vector (with y), data frame with coordinates, or sf object."
+    )
   }
 
   # ========================================
@@ -273,11 +277,15 @@ distance_matrix <- function(
 
   # Validate output
   if (any(is.na(dist_matrix))) {
-    stop("Distance matrix contains NA values. This should not happen - please report this issue.")
+    stop(
+      "Distance matrix contains NA values. This should not happen - please report this issue."
+    )
   }
 
   if (any(dist_matrix < 0)) {
-    stop("Distance matrix contains negative values. This should not happen - please report this issue.")
+    stop(
+      "Distance matrix contains negative values. This should not happen - please report this issue."
+    )
   }
 
   # ========================================
@@ -290,44 +298,26 @@ distance_matrix <- function(
     cat("---------------------------\n")
     cat(sprintf("Observations: %d\n", n))
     cat(sprintf("Geometry type: %s\n", geometry_type))
-    cat(sprintf("Coordinate type: %s\n", ifelse(is_geographic, "geographic (lat/lon)", "projected (x/y)")))
+    cat(sprintf(
+      "Coordinate type: %s\n",
+      ifelse(is_geographic, "geographic (lat/lon)", "projected (x/y)")
+    ))
     cat(sprintf("Method: sf::st_distance()\n"))
     cat(sprintf("Output units: %s\n", units))
 
     # Get range excluding diagonal zeros
     non_zero_dists <- dist_matrix[dist_matrix > 0]
     if (length(non_zero_dists) > 0) {
-      cat(sprintf("Distance range: %.2f to %.2f %s\n",
-                  min(non_zero_dists),
-                  max(non_zero_dists),
-                  units))
+      cat(sprintf(
+        "Distance range: %.2f to %.2f %s\n",
+        min(non_zero_dists),
+        max(non_zero_dists),
+        units
+      ))
     }
     cat("\n")
   }
 
   # Return distance matrix
   return(dist_matrix)
-
-}
-
-
-#' @title Helper function to detect if coordinates are geographic
-#' @description Checks if coordinate values fall within valid latitude/longitude ranges.
-#' @param coords Two-column matrix with x/lon in column 1, y/lat in column 2.
-#' @return Logical. `TRUE` if coordinates appear to be geographic (lat/lon), `FALSE` otherwise.
-#' @keywords internal
-#' @autoglobal
-distance_matrix_is_geographic <- function(coords) {
-
-  # Check if values fall within lat/lon ranges
-  # lon: -180 to 180, lat: -90 to 90
-  x_range <- range(coords[, 1], na.rm = TRUE)
-  y_range <- range(coords[, 2], na.rm = TRUE)
-
-  # Geographic if both within valid lat/lon ranges
-  x_in_range <- x_range[1] >= -180 && x_range[2] <= 180
-  y_in_range <- y_range[1] >= -90 && y_range[2] <= 90
-
-  return(x_in_range && y_in_range)
-
 }
