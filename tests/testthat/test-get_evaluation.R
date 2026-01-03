@@ -7,7 +7,7 @@ test_that("`get_evaluation()` works", {
     predictor.variable.names = colnames(plants_df)[5:21],
     distance.matrix = plants_distance,
     distance.thresholds = c(
-      0,
+      100,
       1000,
       2000
     ),

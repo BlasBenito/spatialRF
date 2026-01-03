@@ -30,7 +30,7 @@
 "plants_df"
 
 #' @title Distance matrix between ecoregion edges
-#' @description Distance matrix (in km) between the edges of American ecoregions in [plants_df].
+#' @description Distance matrix (in km) between the centroids of American ecoregions in [plants_df] computed with [distance_matrix()] and converting the output to `km`.
 #' @usage data(plants_distance)
 #' @format Numeric matrix with 227 rows and 227 columns.
 #' @seealso [distance_matrix()] for creating custom distance matrices from coordinates.

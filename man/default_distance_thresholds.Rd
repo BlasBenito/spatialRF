@@ -4,32 +4,64 @@
 \alias{default_distance_thresholds}
 \title{Default distance thresholds for spatial predictors}
 \usage{
-default_distance_thresholds(distance.matrix = NULL)
+default_distance_thresholds(distance.thresholds = NULL, distance.matrix = NULL)
 }
 \arguments{
+\item{distance.thresholds}{Numeric vector of distance thresholds, or NULL to generate defaults. If provided, must be positive numeric values within the range of \code{distance.matrix}. Default: \code{NULL}.}
+
 \item{distance.matrix}{Numeric distance matrix (typically square and symmetric). Default: \code{NULL}.}
 }
 \value{
-Numeric vector with unique positive distance thresholds (floored to integers).
+Numeric vector with unique positive distance thresholds (floored to integers when auto-generated).
 }
 \description{
-Generates evenly-spaced distance thresholds for spatial predictor generation, ranging up to half the maximum distance in the matrix.
+Generates evenly-spaced distance thresholds for spatial predictor generation, or validates user-provided thresholds. When \code{distance.thresholds} is NULL, generates defaults ranging up to half the maximum distance. When provided, validates that thresholds are within the valid range of \code{distance.matrix}.
 }
 \details{
-The maximum threshold is set to half the maximum distance to avoid spatial predictors based on distances that are too large to capture meaningful spatial autocorrelation. Thresholds are evenly spaced using \code{\link[=seq]{seq()}} with \code{length.out = 4}.
+\subsection{Default Generation}{
 
-Zero is excluded from the output since a threshold of 0 would include no neighbors. If flooring creates duplicate values (which can happen with small distance matrices), the function ensures all returned thresholds are unique. This may result in fewer than 4 thresholds for very small distance matrices.
+When \code{distance.thresholds = NULL}, the function generates evenly-spaced thresholds using \code{\link[=seq]{seq()}} with \code{length.out = 4}. The maximum threshold is set to half the maximum distance to avoid spatial predictors based on distances too large to capture meaningful spatial autocorrelation.
+
+Zero is excluded from auto-generated thresholds since a threshold of 0 would include no neighbors. If flooring creates duplicate values (in small distance matrices), only unique thresholds are returned.
+}
+
+\subsection{Validation}{
+
+When \code{distance.thresholds} is provided, validates that:
+\itemize{
+\item Values are numeric
+\item All values are positive (> 0)
+\item Values fall within the range of \code{distance.matrix}
+}
+}
 }
 \examples{
 data(plants_distance)
 
+# Generate default thresholds
 thresholds <- default_distance_thresholds(
   distance.matrix = plants_distance
 )
-
 thresholds
 # Example output: c(2399, 4798, 7198)
 # Three evenly-spaced thresholds up to max(plants_distance)/2
+
+# Validate user-provided thresholds
+custom_thresholds <- c(1000, 3000, 5000)
+validated <- default_distance_thresholds(
+  distance.thresholds = custom_thresholds,
+  distance.matrix = plants_distance
+)
+validated
+
+# Invalid thresholds trigger informative errors
+try(
+  default_distance_thresholds(
+    distance.thresholds = c(-100, 2000),
+    distance.matrix = plants_distance
+  )
+)
+# Error: All values in 'distance.thresholds' must be greater than 0.
 
 }
 \seealso{

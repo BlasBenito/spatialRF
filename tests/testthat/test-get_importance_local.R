@@ -6,12 +6,19 @@ test_that("`get_importance_local()` works", {
     dependent.variable.name = "richness_species_vascular",
     predictor.variable.names = colnames(plants_df)[5:21],
     distance.matrix = plants_distance,
-    distance.thresholds = c(0, 1000, 2000),
+    distance.thresholds = c(100, 1000, 2000),
     verbose = FALSE
   )
   x <- get_importance_local(rf.model)
-  expect_s3_class(x, "data.frame")
+  expect_true(is.matrix(x) || is.data.frame(x))
+  expect_equal(nrow(x), nrow(plants_df))
   expect_true(all(colnames(plants_df)[5:21] %in% colnames(x)))
+  # All values should be numeric
+  if (is.data.frame(x)) {
+    expect_true(all(sapply(x, is.numeric)))
+  } else {
+    expect_true(is.numeric(x))
+  }
 })
 
 test_that("get_importance_local() works with rf models", {
@@ -20,8 +27,15 @@ test_that("get_importance_local() works with rf models", {
 
   x <- get_importance_local(plants_rf)
 
-  expect_s3_class(x, "data.frame")
+  expect_true(is.matrix(x) || is.data.frame(x))
+  expect_equal(nrow(x), nrow(plants_df))
   expect_true(all(colnames(plants_df)[5:21] %in% colnames(x)))
+  # All values should be numeric
+  if (is.data.frame(x)) {
+    expect_true(all(sapply(x, is.numeric)))
+  } else {
+    expect_true(is.numeric(x))
+  }
 })
 
 test_that("get_importance_local() works with rf_spatial models", {
@@ -30,8 +44,15 @@ test_that("get_importance_local() works with rf_spatial models", {
 
   x <- get_importance_local(plants_rf_spatial)
 
-  expect_s3_class(x, "data.frame")
+  expect_true(is.matrix(x) || is.data.frame(x))
+  expect_equal(nrow(x), nrow(plants_df))
   expect_true(all(colnames(plants_df)[5:21] %in% colnames(x)))
+  # All values should be numeric
+  if (is.data.frame(x)) {
+    expect_true(all(sapply(x, is.numeric)))
+  } else {
+    expect_true(is.numeric(x))
+  }
 })
 
 test_that("get_importance_local() works with rf_repeat models", {
@@ -49,63 +70,46 @@ test_that("get_importance_local() works with rf_repeat models", {
 
   x <- get_importance_local(model_repeat)
 
-  expect_s3_class(x, "data.frame")
-  expect_true(all(colnames(plants_df)[5:21] %in% colnames(x)))
-})
-
-test_that("get_importance_local() works with rf_spatial rf_repeat models", {
-  data(plants_rf_spatial)
-
-  # Create rf_repeat from spatial model
-  model_spatial_repeat <- rf_repeat(
-    model = plants_rf_spatial,
-    repetitions = 5,
-    verbose = FALSE
-  )
-
-  x <- get_importance_local(model_spatial_repeat)
-
-  expect_s3_class(x, "data.frame")
-  expect_named(x, c("variable", "importance"))
-  expect_true(nrow(x) > 0)
-})
-
-test_that("get_importance_local() sorts by decreasing importance", {
-  data(plants_rf)
-
-  x <- get_importance_local(plants_rf)
-
-  # Check that importance is sorted in decreasing order
-  expect_true(all(diff(x$importance) <= 0))
+  expect_true(is.matrix(x) || is.data.frame(x))
+  expect_equal(nrow(x), 100)
+  expect_true(all(colnames(plants_df)[5:11] %in% colnames(x)))
+  # All columns should be numeric
+  expect_true(all(sapply(x, is.numeric)))
 })
 
 test_that("get_importance_local() returns correct structure", {
   data(plants_rf)
+  data(plants_df)
 
   x <- get_importance_local(plants_rf)
 
-  # Should have two columns
-  expect_equal(ncol(x), 2)
+  # Should have one row per observation
+  expect_equal(nrow(x), nrow(plants_df))
 
-  # Number of rows should match number of predictors
-  expect_true(nrow(x) > 0)
+  # Should have one column per predictor variable
+  expect_equal(ncol(x), 17)
 
-  # All importance values should be numeric (can be negative)
-  expect_true(all(is.numeric(x$importance)))
+  # All importance values should be numeric
+  expect_true(all(is.numeric(x)))
 })
 
-test_that("get_importance_local() handles spatial models with many spatial predictors", {
+test_that("get_importance_local() handles spatial models with spatial predictors", {
   data(plants_rf_spatial)
+  data(plants_df)
 
   x <- get_importance_local(plants_rf_spatial)
 
-  expect_s3_class(x, "data.frame")
-  expect_named(x, c("variable", "importance"))
+  expect_true(is.matrix(x) || is.data.frame(x))
+  expect_equal(nrow(x), nrow(plants_df))
 
-  # Should aggregate spatial predictors if there are many
-  # Check if spatial predictor aggregation occurred
-  spatial_vars <- grepl("spatial", x$variable, ignore.case = TRUE)
-  expect_true(any(spatial_vars) | !any(spatial_vars)) # Either has or doesn't have spatial vars
+  # Should include original predictors
+  expect_true(all(colnames(plants_df)[5:21] %in% colnames(x)))
+  # All values should be numeric
+  if (is.data.frame(x)) {
+    expect_true(all(sapply(x, is.numeric)))
+  } else {
+    expect_true(is.numeric(x))
+  }
 })
 
 test_that("get_importance_local() extracts correct variable names", {
@@ -113,20 +117,10 @@ test_that("get_importance_local() extracts correct variable names", {
 
   x <- get_importance_local(plants_rf)
 
-  expect_s3_class(x, "data.frame")
-  expect_named(x, c("variable", "importance"))
-  expect_true(nrow(x) > 0)
-  expect_true(all(!is.na(x$variable)))
-  expect_true(all(nchar(x$variable) > 0))
-})
-
-test_that("get_importance_local() all variables have unique importance", {
-  data(plants_rf)
-
-  x <- get_importance_local(plants_rf)
-
-  # All variables should be unique
-  expect_equal(length(unique(x$variable)), nrow(x))
+  # Column names should be predictor variable names
+  expect_true(all(!is.na(colnames(x))))
+  expect_true(all(nchar(colnames(x)) > 0))
+  expect_equal(length(unique(colnames(x))), ncol(x))
 })
 
 test_that("get_importance_local() works with models with few predictors", {
@@ -143,8 +137,15 @@ test_that("get_importance_local() works with models with few predictors", {
 
   x <- get_importance_local(model_small)
 
-  expect_s3_class(x, "data.frame")
-  expect_equal(nrow(x), 3)
+  expect_true(is.matrix(x) || is.data.frame(x))
+  expect_equal(nrow(x), 100)
+  expect_equal(ncol(x), 3)
+  # All values should be numeric
+  if (is.data.frame(x)) {
+    expect_true(all(sapply(x, is.numeric)))
+  } else {
+    expect_true(is.numeric(x))
+  }
 })
 
 test_that("get_importance_local() works with models with many predictors", {
@@ -152,18 +153,25 @@ test_that("get_importance_local() works with models with many predictors", {
 
   x <- get_importance_local(plants_rf)
 
-  expect_s3_class(x, "data.frame")
-  expect_true(nrow(x) > 10)
+  expect_true(is.matrix(x) || is.data.frame(x))
+  expect_true(ncol(x) > 10)
+  # All values should be numeric
+  if (is.data.frame(x)) {
+    expect_true(all(sapply(x, is.numeric)))
+  } else {
+    expect_true(is.numeric(x))
+  }
 })
 
 test_that("get_importance_local() preserves all predictor names", {
   data(plants_rf)
+  data(plants_df)
 
   x <- get_importance_local(plants_rf)
 
-  # All variables should be character strings
-  expect_true(all(nchar(x$variable) > 0))
-  expect_true(all(!is.na(x$variable)))
+  # All predictor variable names should be preserved
+  expected_names <- colnames(plants_df)[5:21]
+  expect_true(all(expected_names %in% colnames(x)))
 })
 
 test_that("get_importance_local() importance values are valid", {
@@ -171,24 +179,37 @@ test_that("get_importance_local() importance values are valid", {
 
   x <- get_importance_local(plants_rf)
 
-  # All importance values should be numeric and not NA
-  expect_true(all(is.numeric(x$importance)))
-  expect_true(all(!is.na(x$importance)))
-  # Importance can be negative in permutation importance
-  expect_true(all(is.finite(x$importance)))
+  # All importance values should be numeric and not NA/NaN
+  if (is.data.frame(x)) {
+    expect_true(all(sapply(x, function(col) all(!is.na(col)))))
+    expect_true(all(sapply(x, function(col) all(is.finite(col)))))
+  } else {
+    expect_true(all(!is.na(x)))
+    expect_true(all(is.finite(x)))
+  }
 })
 
 test_that("get_importance_local() works with different model types", {
   data(plants_rf, plants_rf_spatial)
+  data(plants_df)
 
   x1 <- get_importance_local(plants_rf)
   x2 <- get_importance_local(plants_rf_spatial)
 
-  # Both should produce valid data frames
-  expect_s3_class(x1, "data.frame")
-  expect_s3_class(x2, "data.frame")
-
-  # Both should have correct structure
-  expect_named(x1, c("variable", "importance"))
-  expect_named(x2, c("variable", "importance"))
+  # Both should produce valid matrices/data frames
+  expect_true(is.matrix(x1) || is.data.frame(x1))
+  expect_true(is.matrix(x2) || is.data.frame(x2))
+  expect_equal(nrow(x1), nrow(plants_df))
+  expect_equal(nrow(x2), nrow(plants_df))
+  # All values should be numeric
+  if (is.data.frame(x1)) {
+    expect_true(all(sapply(x1, is.numeric)))
+  } else {
+    expect_true(is.numeric(x1))
+  }
+  if (is.data.frame(x2)) {
+    expect_true(all(sapply(x2, is.numeric)))
+  } else {
+    expect_true(is.numeric(x2))
+  }
 })

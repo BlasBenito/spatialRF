@@ -12,7 +12,7 @@ test_that("`select_spatial_predictors_recursive()` works", {
   predictor.variable.names <- colnames(plants_df)[5:10]
 
   # Use single distance threshold for speed (matches function documentation example)
-  distance.thresholds <- 0
+  distance.thresholds <- c(100, 1000)
 
   model <- rf(
     data = data,
@@ -80,7 +80,7 @@ test_that("select_spatial_predictors_recursive() evaluates all spatial predictor
 
   dependent.variable.name <- "richness_species_vascular"
   predictor.variable.names <- colnames(plants_df)[5:7] # Only 3 predictors
-  distance.thresholds <- 0
+  distance.thresholds <- c(100, 1000)
 
   model <- rf(
     data = data,

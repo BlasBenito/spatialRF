@@ -211,11 +211,10 @@ rf_spatial <- function(
       stop("The argument 'distance.matrix' is missing.")
     }
     distance.thresholds <- ranger.arguments$distance.thresholds
-    if (is.null(distance.thresholds)) {
-      distance.thresholds <- default_distance_thresholds(
-        distance.matrix = distance.matrix
-      )
-    }
+    distance.thresholds <- default_distance_thresholds(
+      distance.thresholds = distance.thresholds,
+      distance.matrix = distance.matrix
+    )
     scaled.importance <- ranger.arguments$scaled.importance
     seed <- ranger.arguments$seed
   }

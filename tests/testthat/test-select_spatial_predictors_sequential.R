@@ -13,7 +13,7 @@ test_that("`select_spatial_predictors_sequential()` works", {
   predictor.variable.names <- colnames(plants_df)[5:11]
 
   # Use single distance threshold for speed
-  distance.thresholds <- 0
+  distance.thresholds <- c(100, 1000)
 
   model <- rf(
     data = data,
@@ -67,7 +67,7 @@ test_that("select_spatial_predictors_sequential() respects ranger.arguments", {
 
   dependent.variable.name <- "richness_species_vascular"
   predictor.variable.names <- colnames(plants_df)[5:8]
-  distance.thresholds <- 0
+  distance.thresholds <- c(100, 1000)
 
   model <- rf(
     data = data,

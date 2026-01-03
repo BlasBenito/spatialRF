@@ -11,7 +11,7 @@ Numeric matrix with 227 rows and 227 columns.
 data(plants_distance)
 }
 \description{
-Distance matrix (in km) between the edges of American ecoregions in \link{plants_df}.
+Distance matrix (in km) between the centroids of American ecoregions in \link{plants_df} computed with \code{\link[=distance_matrix]{distance_matrix()}} and converting the output to \code{km}.
 }
 \seealso{
 \code{\link[=distance_matrix]{distance_matrix()}} for creating custom distance matrices from coordinates.

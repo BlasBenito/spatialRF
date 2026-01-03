@@ -58,11 +58,10 @@ plot_training_df_moran <- function(
   }
 
   #creating distance thresholds
-  if (is.null(distance.thresholds)) {
-    distance.thresholds <- default_distance_thresholds(
-      distance.matrix = distance.matrix
-    )
-  }
+  distance.thresholds <- default_distance_thresholds(
+    distance.thresholds = distance.thresholds,
+    distance.matrix = distance.matrix
+  )
 
   #iterating through variables in the training data frame
   df.list <- list()

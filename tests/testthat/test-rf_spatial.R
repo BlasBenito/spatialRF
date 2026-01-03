@@ -2,24 +2,14 @@ test_that("`rf_spatial()` works", {
   data(plants_distance)
   data(plants_df)
 
-  # Use subset of data for faster testing
-  # Sample 80 rows to keep test fast while maintaining statistical validity
-  set.seed(123)
-  sample_idx <- sample(1:nrow(plants_df), 80)
-  plant_richness_subset <- plants_df[sample_idx, ]
-  plants_distance_subset <- plants_distance[sample_idx, sample_idx]
-
-  # Use fewer predictors (8 instead of 17) for faster testing
-  predictor.variable.names <- colnames(plants_df)[5:12]
-
   # Test 1: hengl method (fastest, good for comprehensive testing)
 
   out <- rf_spatial(
-    data = plant_richness_subset,
+    data = plants_df,
     dependent.variable.name = "richness_species_vascular",
-    predictor.variable.names = predictor.variable.names,
-    distance.matrix = plants_distance_subset,
-    distance.thresholds = 0, # Single threshold for speed
+    predictor.variable.names = plants_predictors,
+    distance.matrix = plants_distance,
+    distance.thresholds = 100, # Single threshold for speed
     method = "hengl",
     verbose = FALSE
   )
@@ -37,11 +27,11 @@ test_that("`rf_spatial()` works", {
 
   # Test 2: mem.moran.sequential (medium speed, important method)
   out2 <- rf_spatial(
-    data = plant_richness_subset,
+    data = plants_df,
     dependent.variable.name = "richness_species_vascular",
-    predictor.variable.names = predictor.variable.names,
-    distance.matrix = plants_distance_subset,
-    distance.thresholds = 0,
+    predictor.variable.names = plants_predictors,
+    distance.matrix = plants_distance,
+    distance.thresholds = 100,
     method = "mem.moran.sequential",
     verbose = FALSE
   )

@@ -4,7 +4,7 @@ test_that("`moran_multithreshold()` works", {
   moran.out <- moran_multithreshold(
     plants_df$richness_species_vascular,
     distance.matrix = plants_distance,
-    distance.thresholds = c(0, 100, 1000),
+    distance.thresholds = c(100, 100, 1000),
     verbose = FALSE
   )
   expect_type(moran.out, "list")

@@ -49,6 +49,8 @@ plan(sequential)  # Reset when done (optional)
 
 - **Automatic oversubscription prevention:** When a parallel plan is active, `n.cores` is silently set to 1 to prevent creating excessive threads (no warnings needed).
 
+- **New function `distance_matrix()`**
+
 ### Code Quality Improvements
 
 - **Reduced namespace pollution:** Removed single-use `@importFrom` statements (`ranger::ranger`, `patchwork::plot_annotation`, `patchwork::wrap_plots`). Now only imports extensively-used functions (`future::availableCores`, `future.apply::future_lapply`, `progressr::progressor`, `ggplot2::.data`).

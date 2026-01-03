@@ -85,16 +85,10 @@ The package includes the pre-computed distance matrix `plants_distance`, but you
 
 ```{r}
 # Compute distance matrix from plants_df coordinates
-# The columns 'x' and 'y' in plants_df contain longitude and latitude
-# We need to rename them for proper geographic distance detection
-plants_coords <- plants_df
-names(plants_coords)[names(plants_coords) == "x"] <- "longitude"
-names(plants_coords)[names(plants_coords) == "y"] <- "latitude"
-
-# Compute distance matrix in kilometers
+# The columns 'x' and 'y' are automatically detected as longitude and latitude
+# All distances are returned in kilometers
 my_distance_matrix <- distance_matrix(
-  x = plants_coords,
-  units = "km",
+  data = plants_df,
   verbose = FALSE
 )
 
@@ -107,25 +101,27 @@ my_distance_matrix[1:5, 1:5]
 
 The `distance_matrix()` function:
 
-- Auto-detects coordinate types: geographic (lon/lat) uses geodesic distances, projected (x/y) uses Euclidean distances
-- Supports data frames, numeric vectors, and sf objects
+- Auto-detects coordinate columns from data frames with flexible naming (x/X/lon/long/longitude/longitud for longitude, y/Y/lat/latitude/latitud for latitude)
+- Automatically uses geodesic distances for geographic coordinates and Euclidean distances for projected coordinates
+- Supports both data frames and sf objects
 - Uses `sf::st_distance()` internally for accurate distance calculations
-- Returns a matrix compatible with all spatialRF functions
+- Returns distances in kilometers (always) as a matrix compatible with all spatialRF functions
 
 ```{r, eval=FALSE}
 # Other input formats:
 
-# From separate coordinate vectors
-dm <- distance_matrix(
-  x = c(-122.4, -73.9, -87.6),  # longitudes
-  y = c(37.8, 40.7, 41.9),      # latitudes
-  units = "km"
+# From a data frame with different column names
+coords_df <- data.frame(
+  longitude = c(-122.4, -73.9, -87.6),
+  latitude = c(37.8, 40.7, 41.9),
+  city = c("SF", "NYC", "Chicago")
 )
+dm <- distance_matrix(data = coords_df)
 
 # From sf objects (requires sf package)
 library(sf)
-pts <- st_as_sf(plants_coords, coords = c("longitude", "latitude"), crs = 4326)
-dm <- distance_matrix(pts, units = "km")
+pts <- st_as_sf(coords_df, coords = c("longitude", "latitude"), crs = 4326)
+dm <- distance_matrix(data = pts)
 ```
 
 The figure below shows the response variable *richness_species_vascular* in space.

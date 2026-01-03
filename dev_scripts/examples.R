@@ -65,7 +65,7 @@ data(plants_df, plants_distance)
 #computing Moran's Eigenvector Maps
 spatial.predictors.df <- mem_multithreshold(
   distance.matrix = plants_distance,
-  distance.thresholds = c(0, 1000)
+  distance.thresholds = c(100, 1000)
 )
 
 #filtering spatial predictors
@@ -119,7 +119,7 @@ m <- rf(
   dependent.variable.name = plants_response,
   predictor.variable.names = plants_predictors,
   distance.matrix = plants_distance,
-  distance.thresholds = 0,
+  distance.thresholds = 100,
   n.cores = 1,
   verbose = FALSE
 )
@@ -137,7 +137,7 @@ m <- rf(
   dependent.variable.name = plants_response,
   predictor.variable.names = plants_predictors,
   distance.matrix = plants_distance,
-  distance.thresholds = 0,
+  distance.thresholds = 100,
   n.cores = 1,
   verbose = FALSE
 )
@@ -156,7 +156,7 @@ m <- rf(
   dependent.variable.name = plants_response,
   predictor.variable.names = plants_predictors,
   distance.matrix = plants_distance,
-  distance.thresholds = c(0, 1000, 2000),
+  distance.thresholds = c(100, 1000, 2000),
   n.cores = 1,
   verbose = FALSE
 )
@@ -176,7 +176,7 @@ m <- rf(
   dependent.variable.name = plants_response,
   predictor.variable.names = plants_predictors,
   distance.matrix = plants_distance,
-  distance.thresholds = 0,
+  distance.thresholds = 100,
   n.cores = 1,
   verbose = FALSE
 )
@@ -261,7 +261,7 @@ m_spatial <- rf_spatial(
   dependent.variable.name = plants_response,
   predictor.variable.names = plants_predictors,
   distance.matrix = plants_distance,
-  distance.thresholds = c(0, 1000),
+  distance.thresholds = c(100, 1000),
   n.cores = 1,
   method = "mem.moran.sequential"
 )
@@ -345,7 +345,7 @@ data(plants_distance)
 #computing Moran's eigenvector maps for 0, 1000, and 2000 km
 mem.df <- mem_multithreshold(
   distance.matrix = plants_distance,
-  distance.thresholds = c(0, 1000, 2000)
+  distance.thresholds = c(100, 1000, 2000)
 )
 head(mem.df)
 
@@ -364,7 +364,7 @@ data(plants_df, plants_distance, plants_response)
 y <- moran_multithreshold(
   x = plants_df[[plants_response]],
   distance.matrix = plants_distance,
-  distance.thresholds = c(0, 100, 1000, 10000)
+  distance.thresholds = c(100, 100, 1000, 10000)
 )
 y
 
@@ -397,7 +397,7 @@ data(plants_distance)
 #PCA factors of the distance matrix for two reference distances
 x <- pca_multithreshold(
   distance.matrix = plants_distance,
-  distance.thresholds = c(0, 1000)
+  distance.thresholds = c(100, 1000)
 )
 head(x)
 
@@ -425,7 +425,7 @@ m <- rf(
   dependent.variable.name = plants_response,
   predictor.variable.names = plants_predictors,
   distance.matrix = plants_distance,
-  distance.thresholds = 0,
+  distance.thresholds = 100,
   n.cores = 1,
   verbose = FALSE
 )
@@ -455,7 +455,7 @@ m <- rf(
   dependent.variable.name = plants_response,
   predictor.variable.names = plants_predictors,
   distance.matrix = plants_distance,
-  distance.thresholds = 0,
+  distance.thresholds = 100,
   n.cores = 1,
   verbose = FALSE
 )
@@ -478,7 +478,7 @@ m <- rf(
   dependent.variable.name = plants_response,
   predictor.variable.names = plants_predictors,
   distance.matrix = plants_distance,
-  distance.thresholds = c(0, 1000, 2000),
+  distance.thresholds = c(100, 1000, 2000),
   n.cores = 1,
   verbose = FALSE
 )
@@ -506,7 +506,7 @@ m <- rf_spatial(
   dependent.variable.name = plants_response,
   predictor.variable.names = plants_predictors,
   distance.matrix = plants_distance,
-  distance.thresholds = 0,
+  distance.thresholds = 100,
   method = "mem.moran.sequential",
   n.cores = 1
 )
@@ -631,7 +631,7 @@ m <- rf(
   dependent.variable.name = plants_response,
   predictor.variable.names = plants_predictors,
   distance.matrix = plants_distance,
-  distance.thresholds = 0,
+  distance.thresholds = 100,
   n.cores = 1,
   verbose = FALSE
 )
@@ -662,7 +662,7 @@ m_spatial <- rf_spatial(
   dependent.variable.name = plants_response,
   predictor.variable.names = plants_predictors,
   distance.matrix = plants_distance,
-  distance.thresholds = 0,
+  distance.thresholds = 100,
   n.cores = 1
 )
 
@@ -686,7 +686,7 @@ m <- rf(
   dependent.variable.name = plants_response,
   predictor.variable.names = plants_predictors,
   distance.matrix = plants_distance,
-  distance.thresholds = 0,
+  distance.thresholds = 100,
   n.cores = 1,
   verbose = FALSE
 )
@@ -716,7 +716,7 @@ m <- rf(
   dependent.variable.name = plants_response,
   predictor.variable.names = plants_predictors,
   distance.matrix = plants_distance,
-  distance.thresholds = 0,
+  distance.thresholds = 100,
   n.cores = 1,
   verbose = FALSE
 )
@@ -739,7 +739,7 @@ m <- rf(
   dependent.variable.name = plants_response,
   predictor.variable.names = plants_predictors,
   distance.matrix = plants_distance,
-  distance.thresholds = c(0, 1000, 2000),
+  distance.thresholds = c(100, 1000, 2000),
   n.cores = 1,
   verbose = FALSE
 )
@@ -762,7 +762,7 @@ m <- rf(
   dependent.variable.name = plants_response,
   predictor.variable.names = plants_predictors,
   distance.matrix = plants_distance,
-  distance.thresholds = 0,
+  distance.thresholds = 100,
   n.cores = 1,
   verbose = FALSE
 )
@@ -785,7 +785,7 @@ m <- rf(
   dependent.variable.name = plants_response,
   predictor.variable.names = plants_predictors,
   distance.matrix = plants_distance,
-  distance.thresholds = 0,
+  distance.thresholds = 100,
   n.cores = 1
 )
 
@@ -808,7 +808,7 @@ y <- mem(
 #ranking by the Moran's I of the spatial predictor
 y_rank <- rank_spatial_predictors(
   distance.matrix = plants_distance,
-  distance.thresholds = 0,
+  distance.thresholds = 100,
   spatial.predictors.df = y,
   ranking.method = "moran",
   n.cores = 1
@@ -851,7 +851,7 @@ m <- rf(
   dependent.variable.name = plants_response,
   predictor.variable.names = plants_predictors,
   distance.matrix = plants_distance,
-  distance.thresholds = 0,
+  distance.thresholds = 100,
   n.cores = 1
 )
 
@@ -888,7 +888,7 @@ m <- rf(
   dependent.variable.name = plants_response,
   predictor.variable.names = plants_predictors,
   distance.matrix = plants_distance,
-  distance.thresholds = 0,
+  distance.thresholds = 100,
   n.cores = 1,
   verbose = FALSE
 )
@@ -922,7 +922,7 @@ m <- rf(
   dependent.variable.name = plants_response,
   predictor.variable.names = plants_predictors,
   distance.matrix = plants_distance,
-  distance.thresholds = 0,
+  distance.thresholds = 100,
   xy = plants_xy,
   n.cores = 1,
   verbose = FALSE
@@ -946,7 +946,7 @@ m_repeat <- rf_repeat(
   dependent.variable.name = plants_response,
   predictor.variable.names = plants_predictors,
   distance.matrix = plants_distance,
-  distance.thresholds = 0,
+  distance.thresholds = 100,
   repetitions = 5,
   n.cores = 1
 )
@@ -976,7 +976,7 @@ m <- rf(
   dependent.variable.name = plants_response,
   predictor.variable.names = plants_predictors,
   distance.matrix = plants_distance,
-  distance.thresholds = 0,
+  distance.thresholds = 100,
   n.cores = 1
 )
 
@@ -1004,7 +1004,7 @@ m_spatial <- rf_spatial(
   dependent.variable.name = plants_response,
   predictor.variable.names = plants_predictors,
   distance.matrix = plants_distance,
-  distance.thresholds = 0,
+  distance.thresholds = 100,
   method = "hengl",
   n.cores = 1
 )
@@ -1015,7 +1015,7 @@ m_spatial <- rf_spatial(
   dependent.variable.name = plants_response,
   predictor.variable.names = plants_predictors,
   distance.matrix = plants_distance,
-  distance.thresholds = 0,
+  distance.thresholds = 100,
   method = "mem.moran.sequential",
   n.cores = 1
 )
@@ -1026,7 +1026,7 @@ m_spatial <- rf(
   dependent.variable.name = plants_response,
   predictor.variable.names = plants_predictors,
   distance.matrix = plants_distance,
-  distance.thresholds = 0,
+  distance.thresholds = 100,
   n.cores = 1,
   verbose = FALSE
 ) |>
@@ -1050,7 +1050,7 @@ m <- rf(
   dependent.variable.name = plants_response,
   predictor.variable.names = plants_predictors,
   distance.matrix = plants_distance,
-  distance.thresholds = 0,
+  distance.thresholds = 100,
   n.cores = 1
 )
 
@@ -1079,7 +1079,7 @@ m <- rf(
   dependent.variable.name = plants_response,
   predictor.variable.names = plants_predictors,
   distance.matrix = plants_distance,
-  distance.thresholds = 0,
+  distance.thresholds = 100,
   n.cores = 1
 )
 
@@ -1116,7 +1116,7 @@ args <- list(
   dependent.variable.name = plants_response,
   predictor.variable.names = plants_predictors,
   distance.matrix = plants_distance,
-  distance.thresholds = c(0, 1000)
+  distance.thresholds = c(100, 1000)
 )
 
 #fitting model with these ranger arguments
@@ -1146,14 +1146,14 @@ m <- rf(
   dependent.variable.name = plants_response,
   predictor.variable.names = plants_predictors,
   distance.matrix = plants_distance,
-  distance.thresholds = 0,
+  distance.thresholds = 100,
   n.cores = 1
 )
 
 #preparing spatial predictors
 spatial.predictors <- mem_multithreshold(
   distance.matrix = plants_distance,
-  distance.thresholds = 0
+  distance.thresholds = 100
 )
 
 #ranking spatial predictors
@@ -1165,7 +1165,7 @@ spatial.predictors.ranking <- rank_spatial_predictors(
   ranking.method = "moran",
   reference.moran.i = m$spatial.correlation.residuals$max.moran,
   distance.matrix = plants_distance,
-  distance.thresholds = 0,
+  distance.thresholds = 100,
   n.cores = 1
 )
 
@@ -1175,7 +1175,7 @@ selection <- select_spatial_predictors_recursive(
   dependent.variable.name = plants_response,
   predictor.variable.names = plants_predictors,
   distance.matrix = plants_distance,
-  distance.thresholds = 0,
+  distance.thresholds = 100,
   spatial.predictors.df = spatial.predictors,
   spatial.predictors.ranking = spatial.predictors.ranking,
   n.cores = 1
@@ -1200,14 +1200,14 @@ m <- rf(
   dependent.variable.name = plants_response,
   predictor.variable.names = plants_predictors,
   distance.matrix = plants_distance,
-  distance.thresholds = 0,
+  distance.thresholds = 100,
   n.cores = 1
 )
 
 #preparing spatial predictors
 spatial.predictors <- mem_multithreshold(
   distance.matrix = distance.matrix,
-  distance.thresholds = 0
+  distance.thresholds = 100
 )
 
 #ranking spatial predictors by their Moran's I (faster option)
@@ -1216,7 +1216,7 @@ spatial.predictors.ranking <- rank_spatial_predictors(
   spatial.predictors.df = spatial.predictors,
   reference.moran.i = model$spatial.correlation.residuals$max.moran,
   distance.matrix = distance.matrix,
-  distance.thresholds = 0,
+  distance.thresholds = 100,
   n.cores = 1
 )
 
@@ -1226,7 +1226,7 @@ selection <- select_spatial_predictors_sequential(
   dependent.variable.name = dependent.variable.name,
   predictor.variable.names = predictor.variable.names,
   distance.matrix = plants_distance,
-  distance.thresholds = 0,
+  distance.thresholds = 100,
   spatial.predictors.df = spatial.predictors,
   spatial.predictors.ranking = spatial.predictors.ranking,
   n.cores = 1

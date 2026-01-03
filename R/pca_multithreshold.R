@@ -34,7 +34,7 @@
 #' # Compute PCA spatial predictors at multiple distance thresholds
 #' pca_predictors <- pca_multithreshold(
 #'   distance.matrix = plants_distance,
-#'   distance.thresholds = c(0, 1000, 5000)
+#'   distance.thresholds = c(100, 1000, 5000)
 #' )
 #'
 #' # View structure
@@ -47,7 +47,7 @@
 #' # Limit number of predictors to save memory
 #' pca_limited <- pca_multithreshold(
 #'   distance.matrix = plants_distance,
-#'   distance.thresholds = c(0, 1000, 5000),
+#'   distance.thresholds = c(100, 1000, 5000),
 #'   max.spatial.predictors = 20
 #' )
 #' ncol(pca_limited)  # At most 20 predictors
@@ -67,11 +67,10 @@ pca_multithreshold <- function(
   }
 
   #creating distance thresholds
-  if (is.null(distance.thresholds)) {
-    distance.thresholds <- default_distance_thresholds(
-      distance.matrix = distance.matrix
-    )
-  }
+  distance.thresholds <- default_distance_thresholds(
+    distance.thresholds = distance.thresholds,
+    distance.matrix = distance.matrix
+  )
 
   #list to store pca factors
   pca.factors.list <- list()

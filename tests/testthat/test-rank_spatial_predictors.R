@@ -2,12 +2,12 @@ test_that("`rank_spatial_predictors()` works", {
   data("plants_distance")
   spatial.predictors.df <- pca_multithreshold(
     plants_distance[1:50, 1:50],
-    distance.thresholds = c(0, 100, 1000)
+    distance.thresholds = c(100, 100, 1000)
   )
 
   rank <- rank_spatial_predictors(
     distance.matrix = plants_distance[1:50, 1:50],
-    distance.thresholds = c(0, 100, 1000),
+    distance.thresholds = c(100, 100, 1000),
     spatial.predictors.df = spatial.predictors.df,
     ranking.method = "moran"
   )
@@ -117,12 +117,12 @@ test_that("rank_spatial_predictors() filters redundant predictors", {
 
   spatial_preds <- mem_multithreshold(
     distance.matrix = plants_distance[1:50, 1:50],
-    distance.thresholds = c(0, 500, 1000)
+    distance.thresholds = c(100, 500, 1000)
   )
 
   result <- rank_spatial_predictors(
     distance.matrix = plants_distance[1:50, 1:50],
-    distance.thresholds = c(0, 500, 1000),
+    distance.thresholds = c(100, 500, 1000),
     spatial.predictors.df = spatial_preds,
     ranking.method = "moran",
     verbose = FALSE
@@ -160,12 +160,12 @@ test_that("rank_spatial_predictors() handles multiple distance thresholds", {
 
   spatial_preds <- mem_multithreshold(
     distance.matrix = plants_distance[1:50, 1:50],
-    distance.thresholds = c(0, 1000, 2000)
+    distance.thresholds = c(100, 1000, 2000)
   )
 
   result <- rank_spatial_predictors(
     distance.matrix = plants_distance[1:50, 1:50],
-    distance.thresholds = c(0, 1000, 2000),
+    distance.thresholds = c(100, 1000, 2000),
     spatial.predictors.df = spatial_preds,
     ranking.method = "moran",
     verbose = FALSE

@@ -22,7 +22,7 @@
 #' # Generate spatial predictors using multiple distance thresholds
 #' mem.df <- mem_multithreshold(
 #'   distance.matrix = plants_distance,
-#'   distance.thresholds = c(0, 1000)
+#'   distance.thresholds = c(100, 1000)
 #' )
 #'
 #' # Filter spatial predictors to remove redundancy

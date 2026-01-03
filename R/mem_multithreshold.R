@@ -27,7 +27,7 @@
 #' # Compute MEMs for multiple distance thresholds
 #' mems <- mem_multithreshold(
 #'   distance.matrix = plants_distance,
-#'   distance.thresholds = c(0, 1000, 5000)
+#'   distance.thresholds = c(100, 1000, 5000)
 #' )
 #'
 #' # View structure
@@ -40,7 +40,7 @@
 #' # Limit number of spatial predictors
 #' mems_limited <- mem_multithreshold(
 #'   distance.matrix = plants_distance,
-#'   distance.thresholds = c(0, 1000, 5000),
+#'   distance.thresholds = c(100, 1000, 5000),
 #'   max.spatial.predictors = 20
 #' )
 #' dim(mems_limited)
@@ -60,11 +60,10 @@ mem_multithreshold <- function(
   }
 
   #creating distance thresholds
-  if (is.null(distance.thresholds)) {
-    distance.thresholds <- default_distance_thresholds(
-      distance.matrix = distance.matrix
-    )
-  }
+  distance.thresholds <- default_distance_thresholds(
+    distance.thresholds = distance.thresholds,
+    distance.matrix = distance.matrix
+  )
 
   #list to store mems
   mem.list <- list()

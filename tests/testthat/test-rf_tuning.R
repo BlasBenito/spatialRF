@@ -110,7 +110,7 @@ test_that("rf_tuning() includes spatial predictors in tuned rf_spatial models", 
     dependent.variable.name = "richness_species_vascular",
     predictor.variable.names = colnames(plants_df)[5:8],
     distance.matrix = plants_distance_sub,
-    distance.thresholds = c(0, 1000),
+    distance.thresholds = c(100, 1000),
     xy = plants_xy_sub,
     verbose = FALSE
   )
@@ -180,7 +180,7 @@ test_that("rf_tuning() mtry calculation accounts for spatial predictors", {
     dependent.variable.name = "richness_species_vascular",
     predictor.variable.names = colnames(plants_df)[5:10], # 6 predictors
     distance.matrix = plants_distance_sub,
-    distance.thresholds = c(0),
+    distance.thresholds = c(100),
     xy = plants_xy_sub,
     verbose = FALSE
   )

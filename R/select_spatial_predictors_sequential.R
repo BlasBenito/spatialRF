@@ -52,7 +52,7 @@
 #'   dependent.variable.name = plants_response,
 #'   predictor.variable.names = plants_predictors,
 #'   distance.matrix = plants_distance,
-#'   distance.thresholds = 0,
+#'   distance.thresholds = 100,
 #'   spatial.predictors.df = mems,
 #'   spatial.predictors.ranking = mems.rank,
 #'   ranger.arguments = list(num.trees = 30),

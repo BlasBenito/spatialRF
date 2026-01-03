@@ -2,99 +2,61 @@
 % Please edit documentation in R/distance_matrix.R
 \name{distance_matrix}
 \alias{distance_matrix}
-\title{Compute pairwise distance matrix from spatial coordinates}
+\title{Compute pairwise distance matrix}
 \usage{
-distance_matrix(x = NULL, y = NULL, units = "km", verbose = TRUE)
+distance_matrix(data = NULL, crs = 4326, verbose = TRUE)
 }
 \arguments{
-\item{x}{Numeric vector of x-coordinates/longitudes, OR data frame with coordinate columns (x,y or lon/long/longitude, lat/latitude), OR sf object. Default: \code{NULL}.}
+\item{data}{Data frame with coordinate columns OR sf data frame. Coordinate columns can be named: longitude (x, X, lon, long, longitude, longitud) and latitude (y, Y, lat, latitude, latitud). Column name matching is case-insensitive. Default: \code{NULL}.}
 
-\item{y}{Numeric vector of y-coordinates/latitudes. Required if \code{x} is a numeric vector. Default: \code{NULL}.}
+\item{crs}{Coordinate reference system for data frame inputs. Can be numeric EPSG code (e.g., \code{4326} for WGS84), a proj4string, or \code{NA}. Ignored if \code{data} is an sf object (uses existing CRS). Default: \code{4326}}
 
-\item{units}{Character. Output distance units: \code{"km"} (kilometers) or \code{"m"} (meters). Default: \code{"km"}.}
-
-\item{verbose}{Logical. If \code{TRUE}, prints information about detected coordinate type and geometry. Default: \code{TRUE}.}
+\item{verbose}{Logical. If \code{TRUE}, prints distance range information. Default: \code{TRUE}.}
 }
 \value{
-Numeric matrix (n×n) with pairwise distances in specified units. Diagonal is 0. Row and column names are character indices ("1", "2", "3", ...).
+Numeric matrix (n×n) with pairwise distances in meters. Diagonal is 0. Row and column names are character indices ("1", "2", "3", ...").
 }
 \description{
-Computes a square distance matrix from point or polygon geometries using \code{\link[sf:geos_measures]{sf::st_distance()}}. Supports multiple input formats including data frames, coordinate vectors, and sf objects. Automatically handles both geographic (lat/lon) and projected coordinate systems.
+Computes a square distance matrix from point or polygon geometries using \code{\link[sf:geos_measures]{sf::st_distance()}}. Supports sf objects and data frames with coordinate columns. Automatically handles both geographic (lat/lon) and projected coordinate systems. Output distances are always in meters (consistent with sf::st_distance()).
 }
 \details{
-\subsection{Implementation}{
+\subsection{Output Units}{
 
-This function uses \code{\link[sf:geos_measures]{sf::st_distance()}} for all distance calculations, which:
-\itemize{
-\item Handles both point and polygon geometries
-\item Automatically uses geodesic (great circle) distances for geographic coordinates
-\item Uses Euclidean distances for projected coordinates
-\item Computes edge-to-edge distances for polygons
-\item Returns accurate distances with proper unit handling
-}
-}
+The returned matrix is in \strong{meters} to maintain consistency with \code{\link[sf:geos_measures]{sf::st_distance()}}, and has an attribute "units" with the value "m".
 
-\subsection{Coordinate Detection}{
-
-\strong{For sf objects:} Uses existing CRS information
-
-\strong{For data frames:} Detects coordinate columns by name (case-insensitive):
-\itemize{
-\item Geographic: lon/long/longitude + lat/latitude → assumes EPSG:4326 (WGS84)
-\item Projected: x + y → assumes coordinates in meters, uses Euclidean distance
-}
-
-\strong{For numeric vectors:} Checks if values fall within lat/lon ranges (-90 to 90, -180 to 180) to infer coordinate type
+\strong{IMPORTANT:} When using the distance matrix with other spatialRF functions, ensure \code{distance.thresholds} are also specified in meters to maintain unit consistency.
 }
 
 \subsection{Computational Complexity}{
 
 Distance matrix computation requires O(n²) pairwise distance calculations for n observations. Memory footprint is 8n² bytes (approximately 800 MB for n=10,000). For large datasets (n > 5,000), computation may take several minutes.
 }
-
-\subsection{Dependencies}{
-
-This function requires the sf package. Install with: \code{install.packages("sf")}
-}
 }
 \examples{
-\donttest{
-# Example 1: Data frame with lon/lat (geographic)
-coords_df <- data.frame(
-  longitude = c(-122.4, -73.9, -87.6),
-  latitude = c(37.8, 40.7, 41.9),
-  city = c("SF", "NYC", "Chicago")
+#from dataframe
+plants_distance <- distance_matrix(
+  data = plants_df,
+  crs = 4326
 )
-dm1 <- distance_matrix(coords_df, units = "km")
-dm1
 
-# Example 2: Separate x, y vectors (projected coordinates in meters)
-x <- c(500000, 510000, 520000)
-y <- c(4000000, 4010000, 4020000)
-dm2 <- distance_matrix(x, y, units = "km")
-dm2
+#it's in meters
+attributes(plants_distance)$units
 
-# Example 3: Data frame with x, y columns
-proj_coords <- data.frame(
-  x = c(1000, 2000, 3000),
-  y = c(5000, 6000, 7000)
+#convert to km
+plants_distance <- plants_distance / 1000
+#not required
+attributes(plants_distance)$units <- "km"
+
+#from sf
+plants_sf <- sf::st_as_sf(
+  x = plants_df,
+  coords = c("x", "y"),
+  crs = 4326
 )
-dm3 <- distance_matrix(proj_coords, units = "m")
-dm3
-}
 
-\dontrun{
-# Example 4: sf object with POINT geometry (requires sf package)
-library(sf)
-pts <- st_as_sf(coords_df, coords = c("longitude", "latitude"), crs = 4326)
-dm4 <- distance_matrix(pts, units = "km")
-dm4
-
-# Example 5: sf object with POLYGON geometry (edge-to-edge)
-polys <- st_buffer(pts, dist = 10000) # 10 km buffers
-dm5 <- distance_matrix(polys, units = "km")
-dm5
-}
+plants_distance <- distance_matrix(
+  data = plants_sf
+)
 
 }
 \seealso{

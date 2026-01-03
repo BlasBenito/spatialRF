@@ -65,7 +65,7 @@ data(plants_df, plants_distance, plants_response)
 moran_multi <- moran_multithreshold(
   x = plants_df[[plants_response]],
   distance.matrix = plants_distance,
-  distance.thresholds = c(0, 1000, 5000)
+  distance.thresholds = c(100, 1000, 5000)
 )
 
 # View results for all thresholds

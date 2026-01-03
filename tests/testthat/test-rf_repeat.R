@@ -1,13 +1,14 @@
 test_that("`rf_repeat()` works", {
   data("plants_df")
   data("plants_distance")
+  data(plants_predictors)
 
   out <- rf_repeat(
     data = plants_df,
     dependent.variable.name = "richness_species_vascular",
-    predictor.variable.names = colnames(plants_df)[5:21],
+    predictor.variable.names = plants_predictors,
     distance.matrix = plants_distance,
-    distance.thresholds = c(0, 100, 1000),
+    distance.thresholds = c(100, 1000, 2000),
     repetitions = 5,
     verbose = FALSE
   )

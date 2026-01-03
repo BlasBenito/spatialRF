@@ -4,7 +4,7 @@ test_that("filter_spatial_predictors() works with basic inputs", {
   # Generate spatial predictors
   mem_df <- mem_multithreshold(
     distance.matrix = plants_distance,
-    distance.thresholds = c(0, 1000)
+    distance.thresholds = c(100, 1000)
   )
 
   filtered <- filter_spatial_predictors(
@@ -24,7 +24,7 @@ test_that("filter_spatial_predictors() reduces number of predictors", {
 
   mem_df <- mem_multithreshold(
     distance.matrix = plants_distance,
-    distance.thresholds = c(0, 1000, 5000)
+    distance.thresholds = c(100, 1000, 5000)
   )
 
   filtered <- filter_spatial_predictors(
@@ -43,7 +43,7 @@ test_that("filter_spatial_predictors() cor.threshold affects filtering", {
 
   mem_df <- mem_multithreshold(
     distance.matrix = plants_distance,
-    distance.thresholds = c(0, 1000)
+    distance.thresholds = c(100, 1000)
   )
 
   # Strict threshold (low) - fewer predictors retained
@@ -70,7 +70,7 @@ test_that("filter_spatial_predictors() output has correct structure", {
 
   mem_df <- mem_multithreshold(
     distance.matrix = plants_distance,
-    distance.thresholds = c(0, 1000)
+    distance.thresholds = c(100, 1000)
   )
 
   filtered <- filter_spatial_predictors(
@@ -98,7 +98,7 @@ test_that("filter_spatial_predictors() handles very strict threshold", {
 
   mem_df <- mem_multithreshold(
     distance.matrix = plants_distance,
-    distance.thresholds = c(0, 1000)
+    distance.thresholds = c(100, 1000)
   )
 
   # Very strict threshold might filter out most/all predictors
@@ -120,7 +120,7 @@ test_that("filter_spatial_predictors() handles very lenient threshold", {
 
   mem_df <- mem_multithreshold(
     distance.matrix = plants_distance,
-    distance.thresholds = c(0, 1000)
+    distance.thresholds = c(100, 1000)
   )
 
   # Very lenient threshold - should retain most/all predictors
@@ -142,7 +142,7 @@ test_that("filter_spatial_predictors() works with different threshold values", {
 
   mem_df <- mem_multithreshold(
     distance.matrix = plants_distance,
-    distance.thresholds = c(0, 1000)
+    distance.thresholds = c(100, 1000)
   )
 
   thresholds <- c(0.30, 0.50, 0.70, 0.90)
@@ -170,7 +170,7 @@ test_that("filter_spatial_predictors() default threshold is 0.50", {
 
   mem_df <- mem_multithreshold(
     distance.matrix = plants_distance,
-    distance.thresholds = c(0, 1000)
+    distance.thresholds = c(100, 1000)
   )
 
   filtered_default <- filter_spatial_predictors(
@@ -195,7 +195,7 @@ test_that("filter_spatial_predictors() preserves row order", {
 
   mem_df <- mem_multithreshold(
     distance.matrix = plants_distance,
-    distance.thresholds = c(0, 1000)
+    distance.thresholds = c(100, 1000)
   )
 
   filtered <- filter_spatial_predictors(
@@ -242,7 +242,7 @@ test_that("filter_spatial_predictors() filters both internally and vs non-spatia
   # Generate many potentially correlated spatial predictors
   mem_df <- mem_multithreshold(
     distance.matrix = plants_distance,
-    distance.thresholds = c(0, 500, 1000, 2000)
+    distance.thresholds = c(100, 500, 1000, 2000)
   )
 
   filtered <- filter_spatial_predictors(

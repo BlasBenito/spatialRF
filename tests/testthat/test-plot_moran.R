@@ -84,7 +84,7 @@ test_that("plot_moran() works with data frame input from moran()", {
   moran_results <- moran_multithreshold(
     x = residuals,
     distance.matrix = plants_distance[1:100, 1:100],
-    distance.thresholds = c(0, 1000, 2000)
+    distance.thresholds = c(100, 1000, 2000)
   )
 
   # Pass the per.distance data frame
@@ -167,7 +167,7 @@ test_that("plot_moran() data frame input forces option 1", {
   moran_results <- moran_multithreshold(
     x = residuals,
     distance.matrix = plants_distance[1:100, 1:100],
-    distance.thresholds = c(0, 1000)
+    distance.thresholds = c(100, 1000)
   )
 
   # Even with option = 2, should produce option 1 plot for data frame

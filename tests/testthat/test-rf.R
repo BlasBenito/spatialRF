@@ -6,7 +6,7 @@ test_that("`rf()` works", {
     dependent.variable.name = "richness_species_vascular",
     predictor.variable.names = colnames(plants_df)[5:21],
     distance.matrix = plants_distance,
-    distance.thresholds = c(0, 100, 1000, 10000),
+    distance.thresholds = c(100, 100, 1000, 10000),
     verbose = FALSE
   )
   expect_s3_class(out, "rf")
@@ -33,7 +33,7 @@ test_that("`rf()` works with scaled.importance = TRUE", {
     dependent.variable.name = "richness_species_vascular",
     predictor.variable.names = colnames(plants_df)[5:21],
     distance.matrix = plants_distance,
-    distance.thresholds = c(0, 100, 1000),
+    distance.thresholds = c(100, 100, 1000),
     scaled.importance = TRUE,
     verbose = FALSE
   )
@@ -56,7 +56,7 @@ test_that("`rf()` works with binary response", {
     dependent.variable.name = "binary_response",
     predictor.variable.names = colnames(plants_df)[5:21],
     distance.matrix = plants_distance,
-    distance.thresholds = c(0, 100, 1000),
+    distance.thresholds = c(100, 100, 1000),
     verbose = FALSE
   )
   expect_s3_class(out, "rf")

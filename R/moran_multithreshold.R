@@ -44,7 +44,7 @@
 #' moran_multi <- moran_multithreshold(
 #'   x = plants_df[[plants_response]],
 #'   distance.matrix = plants_distance,
-#'   distance.thresholds = c(0, 1000, 5000)
+#'   distance.thresholds = c(100, 1000, 5000)
 #' )
 #'
 #' # View results for all thresholds
@@ -75,11 +75,10 @@ moran_multithreshold <- function(
     stop("Argument 'distance.matrix' is missing.`")
   }
   #creating distance thresholds
-  if (is.null(distance.thresholds)) {
-    distance.thresholds <- default_distance_thresholds(
-      distance.matrix = distance.matrix
-    )
-  }
+  distance.thresholds <- default_distance_thresholds(
+    distance.thresholds = distance.thresholds,
+    distance.matrix = distance.matrix
+  )
 
   #create output dataframe
   out.df <- data.frame(
