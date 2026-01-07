@@ -58,15 +58,15 @@ rf_tuning <- function(
   data <- ranger.arguments$data
   dependent.variable.name <- ranger.arguments$dependent.variable.name
   predictor.variable.names <- ranger.arguments$predictor.variable.names
-  distance.matrix <- ranger.arguments$distance.matrix
-  distance.thresholds <- ranger.arguments$distance.thresholds
+  distance.matrix <- model$distance.matrix
+  distance.thresholds <- model$distance.thresholds
 
   #getting xy
   if (is.null(xy)) {
-    if (is.null(model$ranger.arguments$xy)) {
+    if (is.null(model$xy)) {
       stop("The argument 'xy' is required for spatial cross-validation.")
     } else {
-      xy <- model$ranger.arguments$xy
+      xy <- model$xy
     }
   }
 
@@ -195,7 +195,6 @@ rf_tuning <- function(
         distance.matrix = distance.matrix,
         distance.thresholds = distance.thresholds,
         ranger.arguments = ranger.arguments.i,
-        scaled.importance = FALSE,
         seed = seed,
         verbose = FALSE
       )

@@ -1,10 +1,11 @@
 test_that("`get_moran()` works", {
   data(plants_df)
   data(plants_distance)
+  data(plants_predictors)
   rf.model <- rf(
     data = plants_df,
     dependent.variable.name = "richness_species_vascular",
-    predictor.variable.names = colnames(plants_df)[5:21],
+    predictor.variable.names = plants_predictors,
     distance.matrix = plants_distance,
     distance.thresholds = c(100, 1000, 2000),
     verbose = FALSE

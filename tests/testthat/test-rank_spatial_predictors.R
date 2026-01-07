@@ -1,5 +1,5 @@
 test_that("`rank_spatial_predictors()` works", {
-  data("plants_distance")
+  data(plants_distance)
   spatial.predictors.df <- pca_multithreshold(
     plants_distance[1:50, 1:50],
     distance.thresholds = c(100, 100, 1000)

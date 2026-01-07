@@ -123,15 +123,13 @@ rf_evaluate <- function(
   ranger.arguments$importance <- "none"
   ranger.arguments$local.importance <- FALSE
   ranger.arguments$data <- NULL
-  ranger.arguments$scaled.importance <- FALSE
-  ranger.arguments$distance.matrix <- NULL
 
   #getting xy
   if (is.null(xy)) {
-    if (is.null(model$ranger.arguments$xy)) {
+    if (is.null(model$xy)) {
       stop("The argument 'xy' is required for spatial cross-validation.")
     } else {
-      xy <- model$ranger.arguments$xy
+      xy <- model$xy
     }
   }
 
@@ -367,7 +365,8 @@ rf_evaluate <- function(
 
       return(out.df)
     },
-    future.seed = TRUE
+    future.seed = TRUE,
+    future.packages = c("stats")
   )
 
   # Combine results
@@ -474,7 +473,7 @@ rf_evaluate <- function(
         data.frame(
           model = grp$model[1],
           metric = grp$metric[1],
-          median = median(grp$value),
+          median = stats::median(grp$value),
           median_absolute_deviation = stats::mad(grp$value),
           q1 = stats::quantile(grp$value, 0.25, na.rm = TRUE),
           q3 = stats::quantile(grp$value, 0.75, na.rm = TRUE),

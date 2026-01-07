@@ -163,17 +163,17 @@ plot_moran <- function(
     m.residuals <- model$residuals$values
 
     #getting distance matrix
-    if (!is.null(model$ranger.arguments$distance.matrix)) {
-      distance.matrix <- model$ranger.arguments$distance.matrix
+    if (!is.null(model$distance.matrix)) {
+      distance.matrix <- model$distance.matrix
     } else {
-      stop("distance.matrix not found in model$ranger.arguments")
+      stop("distance.matrix not found in model")
     }
 
     #getting distance thresholds
-    if (!is.null(model$ranger.arguments$distance.thresholds)) {
-      distance.thresholds <- model$ranger.arguments$distance.thresholds
+    if (!is.null(model$distance.thresholds)) {
+      distance.thresholds <- model$distance.thresholds
     } else {
-      stop("distance.matrix not found in x$ranger.arguments")
+      stop("distance.thresholds not found in model")
     }
 
     #getting Moran's I results

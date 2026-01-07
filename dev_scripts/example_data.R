@@ -39,6 +39,7 @@ plants_distance <- distance_matrix(
   data = plants_sf
 )
 
+#plants_rf
 plants_rf <- rf(
   data = plants_df,
   dependent.variable.name = plants_response,
@@ -54,21 +55,33 @@ plants_rf <- rf(
   verbose = FALSE
 )
 
-usethis::use_data(plants_rf, overwrite = TRUE, compress = "xz")
-
-plants_rf_spatial <- rf_spatial(
+plants_rf <- rf(
   data = plants_df,
   dependent.variable.name = plants_response,
-  predictor.variable.names = plants_predictors,
+  predictor.variable.names = c(
+    "climate_bio1_average",
+    "climate_aridity_index_average",
+    "human_footprint_average",
+    "neighbors_count",
+    "bias_area_km2"
+  ),
   distance.matrix = plants_distance,
-  xy = plants_xy,
   distance.thresholds = c(100, 1000, 2000, 4000),
-  method = "mem.effect.recursive",
+  xy = plants_xy,
   ranger.arguments = list(
     num.trees = 50,
     min.node.size = 30
   ),
-  n.cores = 14,
+  n.cores = 1,
+  verbose = FALSE
+)
+
+usethis::use_data(plants_rf, overwrite = TRUE, compress = "xz")
+
+plants_rf_spatial <- rf_spatial(
+  model = plants_rf,
+  method = "mem.moran.sequential",
+  n.cores = 1,
   verbose = FALSE
 )
 

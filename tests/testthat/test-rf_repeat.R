@@ -1,6 +1,6 @@
 test_that("`rf_repeat()` works", {
-  data("plants_df")
-  data("plants_distance")
+  data(plants_rf)
+  data(plants_distance)
   data(plants_predictors)
 
   out <- rf_repeat(

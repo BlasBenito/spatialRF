@@ -160,7 +160,6 @@ rank_spatial_predictors <- function(
           seed = spatial.predictors.i,
           distance.matrix = distance.matrix,
           distance.thresholds = distance.thresholds,
-          scaled.importance = FALSE,
           ranger.arguments = ranger.arguments,
           verbose = FALSE
         )

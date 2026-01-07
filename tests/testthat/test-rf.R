@@ -1,10 +1,11 @@
 test_that("`rf()` works", {
-  data("plants_df")
-  data("plants_distance")
+  data(plants_rf)
+  data(plants_distance)
+  data(plants_predictors)
   out <- rf(
     data = plants_df,
     dependent.variable.name = "richness_species_vascular",
-    predictor.variable.names = colnames(plants_df)[5:21],
+    predictor.variable.names = plants_predictors,
     distance.matrix = plants_distance,
     distance.thresholds = c(100, 100, 1000, 10000),
     verbose = FALSE
@@ -25,25 +26,10 @@ test_that("`rf()` works", {
   )
 })
 
-test_that("`rf()` works with scaled.importance = TRUE", {
-  data("plants_df")
-  data("plants_distance")
-  out <- rf(
-    data = plants_df,
-    dependent.variable.name = "richness_species_vascular",
-    predictor.variable.names = colnames(plants_df)[5:21],
-    distance.matrix = plants_distance,
-    distance.thresholds = c(100, 100, 1000),
-    scaled.importance = TRUE,
-    verbose = FALSE
-  )
-  expect_s3_class(out, "rf")
-  expect_s3_class(out$importance$per.variable, "data.frame")
-})
-
 test_that("`rf()` works with binary response", {
-  data("plants_df")
-  data("plants_distance")
+  data(plants_rf)
+  data(plants_distance)
+  data(plants_predictors)
   # Create binary response
   plants_df$binary_response <- ifelse(
     plants_df$richness_species_vascular >
@@ -54,7 +40,7 @@ test_that("`rf()` works with binary response", {
   out <- rf(
     data = plants_df,
     dependent.variable.name = "binary_response",
-    predictor.variable.names = colnames(plants_df)[5:21],
+    predictor.variable.names = plants_predictors,
     distance.matrix = plants_distance,
     distance.thresholds = c(100, 100, 1000),
     verbose = FALSE

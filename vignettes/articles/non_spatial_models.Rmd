@@ -38,22 +38,14 @@ library(DT)
 library(rnaturalearth)
 library(rnaturalearthdata)
 library(randomForestExplainer)
-library(parallel)
 library(patchwork)
 ```
 
-Many functions in the package also support a parallelization backend to speed-up execution.
-
-```{r}
-cluster <- parallel::makeCluster(
-  parallel::detectCores() - 1,
-  type = "PSOCK"
-)
-```
 
 The package includes the example dataset [`plants_df`](https://blasbenito.github.io/spatialRF/reference/plants_df.html) with plant species richness and predictors for 227 ecoregions in the Americas. The object [`plants_distance`](https://blasbenito.github.io/spatialRF/reference/plants_distance.html) is a matrix of geographical distances between ecoregions.
 
 ```{r}
+#load example data
 data(
   plants_df,         #training data frame
   plants_response,   #response name
@@ -64,7 +56,7 @@ data(
 
 #distance thresholds (same units as plants_distance, km)
 #used to assess spatial correlation at different distances
-distance_thresholds <- c(10, 100, 1000, 2000, 4000, 8000)
+distance_thresholds <- c(100, 1000, 2000, 4000, 8000)
 
 #a pretty color palette
 colors <- grDevices::hcl.colors(
@@ -73,56 +65,6 @@ colors <- grDevices::hcl.colors(
     )
 ```
 
-## Computing distance matrices
-
-::: {.alert .alert-info}
-**New function to compute distance matrices**
-
-You can now create your own distance matrices from spatial coordinates using the [`distance_matrix()`](https://blasbenito.github.io/spatialRF/reference/distance_matrix.html) function. This is useful when working with your own datasets or when you need to recompute distances using different methods.
-:::
-
-The package includes the pre-computed distance matrix `plants_distance`, but you can compute a similar matrix from the coordinates in `plants_df`:
-
-```{r}
-# Compute distance matrix from plants_df coordinates
-# The columns 'x' and 'y' are automatically detected as longitude and latitude
-# All distances are returned in kilometers
-my_distance_matrix <- distance_matrix(
-  data = plants_df,
-  verbose = FALSE
-)
-
-# Check dimensions
-dim(my_distance_matrix)
-
-# View a subset
-my_distance_matrix[1:5, 1:5]
-```
-
-The `distance_matrix()` function:
-
-- Auto-detects coordinate columns from data frames with flexible naming (x/X/lon/long/longitude/longitud for longitude, y/Y/lat/latitude/latitud for latitude)
-- Automatically uses geodesic distances for geographic coordinates and Euclidean distances for projected coordinates
-- Supports both data frames and sf objects
-- Uses `sf::st_distance()` internally for accurate distance calculations
-- Returns distances in kilometers (always) as a matrix compatible with all spatialRF functions
-
-```{r, eval=FALSE}
-# Other input formats:
-
-# From a data frame with different column names
-coords_df <- data.frame(
-  longitude = c(-122.4, -73.9, -87.6),
-  latitude = c(37.8, 40.7, 41.9),
-  city = c("SF", "NYC", "Chicago")
-)
-dm <- distance_matrix(data = coords_df)
-
-# From sf objects (requires sf package)
-library(sf)
-pts <- st_as_sf(coords_df, coords = c("longitude", "latitude"), crs = 4326)
-dm <- distance_matrix(data = pts)
-```
 
 The figure below shows the response variable *richness_species_vascular* in space.
 
@@ -168,6 +110,7 @@ spatialRF::plot_training_df(
   dependent.variable.name = plants_response,
   predictor.variable.names = plants_predictors,
   point.color = colors,
+  method = "lm",
   ncol = 3
   )
 ```
@@ -185,6 +128,37 @@ spatialRF::plot_training_df_moran(
 )
 ```
 
+
+## Computing distance matrices
+
+::: {.alert .alert-info}
+**New function to compute distance matrices**
+
+You can now create your own distance matrices from spatial coordinates using the [`distance_matrix()`](https://blasbenito.github.io/spatialRF/reference/distance_matrix.html) function.
+:::
+
+The package includes the pre-computed distance matrix `plants_distance`, but you can compute a similar matrix from the coordinates in `plants_df`:
+
+```{r}
+# Compute distance matrix from plants_df coordinates
+# The columns 'x' and 'y' are automatically detected as longitude and latitude
+# All distances are returned in meters
+my_distance_matrix <- distance_matrix(
+  data = plants_df,
+  verbose = FALSE
+)
+
+# Convert to km
+my_distance_matrix <- floor(my_distance_matrix / 1000)
+
+# Check dimensions
+dim(my_distance_matrix)
+
+# View a subset
+my_distance_matrix[1:5, 1:5]
+```
+
+
 # Finding promising variable interactions
 
 The function [`the_feature_engineer()`](https://blasbenito.github.io/spatialRF/reference/the_feature_engineer.html) tests all possible interactions between the most important predictors, and selects the most promising ones via spatial cross-validation (see [`rf_evaluate()`](https://blasbenito.github.io/spatialRF/reference/rf_evaluate.html)).
@@ -195,8 +169,6 @@ interactions <- spatialRF::the_feature_engineer(
   dependent.variable.name = plants_response,
   predictor.variable.names = plants_predictors,
   xy = plants_xy,
-  cluster = cluster,
-  point.color = colors,
   verbose = TRUE
   )
 ```
@@ -207,12 +179,18 @@ The violin-plot shows the cross-validation comparison of the model with and with
 
 The function also returns a data frame with the complete screening results.
 
+```{r, eval = FALSE}
+interactions$screening
+```
+
+
 ```{r, echo = FALSE, warning=FALSE}
 interactions$screening |>
   dplyr::mutate(
-    interaction.metric.gain = round(interaction.metric.gain, 3)
+    interaction.metric.gain = round(interaction.metric.gain, 3),
+    max.cor.with.predictors = round(max.cor.with.predictors, 3)
   ) |>
-  knitr::kable()
+  DT::datatable()
 ```
 
 

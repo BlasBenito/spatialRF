@@ -63,25 +63,29 @@ prepare_importance_spatial <- function(model) {
   )
   importance.df <- importance.df[order(importance.df$importance, decreasing = TRUE), ]
 
-  #preparing out list
-  out.list <- list()
-
-  #common slots
-  out.list$per.variable <- model$importance$per.variable
-  out.list$per.variable.plot <- plot_importance(
+  #preparing out list using build_importance_slots helper
+  # Start with per.variable slots (reusing helper)
+  out.list <- build_importance_slots(
     model$importance$per.variable,
+    slot_prefix = "per.variable",
     verbose = FALSE
   )
-  out.list$spatial.predictors <- importance.plot.df
-  out.list$spatial.predictors.plot <- plot_importance(
+
+  # Add spatial.predictors slots
+  spatial_slots <- build_importance_slots(
     importance.plot.df,
+    slot_prefix = "spatial.predictors",
     verbose = FALSE
   )
-  out.list$spatial.predictors.stats <- importance.df
-  out.list$spatial.predictors.stats.plot <- plot_importance(
+  out.list <- c(out.list, spatial_slots)
+
+  # Add spatial.predictors.stats slots
+  stats_slots <- build_importance_slots(
     importance.df,
+    slot_prefix = "spatial.predictors.stats",
     verbose = FALSE
   )
+  out.list <- c(out.list, stats_slots)
 
   #returning the list
   out.list

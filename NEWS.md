@@ -2,6 +2,34 @@
 
 ### Breaking Changes
 
+**Removed `scaled.importance` parameter**
+
+The `scaled.importance` parameter has been removed from `rf()`, `rf_spatial()`, and `rf_repeat()`.
+
+**Rationale:** Permutation importance measures the increase in prediction error (MSE) when a variable is permuted. Since all variables are measured against the **same outcome metric**, their importance scores are already directly comparable regardless of predictor units or scales.
+
+For example:
+- Temperature (10-30°C) importance = "MSE increases by X"
+- Elevation (100-3000m) importance = "MSE increases by Y"
+
+Both X and Y are in the same units (outcome units²), so they can be compared directly without scaling.
+
+The `scaled.importance` option:
+- Provided no real comparability benefit (importance was already comparable)
+- Doubled computation time by fitting a second model
+- Made importance scores less interpretable (in standardized rather than natural units)
+- Added unnecessary complexity to the codebase
+
+**What to do:** Simply remove the parameter from your code. Variable importance scores are already comparable across predictors with different units.
+
+```r
+# OLD CODE
+m <- rf(data = df, scaled.importance = TRUE, ...)
+
+# NEW CODE
+m <- rf(data = df, ...)  # Importance is already comparable!
+```
+
 **Complete parallelization migration to `future` ecosystem**
 
 All parallelized functions now use the `future` ecosystem instead of `foreach`+`doParallel`:

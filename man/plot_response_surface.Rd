@@ -55,7 +55,7 @@ data(plants_rf)
 plot_response_surface(
   model = plants_rf,
   a = "climate_bio1_average",
-  b = "human_population",
+  b = "human_footprint_average",
   grid.resolution = 50
 )
 

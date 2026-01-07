@@ -12,7 +12,6 @@ rf(
   distance.thresholds = NULL,
   xy = NULL,
   ranger.arguments = NULL,
-  scaled.importance = FALSE,
   seed = 1,
   verbose = TRUE,
   n.cores = NULL
@@ -32,8 +31,6 @@ rf(
 \item{xy}{Data frame or matrix with two columns containing coordinates, named "x" and "y". Not used by this function but stored in the model for use by \code{\link[=rf_evaluate]{rf_evaluate()}} and \code{\link[=rf_tuning]{rf_tuning()}}. Default: \code{NULL}}
 
 \item{ranger.arguments}{Named list with \link[ranger]{ranger} arguments. Arguments for this function can also be passed here. The default importance method is 'permutation' instead of ranger's default 'none'. The \code{x}, \code{y}, and \code{formula} arguments are not supported. See \link[ranger]{ranger} help for available arguments. Default: \code{NULL}}
-
-\item{scaled.importance}{If \code{TRUE}, variable importance is computed on scaled data using \link[base]{scale}, making importance scores comparable across models with different predictor units. Default: \code{FALSE}}
 
 \item{seed}{Random seed for reproducibility. Default: \code{1}}
 

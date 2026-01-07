@@ -13,7 +13,6 @@ rf_spatial(
   distance.thresholds = NULL,
   xy = NULL,
   ranger.arguments = NULL,
-  scaled.importance = TRUE,
   method = c("mem.moran.sequential", "mem.effect.sequential", "mem.effect.recursive",
     "hengl", "hengl.moran.sequential", "hengl.effect.sequential",
     "hengl.effect.recursive", "pca.moran.sequential", "pca.effect.sequential",
@@ -27,7 +26,7 @@ rf_spatial(
 )
 }
 \arguments{
-\item{model}{A model fitted with \code{\link[=rf]{rf()}}. If used, the arguments \code{data}, \code{dependent.variable.name}, \code{predictor.variable.names}, \code{distance.matrix}, \code{distance.thresholds}, \code{ranger.arguments}, and \code{scaled.importance} are taken directly from the model definition. Default: NULL}
+\item{model}{A model fitted with \code{\link[=rf]{rf()}}. If used, the arguments \code{data}, \code{dependent.variable.name}, \code{predictor.variable.names}, \code{distance.matrix}, \code{distance.thresholds}, and \code{ranger.arguments} are taken directly from the model definition. Default: NULL}
 
 \item{data}{Data frame with a response variable and a set of predictors. Default: \code{NULL}}
 
@@ -39,11 +38,9 @@ rf_spatial(
 
 \item{distance.thresholds}{Numeric vector with distances in the same units as \code{distance.matrix} Distances below each distance threshold are set to 0 on separated copies of the distance matrix to compute Moran's I at different neighborhood distances. If \code{NULL}, it defaults to \code{seq(0, max(distance.matrix)/2, length.out = 4)} (defined by \code{\link[=default_distance_thresholds]{default_distance_thresholds()}}). Default: \code{NULL}}
 
-\item{xy}{(optional) Data frame or matrix with two columns containing coordinates and named "x" and "y". It is not used by this function, but it is stored in the slot \code{ranger.arguments$xy} of the model, so it can be used by \code{\link[=rf_evaluate]{rf_evaluate()}} and \code{\link[=rf_tuning]{rf_tuning()}}. Default: \code{NULL}}
+\item{xy}{(optional) Data frame or matrix with two columns containing coordinates and named "x" and "y". It is not used by this function, but it is stored in the slot \code{xy} of the model, so it can be used by \code{\link[=rf_evaluate]{rf_evaluate()}} and \code{\link[=rf_tuning]{rf_tuning()}}. Default: \code{NULL}}
 
 \item{ranger.arguments}{Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.}
-
-\item{scaled.importance}{Logical. If \code{TRUE}, and 'importance = "permutation', the function scales 'data' with \link[base]{scale} and fits a new model to compute scaled variable importance scores. Default: \code{TRUE}}
 
 \item{method}{Character, method to build, rank, and select spatial predictors. One of:
 \itemize{
@@ -75,7 +72,7 @@ rf_spatial(
 A ranger model with several new slots:
 \itemize{
 \item \code{ranger.arguments}: Values of the arguments used to fit the ranger model.
-\item \code{importance}: A list containing the vector of variable importance as originally returned by ranger (scaled or not depending on the value of 'scaled.importance'), a data frame with the predictors ordered by their importance, and a ggplot showing the importance values.
+\item \code{importance}: A list containing the vector of variable importance as returned by ranger, a data frame with the predictors ordered by their importance, and a ggplot showing the importance values.
 \item \code{performance}: With the out-of-bag R squared, pseudo R squared, RMSE and NRMSE of the model.
 \item \code{residuals}: residuals, normality test of the residuals computed with \code{\link[=residuals_test]{residuals_test()}}, and spatial autocorrelation of the residuals computed with \code{\link[=moran_multithreshold]{moran_multithreshold()}}.
 \item \code{spatial}: A list with four slots:

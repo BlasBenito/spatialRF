@@ -6,9 +6,8 @@
 #' @param predictor.variable.names Character vector with the names of the predictive variables. Every element of this vector must be in the column names of `data`. Default: `NULL`
 #' @param distance.matrix Squared matrix with the distances among the records in `data`. The number of rows of `distance.matrix` and `data` must be the same. If not provided, the computation of the Moran's I of the residuals is omitted. Default: `NULL`
 #' @param distance.thresholds Numeric vector with neighborhood distances. All distances in the distance matrix below each value in `dustance.thresholds` are set to 0 for the computation of Moran's I. If `NULL`, it defaults to seq(0, max(distance.matrix), length.out = 4). Default: `NULL`
-#' @param xy (optional) Data frame or matrix with two columns containing coordinates and named "x" and "y". It is not used by this function, but it is stored in the slot `ranger.arguments$xy` of the model, so it can be used by [rf_evaluate()] and [rf_tuning()]. Default: `NULL`
+#' @param xy (optional) Data frame or matrix with two columns containing coordinates and named "x" and "y". It is not used by this function, but it is stored in the slot `xy` of the model, so it can be used by [rf_evaluate()] and [rf_tuning()]. Default: `NULL`
 #' @param ranger.arguments Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.
-#' @param scaled.importance Logical. If `TRUE`, and 'importance = "permutation', the function scales 'data' with \link[base]{scale} and fits a new model to compute scaled variable importance scores. Default: `FALSE`
 #' @param repetitions Integer, number of random forest models to fit. Default: `10`
 #' @param keep.models Logical, if `TRUE`, the fitted models are returned in the `models` slot. Set to `FALSE` if the accumulation of models is creating issues with the RAM memory available. Default: `TRUE`.
 #' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same. Default: `1`.
@@ -64,7 +63,6 @@ rf_repeat <- function(
   distance.thresholds = NULL,
   xy = NULL,
   ranger.arguments = NULL,
-  scaled.importance = FALSE,
   repetitions = 10,
   keep.models = TRUE,
   seed = 1,
@@ -85,9 +83,8 @@ rf_repeat <- function(
     data <- ranger.arguments$data
     dependent.variable.name <- ranger.arguments$dependent.variable.name
     predictor.variable.names <- ranger.arguments$predictor.variable.names
-    distance.matrix <- ranger.arguments$distance.matrix
-    distance.thresholds <- ranger.arguments$distance.thresholds
-    scaled.importance <- ranger.arguments$scaled.importance
+    distance.matrix <- model$distance.matrix
+    distance.thresholds <- model$distance.thresholds
 
     #saving tuning and evaluation slots for later
     if ("tuning" %in% names(model)) {
@@ -119,7 +116,6 @@ rf_repeat <- function(
   # Set ranger threading
   ranger.arguments$num.threads <- n.cores
   ranger.arguments$seed <- NULL
-  ranger.arguments$scaled.importance <- scaled.importance
 
   if (keep.models) {
     ranger.arguments$write.forest <- TRUE
@@ -141,7 +137,6 @@ rf_repeat <- function(
         distance.thresholds = distance.thresholds,
         xy = xy,
         ranger.arguments = ranger.arguments,
-        scaled.importance = scaled.importance,
         seed = ifelse(is.null(seed), i, seed + i),
         verbose = FALSE
       )
@@ -165,8 +160,8 @@ rf_repeat <- function(
       #saving model
       if (keep.models) {
         #removing extra weight from the model
-        m.i$ranger.arguments$distance.matrix <- NULL
-        m.i$ranger.arguments$xy <- NULL
+        m.i$distance.matrix <- NULL
+        m.i$xy <- NULL
         m.i$ranger.arguments$data <- NULL
 
         #saving it
@@ -194,7 +189,6 @@ rf_repeat <- function(
         distance.thresholds = distance.thresholds,
         xy = xy,
         ranger.arguments = ranger.arguments,
-        scaled.importance = scaled.importance,
         seed = seed,
         n.cores = n.cores,
         verbose = FALSE

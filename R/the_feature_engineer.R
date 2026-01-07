@@ -700,9 +700,12 @@ the_feature_engineer <- function(
           max(model.i.importance$importance),
         3
       ),
-      interaction.metric.gain = model.i.metric -
-        model.without.interactions.metric,
-      max.cor.with.predictors = max.cor,
+      interaction.metric.gain = round(
+        model.i.metric -
+          model.without.interactions.metric,
+        3
+      ),
+      max.cor.with.predictors = round(max.cor, 2),
       variable.a.name = pair.i[1],
       variable.b.name = pair.i[2]
     )

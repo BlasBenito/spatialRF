@@ -1,6 +1,6 @@
 test_that("`select_spatial_predictors_sequential()` works", {
-  data("plants_distance")
-  data("plants_df")
+  data(plants_distance)
+  data(plants_rf)
 
   # Use smaller subset for faster testing
   # Sample 70 rows to keep test fast while maintaining validity
@@ -57,8 +57,8 @@ test_that("`select_spatial_predictors_sequential()` works", {
 })
 
 test_that("select_spatial_predictors_sequential() respects ranger.arguments", {
-  data("plants_distance")
-  data("plants_df")
+  data(plants_distance)
+  data(plants_rf)
 
   # Use small subset for speed
   sample_idx <- 1:50

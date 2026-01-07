@@ -110,15 +110,13 @@ rf_importance <- function(
   ranger.arguments$importance <- "none"
   ranger.arguments$local.importance <- FALSE
   ranger.arguments$data <- NULL
-  ranger.arguments$scaled.importance <- FALSE
-  ranger.arguments$distance.matrix <- NULL
 
   #getting xy
   if (is.null(xy)) {
-    if (is.null(model$ranger.arguments$xy)) {
+    if (is.null(model$xy)) {
       stop("The argument 'xy' is required for spatial cross-validation.")
     } else {
-      xy <- model$ranger.arguments$xy
+      xy <- model$xy
     }
   }
 
