@@ -1,3 +1,27 @@
+## Version 1.2.1 (Development)
+
+### New Features
+
+* **SF data frame support**: Main functions (`rf()`, `rf_spatial()`, `rf_evaluate()`, `rf_tuning()`, `rf_compare()`, `rf_importance()`) now accept sf data frames directly. Coordinates are automatically extracted from geometry columns, eliminating the need to manually provide the `xy` parameter.
+
+* **Flexible coordinate detection**: For regular (non-sf) data frames, the package now automatically detects coordinate columns using flexible column name matching (x/y, lon/lat, longitude/latitude, case-insensitive). This reduces the need for the `xy` parameter in many cases.
+
+* **Geometry type support**:
+  - POINT and MULTIPOINT geometries: Direct coordinate extraction
+  - POLYGON and MULTIPOLYGON geometries: Automatic conversion to centroids
+  - LINESTRING and MULTILINESTRING: Not supported (returns error with guidance)
+
+### Deprecation Notice
+
+* The `xy` parameter is now optional when using sf data frames or data frames with detectable coordinate columns. This parameter will be deprecated in version 2.0.0. Consider using sf data frames for future workflows.
+
+### Internal Changes
+
+* Added internal helper functions for sf handling: `is_sf()`, `sf_to_xy()`, `extract_xy_from_data_frame()`, `drop_geometry_if_sf()`, `extract_xy_from_data()`
+* Geometry columns are automatically removed before passing data to `ranger::ranger()` and statistical functions
+
+---
+
 ## Version 1.2.0
 
 ### Breaking Changes

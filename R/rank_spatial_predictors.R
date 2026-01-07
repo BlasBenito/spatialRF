@@ -107,6 +107,11 @@ rank_spatial_predictors <- function(
     n.cores <- future::availableCores(omit = 1)
   }
 
+  # Drop geometry if data is sf
+  if (!is.null(data)) {
+    data <- drop_geometry_if_sf(data)
+  }
+
   #add write.forest = FALSE to ranger.arguments
   if (is.null(ranger.arguments)) {
     ranger.arguments <- list()

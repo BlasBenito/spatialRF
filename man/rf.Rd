@@ -18,7 +18,7 @@ rf(
 )
 }
 \arguments{
-\item{data}{Data frame with a response variable and a set of predictors. Default: \code{NULL}}
+\item{data}{Data frame or sf object with response variable and predictors. If sf object: coordinates are automatically extracted from geometry. If regular data frame with coordinate columns (x/y, lon/lat, longitude/latitude): coordinates are automatically detected. Default: \code{NULL}}
 
 \item{dependent.variable.name}{Character string with the name of the response variable. Must be a column name in \code{data}. For binary response variables (0/1), case weights are automatically computed using \code{\link[collinear:case_weights]{collinear::case_weights()}} to balance classes. Default: \code{NULL}}
 
@@ -28,7 +28,7 @@ rf(
 
 \item{distance.thresholds}{Numeric vector of distance thresholds for spatial autocorrelation analysis. For each threshold, distances below that value are set to zero when computing Moran's I. If \code{NULL}, defaults to \code{seq(0, max(distance.matrix), length.out = 4)}. Default: \code{NULL}}
 
-\item{xy}{Data frame or matrix with two columns containing coordinates, named "x" and "y". Not used by this function but stored in the model for use by \code{\link[=rf_evaluate]{rf_evaluate()}} and \code{\link[=rf_tuning]{rf_tuning()}}. Default: \code{NULL}}
+\item{xy}{(optional) Data frame with columns "x" and "y" containing coordinates. If NULL and data is sf or has detectable coordinate columns, coordinates are extracted automatically. When provided, overrides automatic extraction. Default: \code{NULL}}
 
 \item{ranger.arguments}{Named list with \link[ranger]{ranger} arguments. Arguments for this function can also be passed here. The default importance method is 'permutation' instead of ranger's default 'none'. The \code{x}, \code{y}, and \code{formula} arguments are not supported. See \link[ranger]{ranger} help for available arguments. Default: \code{NULL}}
 

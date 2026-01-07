@@ -64,6 +64,9 @@ plot_response_surface <- function(
 
   data <- model$ranger.arguments$data
 
+  # Drop geometry before processing
+  data <- drop_geometry_if_sf(data)
+
   #response variable and predictors
   response.variable <- model$ranger.arguments$dependent.variable.name
   predictors <- model$ranger.arguments$predictor.variable.names

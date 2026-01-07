@@ -75,6 +75,9 @@ get_response_curves <- function(
   #getting the training data
   data <- model$ranger.arguments$data
 
+  # Drop geometry before processing
+  data <- drop_geometry_if_sf(data)
+
   #getting the response variable
   response.variable <- model$ranger.arguments$dependent.variable.name
   predictors <- model$ranger.arguments$predictor.variable.names

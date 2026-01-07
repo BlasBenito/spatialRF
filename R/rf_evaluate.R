@@ -126,12 +126,29 @@ rf_evaluate <- function(
 
   #getting xy
   if (is.null(xy)) {
-    if (is.null(model$xy)) {
-      stop("The argument 'xy' is required for spatial cross-validation.")
+    # Try extracting from data if it's sf or has coordinate columns
+    if (is_sf(data)) {
+      xy <- sf_to_xy(data, add_id = TRUE)
     } else {
+      # Try extracting from data frame columns
+      xy_extracted <- extract_xy_from_data_frame(data)
+      if (!is.null(xy_extracted)) {
+        xy <- xy_extracted
+        xy$id <- seq_len(nrow(xy))
+      }
+    }
+    # If still NULL, fall back to model$xy
+    if (is.null(xy) && !is.null(model$xy)) {
       xy <- model$xy
     }
+    # If still NULL, error
+    if (is.null(xy)) {
+      stop("The argument 'xy' is required for spatial cross-validation.")
+    }
   }
+
+  # Drop geometry before processing
+  data <- drop_geometry_if_sf(data)
 
   if (sum(c("x", "y") %in% colnames(xy)) < 2) {
     stop("The column names of 'xy' must be 'x' and 'y'.")

@@ -28,7 +28,7 @@ rf_spatial(
 \arguments{
 \item{model}{A model fitted with \code{\link[=rf]{rf()}}. If used, the arguments \code{data}, \code{dependent.variable.name}, \code{predictor.variable.names}, \code{distance.matrix}, \code{distance.thresholds}, and \code{ranger.arguments} are taken directly from the model definition. Default: NULL}
 
-\item{data}{Data frame with a response variable and a set of predictors. Default: \code{NULL}}
+\item{data}{Data frame or sf object with response variable and predictors. If sf object: coordinates are automatically extracted from geometry. If regular data frame with coordinate columns (x/y, lon/lat, longitude/latitude): coordinates are automatically detected. Default: \code{NULL}}
 
 \item{dependent.variable.name}{Character string with the name of the response variable. Must be in the column names of \code{data}. If the dependent variable is binary with values 1 and 0, the argument \code{case.weights} of \code{ranger} is populated by the function \code{\link[collinear:case_weights]{collinear::case_weights()}}. Default: \code{NULL}}
 
@@ -38,7 +38,7 @@ rf_spatial(
 
 \item{distance.thresholds}{Numeric vector with distances in the same units as \code{distance.matrix} Distances below each distance threshold are set to 0 on separated copies of the distance matrix to compute Moran's I at different neighborhood distances. If \code{NULL}, it defaults to \code{seq(0, max(distance.matrix)/2, length.out = 4)} (defined by \code{\link[=default_distance_thresholds]{default_distance_thresholds()}}). Default: \code{NULL}}
 
-\item{xy}{(optional) Data frame or matrix with two columns containing coordinates and named "x" and "y". It is not used by this function, but it is stored in the slot \code{xy} of the model, so it can be used by \code{\link[=rf_evaluate]{rf_evaluate()}} and \code{\link[=rf_tuning]{rf_tuning()}}. Default: \code{NULL}}
+\item{xy}{(optional) Data frame with columns "x" and "y" containing coordinates. If NULL and data is sf or has detectable coordinate columns, coordinates are extracted automatically. When provided, overrides automatic extraction. Default: \code{NULL}}
 
 \item{ranger.arguments}{Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.}
 

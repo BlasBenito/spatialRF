@@ -17,9 +17,12 @@ validate_rf_inputs <- function(
   predictor.variable.names,
   distance.matrix = NULL
 ) {
+  # Drop geometry for validation (column name checks)
+  data_for_validation <- drop_geometry_if_sf(data)
+
   # Check predictor names exist in data
   missing_predictors <- predictor.variable.names[
-    !predictor.variable.names %in% colnames(data)
+    !predictor.variable.names %in% colnames(data_for_validation)
   ]
   if (length(missing_predictors) > 0) {
     stop(
@@ -30,7 +33,7 @@ validate_rf_inputs <- function(
   }
 
   # Check dependent variable exists
-  if (!dependent.variable.name %in% colnames(data)) {
+  if (!dependent.variable.name %in% colnames(data_for_validation)) {
     stop(
       "The dependent.variable.name '",
       dependent.variable.name,
@@ -38,7 +41,7 @@ validate_rf_inputs <- function(
     )
   }
 
-  # Check distance matrix dimensions if provided
+  # Check distance matrix dimensions (use ORIGINAL data row count, not validation copy)
   if (!is.null(distance.matrix)) {
     if (nrow(distance.matrix) != nrow(data)) {
       stop(

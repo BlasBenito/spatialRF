@@ -64,6 +64,9 @@ filter_spatial_predictors <- function(
   ]
 
   #filtering spatial predictors by correlation with non-spatial ones
+  # Drop geometry before correlation calculation
+  data <- drop_geometry_if_sf(data)
+
   #identifying numeric predictors
   non.spatial.numeric.predictors <- collinear::identify_numeric_variables(
     df = data,

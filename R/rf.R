@@ -1,11 +1,11 @@
 #' @title Random forest models with Moran's I test of the residuals
 #' @description Fits a random forest model using \link[ranger]{ranger} and extends it with spatial diagnostics: residual autocorrelation (Moran's I) at multiple distance thresholds, performance metrics (RMSE, NRMSE via [root_mean_squared_error()]), and variable importance scores computed on scaled data (via \link[base]{scale}).
-#' @param data Data frame with a response variable and a set of predictors. Default: `NULL`
+#' @param data Data frame or sf object with response variable and predictors. If sf object: coordinates are automatically extracted from geometry. If regular data frame with coordinate columns (x/y, lon/lat, longitude/latitude): coordinates are automatically detected. Default: `NULL`
 #' @param dependent.variable.name Character string with the name of the response variable. Must be a column name in `data`. For binary response variables (0/1), case weights are automatically computed using [collinear::case_weights()] to balance classes. Default: `NULL`
 #' @param predictor.variable.names Character vector with predictor variable names. All names must be columns in `data`. Default: `NULL`
 #' @param distance.matrix Square matrix with pairwise distances between observations in `data`. Must have the same number of rows as `data`. If `NULL`, spatial autocorrelation of residuals is not computed. Default: `NULL`
 #' @param distance.thresholds Numeric vector of distance thresholds for spatial autocorrelation analysis. For each threshold, distances below that value are set to zero when computing Moran's I. If `NULL`, defaults to `seq(0, max(distance.matrix), length.out = 4)`. Default: `NULL`
-#' @param xy Data frame or matrix with two columns containing coordinates, named "x" and "y". Not used by this function but stored in the model for use by [rf_evaluate()] and [rf_tuning()]. Default: `NULL`
+#' @param xy (optional) Data frame with columns "x" and "y" containing coordinates. If NULL and data is sf or has detectable coordinate columns, coordinates are extracted automatically. When provided, overrides automatic extraction. Default: `NULL`
 #' @param ranger.arguments Named list with \link[ranger]{ranger} arguments. Arguments for this function can also be passed here. The default importance method is 'permutation' instead of ranger's default 'none'. The `x`, `y`, and `formula` arguments are not supported. See \link[ranger]{ranger} help for available arguments. Default: `NULL`
 #' @param seed Random seed for reproducibility. Default: `1`
 #' @param verbose If `TRUE`, display messages and plots during execution. Default: `TRUE`
@@ -119,6 +119,13 @@ rf <- function(
   }
   if (inherits(xy, "tbl_df") || inherits(xy, "tbl")) {
     xy <- as.data.frame(xy)
+  }
+
+  # 3.5. Extract coordinates from data if needed
+  xy_extraction <- extract_xy_from_data(data = data, xy = xy, require_id = FALSE)
+  data <- xy_extraction$data  # geometry dropped if sf
+  if (!is.null(xy_extraction$xy)) {
+    xy <- xy_extraction$xy
   }
 
   # 4. Validate inputs

@@ -49,6 +49,9 @@ pca <- function(
     x <- as.data.frame(x)
   }
 
+  # Drop geometry if x is sf
+  x <- drop_geometry_if_sf(x)
+
   #removing columns with zero variance
   variances <- apply(x, 2, stats::var, na.rm = TRUE)
   x <- x[, which(variances > 1e-9 & !is.na(variances)), drop = FALSE]
