@@ -30,11 +30,11 @@ rf_evaluate(
 
 \item{metrics}{Character vector, names of the performance metrics selected. The possible values are: "r.squared" (\code{cor(obs, pred) ^ 2}), "pseudo.r.squared" (\code{cor(obs, pred)}), "rmse" (\code{sqrt(sum((obs - pred)^2)/length(obs))}), "nrmse" (\code{rmse/(quantile(obs, 0.75) - quantile(obs, 0.25))}), and "auc" (only for binary responses with values 1 and 0). Default: \code{c("r.squared", "pseudo.r.squared", "rmse", "nrmse")}}
 
-\item{distance.step}{Numeric, argument \code{distance.step} of \code{\link[=thinning_til_n]{thinning_til_n()}}. distance step used during the selection of the centers of the training folds. These fold centers are selected by thinning the data until a number of folds equal or lower than \code{repetitions} is reached. Its default value is 1/1000th the maximum distance within records in \code{xy}. Reduce it if the number of training folds is lower than expected.}
+\item{distance.step}{Numeric. Distance step used for (1) selection of fold centers via \code{\link[=thinning_til_n]{thinning_til_n()}}, and (2) proportional buffer growth in \code{\link[=make_spatial_folds]{make_spatial_folds()}}. For fold centers, reduces data until \code{repetitions} or fewer folds remain. For buffer growth, applies to the longer axis of the coordinate bounding box with proportional calculation for the shorter axis. Default: \code{NULL} (1/1000th the maximum distance for thinning; 1/1000th the range per axis for buffer growth). Reduce if fold count is lower than expected.}
 
-\item{distance.step.x}{Numeric, argument \code{distance.step.x} of \code{\link[=make_spatial_folds]{make_spatial_folds()}}. Distance step used during the growth in the x axis of the buffers defining the training folds. Default: \code{NULL} (1/1000th the range of the x coordinates).}
+\item{distance.step.x}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use distance.step instead, which automatically calculates proportional step sizes.}
 
-\item{distance.step.y}{Numeric, argument \code{distance.step.x} of \code{\link[=make_spatial_folds]{make_spatial_folds()}}. Distance step used during the growth in the y axis of the buffers defining the training folds. Default: \code{NULL} (1/1000th the range of the y coordinates).}
+\item{distance.step.y}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use distance.step instead, which automatically calculates proportional step sizes.}
 
 \item{grow.testing.folds}{Logic. By default, this function grows contiguous training folds to keep the spatial structure of the data as intact as possible. However, when setting \code{grow.testing.folds = TRUE}, the argument \code{training.fraction} is set to \code{1 - training.fraction}, and the training and testing folds are switched. This option might be useful when the training data has a spatial structure that does not match well with the default behavior of the function. Default: \code{FALSE}}
 
@@ -129,6 +129,7 @@ Other model_workflow:
 \code{\link{rf_compare}()},
 \code{\link{rf_importance}()},
 \code{\link{rf_repeat}()},
+\code{\link{rf_select}()},
 \code{\link{rf_tuning}()}
 }
 \concept{model_workflow}

@@ -4,8 +4,9 @@
 #' @param dependent.variable.name Character string with the name of the response variable. Must be a column name in `data`. Required only for binary response variables.
 #' @param xy.selected Data frame with columns "x" (longitude), "y" (latitude), and "id" (record identifier). Defines the focal points for fold creation. Typically a spatially thinned subset of `xy` created with [thinning()] or [thinning_til_n()].
 #' @param xy Data frame with columns "x" (longitude), "y" (latitude), and "id" (record identifier). Contains all spatial coordinates for the dataset.
-#' @param distance.step.x Numeric value specifying the buffer growth increment along the x-axis. Default: `NULL` (automatically set to 1/1000th of the x-coordinate range).
-#' @param distance.step.y Numeric value specifying the buffer growth increment along the y-axis. Default: `NULL` (automatically set to 1/1000th of the y-coordinate range).
+#' @param distance.step Numeric value specifying the buffer growth increment. Applied to the longer axis of the coordinate bounding box; shorter axis step is calculated proportionally to maintain aspect ratio. Default: `NULL` (automatically set to 1/1000th of range independently per axis). Replaces deprecated distance.step.x/distance.step.y arguments.
+#' @param distance.step.x `r lifecycle::badge("deprecated")` Use distance.step instead.
+#' @param distance.step.y `r lifecycle::badge("deprecated")` Use distance.step instead.
 #' @param training.fraction Numeric value between 0.1 and 0.9 specifying the fraction of records to include in the training fold. Default: `0.75`.
 #' @return Data frame with `nrow(xy)` rows and `nrow(xy.selected)` columns. Each column is a logical vector representing one fold, where `TRUE` indicates a record is in the training set and `FALSE` indicates it is in the testing set for that fold. Column names are `fold_1`, `fold_2`, etc.
 #' @details
@@ -50,7 +51,7 @@
 #' folds <- make_spatial_folds(
 #'   xy.selected = xy.thin,
 #'   xy = plants_xy,
-#'   distance.step.x = 0.05,
+#'   distance.step = 0.05,
 #'   training.fraction = 0.6
 #' )
 #'
@@ -74,7 +75,7 @@
 #' folds_parallel <- make_spatial_folds(
 #'   xy.selected = xy.thin,
 #'   xy = plants_xy,
-#'   distance.step.x = 0.05,
+#'   distance.step = 0.05,
 #'   training.fraction = 0.6
 #' )
 #'
@@ -104,6 +105,7 @@ make_spatial_folds <- function(
   dependent.variable.name = NULL,
   xy.selected = NULL,
   xy = NULL,
+  distance.step = NULL,
   distance.step.x = NULL,
   distance.step.y = NULL,
   training.fraction = 0.75
@@ -120,6 +122,7 @@ make_spatial_folds <- function(
         dependent.variable.name = dependent.variable.name,
         xy.i = xy.selected[i, ],
         xy = xy,
+        distance.step = distance.step,
         distance.step.x = distance.step.x,
         distance.step.y = distance.step.y,
         training.fraction = training.fraction

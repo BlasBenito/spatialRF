@@ -24,7 +24,8 @@ Imports:
     patchwork (>= 1.3.2),
     collinear (>= 3.0.0),
     sf (>= 1.0-0),
-    grDevices
+    grDevices,
+    lifecycle
 Suggests:
     testthat,
     spelling,

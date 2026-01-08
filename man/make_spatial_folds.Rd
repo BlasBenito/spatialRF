@@ -9,6 +9,7 @@ make_spatial_folds(
   dependent.variable.name = NULL,
   xy.selected = NULL,
   xy = NULL,
+  distance.step = NULL,
   distance.step.x = NULL,
   distance.step.y = NULL,
   training.fraction = 0.75
@@ -23,9 +24,11 @@ make_spatial_folds(
 
 \item{xy}{Data frame with columns "x" (longitude), "y" (latitude), and "id" (record identifier). Contains all spatial coordinates for the dataset.}
 
-\item{distance.step.x}{Numeric value specifying the buffer growth increment along the x-axis. Default: \code{NULL} (automatically set to 1/1000th of the x-coordinate range).}
+\item{distance.step}{Numeric value specifying the buffer growth increment. Applied to the longer axis of the coordinate bounding box; shorter axis step is calculated proportionally to maintain aspect ratio. Default: \code{NULL} (automatically set to 1/1000th of range independently per axis). Replaces deprecated distance.step.x/distance.step.y arguments.}
 
-\item{distance.step.y}{Numeric value specifying the buffer growth increment along the y-axis. Default: \code{NULL} (automatically set to 1/1000th of the y-coordinate range).}
+\item{distance.step.x}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use distance.step instead.}
+
+\item{distance.step.y}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use distance.step instead.}
 
 \item{training.fraction}{Numeric value between 0.1 and 0.9 specifying the fraction of records to include in the training fold. Default: \code{0.75}.}
 }
@@ -77,7 +80,7 @@ xy.thin <- thinning_til_n(
 folds <- make_spatial_folds(
   xy.selected = xy.thin,
   xy = plants_xy,
-  distance.step.x = 0.05,
+  distance.step = 0.05,
   training.fraction = 0.6
 )
 
@@ -101,7 +104,7 @@ future::plan(future::multisession, workers = 2)
 folds_parallel <- make_spatial_folds(
   xy.selected = xy.thin,
   xy = plants_xy,
-  distance.step.x = 0.05,
+  distance.step = 0.05,
   training.fraction = 0.6
 )
 

@@ -73,6 +73,7 @@ Other model_workflow:
 \code{\link{rf_compare}()},
 \code{\link{rf_evaluate}()},
 \code{\link{rf_importance}()},
-\code{\link{rf_repeat}()}
+\code{\link{rf_repeat}()},
+\code{\link{rf_select}()}
 }
 \concept{model_workflow}

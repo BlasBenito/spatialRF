@@ -32,11 +32,11 @@ rf_importance(
 
 \item{metric}{Character, nams of the performance metric to use. The possible values are: "r.squared" (\code{cor(obs, pred) ^ 2}), "pseudo.r.squared" (\code{cor(obs, pred)}), "rmse" (\code{sqrt(sum((obs - pred)^2)/length(obs))}), "nrmse" (\code{rmse/(quantile(obs, 0.75) - quantile(obs, 0.25))}), and "auc" (only for binary responses with values 1 and 0). Default: \code{"r.squared"}}
 
-\item{distance.step}{Numeric, argument \code{distance.step} of \code{\link[=thinning_til_n]{thinning_til_n()}}. distance step used during the selection of the centers of the training folds. These fold centers are selected by thinning the data until a number of folds equal or lower than \code{repetitions} is reached. Its default value is 1/1000th the maximum distance within records in \code{xy}. Reduce it if the number of training folds is lower than expected.}
+\item{distance.step}{Numeric. Distance step used for (1) selection of fold centers via \code{\link[=thinning_til_n]{thinning_til_n()}}, and (2) proportional buffer growth in \code{\link[=make_spatial_folds]{make_spatial_folds()}}. For fold centers, reduces data until \code{repetitions} or fewer folds remain. For buffer growth, applies to the longer axis of the coordinate bounding box with proportional calculation for the shorter axis. Default: \code{NULL} (1/1000th the maximum distance for thinning; 1/1000th the range per axis for buffer growth). Reduce if fold count is lower than expected.}
 
-\item{distance.step.x}{Numeric, argument \code{distance.step.x} of \code{\link[=make_spatial_folds]{make_spatial_folds()}}. Distance step used during the growth in the x axis of the buffers defining the training folds. Default: \code{NULL} (1/1000th the range of the x coordinates).}
+\item{distance.step.x}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use distance.step instead, which automatically calculates proportional step sizes.}
 
-\item{distance.step.y}{Numeric, argument \code{distance.step.x} of \code{\link[=make_spatial_folds]{make_spatial_folds()}}. Distance step used during the growth in the y axis of the buffers defining the training folds. Default: \code{NULL} (1/1000th the range of the y coordinates).}
+\item{distance.step.y}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use distance.step instead, which automatically calculates proportional step sizes.}
 
 \item{fill.color}{Character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. \code{grDevices::hcl.colors(100)}). Default: \code{grDevices::hcl.colors(100, palette = "Zissou 1", rev = FALSE, alpha = 0.8)}}
 
@@ -71,6 +71,7 @@ Other model_workflow:
 \code{\link{rf_compare}()},
 \code{\link{rf_evaluate}()},
 \code{\link{rf_repeat}()},
+\code{\link{rf_select}()},
 \code{\link{rf_tuning}()}
 }
 \concept{model_workflow}

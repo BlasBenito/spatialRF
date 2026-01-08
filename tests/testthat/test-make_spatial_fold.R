@@ -98,7 +98,7 @@ test_that("make_spatial_fold() handles distance.step.x vector", {
   result <- make_spatial_fold(
     xy.i = plants_xy[1, ],
     xy = plants_xy,
-    distance.step.x = c(100, 200, 300),
+    distance.step = c(100, 200, 300),
     training.fraction = 0.6
   )
 
@@ -113,7 +113,7 @@ test_that("make_spatial_fold() handles distance.step.y vector", {
   result <- make_spatial_fold(
     xy.i = plants_xy[1, ],
     xy = plants_xy,
-    distance.step.y = c(100, 200, 300),
+    distance.step = c(100, 200, 300),
     training.fraction = 0.6
   )
 
@@ -128,8 +128,7 @@ test_that("make_spatial_fold() works with custom distance steps", {
   result <- make_spatial_fold(
     xy.i = plants_xy[1, ],
     xy = plants_xy,
-    distance.step.x = 10,
-    distance.step.y = 10,
+    distance.step = 10,
     training.fraction = 0.6
   )
 

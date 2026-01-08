@@ -4,8 +4,9 @@
 #' @param dependent.variable.name Character string with the name of the response variable. Must be a column name in `data`. Required only for binary response variables.
 #' @param xy.i Single-row data frame with columns "x" (longitude), "y" (latitude), and "id" (record identifier). Defines the focal point from which the buffer grows.
 #' @param xy Data frame with columns "x" (longitude), "y" (latitude), and "id" (record identifier). Contains all spatial coordinates for the dataset.
-#' @param distance.step.x Numeric value specifying the buffer growth increment along the x-axis. Default: `NULL` (automatically set to 1/1000th of the x-coordinate range).
-#' @param distance.step.y Numeric value specifying the buffer growth increment along the y-axis. Default: `NULL` (automatically set to 1/1000th of the y-coordinate range).
+#' @param distance.step Numeric value specifying the buffer growth increment. Applied to the longer axis of the coordinate bounding box; shorter axis step is calculated proportionally to maintain aspect ratio. Default: `NULL` (automatically set to 1/1000th of range independently per axis). Replaces deprecated distance.step.x/distance.step.y arguments.
+#' @param distance.step.x `r lifecycle::badge("deprecated")` Use distance.step instead.
+#' @param distance.step.y `r lifecycle::badge("deprecated")` Use distance.step instead.
 #' @param training.fraction Numeric value between 0.1 and 0.9 specifying the fraction of records to include in the training fold. Default: `0.8`.
 #' @return Logical vector with length equal to `nrow(xy)`, where `TRUE` indicates a record is in the training fold and `FALSE` indicates it is in the testing fold. The vector is ordered by row position in `xy`.
 #' @details
@@ -52,6 +53,7 @@ make_spatial_fold <- function(
   dependent.variable.name = NULL,
   xy.i = NULL,
   xy = NULL,
+  distance.step = NULL,
   distance.step.x = NULL,
   distance.step.y = NULL,
   training.fraction = 0.8
@@ -64,6 +66,61 @@ make_spatial_fold <- function(
   }
   if (training.fraction >= 1) {
     stop("training.fraction should be a number between 0.1 and 0.9")
+  }
+
+  # Error if both old and new provided
+  if (!is.null(distance.step) && (!is.null(distance.step.x) || !is.null(distance.step.y))) {
+    stop(
+      "Cannot specify both 'distance.step' and 'distance.step.x'/'distance.step.y'. ",
+      "Use 'distance.step' for automatic calculation.",
+      call. = FALSE
+    )
+  }
+
+  # Lifecycle deprecation warnings for old arguments
+  if (!is.null(distance.step.x)) {
+    lifecycle::deprecate_warn(
+      when = "1.3.0",
+      what = "make_spatial_fold(distance.step.x)",
+      with = "make_spatial_fold(distance.step)",
+      details = "The distance.step argument automatically calculates proportional step sizes based on coordinate bounding box aspect ratio."
+    )
+  }
+
+  if (!is.null(distance.step.y)) {
+    lifecycle::deprecate_warn(
+      when = "1.3.0",
+      what = "make_spatial_fold(distance.step.y)",
+      with = "make_spatial_fold(distance.step)",
+      details = "The distance.step argument automatically calculates proportional step sizes based on coordinate bounding box aspect ratio."
+    )
+  }
+
+  # Handle new distance.step argument with aspect ratio calculation
+  if (!is.null(distance.step)) {
+
+    # Calculate bounding box ranges
+    x_range <- max(xy$x) - min(xy$x)
+    y_range <- max(xy$y) - min(xy$y)
+
+    # Longer axis gets distance.step value, shorter gets proportional reduction
+    if (x_range >= y_range) {
+      # X-axis is longer (or equal)
+      distance.step.x <- distance.step
+      distance.step.y <- distance.step * (y_range / x_range)
+    } else {
+      # Y-axis is longer
+      distance.step.y <- distance.step
+      distance.step.x <- distance.step * (x_range / y_range)
+    }
+
+    # Convert vector to scalar if needed (handles raster::res() output)
+    if (length(distance.step.x) > 1) {
+      distance.step.x <- distance.step.x[1]
+    }
+    if (length(distance.step.y) > 1) {
+      distance.step.y <- distance.step.y[1]
+    }
   }
 
   #initiating distance.step.x

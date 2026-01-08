@@ -34,5 +34,8 @@ utils::globalVariables(c(
   "importance.mad", # <rf_importance>
   "y", # <rf_interactions>
   "median", # <rf_repeat>
+  "n.predictors", # <rf_select>
+  "testing.performance", # <rf_select>
+  "optimization", # <rf_select>
   NULL
 ))

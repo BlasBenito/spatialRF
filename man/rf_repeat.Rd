@@ -94,6 +94,7 @@ Other model_workflow:
 \code{\link{rf_compare}()},
 \code{\link{rf_evaluate}()},
 \code{\link{rf_importance}()},
+\code{\link{rf_select}()},
 \code{\link{rf_tuning}()}
 }
 \concept{model_workflow}
