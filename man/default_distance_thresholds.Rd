@@ -71,7 +71,6 @@ Other preprocessing:
 \code{\link{is_binary}()},
 \code{\link{make_spatial_fold}()},
 \code{\link{make_spatial_folds}()},
-\code{\link{the_feature_engineer}()},
 \code{\link{weights_from_distance_matrix}()}
 }
 \concept{preprocessing}

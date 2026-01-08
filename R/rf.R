@@ -17,7 +17,7 @@
 #'   \item `performance`: Model performance metrics including R-squared (out-of-bag and standard), pseudo R-squared, RMSE, and NRMSE.
 #'   \item `residuals`: Model residuals with normality diagnostics ([residuals_diagnostics()]) and spatial autocorrelation ([moran_multithreshold()]).
 #' }
-#' @details See \link[ranger]{ranger} documentation for additional details. The `formula` interface is supported via `ranger.arguments`, but variable interactions are not permitted. For feature engineering including interactions, see [the_feature_engineer()].
+#' @details See \link[ranger]{ranger} documentation for additional details. The `formula` interface is supported via `ranger.arguments`, but variable interactions are not permitted. For feature engineering including interactions, see [rf_interactions()].
 #' @examples
 #'
 #' data(

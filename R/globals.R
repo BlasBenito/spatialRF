@@ -32,7 +32,7 @@ utils::globalVariables(c(
   "importance", # <rf_importance>
   "variable", # <rf_importance>
   "importance.mad", # <rf_importance>
+  "y", # <rf_interactions>
   "median", # <rf_repeat>
-  "y", # <the_feature_engineer>
   NULL
 ))

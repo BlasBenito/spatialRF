@@ -43,6 +43,14 @@ print.rf <- function(x, ...) {
       sep = ""
     )
   }
+  if (inherits(x, "rf_interactions")) {
+    cat(
+      "  - Interactions selected: ",
+      nrow(x$interactions$selected),
+      "\n",
+      sep = ""
+    )
+  }
   cat(
     "  - Response variable:     ",
     x$ranger.arguments$dependent.variable.name,
@@ -144,6 +152,25 @@ print.rf <- function(x, ...) {
     cat("\n")
     cat("- Importance: \n")
     print_importance(x)
+  }
+
+  if (inherits(x, "rf_interactions")) {
+    cat("\n+ Interactions\n")
+    cat("  - Number selected:  ", nrow(x$interactions$selected), "\n")
+    cat("  - Names:\n")
+    n_show <- min(5, nrow(x$interactions$selected))
+    for (i in seq_len(n_show)) {
+      int_name <- x$interactions$selected$interaction.name[i]
+      int_imp <- x$interactions$selected$interaction.importance[i]
+      int_gain <- x$interactions$selected$interaction.metric.gain[i]
+      cat(sprintf(
+        "    %d. %s (imp: %.1f, gain: %.3f)\n",
+        i, int_name, int_imp, int_gain
+      ))
+    }
+    if (nrow(x$interactions$selected) > n_show) {
+      cat("    ... and", nrow(x$interactions$selected) - n_show, "more\n")
+    }
   }
 
   if (inherits(x, "rf_evaluate")) {

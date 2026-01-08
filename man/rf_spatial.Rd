@@ -151,6 +151,7 @@ if (interactive()) {
 }
 \seealso{
 Other main_models: 
-\code{\link{rf}()}
+\code{\link{rf}()},
+\code{\link{rf_interactions}()}
 }
 \concept{main_models}

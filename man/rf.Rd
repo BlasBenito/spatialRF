@@ -51,7 +51,7 @@ A ranger model object with additional slots:
 Fits a random forest model using \link[ranger]{ranger} and extends it with spatial diagnostics: residual autocorrelation (Moran's I) at multiple distance thresholds, performance metrics (RMSE, NRMSE via \code{\link[=root_mean_squared_error]{root_mean_squared_error()}}), and variable importance scores computed on scaled data (via \link[base]{scale}).
 }
 \details{
-See \link[ranger]{ranger} documentation for additional details. The \code{formula} interface is supported via \code{ranger.arguments}, but variable interactions are not permitted. For feature engineering including interactions, see \code{\link[=the_feature_engineer]{the_feature_engineer()}}.
+See \link[ranger]{ranger} documentation for additional details. The \code{formula} interface is supported via \code{ranger.arguments}, but variable interactions are not permitted. For feature engineering including interactions, see \code{\link[=rf_interactions]{rf_interactions()}}.
 }
 \examples{
 
@@ -117,6 +117,7 @@ m <- rf(
 }
 \seealso{
 Other main_models: 
+\code{\link{rf_interactions}()},
 \code{\link{rf_spatial}()}
 }
 \concept{main_models}

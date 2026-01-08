@@ -1,120 +1,157 @@
-#' @title Suggest variable interactions and composite features for random forest models
-#' @description Suggests candidate variable interactions and composite features able to improve predictive accuracy over data not used to train the model via spatial cross-validation with [rf_evaluate()]. For a pair of predictors `a` and `b`, interactions are build via multiplication (`a * b`), while composite features are built by extracting the first factor of a principal component analysis performed with [pca()], after rescaling `a` and `b` between 1 and 100. Interactions and composite features are named `a..x..b` and `a..pca..b` respectively.
+#' @title Fit random forest models with variable interactions
+#' @description Identifies and incorporates variable interactions into random forest models. Tests multiplicative (`a * b`) and PCA-based composite features, selects promising interactions via spatial cross-validation, and returns a fitted model with selected interactions included as predictors.
 #'
-#'Candidate variables `a` and `b` are selected from those predictors in `predictor.variable.names` with a variable importance above `importance.threshold` (set by default to the median of the importance scores).
+#' Candidate variables `a` and `b` are selected from predictors with variable importance above `importance.threshold` (default: 75th percentile). For each interaction, a model including all predictors plus the interaction is fitted and evaluated via spatial cross-validation. Only interactions with positive metric gain (R² or AUC), importance above the median, and correlation below `cor.threshold` are selected.
 #'
-#' For each interaction and composite feature, a model including all the predictors plus the interaction or composite feature is fitted, and it's R squared (or AUC if the response is binary) computed via spatial cross-validation (see [rf_evaluate()]) is compared with the R squared of the model without interactions or composite features.
-#'
-#'From all the potential interactions screened, only those with a positive increase in R squared (or AUC when the response is binomial) of the model, a variable importance above the median, and a maximum correlation among themselves and with the predictors in `predictor.variable.names` not higher than `cor.threshold` (set to 0.5 by default) are selected. Such a restrictive set of rules ensures that the selected interactions can be used right away for modeling purposes without increasing model complexity unnecessarily. However, the suggested variable interactions might not make sense from a domain expertise standpoint, so please, examine them with care.
-#'
-#'The function returns the criteria used to select the interactions, and the data required to use these interactions a model.
-#'
+#' @param model A model fitted with [rf()]. If provided, arguments are extracted from the model. Default: `NULL`
 #' @param data Data frame with a response variable and a set of predictors. Default: `NULL`
 #' @param dependent.variable.name Character string with the name of the response variable. Must be in the column names of `data`. If the dependent variable is binary with values 1 and 0, the argument `case.weights` of `ranger` is populated by the function [collinear::case_weights()]. Default: `NULL`
 #' @param predictor.variable.names Character vector with the names of the predictive variables. Default: `NULL`
-#' @param xy Data frame or matrix with two columns containing coordinates and named "x" and "y". If not provided, the comparison between models with and without variable interactions is not done.
+#' @param xy Data frame or matrix with two columns containing coordinates and named "x" and "y". Required for spatial cross-validation.
 #' @param ranger.arguments Named list with \link[ranger]{ranger} arguments (other arguments of this function can also go here). All \link[ranger]{ranger} arguments are set to their default values except for 'importance', that is set to 'permutation' rather than 'none'. Please, consult the help file of \link[ranger]{ranger} if you are not familiar with the arguments of this function.
 #' @param repetitions Integer, number of spatial folds to use during cross-validation. Must be lower than the total number of rows available in the model's data. Default: `30`
-#' @param training.fraction Proportion between 0.5 and 0.9 indicating the proportion of records to be used as training set during spatial cross-validation. Default: `0.75`
-#' @param importance.threshold Numeric between 0 and 1, quantile of variable importance scores over which to select individual predictors to explore interactions among them. Larger values reduce the number of potential interactions explored. Default: `0.75`
-#' @param cor.threshold Numeric, maximum Pearson correlation between any pair of the selected interactions, and between any interaction and the predictors in `predictor.variable.names`. Default: `0.75`
-#' @param point.color Colors of the plotted points. Can be a single color name (e.g. "red4"), a character vector with hexadecimal codes (e.g. "#440154FF" "#21908CFF" "#FDE725FF"), or function generating a palette (e.g. `grDevices::hcl.colors(100)`). Default: `grDevices::hcl.colors(100, palette = "Zissou 1", alpha = 0.8)`
-#' @param seed Integer, random seed to facilitate reproduciblity. If set to a given number, the results of the function are always the same. Default: `NULL`
+#' @param ... Advanced arguments:
+#'   - `training.fraction`: Proportion between 0.5 and 0.9 for training set during cross-validation (default: 0.75)
+#'   - `importance.threshold`: Quantile (0-1) of variable importance for selecting predictors to test interactions (default: 0.75)
+#'   - `cor.threshold`: Maximum Pearson correlation between interactions and predictors (default: 0.75)
+#'   - `point.color`: Colors for plotted points (default: `grDevices::hcl.colors(100, palette = "Zissou 1", alpha = 0.8)`)
+#' @param seed Integer, random seed to facilitate reproducibility. If set to a given number, the results of the function are always the same. Default: `NULL`
 #' @param verbose Logical. If `TRUE`, messages and plots generated during the execution of the function are displayed. Default: `TRUE`
 #' @param n.cores Integer. Number of threads for ranger's internal parallelization. Default: `NULL` (auto-detected: when a parallel plan is active via `future::plan()`, n.cores is set to 1; otherwise defaults to `future::availableCores(omit = 1)`). When a parallel plan is active, n.cores is always set to 1 to prevent oversubscription, regardless of user input.
-#' @return A list with seven slots:
+#' @return A ranger model (class `c("rf", "rf_interactions", "ranger")`) with all standard slots from [rf()] plus an `interactions` slot containing:
 #' \itemize{
-#'   \item `screening`: Data frame with selection scores of all the interactions considered.
-#'   \item `selected`: Data frame with selection scores of the selected interactions.
-#'   \item `df`: Data frame with the computed interactions.
-#'   \item `plot`: List of plots of the selected interactions versus the response variable. The output list can be plotted all at once with `patchwork::wrap_plots(p)` or `cowplot::plot_grid(plotlist = p)`, or one by one by extracting each plot from the list.
-#'   \item `data`: Data frame with the response variable, the predictors, and the selected interactions, ready to be used as `data` argument in the package functions.
-#'   \item `dependent.variable.name`: Character, name of the response.
-#'   \item `predictor.variable.names`: Character vector with the names of the predictors and the selected interactions.
+#'   \item `method`: Character vector of interaction types (c("multiplicative", "pca"))
+#'   \item `screening`: Data frame with all tested interactions and scores
+#'   \item `selected`: Data frame with selected interactions only
+#'   \item `values`: Data frame with computed interaction values
+#'   \item `names`: Character vector of selected interaction names
+#'   \item `plots`: Named list of ggplot objects (interaction vs response)
+#'   \item `comparison`: List comparing models with/without interactions
+#'   \item `parameters`: List of selection parameters used
 #' }
 #'
+#' @details
+#' For a pair of predictors `a` and `b`, multiplicative interactions are built via `a * b`, while PCA-based composite features are built by extracting the first factor from a PCA performed with [pca()] after rescaling `a` and `b` between 1 and 100. Interactions are named `a..x..b` and `a..pca..b` respectively.
 #'
 #' @examples
 #'
 #' if (interactive()) {
-#'   data(
-#'     plants_df,
-#'     plants_response,
-#'     plants_predictors,
-#'     plants_xy,
-#'     plants_rf
-#'   )
+#'   data(plants_df, plants_xy, plants_rf)
 #'
-#'   #get five most important predictors from plants_rf to speed-up example
-#'   predictors <- get_importance(plants_rf)[1:5, "variable"]
-#'
-#'   #subset to speed-up example
-#'   idx <- 1:30
-#'   plants_df <- plants_df[idx, ]
-#'   plants_xy <- plants_xy[idx, ]
-#'
-#'   #data subsetted to speed-up example runtime
-#'   y <- the_feature_engineer(
-#'     data = plants_df,
-#'     dependent.variable.name = plants_response,
-#'     predictor.variable.names = predictors,
+#'   # Approach 1: From existing model
+#'   m_int <- rf_interactions(
+#'     model = plants_rf,
 #'     xy = plants_xy,
 #'     repetitions = 5,
-#'     n.cores = 1,
-#'     ranger.arguments = list(
-#'       num.trees = 30
-#'     ),
-#'     verbose = TRUE
+#'     n.cores = 1
 #'   )
 #'
-#'   #all tested interactions
-#'   y$screening
+#'   # Approach 2: From scratch with advanced args
+#'   predictors <- c("bio1", "bio12", "pH", "aridityIndexThornthwaite")
+#'   m_int <- rf_interactions(
+#'     data = plants_df[1:30, ],
+#'     dependent.variable.name = "richness_species_vascular",
+#'     predictor.variable.names = predictors,
+#'     xy = plants_xy[1:30, ],
+#'     repetitions = 5,
+#'     training.fraction = 0.75,
+#'     importance.threshold = 0.75,
+#'     n.cores = 1
+#'   )
 #'
-#'   #selected interaction (same as above in this case)
-#'   y$selected
+#'   # Access results
+#'   m_int$interactions$selected
+#'   m_int$interactions$plots
+#'   m_int$interactions$comparison$comparison.plot
 #'
-#'   #new column added to data
-#'   head(y$data[, y$selected$interaction.name])
+#'   # Use like any rf model
+#'   plot_importance(m_int)
+#'   get_performance(m_int)
 #' }
 #'
-#' @rdname the_feature_engineer
-#' @family preprocessing
+#' @rdname rf_interactions
+#' @family main_models
 #' @autoglobal
 #' @export
-the_feature_engineer <- function(
+rf_interactions <- function(
+  model = NULL,
   data = NULL,
   dependent.variable.name = NULL,
   predictor.variable.names = NULL,
   xy = NULL,
   ranger.arguments = NULL,
   repetitions = 30,
-  training.fraction = 0.75,
-  importance.threshold = 0.75,
-  cor.threshold = 0.75,
-  point.color = grDevices::hcl.colors(
-    n = 100,
-    palette = "Zissou 1",
-    alpha = 0.8
-  ),
+  ...,
   seed = NULL,
   verbose = TRUE,
   n.cores = NULL
 ) {
-  #coerce to data frame if tibble
-  if (is.null(data)) {
-    stop("Argument 'data' is missing.")
+  # Extract advanced arguments from ellipsis
+  ellipsis_args <- list(...)
+
+  training.fraction <- if ("training.fraction" %in% names(ellipsis_args)) {
+    ellipsis_args$training.fraction
   } else {
-    if (inherits(data, "tbl_df") || inherits(data, "tbl")) {
-      data <- as.data.frame(data)
+    0.75
+  }
+
+  importance.threshold <- if ("importance.threshold" %in% names(ellipsis_args)) {
+    ellipsis_args$importance.threshold
+  } else {
+    0.75
+  }
+
+  cor.threshold <- if ("cor.threshold" %in% names(ellipsis_args)) {
+    ellipsis_args$cor.threshold
+  } else {
+    0.75
+  }
+
+  point.color <- if ("point.color" %in% names(ellipsis_args)) {
+    ellipsis_args$point.color
+  } else {
+    grDevices::hcl.colors(100, palette = "Zissou 1", alpha = 0.8)
+  }
+
+  # If model is provided, extract arguments
+  if (!is.null(model)) {
+    ranger.arguments <- model$ranger.arguments
+    data <- ranger.arguments$data
+    dependent.variable.name <- ranger.arguments$dependent.variable.name
+    predictor.variable.names <- ranger.arguments$predictor.variable.names
+    seed <- ranger.arguments$seed
+
+    # Get xy from model if not provided
+    if (is.null(xy)) {
+      if (!is.null(model$xy)) {
+        xy <- model$xy
+      } else {
+        stop("Argument 'xy' is required when model does not have coordinates.")
+      }
+    }
+  } else {
+    # Validate required arguments
+    if (is.null(data)) {
+      stop("The argument 'data' is missing.")
+    }
+    if (is.null(xy)) {
+      stop("The argument 'xy' is missing.")
+    }
+    if (is.null(dependent.variable.name)) {
+      stop("The argument 'dependent.variable.name' is missing.")
+    }
+    if (is.null(predictor.variable.names)) {
+      stop("The argument 'predictor.variable.names' is missing.")
     }
   }
 
-  if (is.null(xy)) {
-    stop("Argument 'xy' is missing")
-  } else {
-    if (inherits(xy, "tbl_df") || inherits(xy, "tbl")) {
-      xy <- as.data.frame(xy)
-    }
+  # Coerce to data frame if tibble
+  if (inherits(data, "tbl_df") || inherits(data, "tbl")) {
+    data <- as.data.frame(data)
+  }
+
+  if (inherits(xy, "tbl_df") || inherits(xy, "tbl")) {
+    xy <- as.data.frame(xy)
   }
 
   # Auto-detect: if parallel plan is active, use single-threaded ranger
@@ -525,20 +562,14 @@ the_feature_engineer <- function(
       )
   }
 
-  #generating training df
+  # Generating training df
   training.df <- cbind(
     data,
     interaction.df
   )
 
-  #preparing out list
-  out.list <- list()
-  out.list$screening <- interaction.screening
-  out.list$selected <- interaction.screening.selected
-  out.list$plot <- plot.list
-  out.list$data <- training.df
-  out.list$dependent.variable.name <- dependent.variable.name
-  out.list$predictor.variable.names <- c(
+  # Prepare full predictor list
+  predictor.variable.names.full <- c(
     predictor.variable.names,
     colnames(interaction.df)
   )
@@ -549,30 +580,36 @@ the_feature_engineer <- function(
     )
   }
 
-  #fitting models with and without the selected interactions
+  # Fitting models with and without the selected interactions
 
-  #with
-  model.with.interactions <- spatialRF::rf(
+  # Model with interactions (final model to be returned)
+  if (verbose) {
+    message("Fitting final random forest model with selected interactions.")
+  }
+
+  model.final <- rf(
     data = training.df,
     dependent.variable.name = dependent.variable.name,
-    predictor.variable.names = c(
-      predictor.variable.names,
-      colnames(interaction.df)
-    ),
+    predictor.variable.names = predictor.variable.names.full,
+    distance.matrix = if (!is.null(model)) model$distance.matrix else NULL,
+    distance.thresholds = if (!is.null(model)) model$distance.thresholds else NULL,
+    xy = xy,
     ranger.arguments = ranger.arguments,
+    seed = seed,
+    n.cores = n.cores,
     verbose = FALSE
   )
 
-  #pick colors for comparison from the palette
+  # Pick colors for comparison from the palette
   n.colors <- length(point.color)
   line.color <- point.color[1]
   color.a <- point.color[floor(n.colors / 4)]
   color.b <- point.color[floor((n.colors / 4) * 3)]
 
-  #comparison
+  # Comparison between models with and without interactions
   comparison <- rf_compare(
     models = list(
-      with.interactions = model.with.interactions,
+      with.interactions = model.final,
       without.interactions = model.without.interactions
     ),
     repetitions = repetitions,
@@ -584,18 +621,44 @@ the_feature_engineer <- function(
     verbose = FALSE
   )
 
-  #adding it to the plot list
+  # Adding it to the plot list
   plot.list[["comparison"]] <- comparison$plot
 
-  #saving new elements into the output list
-  out.list$comparison.df <- comparison$comparison.df
-  out.list$plot <- plot.list
+  # SET CLASS
+  class(model.final) <- c("rf", "rf_interactions", "ranger")
 
+  # BUILD $interactions SLOT
+  model.final$interactions <- list()
+  model.final$interactions$method <- c("multiplicative", "pca")
+  model.final$interactions$screening <- interaction.screening
+  model.final$interactions$selected <- interaction.screening.selected
+  model.final$interactions$values <- interaction.df
+  model.final$interactions$names <- colnames(interaction.df)
+  model.final$interactions$plots <- plot.list
+  model.final$interactions$comparison <- list(
+    baseline.model = model.without.interactions,
+    comparison.df = comparison$comparison.df,
+    comparison.plot = comparison$plot
+  )
+  model.final$interactions$parameters <- list(
+    importance.threshold = importance.threshold,
+    cor.threshold = cor.threshold,
+    repetitions = repetitions,
+    training.fraction = training.fraction
+  )
+
+  # PRINT IF VERBOSE
   if (verbose) {
-    print(patchwork::wrap_plots(out.list$plot))
+    print(model.final)
+    message("\nModel comparison:")
+    print(comparison$plot)
+    if (requireNamespace("patchwork", quietly = TRUE)) {
+      message("\nInteraction plots:")
+      print(patchwork::wrap_plots(plot.list))
+    }
   }
 
-  out.list
+  return(model.final)
 }
 
 # Helper function to test a single interaction

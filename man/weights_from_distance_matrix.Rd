@@ -35,7 +35,6 @@ Other preprocessing:
 \code{\link{double_center_distance_matrix}()},
 \code{\link{is_binary}()},
 \code{\link{make_spatial_fold}()},
-\code{\link{make_spatial_folds}()},
-\code{\link{the_feature_engineer}()}
+\code{\link{make_spatial_folds}()}
 }
 \concept{preprocessing}
