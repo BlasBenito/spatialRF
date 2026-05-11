@@ -45,31 +45,15 @@ monthly_downloads$date <- as.Date(paste0(monthly_downloads$year_month, "-01"))
 # Calculate average monthly downloads
 avg_monthly <- mean(monthly_downloads$count)
 
-# Version 2.0.0 release date
-# release_date_2.0 <- as.Date("2025-01-01")
-# release_date_3.0 <- as.Date("2025-12-06")
-
 # Plot monthly downloads
 ggplot(monthly_downloads, aes(x = date, y = count)) +
-  geom_col(fill = "#F5191C", alpha = 0.8) +
+  geom_col(fill = "#78c2ad", alpha = 0.8) +
   geom_hline(
     yintercept = avg_monthly,
     linetype = "dashed",
-    color = "#3B99B1",
+    color = "gray50",
     linewidth = 0.8
   ) +
-  # geom_vline(
-  #   xintercept = release_date_2.0,
-  #   linetype = "solid",
-  #   color = "gray20",
-  #   linewidth = 0.8
-  # ) +
-  #   geom_vline(
-  #   xintercept = release_date_3.0,
-  #   linetype = "solid",
-  #   color = "gray20",
-  #   linewidth = 0.8
-  # ) +
   annotate(
     "text",
     x = min(monthly_downloads$date),
@@ -80,28 +64,6 @@ ggplot(monthly_downloads, aes(x = date, y = count)) +
     color = "#3B99B1",
     size = 3.5
   ) +
-  # annotate(
-  #   "text",
-  #   x = release_date_2.0,
-  #   y = max(monthly_downloads$count),
-  #   label = "v2.0",
-  #   vjust = -0.5,
-  #   hjust = -0.1,
-  #   color = "gray20",
-  #   size = 3.5,
-  #   fontface = "bold"
-  # ) +
-  #   annotate(
-  #   "text",
-  #   x = release_date_3.0,
-  #   y = max(monthly_downloads$count),
-  #   label = "v3.0",
-  #   vjust = -0.5,
-  #   hjust = -0.1,
-  #   color = "gray20",
-  #   size = 3.5,
-  #   fontface = "bold"
-  # ) +
   theme_minimal() +
   labs(
     title = "Monthly Downloads",

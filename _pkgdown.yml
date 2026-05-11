@@ -25,8 +25,8 @@ articles:
   contents:
   - articles/non_spatial_models
   - articles/spatial_models
-- title: About
-  navbar: About
+- title: Impact
+  navbar: Impact
   contents:
   - articles/download_history
   - articles/spatialRF_in_the_wild

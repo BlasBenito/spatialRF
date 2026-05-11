@@ -21,46 +21,182 @@ options(scipen = 9999)
 options(conflicts.policy = list(warn = FALSE))
 ```
 
-# Summary
+## Summary
 
 This article lists known applications of the R package `spatialRF` found in the literature.
 
-*This page is maintained by hand and may be incomplete. If you've used `spatialRF` in a publication, talk, or blog post and would like it listed here, please open an issue at the [package repository](https://github.com/BlasBenito/spatialRF).
+This page is maintained by hand and may be incomplete. If you've used `spatialRF` in a publication, talk, or blog post and would like it listed here, please open an issue at the [package repository](https://github.com/BlasBenito/spatialRF).
 
 ## Research Papers
 
+### 2026
+
+Andrus, R. A., Steed, B., Egan, J., Lestina, J., Steed, P., Bennett, A. J. H., Meddens, A., & Goodburn, J. (2026). A multi-scale assessment of interior Douglas-fir tree mortality for hazard and risk assessments. *Ecosphere*, *17*(1), e70490. https://doi.org/10.1002/ecs2.70490
+
+Chappell, E. N., Hendriks, C., Hoeks, S., Huijbregts, M. A. J., Hanssen, S. V., & Wicke, B. (2026). Carbon offsetting in city climate action: Role, determinants and characteristics. *Climate Policy*, *26*(2), 253–268. https://doi.org/10.1080/14693062.2025.2499606
+
+Davtalab, M., & Byčenkienė, S. (2026). Synergistic effects of spatial urban form on PM2.5 concentration and urban heat islands: A multi-scale explanatory machine learning. *Journal of Cleaner Production*, *538*, 147226. https://doi.org/10.1016/j.jclepro.2025.147226
+
+Jafari, A., Sarmadian, F., & Heidari, A. (2026). Enhancing digital mapping of soil organic carbon through spatial modeling and validation. *Scientific Reports*, *16*, 8810. https://doi.org/10.1038/s41598-026-39496-2
+
+Karanasios, P. I., Schmeller, D. S., Hsu, Z.-T., & Lin, Y.-P. (2026). Precise roadkill environmental factors identification for sustainable planning and design through spatial and temporal modelling. *Nature Conservation*, *61*, 1–27. https://doi.org/10.3897/natureconservation.61.171624
+
+Mimi, M. S., Das, S., & Dutta, A. K. (2026). Non-spatial AI modeling to estimate traffic volume measures on local roadways. *International Journal of Urban Sciences*, 1–30. https://doi.org/10.1080/12265934.2025.2612094
+
+Pan, H., Hui, Y., & Wu, W. (2026). Critical thresholds for co-benefits of carbon accumulation and biodiversity conservation under global nitrogen enrichment. *Nature Communications*, *17*, 1336. https://doi.org/10.1038/s41467-025-68090-9
+
+Starck, J., et al. (2026). Limited microclimatic buffering capacity in boreal forests calls for sustainable management strategies. *Environmental Research Letters*, *21*, 014011. https://doi.org/10.1088/1748-9326/ae2d79
+
+Wang, X., Tian, C., Jia, X., Zhao, Y., & Xing, Y. (2026). The impact of significant geographical barriers on the invasion risk of non-native aquatic animals: A case study of the Qinling Mountains, China. *Biology*, *15*(4), 329. https://doi.org/10.3390/biology15040329
+
+Wang, Y., Gao, G., Huang, Y., & Fu, B. (2026). Divergent responses of ecosystem water and carbon use efficiency to atmosphere-vegetation-soil moisture factors in the northern drylands of China. *Journal of Geophysical Research: Biogeosciences*, *131*, e2025JG009271. https://doi.org/10.1029/2025JG009271
+
+Xiang, T., Arranz, I., Kuczynski, L., et al. (2026). Increasing functional or phylogenetic distance from native fish communities promotes non-native fish invasions in global rivers. *Global Change Biology*, *32*(3), e70814. https://doi.org/10.1111/gcb.70814
+
+Xiao, S., Adams, J. M., Li, S., Slik, F., et al. (2026). Analogous environments across the tropics have similar levels of tree species alpha diversity. *National Science Review*, *13*(2), nwaf465. https://doi.org/10.1093/nsr/nwaf465
+
 ### 2025
 
+Bartholomée, C., Taconet, P., Mercat, M., Grail, C., Bouhsira, E., Fournet, F., et al. (2025). Investigating the role of urban vegetation alongside other environmental variables in shaping *Aedes albopictus* presence and abundance in Montpellier, France. *PLoS One*, *20*(11), e0335793. https://doi.org/10.1371/journal.pone.0335793
+
+Brady, O. J., Bastos, L. S., Caldwell, J. M., Cauchemez, S., Clapham, H. E., Dorigatti, I., et al. (2025). Why the growth of arboviral diseases necessitates a new generation of global risk maps and future projections. *PLoS Computational Biology*, *21*(4), e1012771. https://doi.org/10.1371/journal.pcbi.1012771
+
+Cao, G., Dai, L., & Qiu, J. (2025). The importance of soil depth in determining the impacts of mixed plantations with thinning on soil multifunctionality. *Plant and Soil*, *517*, 509–524. https://doi.org/10.1007/s11104-025-07872-y
+
+Croft, S., Warren, D., & Blanco-Aguiar, J. (2025). Predicting the distribution of common wild mammal species across Europe: Are there sufficient occurrence data? *European Journal of Wildlife Research*, *71*, 133. https://doi.org/10.1007/s10344-025-02014-2
+
+Fernández-García, V., Phelps, L. N., Strydom, T., Muando, P. J., Ranaivonasy, J., Lehmann, C. E. R., & Kull, C. A. (2025). High-resolution satellite data improve insights into landscape fires and their drivers in southeastern Africa. *Journal of Geophysical Research: Biogeosciences*, *130*, e2024JG008635. https://doi.org/10.1029/2024JG008635
+
+Gia Barboza-Salerno, T., Yang, G. E. B., et al. (2025). *Development and spatial validation of a random forest prediction model for firearm-related injury risk in Chicago census tracts* [Preprint]. Research Square. https://doi.org/10.21203/rs.3.rs-7190389/v1
+
+Howard, J. K., Barnett, A. R., Fesenmyer, K. A., & Anderson, M. G. (2025). From fragmentation to resilience: Connectivity and habitat diversity as drivers of fish persistence in California watersheds. *PLoS One*, *20*(12), e0339212. https://doi.org/10.1371/journal.pone.0339212
+
+Jiang, B., Chen, H., & Wei, Z. (2025). Higher temperature sensitivity of forest soil methane oxidation in colder climates. *Nature Communications*, *16*, 2428. https://doi.org/10.1038/s41467-025-57763-0
+
+Lagacé, M., Boudreau, D. R., Tousignant, L., & Moreau, G. (2025). Ecological factors underlying the spatiotemporal dynamics in a key forest beetle pollinator. *Agricultural and Forest Entomology*, *27*(4), 590–599. https://doi.org/10.1111/afe.12687
+
+Larocque, S. M., Bzonek, P. A., Brownscombe, J. W., Martin, G. K., Brooks, J. L., Boston, C. M., Doka, S. E., Cooke, S. J., & Midwood, J. D. (2025). Application of telemetry-based fish habitat models to predict spatial habitat availability and inform ecological restoration. *Journal of Fish Biology*, *106*(5), 1601–1618. https://doi.org/10.1111/jfb.15899
+
+Le Geay, M., Mayers, K., & Sytiuk, A. (2025). Uncovering diversity and abundance patterns of CO2-fixing microorganisms in peatlands. *npj Biodiversity*, *4*, 30. https://doi.org/10.1038/s44185-025-00099-1
+
+Lutz, L., Amendt, J., & Moreau, G. (2025). Baited traps as flawed proxies for carcass colonization. *Scientific Reports*, *15*, 6267. https://doi.org/10.1038/s41598-025-90522-1
+
+Ma, D., Peng, S., Lin, Z., Zhu, J., Niu, L., Ding, X., Pan, X., Jiao, Y., Cui, B., & Cai, F. (2025). A deviation-frequency-trend framework for multi-scale assessment of soil erosion dynamics. *Ecological Indicators*, *180*, 114341. https://doi.org/10.1016/j.ecolind.2025.114341
+
+Ma, Y., Ma, L., & Yang, L. (2025). Coexistence patterns of biocrust-vascular plant in the Loess Plateau. *Ecosystems*, *28*, 30. https://doi.org/10.1007/s10021-025-00976-7
+
+Magneville, C., Cartereau, M., Hernández-Agüero, J. A., et al. (2025). Echoes of the past: Long-term climate stability shapes functional and phylogenetic diversity in Euro-Mediterranean forests. *Global Ecology and Biogeography*, *34*(12), e70177. https://doi.org/10.1111/geb.70177
+
+Mahapatra, S., Majhi, B. K., Sarkar, M. S., Datta, D., Mishra, A. P., & Rathnayake, U. (2025). Understanding forest fragmentation dynamics and identifying drivers for forest cover loss using random forest models to develop effective forest management strategies in North-East India. *Results in Engineering*, *26*, 104640. https://doi.org/10.1016/j.rineng.2025.104640
+
+Marchand, W., Daubrée, J.-B., & Depardieu, C. (2025). *Viscum album* in French forests: Distribution, environmental drivers and impacts on tree health and growth. *Forest Ecology and Management*, *598*, 123226. https://doi.org/10.1016/j.foreco.2025.123226
+
+Mathews-Martin, L., Metras, R., Boucher, J. M., et al. (2025). Meteorological and environmental factors associated with the exposure to tick-borne encephalitis virus (TBEV) in cattle, north-eastern France, 2018–2019. *Veterinary Research*, *56*, 157. https://doi.org/10.1186/s13567-025-01588-8
+
+Matta, R., Stritih, A., & Lecina-Diaz, J. (2025). Identifying wind and bark beetle disturbance predictors across German forests. *Ecological Indicators*, *179*, 114248. https://doi.org/10.1016/j.ecolind.2025.114248
+
+Mikryukov, V., et al. (2025). Connecting the multiple dimensions of global soil fungal diversity. *Science Advances*, *9*, eadj8016. https://doi.org/10.1126/sciadv.adj8016
+
+Mondal, S., Gluck-Thaler, E., Grabowski Ocampos, C. J., Hahn Villalba, E., Niblack, T. L., Orrego Fuente, A. L., Pedrozo, L. M., Ralston, T. I., Soilan, L. C., & Lopez-Nicora, H. D. (2025). Geostatistical modeling improves prediction of *Macrophomina phaseolina* abundance and distribution in soybean fields. *Phytopathology*, *115*(3), 247–259. https://doi.org/10.1094/PHYTO-04-24-0139-R
+
+Nikolaou, D., Ziakopoulos, A., Kontaxi, A., Theofilatos, A., & Yannis, G. (2025). Spatial analysis of telematics-based surrogate safety measures. *Journal of Safety Research*, *92*, 98–108. https://doi.org/10.1016/j.jsr.2024.09.012
+
+Parishwad, O., Gao, K., & Najafi, A. (2025). *Modeling e-scooter sharing demand and its influencing factors: A spatial machine learning approach* [Preprint]. SSRN. https://doi.org/10.2139/ssrn.5232197
+
+Putkiranta, P., Räsänen, A., & Luoto, M. (2025). Mapping plant diversity in a northern boreal landscape using remotely sensed spectral variation. *Landscape Ecology*, *40*, 206. https://doi.org/10.1007/s10980-025-02240-8
+
+Schiller, J., Stiller, S., & Ryo, M. (2025). Artificial intelligence in environmental and Earth system sciences: Explainability and trustworthiness. *Artificial Intelligence Review*, *58*, 316. https://doi.org/10.1007/s10462-025-11165-2
+
+Shayle, E. S., & Zeuss, D. (2025). Temporal and spatial upscaling with PlanetScope data: Predicting relative canopy dieback in the piñon-juniper woodlands of Utah. *Remote Sensing*, *17*(19), 3323. https://doi.org/10.3390/rs17193323
+
+Stewart, J. D., Kiers, E. T., Chomicki, G., & Weedon, J. T. (2025). Crop yields are not greater outside centers of origin. *One Earth*, *8*(8), 101346. https://doi.org/10.1016/j.oneear.2025.101346
+
+Suleymanov, A., Kuzyakov, Y., Asylbaev, I., Rusakov, I., Suleymanov, R., Tuktarova, I., & Belan, L. (2025). Mechanisms and drivers of soil pH assessed by Shapley additive explanation. *CATENA*, *259*, 109301. https://doi.org/10.1016/j.catena.2025.109301
+
+Teles, J. N., & Mantelatto, F. L. (2025). Decapod biodiversity hotspots and environmental drivers: A macroecological approach about bycatch species in Brazil. *Journal of Biogeography*, *52*(12), e70076. https://doi.org/10.1111/jbi.70076
+
+Terkper, K. A., Moomen, M., Rahman, M. A., Mohammed, N.-H., Khan, W. A., & Codjoe, J. (2025). Understanding vehicle availability patterns using census data with spatially-hybrid machine learning models. *Case Studies on Transport Policy*, *22*, 101641. https://doi.org/10.1016/j.cstp.2025.101641
+
+Wang, W., & Wang, C. (2025). Divergent urban ozone responses to straw burning in northern China from observational data: Roles of meteorology and photochemistry. *Atmosphere*, *16*(11), 1296. https://doi.org/10.3390/atmos16111296
+
+Wei, P., Luo, X., Pie, M. R., Sucharitakul, P., Zhou, W., & Yuan, Z. (2025). Global diversity patterns in anurans are determined by terrestrial and arboreal species. *Integrative Zoology*. Advance online publication. https://doi.org/10.1111/1749-4877.13032
+
+Withnell, E., Celik, C., & Secrier, M. (2025). *Integrative spatial modelling of cellular plasticity using graph neural networks and geostatistics* [Preprint]. bioRxiv. https://doi.org/10.1101/2025.09.24.678189
+
+Yang, X., Zhang, Z., Zhou, H., Liu, F., Yu, H., Zhao, B., Wang, X., Li, H., & Shi, Z. (2025). Social–ecological factors and ecosystem service trade-offs/synergies in vegetation change zones of Qilian Mountain National Park during 2000–2020. *Remote Sensing*, *17*(8), 1402. https://doi.org/10.3390/rs17081402
+
+Zhang, J., Mu, L., Zhang, D., Chen, Z., Rajbhandari-Thapa, J., Pagán, J. A., & Zhou, Z. (2025). SpaCE: A spatial counterfactual explainable deep learning model for predicting out-of-hospital cardiac arrest survival outcome. *International Journal of Geographical Information Science*, 1–32. https://doi.org/10.1080/13658816.2024.2443757
 
 ### 2024
 
-Rueda, M., González-Suárez, M. and Revilla, E. (2024), Global biogeographical regions reveal a signal of past human impacts. Ecography, 2024: e06762. https://doi.org/10.1111/ecog.06762
+Berv, J. S., et al. (2024). Genome and life-history evolution link bird diversification to the end-Cretaceous mass extinction. *Science Advances*, *10*, eadp0114. https://doi.org/10.1126/sciadv.adp0114
+
+Fernández-García, V., Phelps, L. N., Strydom, T., et al. (2024). *Fire regimes of southeastern Africa are better predicted by Sentinel-2 than MODIS* [Preprint]. ESS Open Archive. https://doi.org/10.22541/essoar.173282212.20545644/v1
+
+Gilman, E., & Chaloupka, M. (2024). Evidence from interpretable machine learning to inform spatial management of Palau's tuna fisheries. *Ecosphere*, *15*(2), e4751. https://doi.org/10.1002/ecs2.4751
+
+Gokhale, S. S. (2024). County-level associations between social and sleep deprivation conditioned by regional effects. In *2024 IEEE 12th International Conference on Healthcare Informatics (ICHI)* (pp. 710–717). IEEE. https://doi.org/10.1109/ICHI61247.2024.00113
+
+Quinn, C. A., Burns, P., Jantz, P., Salas, L., Goetz, S. J., & Clark, M. L. (2024). Soundscape mapping: Understanding regional spatial and temporal patterns of soundscapes incorporating remotely-sensed predictors and wildfire disturbance. *Environmental Research: Ecology*, *3*(2), 025002. https://doi.org/10.1088/2752-664X/ad4bec
+
+Rueda, M., González-Suárez, M., & Revilla, E. (2024). Global biogeographical regions reveal a signal of past human impacts. *Ecography*, *2024*, e06762. https://doi.org/10.1111/ecog.06762
+
+Salako, G., Zaitsev, A., Betancur-Corredor, B., & Russell, D. J. (2024). Modelling and spatial prediction of earthworms ecological-categories distribution reveal their habitat and environmental preferences. *Ecological Indicators*, *169*, 112832. https://doi.org/10.1016/j.ecolind.2024.112832
+
+Teillet, C., Devillers, R., Tran, A., et al. (2024). Exploring fine-scale urban landscapes using satellite data to predict the distribution of *Aedes* mosquito breeding sites. *International Journal of Health Geographics*, *23*, 18. https://doi.org/10.1186/s12942-024-00378-3
+
+Wang, X., Bocksberger, G., & Arandjelovic, M. (2024). Strontium isoscape of sub-Saharan Africa allows tracing origins of victims of the transatlantic slave trade. *Nature Communications*, *15*, 10891. https://doi.org/10.1038/s41467-024-55256-0
+
+Wang, Z., Fu, B., Wu, X., Wang, S., Li, Y., & Feng, Y. (2024). Distinguishing trajectories and drivers of vegetated ecosystems in China's Loess Plateau. *Earth's Future*, *12*, e2023EF003769. https://doi.org/10.1029/2023EF003769
+
+Wei, Y., Wang, M., Viscarra Rossel, R. A., Chen, H., & Luo, Z. (2024). Extreme climate as the primary control of global soil organic carbon across spatial scales. *Global Biogeochemical Cycles*, *38*, e2024GB008200. https://doi.org/10.1029/2024GB008200
+
+Zhi, R., Boughton, E. H., Li, H., Petticord, D. F., Saha, A., Sparks, J. P., Reddy, K. R., & Qiu, J. (2024). Soil legacy phosphorus and loss risk in subtropical grasslands. *Journal of Environmental Management*, *366*, 121656. https://doi.org/10.1016/j.jenvman.2024.121656
 
 ### 2023
 
-Potapov, A.M., Guerra, C.A., van den Hoogen, J. et al. Globally invariant metabolism but density-diversity mismatch in springtails. Nat Commun 14, 674 (2023). https://doi.org/10.1038/s41467-023-36216-6
+Guirado, E., Delgado-Baquerizo, M., Benito, B. M., Molina-Pardo, J. L., Berdugo, M., Martínez-Valderrama, J., & Maestre, F. T. (2023). The global biogeography and environmental drivers of fairy circles. *Proceedings of the National Academy of Sciences*, *120*(40), e2304032120. https://doi.org/10.1073/pnas.2304032120
+
+Kang, L., Chen, L., Li, Z., Wang, J., Xue, K., Deng, Y., Delgado-Baquerizo, M., Song, Y., Zhang, D., Yang, G., Zhou, W., Liu, X., Liu, F., & Yang, Y. (2023). Patterns and drivers of prokaryotic communities in thermokarst lake water across Northern Hemisphere. *Global Ecology and Biogeography*, *32*, 2244–2256. https://doi.org/10.1111/geb.13764
+
+Lauer, D. A., & McGuire, J. L. (2023). [Article]. *Environmental Research Letters*, *18*, 074029. https://doi.org/10.1088/1748-9326/acde90
+
+Mathias, S., van Galen, L. G., Jarvie, S., & Larcombe, M. J. (2023). Range reshuffling: Climate change, invasive species, and the case of *Nothofagus* forests in Aotearoa New Zealand. *Diversity and Distributions*, *29*, 1402–1419. https://doi.org/10.1111/ddi.13767
+
+Potapov, A. M., Guerra, C. A., van den Hoogen, J., et al. (2023). Globally invariant metabolism but density-diversity mismatch in springtails. *Nature Communications*, *14*, 674. https://doi.org/10.1038/s41467-023-36216-6
+
+Rodman, K. C., Davis, K. T., Parks, S. A., Chapman, T. B., Coop, J. D., Iniguez, J. M., Roccaforte, J. P., Sánchez Meador, A. J., Springer, J. D., Stevens-Rumann, C. S., Stoddard, M. T., Waltz, A. E. M., & Wasserman, T. N. (2023). Refuge-yeah or refuge-nah? Predicting locations of forest resistance and recruitment in a fiery world. *Global Change Biology*, *29*, 7029–7050. https://doi.org/10.1111/gcb.16939
+
+Sáez-Sandino, T., García-Palacios, P., Maestre, F. T., et al. (2023). The soil microbiome governs the response of microbial respiration to warming across the globe. *Nature Climate Change*, *13*, 1382–1387. https://doi.org/10.1038/s41558-023-01868-1
+
+Zhu, H., Liu, H., Zhou, Q., & Cui, A. (2023). Towards an accurate and reliable downscaling scheme for high-spatial-resolution precipitation data. *Remote Sensing*, *15*(10), 2640. https://doi.org/10.3390/rs15102640
 
 ### 2022
 
-Monnier-Corbel, A., Monnet, A.-C., Bacon, L., Benito, B. M., Robert, A., & Hingrat, Y. (2022). Density-dependence of reproductive success in a Houbara bustard population. Global Ecology and Conservation, 35, e02071. https://doi.org/10.1016/j.gecco.2022.e02071
+Brame, J. E., Liddicoat, C., Abbott, C. A., Edwards, R. A., Robinson, J. M., Gauthier, N. E., & Breed, M. F. (2022). [Preprint]. *bioRxiv*. https://doi.org/10.1101/2022.10.07.510278
 
-Patoine, G., Eisenhauer, N., Cesarz, S. et al. Drivers and trends of global soil microbial carbon over two decades. Nature Communications 13, 4195 (2022). https://doi.org/10.1038/s41467-022-31833-z
+Ferguson, T. P., Chen, J., & Jorgensen, P. D. (2022). *Trump and the Republican base: A machine learning approach*. Institute for New Economic Thinking. https://www.ineteconomics.org/uploads/papers/Trump-and-the-Republican-Base.pdf
 
-Santiago-Rosario, L. Y., Harms, K. E., & Craven, D. (2022). Contrasts among cationic phytochemical landscapes in the southern United States. Plant-Environment Interactions, 3, 226–241. https://doi.org/10.1002/pei3.10093
+Liu, Z., Jin, Y., Yang, L., Yan, L., Zhang, Y., Xu, M., Tang, J., Zhou, Y., Hu, F., & Cheng, J. (2022). Incorporating egg-transporting pathways into conservation plans of spawning areas: An example of small yellow croaker (*Larimichthys polyactis*) in the East China Sea zone. *Frontiers in Marine Science*, *9*, 941411. https://doi.org/10.3389/fmars.2022.941411
 
-Liu Z, Jin Y, Yang L, Yan L, Zhang Y, Xu M, Tang J, Zhou Y, Hu F and Cheng J (2022) Incorporating egg-transporting pathways into conservation plans of spawning areas: An example of small yellow croaker (Larimichthys polyactis) in the East China Sea zone. Front. Mar. Sci. 9:941411. doi: 10.3389/fmars.2022.941411
+Lotz, T., Su, S., & Opp, C. (2022). Multi-metal distribution patterns in soils of the Sacramento River floodplain and their controlling factors. *Applied Sciences*, *12*(17), 8462. https://doi.org/10.3390/app12178462
 
-Ferguson, Thomas P., Jie Chen and Paul D. Jorgensen. “Trump and the Republican Base: A Machine Learning Approach.” (2022). URL: https://www.ineteconomics.org/uploads/papers/Trump-and-the-Republican-Base.pdf
+Monnier-Corbel, A., Monnet, A.-C., Bacon, L., Benito, B. M., Robert, A., & Hingrat, Y. (2022). Density-dependence of reproductive success in a Houbara bustard population. *Global Ecology and Conservation*, *35*, e02071. https://doi.org/10.1016/j.gecco.2022.e02071
+
+Patoine, G., Eisenhauer, N., Cesarz, S., et al. (2022). Drivers and trends of global soil microbial carbon over two decades. *Nature Communications*, *13*, 4195. https://doi.org/10.1038/s41467-022-31833-z
+
+Santiago-Rosario, L. Y., Harms, K. E., & Craven, D. (2022). Contrasts among cationic phytochemical landscapes in the southern United States. *Plant-Environment Interactions*, *3*, 226–241. https://doi.org/10.1002/pei3.10093
+
+Wayman, J. P., Sadler, J. P., Pugh, T. A. M., Martin, T. E., Tobias, J. A., & Matthews, T. J. (2022). Assessing taxonomic and functional change in British breeding bird assemblages over time. *Global Ecology and Biogeography*, *31*, 925–939. https://doi.org/10.1111/geb.13468
 
 ## Others
 
-[Awesome-Geospatial](https://github.com/sacridini/Awesome-Geospatial) (under the R section).
-
+Eduardo, R. (n.d.). *Awesome-Geospatial* [Online resource, R section]. GitHub. https://github.com/sacridini/Awesome-Geospatial
 
 ### 2025
 
-Nowosad, Jakub. 2025. Specialized R Packages for Spatial Machine Learning: An Introduction to RandomForestsGLS, spatialRF, and Meteo. June 25, 2025. https://geocompx.org/post/2025/sml-bp5/. 
+Nowosad, J. (2025, June 25). *Specialized R packages for spatial machine learning: An introduction to RandomForestsGLS, spatialRF, and Meteo*. geocompx. https://geocompx.org/post/2025/sml-bp5/
 
 ### 2022
 
-Poloni, A., Tonini, M., & Lambiel, C. (2022, November 19). Advanced spatial learning technique for automatic mapping of geomorphological features in alpine periglacial environment [Conference abstract]. In P. Dèzes (Ed.), Abstract Volume of the 20th Swiss Geoscience Meeting, Symposium 21+22: Spatial Data Science + Virtual Representation of Forests. Swiss Academy of Sciences (SCNAT), Lausanne, Switzerland, 18–20 November 2022.
+Poloni, A., Tonini, M., & Lambiel, C. (2022, November 18–20). *Advanced spatial learning technique for automatic mapping of geomorphological features in alpine periglacial environment* [Conference abstract]. In P. Dèzes (Ed.), *Abstract volume of the 20th Swiss Geoscience Meeting, Symposium 21+22: Spatial Data Science + Virtual Representation of Forests*. Swiss Academy of Sciences (SCNAT), Lausanne, Switzerland. https://geoscience-meeting.ch/sgm2022/wp-content/uploads/abstracts/Poloni_Alessio_08-17-22-12-08-18.pdf
