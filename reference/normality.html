@@ -3,7 +3,7 @@
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
+    <nav class="navbar navbar-expand-lg fixed-top bg-primary" data-bs-theme="dark" aria-label="Site navigation"><div class="container">
 
     <a class="navbar-brand me-2" href="../index.html">spatialRF</a>
 
@@ -22,7 +22,10 @@
     <li><h6 class="dropdown-header" data-toc-skip>Tutorials</h6></li>
     <li><a class="dropdown-item" href="../articles/non_spatial_models.html">Non-Spatial Random Forest Models</a></li>
     <li><a class="dropdown-item" href="../articles/spatial_models.html">Spatial Random Forest Models</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Impact</h6></li>
     <li><a class="dropdown-item" href="../articles/download_history.html">Download history</a></li>
+    <li><a class="dropdown-item" href="../articles/spatialRF_in_the_wild.html">spatialRF In The Wild</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Development</h6></li>
     <li><a class="dropdown-item" href="../articles/development_roadmap.html">Development Roadmap</a></li>
@@ -89,10 +92,10 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">residuals_test</span><span class="op">(</span>residuals <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $shapiro.w</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.9606738</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.9702458</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $p.value</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.004492854</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.02308444</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $interpretation</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Residuals are not normal"</span>

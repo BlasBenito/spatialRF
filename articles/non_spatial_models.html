@@ -17,7 +17,7 @@
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
+    <nav class="navbar navbar-expand-lg fixed-top bg-primary" data-bs-theme="dark" aria-label="Site navigation"><div class="container">
 
     <a class="navbar-brand me-2" href="../index.html">spatialRF</a>
 
@@ -38,7 +38,10 @@
     <li><h6 class="dropdown-header" data-toc-skip>Tutorials</h6></li>
     <li><a class="dropdown-item" href="../articles/non_spatial_models.html">Non-Spatial Random Forest Models</a></li>
     <li><a class="dropdown-item" href="../articles/spatial_models.html">Spatial Random Forest Models</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Impact</h6></li>
     <li><a class="dropdown-item" href="../articles/download_history.html">Download history</a></li>
+    <li><a class="dropdown-item" href="../articles/spatialRF_in_the_wild.html">spatialRF In The Wild</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Development</h6></li>
     <li><a class="dropdown-item" href="../articles/development_roadmap.html">Development Roadmap</a></li>
@@ -90,15 +93,15 @@ Forest Models</a> tutorial.</p>
 </h2>
 <p>The following libraries are required for this tutorial.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://blasbenito.github.io/spatialRF/">spatialRF</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">parallel</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/rstudio/DT" class="external-link">DT</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com" class="external-link">patchwork</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://docs.ropensci.org/rnaturalearth/" class="external-link">rnaturalearth</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://docs.ropensci.org/rnaturalearthdata/" class="external-link">rnaturalearthdata</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ModelOriented/randomForestExplainer" class="external-link">randomForestExplainer</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">parallel</span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com" class="external-link">patchwork</a></span><span class="op">)</span></span></code></pre></div>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://blasbenito.github.io/spatialRF/">spatialRF</a></span><span class="op">)</span></span></code></pre></div>
 <p>Many functions in the package also support a parallelization backend
 to speed-up execution.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
@@ -130,7 +133,7 @@ is a matrix of geographical distances between ecoregions.</p>
 <span>    <span class="op">)</span></span></code></pre></div>
 <p>The figure below shows the response variable
 <em>richness_species_vascular</em> in space.</p>
-<p><img src="non_spatial_models_files/figure-html/unnamed-chunk-5-1.png" class="r-plt" alt="" width="100%"></p>
+<p><img src="non_spatial_models_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" alt="" width="100%" style="display: block; margin: auto;"></p>
 <p>The predictors, stored in <a href="https://blasbenito.github.io/spatialRF/reference/plants_predictors.html"><code>plants_predictors</code></a>
 represent diverse factors that may influence plant richness such as
 sampling bias, the area of the ecoregion, climatic variables, human
@@ -146,7 +149,7 @@ features of the neighbors of each ecoregion.</p>
 <span>  point.color <span class="op">=</span> <span class="va">colors</span>,</span>
 <span>  ncol <span class="op">=</span> <span class="fl">3</span></span>
 <span>  <span class="op">)</span></span></code></pre></div>
-<p><img src="non_spatial_models_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" alt="" width="100%"></p>
+<p><img src="non_spatial_models_files/figure-html/unnamed-chunk-7-1.png" class="r-plt" alt="" width="100%" style="display: block; margin: auto;"></p>
 <p>The function <a href="https://blasbenito.github.io/spatialRF/reference/plot_training_df_moran.html"><code>plot_training_df_moran()</code></a>
 shows the spatial autocorrelation of the response and the predictors
 across different distance thresholds. Low Moran’s I and p-values equal
@@ -161,7 +164,7 @@ for the given variable and distance threshold.</p>
 <span>  distance.thresholds <span class="op">=</span> <span class="va">distance_thresholds</span>,</span>
 <span>  fill.color <span class="op">=</span> <span class="va">colors</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p><img src="non_spatial_models_files/figure-html/unnamed-chunk-7-1.png" class="r-plt" alt="" width="100%"></p>
+<p><img src="non_spatial_models_files/figure-html/unnamed-chunk-8-1.png" class="r-plt" alt="" width="100%" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level2">
 <h2 id="finding-promising-variable-interactions">Finding promising variable interactions<a class="anchor" aria-label="anchor" href="#finding-promising-variable-interactions"></a>
@@ -179,31 +182,32 @@ and selects the most promising ones via spatial cross-validation (see <a href="h
 <span>  point.color <span class="op">=</span> <span class="va">colors</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span>  <span class="op">)</span></span>
+<span><span class="co">#&gt; Training and evaluating a model without interactions.</span></span>
+<span><span class="co">#&gt; Testing 10 candidate interactions.</span></span>
+<span><span class="co">#&gt; Interactions identified: 3</span></span>
 <span><span class="co">#&gt;  ┌──────────────────┬──────────────────┬──────────────────┬──────────────────┐</span></span>
 <span><span class="co">#&gt;  │ <span style="font-weight: bold;">Interaction     </span> │ <span style="font-weight: bold;">Importance (% of</span> │ <span style="font-weight: bold;">       R-squared</span> │ <span style="font-weight: bold;">    Max cor with</span> │</span></span>
 <span><span class="co">#&gt;  │                  │ <span style="font-weight: bold;">            max)</span> │ <span style="font-weight: bold;">     improvement</span> │ <span style="font-weight: bold;">      predictors</span> │</span></span>
 <span><span class="co">#&gt;  ├──────────────────┼──────────────────┼──────────────────┼──────────────────┤</span></span>
-<span><span class="co">#&gt;  │ human_population │             91.4 │            0.048 │             0.64 │</span></span>
+<span><span class="co">#&gt;  │ human_population │            100.0 │            0.045 │             0.64 │</span></span>
 <span><span class="co">#&gt;  │ ..x..bias_area_k │                  │                  │                  │</span></span>
 <span><span class="co">#&gt;  │ m2               │                  │                  │                  │</span></span>
 <span><span class="co">#&gt;  ├──────────────────┼──────────────────┼──────────────────┼──────────────────┤</span></span>
-<span><span class="co">#&gt;  │ climate_bio1_ave │            100.0 │            0.070 │             0.28 │</span></span>
+<span><span class="co">#&gt;  │ climate_bio1_ave │             96.2 │            0.050 │             0.34 │</span></span>
 <span><span class="co">#&gt;  │ rage..pca..human │                  │                  │                  │</span></span>
-<span><span class="co">#&gt;  │ _population      │                  │                  │                  │</span></span>
+<span><span class="co">#&gt;  │ _population_dens │                  │                  │                  │</span></span>
+<span><span class="co">#&gt;  │ ity              │                  │                  │                  │</span></span>
 <span><span class="co">#&gt;  ├──────────────────┼──────────────────┼──────────────────┼──────────────────┤</span></span>
-<span><span class="co">#&gt;  │ climate_bio1_ave │             61.4 │            0.032 │             0.74 │</span></span>
+<span><span class="co">#&gt;  │ climate_bio1_ave │             57.5 │            0.018 │             0.74 │</span></span>
 <span><span class="co">#&gt;  │ rage..pca..clima │                  │                  │                  │</span></span>
 <span><span class="co">#&gt;  │ te_hypervolume   │                  │                  │                  │</span></span>
-<span><span class="co">#&gt;  ├──────────────────┼──────────────────┼──────────────────┼──────────────────┤</span></span>
-<span><span class="co">#&gt;  │ climate_hypervol │             71.9 │            0.011 │             0.71 │</span></span>
-<span><span class="co">#&gt;  │ ume..pca..bias_a │                  │                  │                  │</span></span>
-<span><span class="co">#&gt;  │ rea_km2          │                  │                  │                  │</span></span>
-<span><span class="co">#&gt;  ├──────────────────┼──────────────────┼──────────────────┼──────────────────┤</span></span>
-<span><span class="co">#&gt;  │ climate_hypervol │             55   │            0.01  │             0.56 │</span></span>
-<span><span class="co">#&gt;  │ ume..x..human_po │                  │                  │                  │</span></span>
-<span><span class="co">#&gt;  │ pulation_density │                  │                  │                  │</span></span>
-<span><span class="co">#&gt;  └──────────────────┴──────────────────┴──────────────────┴──────────────────┘</span></span></code></pre></div>
-<p><img src="non_spatial_models_files/figure-html/unnamed-chunk-8-1.png" class="r-plt" alt="" width="100%"></p>
+<span><span class="co">#&gt;  └──────────────────┴──────────────────┴──────────────────┴──────────────────┘</span></span>
+<span><span class="co">#&gt; Comparing models with and without interactions via spatial cross-validation.</span></span>
+<span><span class="co">#&gt; Notch went outside hinges</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Do you want `notch = FALSE`?</span></span>
+<span><span class="co">#&gt; Notch went outside hinges</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Do you want `notch = FALSE`?</span></span></code></pre></div>
+<p><img src="non_spatial_models_files/figure-html/unnamed-chunk-9-1.png" class="r-plt" alt="" width="100%" style="display: block; margin: auto;"></p>
 <p>The resulting plot shows the selected interactions against the
 response, the model improvement they produce, their importance relative
 to the other predictors, and maximum correlation with the other
@@ -234,72 +238,72 @@ results.</p>
 <tbody>
 <tr class="odd">
 <td align="left">human_population..x..bias_area_km2</td>
-<td align="right">91.366</td>
-<td align="right">0.048</td>
+<td align="right">100.00</td>
+<td align="right">0.045</td>
 <td align="right">0.6373850</td>
 <td align="left">human_population</td>
 <td align="left">bias_area_km2</td>
 <td align="left">TRUE</td>
 </tr>
 <tr class="even">
-<td align="left">climate_bio1_average..pca..human_population</td>
-<td align="right">100.000</td>
-<td align="right">0.070</td>
-<td align="right">0.2800000</td>
-<td align="left">climate_bio1_average</td>
-<td align="left">human_population</td>
-<td align="left">TRUE</td>
-</tr>
-<tr class="odd">
-<td align="left">climate_bio1_average..pca..climate_hypervolume</td>
-<td align="right">61.400</td>
-<td align="right">0.032</td>
-<td align="right">0.7400000</td>
-<td align="left">climate_bio1_average</td>
-<td align="left">climate_hypervolume</td>
-<td align="left">TRUE</td>
-</tr>
-<tr class="even">
 <td align="left">climate_bio1_average..pca..human_population_density</td>
-<td align="right">93.180</td>
-<td align="right">0.052</td>
+<td align="right">96.24</td>
+<td align="right">0.050</td>
 <td align="right">0.3400000</td>
 <td align="left">climate_bio1_average</td>
 <td align="left">human_population_density</td>
 <td align="left">TRUE</td>
 </tr>
 <tr class="odd">
-<td align="left">climate_hypervolume..pca..bias_area_km2</td>
-<td align="right">71.880</td>
-<td align="right">0.011</td>
-<td align="right">0.7100000</td>
-<td align="left">climate_hypervolume</td>
-<td align="left">bias_area_km2</td>
+<td align="left">climate_bio1_average..pca..human_population</td>
+<td align="right">100.00</td>
+<td align="right">0.051</td>
+<td align="right">0.2800000</td>
+<td align="left">climate_bio1_average</td>
+<td align="left">human_population</td>
 <td align="left">TRUE</td>
 </tr>
 <tr class="even">
+<td align="left">climate_bio1_average..pca..climate_hypervolume</td>
+<td align="right">57.52</td>
+<td align="right">0.018</td>
+<td align="right">0.7400000</td>
+<td align="left">climate_bio1_average</td>
+<td align="left">climate_hypervolume</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="odd">
 <td align="left">human_population..pca..climate_hypervolume</td>
-<td align="right">84.870</td>
-<td align="right">-0.019</td>
+<td align="right">75.67</td>
+<td align="right">-0.005</td>
 <td align="right">0.7200000</td>
 <td align="left">human_population</td>
 <td align="left">climate_hypervolume</td>
 <td align="left">FALSE</td>
 </tr>
+<tr class="even">
+<td align="left">climate_hypervolume..pca..bias_area_km2</td>
+<td align="right">66.33</td>
+<td align="right">-0.017</td>
+<td align="right">0.7100000</td>
+<td align="left">climate_hypervolume</td>
+<td align="left">bias_area_km2</td>
+<td align="left">FALSE</td>
+</tr>
 <tr class="odd">
-<td align="left">climate_hypervolume..x..human_population_density</td>
-<td align="right">54.987</td>
-<td align="right">0.010</td>
-<td align="right">0.5599486</td>
+<td align="left">climate_hypervolume..pca..human_population_density</td>
+<td align="right">46.73</td>
+<td align="right">-0.005</td>
+<td align="right">0.7200000</td>
 <td align="left">climate_hypervolume</td>
 <td align="left">human_population_density</td>
-<td align="left">TRUE</td>
+<td align="left">FALSE</td>
 </tr>
 <tr class="even">
-<td align="left">climate_hypervolume..pca..human_population_density</td>
-<td align="right">43.560</td>
-<td align="right">-0.010</td>
-<td align="right">0.7200000</td>
+<td align="left">climate_hypervolume..x..human_population_density</td>
+<td align="right">50.31</td>
+<td align="right">-0.022</td>
+<td align="right">0.5599486</td>
 <td align="left">climate_hypervolume</td>
 <td align="left">human_population_density</td>
 <td align="left">FALSE</td>
@@ -340,28 +344,28 @@ modelling function of the <em>spatialRF</em> package.</p>
 <span><span class="co">#&gt;   - Type:                            Regression</span></span>
 <span><span class="co">#&gt;   - Number of trees:                 500</span></span>
 <span><span class="co">#&gt;   - Sample size:                     227</span></span>
-<span><span class="co">#&gt;   - Number of predictors:            22</span></span>
+<span><span class="co">#&gt;   - Number of predictors:            20</span></span>
 <span><span class="co">#&gt;   - Mtry:                            4</span></span>
 <span><span class="co">#&gt;   - Minimum node size:               5</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Model performance </span></span>
-<span><span class="co">#&gt;   - R squared (oob):                  0.5703074</span></span>
-<span><span class="co">#&gt;   - R squared (cor(obs, pred)^2):     0.9495211</span></span>
-<span><span class="co">#&gt;   - Pseudo R squared (cor(obs, pred)):0.9744337</span></span>
-<span><span class="co">#&gt;   - RMSE (oob):                       2209.095</span></span>
-<span><span class="co">#&gt;   - RMSE:                             944.4662</span></span>
-<span><span class="co">#&gt;   - Normalized RMSE:                  0.2726519</span></span>
+<span><span class="co">#&gt;   - R squared (oob):                  0.5872011</span></span>
+<span><span class="co">#&gt;   - R squared (cor(obs, pred)^2):     0.9515986</span></span>
+<span><span class="co">#&gt;   - Pseudo R squared (cor(obs, pred)):0.9754991</span></span>
+<span><span class="co">#&gt;   - RMSE (oob):                       2165.233</span></span>
+<span><span class="co">#&gt;   - RMSE:                             937.1016</span></span>
+<span><span class="co">#&gt;   - Normalized RMSE:                  0.2705259</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Model residuals </span></span>
 <span><span class="co">#&gt;   - Stats: </span></span>
 <span><span class="co">#&gt;           ┌──────────┬─────────┬─────────┬────────┬────────┬─────────┐</span></span>
 <span><span class="co">#&gt;           │ <span style="font-weight: bold;">Min.    </span> │ <span style="font-weight: bold;">1st Q. </span> │ <span style="font-weight: bold;">Median </span> │ <span style="font-weight: bold;">Mean  </span> │ <span style="font-weight: bold;">3rd Q.</span> │ <span style="font-weight: bold;">Max.   </span> │</span></span>
 <span><span class="co">#&gt;           ├──────────┼─────────┼─────────┼────────┼────────┼─────────┤</span></span>
-<span><span class="co">#&gt;           │ -2194.56 │ -439.96 │ -148.65 │ -23.13 │ 129.13 │ 7723.71 │</span></span>
+<span><span class="co">#&gt;           │ -1923.57 │ -482.98 │ -141.46 │ -19.08 │ 105.51 │ 7828.85 │</span></span>
 <span><span class="co">#&gt;           └──────────┴─────────┴─────────┴────────┴────────┴─────────┘</span></span>
 <span><span class="co">#&gt;   - Normality: </span></span>
-<span><span class="co">#&gt;       - Shapiro-Wilks W: 0.748 </span></span>
+<span><span class="co">#&gt;       - Shapiro-Wilks W: 0.747 </span></span>
 <span><span class="co">#&gt;       - p-value        : 0 </span></span>
 <span><span class="co">#&gt;       - Interpretation : Residuals are not normal </span></span>
 <span><span class="co">#&gt; </span></span>
@@ -369,22 +373,22 @@ modelling function of the <em>spatialRF</em> package.</p>
 <span><span class="co">#&gt;              ┌──────────┬───────────┬─────────┬──────────────────┐</span></span>
 <span><span class="co">#&gt;              │ <span style="font-weight: bold;">Distance</span> │ <span style="font-weight: bold;">Moran's I</span> │ <span style="font-weight: bold;">P value</span> │ <span style="font-weight: bold;">Interpretation  </span> │</span></span>
 <span><span class="co">#&gt;              ├──────────┼───────────┼─────────┼──────────────────┤</span></span>
-<span><span class="co">#&gt;              │     10.0 │     0.136 │   0.000 │ Positive spatial │</span></span>
+<span><span class="co">#&gt;              │     10.0 │     0.119 │   0.000 │ Positive spatial │</span></span>
 <span><span class="co">#&gt;              │          │           │         │ correlation      │</span></span>
 <span><span class="co">#&gt;              ├──────────┼───────────┼─────────┼──────────────────┤</span></span>
-<span><span class="co">#&gt;              │    100.0 │     0.106 │   0.000 │ Positive spatial │</span></span>
+<span><span class="co">#&gt;              │    100.0 │     0.088 │   0.002 │ Positive spatial │</span></span>
 <span><span class="co">#&gt;              │          │           │         │ correlation      │</span></span>
 <span><span class="co">#&gt;              ├──────────┼───────────┼─────────┼──────────────────┤</span></span>
-<span><span class="co">#&gt;              │   1000.0 │     0.059 │   0.000 │ Positive spatial │</span></span>
+<span><span class="co">#&gt;              │   1000.0 │     0.047 │   0.001 │ Positive spatial │</span></span>
 <span><span class="co">#&gt;              │          │           │         │ correlation      │</span></span>
 <span><span class="co">#&gt;              ├──────────┼───────────┼─────────┼──────────────────┤</span></span>
-<span><span class="co">#&gt;              │   2000.0 │     0.015 │   0.051 │ No spatial       │</span></span>
+<span><span class="co">#&gt;              │   2000.0 │     0.010 │   0.146 │ No spatial       │</span></span>
 <span><span class="co">#&gt;              │          │           │         │ correlation      │</span></span>
 <span><span class="co">#&gt;              ├──────────┼───────────┼─────────┼──────────────────┤</span></span>
-<span><span class="co">#&gt;              │   4000.0 │    -0.002 │   0.620 │ No spatial       │</span></span>
+<span><span class="co">#&gt;              │   4000.0 │    -0.003 │   0.748 │ No spatial       │</span></span>
 <span><span class="co">#&gt;              │          │           │         │ correlation      │</span></span>
 <span><span class="co">#&gt;              ├──────────┼───────────┼─────────┼──────────────────┤</span></span>
-<span><span class="co">#&gt;              │   8000.0 │    -0.006 │   0.455 │ No spatial       │</span></span>
+<span><span class="co">#&gt;              │   8000.0 │    -0.005 │   0.779 │ No spatial       │</span></span>
 <span><span class="co">#&gt;              │          │           │         │ correlation      │</span></span>
 <span><span class="co">#&gt;              └──────────┴───────────┴─────────┴──────────────────┘</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -392,53 +396,47 @@ modelling function of the <em>spatialRF</em> package.</p>
 <span><span class="co">#&gt;              ┌──────────────────────────────────────┬────────────┐</span></span>
 <span><span class="co">#&gt;              │ <span style="font-weight: bold;">Variable                            </span> │ <span style="font-weight: bold;">Importance</span> │</span></span>
 <span><span class="co">#&gt;              ├──────────────────────────────────────┼────────────┤</span></span>
-<span><span class="co">#&gt;              │ climate_bio1_average..pca..human_pop │   1571.771 │</span></span>
-<span><span class="co">#&gt;              │ ulation                              │            │</span></span>
+<span><span class="co">#&gt;              │ human_population                     │   1656.959 │</span></span>
 <span><span class="co">#&gt;              ├──────────────────────────────────────┼────────────┤</span></span>
-<span><span class="co">#&gt;              │ climate_bio1_average                 │   1419.292 │</span></span>
+<span><span class="co">#&gt;              │ human_population..x..bias_area_km2   │   1617.223 │</span></span>
 <span><span class="co">#&gt;              ├──────────────────────────────────────┼────────────┤</span></span>
-<span><span class="co">#&gt;              │ human_population                     │   1386.009 │</span></span>
+<span><span class="co">#&gt;              │ climate_bio1_average..pca..human_pop │   1536.032 │</span></span>
+<span><span class="co">#&gt;              │ ulation_density                      │            │</span></span>
 <span><span class="co">#&gt;              ├──────────────────────────────────────┼────────────┤</span></span>
-<span><span class="co">#&gt;              │ human_population..x..bias_area_km2   │   1297.871 │</span></span>
+<span><span class="co">#&gt;              │ climate_bio1_average                 │   1464.450 │</span></span>
 <span><span class="co">#&gt;              ├──────────────────────────────────────┼────────────┤</span></span>
-<span><span class="co">#&gt;              │ climate_hypervolume..pca..bias_area_ │   1175.894 │</span></span>
-<span><span class="co">#&gt;              │ km2                                  │            │</span></span>
+<span><span class="co">#&gt;              │ climate_hypervolume                  │   1291.841 │</span></span>
 <span><span class="co">#&gt;              ├──────────────────────────────────────┼────────────┤</span></span>
-<span><span class="co">#&gt;              │ climate_hypervolume                  │   1169.169 │</span></span>
+<span><span class="co">#&gt;              │ human_population_density             │   1101.496 │</span></span>
 <span><span class="co">#&gt;              ├──────────────────────────────────────┼────────────┤</span></span>
-<span><span class="co">#&gt;              │ human_population_density             │   1033.778 │</span></span>
+<span><span class="co">#&gt;              │ bias_area_km2                        │    986.467 │</span></span>
 <span><span class="co">#&gt;              ├──────────────────────────────────────┼────────────┤</span></span>
-<span><span class="co">#&gt;              │ bias_area_km2                        │    930.109 │</span></span>
-<span><span class="co">#&gt;              ├──────────────────────────────────────┼────────────┤</span></span>
-<span><span class="co">#&gt;              │ climate_bio1_average..pca..climate_h │    844.135 │</span></span>
+<span><span class="co">#&gt;              │ climate_bio1_average..pca..climate_h │    958.266 │</span></span>
 <span><span class="co">#&gt;              │ ypervolume                           │            │</span></span>
 <span><span class="co">#&gt;              ├──────────────────────────────────────┼────────────┤</span></span>
-<span><span class="co">#&gt;              │ climate_hypervolume..x..human_popula │    800.062 │</span></span>
-<span><span class="co">#&gt;              │ tion_density                         │            │</span></span>
+<span><span class="co">#&gt;              │ human_footprint_average              │    892.844 │</span></span>
 <span><span class="co">#&gt;              ├──────────────────────────────────────┼────────────┤</span></span>
-<span><span class="co">#&gt;              │ bias_species_per_record              │    774.139 │</span></span>
+<span><span class="co">#&gt;              │ bias_species_per_record              │    820.805 │</span></span>
 <span><span class="co">#&gt;              ├──────────────────────────────────────┼────────────┤</span></span>
-<span><span class="co">#&gt;              │ neighbors_count                      │    739.603 │</span></span>
+<span><span class="co">#&gt;              │ neighbors_count                      │    815.410 │</span></span>
 <span><span class="co">#&gt;              ├──────────────────────────────────────┼────────────┤</span></span>
-<span><span class="co">#&gt;              │ climate_velocity_lgm_average         │    637.439 │</span></span>
+<span><span class="co">#&gt;              │ neighbors_area                       │    760.857 │</span></span>
 <span><span class="co">#&gt;              ├──────────────────────────────────────┼────────────┤</span></span>
-<span><span class="co">#&gt;              │ human_footprint_average              │    635.566 │</span></span>
+<span><span class="co">#&gt;              │ topography_elevation_average         │    637.265 │</span></span>
 <span><span class="co">#&gt;              ├──────────────────────────────────────┼────────────┤</span></span>
-<span><span class="co">#&gt;              │ neighbors_percent_shared_edge        │    622.809 │</span></span>
+<span><span class="co">#&gt;              │ climate_velocity_lgm_average         │    597.876 │</span></span>
 <span><span class="co">#&gt;              ├──────────────────────────────────────┼────────────┤</span></span>
-<span><span class="co">#&gt;              │ topography_elevation_average         │    555.377 │</span></span>
+<span><span class="co">#&gt;              │ climate_aridity_index_average        │    564.928 │</span></span>
 <span><span class="co">#&gt;              ├──────────────────────────────────────┼────────────┤</span></span>
-<span><span class="co">#&gt;              │ neighbors_area                       │    525.109 │</span></span>
+<span><span class="co">#&gt;              │ fragmentation_cohesion               │    549.684 │</span></span>
 <span><span class="co">#&gt;              ├──────────────────────────────────────┼────────────┤</span></span>
-<span><span class="co">#&gt;              │ fragmentation_cohesion               │    495.335 │</span></span>
+<span><span class="co">#&gt;              │ neighbors_percent_shared_edge        │    543.590 │</span></span>
 <span><span class="co">#&gt;              ├──────────────────────────────────────┼────────────┤</span></span>
-<span><span class="co">#&gt;              │ climate_aridity_index_average        │    426.488 │</span></span>
+<span><span class="co">#&gt;              │ climate_bio15_minimum                │    300.262 │</span></span>
 <span><span class="co">#&gt;              ├──────────────────────────────────────┼────────────┤</span></span>
-<span><span class="co">#&gt;              │ climate_bio15_minimum                │    381.369 │</span></span>
+<span><span class="co">#&gt;              │ landcover_herbs_percent_average      │    252.868 │</span></span>
 <span><span class="co">#&gt;              ├──────────────────────────────────────┼────────────┤</span></span>
-<span><span class="co">#&gt;              │ landcover_herbs_percent_average      │    305.188 │</span></span>
-<span><span class="co">#&gt;              ├──────────────────────────────────────┼────────────┤</span></span>
-<span><span class="co">#&gt;              │ fragmentation_division               │    295.799 │</span></span>
+<span><span class="co">#&gt;              │ fragmentation_division               │    169.370 │</span></span>
 <span><span class="co">#&gt;              └──────────────────────────────────────┴────────────┘</span></span></code></pre></div>
 <p>The output is a list with several slots containing the information
 required to interpret the model.</p>
@@ -471,7 +469,7 @@ stores the normality and spatial autocorrelation tests.</p>
 <span>  point.color <span class="op">=</span> <span class="va">colors</span>,</span>
 <span>  fill.color <span class="op">=</span> <span class="va">colors</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span></span>
 <span>  <span class="op">)</span></span></code></pre></div>
-<p><img src="non_spatial_models_files/figure-html/unnamed-chunk-14-1.png" class="r-plt" alt="" width="100%">
+<p><img src="non_spatial_models_files/figure-html/unnamed-chunk-15-1.png" class="r-plt" alt="" width="100%" style="display: block; margin: auto;">
 The plot show that the residuals are highly correlated up to a point
 between 1000 and 2000 km between observations, indicating that there is
 a component of the response not explained by the current predictors.</p>
@@ -492,7 +490,7 @@ and the dataframe retrieved with <a href="https://blasbenito.github.io/spatialRF
 <span>  verbose <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  fill.color <span class="op">=</span> <span class="va">colors</span></span>
 <span>  <span class="op">)</span></span></code></pre></div>
-<p><img src="non_spatial_models_files/figure-html/unnamed-chunk-15-1.png" class="r-plt" alt="" width="100%"></p>
+<p><img src="non_spatial_models_files/figure-html/unnamed-chunk-16-1.png" class="r-plt" alt="" width="100%" style="display: block; margin: auto;"></p>
 <p>The output of <code><a href="../reference/rf.html">rf()</a></code> is also compatible with
 <code><a href="https://rdrr.io/pkg/randomForestExplainer/man/measure_importance.html" class="external-link">randomForestExplainer::measure_importance()</a></code>, which helps
 deepen our understanding on variable importance scores.</p>
@@ -508,7 +506,7 @@ deepen our understanding on variable importance scores.</p>
 <span>  <span class="op">)</span></span></code></pre></div>
 <table class="table">
 <colgroup>
-<col width="50%">
+<col width="52%">
 <col width="15%">
 <col width="12%">
 <col width="13%">
@@ -524,157 +522,143 @@ deepen our understanding on variable importance scores.</p>
 <tbody>
 <tr class="odd">
 <td align="left">bias_area_km2</td>
-<td align="right">4.23</td>
-<td align="right">1653</td>
-<td align="right">15</td>
-<td align="right">0.88</td>
+<td align="right">3.84</td>
+<td align="right">1835</td>
+<td align="right">13</td>
+<td align="right">0.74</td>
 </tr>
 <tr class="even">
 <td align="left">bias_species_per_record</td>
-<td align="right">3.79</td>
-<td align="right">2206</td>
-<td align="right">4</td>
+<td align="right">3.59</td>
+<td align="right">2387</td>
+<td align="right">5</td>
 <td align="right">0.00</td>
 </tr>
 <tr class="odd">
 <td align="left">climate_aridity_index_average</td>
-<td align="right">4.47</td>
-<td align="right">1641</td>
-<td align="right">3</td>
-<td align="right">0.93</td>
+<td align="right">4.38</td>
+<td align="right">1734</td>
+<td align="right">4</td>
+<td align="right">1.00</td>
 </tr>
 <tr class="even">
 <td align="left">climate_bio1_average</td>
-<td align="right">3.21</td>
-<td align="right">1927</td>
-<td align="right">49</td>
+<td align="right">2.84</td>
+<td align="right">2101</td>
+<td align="right">62</td>
 <td align="right">0.00</td>
 </tr>
 <tr class="odd">
 <td align="left">climate_bio1_average..pca..climate_hypervolume</td>
-<td align="right">4.06</td>
-<td align="right">1616</td>
-<td align="right">14</td>
-<td align="right">0.98</td>
+<td align="right">3.76</td>
+<td align="right">1870</td>
+<td align="right">25</td>
+<td align="right">0.42</td>
 </tr>
 <tr class="even">
-<td align="left">climate_bio1_average..pca..human_population</td>
-<td align="right">2.74</td>
-<td align="right">1969</td>
-<td align="right">83</td>
-<td align="right">0.00</td>
+<td align="left">climate_bio1_average..pca..human_population_density</td>
+<td align="right">2.84</td>
+<td align="right">1897</td>
+<td align="right">69</td>
+<td align="right">0.20</td>
 </tr>
 <tr class="odd">
 <td align="left">climate_bio15_minimum</td>
-<td align="right">5.01</td>
-<td align="right">1581</td>
+<td align="right">4.74</td>
+<td align="right">1681</td>
 <td align="right">0</td>
 <td align="right">1.00</td>
 </tr>
 <tr class="even">
 <td align="left">climate_hypervolume</td>
-<td align="right">3.35</td>
-<td align="right">1874</td>
-<td align="right">39</td>
+<td align="right">3.01</td>
+<td align="right">2116</td>
+<td align="right">47</td>
 <td align="right">0.00</td>
-</tr>
-<tr class="odd">
-<td align="left">climate_hypervolume..pca..bias_area_km2</td>
-<td align="right">3.72</td>
-<td align="right">1807</td>
-<td align="right">22</td>
-<td align="right">0.00</td>
-</tr>
-<tr class="even">
-<td align="left">climate_hypervolume..x..human_population_density</td>
-<td align="right">4.23</td>
-<td align="right">1613</td>
-<td align="right">24</td>
-<td align="right">0.99</td>
 </tr>
 <tr class="odd">
 <td align="left">climate_velocity_lgm_average</td>
-<td align="right">4.41</td>
-<td align="right">1657</td>
-<td align="right">5</td>
-<td align="right">0.86</td>
+<td align="right">4.24</td>
+<td align="right">1787</td>
+<td align="right">11</td>
+<td align="right">0.96</td>
 </tr>
 <tr class="even">
 <td align="left">fragmentation_cohesion</td>
-<td align="right">4.75</td>
-<td align="right">1466</td>
-<td align="right">7</td>
+<td align="right">4.51</td>
+<td align="right">1622</td>
+<td align="right">14</td>
 <td align="right">1.00</td>
 </tr>
 <tr class="odd">
 <td align="left">fragmentation_division</td>
-<td align="right">5.25</td>
-<td align="right">1422</td>
-<td align="right">0</td>
+<td align="right">5.16</td>
+<td align="right">1532</td>
+<td align="right">1</td>
 <td align="right">1.00</td>
 </tr>
 <tr class="even">
 <td align="left">human_footprint_average</td>
-<td align="right">4.78</td>
-<td align="right">1452</td>
-<td align="right">6</td>
+<td align="right">4.62</td>
+<td align="right">1669</td>
+<td align="right">8</td>
 <td align="right">1.00</td>
 </tr>
 <tr class="odd">
 <td align="left">human_population</td>
-<td align="right">3.16</td>
-<td align="right">1805</td>
+<td align="right">2.72</td>
+<td align="right">2123</td>
 <td align="right">67</td>
 <td align="right">0.00</td>
 </tr>
 <tr class="even">
 <td align="left">human_population_density</td>
-<td align="right">3.52</td>
-<td align="right">1765</td>
-<td align="right">25</td>
-<td align="right">0.05</td>
+<td align="right">3.45</td>
+<td align="right">1855</td>
+<td align="right">34</td>
+<td align="right">0.56</td>
 </tr>
 <tr class="odd">
 <td align="left">human_population..x..bias_area_km2</td>
-<td align="right">3.09</td>
-<td align="right">1833</td>
-<td align="right">78</td>
+<td align="right">2.81</td>
+<td align="right">2115</td>
+<td align="right">91</td>
 <td align="right">0.00</td>
 </tr>
 <tr class="even">
 <td align="left">landcover_herbs_percent_average</td>
-<td align="right">4.82</td>
-<td align="right">1648</td>
+<td align="right">4.78</td>
+<td align="right">1781</td>
 <td align="right">0</td>
-<td align="right">0.90</td>
+<td align="right">0.97</td>
 </tr>
 <tr class="odd">
 <td align="left">neighbors_area</td>
-<td align="right">4.53</td>
-<td align="right">1580</td>
-<td align="right">0</td>
+<td align="right">4.25</td>
+<td align="right">1687</td>
+<td align="right">1</td>
 <td align="right">1.00</td>
 </tr>
 <tr class="even">
 <td align="left">neighbors_count</td>
-<td align="right">3.62</td>
-<td align="right">1497</td>
-<td align="right">47</td>
+<td align="right">3.30</td>
+<td align="right">1670</td>
+<td align="right">41</td>
 <td align="right">1.00</td>
 </tr>
 <tr class="odd">
 <td align="left">neighbors_percent_shared_edge</td>
-<td align="right">4.15</td>
-<td align="right">1699</td>
-<td align="right">9</td>
-<td align="right">0.51</td>
+<td align="right">3.95</td>
+<td align="right">1886</td>
+<td align="right">7</td>
+<td align="right">0.28</td>
 </tr>
 <tr class="even">
 <td align="left">topography_elevation_average</td>
-<td align="right">4.35</td>
-<td align="right">1678</td>
-<td align="right">3</td>
-<td align="right">0.71</td>
+<td align="right">4.02</td>
+<td align="right">1874</td>
+<td align="right">0</td>
+<td align="right">0.38</td>
 </tr>
 </tbody>
 </table>
@@ -694,18 +678,18 @@ with all other predictors.</p>
 <span>  cluster <span class="op">=</span> <span class="va">cluster</span>,</span>
 <span>  fill.color <span class="op">=</span> <span class="va">colors</span></span>
 <span>  <span class="op">)</span></span></code></pre></div>
-<p><img src="non_spatial_models_files/figure-html/unnamed-chunk-18-1.png" class="r-plt" alt="" width="100%">
+<p><img src="non_spatial_models_files/figure-html/unnamed-chunk-19-1.png" class="r-plt" alt="" width="100%" style="display: block; margin: auto;">
 The values in the plot are added as new columns with the suffix
 <code>.cv</code> in the dataframe
 <code>m$importance$per.variable</code>.</p>
 <table class="table">
 <colgroup>
-<col width="34%">
+<col width="35%">
 <col width="10%">
 <col width="9%">
 <col width="12%">
-<col width="15%">
-<col width="18%">
+<col width="14%">
+<col width="17%">
 </colgroup>
 <thead><tr class="header">
 <th align="left">variable</th>
@@ -717,180 +701,164 @@ The values in the plot are added as new columns with the suffix
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td align="left">climate_bio1_average..pca..human_population</td>
-<td align="right">1571.771</td>
-<td align="right">0.047</td>
-<td align="right">0.022</td>
-<td align="right">11.0</td>
-<td align="right">8.2</td>
-</tr>
-<tr class="even">
-<td align="left">climate_bio1_average</td>
-<td align="right">1419.292</td>
-<td align="right">0.054</td>
-<td align="right">0.007</td>
-<td align="right">12.6</td>
-<td align="right">2.7</td>
-</tr>
-<tr class="odd">
 <td align="left">human_population</td>
-<td align="right">1386.009</td>
-<td align="right">0.021</td>
-<td align="right">0.024</td>
-<td align="right">4.9</td>
-<td align="right">8.8</td>
+<td align="right">1656.959</td>
+<td align="right">0.001</td>
+<td align="right">0.019</td>
+<td align="right">0.2</td>
+<td align="right">7.0</td>
 </tr>
 <tr class="even">
 <td align="left">human_population..x..bias_area_km2</td>
-<td align="right">1297.871</td>
-<td align="right">0.032</td>
-<td align="right">0.030</td>
-<td align="right">7.5</td>
-<td align="right">11.0</td>
-</tr>
-<tr class="odd">
-<td align="left">climate_hypervolume..pca..bias_area_km2</td>
-<td align="right">1175.894</td>
-<td align="right">-0.007</td>
+<td align="right">1617.223</td>
+<td align="right">0.037</td>
 <td align="right">0.034</td>
-<td align="right">-1.6</td>
-<td align="right">12.6</td>
-</tr>
-<tr class="even">
-<td align="left">climate_hypervolume</td>
-<td align="right">1169.169</td>
-<td align="right">0.008</td>
-<td align="right">0.010</td>
-<td align="right">1.9</td>
-<td align="right">3.8</td>
+<td align="right">8.2</td>
+<td align="right">12.4</td>
 </tr>
 <tr class="odd">
-<td align="left">human_population_density</td>
-<td align="right">1033.778</td>
-<td align="right">0.000</td>
-<td align="right">0.028</td>
-<td align="right">0.0</td>
-<td align="right">10.4</td>
-</tr>
-<tr class="even">
-<td align="left">bias_area_km2</td>
-<td align="right">930.109</td>
-<td align="right">0.007</td>
-<td align="right">0.027</td>
-<td align="right">1.6</td>
-<td align="right">9.9</td>
-</tr>
-<tr class="odd">
-<td align="left">climate_bio1_average..pca..climate_hypervolume</td>
-<td align="right">844.135</td>
-<td align="right">0.013</td>
-<td align="right">0.024</td>
-<td align="right">3.0</td>
-<td align="right">8.8</td>
-</tr>
-<tr class="even">
-<td align="left">climate_hypervolume..x..human_population_density</td>
-<td align="right">800.062</td>
-<td align="right">-0.019</td>
-<td align="right">0.015</td>
-<td align="right">-4.4</td>
-<td align="right">5.5</td>
-</tr>
-<tr class="odd">
-<td align="left">bias_species_per_record</td>
-<td align="right">774.139</td>
-<td align="right">0.014</td>
-<td align="right">0.018</td>
-<td align="right">3.3</td>
-<td align="right">6.6</td>
-</tr>
-<tr class="even">
-<td align="left">neighbors_count</td>
-<td align="right">739.603</td>
-<td align="right">0.015</td>
+<td align="left">climate_bio1_average..pca..human_population_density</td>
+<td align="right">1536.032</td>
 <td align="right">0.033</td>
-<td align="right">3.5</td>
-<td align="right">12.1</td>
-</tr>
-<tr class="odd">
-<td align="left">climate_velocity_lgm_average</td>
-<td align="right">637.439</td>
-<td align="right">0.005</td>
-<td align="right">0.016</td>
-<td align="right">1.2</td>
-<td align="right">6.0</td>
+<td align="right">0.018</td>
+<td align="right">7.3</td>
+<td align="right">6.4</td>
 </tr>
 <tr class="even">
-<td align="left">human_footprint_average</td>
-<td align="right">635.566</td>
-<td align="right">0.011</td>
-<td align="right">0.007</td>
-<td align="right">2.6</td>
-<td align="right">2.7</td>
-</tr>
-<tr class="odd">
-<td align="left">neighbors_percent_shared_edge</td>
-<td align="right">622.809</td>
+<td align="left">climate_bio1_average</td>
+<td align="right">1464.450</td>
 <td align="right">0.027</td>
-<td align="right">0.019</td>
-<td align="right">6.3</td>
-<td align="right">7.1</td>
-</tr>
-<tr class="even">
-<td align="left">topography_elevation_average</td>
-<td align="right">555.377</td>
-<td align="right">0.001</td>
-<td align="right">0.025</td>
-<td align="right">0.2</td>
-<td align="right">9.3</td>
+<td align="right">0.015</td>
+<td align="right">6.0</td>
+<td align="right">5.4</td>
 </tr>
 <tr class="odd">
-<td align="left">neighbors_area</td>
-<td align="right">525.109</td>
-<td align="right">0.024</td>
-<td align="right">0.030</td>
-<td align="right">5.6</td>
-<td align="right">11.0</td>
+<td align="left">climate_hypervolume</td>
+<td align="right">1291.841</td>
+<td align="right">0.006</td>
+<td align="right">0.027</td>
+<td align="right">1.3</td>
+<td align="right">9.7</td>
 </tr>
 <tr class="even">
-<td align="left">fragmentation_cohesion</td>
-<td align="right">495.335</td>
-<td align="right">-0.007</td>
-<td align="right">0.019</td>
-<td align="right">-1.6</td>
-<td align="right">7.1</td>
+<td align="left">human_population_density</td>
+<td align="right">1101.496</td>
+<td align="right">-0.005</td>
+<td align="right">0.024</td>
+<td align="right">-1.1</td>
+<td align="right">8.6</td>
+</tr>
+<tr class="odd">
+<td align="left">bias_area_km2</td>
+<td align="right">986.467</td>
+<td align="right">0.014</td>
+<td align="right">0.022</td>
+<td align="right">3.1</td>
+<td align="right">8.1</td>
+</tr>
+<tr class="even">
+<td align="left">climate_bio1_average..pca..climate_hypervolume</td>
+<td align="right">958.266</td>
+<td align="right">0.014</td>
+<td align="right">0.015</td>
+<td align="right">3.1</td>
+<td align="right">5.4</td>
+</tr>
+<tr class="odd">
+<td align="left">human_footprint_average</td>
+<td align="right">892.844</td>
+<td align="right">0.005</td>
+<td align="right">0.022</td>
+<td align="right">1.1</td>
+<td align="right">8.1</td>
+</tr>
+<tr class="even">
+<td align="left">bias_species_per_record</td>
+<td align="right">820.805</td>
+<td align="right">0.000</td>
+<td align="right">0.022</td>
+<td align="right">0.0</td>
+<td align="right">8.1</td>
+</tr>
+<tr class="odd">
+<td align="left">neighbors_count</td>
+<td align="right">815.410</td>
+<td align="right">0.011</td>
+<td align="right">0.015</td>
+<td align="right">2.4</td>
+<td align="right">5.4</td>
+</tr>
+<tr class="even">
+<td align="left">neighbors_area</td>
+<td align="right">760.857</td>
+<td align="right">0.023</td>
+<td align="right">0.062</td>
+<td align="right">5.1</td>
+<td align="right">22.6</td>
+</tr>
+<tr class="odd">
+<td align="left">topography_elevation_average</td>
+<td align="right">637.265</td>
+<td align="right">-0.015</td>
+<td align="right">0.021</td>
+<td align="right">-3.3</td>
+<td align="right">7.5</td>
+</tr>
+<tr class="even">
+<td align="left">climate_velocity_lgm_average</td>
+<td align="right">597.876</td>
+<td align="right">0.001</td>
+<td align="right">0.016</td>
+<td align="right">0.2</td>
+<td align="right">5.9</td>
 </tr>
 <tr class="odd">
 <td align="left">climate_aridity_index_average</td>
-<td align="right">426.488</td>
-<td align="right">-0.001</td>
-<td align="right">0.016</td>
-<td align="right">-0.2</td>
-<td align="right">6.0</td>
+<td align="right">564.928</td>
+<td align="right">0.002</td>
+<td align="right">0.024</td>
+<td align="right">0.4</td>
+<td align="right">8.6</td>
+</tr>
+<tr class="even">
+<td align="left">fragmentation_cohesion</td>
+<td align="right">549.684</td>
+<td align="right">-0.021</td>
+<td align="right">0.024</td>
+<td align="right">-4.7</td>
+<td align="right">8.6</td>
+</tr>
+<tr class="odd">
+<td align="left">neighbors_percent_shared_edge</td>
+<td align="right">543.590</td>
+<td align="right">0.011</td>
+<td align="right">0.033</td>
+<td align="right">2.4</td>
+<td align="right">11.8</td>
 </tr>
 <tr class="even">
 <td align="left">climate_bio15_minimum</td>
-<td align="right">381.369</td>
-<td align="right">0.013</td>
-<td align="right">0.013</td>
-<td align="right">3.0</td>
-<td align="right">4.9</td>
+<td align="right">300.262</td>
+<td align="right">0.002</td>
+<td align="right">0.015</td>
+<td align="right">0.4</td>
+<td align="right">5.4</td>
 </tr>
 <tr class="odd">
 <td align="left">landcover_herbs_percent_average</td>
-<td align="right">305.188</td>
-<td align="right">0.007</td>
-<td align="right">0.015</td>
-<td align="right">1.6</td>
-<td align="right">5.5</td>
+<td align="right">252.868</td>
+<td align="right">-0.013</td>
+<td align="right">0.022</td>
+<td align="right">-2.9</td>
+<td align="right">8.1</td>
 </tr>
 <tr class="even">
 <td align="left">fragmentation_division</td>
-<td align="right">295.799</td>
-<td align="right">0.015</td>
-<td align="right">0.015</td>
-<td align="right">3.5</td>
-<td align="right">5.5</td>
+<td align="right">169.370</td>
+<td align="right">0.003</td>
+<td align="right">0.019</td>
+<td align="right">0.7</td>
+<td align="right">7.0</td>
 </tr>
 </tbody>
 </table>
@@ -908,7 +876,7 @@ to create a local importance map.</p>
 <span>  <span class="va">plants_xy</span>,</span>
 <span>  <span class="fu">spatialRF</span><span class="fu">::</span><span class="fu"><a href="../reference/get_importance_local.html">get_importance_local</a></span><span class="op">(</span><span class="va">m</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span></code></pre></div>
-<p><img src="non_spatial_models_files/figure-html/unnamed-chunk-21-1.png" class="r-plt" alt="" width="100%"></p>
+<p><img src="non_spatial_models_files/figure-html/unnamed-chunk-22-1.png" class="r-plt" alt="" width="100%" style="display: block; margin: auto;"></p>
 <p>In these maps, a value lower than 0 indicates that the influence of
 the predictor on the local prediction is worse than what is expected by
 chance.</p>
@@ -927,7 +895,7 @@ predictors to a given quantile (0.1, 0.5, and 0.9 by default).</p>
 <span>  ncol <span class="op">=</span> <span class="fl">3</span>,</span>
 <span>  show.data <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span>  <span class="op">)</span></span></code></pre></div>
-<p><img src="non_spatial_models_files/figure-html/unnamed-chunk-22-1.png" class="r-plt" alt="" width="100%"></p>
+<p><img src="non_spatial_models_files/figure-html/unnamed-chunk-23-1.png" class="r-plt" alt="" width="100%" style="display: block; margin: auto;"></p>
 <p>The blue curve (quantile 0.1) shows the point estimate for a
 predictor when all other predictors are at their lowest values.</p>
 <p>Setting the argument <code>quantiles</code> to 0.5 and setting
@@ -940,7 +908,7 @@ accentuates the shape of the response curves.</p>
 <span>  line.color <span class="op">=</span> <span class="va">colors</span><span class="op">[</span><span class="fl">100</span><span class="op">]</span>,</span>
 <span>  ncol <span class="op">=</span> <span class="fl">3</span></span>
 <span>  <span class="op">)</span></span></code></pre></div>
-<p><img src="non_spatial_models_files/figure-html/unnamed-chunk-23-1.png" class="r-plt" alt="" width="100%"></p>
+<p><img src="non_spatial_models_files/figure-html/unnamed-chunk-24-1.png" class="r-plt" alt="" width="100%" style="display: block; margin: auto;"></p>
 <p>If you need to do your own plots, the function <a href="https://blasbenito.github.io/spatialRF/reference/get_response_curves.html"><code>get_response_curves()</code></a>
 returns a data frame with the required data.</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
@@ -953,7 +921,7 @@ returns a data frame with the required data.</p>
 <span>  b <span class="op">=</span> <span class="st">"neighbors_count"</span>,</span>
 <span>  fill.color <span class="op">=</span> <span class="va">colors</span></span>
 <span>  <span class="op">)</span></span></code></pre></div>
-<p><img src="non_spatial_models_files/figure-html/unnamed-chunk-25-1.png" class="r-plt" alt="" width="100%"></p>
+<p><img src="non_spatial_models_files/figure-html/unnamed-chunk-26-1.png" class="r-plt" alt="" width="100%" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level2">
 <h2 id="performance">Performance<a class="anchor" aria-label="anchor" href="#performance"></a>
@@ -965,12 +933,12 @@ measures. It be printed via the function <a href="https://blasbenito.github.io/s
 <code class="sourceCode R"><span><span class="fu">spatialRF</span><span class="fu">::</span><span class="fu"><a href="../reference/print_performance.html">print_performance</a></span><span class="op">(</span><span class="va">m</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Model performance </span></span>
-<span><span class="co">#&gt;   - R squared (oob):                  0.5703074</span></span>
-<span><span class="co">#&gt;   - R squared (cor(obs, pred)^2):     0.9495211</span></span>
-<span><span class="co">#&gt;   - Pseudo R squared (cor(obs, pred)):0.9744337</span></span>
-<span><span class="co">#&gt;   - RMSE (oob):                       2209.095</span></span>
-<span><span class="co">#&gt;   - RMSE:                             944.4662</span></span>
-<span><span class="co">#&gt;   - Normalized RMSE:                  0.2726519</span></span></code></pre></div>
+<span><span class="co">#&gt;   - R squared (oob):                  0.5872011</span></span>
+<span><span class="co">#&gt;   - R squared (cor(obs, pred)^2):     0.9515986</span></span>
+<span><span class="co">#&gt;   - Pseudo R squared (cor(obs, pred)):0.9754991</span></span>
+<span><span class="co">#&gt;   - RMSE (oob):                       2165.233</span></span>
+<span><span class="co">#&gt;   - RMSE:                             937.1016</span></span>
+<span><span class="co">#&gt;   - Normalized RMSE:                  0.2705259</span></span></code></pre></div>
 <ul>
 <li>
 <code>R squared (oob)</code> and <code>RMSE (oob)</code> are
@@ -1015,7 +983,13 @@ node.</li>
 <span>  min.node.size <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">10</span>, <span class="fl">20</span><span class="op">)</span>,</span>
 <span>  cluster <span class="op">=</span> <span class="va">cluster</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; Exploring 27 combinations of hyperparameters.</span></span>
+<span><span class="co">#&gt; Best hyperparameters:</span></span>
+<span><span class="co">#&gt;   - num.trees:     100</span></span>
+<span><span class="co">#&gt;   - mtry:          2</span></span>
+<span><span class="co">#&gt;   - min.node.size: 5</span></span>
+<span><span class="co">#&gt; gain in r.squared: 0.006</span></span></code></pre></div>
 <p>The function returns a tuned model only if the tuning finds a
 solution better than the original model. The tuning results can be
 accessed with <code><a href="../reference/plot_tuning.html">plot_tuning()</a></code>.</p>
@@ -1024,7 +998,7 @@ accessed with <code><a href="../reference/plot_tuning.html">plot_tuning()</a></c
 <span>  model <span class="op">=</span> <span class="va">m</span>,</span>
 <span>  point.color <span class="op">=</span> <span class="va">colors</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p><img src="non_spatial_models_files/figure-html/unnamed-chunk-28-1.png" class="r-plt" alt="" width="100%"></p>
+<p><img src="non_spatial_models_files/figure-html/unnamed-chunk-29-1.png" class="r-plt" alt="" width="100%" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level2">
 <h2 id="spatial-cross-validation">Spatial cross-validation<a class="anchor" aria-label="anchor" href="#spatial-cross-validation"></a>
@@ -1054,7 +1028,7 @@ that summarize the spatial cross-validation results.</p>
 contains the indices of the training and testing cases for each
 cross-validation repetition. The maps below show two sets of training
 and testing folds.</p>
-<p><img src="non_spatial_models_files/figure-html/unnamed-chunk-31-1.png" class="r-plt" alt="" width="100%"></p>
+<p><img src="non_spatial_models_files/figure-html/unnamed-chunk-32-1.png" class="r-plt" alt="" width="100%" style="display: block; margin: auto;"></p>
 <p>The information available in this new slot can be accessed with the
 functions <a href="https://blasbenito.github.io/spatialRF/reference/print_evaluation.html"><code>print_evaluation()</code></a>,
 <a href="https://blasbenito.github.io/spatialRF/reference/plot_evaluation.html"><code>plot_evaluation()</code></a>,
@@ -1065,7 +1039,7 @@ and <a href="https://blasbenito.github.io/spatialRF/reference/get_evaluation.htm
 <span>  fill.color <span class="op">=</span> <span class="va">colors</span>,</span>
 <span>  notch <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span>  <span class="op">)</span></span></code></pre></div>
-<p><img src="non_spatial_models_files/figure-html/unnamed-chunk-32-1.png" class="r-plt" alt="" width="100%"></p>
+<p><img src="non_spatial_models_files/figure-html/unnamed-chunk-33-1.png" class="r-plt" alt="" width="100%" style="display: block; margin: auto;"></p>
 <ul>
 <li>
 <code>Full</code> is the performance of the model trained on the
@@ -1088,7 +1062,7 @@ R-squared values on the testing folds can be printed with
 <span><span class="co">#&gt;   - Spatial folds:                 29</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;     Metric Median   MAD Minimum Maximum</span></span>
-<span><span class="co">#&gt;  r.squared  0.429 0.151   0.144   0.655</span></span></code></pre></div>
+<span><span class="co">#&gt;  r.squared  0.456 0.136   0.147   0.716</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="prediction">Prediction<a class="anchor" aria-label="anchor" href="#prediction"></a>
@@ -1103,7 +1077,7 @@ follows.</p>
 <span>  <span class="op">)</span><span class="op">$</span><span class="va">predictions</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">predicted</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1]  5015.487  4515.856  1439.082  7080.536 11423.504  2776.438</span></span></code></pre></div>
+<span><span class="co">#&gt; [1]  4811.463  4453.012  1547.302  7340.347 11615.776  2772.710</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="next-steps">Next steps<a class="anchor" aria-label="anchor" href="#next-steps"></a>

@@ -17,7 +17,7 @@
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
+    <nav class="navbar navbar-expand-lg fixed-top bg-primary" data-bs-theme="dark" aria-label="Site navigation"><div class="container">
 
     <a class="navbar-brand me-2" href="../index.html">spatialRF</a>
 
@@ -38,7 +38,10 @@
     <li><h6 class="dropdown-header" data-toc-skip>Tutorials</h6></li>
     <li><a class="dropdown-item" href="../articles/non_spatial_models.html">Non-Spatial Random Forest Models</a></li>
     <li><a class="dropdown-item" href="../articles/spatial_models.html">Spatial Random Forest Models</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Impact</h6></li>
     <li><a class="dropdown-item" href="../articles/download_history.html">Download history</a></li>
+    <li><a class="dropdown-item" href="../articles/spatialRF_in_the_wild.html">spatialRF In The Wild</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Development</h6></li>
     <li><a class="dropdown-item" href="../articles/development_roadmap.html">Development Roadmap</a></li>
@@ -94,14 +97,32 @@ Forest Models</a> tutorial.</p>
 <h2 id="setup">Setup<a class="anchor" aria-label="anchor" href="#setup"></a>
 </h2>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://blasbenito.github.io/spatialRF/">spatialRF</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Attaching package: 'dplyr'</span></span>
+<span><span class="co">#&gt; The following objects are masked from 'package:stats':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     filter, lag</span></span>
+<span><span class="co">#&gt; The following objects are masked from 'package:base':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     intersect, setdiff, setequal, union</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyr.tidyverse.org" class="external-link">tidyr</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">parallel</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com" class="external-link">patchwork</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://docs.ropensci.org/rnaturalearth/" class="external-link">rnaturalearth</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://docs.ropensci.org/rnaturalearthdata/" class="external-link">rnaturalearthdata</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">parallel</span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com" class="external-link">patchwork</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyr.tidyverse.org" class="external-link">tidyr</a></span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Attaching package: 'rnaturalearthdata'</span></span>
+<span><span class="co">#&gt; The following object is masked from 'package:rnaturalearth':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     countries110</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://blasbenito.github.io/spatialRF/">spatialRF</a></span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Attaching package: 'spatialRF'</span></span>
+<span><span class="co">#&gt; The following object is masked from 'package:stats':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     rf</span></span>
 <span></span>
 <span><span class="co"># Load data and precomputed non-spatial model</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span></span>
@@ -155,7 +176,7 @@ from a non-spatial model.</p>
 <span>  verbose <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  point.color <span class="op">=</span> <span class="va">colors</span></span>
 <span>  <span class="op">)</span></span></code></pre></div>
-<p><img src="spatial_models_files/figure-html/unnamed-chunk-2-1.png" class="r-plt" alt="" width="100%"></p>
+<p><img src="spatial_models_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" alt="" width="100%" style="display: block; margin: auto;"></p>
 <p>The spatial autocorrelation of the model residuals is high for
 neighborhood distances up to ~3000km</p>
 <p>To reduce the spatial autocorrelation of the residuals as much as
@@ -174,7 +195,7 @@ model</em> with <a href="https://blasbenito.github.io/spatialRF/reference/rf_spa
 <span>  verbose <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  point.color <span class="op">=</span> <span class="va">colors</span></span>
 <span>  <span class="op">)</span></span></code></pre></div>
-<p><img src="spatial_models_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" alt="" width="100%"></p>
+<p><img src="spatial_models_files/figure-html/unnamed-chunk-4-1.png" class="r-plt" alt="" width="100%" style="display: block; margin: auto;"></p>
 <p>The residuals of the spatial model plotted above are not spatially
 correlated anymore!</p>
 <p>This improvement results from adding <em>spatial predictors</em> to
@@ -192,7 +213,7 @@ importance.</p>
 <span>  verbose <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  fill.color <span class="op">=</span> <span class="va">colors</span></span>
 <span>  <span class="op">)</span></span></code></pre></div>
-<p><img src="spatial_models_files/figure-html/unnamed-chunk-4-1.png" class="r-plt" alt="" width="100%"></p>
+<p><img src="spatial_models_files/figure-html/unnamed-chunk-5-1.png" class="r-plt" alt="" width="100%" style="display: block; margin: auto;"></p>
 <p>Spatial predictors are named <code>spatial_predictor_X_Y</code>,
 where <code>X</code> is the neighborhood distance at which the predictor
 is generated, and <code>Y</code> is the index of the predictor.</p>
@@ -204,103 +225,107 @@ is generated, and <code>Y</code> is the index of the predictor.</p>
 <tbody>
 <tr class="odd">
 <td align="left">spatial_predictor_10_3</td>
-<td align="right">1068.818</td>
+<td align="right">1075.062</td>
 </tr>
 <tr class="even">
-<td align="left">spatial_predictor_10_1</td>
-<td align="right">824.806</td>
-</tr>
-<tr class="odd">
 <td align="left">spatial_predictor_10_2</td>
-<td align="right">751.127</td>
+<td align="right">877.549</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">spatial_predictor_10_5</td>
-<td align="right">737.917</td>
+<td align="right">831.983</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">spatial_predictor_10_4</td>
-<td align="right">708.623</td>
+<td align="right">757.292</td>
+</tr>
+<tr class="odd">
+<td align="left">spatial_predictor_10_1</td>
+<td align="right">743.527</td>
 </tr>
 <tr class="even">
+<td align="left">spatial_predictor_10_6</td>
+<td align="right">742.421</td>
+</tr>
+<tr class="odd">
 <td align="left">spatial_predictor_10_13</td>
-<td align="right">570.652</td>
+<td align="right">589.322</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">spatial_predictor_1000_11</td>
-<td align="right">480.690</td>
+<td align="right">509.290</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">spatial_predictor_10_8</td>
-<td align="right">473.708</td>
-</tr>
-<tr class="odd">
-<td align="left">spatial_predictor_10_16</td>
-<td align="right">457.056</td>
-</tr>
-<tr class="even">
-<td align="left">spatial_predictor_10_10</td>
-<td align="right">453.995</td>
-</tr>
-<tr class="odd">
-<td align="left">spatial_predictor_10_9</td>
-<td align="right">452.719</td>
-</tr>
-<tr class="even">
-<td align="left">spatial_predictor_10_12</td>
-<td align="right">420.716</td>
-</tr>
-<tr class="odd">
-<td align="left">spatial_predictor_1000_9</td>
-<td align="right">409.647</td>
+<td align="right">485.921</td>
 </tr>
 <tr class="even">
 <td align="left">spatial_predictor_10_15</td>
-<td align="right">397.895</td>
+<td align="right">469.144</td>
 </tr>
 <tr class="odd">
+<td align="left">spatial_predictor_10_10</td>
+<td align="right">468.329</td>
+</tr>
+<tr class="even">
 <td align="left">spatial_predictor_2000_3</td>
-<td align="right">375.859</td>
-</tr>
-<tr class="even">
-<td align="left">spatial_predictor_2000_6</td>
-<td align="right">370.543</td>
+<td align="right">455.492</td>
 </tr>
 <tr class="odd">
+<td align="left">spatial_predictor_10_16</td>
+<td align="right">455.075</td>
+</tr>
+<tr class="even">
+<td align="left">spatial_predictor_10_9</td>
+<td align="right">406.292</td>
+</tr>
+<tr class="odd">
+<td align="left">spatial_predictor_10_12</td>
+<td align="right">405.411</td>
+</tr>
+<tr class="even">
 <td align="left">spatial_predictor_10_17</td>
-<td align="right">363.371</td>
-</tr>
-<tr class="even">
-<td align="left">spatial_predictor_10_14</td>
-<td align="right">287.073</td>
+<td align="right">372.799</td>
 </tr>
 <tr class="odd">
-<td align="left">spatial_predictor_10_7</td>
-<td align="right">285.621</td>
+<td align="left">spatial_predictor_2000_6</td>
+<td align="right">362.206</td>
 </tr>
 <tr class="even">
-<td align="left">spatial_predictor_10_22</td>
-<td align="right">237.709</td>
+<td align="left">spatial_predictor_1000_9</td>
+<td align="right">356.643</td>
 </tr>
 <tr class="odd">
 <td align="left">spatial_predictor_1000_10</td>
-<td align="right">233.072</td>
+<td align="right">345.893</td>
 </tr>
 <tr class="even">
-<td align="left">spatial_predictor_10_19</td>
-<td align="right">196.421</td>
+<td align="left">spatial_predictor_10_7</td>
+<td align="right">343.952</td>
 </tr>
 <tr class="odd">
-<td align="left">spatial_predictor_10_21</td>
-<td align="right">174.868</td>
+<td align="left">spatial_predictor_10_22</td>
+<td align="right">339.658</td>
 </tr>
 <tr class="even">
-<td align="left">spatial_predictor_10_18</td>
-<td align="right">167.810</td>
+<td align="left">spatial_predictor_10_14</td>
+<td align="right">313.344</td>
 </tr>
 <tr class="odd">
 <td align="left">spatial_predictor_10_11</td>
-<td align="right">125.160</td>
+<td align="right">282.106</td>
+</tr>
+<tr class="even">
+<td align="left">spatial_predictor_10_18</td>
+<td align="right">222.278</td>
+</tr>
+<tr class="odd">
+<td align="left">spatial_predictor_10_19</td>
+<td align="right">188.148</td>
+</tr>
+<tr class="even">
+<td align="left">spatial_predictor_10_21</td>
+<td align="right">139.684</td>
 </tr>
 </tbody>
 </table>
@@ -318,7 +343,7 @@ non-spatial predictors.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">spatial.predictors</span> <span class="op">&lt;-</span> <span class="fu">spatialRF</span><span class="fu">::</span><span class="fu"><a href="../reference/get_spatial_predictors.html">get_spatial_predictors</a></span><span class="op">(</span><span class="va">m.spatial</span><span class="op">)</span></span></code></pre></div>
 <p>The map below shows a couple of them.</p>
-<p><img src="spatial_models_files/figure-html/unnamed-chunk-7-1.png" class="r-plt" alt="" width="100%"></p>
+<p><img src="spatial_models_files/figure-html/unnamed-chunk-8-1.png" class="r-plt" alt="" width="100%" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level2">
 <h2 id="selection-of-spatial-predictors">Selection of spatial predictors<a class="anchor" aria-label="anchor" href="#selection-of-spatial-predictors"></a>
@@ -332,7 +357,7 @@ residuals.</p>
 <span>  model <span class="op">=</span> <span class="va">m.spatial</span>,</span>
 <span>  point.color <span class="op">=</span> <span class="va">colors</span></span>
 <span>  <span class="op">)</span></span></code></pre></div>
-<p><img src="spatial_models_files/figure-html/unnamed-chunk-8-1.png" class="r-plt" alt="" width="100%">
+<p><img src="spatial_models_files/figure-html/unnamed-chunk-9-1.png" class="r-plt" alt="" width="100%" style="display: block; margin: auto;">
 The path in the plot below shows the iterative selection of spatial
 predictors, that tries to reduce the spatial autocorrelation of the
 residuals (<em>y</em> axis) without degrading model performance
@@ -358,7 +383,7 @@ predictive performances across spatial folds.</p>
 <span>  cluster <span class="op">=</span> <span class="va">cluster</span>,</span>
 <span>  metrics <span class="op">=</span> <span class="st">"r.squared"</span></span>
 <span>  <span class="op">)</span></span></code></pre></div>
-<p><img src="spatial_models_files/figure-html/unnamed-chunk-9-1.png" class="r-plt" alt="" width="100%"></p>
+<p><img src="spatial_models_files/figure-html/unnamed-chunk-10-1.png" class="r-plt" alt="" width="100%" style="display: block; margin: auto;"></p>
 <p>The comparison shows that the spatial model has a better performance
 on when predicting on independent spatial folds. This is an expected
 behavior: spatial predictors make models less transferable in space!
@@ -406,7 +431,7 @@ sequentially until residual autocorrelation is resolved.</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">m1.moran</span><span class="op">$</span><span class="va">plot</span></span></code></pre></div>
-<p><img src="spatial_models_files/figure-html/unnamed-chunk-11-1.png" class="r-plt" alt="" width="100%"></p>
+<p><img src="spatial_models_files/figure-html/unnamed-chunk-12-1.png" class="r-plt" alt="" width="100%" style="display: block; margin: auto;"></p>
 <p>Residuals show spatial autocorrelation. Let’s add MEMs
 sequentially:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
@@ -446,7 +471,7 @@ sequentially:</p>
 <span><span class="op">}</span></span>
 <span></span>
 <span><span class="va">m2.moran</span><span class="op">$</span><span class="va">plot</span></span></code></pre></div>
-<p><img src="spatial_models_files/figure-html/unnamed-chunk-12-1.png" class="r-plt" alt="" width="100%"></p>
+<p><img src="spatial_models_files/figure-html/unnamed-chunk-13-1.png" class="r-plt" alt="" width="100%" style="display: block; margin: auto;"></p>
 <p>Compare models:</p>
 <table class="table  lightable-paper lightable-hover" style='font-family: "Arial Narrow", arial, helvetica, sans-serif; width: auto !important; margin-left: auto; margin-right: auto;'>
 <thead><tr>
