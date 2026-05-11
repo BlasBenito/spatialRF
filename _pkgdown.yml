@@ -2,8 +2,13 @@ title: spatialRF
 home:
   title: "spatialRF: Easy Spatial Regression with Random Forest"
 url: https://blasbenito.github.io/spatialRF/
+
+llm-docs: false
+
 template:
   bootstrap: 5
+  bootswatch: minty
+  theme: breeze-light
   fonts:
     heading: Montserrat
     body: Montserrat
@@ -20,7 +25,11 @@ articles:
   contents:
   - articles/non_spatial_models
   - articles/spatial_models
+- title: About
+  navbar: About
+  contents:
   - articles/download_history
+  - articles/spatialRF_in_the_wild
 - title: Development
   navbar: Development
   contents:
@@ -67,13 +76,3 @@ reference:
   contents:
   - has_concept("data")
 
-
-build:
-  extra_packages:
-    - patchwork
-    - ggplot2
-    - rstudioapi
-    - dplyr
-    - DT
-    - rnaturalearth
-    - rnaturalearthdata

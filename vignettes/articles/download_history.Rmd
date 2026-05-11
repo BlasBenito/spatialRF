@@ -3,18 +3,25 @@ title: "Download history"
 output: 
   rmarkdown::html_document:
     toc: true
-    toc_title: "Content"
-    source: false
+    toc_title: "Contents"
 ---
 
-```{r, include=FALSE, echo = FALSE}
-install.packages("cranlogs")
+```{r, include = FALSE}
+if (!requireNamespace("pak", quietly = TRUE)) {
+  install.packages("pak")
+}
+library(pak)
+pak::pkg_install(
+  c(
+    "cranlogs",
+    "ggplot2"
+  ),
+  ask = FALSE
+)
 ```
 
 
 ```{r, echo = FALSE}
-# Install packages if needed
-# install.packages(c("cranlogs", "ggplot2"))
 library(cranlogs)
 library(ggplot2)
 

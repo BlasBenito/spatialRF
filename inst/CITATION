@@ -25,9 +25,9 @@ bibentry(
   title    = "spatialRF: Easy Spatial Regression with Random Forest",
   author   = person(given = c("Blas", "M."),
                     family = "Benito"),
-  doi      = "10.5281/zenodo.4745208",
+  doi      = "10.5281/zenodo.4745207",
   url      = "https://blasbenito.github.io/spatialRF/",
   year     = 2025,
   note     = "R package version 1.1.5",
-  textVersion = "Blas M. Benito (2025). R package spatialRF: Easy Spatial Regression with Random Forest. doi: 10.5281/zenodo.4745208. url: https://blasbenito.github.io/spatialRF/"
+  textVersion = "Blas M. Benito (2025). R package spatialRF: Easy Spatial Regression with Random Forest. doi: 10.5281/zenodo.4745207. url: https://blasbenito.github.io/spatialRF/"
 )

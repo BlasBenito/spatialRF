@@ -1,0 +1,66 @@
+---
+title: "spatialRF In The Wild"
+output: 
+  rmarkdown::html_document:
+    toc: true
+    toc_title: "Content"
+    source: false
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  eval = TRUE,
+  collapse = TRUE,
+  comment = "#>",
+  dpi = 150,
+  fig.show = 'hold',
+  fig.width = 5
+)
+
+options(scipen = 9999)
+options(conflicts.policy = list(warn = FALSE))
+```
+
+# Summary
+
+This article lists known applications of the R package `spatialRF` found in the literature.
+
+*This page is maintained by hand and may be incomplete. If you've used `spatialRF` in a publication, talk, or blog post and would like it listed here, please open an issue at the [package repository](https://github.com/BlasBenito/spatialRF).
+
+## Research Papers
+
+### 2025
+
+
+### 2024
+
+Rueda, M., González-Suárez, M. and Revilla, E. (2024), Global biogeographical regions reveal a signal of past human impacts. Ecography, 2024: e06762. https://doi.org/10.1111/ecog.06762
+
+### 2023
+
+Potapov, A.M., Guerra, C.A., van den Hoogen, J. et al. Globally invariant metabolism but density-diversity mismatch in springtails. Nat Commun 14, 674 (2023). https://doi.org/10.1038/s41467-023-36216-6
+
+### 2022
+
+Monnier-Corbel, A., Monnet, A.-C., Bacon, L., Benito, B. M., Robert, A., & Hingrat, Y. (2022). Density-dependence of reproductive success in a Houbara bustard population. Global Ecology and Conservation, 35, e02071. https://doi.org/10.1016/j.gecco.2022.e02071
+
+Patoine, G., Eisenhauer, N., Cesarz, S. et al. Drivers and trends of global soil microbial carbon over two decades. Nature Communications 13, 4195 (2022). https://doi.org/10.1038/s41467-022-31833-z
+
+Santiago-Rosario, L. Y., Harms, K. E., & Craven, D. (2022). Contrasts among cationic phytochemical landscapes in the southern United States. Plant-Environment Interactions, 3, 226–241. https://doi.org/10.1002/pei3.10093
+
+Liu Z, Jin Y, Yang L, Yan L, Zhang Y, Xu M, Tang J, Zhou Y, Hu F and Cheng J (2022) Incorporating egg-transporting pathways into conservation plans of spawning areas: An example of small yellow croaker (Larimichthys polyactis) in the East China Sea zone. Front. Mar. Sci. 9:941411. doi: 10.3389/fmars.2022.941411
+
+Ferguson, Thomas P., Jie Chen and Paul D. Jorgensen. “Trump and the Republican Base: A Machine Learning Approach.” (2022). URL: https://www.ineteconomics.org/uploads/papers/Trump-and-the-Republican-Base.pdf
+
+## Others
+
+[Awesome-Geospatial](https://github.com/sacridini/Awesome-Geospatial) (under the R section).
+
+
+### 2025
+
+Nowosad, Jakub. 2025. Specialized R Packages for Spatial Machine Learning: An Introduction to RandomForestsGLS, spatialRF, and Meteo. June 25, 2025. https://geocompx.org/post/2025/sml-bp5/. 
+
+### 2022
+
+Poloni, A., Tonini, M., & Lambiel, C. (2022, November 19). Advanced spatial learning technique for automatic mapping of geomorphological features in alpine periglacial environment [Conference abstract]. In P. Dèzes (Ed.), Abstract Volume of the 20th Swiss Geoscience Meeting, Symposium 21+22: Spatial Data Science + Virtual Representation of Forests. Swiss Academy of Sciences (SCNAT), Lausanne, Switzerland, 18–20 November 2022.

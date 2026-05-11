@@ -3,20 +3,18 @@ title: "Spatial Random Forest Models"
 output: 
   rmarkdown::html_document:
     toc: true
-    toc_title: "Content"
-    source: false
+    toc_title: "Contents"
 ---
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
-  eval = TRUE,
-  collapse = TRUE,
-  comment = "#>",
-  fig.width = 7,
-  fig.height = 5,
-  out.width = "100%",
-  warning = FALSE,
-  message = FALSE
+  eval      = TRUE,
+  collapse  = TRUE,
+  comment   = "#>",
+  fig.width = 8,
+  fig.align = "center",
+  dpi = 150,
+  out.width = "100%"
 )
 ```
 
@@ -30,15 +28,37 @@ For an introduction to non-spatial random forest modeling with spatialRF, see th
 
 # Setup
 
+```{r, include = FALSE}
+if (!requireNamespace("pak", quietly = TRUE)) {
+  install.packages("pak")
+}
+library(pak)
+pak::pkg_install(
+  c(
+    "dplyr",
+    "tidyr",
+    "testthat",
+    "ggstats",
+    "parallel",
+    "ggplot2",
+    "patchwork",
+    "rnaturalearth",
+    "rnaturalearthdata",
+    "spatialRF"
+  ),
+  ask = FALSE
+)
+```
+
 ```{r setup}
-library(spatialRF)
-library(ggplot2)
 library(dplyr)
+library(tidyr)
+library(parallel)
+library(ggplot2)
+library(patchwork)
 library(rnaturalearth)
 library(rnaturalearthdata)
-library(parallel)
-library(patchwork)
-library(tidyr)
+library(spatialRF)
 
 # Load data and precomputed non-spatial model
 data(

@@ -3,20 +3,18 @@ title: "Non-Spatial Random Forest Models"
 output: 
   rmarkdown::html_document:
     toc: true
-    toc_title: "Content"
-    source: false
+    toc_title: "Contents"
 ---
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
-  eval = TRUE,
-  collapse = TRUE,
-  comment = "#>",
-  fig.width = 7,
-  fig.height = 5,
-  out.width = "100%",
-  warning = FALSE,
-  message = FALSE
+  eval      = TRUE,
+  collapse  = TRUE,
+  comment   = "#>",
+  fig.width = 8,
+  fig.align = "center",
+  dpi = 150,
+  out.width = "100%"
 )
 ```
 
@@ -30,16 +28,39 @@ If you're interested in addressing spatial autocorrelation in your model residua
 
 The following libraries are required for this tutorial.
 
+```{r, include = FALSE}
+if (!requireNamespace("pak", quietly = TRUE)) {
+  install.packages("pak")
+}
+library(pak)
+pak::pkg_install(
+  c(
+    "dplyr",
+    "testthat",
+    "ggstats",
+    "parallel",
+    "DT",
+    "ggplot2",
+    "patchwork",
+    "rnaturalearth",
+    "rnaturalearthdata",
+    "randomForestExplainer",
+    "spatialRF"
+  ),
+  ask = FALSE
+)
+```
+
 ```{r, message = FALSE}
-library(spatialRF)
-library(ggplot2)
 library(dplyr)
+library(parallel)
 library(DT)
+library(ggplot2)
+library(patchwork)
 library(rnaturalearth)
 library(rnaturalearthdata)
 library(randomForestExplainer)
-library(parallel)
-library(patchwork)
+library(spatialRF)
 ```
 
 Many functions in the package also support a parallelization backend to speed-up execution.
