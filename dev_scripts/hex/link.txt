@@ -1,0 +1,5 @@
+world.png
+Attribution: <a href="https://www.flaticon.com/free-icons/globe" title="globe icons">Globe icons created by srip - Flaticon</a>>
+
+decision.png
+<a href="https://www.flaticon.com/free-icons/decision" title="decision icons">Decision icons created by kornkun - Flaticon</a>
