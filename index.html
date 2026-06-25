@@ -7,8 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>spatialRF: Easy Spatial Regression with Random Forest • spatialRF</title>
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="spatialRF: Easy Spatial Regression with Random Forest">
 <meta name="description" content="Automatic generation and selection of spatial predictors for Random Forest models fitted to spatially structured data. Spatial predictors are constructed from a distance matrix among training samples using Morans Eigenvector Maps (MEMs; Dray, Legendre, and Peres-Neto 2006 &lt;DOI:10.1016/j.ecolmodel.2006.02.015&gt;) or the RFsp approach (Hengl et al. &lt;DOI:10.7717/peerj.5518&gt;). These predictors are used alongside user-supplied explanatory variables in Random Forest models. The package provides functions for model fitting, multicollinearity reduction, interaction identification, hyperparameter tuning, evaluation via spatial cross-validation, and result visualization using partial dependence and interaction plots. Model fitting relies on the ranger' package (Wright and Ziegler 2017 &lt;DOI:10.18637/jss.v077.i01&gt;).">
@@ -69,6 +69,7 @@
 </h1></div>
 <!-- badges: start -->
 
+
 <!-- badges: end -->
 </div>
 <div class="section level1">
@@ -116,7 +117,7 @@
 </h1>
 <p>If you find <code>spatialRF</code> useful, please cite the <code>ranger</code> package as well.</p>
 <p><em>Marvin N. Wright, Andreas Ziegler (2017). ranger: A Fast Implementation of Random Forests for High Dimensional Data in C++ and R. Journal of Statistical Software, 77(1), 1-17. <a href="doi:10.18637/jss.v077.i01" class="uri">doi:10.18637/jss.v077.i01</a></em></p>
-<p><em>Blas M. Benito (2025). spatialRF: Easy Spatial Regression with Random Forest. R package version 1.1.5. doi: 10.5281/zenodo.17992636. url: <a href="https://blasbenito.github.io/spatialRF/" class="uri">https://blasbenito.github.io/spatialRF/</a></em></p>
+<p><em>Blas M. Benito (2025). spatialRF: Easy Spatial Regression with Random Forest. R package version 1.1.5. doi: <a href="https://doi.org/10.5281/zenodo.4745207" class="external-link">10.5281/zenodo.4745207</a>. url: <a href="https://blasbenito.github.io/spatialRF/" class="uri">https://blasbenito.github.io/spatialRF/</a></em></p>
 </div>
 <div class="section level1">
 <h1 id="install">Install<a class="anchor" aria-label="anchor" href="#install"></a>
@@ -191,7 +192,7 @@
 <div class="dev-status">
 <h2 data-toc-skip>Dev status</h2>
 <ul class="list-unstyled">
-<li><a href="https://doi.org/10.5281/zenodo.17992636" class="external-link"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.17992636.svg" alt="DOI"></a></li>
+<li><a href="https://doi.org/10.5281/zenodo.4745207" class="external-link"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.4745207.svg" alt="DOI"></a></li>
 <li><a href="https://cran.r-project.org/package=spatialRF" class="external-link"><img src="https://www.r-pkg.org/badges/version/spatialRF" alt="CRAN status"></a></li>
 <li><a href="https://CRAN.R-project.org/package=spatialRF" class="external-link"><img src="http://cranlogs.r-pkg.org/badges/grand-total/spatialRF" alt="CRAN_Download_Badge"></a></li>
 <li><a href="https://github.com/BlasBenito/spatialRF/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/BlasBenito/spatialRF/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a></li>

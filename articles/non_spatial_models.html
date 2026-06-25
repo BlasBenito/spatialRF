@@ -7,8 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Non-Spatial Random Forest Models • spatialRF</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Non-Spatial Random Forest Models">
 <link rel="stylesheet" href="extra.css">
@@ -189,15 +189,15 @@ and selects the most promising ones via spatial cross-validation (see <a href="h
 <span><span class="co">#&gt;  │ <span style="font-weight: bold;">Interaction     </span> │ <span style="font-weight: bold;">Importance (% of</span> │ <span style="font-weight: bold;">       R-squared</span> │ <span style="font-weight: bold;">    Max cor with</span> │</span></span>
 <span><span class="co">#&gt;  │                  │ <span style="font-weight: bold;">            max)</span> │ <span style="font-weight: bold;">     improvement</span> │ <span style="font-weight: bold;">      predictors</span> │</span></span>
 <span><span class="co">#&gt;  ├──────────────────┼──────────────────┼──────────────────┼──────────────────┤</span></span>
-<span><span class="co">#&gt;  │ human_population │             97.7 │            0.024 │             0.64 │</span></span>
+<span><span class="co">#&gt;  │ human_population │             97.6 │            0.021 │             0.64 │</span></span>
 <span><span class="co">#&gt;  │ ..x..bias_area_k │                  │                  │                  │</span></span>
 <span><span class="co">#&gt;  │ m2               │                  │                  │                  │</span></span>
 <span><span class="co">#&gt;  ├──────────────────┼──────────────────┼──────────────────┼──────────────────┤</span></span>
-<span><span class="co">#&gt;  │ climate_bio1_ave │            100.0 │            0.035 │             0.28 │</span></span>
+<span><span class="co">#&gt;  │ climate_bio1_ave │            100.0 │            0.069 │             0.28 │</span></span>
 <span><span class="co">#&gt;  │ rage..pca..human │                  │                  │                  │</span></span>
 <span><span class="co">#&gt;  │ _population      │                  │                  │                  │</span></span>
 <span><span class="co">#&gt;  ├──────────────────┼──────────────────┼──────────────────┼──────────────────┤</span></span>
-<span><span class="co">#&gt;  │ climate_bio1_ave │             55.7 │            0.013 │             0.74 │</span></span>
+<span><span class="co">#&gt;  │ climate_bio1_ave │             57.7 │            0.018 │             0.74 │</span></span>
 <span><span class="co">#&gt;  │ rage..pca..clima │                  │                  │                  │</span></span>
 <span><span class="co">#&gt;  │ te_hypervolume   │                  │                  │                  │</span></span>
 <span><span class="co">#&gt;  └──────────────────┴──────────────────┴──────────────────┴──────────────────┘</span></span>
@@ -237,8 +237,8 @@ results.</p>
 <tbody>
 <tr class="odd">
 <td align="left">human_population..x..bias_area_km2</td>
-<td align="right">97.650</td>
-<td align="right">0.024</td>
+<td align="right">97.559</td>
+<td align="right">0.021</td>
 <td align="right">0.6373850</td>
 <td align="left">human_population</td>
 <td align="left">bias_area_km2</td>
@@ -247,7 +247,7 @@ results.</p>
 <tr class="even">
 <td align="left">climate_bio1_average..pca..human_population</td>
 <td align="right">100.000</td>
-<td align="right">0.035</td>
+<td align="right">0.069</td>
 <td align="right">0.2800000</td>
 <td align="left">climate_bio1_average</td>
 <td align="left">human_population</td>
@@ -255,8 +255,8 @@ results.</p>
 </tr>
 <tr class="odd">
 <td align="left">climate_bio1_average..pca..climate_hypervolume</td>
-<td align="right">55.680</td>
-<td align="right">0.013</td>
+<td align="right">57.730</td>
+<td align="right">0.018</td>
 <td align="right">0.7400000</td>
 <td align="left">climate_bio1_average</td>
 <td align="left">climate_hypervolume</td>
@@ -264,45 +264,45 @@ results.</p>
 </tr>
 <tr class="even">
 <td align="left">climate_bio1_average..pca..human_population_density</td>
-<td align="right">87.840</td>
-<td align="right">0.031</td>
+<td align="right">89.140</td>
+<td align="right">0.042</td>
 <td align="right">0.3400000</td>
 <td align="left">climate_bio1_average</td>
 <td align="left">human_population_density</td>
 <td align="left">TRUE</td>
 </tr>
 <tr class="odd">
-<td align="left">human_population..pca..climate_hypervolume</td>
-<td align="right">83.170</td>
-<td align="right">-0.022</td>
-<td align="right">0.7200000</td>
-<td align="left">human_population</td>
-<td align="left">climate_hypervolume</td>
-<td align="left">FALSE</td>
-</tr>
-<tr class="even">
 <td align="left">climate_hypervolume..pca..bias_area_km2</td>
-<td align="right">57.850</td>
-<td align="right">-0.004</td>
+<td align="right">67.300</td>
+<td align="right">0.003</td>
 <td align="right">0.7100000</td>
 <td align="left">climate_hypervolume</td>
 <td align="left">bias_area_km2</td>
 <td align="left">FALSE</td>
 </tr>
+<tr class="even">
+<td align="left">human_population..pca..climate_hypervolume</td>
+<td align="right">66.450</td>
+<td align="right">-0.014</td>
+<td align="right">0.7200000</td>
+<td align="left">human_population</td>
+<td align="left">climate_hypervolume</td>
+<td align="left">FALSE</td>
+</tr>
 <tr class="odd">
-<td align="left">climate_hypervolume..x..human_population_density</td>
-<td align="right">55.089</td>
-<td align="right">-0.023</td>
-<td align="right">0.5599486</td>
+<td align="left">climate_hypervolume..pca..human_population_density</td>
+<td align="right">45.340</td>
+<td align="right">-0.015</td>
+<td align="right">0.7200000</td>
 <td align="left">climate_hypervolume</td>
 <td align="left">human_population_density</td>
 <td align="left">FALSE</td>
 </tr>
 <tr class="even">
-<td align="left">climate_hypervolume..pca..human_population_density</td>
-<td align="right">36.010</td>
-<td align="right">-0.035</td>
-<td align="right">0.7200000</td>
+<td align="left">climate_hypervolume..x..human_population_density</td>
+<td align="right">52.681</td>
+<td align="right">-0.015</td>
+<td align="right">0.5599486</td>
 <td align="left">climate_hypervolume</td>
 <td align="left">human_population_density</td>
 <td align="left">FALSE</td>
