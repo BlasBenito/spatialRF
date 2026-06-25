@@ -116,3 +116,4 @@ This README provides a quick introduction to `spatialRF`. For detailed tutorials
 - **[Non-Spatial Random Forest Models](https://blasbenito.github.io/spatialRF/articles/non_spatial_models.html)**: Learn how to fit and interpret standard random forest models using `rf()`. Covers data exploration, variable interactions, model evaluation, importance scores, response curves, spatial cross-validation, and prediction. *Start here if you're new to spatialRF.*
 
 - **[Spatial Random Forest Models](https://blasbenito.github.io/spatialRF/articles/spatial_models.html)**: Discover how to address spatial autocorrelation using `rf_spatial()`. Demonstrates spatial predictor generation with Moran's Eigenvector Maps, optimization, hyperparameter tuning, and model comparison.
+

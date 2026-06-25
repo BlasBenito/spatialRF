@@ -5,11 +5,13 @@
 
 <!-- badges: start -->
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17992636.svg)](https://doi.org/10.5281/zenodo.17992636)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4745207.svg)](https://doi.org/10.5281/zenodo.4745207)
 [![CRAN
 status](https://www.r-pkg.org/badges/version/spatialRF)](https://cran.r-project.org/package=spatialRF)
 [![CRAN_Download_Badge](http://cranlogs.r-pkg.org/badges/grand-total/spatialRF)](https://CRAN.R-project.org/package=spatialRF)
 [![R-CMD-check](https://github.com/BlasBenito/spatialRF/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/BlasBenito/spatialRF/actions/workflows/R-CMD-check.yaml)
+
+<https://doi.org/10.5281/zenodo.4745207>
 
 <!-- badges: end -->
 
@@ -82,7 +84,8 @@ of Random Forests for High Dimensional Data in C++ and R. Journal of
 Statistical Software, 77(1), 1-17. <doi:10.18637/jss.v077.i01>*
 
 *Blas M. Benito (2025). spatialRF: Easy Spatial Regression with Random
-Forest. R package version 1.1.5. doi: 10.5281/zenodo.17992636. url:
+Forest. R package version 1.1.5. doi:
+[10.5281/zenodo.4745207](https://doi.org/10.5281/zenodo.4745207). url:
 <https://blasbenito.github.io/spatialRF/>*
 
 # Install
