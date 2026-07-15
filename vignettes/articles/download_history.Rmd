@@ -11,7 +11,7 @@ if (!requireNamespace("pak", quietly = TRUE)) {
   install.packages("pak")
 }
 library(pak)
-pak::pkg_install(
+pak::pak(
   c(
     "cranlogs",
     "ggplot2"
@@ -26,10 +26,10 @@ library(cranlogs)
 library(ggplot2)
 
 
-# Get download data from the beginning
+# Get download data from release
 download_history <- cranlogs::cran_downloads(
   packages = "spatialRF",
-  from = "2021-01-01",  # Earliest available data
+  from = "2021-01-01",
   to = Sys.Date()
 )
 
